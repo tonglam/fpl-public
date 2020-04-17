@@ -1,6 +1,8 @@
 package com.tong.fpl;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.data.bootstrapStaic.Player;
 import com.tong.fpl.domain.data.userpick.Pick;
@@ -11,6 +13,7 @@ import com.tong.fpl.domain.response.UserPicksRes;
 import com.tong.fpl.service.InterfaceService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -73,5 +76,26 @@ public class DBTest extends FplApplicationTests {
         long startingDef = this.mongoTemplate.count(new Query(Criteria.where("entry").is(3697).and("event").is(29)
                 .and("element_type").is(2).and("positon").lte(11)), EntryLive.class);
         System.out.println(startingDef);
+    }
+
+    @Test
+    public void sort() {
+        List<EntryLive> entryLiveList = this.mongoTemplate.find(new Query(Criteria.where("entry").is(3697).and("event").is(29))
+                .with(Sort.by("position")), EntryLive.class);
+        System.out.println(entryLiveList.size());
+    }
+
+    @Test
+    public void guavaTableTest() {
+        List<EntryLive> entryLiveList = this.mongoTemplate.find(new Query(Criteria.where("entry").is(3697).and("event").is(29))
+                .with(Sort.by("positon")), EntryLive.class);
+        Multimap<Integer, Object> map = HashMultimap.create();
+        for (EntryLive entryLive :
+                entryLiveList) {
+            int position = entryLive.getPosition();
+            map.put(position, entryLive.getElementType());
+            map.put(position, entryLive);
+        }
+        System.out.println(map.toString());
     }
 }

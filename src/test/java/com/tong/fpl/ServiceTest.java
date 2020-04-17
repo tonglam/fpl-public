@@ -92,7 +92,7 @@ public class ServiceTest extends FplApplicationTests {
         for (Pick pick : picks
         ) {
             int element = pick.getElement();
-            Player player = this.mongoTemplate.findOne(new Query(Criteria.where("_id").is(element)), Player.class);
+            Player player = this.mongoTemplate.findOne(new Query(Criteria.where("_id1").is(element)), Player.class);
 
             System.out.println(player.toString());
         }
