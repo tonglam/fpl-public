@@ -1,114 +1,97 @@
 package com.tong.fpl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.tong.fpl.constant.Constant;
-import com.tong.fpl.domain.db.FACup;
-import com.tong.fpl.domain.response.FaCupRes;
-import com.tong.fpl.domain.response.StaticRes;
-import com.tong.fpl.utils.BatchUtils;
-import com.tong.fpl.utils.HttpUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.tong.fpl.db.entity.EntryLiveEntity;
+import com.tong.fpl.mapper.EntryLiveMapper;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Create by tong on 2020/1/19
+ * Create by tong on 2020/4/29
  */
 public class CommonTest extends FplApplicationTests {
 
     @Autowired
-    private MongoTemplate mongoTemplate;
-
-    private List<FACup> insertList = Lists.newArrayList();
+    private EntryLiveMapper entryLiveMapper;
 
     @Test
-    public void http() {
-        try {
-            String result = HttpUtils.httpGet("chrome://settings/cookies/detail?site=fantasy.premierleague.com");
-            System.out.println("result");
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void calcLivePoints() {
+        List<EntryLiveEntity> entryLiveList = this.entryLiveMapper.selectList(new QueryWrapper<EntryLiveEntity>().lambda()
+                .eq(EntryLiveEntity::getEvent, 29).eq(EntryLiveEntity::getEntry, 3697).groupBy(EntryLiveEntity::getPosition));
+        // element_type -> active -> start
+        Map<Integer, Map<Boolean, Map<Boolean, List<EntryLiveEntity>>>> map = entryLiveList.stream()
+                .collect(Collectors.groupingBy(EntryLiveEntity::getElementType,
+                        Collectors.partitioningBy(EntryLiveEntity::isPlayed,
+                                Collectors.partitioningBy(entryLiveEntity -> entryLiveEntity.getPosition() < 12))));
+        // gkp
+        List<EntryLiveEntity> gkps = this.createSteam(map.get(1).get(true).get(true), map.get(1).get(true).get(false), map.get(1).get(false).get(true))
+                .flatMap(Collection::stream)
+                .limit(1)
+                .collect(Collectors.toList());
+        // active def
+        List<EntryLiveEntity> defs = this.createSteam(map.get(2).get(true).get(true), map.get(2).get(true).get(false))
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(EntryLiveEntity::getPosition))
+                .collect(Collectors.toList());
+        // def rule, at least 3
+        if (defs.size() < 3) {
+            defs = this.createSteam(defs, map.get(2).get(false).get(true))
+                    .flatMap(Collection::stream)
+                    .limit(3)
+                    .sorted(Comparator.comparing(EntryLiveEntity::getPosition))
+                    .collect(Collectors.toList());
         }
+        // active fwd
+        List<EntryLiveEntity> fwds = this.createSteam(map.get(4).get(true).get(true), map.get(4).get(true).get(false))
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(EntryLiveEntity::getPosition))
+                .collect(Collectors.toList());
+        // fwd rule, at least 1
+        if (fwds.size() < 1) {
+            fwds.add(map.get(4).get(false).get(true).get(0));
+        }
+        //mid
+        int maxMidNum = 11 - gkps.size() - defs.size() - fwds.size();
+        List<EntryLiveEntity> mids = this.createSteam(map.get(3).get(true).get(true), map.get(3).get(true).get(false))
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(EntryLiveEntity::getPosition))
+                .limit(maxMidNum)
+                .collect(Collectors.toList());
+        // active_list
+        List<EntryLiveEntity> activeList = this.createSteam(gkps, defs, fwds, mids)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        List<EntryLiveEntity> standByList = this.createSteam(map.get(2).get(false).get(true), map.get(3).get(false).get(true), map.get(4).get(false).get(true))
+                .flatMap(Collection::stream)
+                .filter(o -> !activeList.contains(o))
+                .sorted(Comparator.comparing(EntryLiveEntity::getPosition))
+                .limit(11 - activeList.size())
+                .collect(Collectors.toList());
+        List<EntryLiveEntity> list = this.createSteam(activeList, standByList)
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(EntryLiveEntity::getElementType).thenComparing(EntryLiveEntity::getPosition))
+                .collect(Collectors.toList());
+        list.forEach(o -> System.out.println(o.getPosition()));
+        int point = list.stream()
+                .peek(o -> {
+                    if (o.isCaptain()) {
+                        o.setPoint(2 * o.getPoint());
+                    }
+                })
+                .mapToInt(EntryLiveEntity::getPoint)
+                .sum();
+        System.out.println(point);
     }
 
-    @Test
-    public void json() {
-        try {
-            String result = HttpUtils.httpGet("https://fantasy.premierleague.com/api/bootstrap-static/");
-            if (StringUtils.isEmpty(result)) {
-                return;
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            StaticRes staticRes = mapper.readValue(result, StaticRes.class);
-            System.out.println("result");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void login() {
-        try {
-            HttpUtils.httpLogin("bluedragon00000@sina.com", "9111130609fpl");
-            String result = HttpUtils.httpGet("https://fantasy.premierleague.com/api/entry/378912/");
-            System.out.println(result);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void fa() throws JsonProcessingException {
-        String fileName = "E:\\home\\data.json";
-        // 打开文件
-        File file = new File(fileName);
-        if (!file.exists()) {
-            throw new RuntimeException("input file does not exists : " + fileName);
-        }
-        List<String> log = Lists.newArrayList();
-        // 获取日志内容
-        try {
-            log = Files.readLines(file, Charsets.UTF_8);
-        } catch (IOException e) {
-        }
-        for (String line :
-                log) {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            FaCupRes faCup = mapper.readValue(line, FaCupRes.class);
-            FACup faCupTable1 = new FACup();
-            faCupTable1.setEntry(faCup.getEntryIds().get(0));
-            faCupTable1.setGroup_id(faCup.getId());
-            faCupTable1.setTeam_name(faCup.getEntryNames().get(0));
-            faCupTable1.setPlayer_name(faCup.getPlayerNames().get(0));
-            faCupTable1.setRound_1_event(29);
-            insertList.add(faCupTable1);
-            FACup faCupTable2 = new FACup();
-            faCupTable2.setEntry(faCup.getEntryIds().get(1));
-            faCupTable2.setGroup_id(faCup.getId());
-            faCupTable2.setTeam_name(faCup.getEntryNames().get(1));
-            faCupTable2.setPlayer_name(faCup.getPlayerNames().get(1));
-            faCupTable2.setRound_1_event(29);
-            insertList.add(faCupTable2);
-        }
-        List<List<?>> eventsAll = BatchUtils.batchList(insertList, Constant.BATCH_COUNT);
-        for (List list : eventsAll
-        ) {
-            BatchUtils.batchInsetMongo(list, "FA_cup");
-        }
-
+    @SafeVarargs
+    private final <T> Stream<T> createSteam(T... values) {
+        Stream.Builder<T> builder = Stream.builder();
+        Arrays.asList(values).forEach(builder::add);
+        return builder.build();
     }
 
 }

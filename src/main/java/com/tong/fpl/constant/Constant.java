@@ -4,7 +4,6 @@ package com.tong.fpl.constant;
  * Create by tong on 2020/1/19
  */
 public class Constant {
-    public static final int BATCH_COUNT = 10000;
     //for test
     public static final String PL_PROFILE = "eyJzIjogIld6SXNNalF5TURrMk16QmQ6MWpCWjJuOnAxMzFnOUNwalJBOEo3ajVPV1JxODNaaExDYyIsICJ1IjogeyJpZCI6IDI0MjA5NjMwLCAiZm4iOiAidG9uZyIsICJsbiI6ICJsYW0iLCAiZmMiOiA0M319";
     // url
@@ -21,4 +20,13 @@ public class Constant {
     public static final String FH = "freehit";
     public static final String WC = "wildcard";
     public static final String TC = "3xc";
+    // position
+    public static final int TYPE_GKP = 1;
+    public static final int TYPE_DEF = 2;
+    public static final int TYPE_MID = 3;
+    public static final int TYPE_FWD = 4;
+    public static final int MIN_NUM_GKP = 1;
+    public static final int MIN_NUM_DEF = 3;
+    public static final int MIN_NUM_FWD = 1;
+    public static final int MIN_PLAYERS = 11;
 }

@@ -21,10 +21,7 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.rmi.server.ExportException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Create by tong on 2018/2/8
@@ -34,7 +31,7 @@ public class HttpUtils {
     private static CookieStore cookieStore = new BasicCookieStore();
     private static List<Cookie> cookieList = Lists.newArrayList();
 
-    public static String httpGet(String url) throws IOException {
+    public static Optional<String> httpGet(String url) throws IOException {
         long startTime = System.currentTimeMillis();
         CloseableHttpClient httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
         HttpGet httpGet = new HttpGet(url);
@@ -45,7 +42,7 @@ public class HttpUtils {
                 String result = EntityUtils.toString(response.getEntity(), "UTF-8");
                 InterfaceLog.info("url:{" + url + "}, args:{null}, " +
                         "response:{" + result + "}, elapsed time:{" + (System.currentTimeMillis() - startTime) + "}");
-                return result;
+                return Optional.of(result);
             }
         } catch (Exception e) {
             throw new ExportException(e.getMessage());
@@ -55,11 +52,10 @@ public class HttpUtils {
             }
             httpclient.close();
         }
-        return null;
+        return Optional.empty();
     }
 
-    public static String httpGetWithHeader(String url, String profile) throws IOException {
-        long startTime = System.currentTimeMillis();
+    public static Optional<String> httpGetWithHeader(String url, String profile) throws IOException {
         CloseableHttpClient httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("PL_PROFILE", profile);
@@ -68,9 +64,7 @@ public class HttpUtils {
             response = httpclient.execute(httpGet);
             if (response.getStatusLine().getStatusCode() == 200) {
                 String result = EntityUtils.toString(response.getEntity(), "UTF-8");
-//                InterfaceLog.info("url:{" + url + "}, args:{null}, " +
-//                        "response:{" + result + "}, elapsed time:{" + (System.currentTimeMillis() - startTime) + "}");
-                return result;
+                return Optional.of(result);
             }
         } catch (Exception e) {
             throw new ExportException(e.getMessage());
@@ -80,7 +74,7 @@ public class HttpUtils {
             }
             httpclient.close();
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -91,7 +85,7 @@ public class HttpUtils {
      * @return 返回信息
      * @throws IOException IO异常
      */
-    public static String httpGetWithParams(Map<String, String> map, String url) throws IOException {
+    public static Optional<String> httpGetWithParams(Map<String, String> map, String url) throws IOException {
         long startTime = System.currentTimeMillis();
         url = attachHttpGetParams(map, url);
         CloseableHttpClient httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
@@ -103,6 +97,7 @@ public class HttpUtils {
                 String result = EntityUtils.toString(response.getEntity(), "UTF-8");
                 InterfaceLog.info("url:{" + url + "}, args:" + map.toString() +
                         ", response:" + result + ", elapsed time:{" + (System.currentTimeMillis() - startTime) + "}");
+                return Optional.of(result);
             }
         } catch (Exception e) {
             throw new ExportException(e.getMessage());
@@ -112,7 +107,7 @@ public class HttpUtils {
             }
             httpclient.close();
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -123,7 +118,7 @@ public class HttpUtils {
      * @return 返回结果
      * @throws IOException IO异常
      */
-    public static String httpPost(Map<String, String> map, String url) throws IOException {
+    public static Optional<String> httpPost(Map<String, String> map, String url) throws IOException {
         long startTime = System.currentTimeMillis();
         HttpClientContext httpClientContext = HttpClientContext.create();
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -144,7 +139,7 @@ public class HttpUtils {
                 String result = EntityUtils.toString(response.getEntity(), "UTF-8");
                 InterfaceLog.info("url:{" + url + "}, args:" + map.toString() +
                         ", response:" + result + ", elapsed time:{" + (System.currentTimeMillis() - startTime) + "}");
-                return result;
+                return Optional.of(result);
             }
         } catch (Exception e) {
             throw new ExportException(e.getMessage());
@@ -154,7 +149,7 @@ public class HttpUtils {
             }
             httpclient.close();
         }
-        return null;
+        return Optional.empty();
     }
 
     public static void httpLogin(String username, String password) throws IOException {

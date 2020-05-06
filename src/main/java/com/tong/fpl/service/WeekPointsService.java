@@ -2,21 +2,22 @@ package com.tong.fpl.service;
 
 import com.google.common.collect.Lists;
 import com.tong.fpl.constant.Constant;
-import com.tong.fpl.domain.data.GwEntry;
-import com.tong.fpl.domain.data.entry.Standings;
-import com.tong.fpl.domain.data.leaguesClassic.ClassicResult;
-import com.tong.fpl.domain.response.LeagueClassicRes;
-import com.tong.fpl.domain.response.UserPicksRes;
+import com.tong.fpl.data.GwEntry;
+import com.tong.fpl.data.entry.Standings;
+import com.tong.fpl.data.response.LeagueClassicRes;
+import com.tong.fpl.data.response.UserPicksRes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Create by tong on 2020/3/10
  */
-@Service
 @Slf4j
+@Service
 public class WeekPointsService {
 
     private final InterfaceService interfaceService;
@@ -26,23 +27,20 @@ public class WeekPointsService {
     }
 
     public List<GwEntry> calcWeekPoints(int classicId, int event) {
-        List<GwEntry> list = this.getClassicPoints(event, classicId);
-        for (GwEntry gwEntry : list
-        ) {
-            this.setPicksInfo(gwEntry, event);
-        }
-        return list;
+        List<GwEntry> classcList = this.getClassicPoints(event, classicId);
+        return classcList.stream()
+                .peek(o -> this.setPicksInfo(o, event))
+                .collect(Collectors.toList());
     }
 
     private void setPicksInfo(GwEntry gwEntry, int event) {
-        UserPicksRes userPicksRes = this.interfaceService.getUserPicks(gwEntry.getEntry(), event, Constant.PL_PROFILE);
-        if (userPicksRes == null) {
-            return;
-        }
-        gwEntry.setActiveChips(userPicksRes.getActiveChip());
-        gwEntry.setEventCost(userPicksRes.getEntryHistory().getEventTransfersCost());
-        gwEntry.setNetPoint(gwEntry.getGwPoint() - gwEntry.getEventCost());
-        gwEntry.setOverallRank(userPicksRes.getEntryHistory().getOverallRank());
+        Optional<UserPicksRes> userPicksRes = this.interfaceService.getUserPicks(gwEntry.getEntry(), event, Constant.PL_PROFILE);
+        userPicksRes.ifPresent(o -> {
+            gwEntry.setActiveChips(userPicksRes.get().getActiveChip());
+            gwEntry.setEventCost(userPicksRes.get().getEntryHistory().getEventTransfersCost());
+            gwEntry.setNetPoint(gwEntry.getGwPoint() - gwEntry.getEventCost());
+            gwEntry.setOverallRank(userPicksRes.get().getEntryHistory().getOverallRank());
+        });
     }
 
     private List<GwEntry> getClassicPoints(int event, int classicId) {
@@ -52,12 +50,12 @@ public class WeekPointsService {
     }
 
     private void setOnePageClassic(List<GwEntry> list, int event, int classicId, int page) {
-        LeagueClassicRes leagueClassicRes = this.interfaceService.getLeaguesClassic(classicId, Constant.PL_PROFILE, page);
-        if (leagueClassicRes == null) {
+        Optional<LeagueClassicRes> leagueClassicRes = this.interfaceService.getLeaguesClassic(classicId, Constant.PL_PROFILE, page);
+        if (!leagueClassicRes.isPresent()) {
             return;
         }
-        Standings standings = leagueClassicRes.getStandings();
-        for (ClassicResult result : standings.getResults()) {
+        Standings standings = leagueClassicRes.get().getStandings();
+        standings.getResults().forEach(result -> {
             GwEntry gwEntry = new GwEntry();
             gwEntry.setEvent(event);
             gwEntry.setEntry(result.getEntry());
@@ -66,7 +64,7 @@ public class WeekPointsService {
             gwEntry.setGwPoint(result.getEventTotal());
             gwEntry.setTotalPoints(result.getTotal());
             list.add(gwEntry);
-        }
+        });
         if (standings.isHasNext()) {
             page++;
             setOnePageClassic(list, event, classicId, page);

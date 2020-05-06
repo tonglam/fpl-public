@@ -1,22 +1,19 @@
 package com.tong.fpl;
 
 import com.tong.fpl.constant.Constant;
-import com.tong.fpl.domain.data.GwEntry;
-import com.tong.fpl.domain.data.bootstrapStaic.Player;
-import com.tong.fpl.domain.data.userpick.Pick;
-import com.tong.fpl.domain.response.LeagueClassicRes;
-import com.tong.fpl.domain.response.UserPicksRes;
-import com.tong.fpl.service.FAservice;
+import com.tong.fpl.data.GwEntry;
+import com.tong.fpl.data.response.LeagueClassicRes;
+import com.tong.fpl.db.entity.EntryLiveEntity;
+import com.tong.fpl.service.CalcLivePointsService;
 import com.tong.fpl.service.InterfaceService;
 import com.tong.fpl.service.StaticService;
 import com.tong.fpl.service.WeekPointsService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Create by tong on 2020/1/20
@@ -33,34 +30,26 @@ public class ServiceTest extends FplApplicationTests {
     private WeekPointsService weekPointsService;
 
     @Autowired
-    private FAservice fAservice;
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
-
-    @Test
-    public void insertSettings() {
-        this.staticService.insertSettingsService();
-    }
+    private CalcLivePointsService calcLivePointsService;
 
     @Test
     public void insertEvents() {
-        this.staticService.insertEventsService();
+        this.staticService.insertEvent();
     }
 
     @Test
     public void insertTeams() {
-        this.staticService.insertTeamsService();
+        this.staticService.insertTeam();
     }
 
     @Test
     public void insertPlayers() {
-        this.staticService.insertPlayersService();
+        this.staticService.insertPlayers();
     }
 
     @Test
     public void insertGwLive() {
-        this.staticService.insertEventLiveService(29, Constant.PL_PROFILE);
+        this.staticService.insertEventLive(29, Constant.PL_PROFILE);
     }
 
     @Test
@@ -70,7 +59,7 @@ public class ServiceTest extends FplApplicationTests {
 
     @Test
     public void classic() {
-        LeagueClassicRes leagueClassic = this.interfaceService.getLeaguesClassic(710, Constant.PL_PROFILE, 1);
+        Optional<LeagueClassicRes> leagueClassic = this.interfaceService.getLeaguesClassic(710, Constant.PL_PROFILE, 1);
         System.out.println("done!");
     }
 
@@ -81,22 +70,9 @@ public class ServiceTest extends FplApplicationTests {
     }
 
     @Test
-    public void calcRound1() throws Exception {
-        this.fAservice.calcPoint(710, 31);
+    public void calcPoints() {
+        Map<List<EntryLiveEntity>, Integer> resultMap = this.calcLivePointsService.calcLivePointsService(3697, 29, Constant.PL_PROFILE);
+        System.out.println(resultMap.toString());
     }
 
-    @Test
-    public void picks() {
-        UserPicksRes userPicksRes = this.interfaceService.getUserPicks(3697, 31, Constant.PL_PROFILE);
-        List<Pick> picks = userPicksRes.getPicks();
-        for (Pick pick : picks
-        ) {
-            int element = pick.getElement();
-            Player player = this.mongoTemplate.findOne(new Query(Criteria.where("_id1").is(element)), Player.class);
-
-            System.out.println(player.toString());
-        }
-
-        System.out.println("done");
-    }
 }
