@@ -14,19 +14,4 @@ public class Constant {
     public static final String USER_PICKS = PREFIX + "entry/%s/event/%s/picks/";
     public static final String LEAGUES_CLASSIC = PREFIX + "leagues-classic/%s/standings/?page_standings=%s";
     public static final String EVENT_LIVE = PREFIX + "event/%s/live/";
-    // chips
-    public static final String NONE = "n/a";
-    public static final String BB = "bboost";
-    public static final String FH = "freehit";
-    public static final String WC = "wildcard";
-    public static final String TC = "3xc";
-    // position
-    public static final int TYPE_GKP = 1;
-    public static final int TYPE_DEF = 2;
-    public static final int TYPE_MID = 3;
-    public static final int TYPE_FWD = 4;
-    public static final int MIN_NUM_GKP = 1;
-    public static final int MIN_NUM_DEF = 3;
-    public static final int MIN_NUM_FWD = 1;
-    public static final int MIN_PLAYERS = 11;
 }
