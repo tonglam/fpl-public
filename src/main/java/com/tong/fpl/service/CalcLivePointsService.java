@@ -199,37 +199,4 @@ public class CalcLivePointsService {
 		return builder.build();
 	}
 
-	private int calcNormalPoints(List<EntryLiveEntity> activePicks) {
-		return activePicks.stream().filter(o -> !o.isCaptain()).mapToInt(EntryLiveEntity::getPoint).sum()
-				+ activePicks.stream().filter(EntryLiveEntity::isCaptain).mapToInt(o -> 2 * o.getPoint()).sum();
-	}
-
-	private int calcTcPoints(List<EntryLiveEntity> activePicks) {
-		// captain triple points
-		int point = 0;
-		for (EntryLiveEntity entryLive :
-				activePicks) {
-			if (entryLive.isCaptain()) {
-				point += (entryLive.getPoint()) * 3;
-			} else {
-				point += entryLive.getPoint();
-			}
-		}
-		return point;
-	}
-
-	private int calcBBPoints(List<EntryLiveEntity> activePicks) {
-		// count all picks
-		int point = 0;
-		for (EntryLiveEntity entryLive :
-				activePicks) {
-			if (entryLive.isCaptain()) {
-				point += (entryLive.getPoint()) * 2;
-			} else {
-				point += entryLive.getPoint();
-			}
-		}
-		return point;
-	}
-
 }
