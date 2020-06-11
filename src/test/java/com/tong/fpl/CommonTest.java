@@ -4,7 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.tong.fpl.db.entity.EntryLiveEntity;
 import com.tong.fpl.mapper.EntryLiveMapper;
-import org.junit.Test;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
@@ -110,5 +111,13 @@ public class CommonTest extends FplApplicationTests {
 		}
 		System.out.println("1");
 	}
+
+	@Test
+	public void test() {
+		String a = "https://fantasy.premierleague.com/api/leagues-classic/710/standings/c";
+		String b = StringUtils.removeEnd(a, "/c").concat("?page_standings=1");
+		System.out.println(b);
+	}
+
 
 }

@@ -8,7 +8,7 @@ import com.tong.fpl.service.CalcLivePointsService;
 import com.tong.fpl.service.InterfaceService;
 import com.tong.fpl.service.StaticService;
 import com.tong.fpl.service.WeekPointsService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;

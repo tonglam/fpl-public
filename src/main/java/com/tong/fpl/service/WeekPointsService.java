@@ -6,7 +6,9 @@ import com.tong.fpl.data.GwEntry;
 import com.tong.fpl.data.entry.Standings;
 import com.tong.fpl.data.response.LeagueClassicRes;
 import com.tong.fpl.data.response.UserPicksRes;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,13 +20,10 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class WeekPointsService {
 
     private final InterfaceService interfaceService;
-
-    public WeekPointsService(InterfaceService interfaceService) {
-        this.interfaceService = interfaceService;
-    }
 
     public List<GwEntry> calcWeekPoints(int classicId, int event) {
         List<GwEntry> classcList = this.getClassicPoints(event, classicId);

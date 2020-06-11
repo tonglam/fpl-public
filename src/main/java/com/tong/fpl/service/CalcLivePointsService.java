@@ -9,8 +9,8 @@ import com.tong.fpl.constant.PositionRuleEnum;
 import com.tong.fpl.data.response.UserPicksRes;
 import com.tong.fpl.db.entity.EntryLiveEntity;
 import com.tong.fpl.db.entity.EventLiveEntity;
-import com.tong.fpl.mapper.EntryLiveMapper;
-import com.tong.fpl.mapper.EventLiveMapper;
+import com.tong.fpl.service.db.EntryLiveService;
+import com.tong.fpl.service.db.EventLiveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,8 +42,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CalcLivePointsService {
 
-	private final EntryLiveMapper entryLiveMapper;
-	private final EventLiveMapper eventLiveMapper;
+	private final EntryLiveService entryLiveService;
+	private final EventLiveService eventLiveService;
 	private final InterfaceService interfaceService;
 	private final StaticService staticService;
 
@@ -57,7 +57,7 @@ public class CalcLivePointsService {
 		userPicksRes.ifPresent(o -> {
 			this.insertEntryLive(entry, event, userPicksRes.get());
 			// initialize entry_live
-			List<EntryLiveEntity> entryLiveList = this.entryLiveMapper.selectList(new QueryWrapper<EntryLiveEntity>().lambda()
+			List<EntryLiveEntity> entryLiveList = this.entryLiveService.list(new QueryWrapper<EntryLiveEntity>().lambda()
 					.eq(EntryLiveEntity::getEvent, event).eq(EntryLiveEntity::getEntry, entry));
 			// find chip
 			String chip = StringUtils.isNotEmpty(userPicksRes.get().getActiveChip()) ? userPicksRes.get().getActiveChip() : ChipEnum.NONE.getValue();
@@ -71,7 +71,7 @@ public class CalcLivePointsService {
 		Map<Integer, EntryLiveEntity> map = Maps.newHashMap();
 		List<EntryLiveEntity> captainList = Lists.newArrayList();
 		userPicksRes.getPicks().forEach(pick -> {
-			EventLiveEntity eventLive = this.eventLiveMapper.selectOne(new QueryWrapper<EventLiveEntity>().lambda()
+			EventLiveEntity eventLive = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
 					.eq(EventLiveEntity::getElement, pick.getElement()));
 			if (eventLive == null) {
 				return;
@@ -96,8 +96,8 @@ public class CalcLivePointsService {
 		this.setEntryLiveCapain(captainList, map);
 		List<EntryLiveEntity> list = Lists.newArrayList();
 		list.addAll(map.values());
-		this.entryLiveMapper.truncateTable();
-		this.entryLiveMapper.batchInsert(list);
+		this.entryLiveService.getBaseMapper().truncateTable();
+		this.entryLiveService.saveBatch(list);
 		log.info("insert entry_live size is " + list.size() + "!");
 	}
 

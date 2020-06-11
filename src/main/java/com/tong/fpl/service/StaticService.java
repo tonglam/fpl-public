@@ -2,7 +2,6 @@ package com.tong.fpl.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.data.bootstrapStaic.Event;
@@ -16,10 +15,10 @@ import com.tong.fpl.db.entity.EventEntity;
 import com.tong.fpl.db.entity.EventLiveEntity;
 import com.tong.fpl.db.entity.PlayerEntity;
 import com.tong.fpl.db.entity.TeamEntity;
-import com.tong.fpl.mapper.EventLiveMapper;
-import com.tong.fpl.mapper.EventMapper;
-import com.tong.fpl.mapper.PlayerMapper;
-import com.tong.fpl.mapper.TeamMapper;
+import com.tong.fpl.service.db.EventLiveService;
+import com.tong.fpl.service.db.EventService;
+import com.tong.fpl.service.db.PlayerService;
+import com.tong.fpl.service.db.TeamService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +36,10 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StaticService {
 
-    private final EventMapper eventMapper;
-    private final TeamMapper teamMapper;
-    private final PlayerMapper playerMapper;
-    private final EventLiveMapper eventLiveMapper;
+	private final EventService eventService;
+	private final TeamService teamService;
+	private final PlayerService playerService;
+	private final EventLiveService eventLiveService;
     private final InterfaceService interfaceService;
 
     public void insertEvent() {
@@ -53,8 +52,8 @@ public class StaticService {
                 BeanUtil.copyProperties(bootstrapEvent, event);
                 eventList.add(event);
             });
-            this.eventMapper.truncateTable();
-            this.eventMapper.batchInsert(eventList);
+	        this.eventService.getBaseMapper().truncateTable();
+	        this.eventService.saveBatch(eventList);
             log.info("insert event size is " + eventList.size() + "!");
         });
     }
@@ -69,8 +68,8 @@ public class StaticService {
                 BeanUtil.copyProperties(bootstrapTeam, team);
                 teamList.add(team);
             });
-            this.teamMapper.truncateTable();
-            this.teamMapper.batchInsert(teamList);
+	        this.teamService.getBaseMapper().truncateTable();
+	        this.teamService.saveBatch(teamList);
             log.info("insert team size is " + teamList.size() + "!");
         });
     }
@@ -85,8 +84,8 @@ public class StaticService {
                 BeanUtil.copyProperties(bootstrapPlayer, player, CopyOptions.create().ignoreNullValue());
                 playerList.add(player);
             });
-            this.playerMapper.truncateTable();
-            this.playerMapper.batchInsert(playerList);
+	        this.playerService.getBaseMapper().truncateTable();
+	        this.playerService.saveBatch(playerList);
             log.info("insert player size is " + playerList.size() + "!");
         });
     }
@@ -94,7 +93,7 @@ public class StaticService {
 
     public void insertEventLive(int event, String profile) {
         Map<Integer, Integer> playerTypeMap = Maps.newHashMap();
-        List<PlayerEntity> playerEntities = new LambdaQueryChainWrapper<>(playerMapper).select().list();
+	    List<PlayerEntity> playerEntities = this.playerService.list();
         playerEntities.forEach(obj -> playerTypeMap.put(obj.getId(), obj.getElementType()));
         List<EventLiveEntity> eventLiveList = Lists.newArrayList();
         Optional<EventLiveRes> eventLiveRes = this.interfaceService.getEventLive(event, profile);
@@ -111,8 +110,8 @@ public class StaticService {
                 eventLive.setEvent(event);
                 eventLiveList.add(eventLive);
             });
-            this.eventLiveMapper.truncateTable();
-            this.eventLiveMapper.batchInsert(eventLiveList);
+	        this.eventLiveService.getBaseMapper().truncateTable();
+	        this.eventLiveService.saveBatch(eventLiveList);
             log.info("insert event_live size is " + eventLiveList.size() + "!");
         });
     }
