@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @TableName(value = "cup_group")
 public class CupGroupEntity {
 
-	@TableId
+	@TableId(type = IdType.AUTO)
 	private int cupId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private int groupId;

@@ -1,9 +1,6 @@
 package com.tong.fpl.db.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -14,7 +11,7 @@ import java.util.Date;
 @TableName(value = "event")
 public class EventEntity {
 
-    @TableId
+	@TableId(type = IdType.INPUT)
     private Integer id;
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
     private String name;

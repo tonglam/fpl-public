@@ -49,7 +49,7 @@ public class ServiceTest extends FplApplicationTests {
 
     @Test
     public void insertGwLive() {
-        this.staticService.insertEventLive(29, Constant.PL_PROFILE);
+        this.staticService.insertEventLive(39, Constant.PL_PROFILE);
     }
 
     @Test
@@ -65,13 +65,13 @@ public class ServiceTest extends FplApplicationTests {
 
     @Test
     public void weekPoint() {
-        List<GwEntry> list = this.weekPointsService.calcWeekPoints(710, 31);
+        List<GwEntry> list = this.weekPointsService.calcWeekPoints(710, 39);
         System.out.println(list.toString());
     }
 
     @Test
     public void calcPoints() {
-        Map<List<EntryLiveEntity>, Integer> resultMap = this.calcLivePointsService.calcLivePointsService(3697, 29, Constant.PL_PROFILE);
+        Map<List<EntryLiveEntity>, Integer> resultMap = this.calcLivePointsService.calcLivePointsService(3697, 39, Constant.PL_PROFILE);
         System.out.println(resultMap.toString());
     }
 

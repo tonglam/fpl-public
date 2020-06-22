@@ -5,7 +5,7 @@ package com.tong.fpl.constant;
  */
 public class Constant {
     //for test
-    public static final String PL_PROFILE = "eyJzIjogIld6SXNNalF5TURrMk16QmQ6MWpCWjJuOnAxMzFnOUNwalJBOEo3ajVPV1JxODNaaExDYyIsICJ1IjogeyJpZCI6IDI0MjA5NjMwLCAiZm4iOiAidG9uZyIsICJsbiI6ICJsYW0iLCAiZmMiOiA0M319";
+    public static final String PL_PROFILE = "eyJzIjogIld6SXNNalF5TURrMk16QmQ6MWpCWjJuOnAxMzFnOUNwalJBOEo3ajVPV1JxODNaaExDYyIsICJ1IjogeyJpZCI6IDI0MjA5NjMwLCAiZm4iOiAidG9uZyIsICJsbiI6ICJsYW0iLCAiZmMiOiA0M319; csrftoken=9gATByOWrJvkeYanfbC78qoevrq133ZUjjS2UV03nns8zjxnBblrKUrnW7W7veca";
     // url
     public static final String LOGIN = "https://users.premierleague.com/accounts/login/";
     private static final String PREFIX = "https://fantasy.premierleague.com/api/";

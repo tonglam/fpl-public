@@ -1,5 +1,6 @@
 package com.tong.fpl.db.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -10,7 +11,7 @@ import lombok.experimental.Accessors;
 @TableName(value = "team")
 public class TeamEntity {
 
-    @TableId
+	@TableId(type = IdType.INPUT)
     private Integer id;
     private Integer code;
     private Integer draw;

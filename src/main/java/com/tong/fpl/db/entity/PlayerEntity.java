@@ -1,9 +1,6 @@
 package com.tong.fpl.db.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -12,7 +9,7 @@ import lombok.experimental.Accessors;
 @TableName(value = "player", autoResultMap = true)
 public class PlayerEntity {
 
-    @TableId
+    @TableId(type = IdType.INPUT)
     private Integer id;
     private Integer code;
     private Integer chanceOfPlayingNextRound;
