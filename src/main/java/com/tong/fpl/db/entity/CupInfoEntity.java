@@ -7,23 +7,28 @@ import lombok.experimental.Accessors;
 import java.util.Date;
 
 /**
- * Create by tong on 2020/6/11
+ * Create by tong on 2020/6/23
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "cup_knockout")
-public class CupKnockoutEntity {
+@TableName(value = "cup_info")
+public class CupInfoEntity {
 
 	@TableId
 	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer cupId;
-	private Integer homeEntry;
-	private Integer awayEntry;
-	private Integer nextKnockoutId;
+	private String name;
+	private String creator;
+	private String leagueType;
+	private String leagueId;
+	private Integer startGw;
+	private Integer endGw;
+	private Integer teamPerGroup;
+	private Integer totalTeam;
+	private Integer groupNum;
+	private Integer qualifiers;
+	private boolean fillAverage;
 	@TableField(fill = FieldFill.INSERT)
 	private Date createTime;
-	@TableField(fill = FieldFill.UPDATE)
-	private Date updateTIme;
 
 }

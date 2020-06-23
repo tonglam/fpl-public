@@ -1,10 +1,11 @@
 package com.tong.fpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.tong.fpl.db.entity.EntryLiveEntity;
 import com.tong.fpl.mapper.EntryLiveMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -114,9 +115,16 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	public void test() {
-		String a = "https://fantasy.premierleague.com/api/leagues-classic/710/standings/c";
-		String b = StringUtils.removeEnd(a, "/c").concat("?page_standings=1");
-		System.out.println(b);
+		Multimap<Integer, Integer> teamInGroup = ArrayListMultimap.create();
+		teamInGroup.put(1, 1);
+		teamInGroup.put(1, 2);
+		teamInGroup.put(1, 3);
+		teamInGroup.put(1, 4);
+		teamInGroup.put(1, 5);
+		teamInGroup.put(1, 6);
+//		teamInGroup.put(1, 7);
+		boolean a = teamInGroup.get(1).stream().parallel().allMatch(o -> o > 0);
+		System.out.println(a);
 	}
 
 

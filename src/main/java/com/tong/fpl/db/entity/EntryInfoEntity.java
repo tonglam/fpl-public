@@ -1,9 +1,6 @@
 package com.tong.fpl.db.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -17,13 +14,20 @@ import java.util.Date;
 @TableName("entry_info")
 public class EntryInfoEntity {
 
-	@TableId
-	private int entry;
+	@TableId(type = IdType.INPUT)
+	private Integer id;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer cupId;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer entry;
 	private String entryName;
 	private String playerName;
-	private int rank;
-	private int lastRank;
+	@TableField(value = "`rank`")
+	private Integer rank;
+	private Integer lastRank;
+	@TableField(fill = FieldFill.INSERT)
+	private Date createTime;
 	@TableField(fill = FieldFill.UPDATE)
-	private Date updatTime;
+	private Date updateTime;
 
 }

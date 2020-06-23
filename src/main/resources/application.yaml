@@ -11,7 +11,7 @@ spring:
   mvc:
     static-path-pattern: /static/**
   datasource:
-    url: jdbc:mysql://rm-8vb0q5u3t79l9t6bzoo.mysql.zhangbei.rds.aliyuncs.com:3306/fpl?useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=true&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+    url: jdbc:mysql://rm-8vb0q5u3t79l9t6bzoo.mysql.zhangbei.rds.aliyuncs.com:3306/fpl?&autoReconnect=true&rewriteBatchedStatements=true&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
     username: tong
     password: Tonglam14
     hikari:

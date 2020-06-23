@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ChipEnum {
-	NONE("n/a"), FH("bboost"), WC("freehit"), BB("wildcard"), TC("3xc");
+	NONE("n/a"), BB("bboost"), FH("freehit"), WC("wildcard"), TC("3xc");
 
 	private String value;
 }

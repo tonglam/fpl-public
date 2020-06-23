@@ -2,24 +2,24 @@ package com.tong.fpl.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * Create by tong on 2020/4/27
  */
-@Configuration
+@Component
 public class MetaObjectHandlerConfig implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-	    this.strictInsertFill(metaObject, "create_time", LocalDateTime.class, LocalDateTime.now());
+	    this.setFieldValByName("create_time", new Date(), metaObject);
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
-	    this.strictUpdateFill(metaObject, "update_time", LocalDateTime.class, LocalDateTime.now());
+	    this.setFieldValByName("update_time", new Date(), metaObject);
     }
 
 }
