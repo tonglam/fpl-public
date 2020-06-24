@@ -11,16 +11,19 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "cup_knockout")
-public class CupKnockoutEntity {
+@TableName(value = "tournament_knockout")
+public class TournamentKnockoutEntity {
 
 	@TableId
 	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer cupId;
+	private Integer tournamentId;
 	private Integer homeEntry;
 	private Integer awayEntry;
-	private Integer nextKnockoutId;
+	private Integer knockoutRound;
+	private Integer matchId;
+	private Integer nextMatchId;
+	private Integer roundWinner;
 	@TableField(fill = FieldFill.INSERT)
 	private Date createTime;
 	@TableField(fill = FieldFill.UPDATE)

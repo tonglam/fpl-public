@@ -11,8 +11,8 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "cup_info")
-public class CupInfoEntity {
+@TableName(value = "tournament_info")
+public class TournamentInfoEntity {
 
 	@TableId
 	private Integer id;
@@ -27,7 +27,10 @@ public class CupInfoEntity {
 	private Integer totalTeam;
 	private Integer groupNum;
 	private Integer qualifiers;
-	private boolean fillAverage;
+	private Boolean fillAverage;
+	private Boolean drawKnockoutNow;
+	private Integer knockoutRounds;
+	private Boolean homeAwayMode;
 	@TableField(fill = FieldFill.INSERT)
 	private Date createTime;
 

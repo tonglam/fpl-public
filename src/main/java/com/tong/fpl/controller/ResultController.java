@@ -2,11 +2,11 @@ package com.tong.fpl.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.tong.fpl.data.CupGroupData;
-import com.tong.fpl.db.entity.CupGroupEntity;
+import com.tong.fpl.data.fpl.TournamentGroupData;
 import com.tong.fpl.db.entity.EntryInfoEntity;
-import com.tong.fpl.service.db.CupGroupService;
+import com.tong.fpl.db.entity.TournamentGroupEntity;
 import com.tong.fpl.service.db.EntryInfoService;
+import com.tong.fpl.service.db.TournamentGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,7 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ResultController {
 
-	private final CupGroupService cupGroupService;
+	private final TournamentGroupService cupGroupService;
 	private final EntryInfoService entryInfoService;
 
 	@RequestMapping(value = {"", "/"})
@@ -37,14 +37,14 @@ public class ResultController {
 
 	@ResponseBody
 	@GetMapping(value = {"/getCupGroupResult"})
-	public List<CupGroupData> getCupGroupResult(@RequestBody int groupId) {
-		List<CupGroupData> cupGroupDataList = Lists.newArrayList();
-		List<CupGroupEntity> cupGroupEntityList = this.cupGroupService.list(new QueryWrapper<CupGroupEntity>().lambda()
-				.eq(CupGroupEntity::getCupId, 1).eq(CupGroupEntity::getGroupId, groupId));
+	public List<TournamentGroupData> getCupGroupResult(@RequestBody int groupId) {
+		List<TournamentGroupData> cupGroupDataList = Lists.newArrayList();
+		List<TournamentGroupEntity> cupGroupEntityList = this.cupGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, 1).eq(TournamentGroupEntity::getGroupId, groupId));
 		cupGroupEntityList.forEach(cupGroupEntity -> {
 			EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda()
 					.eq(EntryInfoEntity::getCupId, 1).eq(EntryInfoEntity::getEntry, cupGroupEntity.getEntry()));
-			CupGroupData cupGroupData = new CupGroupData();
+			TournamentGroupData cupGroupData = new TournamentGroupData();
 			cupGroupData.setCupName("");
 			cupGroupData.setEntry(cupGroupEntity.getEntry());
 			cupGroupData.setEntryName(entryInfoEntity.getEntryName());

@@ -1,10 +1,15 @@
 package com.tong.fpl;
 
+import com.google.common.collect.Lists;
 import com.tong.fpl.constant.Constant;
-import com.tong.fpl.data.GwEntry;
+import com.tong.fpl.data.fpl.GwPointsData;
 import com.tong.fpl.data.response.LeagueClassicRes;
 import com.tong.fpl.db.entity.EntryLiveEntity;
-import com.tong.fpl.service.*;
+import com.tong.fpl.service.CalcGwPointsService;
+import com.tong.fpl.service.CalcLivePointsService;
+import com.tong.fpl.service.InterfaceService;
+import com.tong.fpl.service.StaticService;
+import com.tong.fpl.service.impl.TournamentManagementImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,13 +29,13 @@ public class ServiceTest extends FplApplicationTests {
 	private InterfaceService interfaceService;
 
 	@Autowired
-	private WeekPointsService weekPointsService;
+	private CalcGwPointsService calcGwPointsService;
 
 	@Autowired
 	private CalcLivePointsService calcLivePointsService;
 
 	@Autowired
-	private CreateNewCupsService createNewCupsService;
+	private TournamentManagementImpl createNewCupsService;
 
 	@Test
 	public void insertEvents() {
@@ -65,7 +70,9 @@ public class ServiceTest extends FplApplicationTests {
 
 	@Test
 	public void weekPoint() {
-		List<GwEntry> list = this.weekPointsService.calcWeekPoints(710, 39);
+		List<Integer> entryList = Lists.newArrayList();
+		entryList.add(3697);
+		List<GwPointsData> list = this.calcGwPointsService.calcGwPoints(39, entryList);
 		System.out.println(list.toString());
 	}
 
@@ -77,11 +84,7 @@ public class ServiceTest extends FplApplicationTests {
 
 	@Test
 	public void createNewCup() {
-		this.createNewCupsService.createNewCup("https://fantasy.premierleague.com/leagues/710/standings/c",
-				"test", "tong",
-				"31+", "32+",
-				7, 4,
-				true);
+		this.createNewCupsService.createNewTournament(null);
 	}
 
 }

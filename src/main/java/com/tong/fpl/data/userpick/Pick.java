@@ -15,6 +15,7 @@ public class Pick implements Comparable<Pick> {
     private boolean isCaptain;
     @JsonProperty("is_vice_captain")
     private boolean isViceCaptain;
+	private int points;
 
     @Override
     public int compareTo(Pick pick) {

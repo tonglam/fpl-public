@@ -1,0 +1,9 @@
+package com.tong.fpl.mapper;
+
+import com.tong.fpl.db.entity.TournamentKnockoutEntity;
+
+/**
+ * Create by tong on 2020/6/11
+ */
+public interface TournamentKnockoutMapper extends FplBaseMapper<TournamentKnockoutEntity> {
+}

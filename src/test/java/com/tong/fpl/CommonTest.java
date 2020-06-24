@@ -1,9 +1,7 @@
 package com.tong.fpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.tong.fpl.db.entity.EntryLiveEntity;
 import com.tong.fpl.mapper.EntryLiveMapper;
 import org.junit.jupiter.api.Test;
@@ -11,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -28,7 +27,7 @@ public class CommonTest extends FplApplicationTests {
 		// element_type -> active -> start
 		Map<Integer, Map<Boolean, Map<Boolean, List<EntryLiveEntity>>>> map = entryLiveList.stream()
 				.collect(Collectors.groupingBy(EntryLiveEntity::getElementType,
-						Collectors.partitioningBy(EntryLiveEntity::isPlayed,
+						Collectors.partitioningBy(EntryLiveEntity::getIsPlayed,
 								Collectors.partitioningBy(entryLiveEntity -> entryLiveEntity.getPosition() < 12))));
 		// gkp
 		List<EntryLiveEntity> gkps = this.createSteam(map.get(1).get(true).get(true), map.get(1).get(true).get(false), map.get(1).get(false).get(true))
@@ -81,7 +80,7 @@ public class CommonTest extends FplApplicationTests {
 		list.forEach(o -> System.out.println(o.getPosition()));
 		int point = list.stream()
 				.peek(o -> {
-					if (o.isCaptain()) {
+					if (o.getIsCaptain()) {
 						o.setPoint(2 * o.getPoint());
 					}
 				})
@@ -115,17 +114,9 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	public void test() {
-		Multimap<Integer, Integer> teamInGroup = ArrayListMultimap.create();
-		teamInGroup.put(1, 1);
-		teamInGroup.put(1, 2);
-		teamInGroup.put(1, 3);
-		teamInGroup.put(1, 4);
-		teamInGroup.put(1, 5);
-		teamInGroup.put(1, 6);
-//		teamInGroup.put(1, 7);
-		boolean a = teamInGroup.get(1).stream().parallel().allMatch(o -> o > 0);
-		System.out.println(a);
+		int otherMatchesNum = 31;
+		IntStream.range(0, otherMatchesNum).forEach(System.out::println);
+		System.out.println(otherMatchesNum);
 	}
-
 
 }

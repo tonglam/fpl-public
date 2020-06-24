@@ -24,7 +24,7 @@ public class TeamEntity {
     private String shortName;
     private Integer strength;
     private Integer teamDivision;
-    private boolean unavailable;
+	private Boolean unavailable;
     private Integer win;
     private Integer strengthOverallHome;
     private Integer strengthOverallAway;

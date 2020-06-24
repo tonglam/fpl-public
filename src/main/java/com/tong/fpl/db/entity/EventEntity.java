@@ -18,12 +18,12 @@ public class EventEntity {
     private Date deadlineTime;
     private Integer averageEntryScore;
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private boolean finished;
+    private Boolean finished;
     private Integer highestScore;
     private Integer highestScoringEntry;
-    private boolean isPrevious;
-    private boolean isCurrent;
-    private boolean isNext;
+	private Boolean isPrevious;
+	private Boolean isCurrent;
+	private Boolean isNext;
     private Integer mostSelected;
     private Integer mostTransferredIn;
     private Integer mostCaptained;

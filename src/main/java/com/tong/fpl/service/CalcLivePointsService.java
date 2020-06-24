@@ -83,11 +83,11 @@ public class CalcLivePointsService {
 			entryLive.setElementType(eventLive.getElementType());
 			entryLive.setPosition(pick.getPosition());
 			entryLive.setMinutes(eventLive.getMinutes());
-			entryLive.setPlayed(eventLive.getMinutes() > 0 || eventLive.getYellowCards() > 0 || eventLive.getRedCards() > 0);
+			entryLive.setIsPlayed(eventLive.getMinutes() > 0 || eventLive.getYellowCards() > 0 || eventLive.getRedCards() > 0);
 			entryLive.setBonus(eventLive.getBonus());
 			entryLive.setPoint(eventLive.getTotalPoints());
-			entryLive.setCaptain(pick.isCaptain());
-			entryLive.setViceCaptain(pick.isViceCaptain());
+			entryLive.setIsCaptain(pick.isCaptain());
+			entryLive.setIsViceCaptain(pick.isViceCaptain());
 			if (pick.isCaptain() || pick.isViceCaptain()) {
 				captainList.add(entryLive);
 			}
@@ -105,9 +105,9 @@ public class CalcLivePointsService {
 		EntryLiveEntity captain = captainList.get(0);
 		EntryLiveEntity viceCaptain = captainList.get(1);
 		if (captain.getMinutes() == 0 && viceCaptain.getMinutes() > 0) {
-			captain.setCaptain(false);
+			captain.setIsCaptain(false);
 			map.put(captain.getPosition(), captain);
-			viceCaptain.setCaptain(true);
+			viceCaptain.setIsCaptain(true);
 			map.put(viceCaptain.getPosition(), viceCaptain);
 		}
 	}
@@ -118,11 +118,11 @@ public class CalcLivePointsService {
 		// only 3c and bb change the calculate rule
 		switch (ChipEnum.valueOf(chips)) {
 			case NONE:
-				return activePicks.stream().filter(o -> !o.isCaptain()).mapToInt(EntryLiveEntity::getPoint).sum()
-						+ activePicks.stream().filter(EntryLiveEntity::isCaptain).mapToInt(o -> 2 * o.getPoint()).sum();
+				return activePicks.stream().filter(o -> !o.getIsCaptain()).mapToInt(EntryLiveEntity::getPoint).sum()
+						+ activePicks.stream().filter(EntryLiveEntity::getIsCaptain).mapToInt(o -> 2 * o.getPoint()).sum();
 			case TC:
-				return activePicks.stream().filter(o -> !o.isCaptain()).mapToInt(EntryLiveEntity::getPoint).sum()
-						+ activePicks.stream().filter(EntryLiveEntity::isCaptain).mapToInt(o -> 3 * o.getPoint()).sum();
+				return activePicks.stream().filter(o -> !o.getIsCaptain()).mapToInt(EntryLiveEntity::getPoint).sum()
+						+ activePicks.stream().filter(EntryLiveEntity::getIsCaptain).mapToInt(o -> 3 * o.getPoint()).sum();
 			case BB:
 				return entryLiveList.stream().mapToInt(EntryLiveEntity::getPoint).sum();
 			default:
@@ -134,7 +134,7 @@ public class CalcLivePointsService {
 		// element_type -> active -> start
 		Map<Integer, Map<Boolean, Map<Boolean, List<EntryLiveEntity>>>> map = entryLiveList.parallelStream()
 				.collect(Collectors.groupingBy(EntryLiveEntity::getElementType,
-						Collectors.partitioningBy(EntryLiveEntity::isPlayed,
+						Collectors.partitioningBy(EntryLiveEntity::getIsPlayed,
 								Collectors.partitioningBy(entryLiveEntity -> entryLiveEntity.getPosition() < 12))));
 		// gkp
 		List<EntryLiveEntity> gkps = this.createSteam(map.get(PositionEnum.GKP.getPosition()).get(true).get(true),

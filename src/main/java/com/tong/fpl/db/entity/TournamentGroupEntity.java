@@ -14,17 +14,24 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "cup_group")
-public class CupGroupEntity {
+@TableName(value = "tournament_group")
+public class TournamentGroupEntity {
 
 	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer cupId;
+	private Integer tournamentId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer groupId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer entry;
 	@TableField(fill = FieldFill.INSERT)
+	private Integer groupPoints;
+	private Integer play;
+	private Integer win;
+	private Integer draw;
+	private Integer lose;
+	private Boolean qualified;
 	private Date createTime;
+	private Date updateTime;
 
 }

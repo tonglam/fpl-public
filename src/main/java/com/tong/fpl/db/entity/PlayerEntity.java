@@ -23,7 +23,7 @@ public class PlayerEntity {
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
     private String webName;
     private String form;
-    private boolean inDreamteam;
+	private Boolean inDreamteam;
     private String news;
     private String newsAdded;
     private String pointsPerGame;

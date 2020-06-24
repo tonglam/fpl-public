@@ -24,11 +24,11 @@ public class EntryLiveEntity {
     private Integer element;
     private Integer elementType;
     private Integer minutes;
-    private boolean isPlayed;
+	private Boolean isPlayed;
     private Integer bonus;
     private Integer point;
-    private boolean isCaptain;
-    private boolean isViceCaptain;
+	private Boolean isCaptain;
+	private Boolean isViceCaptain;
     private Integer yellowCards;
     private Integer redCards;
 }

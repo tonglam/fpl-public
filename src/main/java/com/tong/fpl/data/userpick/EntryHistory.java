@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class EntryHistory {
     private int event;
-    private int point;
+	private int points;
     @JsonProperty("total_points")
     private int totalPoints;
     private int rank;

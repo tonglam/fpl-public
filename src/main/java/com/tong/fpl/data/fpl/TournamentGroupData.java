@@ -1,4 +1,4 @@
-package com.tong.fpl.data;
+package com.tong.fpl.data.fpl;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import lombok.Data;
  * Create by tong on 2020/6/23
  */
 @Data
-public class CupGroupData {
+public class TournamentGroupData {
 
 	private String cupName;
 	private Integer groupId;
