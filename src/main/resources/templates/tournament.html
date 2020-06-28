@@ -13,7 +13,7 @@
     <script src="/static/js/bootbox.min.js" type="text/javascript"></script>
     <script src="/static/js/bootstrap-table.js" type="text/javascript"></script>
     <script src="/static/js/bootstrap-table-zh-CN.js" type="text/javascript"></script>
-    <title>CUP</title>
+    <title>TOURNAMENT</title>
 </head>
 <body>
 
@@ -107,9 +107,32 @@
                 </label>
             </div>
             <div class="p-2">
-                <button class="btn btn-outline-info" id="createCupButton" type="button">创建杯赛
+                <label>淘汰赛轮次
+                    <input class="form-control input-small" name="knockoutRoundsInput" required="required"
+                           type="number"/>
+                </label>
+            </div>
+            <div class="p-2">
+                <h6 class="p-2">小组赛完成后再进行淘汰赛抽签</h6>
+                <label>
+                    <select class="form-control" id="drawAfterGroupQualifySelect">
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                </label>
+            </div>
+            <div class="p-2">
+                <h6 class="p-2">增加平均分使每组分配的队伍数量一样多</h6>
+                <label>
+                    <select class="form-control" id="homeAwayModeSelect">
+                        <option value="1">是</option>
+                        <option value="0">否</option>
+                    </select>
+                </label>
+            </div>
+            <div class="p-2">
+                <button class="btn btn-outline-info" id="createTournamentButton" type="button">创建杯赛
                 </button>
-                <h6 class="p-2">创建等待大约1分钟</h6>
             </div>
         </div>
     </div>
@@ -118,16 +141,19 @@
 </body>
 
 <script>
-    $("#createCupButton").click(function () {
+    $("#createTournamentButton").click(function () {
         var url = $("input[name='urlInput']").val();
-        var cupName = $("input[name='nameInput']").val();
+        var tournamentName = $("input[name='nameInput']").val();
         var creator = $("input[name='creatorInput']").val();
         var startGw = $("#startGwSelect").val();
         var endGw = $("#endGwSelect").val();
         var teamPerGroup = $("input[name='teamPerGroupInput']").val();
         var qualifiers = $("input[name='qualifiersInput']").val();
         var fillAverage = $("#fillAverageSelect").val();
-        if (url.length == 0 || cupName.length == 0 || creator.length == 0 || teamPerGroup.length == 0 || qualifiers.length == 0) {
+        var knockoutRounds = $("input[name='knockoutRoundsInput']").val();
+        var drawAfterGroupQualify = $("#drawAfterGroupQualifySelect").val();
+        var homeAwayMode = $("#homeAwayModeSelect").val();
+        if (url.length == 0 || tournamentName.length == 0 || creator.length == 0 || teamPerGroup.length == 0 || qualifiers.length == 0 || knockoutRounds == 0) {
             bootbox.alert({
                 message: "请检查输入的信息！",
                 locale: "zh_CN",
@@ -135,34 +161,34 @@
             });
             return false;
         }
-        var cupCreateData = {};
-        cupCreateData.url = url;
-        cupCreateData.cupName = cupName;
-        cupCreateData.creator = creator;
-        cupCreateData.startGw = startGw;
-        cupCreateData.endGw = endGw;
-        cupCreateData.teamsPerGroup = teamPerGroup;
-        cupCreateData.qualifiers = qualifiers;
-        cupCreateData.fillAverage = fillAverage == "1";
+        var tournamentCreateData = {};
+        tournamentCreateData.url = url;
+        tournamentCreateData.tournamentName = tournamentName;
+        tournamentCreateData.creator = creator;
+        tournamentCreateData.startGw = startGw;
+        tournamentCreateData.endGw = endGw;
+        tournamentCreateData.teamsPerGroup = teamPerGroup;
+        tournamentCreateData.qualifiers = qualifiers;
+        tournamentCreateData.fillAverage = fillAverage == "1";
+        tournamentCreateData.drawAfterGroupQualify = drawAfterGroupQualify == "1";
+        tournamentCreateData.knockoutRounds = knockoutRounds;
+        tournamentCreateData.homeAwayMode = homeAwayMode == "1";
         $.ajax({
-            url: "/cup/createNewCup",
+            url: "/tournament/createNewTournament",
             type: "post",
-            data: JSON.stringify(cupCreateData),
+            data: JSON.stringify(tournamentCreateData),
             dataType: "json",
             contentType: "application/json",
             beforeSend: function () {
-                $("#createCupButton").attr({disabled: "disabled"});
+                $("#createTournamentButton").attr({disabled: "disabled"});
             },
             complete: function () {
                 bootbox.alert({
                     message: "创建成功！",
                     locale: "zh_CN",
-                    backdrop: true,
-                    callback: function () {
-                        window.location.reload();
-                    }
+                    backdrop: true
                 });
-                $("#createCupButton").removeAttr("disabled");
+                $("#createTournamentButton").removeAttr("disabled");
             }
         });
     })

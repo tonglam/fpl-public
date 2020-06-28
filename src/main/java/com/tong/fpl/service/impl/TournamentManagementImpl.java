@@ -56,7 +56,7 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 	@Override
 	public String createNewTournament(TournamentCreateData tournamentCreateData) {
 		this.tournamentInfoService.save(new TournamentInfoEntity()
-				.setName(tournamentCreateData.getCupName())
+				.setName(tournamentCreateData.getTournamentName())
 				.setCreator(tournamentCreateData.getCreator())
 				.setLeagueType(CupLeagueTypeEnum.Classic.toString())
 				.setLeagueId(StringUtils.substringBetween(tournamentCreateData.getUrl(), "https://fantasy.premierleague.com/leagues/", "/standings/c"))
@@ -69,20 +69,20 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 				.setTeamPerGroup(tournamentCreateData.getTeamsPerGroup())
 				.setQualifiers(tournamentCreateData.getQualifiers())
 				.setFillAverage(tournamentCreateData.isFillAverage())
-				.setDrawKnockoutNow(tournamentCreateData.isDrawKnockoutsNow())
+				.setDrawAfterGroupQualify(tournamentCreateData.isDrawAfterGroupQualify())
 				.setKnockoutRounds(tournamentCreateData.getKnockoutRounds())
 				.setHomeAwayMode(tournamentCreateData.isHomeAwayMode())
 				.setCreateTime(new Date())
 		);
 		// publish event
-		context.publishEvent(new CreateTournamentEvent(this, tournamentCreateData.getCupName(), tournamentCreateData.isDrawKnockoutsNow()));
+		context.publishEvent(new CreateTournamentEvent(this, tournamentCreateData.getTournamentName(), tournamentCreateData.isDrawKnockoutsNow()));
 		return "创建成功！";
 	}
 
 	@Override
-	public void saveTournamentEntryInfo(String cupName) {
+	public void saveTournamentEntryInfo(String tournamentName) {
 		// save entryList from input classic league
-		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda().eq(TournamentInfoEntity::getName, cupName));
+		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda().eq(TournamentInfoEntity::getName, tournamentName));
 		if (tournamentInfoEntity == null) {
 			return;
 		}
@@ -90,9 +90,10 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 		this.setEntryList(tournamentId, tournamentInfoEntity.getLeagueId());
 		log.info("create entry info success!");
 		// update tournament_info
-		int totalTeam = this.entryInfoService.count(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getCupId, tournamentId));
+		int totalTeam = this.entryInfoService.count(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getTournamentId, tournamentId));
 		this.tournamentInfoService.updateById(
 				tournamentInfoEntity.setTotalTeam(totalTeam)
+						.setGroupRounds(tournamentInfoEntity.getEndGw() - tournamentInfoEntity.getStartGw() + 1)
 						.setGroupNum((int) (Math.ceil(totalTeam * 1.0 / tournamentInfoEntity.getTeamPerGroup())))
 		);
 	}
@@ -115,7 +116,7 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 					leagueClassicRes.getStandings().getResults().forEach(o -> {
 								// save entry_info
 								this.entryInfoService.saveOrUpdate(new EntryInfoEntity()
-										.setCupId(tournamentId)
+										.setTournamentId(tournamentId)
 										.setEntry(o.getEntry())
 										.setEntryName(EmojiManager.containsEmoji(o.getEntryName()) ? EmojiParser.parseToHtmlDecimal(o.getEntryName()) : o.getEntryName())
 										.setPlayerName(EmojiManager.containsEmoji(o.getPlayerName()) ? EmojiParser.parseToHtmlDecimal(o.getPlayerName()) : o.getPlayerName())
@@ -137,19 +138,25 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 	}
 
 	@Override
-	public void drawGroups(String cupName) {
+	public void drawGroups(String tournamentName) {
 		Multimap<Integer, Integer> teamInGroup = ArrayListMultimap.create();
 		// get tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-				.eq(TournamentInfoEntity::getName, cupName));
+				.eq(TournamentInfoEntity::getName, tournamentName));
 		if (tournamentInfoEntity == null) {
 			return;
 		}
 		int tournamentId = tournamentInfoEntity.getId();
+		// check exist
+		if (this.tournamentGroupService.count(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, tournamentId)) > 0) {
+			log.info("tournament{} groups exist!", tournamentId);
+			return;
+		}
 		int groupNum = tournamentInfoEntity.getGroupNum();
 		int teamsPerGroup = tournamentInfoEntity.getTeamPerGroup();
 		// get entryList from input classic league
-		List<Integer> entryList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getCupId, tournamentId))
+		List<Integer> entryList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getTournamentId, tournamentId))
 				.stream().map(EntryInfoEntity::getEntry).collect(Collectors.toList());
 		// shuffle
 		Collections.shuffle(entryList);
@@ -163,6 +170,8 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 						.setTournamentId(tournamentId)
 						.setGroupId(this.drawAverageToGroup(random, entry, groupNum, teamInGroup))
 						.setEntry(entry)
+						.setGroupPoint(0)
+						.setGroupRank(0)
 						.setCreateTime(new Date())
 				);
 			});
@@ -172,8 +181,11 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 				.setTournamentId(tournamentId)
 				.setGroupId(this.drawToGroup(random, entry, groupNum, teamsPerGroup, teamInGroup))
 				.setEntry(entry)
+				.setGroupPoint(0)
+				.setGroupRank(0)
 				.setCreateTime(new Date())
 		));
+		log.info("draw groups success!");
 	}
 
 	private int drawAverageToGroup(Random random, int entry, int groupNum, Multimap<Integer, Integer> teamInGroup) {
@@ -195,65 +207,82 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 	}
 
 	@Override
-	public void drawKnockouts(String cupName) throws Exception {
+	public void drawKnockouts(String tournamentName) throws Exception {
 		// get qualified entry list
 		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-				.eq(TournamentInfoEntity::getName, cupName));
+				.eq(TournamentInfoEntity::getName, tournamentName));
 		if (tournamentInfoEntity == null) {
 			return;
 		}
-		int touramentId = tournamentInfoEntity.getId();
-		List<Integer> entryList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-				.eq(TournamentGroupEntity::getTournamentId, touramentId).eq(TournamentGroupEntity::getQualified, 1)).stream()
-				.map(TournamentGroupEntity::getEntry).collect(Collectors.toList());
+		int tournamentId = tournamentInfoEntity.getId();
+		// check exist
+		if (this.tournamentKnockoutService.count(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)) > 0) {
+			log.info("tournament{} knockouts exist!", tournamentId);
+			return;
+		}
+		List<Integer> entryList = this.getKnockoutEntryList(tournamentInfoEntity);
 		if (CollectionUtils.isEmpty(entryList)) {
 			return;
 		}
 		// knockout rounds
 		int knockoutRounds = tournamentInfoEntity.getKnockoutRounds();
-		int totalTeam = (int) Math.pow(2, knockoutRounds);
+		int totalTeamNum = (int) Math.pow(2, knockoutRounds);
 		// add blank teams
-		int blankNum = totalTeam - entryList.size();
+		int blankNum = totalTeamNum - entryList.size();
 		if (blankNum >= entryList.size()) {
-			throw new Exception("reduce your knockout rounds!");
+			throw new Exception("decrease your knockout rounds!");
 		}
-		IntStream.range(1, blankNum + 1).forEach(i -> {
-			entryList.add(-1 * i);
-		});
+		IntStream.range(1, blankNum + 1).forEach(i -> entryList.add(-1 * i));
 		// shuffle
 		do {
 			Collections.shuffle(entryList);
 		} while (this.checkDrawListLegal(entryList));
 		// draw firstRound
 		List<List<Integer>> drawLists = Lists.partition(entryList, 2);
-		int firstRoundMatches = drawLists.size();
+		int firstRoundMatchNum = (int) Math.pow(2, knockoutRounds - 1);
 		IntStream.range(1, drawLists.size() + 1).forEach(i -> {
-			List<Integer> subList = drawLists.get(i);
+			List<Integer> subList = drawLists.get(i - 1);
 			this.tournamentKnockoutService.save(new TournamentKnockoutEntity()
-					.setTournamentId(touramentId)
+					.setTournamentId(tournamentId)
 					.setHomeEntry(subList.get(0))
 					.setAwayEntry(subList.get(1))
 					.setKnockoutRound(1)
 					.setMatchId(i)
-					.setNextMatchId(i + firstRoundMatches)
+					.setNextMatchId(i % 2 == 0 ? (i / 2) + firstRoundMatchNum : ((i + 1) / 2) + firstRoundMatchNum)
 					.setRoundWinner(0)
 					.setCreateTime(new Date())
 			);
 		});
 		// other matches
-		int otherMatchesNum = IntStream.range(0, knockoutRounds - 1).reduce(0, (sum, i) -> sum += (int) Math.pow(2, i));
-//		IntStream.range(2,knockoutRounds).forEach(i->{
-//
-//		});
-		IntStream.range(0, otherMatchesNum).forEach(i -> {
-			this.tournamentKnockoutService.save(new TournamentKnockoutEntity()
-					.setTournamentId(touramentId)
-					.setKnockoutRound(1)
-					.setMatchId(i)
-					.setNextMatchId(i + firstRoundMatches)
+		IntStream.range(2, knockoutRounds).forEach(i -> {
+			int roundMatchNum = (int) Math.pow(2, knockoutRounds - i);
+			int prevMatchNum = IntStream.range(1, i).reduce(0, (sum, round) -> sum += (int) Math.pow(2, knockoutRounds - round));
+			IntStream.range(1, roundMatchNum + 1).forEach(j -> this.tournamentKnockoutService.save(new TournamentKnockoutEntity()
+					.setTournamentId(tournamentId)
+					.setHomeEntry(0)
+					.setAwayEntry(0)
+					.setKnockoutRound(i)
+					.setMatchId(j + prevMatchNum)
+					.setNextMatchId(j % 2 == 0 ? (j / 2) + prevMatchNum + roundMatchNum : ((j + 1) / 2) + prevMatchNum + roundMatchNum)
 					.setRoundWinner(0)
-					.setCreateTime(new Date()));
+					.setCreateTime(new Date())));
 		});
+		log.info("draw knockouts success!");
+	}
+
+	private List<Integer> getKnockoutEntryList(TournamentInfoEntity tournamentInfoEntity) {
+		if (tournamentInfoEntity.getDrawAfterGroupQualify()) {
+			return this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+					.eq(TournamentGroupEntity::getTournamentId, tournamentInfoEntity.getId()).eq(TournamentGroupEntity::getQualified, 1))
+					.stream()
+					.map(TournamentGroupEntity::getEntry).collect(Collectors.toList());
+		} else {
+			List<Integer> entryList = Lists.newArrayList();
+			IntStream.range(1, tournamentInfoEntity.getGroupNum() + 1).forEach(i ->
+					IntStream.range(1, tournamentInfoEntity.getQualifiers() + 1).forEach(j -> entryList.add(10 * i + j)));
+			return entryList;
+		}
 	}
 
 	private boolean checkDrawListLegal(List<Integer> entryList) {
@@ -266,9 +295,9 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 	}
 
 	@Override
-	public String deleteTournamentByCupName(String cupName) {
+	public String deleteTournamentByCupName(String tournamentName) {
 		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-				.eq(TournamentInfoEntity::getName, cupName));
+				.eq(TournamentInfoEntity::getName, tournamentName));
 		if (tournamentInfoEntity == null) {
 			return "删除失败，赛事不存在！";
 		}
@@ -277,9 +306,9 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 	}
 
 	@Override
-	public void updateQualifiedTeams(String cupName) {
+	public void updateQualifiedTeams(String tournamentName) {
 		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-				.eq(TournamentInfoEntity::getName, cupName));
+				.eq(TournamentInfoEntity::getName, tournamentName));
 		if (tournamentInfoEntity == null) {
 			return;
 		}
@@ -289,14 +318,47 @@ public class TournamentManagementImpl implements ITournamentManagementService {
 			// get qualified teams
 			List<TournamentGroupEntity> qualifiedList = groupList.stream()
 					.filter(tournamentGroupEntity -> tournamentGroupEntity.getEntry() > 0)
-					.sorted(Comparator.comparing(TournamentGroupEntity::getGroupPoints))
+					.sorted(Comparator.comparing(TournamentGroupEntity::getGroupPoint))
 					.limit(tournamentInfoEntity.getQualifiers())
 					.collect(Collectors.toList());
 			// update tournament_group
-			qualifiedList.forEach(tournamentGroupEntity -> this.tournamentGroupService.updateById(
-					tournamentGroupEntity.setQualified(true).setUpdateTime(new Date())));
-
+			qualifiedList.forEach(tournamentGroupEntity -> {
+				this.tournamentGroupService.updateById(
+						tournamentGroupEntity.setQualified(true).setUpdateTime(new Date()));
+				// update real entry
+				if (!tournamentInfoEntity.getDrawAfterGroupQualify()) {
+					this.updateRealEntry(i, tournamentGroupEntity);
+				}
+			});
 		});
+	}
+
+	private void updateRealEntry(int groupIndex, TournamentGroupEntity tournamentGroupEntity) {
+		int virtualEntry = groupIndex * 10 + tournamentGroupEntity.getGroupRank();
+		// search for home entry
+		TournamentKnockoutEntity tournamentKnockoutEntity = this.tournamentKnockoutService.getOne(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentGroupEntity.getTournamentId())
+				.eq(TournamentKnockoutEntity::getHomeEntry, virtualEntry));
+		if (tournamentKnockoutEntity != null) {
+			this.tournamentKnockoutService.updateById(tournamentKnockoutEntity.setHomeEntry(tournamentGroupEntity.getEntry()));
+		} else { // search for away entry
+			tournamentKnockoutEntity = this.tournamentKnockoutService.getOne(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+					.eq(TournamentKnockoutEntity::getTournamentId, tournamentGroupEntity.getTournamentId())
+					.eq(TournamentKnockoutEntity::getAwayEntry, virtualEntry));
+			if (tournamentKnockoutEntity != null) {
+				this.tournamentKnockoutService.updateById(tournamentKnockoutEntity.setHomeEntry(tournamentGroupEntity.getEntry()));
+			}
+		}
+	}
+
+	@Override
+	public int countEntryNumInGroup(String tournamentName) {
+		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+				.eq(TournamentInfoEntity::getName, tournamentName));
+		if (tournamentInfoEntity == null) {
+			return 0;
+		}
+		return this.entryInfoService.count(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getTournamentId, tournamentInfoEntity.getId()));
 	}
 
 }

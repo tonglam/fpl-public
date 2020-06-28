@@ -25,11 +25,12 @@ public class TournamentGroupEntity {
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer entry;
 	@TableField(fill = FieldFill.INSERT)
-	private Integer groupPoints;
+	private Integer groupPoint;
 	private Integer play;
 	private Integer win;
 	private Integer draw;
 	private Integer lose;
+	private Integer groupRank;
 	private Boolean qualified;
 	private Date createTime;
 	private Date updateTime;

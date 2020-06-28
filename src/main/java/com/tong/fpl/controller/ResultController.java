@@ -43,7 +43,7 @@ public class ResultController {
 				.eq(TournamentGroupEntity::getTournamentId, 1).eq(TournamentGroupEntity::getGroupId, groupId));
 		cupGroupEntityList.forEach(cupGroupEntity -> {
 			EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda()
-					.eq(EntryInfoEntity::getCupId, 1).eq(EntryInfoEntity::getEntry, cupGroupEntity.getEntry()));
+					.eq(EntryInfoEntity::getTournamentId, 1).eq(EntryInfoEntity::getEntry, cupGroupEntity.getEntry()));
 			TournamentGroupData cupGroupData = new TournamentGroupData();
 			cupGroupData.setCupName("");
 			cupGroupData.setEntry(cupGroupEntity.getEntry());

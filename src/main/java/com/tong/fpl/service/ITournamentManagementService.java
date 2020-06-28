@@ -22,23 +22,23 @@ public interface ITournamentManagementService {
 	/**
 	 * save entry info in the tournament
 	 *
-	 * @param cupName cupName
+	 * @param tournamentName tournamentName
 	 */
-	void saveTournamentEntryInfo(String cupName);
+	void saveTournamentEntryInfo(String tournamentName);
 
 	/**
 	 * draw groups
 	 *
-	 * @param cupName cupName
+	 * @param tournamentName tournamentName
 	 */
-	void drawGroups(String cupName);
+	void drawGroups(String tournamentName);
 
 	/**
 	 * draw knockout phase
 	 *
-	 * @param cupName cupName
+	 * @param tournamentName tournamentName
 	 */
-	void drawKnockouts(String cupName) throws Exception;
+	void drawKnockouts(String tournamentName) throws Exception;
 
 	/**
 	 * query tournament_info list by param
@@ -49,18 +49,25 @@ public interface ITournamentManagementService {
 	List<TournamentInfoEntity> queryTournamentInfo(QueryParam param);
 
 	/**
-	 * delete tournament by cupName
+	 * delete tournament by tournamentName
 	 *
-	 * @param cupName cupName
+	 * @param tournamentName tournamentName
 	 * @return message
 	 */
-	String deleteTournamentByCupName(String cupName);
+	String deleteTournamentByCupName(String tournamentName);
 
 	/**
 	 * update qualified teams from group stage
 	 *
-	 * @param cupName cupName
+	 * @param tournamentName tournamentName
 	 */
-	void updateQualifiedTeams(String cupName);
+	void updateQualifiedTeams(String tournamentName);
+
+	/**
+	 * count entry number in a tournament
+	 *
+	 * @return number
+	 */
+	int countEntryNumInGroup(String tournamentName);
 
 }

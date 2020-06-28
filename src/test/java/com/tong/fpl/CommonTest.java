@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -114,9 +113,8 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	public void test() {
-		int otherMatchesNum = 31;
-		IntStream.range(0, otherMatchesNum).forEach(System.out::println);
-		System.out.println(otherMatchesNum);
+		int roundMatchNum = (int) Math.pow(2, 6 - 2);
+		System.out.println(roundMatchNum);
 	}
 
 }

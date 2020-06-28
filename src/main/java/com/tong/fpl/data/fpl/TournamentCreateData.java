@@ -17,7 +17,7 @@ public class TournamentCreateData {
 	@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*")
 	private String url;
 	@NotBlank
-	private String cupName;
+	private String tournamentName;
 	@NotBlank
 	private String creator;
 	@NotBlank
@@ -30,6 +30,8 @@ public class TournamentCreateData {
 	private int qualifiers;
 	@NotNull
 	private boolean fillAverage;
+	@NotNull
+	private boolean drawAfterGroupQualify;
 	@NotNull
 	private boolean drawKnockoutsNow;
 	@NotNull

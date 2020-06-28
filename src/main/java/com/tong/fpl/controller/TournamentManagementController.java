@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Validated
 @Controller
-@RequestMapping(value = "/cup")
+@RequestMapping(value = "/tournament")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentManagementController {
 
@@ -24,7 +24,7 @@ public class TournamentManagementController {
 
 	@RequestMapping(value = {"", "/"})
 	public String tournamentManagementController() {
-		return "cup";
+		return "tournament";
 	}
 
 	@ResponseBody

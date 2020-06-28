@@ -17,7 +17,7 @@ public class EntryInfoEntity {
 	@TableId(type = IdType.INPUT)
 	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer cupId;
+	private Integer tournamentId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer entry;
 	private String entryName;

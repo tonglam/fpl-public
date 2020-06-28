@@ -37,6 +37,9 @@ public class ServiceTest extends FplApplicationTests {
 	@Autowired
 	private TournamentManagementImpl createNewCupsService;
 
+	@Autowired
+	private TournamentManagementImpl tournamentManagement;
+
 	@Test
 	public void insertEvents() {
 		this.staticService.insertEvent();
@@ -85,6 +88,15 @@ public class ServiceTest extends FplApplicationTests {
 	@Test
 	public void createNewCup() {
 		this.createNewCupsService.createNewTournament(null);
+	}
+
+	@Test
+	public void knockout() {
+		try {
+			this.tournamentManagement.drawKnockouts("letletme");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -23,12 +23,13 @@ public class TournamentInfoEntity {
 	private String leagueId;
 	private Integer startGw;
 	private Integer endGw;
+	private Integer groupRounds;
 	private Integer teamPerGroup;
 	private Integer totalTeam;
 	private Integer groupNum;
 	private Integer qualifiers;
 	private Boolean fillAverage;
-	private Boolean drawKnockoutNow;
+	private Boolean drawAfterGroupQualify;
 	private Integer knockoutRounds;
 	private Boolean homeAwayMode;
 	@TableField(fill = FieldFill.INSERT)

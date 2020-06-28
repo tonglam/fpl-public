@@ -4,6 +4,7 @@ import com.tong.fpl.service.impl.TournamentManagementImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,20 +16,19 @@ public class TournamentEventLister implements ApplicationListener<CreateTourname
 
 	private final TournamentManagementImpl tournamentManagement;
 
+	@Async
 	@Override
 	public void onApplicationEvent(CreateTournamentEvent createTournamentEvent) {
-		String cupName = createTournamentEvent.getCupName();
+		String tournamentName = createTournamentEvent.getTournamentName();
 		// save entry_info
-		this.tournamentManagement.saveTournamentEntryInfo(cupName);
+		this.tournamentManagement.saveTournamentEntryInfo(tournamentName);
 		// draw groups
-		this.tournamentManagement.drawGroups(cupName);
+		this.tournamentManagement.drawGroups(tournamentName);
 		// draw knockouts
-		if (createTournamentEvent.isDrawKnockouts()) {
-			try {
-				this.tournamentManagement.drawKnockouts(cupName);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		try {
+			this.tournamentManagement.drawKnockouts(tournamentName);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

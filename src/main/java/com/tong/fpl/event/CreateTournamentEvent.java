@@ -13,12 +13,12 @@ import org.springframework.context.ApplicationEvent;
 public class CreateTournamentEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = -9185212999642141619L;
-	private String cupName;
+	private String tournamentName;
 	private boolean drawKnockouts;
 
-	public CreateTournamentEvent(Object source, String cupName, boolean drawKnockouts) {
+	public CreateTournamentEvent(Object source, String tournamentName, boolean drawKnockouts) {
 		super(source);
-		this.cupName = cupName;
+		this.tournamentName = tournamentName;
 		this.drawKnockouts = drawKnockouts;
 	}
 
