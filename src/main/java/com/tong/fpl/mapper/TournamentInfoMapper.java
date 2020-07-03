@@ -1,7 +1,8 @@
 package com.tong.fpl.mapper;
 
-import com.tong.fpl.data.fpl.QueryParam;
-import com.tong.fpl.db.entity.TournamentInfoEntity;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.tong.fpl.domain.data.fpl.QueryParam;
+import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * Create by tong on 2020/6/23
  */
-public interface TournamentInfoMapper extends FplBaseMapper<TournamentInfoEntity> {
+public interface TournamentInfoMapper extends BaseMapper<TournamentInfoEntity> {
 
 	@Select(" SELECT * FROM tournament_info " +
 			"WHERE 1=1 " +

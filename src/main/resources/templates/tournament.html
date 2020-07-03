@@ -64,7 +64,13 @@
                 </label>
             </div>
             <div class="p-2">
-                <label>开始GW
+                <label>小组赛轮次总数
+                    <input class="form-control input-small" name="groupRoundsInput" required="required"
+                           type="number"/>
+                </label>
+            </div>
+            <div class="p-2">
+                <label>开始轮次
                     <select class="form-control" id="startGwSelect" style="padding-right: 10px">
                         <option value="31+">31+</option>
                         <option value="32+">32+</option>
@@ -75,15 +81,11 @@
                         <option value="37+">37+</option>
                     </select>
                 </label>
-                <label>结束GW
-                    <select class="form-control" id="endGwSelect">
-                        <option value="32+">32+</option>
-                        <option value="33+">33+</option>
-                        <option value="34+">34+</option>
-                        <option value="35+">35+</option>
-                        <option value="36+">36+</option>
-                        <option value="37+">37+</option>
-                        <option value="38+">38+</option>
+                <label>小组赛模式
+                    <select class="form-control" id="groupModeSelect">
+                        <option value="No_group">无小组赛</option>
+                        <option value="Points_race">积分赛</option>
+                        <option value="Battle_race">循环赛</option>
                     </select>
                 </label>
             </div>
@@ -107,28 +109,17 @@
                 </label>
             </div>
             <div class="p-2">
-                <label>淘汰赛轮次
-                    <input class="form-control input-small" name="knockoutRoundsInput" required="required"
-                           type="number"/>
-                </label>
-            </div>
-            <div class="p-2">
-                <h6 class="p-2">小组赛完成后再进行淘汰赛抽签</h6>
-                <label>
-                    <select class="form-control" id="drawAfterGroupQualifySelect">
-                        <option value="1">是</option>
-                        <option value="0">否</option>
+                <label>淘汰模式
+                    <select class="form-control" id="knockoutModeSelect">
+                        <option value="No_knockout">无淘汰赛</option>
+                        <option value="Single_round">单循环</option>
+                        <option value="Home_away">主客场</option>
                     </select>
                 </label>
-            </div>
-            <div class="p-2">
-                <h6 class="p-2">增加平均分使每组分配的队伍数量一样多</h6>
-                <label>
-                    <select class="form-control" id="homeAwayModeSelect">
-                        <option value="1">是</option>
-                        <option value="0">否</option>
-                    </select>
-                </label>
+                <!--                <label>淘汰赛轮次-->
+                <!--                    <input class="form-control input-small" name="knockoutRoundsInput" required="required"-->
+                <!--                           type="number"/>-->
+                <!--                </label>-->
             </div>
             <div class="p-2">
                 <button class="btn btn-outline-info" id="createTournamentButton" type="button">创建杯赛
@@ -145,34 +136,32 @@
         var url = $("input[name='urlInput']").val();
         var tournamentName = $("input[name='nameInput']").val();
         var creator = $("input[name='creatorInput']").val();
+        var groupMode = $("#groupModeSelect").val();
+        var groupRounds = $("input[name='groupRoundsInput']").val();
         var startGw = $("#startGwSelect").val();
-        var endGw = $("#endGwSelect").val();
         var teamPerGroup = $("input[name='teamPerGroupInput']").val();
         var qualifiers = $("input[name='qualifiersInput']").val();
         var fillAverage = $("#fillAverageSelect").val();
+        var knockoutMode = $("#knockoutModeSelect").val();
         var knockoutRounds = $("input[name='knockoutRoundsInput']").val();
         var drawAfterGroupQualify = $("#drawAfterGroupQualifySelect").val();
-        var homeAwayMode = $("#homeAwayModeSelect").val();
-        if (url.length == 0 || tournamentName.length == 0 || creator.length == 0 || teamPerGroup.length == 0 || qualifiers.length == 0 || knockoutRounds == 0) {
-            bootbox.alert({
-                message: "请检查输入的信息！",
-                locale: "zh_CN",
-                backdrop: true
-            });
-            return false;
-        }
+        // if (url.length == 0 || tournamentName.length == 0 || creator.length == 0 || groupRounds.length == 0 ||
+        //     teamPerGroup.length == 0 || qualifiers.length == 0 || knockoutRounds.length == 0) {
+        //     bootbox.alert({
+        //         message: "请检查输入的信息！",
+        //         locale: "zh_CN",
+        //         backdrop: true
+        //     });
+        //     return false;
+        // }
         var tournamentCreateData = {};
         tournamentCreateData.url = url;
         tournamentCreateData.tournamentName = tournamentName;
         tournamentCreateData.creator = creator;
-        tournamentCreateData.startGw = startGw;
-        tournamentCreateData.endGw = endGw;
-        tournamentCreateData.teamsPerGroup = teamPerGroup;
-        tournamentCreateData.qualifiers = qualifiers;
-        tournamentCreateData.fillAverage = fillAverage == "1";
-        tournamentCreateData.drawAfterGroupQualify = drawAfterGroupQualify == "1";
+        tournamentCreateData.groupMode = groupMode;
+        tournamentCreateData.knockoutMode = knockoutMode;
         tournamentCreateData.knockoutRounds = knockoutRounds;
-        tournamentCreateData.homeAwayMode = homeAwayMode == "1";
+        tournamentCreateData.knockoutStartGw = 1;
         $.ajax({
             url: "/tournament/createNewTournament",
             type: "post",

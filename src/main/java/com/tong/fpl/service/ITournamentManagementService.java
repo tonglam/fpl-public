@@ -1,8 +1,8 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.data.fpl.QueryParam;
-import com.tong.fpl.data.fpl.TournamentCreateData;
-import com.tong.fpl.db.entity.TournamentInfoEntity;
+import com.tong.fpl.domain.data.fpl.QueryParam;
+import com.tong.fpl.domain.data.fpl.TournamentCreateData;
+import com.tong.fpl.domain.entity.TournamentInfoEntity;
 
 import java.util.List;
 
@@ -13,6 +13,15 @@ public interface ITournamentManagementService {
 
 	/**
 	 * create a new tournament_info record
+	 * <p>
+	 * 1.group stage: group number depends on total team and team per group
+	 * a.no group stage input: mode, group_fill_average==false, draw knockout state immediately
+	 * b.point_race input: mode, team in group, group_fill_average==false, group_qualifiers, group_start_gw, group_end_gw
+	 * c.single_round and double_round input: mode, team in group, group_fill_average, group_qualifiers, group_start_gw, rounds would be decided by team in group
+	 * 2.knockout stage
+	 * a.single round
+	 * b.home_away
+	 * c.no knockout(must have group stage)
 	 *
 	 * @param tournamentCreateData tournamentCreateData
 	 * @return message
@@ -20,25 +29,62 @@ public interface ITournamentManagementService {
 	String createNewTournament(TournamentCreateData tournamentCreateData);
 
 	/**
-	 * save entry info in the tournament
+	 * new tournament async methods
+	 * 1.save entry
+	 * 2.draw groups
+	 * 3.draw group battles
+	 * 4.drow knockouts
+	 * 5.create knockout result records
 	 *
 	 * @param tournamentName tournamentName
 	 */
-	void saveTournamentEntryInfo(String tournamentName);
+	void createNewTournamentBackground(String tournamentName);
+
+	/**
+	 * save entry info in the tournament
+	 *
+	 * @param tournamentId tournamentId
+	 * @param leagueType   leagueType
+	 * @param leagueId     leagueId
+	 */
+	void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId);
 
 	/**
 	 * draw groups
 	 *
-	 * @param tournamentName tournamentName
+	 * @param tournamentId     tournamentId
+	 * @param groupMode        groupMode
+	 * @param teamsPerGroup    teamsPerGroup
+	 * @param groupFillAverage groupFillAverage
+	 * @param groupNum         groupNum
 	 */
-	void drawGroups(String tournamentName);
+	void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage, int groupNum);
+
+	/**
+	 * draw group battle
+	 *
+	 * @param tournamentId   tournamentId
+	 * @param groupMode      groupMode
+	 * @param playAgainstNum playAgainstNum
+	 * @param knockoutTeam   knockoutTeam
+	 * @param groupNum       groupNum
+	 */
+	void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam, int groupNum);
 
 	/**
 	 * draw knockout phase
 	 *
-	 * @param tournamentName tournamentName
+	 * @param tournamentId           tournamentId
+	 * @param groupMode              groupMode
+	 * @param groupNum               groupNum
+	 * @param groupQualifiers        groupQualifiers
+	 * @param knockoutPlayAgainstNum knockoutPlayAgainstNum
+	 * @param knockoutTeam           knockoutTeam
+	 * @param knockoutStartGw        knockoutStartGw
+	 * @param knockoutRounds         knockoutRounds
 	 */
-	void drawKnockouts(String tournamentName) throws Exception;
+	void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
+	                   int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds);
 
 	/**
 	 * query tournament_info list by param
@@ -55,19 +101,5 @@ public interface ITournamentManagementService {
 	 * @return message
 	 */
 	String deleteTournamentByCupName(String tournamentName);
-
-	/**
-	 * update qualified teams from group stage
-	 *
-	 * @param tournamentName tournamentName
-	 */
-	void updateQualifiedTeams(String tournamentName);
-
-	/**
-	 * count entry number in a tournament
-	 *
-	 * @return number
-	 */
-	int countEntryNumInGroup(String tournamentName);
 
 }

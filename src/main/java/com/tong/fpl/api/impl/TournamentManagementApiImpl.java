@@ -1,9 +1,9 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.ITournamentManagementApi;
-import com.tong.fpl.data.fpl.QueryParam;
-import com.tong.fpl.data.fpl.TournamentCreateData;
-import com.tong.fpl.db.entity.TournamentInfoEntity;
+import com.tong.fpl.domain.data.fpl.QueryParam;
+import com.tong.fpl.domain.data.fpl.TournamentCreateData;
+import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.service.ITournamentManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

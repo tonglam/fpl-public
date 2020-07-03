@@ -1,8 +1,8 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.data.fpl.QueryParam;
-import com.tong.fpl.data.fpl.TournamentCreateData;
-import com.tong.fpl.db.entity.TournamentInfoEntity;
+import com.tong.fpl.domain.data.fpl.QueryParam;
+import com.tong.fpl.domain.data.fpl.TournamentCreateData;
+import com.tong.fpl.domain.entity.TournamentInfoEntity;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public interface ITournamentManagementApi {
 	 * @param tournamentCreateData data
 	 * @return message
 	 */
-	String createNewTournament(TournamentCreateData tournamentCreateData);
+	String createNewTournament(TournamentCreateData tournamentCreateData) throws Exception;
 
 	/**
 	 * query tournament_info list by param

@@ -4,8 +4,11 @@ package com.tong.fpl.constant;
  * Create by tong on 2020/1/19
  */
 public class Constant {
-    //for test
-    public static final String PL_PROFILE = "eyJzIjogIld6SXNNalF5TURrMk16QmQ6MWpCWjJuOnAxMzFnOUNwalJBOEo3ajVPV1JxODNaaExDYyIsICJ1IjogeyJpZCI6IDI0MjA5NjMwLCAiZm4iOiAidG9uZyIsICJsbiI6ICJsYW0iLCAiZmMiOiA0M319; csrftoken=9gATByOWrJvkeYanfbC78qoevrq133ZUjjS2UV03nns8zjxnBblrKUrnW7W7veca";
+
+	// date_format
+	public static final String DATETIME = "yyyy-MM-dd HH:mm:ss";
+	public static final String DATE = "yyyy-MM-dd";
+	public static final String SHORTDAY = "yyyyMMdd";
     // url
     public static final String LOGIN = "https://users.premierleague.com/accounts/login/";
     private static final String PREFIX = "https://fantasy.premierleague.com/api/";
@@ -13,5 +16,7 @@ public class Constant {
     public static final String USER_HISTORY = PREFIX + "entry/%s/history/";
     public static final String USER_PICKS = PREFIX + "entry/%s/event/%s/picks/";
     public static final String LEAGUES_CLASSIC = PREFIX + "leagues-classic/%s/standings/?page_standings=%s";
+	public static final String LEAGUES_H2H = PREFIX + "leagues-h2h/%s/standings/?page_standings=%s";
     public static final String EVENT_LIVE = PREFIX + "event/%s/live/";
+	public static final String FIXTURES = PREFIX + "fixtures/?event=%s";
 }

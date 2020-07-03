@@ -15,10 +15,13 @@ spring:
     username: tong
     password: Tonglam14
     hikari:
-      minimum-idle: 3
+      minimum-idle: 10
       maximum-pool-size: 10
-      max-lifetime: 30000
+      max-lifetime: 1800000
       connection-test-query: SELECT 1
+      connection-timeout: 30000
+      validation-timeout: 5000
+      idle-timeout: 600000
 mybatis-plus:
   global-config:
     db-config:

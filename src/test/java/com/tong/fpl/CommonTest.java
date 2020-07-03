@@ -1,92 +1,21 @@
 package com.tong.fpl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.tong.fpl.db.entity.EntryLiveEntity;
-import com.tong.fpl.mapper.EntryLiveMapper;
+import com.tong.fpl.constant.Constant;
+import com.tong.fpl.utils.HttpUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
  * Create by tong on 2020/4/29
  */
 public class CommonTest extends FplApplicationTests {
-
-	@Autowired
-	private EntryLiveMapper entryLiveMapper;
-
-	@Test
-	public void calcLivePoints() {
-		List<EntryLiveEntity> entryLiveList = this.entryLiveMapper.selectList(new QueryWrapper<EntryLiveEntity>().lambda()
-				.eq(EntryLiveEntity::getEvent, 29).eq(EntryLiveEntity::getEntry, 3697).groupBy(EntryLiveEntity::getPosition));
-		// element_type -> active -> start
-		Map<Integer, Map<Boolean, Map<Boolean, List<EntryLiveEntity>>>> map = entryLiveList.stream()
-				.collect(Collectors.groupingBy(EntryLiveEntity::getElementType,
-						Collectors.partitioningBy(EntryLiveEntity::getIsPlayed,
-								Collectors.partitioningBy(entryLiveEntity -> entryLiveEntity.getPosition() < 12))));
-		// gkp
-		List<EntryLiveEntity> gkps = this.createSteam(map.get(1).get(true).get(true), map.get(1).get(true).get(false), map.get(1).get(false).get(true))
-				.flatMap(Collection::stream)
-				.limit(1)
-				.collect(Collectors.toList());
-		// active def
-		List<EntryLiveEntity> defs = this.createSteam(map.get(2).get(true).get(true), map.get(2).get(true).get(false))
-				.flatMap(Collection::stream)
-				.sorted(Comparator.comparing(EntryLiveEntity::getPosition))
-				.collect(Collectors.toList());
-		// def rule, at least 3
-		if (defs.size() < 3) {
-			defs = this.createSteam(defs, map.get(2).get(false).get(true))
-					.flatMap(Collection::stream)
-					.limit(3)
-					.sorted(Comparator.comparing(EntryLiveEntity::getPosition))
-					.collect(Collectors.toList());
-		}
-		// active fwd
-		List<EntryLiveEntity> fwds = this.createSteam(map.get(4).get(true).get(true), map.get(4).get(true).get(false))
-				.flatMap(Collection::stream)
-				.sorted(Comparator.comparing(EntryLiveEntity::getPosition))
-				.collect(Collectors.toList());
-		// fwd rule, at least 1
-		if (fwds.size() < 1) {
-			fwds.add(map.get(4).get(false).get(true).get(0));
-		}
-		//mid
-		int maxMidNum = 11 - gkps.size() - defs.size() - fwds.size();
-		List<EntryLiveEntity> mids = this.createSteam(map.get(3).get(true).get(true), map.get(3).get(true).get(false))
-				.flatMap(Collection::stream)
-				.sorted(Comparator.comparing(EntryLiveEntity::getPosition))
-				.limit(maxMidNum)
-				.collect(Collectors.toList());
-		// active_list
-		List<EntryLiveEntity> activeList = this.createSteam(gkps, defs, fwds, mids)
-				.flatMap(Collection::stream)
-				.collect(Collectors.toList());
-		List<EntryLiveEntity> standByList = this.createSteam(map.get(2).get(false).get(true), map.get(3).get(false).get(true), map.get(4).get(false).get(true))
-				.flatMap(Collection::stream)
-				.filter(o -> !activeList.contains(o))
-				.sorted(Comparator.comparing(EntryLiveEntity::getPosition))
-				.limit(11 - activeList.size())
-				.collect(Collectors.toList());
-		List<EntryLiveEntity> list = this.createSteam(activeList, standByList)
-				.flatMap(Collection::stream)
-				.sorted(Comparator.comparing(EntryLiveEntity::getElementType).thenComparing(EntryLiveEntity::getPosition))
-				.collect(Collectors.toList());
-		list.forEach(o -> System.out.println(o.getPosition()));
-		int point = list.stream()
-				.peek(o -> {
-					if (o.getIsCaptain()) {
-						o.setPoint(2 * o.getPoint());
-					}
-				})
-				.mapToInt(EntryLiveEntity::getPoint)
-				.sum();
-		System.out.println(point);
-	}
 
 	@SafeVarargs
 	private final <T> Stream<T> createSteam(T... values) {
@@ -113,8 +42,22 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	public void test() {
-		int roundMatchNum = (int) Math.pow(2, 6 - 2);
-		System.out.println(roundMatchNum);
+		int knockoutTeam = 64;
+		List<Integer> entryList = Lists.newArrayList();
+		IntStream.range(1, knockoutTeam + 1).forEach(entryList::add);
+		System.out.println(1);
+	}
+
+	@Test
+	public void http() {
+		try {
+//			String profile = HttpUtils.httpLogin("bluedragon00000@sina.com", "9111130609fpl");
+			String result = HttpUtils.httpGet(String.format(Constant.LEAGUES_CLASSIC, 12683, 1)).orElse("");
+			System.out.println(result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println(1);
 	}
 
 }

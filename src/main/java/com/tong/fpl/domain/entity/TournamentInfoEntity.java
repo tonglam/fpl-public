@@ -1,0 +1,47 @@
+package com.tong.fpl.domain.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+import java.util.Date;
+
+/**
+ * Create by tong on 2020/6/23
+ */
+@Data
+@Accessors(chain = true)
+@TableName(value = "tournament_info")
+public class TournamentInfoEntity {
+
+	@TableId
+	private Integer id;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String name;
+	private String creator;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String leagueType;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer leagueId;
+	private Integer totalTeam;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String groupMode;
+	private Integer groupPlayAgainstNum;
+	private Integer teamPerGroup;
+	private Integer groupStartGw;
+	private Integer groupEndGw;
+	private Integer groupRounds;
+	private Integer groupQualifiers;
+	private Boolean groupFillAverage;
+	private Integer groupNum;
+	private Integer knockoutTeam;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String knockoutMode;
+	private Integer knockoutPlayAgainstNum;
+	private Integer knockoutStartGw;
+	private Integer knockoutEndGw;
+	private Integer knockoutRounds;
+	@TableField(fill = FieldFill.INSERT)
+	private Date createTime;
+
+}

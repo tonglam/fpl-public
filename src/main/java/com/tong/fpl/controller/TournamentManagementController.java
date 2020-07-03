@@ -1,7 +1,7 @@
 package com.tong.fpl.controller;
 
-import com.tong.fpl.data.fpl.TournamentCreateData;
-import com.tong.fpl.service.impl.TournamentManagementImpl;
+import com.tong.fpl.domain.data.fpl.TournamentCreateData;
+import com.tong.fpl.service.impl.TournamentManagementServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentManagementController {
 
-	private final TournamentManagementImpl createTournamentService;
+	private final TournamentManagementServiceImpl createTournamentService;
 
 	@RequestMapping(value = {"", "/"})
 	public String tournamentManagementController() {

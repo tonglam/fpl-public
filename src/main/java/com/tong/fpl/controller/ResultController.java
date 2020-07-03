@@ -2,9 +2,9 @@ package com.tong.fpl.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.tong.fpl.data.fpl.TournamentGroupData;
-import com.tong.fpl.db.entity.EntryInfoEntity;
-import com.tong.fpl.db.entity.TournamentGroupEntity;
+import com.tong.fpl.domain.data.fpl.TournamentGroupData;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.domain.entity.TournamentGroupEntity;
 import com.tong.fpl.service.db.EntryInfoService;
 import com.tong.fpl.service.db.TournamentGroupService;
 import lombok.RequiredArgsConstructor;

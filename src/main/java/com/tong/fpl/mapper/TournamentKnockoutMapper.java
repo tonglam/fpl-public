@@ -1,9 +1,10 @@
 package com.tong.fpl.mapper;
 
-import com.tong.fpl.db.entity.TournamentKnockoutEntity;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.tong.fpl.domain.entity.TournamentKnockoutEntity;
 
 /**
  * Create by tong on 2020/6/11
  */
-public interface TournamentKnockoutMapper extends FplBaseMapper<TournamentKnockoutEntity> {
+public interface TournamentKnockoutMapper extends BaseMapper<TournamentKnockoutEntity> {
 }

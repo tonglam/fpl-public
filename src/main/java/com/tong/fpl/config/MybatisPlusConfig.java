@@ -17,9 +17,4 @@ public class MybatisPlusConfig {
         return new PaginationInterceptor();
     }
 
-    @Bean
-    public MyLogicSqlInjector myLogicSqlInjector() {
-        return new MyLogicSqlInjector();
-    }
-
 }

@@ -1,7 +1,8 @@
 package com.tong.fpl.mapper;
 
-import com.tong.fpl.db.entity.EventEntity;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.tong.fpl.domain.entity.EventEntity;
 
-public interface EventMapper extends FplBaseMapper<EventEntity> {
+public interface EventMapper extends BaseMapper<EventEntity> {
 
 }

@@ -2,7 +2,7 @@ package com.tong.fpl.service.db;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.tong.fpl.db.entity.EventEntity;
+import com.tong.fpl.domain.entity.EventEntity;
 import com.tong.fpl.mapper.EventMapper;
 import org.springframework.stereotype.Service;
 
