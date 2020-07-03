@@ -228,7 +228,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		} else if (LeagueTypeEnum.valueOf(leagueType) == LeagueTypeEnum.H2h) {
 			entryInfoEntityList = this.staticSerive.getEntryInfoListFromH2h(leagueId);
 		}
-		entryInfoEntityList.forEach(entryInfoEntity -> entryInfoEntity.setTournamentId(tournamentId).setLeagueId(leagueId));
+		entryInfoEntityList.forEach(entryInfoEntity -> entryInfoEntity.setTournamentId(tournamentId));
 		this.entryInfoService.saveBatch(entryInfoEntityList);
 		log.info("create entry info success!");
 	}

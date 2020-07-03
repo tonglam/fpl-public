@@ -19,8 +19,6 @@ public class EntryInfoEntity {
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer tournamentId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer leagueId;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer entry;
 	private String entryName;
 	private String playerName;
