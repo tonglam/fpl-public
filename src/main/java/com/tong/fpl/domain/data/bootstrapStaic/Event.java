@@ -3,7 +3,6 @@ package com.tong.fpl.domain.data.bootstrapStaic;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,7 +13,7 @@ public class Event {
     private int id;
     private String name;
     @JsonProperty("deadline_time")
-    private Date deadlineTime;
+    private String deadlineTime;
     @JsonProperty("average_entry_score")
     private int averageEntryScore;
     private boolean finished;

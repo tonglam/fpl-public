@@ -25,9 +25,9 @@ public class EntryRes {
     @JsonProperty("player_region_name")
     private String playerRegionName;
     @JsonProperty("player_region_iso_code_short")
-    private int playerRegionIsoCodeShort;
+    private String playerRegionIsoCodeShort;
     @JsonProperty("player_region_iso_code_long")
-    private int playerRegioIsoCodeLong;
+    private String playerRegioIsoCodeLong;
     @JsonProperty("summary_overall_points")
     private int summaryOverallPoints;
     @JsonProperty("summary_overall_rank")

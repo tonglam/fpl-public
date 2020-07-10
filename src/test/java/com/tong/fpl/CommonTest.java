@@ -1,11 +1,16 @@
 package com.tong.fpl;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.tong.fpl.constant.Constant;
+import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.utils.HttpUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -42,22 +47,33 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	public void test() {
-		int knockoutTeam = 64;
-		List<Integer> entryList = Lists.newArrayList();
-		IntStream.range(1, knockoutTeam + 1).forEach(entryList::add);
-		System.out.println(1);
+		String a = "20200708";
+		String b = "20200709";
+		LocalDate d1 = LocalDate.parse(a, DateTimeFormatter.ofPattern(Constant.SHORTDAY));
+		LocalDate d2 = LocalDate.parse(b, DateTimeFormatter.ofPattern(Constant.SHORTDAY));
+		System.out.println(d1.compareTo(d2));
 	}
 
 	@Test
 	public void http() {
-		try {
-//			String profile = HttpUtils.httpLogin("bluedragon00000@sina.com", "9111130609fpl");
-			String result = HttpUtils.httpGet(String.format(Constant.LEAGUES_CLASSIC, 12683, 1)).orElse("");
-			System.out.println(result);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println(1);
+		List<Integer> chinaList = Lists.newArrayList();
+		IntStream.range(1, 7580961).forEach(entry -> {
+			try {
+				String result = HttpUtils.httpGet(String.format(Constant.ENTRY, entry)).orElse("");
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+				EntryRes entryRes = mapper.readValue(result, EntryRes.class);
+				if (entryRes == null) {
+					return;
+				}
+				if (entryRes.getPlayerRegionId() == 45) {
+					chinaList.add(entryRes.getId());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		System.out.println(chinaList.size());
 	}
 
 }

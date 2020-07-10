@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.data.fixtures;
+package com.tong.fpl.domain.data.eventFixtures;
 
 import lombok.Data;
 

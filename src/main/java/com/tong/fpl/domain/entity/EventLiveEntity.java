@@ -20,6 +20,7 @@ public class EventLiveEntity {
 	private Integer elementType;
 	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer event;
+	private Boolean wasHome;
 	private Integer minutes;
 	private Integer goalsScored;
 	private Integer assists;

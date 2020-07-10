@@ -1,4 +1,4 @@
-package com.tong.fpl.config;
+package com.tong.fpl.config.executor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

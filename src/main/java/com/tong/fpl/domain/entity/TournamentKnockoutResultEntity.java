@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
-
 /**
  * Create by tong on 2020/6/11
  */
@@ -18,14 +16,12 @@ public class TournamentKnockoutResultEntity {
 	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer tournamentId;
-	@TableField(value = "`round`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer round;
+	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer event;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer matchId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer playAginstId;
-	@TableField(value = "`event`")
-	private Integer event;
 	private Integer homeEntry;
 	private Integer homeEntryNetPoint;
 	private Integer homeEntryRank;
@@ -36,8 +32,8 @@ public class TournamentKnockoutResultEntity {
 	private String awayEntryChip;
 	private Integer matchWinner;
 	@TableField(fill = FieldFill.INSERT)
-	private Date createTime;
+	private String createTime;
 	@TableField(fill = FieldFill.UPDATE)
-	private Date updateTime;
+	private String updateTime;
 
 }

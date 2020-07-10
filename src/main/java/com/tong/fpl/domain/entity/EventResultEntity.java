@@ -1,12 +1,11 @@
 package com.tong.fpl.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.Date;
 
 /**
  * Create by tong on 2020/3/10
@@ -29,11 +28,11 @@ public class EventResultEntity {
 	private Integer eventCaptain;
 	private Integer eventBenchPoints;
 	private Integer eventRank;
-	private Integer totalPoints;
 	private Integer overallRank;
-	private String activeChip;
-	private String picks;
+	private String eventChip;
+	private String eventPicks;
 	private Boolean eventFinished;
-	private Date updateTime;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	private String updateTime;
 
 }

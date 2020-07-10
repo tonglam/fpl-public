@@ -42,8 +42,7 @@ public class ResultController {
 		List<TournamentGroupEntity> cupGroupEntityList = this.cupGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, 1).eq(TournamentGroupEntity::getGroupId, groupId));
 		cupGroupEntityList.forEach(cupGroupEntity -> {
-			EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda()
-					.eq(EntryInfoEntity::getTournamentId, 1).eq(EntryInfoEntity::getEntry, cupGroupEntity.getEntry()));
+			EntryInfoEntity entryInfoEntity = new EntryInfoEntity();
 			TournamentGroupData cupGroupData = new TournamentGroupData();
 			cupGroupData.setCupName("");
 			cupGroupData.setEntry(cupGroupEntity.getEntry());

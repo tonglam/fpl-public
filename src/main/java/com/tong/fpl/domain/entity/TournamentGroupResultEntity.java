@@ -1,12 +1,11 @@
 package com.tong.fpl.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.Date;
 
 /**
  * Create by tong on 2020/6/11
@@ -21,7 +20,8 @@ public class TournamentGroupResultEntity {
 	private Integer tournamentId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer groupId;
-	@TableField(value = "`round`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer event;
 	private Integer round;
 	private Integer homeIndex;
 	private Integer homeEntry;
@@ -32,6 +32,7 @@ public class TournamentGroupResultEntity {
 	private Integer awayEntryNetPoint;
 	private Integer awayEntryRank;
 	private Integer roundWinner;
-	private Date updateTime;
+	@TableField(fill = FieldFill.UPDATE)
+	private String updateTime;
 
 }

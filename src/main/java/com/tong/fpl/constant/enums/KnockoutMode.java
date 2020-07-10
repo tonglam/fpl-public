@@ -1,4 +1,4 @@
-package com.tong.fpl.constant;
+package com.tong.fpl.constant.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +8,6 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum KnockoutModeEnum {
+public enum KnockoutMode {
 	No_knockout, Single_round, Home_away
 }

@@ -1,15 +1,16 @@
-package com.tong.fpl.domain.data.fixtures;
+package com.tong.fpl.domain.data.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tong.fpl.domain.data.eventFixtures.FixtureStats;
 import lombok.Data;
 
-import java.util.Date;
+import java.util.List;
 
 /**
  * Create by tong on 2020/7/3
  */
 @Data
-public class FixtureGame {
+public class EventFixturesRes {
 
 	private int code;
 	private int event;
@@ -18,7 +19,7 @@ public class FixtureGame {
 	private boolean finishedProvisional;
 	private int id;
 	@JsonProperty("kickoff_time")
-	private Date kickoffTime;
+	private String kickoffTime;
 	private int minutes;
 	@JsonProperty("provisional_start_time")
 	private boolean provisionalStartTime;
@@ -31,7 +32,7 @@ public class FixtureGame {
 	private int teamH;
 	@JsonProperty("team_h_score")
 	private int teamHScore;
-	private FixtureStats stats;
+	private List<FixtureStats> stats;
 	@JsonProperty("team_h_difficulty")
 	private int teamHDifficulty;
 	@JsonProperty("team_a_difficulty")

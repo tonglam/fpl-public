@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
-
 /**
  * Create by tong on 2020/6/11
  */
@@ -17,12 +15,21 @@ public class EntryInfoEntity {
 	@TableId(type = IdType.INPUT)
 	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer tournamentId;
+	private Integer leagueId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer entry;
 	private String entryName;
 	private String playerName;
+	private String region;
+	private Integer startedEvent;
+	private Integer overallPoints;
+	private Integer overallRank;
+	private Integer bank;
+	private Integer teamValue;
+	private Integer totalTransfers;
 	@TableField(fill = FieldFill.INSERT)
-	private Date createTime;
+	private String createTime;
+	@TableField(fill = FieldFill.UPDATE)
+	private String updateTime;
 
 }

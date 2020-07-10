@@ -12,6 +12,8 @@ public interface IInterfaceService {
 
 	Optional<String> getPlProfileViaLogin(String username, String password);
 
+	Optional<EntryRes> getEntry(int entry);
+
 	Optional<UserPicksRes> getUserPicks(int entry, int event);
 
 	Optional<UserHistoryRes> getUserHistory(int entry);
@@ -22,8 +24,10 @@ public interface IInterfaceService {
 
 	Optional<EventLiveRes> getEventLive(int event);
 
+	Optional<List<EventFixturesRes>> getEventFixture(int event);
+
 	Optional<StaticRes> getBootstrapStaic();
 
-	Optional<List<FixturesRes>> getFixturesInfo(int event);
+	Optional<ElementSummaryRes> getElementSummary(int element);
 
 }

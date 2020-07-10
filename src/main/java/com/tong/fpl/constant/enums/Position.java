@@ -1,4 +1,4 @@
-package com.tong.fpl.constant;
+package com.tong.fpl.constant.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum PositionEnum {
+public enum Position {
 	GKP(1), DEF(2), MID(3), FWD(4);
 
 	private int position;

@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
-
 /**
  * Create by tong on 2020/6/11
  */
@@ -28,8 +26,8 @@ public class TournamentKnockoutEntity {
 	private Integer awayEntry;
 	private Integer roundWinner;
 	@TableField(fill = FieldFill.INSERT)
-	private Date createTime;
+	private String createTime;
 	@TableField(fill = FieldFill.UPDATE)
-	private Date updateTime;
+	private String updateTime;
 
 }

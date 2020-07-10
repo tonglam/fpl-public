@@ -1,5 +1,6 @@
 package com.tong.fpl.utils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +41,7 @@ public class JsonUtils {
 			objectMapper = getMapper();
 			StringWriter out = new StringWriter();
 			jsonGenerator = jsonFactory.createGenerator(out);
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			objectMapper.writeValue(jsonGenerator, obj);
 			return out.toString();
 		} catch (Exception e) {

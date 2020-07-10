@@ -7,6 +7,8 @@ import java.util.List;
  */
 public interface IUpdateGwResultService {
 
+	void updateEntryInfo(int event);
+
 	/**
 	 * calculate event points and save
 	 *
@@ -17,6 +19,14 @@ public interface IUpdateGwResultService {
 
 	void updateGroupResult(int event);
 
+	/**
+	 * update tournament_knockout_result every gw;
+	 * if round finished:
+	 * a.update tournament_kouckout this roind;
+	 * b.update next round entry for tournament_kouckout and tournament_knockout_result
+	 *
+	 * @param event event
+	 */
 	void updateKnockoutResult(int event);
 
 }

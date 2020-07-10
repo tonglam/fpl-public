@@ -9,5 +9,5 @@ import lombok.Data;
 public class HistoryChips {
     private String name;
     private String time;
-    private String event;
+	private int event;
 }

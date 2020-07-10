@@ -2,18 +2,22 @@ package com.tong.fpl.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
-import com.tong.fpl.constant.ChipEnum;
-import com.tong.fpl.constant.GroupModeEnum;
-import com.tong.fpl.constant.KnockoutModeEnum;
-import com.tong.fpl.constant.LeagueTypeEnum;
+import com.tong.fpl.constant.enums.Chip;
+import com.tong.fpl.constant.enums.GroupMode;
+import com.tong.fpl.constant.enums.KnockoutMode;
+import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.domain.data.fpl.QueryParam;
 import com.tong.fpl.domain.data.fpl.TournamentCreateData;
+import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.UserHistoryRes;
+import com.tong.fpl.domain.data.userHistory.HistoryChips;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.ITournamentManagementService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
+import com.tong.fpl.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +43,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 	private final ApplicationContext context;
 	private final EntryInfoService entryInfoService;
 	private final TournamentInfoService tournamentInfoService;
+	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
 	private final TournamentGroupResultService tournamentGroupResultService;
 	private final TournamentKnockoutService tournamentKnockoutService;
@@ -47,8 +52,8 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 
 	@Override
 	public String createNewTournament(TournamentCreateData tournamentCreateData) {
-		if (GroupModeEnum.valueOf(tournamentCreateData.getGroupMode()) == GroupModeEnum.No_group &&
-				KnockoutModeEnum.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutModeEnum.No_knockout) {
+		if (GroupMode.valueOf(tournamentCreateData.getGroupMode()) == GroupMode.No_group &&
+				KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout) {
 			return "创建失败，小组赛和淘汰赛至少要有一项！";
 		}
 		TournamentInfoEntity tournamentInfoEntity = new TournamentInfoEntity();
@@ -74,17 +79,240 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		return "创建成功！";
 	}
 
+	@Override
+	public void createNewTournamentBackground(String tournamentName) {
+		TournamentInfoEntity tournamentInfo = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+				.eq(TournamentInfoEntity::getName, tournamentName));
+		if (tournamentInfo == null) {
+			return;
+		}
+		int tournamentId = tournamentInfo.getId();
+		String groupMode = tournamentInfo.getGroupMode();
+		int groupNum = tournamentInfo.getGroupNum();
+		// save entry_info
+		this.saveTournamentEntryInfo(tournamentId, tournamentInfo.getLeagueType(), tournamentInfo.getLeagueId());
+		// draw groups
+		this.drawGroups(tournamentId, groupMode, tournamentInfo.getTeamPerGroup(), tournamentInfo.getGroupFillAverage(), groupNum);
+		// draw group battle
+		this.drawGroupBattle(tournamentId, groupMode, tournamentInfo.getGroupPlayAgainstNum(), tournamentInfo.getKnockoutTeam(), groupNum);
+		// draw knockouts
+		this.drawKnockouts(tournamentId, groupMode, groupNum, tournamentInfo.getGroupQualifiers(),
+				tournamentInfo.getKnockoutPlayAgainstNum(), tournamentInfo.getKnockoutTeam(), tournamentInfo.getKnockoutStartGw(), tournamentInfo.getKnockoutRounds());
+	}
+
+	@Override
+	public void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId) {
+		this.entryInfoService.remove(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getLeagueId, leagueId));
+		// save entry_info
+		List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
+		// get entry static info
+		if (LeagueType.valueOf(leagueType) == LeagueType.Classic) {
+			entryInfoEntityList = this.staticSerive.getEntryInfoListFromClassic(leagueId);
+		} else if (LeagueType.valueOf(leagueType) == LeagueType.H2h) {
+			entryInfoEntityList = this.staticSerive.getEntryInfoListFromH2h(leagueId);
+		}
+		entryInfoEntityList.forEach(entryInfoEntity -> {
+			EntryRes entryRes = this.staticSerive.getEntry(entryInfoEntity.getEntry());
+			if (entryRes == null) {
+				return;
+			}
+			entryInfoEntity
+					.setLeagueId(leagueId)
+					.setRegion(entryRes.getPlayerRegionName())
+					.setStartedEvent(entryRes.getStartedEvent())
+					.setOverallPoints(entryRes.getSummaryOverallPoints())
+					.setOverallRank(entryRes.getSummaryOverallRank())
+					.setBank(entryRes.getLastDeadlineBank())
+					.setTeamValue(entryRes.getLastDeadlineValue())
+					.setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+		});
+		this.entryInfoService.saveBatch(entryInfoEntityList);
+		// save tournament_entry
+		List<TournamentEntryEntity> tournamentEntryEntityList = Lists.newArrayList();
+		entryInfoEntityList.forEach(entryInfoEntity -> tournamentEntryEntityList.add(new TournamentEntryEntity()
+				.setTournamentId(tournamentId)
+				.setLeagueId(leagueId)
+				.setEntry(entryInfoEntity.getEntry())
+		));
+		this.tournamentEntryService.saveBatch(tournamentEntryEntityList);
+		log.info("create entry info success!");
+	}
+
+	private String getEntryActiveChips(int entry) {
+		UserHistoryRes userHistoryRes = this.staticSerive.getUserHistory(entry);
+		if (userHistoryRes == null) {
+			return "";
+		}
+		return JsonUtils.obj2json(userHistoryRes.getChips()
+				.stream()
+				.filter(o -> o.getEvent() <= CommonUtils.getNowEvent())
+				.map(HistoryChips::getName)
+				.collect(Collectors.toList()));
+	}
+
+	@Override
+	public void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage, int groupNum) {
+		if (GroupMode.valueOf(groupMode) == GroupMode.No_group) {
+			return;
+		}
+		Multimap<Integer, Integer> teamInGroupMap = ArrayListMultimap.create();
+		// check exist
+		if (this.tournamentGroupService.count(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, tournamentId)) > 0) {
+			log.info("tournament-{} groups exist!", tournamentId);
+			return;
+		}
+		// get entryList from input classic league
+		List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+				.eq(TournamentEntryEntity::getTournamentId, tournamentId))
+				.stream().map(TournamentEntryEntity::getEntry).collect(Collectors.toList());
+		// shuffle
+		Collections.shuffle(entryList);
+		// add average, represent by nagative num
+		Random random = new Random();
+		if (groupFillAverage) {
+			int averageNum = groupNum * teamsPerGroup - entryList.size();
+			IntStream.range(1, averageNum + 1).forEach(i -> {
+				int entry = -1 * i;
+				this.tournamentGroupService.save(new TournamentGroupEntity()
+						.setTournamentId(tournamentId)
+						.setGroupId(this.drawAverageToGroup(random, entry, groupNum, teamInGroupMap))
+						.setEntry(entry)
+						.setPoints(0)
+						.setRank(0)
+				);
+			});
+		}
+		// draw entry list
+		IntStream.range(0, entryList.size()).forEach(i -> this.tournamentGroupService.save(new TournamentGroupEntity()
+				.setTournamentId(tournamentId)
+				.setGroupId(this.drawToGroup(random, entryList.get(i), groupNum, teamsPerGroup, teamInGroupMap))
+				.setIndex(i + 1)
+				.setEntry(entryList.get(i))
+				.setPoints(0)
+				.setPlay(0)
+				.setWin(0)
+				.setDraw(0)
+				.setLose(0)
+				.setRank(0)
+				.setQualified(false)
+		));
+		log.info("draw groups success!");
+	}
+
+	@Override
+	public void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int teamsPerGroup, int groupNum) {
+		if (GroupMode.valueOf(groupMode) != GroupMode.Battle_race) {
+			return;
+		}
+		Multimap<Integer, String> abstractBattleMap = this.drawAbstarctBattle(teamsPerGroup, playAgainstNum);
+		// draw single round
+		List<TournamentGroupResultEntity> resultList = Lists.newArrayList();
+		IntStream.range(1, groupNum + 1).forEach(groupId ->
+				this.drawSingleGroupBattle(tournamentId, groupId, abstractBattleMap, resultList));
+		// batch update all group result
+		this.tournamentGroupResultService.saveBatch(resultList);
+		log.info("draw group battle success!");
+	}
+
+	@Override
+	public void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
+	                          int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds) {
+		if (knockoutPlayAgainstNum == 0) {
+			log.error("tournament-{} knockouct stage play against each other at least one time!", tournamentId);
+			return;
+		}
+		// check exist
+		if (this.tournamentKnockoutService.count(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)) > 0) {
+			log.error("tournament-{} knockouts exist!", tournamentId);
+			return;
+		}
+		// get knockout entry
+		ArrayList<Integer> entryList = this.getKnockoutEntryList(tournamentId, groupMode, groupNum, groupQualifiers);
+		if (CollectionUtils.isEmpty(entryList)) {
+			log.error("draw knockouts no entry!");
+			return;
+		}
+		// add blank teams
+		int blankNum = (int) Math.pow(2, knockoutRounds) - knockoutTeam;
+		if (blankNum >= entryList.size()) {
+			return;
+		}
+		List<TournamentKnockoutEntity> knockoutEntityList = Lists.newArrayList();
+		IntStream.range(1, blankNum + 1).forEach(i -> entryList.add(-1 * i));
+		// shuffle
+		do {
+			Collections.shuffle(entryList);
+		} while (this.checkDrawListLegal(entryList));
+		// draw firstRound
+		List<List<Integer>> drawLists = Lists.partition(entryList, 2);
+		int firstRoundMatchNum = (int) Math.pow(2, knockoutRounds - 1);
+		IntStream.range(1, drawLists.size() + 1).forEach(i -> {
+			List<Integer> subList = drawLists.get(i - 1);
+			knockoutEntityList.add(new TournamentKnockoutEntity()
+					.setTournamentId(tournamentId)
+					.setRound(1)
+					.setStartGw(knockoutStartGw)
+					.setEndGw(knockoutStartGw + knockoutPlayAgainstNum - 1)
+					.setHomeEntry(subList.get(0))
+					.setAwayEntry(subList.get(1))
+					.setMatchId(i)
+					.setNextMatchId(i % 2 == 0 ? (i / 2) + firstRoundMatchNum : ((i + 1) / 2) + firstRoundMatchNum)
+					.setRoundWinner(0)
+			);
+		});
+		// other matches
+		IntStream.range(2, knockoutRounds + 1).forEach(i -> {
+			int roundMatchNum = (int) Math.pow(2, knockoutRounds - i);
+			int prevMatchNum = IntStream.range(1, i).reduce(0, (sum, round) -> sum += (int) Math.pow(2, knockoutRounds - round));
+			IntStream.range(1, roundMatchNum + 1).forEach(j -> knockoutEntityList.add(new TournamentKnockoutEntity()
+							.setTournamentId(tournamentId)
+							.setRound(i)
+							.setStartGw(knockoutStartGw + knockoutPlayAgainstNum * (i - 1))
+							.setEndGw(knockoutStartGw + knockoutPlayAgainstNum * i - 1)
+							.setHomeEntry(0)
+							.setAwayEntry(0)
+							.setMatchId(j + prevMatchNum)
+							.setNextMatchId(i == knockoutRounds ? -1 : this.getNextMatchId(j, prevMatchNum, roundMatchNum))
+							.setRoundWinner(0)
+					)
+			);
+		});
+		// save knouckout
+		this.tournamentKnockoutService.saveBatch(knockoutEntityList);
+		// create knockout result
+		this.createKnockoutResult(knockoutEntityList, knockoutPlayAgainstNum);
+		log.info("draw knockouts success!");
+	}
+
+	@Override
+	public List<TournamentInfoEntity> queryTournamentInfo(QueryParam param) {
+		return this.tournamentInfoService.queryTournamentInfo(param);
+	}
+
+	@Override
+	public String deleteTournamentByCupName(String tournamentName) {
+		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+				.eq(TournamentInfoEntity::getName, tournamentName));
+		if (tournamentInfoEntity == null) {
+			return "删除失败，赛事不存在！";
+		}
+		this.tournamentInfoService.removeById(tournamentInfoEntity.getId());
+		return "删除成功";
+	}
+
 	private String setLeagueTypeByUrl(String url) {
 		if (url.contains("/standings/c")) {
-			return LeagueTypeEnum.Classic.name();
+			return LeagueType.Classic.name();
 		} else if (url.contains("/standings/h")) {
-			return LeagueTypeEnum.H2h.name();
+			return LeagueType.H2h.name();
 		}
 		return "";
 	}
 
 	private int setLeagueIdByType(String url, String leagueType) {
-		switch (LeagueTypeEnum.valueOf(leagueType)) {
+		switch (LeagueType.valueOf(leagueType)) {
 			case Classic:
 				return Integer.parseInt(StringUtils.substringBetween(url, "https://fantasy.premierleague.com/leagues/", "/standings/c"));
 			case H2h:
@@ -94,7 +322,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 	}
 
 	private int calcTotalTeamInLeague(String leagueType, int leagueId) {
-		switch (LeagueTypeEnum.valueOf(leagueType)) {
+		switch (LeagueType.valueOf(leagueType)) {
 			case Classic:
 				return this.staticSerive.getEntryInfoListFromClassic(leagueId).size();
 			case H2h:
@@ -104,7 +332,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 	}
 
 	private int setKnouckoutPlayAgainstNum(String knockoutMode) {
-		switch (KnockoutModeEnum.valueOf(knockoutMode)) {
+		switch (KnockoutMode.valueOf(knockoutMode)) {
 			case No_knockout:
 				return 0;
 			case Single_round:
@@ -116,7 +344,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 	}
 
 	private void configGroupInfo(TournamentInfoEntity tournamentInfoEntity, TournamentCreateData tournamentCreateData) {
-		GroupModeEnum groupMode = GroupModeEnum.valueOf(tournamentCreateData.getGroupMode());
+		GroupMode groupMode = GroupMode.valueOf(tournamentCreateData.getGroupMode());
 		tournamentInfoEntity.setGroupMode(groupMode.toString());
 		switch (groupMode) {
 			case No_group: {
@@ -152,23 +380,11 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 				tournamentInfoEntity.setGroupNum((int) (Math.ceil(tournamentInfoEntity.getTotalTeam() * 1.0 / tournamentInfoEntity.getTeamPerGroup())));
 				break;
 			}
-			case All_group: {
-				tournamentInfoEntity.setGroupPlayAgainstNum(tournamentCreateData.getGroupPlayAgainstNum());
-				tournamentInfoEntity.setTeamPerGroup(tournamentCreateData.getTeamsPerGroup());
-				tournamentInfoEntity.setGroupStartGw(CommonUtils.getRealGw(tournamentCreateData.getGroupStartGw()));
-				tournamentInfoEntity.setGroupRounds((tournamentInfoEntity.getTeamPerGroup() - 1) * tournamentInfoEntity.getGroupPlayAgainstNum());
-				tournamentInfoEntity.setGroupEndGw(tournamentInfoEntity.getGroupStartGw() + tournamentInfoEntity.getGroupRounds() - 1);
-				tournamentInfoEntity.setGroupQualifiers(tournamentCreateData.getGroupQualifiers());
-				tournamentInfoEntity.setGroupFillAverage(tournamentCreateData.isGroupFillAverage());
-				tournamentInfoEntity.setGroupNum((int) (Math.ceil(tournamentInfoEntity.getTotalTeam() * 1.0 / tournamentInfoEntity.getTeamPerGroup())));
-				tournamentInfoEntity.setKnockoutMode(KnockoutModeEnum.No_knockout.name());
-				break;
-			}
 		}
 	}
 
 	private void configKnockoutInfo(TournamentInfoEntity tournamentInfoEntity, TournamentCreateData tournamentCreateData) {
-		KnockoutModeEnum knockoutMode = KnockoutModeEnum.valueOf(tournamentCreateData.getKnockoutMode());
+		KnockoutMode knockoutMode = KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode());
 		tournamentInfoEntity.setKnockoutMode(knockoutMode.toString());
 		switch (knockoutMode) {
 			case No_knockout: {
@@ -180,7 +396,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 			}
 			case Single_round:
 			case Home_away: {
-				if (GroupModeEnum.valueOf(tournamentInfoEntity.getGroupMode()) == GroupModeEnum.No_group) {
+				if (GroupMode.valueOf(tournamentInfoEntity.getGroupMode()) == GroupMode.No_group) {
 					tournamentInfoEntity.setKnockoutTeam(tournamentInfoEntity.getTotalTeam());
 					tournamentInfoEntity.setKnockoutStartGw(CommonUtils.getRealGw(tournamentCreateData.getKnockoutStartGw()));
 					tournamentInfoEntity.setKnockoutRounds((int) Math.ceil(Math.log(tournamentInfoEntity.getKnockoutTeam()) / Math.log(2)) *
@@ -196,92 +412,6 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 				break;
 			}
 		}
-	}
-
-	@Override
-	public void createNewTournamentBackground(String tournamentName) {
-		TournamentInfoEntity tournamentInfo = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-				.eq(TournamentInfoEntity::getName, tournamentName));
-		if (tournamentInfo == null) {
-			return;
-		}
-		int tournamentId = tournamentInfo.getId();
-		String groupMode = tournamentInfo.getGroupMode();
-		int groupNum = tournamentInfo.getGroupNum();
-		// save entry_info
-		this.saveTournamentEntryInfo(tournamentId, tournamentInfo.getLeagueType(), tournamentInfo.getLeagueId());
-		// draw groups
-		this.drawGroups(tournamentId, groupMode, tournamentInfo.getTeamPerGroup(), tournamentInfo.getGroupFillAverage(), groupNum);
-		// draw group battle
-		this.drawGroupBattle(tournamentId, groupMode, tournamentInfo.getGroupPlayAgainstNum(), tournamentInfo.getKnockoutTeam(), groupNum);
-		// draw knockouts
-		this.drawKnockouts(tournamentId, groupMode, groupNum, tournamentInfo.getGroupQualifiers(),
-				tournamentInfo.getKnockoutPlayAgainstNum(), tournamentInfo.getKnockoutTeam(), tournamentInfo.getKnockoutStartGw(), tournamentInfo.getKnockoutRounds());
-	}
-
-	@Override
-	public void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId) {
-		this.entryInfoService.remove(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getTournamentId, tournamentId));
-		List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
-		if (LeagueTypeEnum.valueOf(leagueType) == LeagueTypeEnum.Classic) {
-			entryInfoEntityList = this.staticSerive.getEntryInfoListFromClassic(leagueId);
-		} else if (LeagueTypeEnum.valueOf(leagueType) == LeagueTypeEnum.H2h) {
-			entryInfoEntityList = this.staticSerive.getEntryInfoListFromH2h(leagueId);
-		}
-		entryInfoEntityList.forEach(entryInfoEntity -> entryInfoEntity.setTournamentId(tournamentId));
-		this.entryInfoService.saveBatch(entryInfoEntityList);
-		log.info("create entry info success!");
-	}
-
-	@Override
-	public void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage, int groupNum) {
-		if (GroupModeEnum.valueOf(groupMode) == GroupModeEnum.No_group) {
-			return;
-		}
-		Multimap<Integer, Integer> teamInGroupMap = ArrayListMultimap.create();
-		// check exist
-		if (this.tournamentGroupService.count(new QueryWrapper<TournamentGroupEntity>().lambda()
-				.eq(TournamentGroupEntity::getTournamentId, tournamentId)) > 0) {
-			log.info("tournament-{} groups exist!", tournamentId);
-			return;
-		}
-		// get entryList from input classic league
-		List<Integer> entryList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getTournamentId, tournamentId))
-				.stream().map(EntryInfoEntity::getEntry).collect(Collectors.toList());
-		// shuffle
-		Collections.shuffle(entryList);
-		// add average, represent by nagative num
-		Random random = new Random();
-		if (groupFillAverage) {
-			int averageNum = groupNum * teamsPerGroup - entryList.size();
-			IntStream.range(1, averageNum + 1).forEach(i -> {
-				int entry = -1 * i;
-				this.tournamentGroupService.save(new TournamentGroupEntity()
-						.setTournamentId(tournamentId)
-						.setGroupId(this.drawAverageToGroup(random, entry, groupNum, teamInGroupMap))
-						.setEntry(entry)
-						.setPoints(0)
-						.setRank(0)
-						.setCreateTime(new Date())
-				);
-			});
-		}
-		// draw entry list
-		IntStream.range(0, entryList.size()).forEach(i -> this.tournamentGroupService.save(new TournamentGroupEntity()
-				.setTournamentId(tournamentId)
-				.setGroupId(this.drawToGroup(random, entryList.get(i), groupNum, teamsPerGroup, teamInGroupMap))
-				.setIndex(i + 1)
-				.setEntry(entryList.get(i))
-				.setPoints(0)
-				.setPlay(0)
-				.setWin(0)
-				.setDraw(0)
-				.setLose(0)
-				.setRank(0)
-				.setQualified(false)
-				.setCreateTime(new Date())
-		));
-		log.info("draw groups success!");
 	}
 
 	private int drawAverageToGroup(Random random, int entry, int groupNum, Multimap<Integer, Integer> teamInGroup) {
@@ -300,50 +430,6 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		}
 		teamInGroup.put(groupId, entry);
 		return groupId;
-	}
-
-	@Override
-	public void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int teamsPerGroup, int groupNum) {
-		if (GroupModeEnum.valueOf(groupMode) != GroupModeEnum.Battle_race) {
-			return;
-		}
-		Multimap<Integer, String> abstractBattleMap = this.drawAbstarctBattle(teamsPerGroup, playAgainstNum);
-		// draw single round
-		List<TournamentGroupResultEntity> resultList = Lists.newArrayList();
-		IntStream.range(1, groupNum + 1).forEach(groupId ->
-				this.drawSingleGroupBattle(tournamentId, groupId, abstractBattleMap, resultList));
-		// batch update all group result
-		this.tournamentGroupResultService.saveBatch(resultList);
-		log.info("draw group battle success!");
-	}
-
-	private Multimap<Integer, String> drawAbstarctBattle(int knockoutTeam, int playAgainstNum) {
-		Multimap<Integer, String> abstractBattleMap = ArrayListMultimap.create();
-		// make virtual entry list
-		ArrayList<Integer> entryList = Lists.newArrayList();
-		IntStream.range(1, knockoutTeam + 1).forEach(entryList::add);
-		// make it even
-		if (entryList.size() % 2 == 1) {
-			entryList.add(0); // means blank
-		}
-		int entryNum = knockoutTeam % 2 == 0 ? knockoutTeam : knockoutTeam + 1;
-		// play against each other once
-		Multimap<Integer, String> abstractBattleOnceMap = ArrayListMultimap.create();
-		LinkedList<Integer> battleList = Lists.newLinkedList(entryList);
-		IntStream.range(1, entryNum).forEach(round -> {
-			IntStream.range(0, entryNum / 2).forEach(i -> abstractBattleOnceMap.put(round, battleList.get(i) + "vs" + battleList.get(battleList.size() - 1 - i)));
-			battleList.add(1, battleList.pollLast());
-		});
-		// play against each other more than once
-		IntStream.range(1, playAgainstNum + 1).forEach(againstNum -> {
-			if (againstNum % 2 == 1) {
-				abstractBattleMap.putAll(abstractBattleOnceMap);
-			} else {
-				this.reverseBattleOnce(abstractBattleOnceMap, entryNum);
-				abstractBattleMap.putAll(abstractBattleOnceMap);
-			}
-		});
-		return abstractBattleMap;
 	}
 
 	private Multimap<Integer, String> reverseBattleOnce(Multimap<Integer, String> abstractBattleOnceMap, int entryNum) {
@@ -387,8 +473,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 						.setAwayEntry(awayEntry)
 						.setAwayEntryNetPoint(0)
 						.setAwayEntryRank(0)
-						.setRoundWinner(0)
-						.setUpdateTime(new Date()));
+						.setRoundWinner(0));
 			});
 		});
 	}
@@ -407,83 +492,44 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		return battleList;
 	}
 
-	@Override
-	public void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
-	                          int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds) {
-		if (knockoutPlayAgainstNum == 0) {
-			return;
+	private Multimap<Integer, String> drawAbstarctBattle(int knockoutTeam, int playAgainstNum) {
+		Multimap<Integer, String> abstractBattleMap = ArrayListMultimap.create();
+		// make virtual entry list
+		ArrayList<Integer> entryList = Lists.newArrayList();
+		IntStream.range(1, knockoutTeam + 1).forEach(entryList::add);
+		// make it even
+		if (entryList.size() % 2 == 1) {
+			entryList.add(0); // means blank
 		}
-		// check exist
-		if (this.tournamentKnockoutService.count(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)) > 0) {
-			log.info("tournament-{} knockouts exist!", tournamentId);
-			return;
-		}
-		ArrayList<Integer> entryList = this.getKnockoutEntryList(tournamentId, groupMode, groupNum, groupQualifiers);
-		if (CollectionUtils.isEmpty(entryList)) {
-			log.info("draw knockouts no entry!");
-			return;
-		}
-		// add blank teams
-		int blankNum = (int) Math.pow(2, knockoutRounds) - knockoutTeam;
-		if (blankNum >= entryList.size()) {
-			return;
-		}
-		List<TournamentKnockoutEntity> knockoutEntityList = Lists.newArrayList();
-		IntStream.range(1, blankNum + 1).forEach(i -> entryList.add(-1 * i));
-		// shuffle
-		do {
-			Collections.shuffle(entryList);
-		} while (this.checkDrawListLegal(entryList));
-		// draw firstRound
-		List<List<Integer>> drawLists = Lists.partition(entryList, 2);
-		int firstRoundMatchNum = (int) Math.pow(2, knockoutRounds - 1);
-		IntStream.range(1, drawLists.size() + 1).forEach(i -> {
-			List<Integer> subList = drawLists.get(i - 1);
-			knockoutEntityList.add(new TournamentKnockoutEntity()
-					.setTournamentId(tournamentId)
-					.setRound(1)
-					.setStartGw(knockoutStartGw)
-					.setEndGw(knockoutStartGw + knockoutPlayAgainstNum - 1)
-					.setHomeEntry(subList.get(0))
-					.setAwayEntry(subList.get(1))
-					.setMatchId(i)
-					.setNextMatchId(i % 2 == 0 ? (i / 2) + firstRoundMatchNum : ((i + 1) / 2) + firstRoundMatchNum)
-					.setRoundWinner(0)
-					.setCreateTime(new Date())
-			);
+		int entryNum = knockoutTeam % 2 == 0 ? knockoutTeam : knockoutTeam + 1;
+		// play against each other once
+		Multimap<Integer, String> abstractBattleOnceMap = ArrayListMultimap.create();
+		LinkedList<Integer> battleList = Lists.newLinkedList(entryList);
+		IntStream.range(1, entryNum).forEach(round -> {
+			IntStream.range(0, entryNum / 2).forEach(i -> abstractBattleOnceMap.put(round, battleList.get(i) + "vs" + battleList.get(battleList.size() - 1 - i)));
+			battleList.add(1, battleList.pollLast());
 		});
-		// other matches
-		IntStream.range(2, knockoutRounds + 1).forEach(i -> {
-			int roundMatchNum = (int) Math.pow(2, knockoutRounds - i);
-			int prevMatchNum = IntStream.range(1, i).reduce(0, (sum, round) -> sum += (int) Math.pow(2, knockoutRounds - round));
-			IntStream.range(1, roundMatchNum + 1).forEach(j -> knockoutEntityList.add(new TournamentKnockoutEntity()
-							.setTournamentId(tournamentId)
-							.setRound(i)
-							.setStartGw(knockoutStartGw + knockoutPlayAgainstNum * (i - 1))
-							.setEndGw(knockoutStartGw + knockoutPlayAgainstNum * i - 1)
-							.setHomeEntry(0)
-							.setAwayEntry(0)
-							.setMatchId(j + prevMatchNum)
-							.setNextMatchId(i == knockoutRounds ? -1 : this.getNextMatchId(j, prevMatchNum, roundMatchNum))
-							.setRoundWinner(0)
-							.setCreateTime(new Date())
-					)
-			);
+		// play against each other more than once
+		IntStream.range(1, playAgainstNum + 1).forEach(againstNum -> {
+			if (againstNum % 2 == 1) {
+				abstractBattleMap.putAll(abstractBattleOnceMap);
+			} else {
+				this.reverseBattleOnce(abstractBattleOnceMap, entryNum);
+				abstractBattleMap.putAll(abstractBattleOnceMap);
+			}
 		});
-		// save knouckout
-		this.tournamentKnockoutService.saveBatch(knockoutEntityList);
-		// create knockout result
-		this.createKnockoutResult(knockoutEntityList, knockoutPlayAgainstNum);
-		log.info("draw knockouts success!");
+		return abstractBattleMap;
 	}
 
 	private ArrayList<Integer> getKnockoutEntryList(int tournamentId, String groupMode, int groupNum, int groupQualifiers) {
 		ArrayList<Integer> entryList = Lists.newArrayList();
-		if (GroupModeEnum.valueOf(groupMode) == GroupModeEnum.No_group) {
-			List<Integer> entryInfoList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
-					.eq(EntryInfoEntity::getTournamentId, tournamentId).orderByAsc(EntryInfoEntity::getId))
-					.stream().map(EntryInfoEntity::getEntry).collect(Collectors.toList());
+		if (GroupMode.valueOf(groupMode) == GroupMode.No_group) {
+			List<Integer> entryInfoList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+					.eq(TournamentEntryEntity::getTournamentId, tournamentId)
+					.orderByAsc(TournamentEntryEntity::getId))
+					.stream()
+					.map(TournamentEntryEntity::getEntry)
+					.collect(Collectors.toList());
 			entryList.addAll(entryInfoList);
 		} else {
 			IntStream.range(1, groupNum + 1).forEach(i ->
@@ -505,37 +551,20 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		knockoutEntityList.forEach(roundMatchEntity ->
 				IntStream.range(1, knockoutPlayAgainstNum + 1).forEach(i -> resultEntityList.add(new TournamentKnockoutResultEntity()
 						.setTournamentId(roundMatchEntity.getTournamentId())
-						.setRound(roundMatchEntity.getRound())
 						.setMatchId(roundMatchEntity.getMatchId())
 						.setPlayAginstId(i)
 						.setEvent(roundMatchEntity.getStartGw() - 1 + i)
 						.setHomeEntry(i % 2 == 1 ? roundMatchEntity.getHomeEntry() : roundMatchEntity.getAwayEntry())
 						.setHomeEntryNetPoint(0)
 						.setHomeEntryRank(0)
-						.setHomeEntryChip(ChipEnum.NONE.getValue())
+						.setHomeEntryChip(Chip.NONE.getValue())
 						.setAwayEntry(i % 2 == 1 ? roundMatchEntity.getAwayEntry() : roundMatchEntity.getHomeEntry())
 						.setAwayEntryNetPoint(0)
 						.setAwayEntryRank(0)
-						.setAwayEntryChip(ChipEnum.NONE.getValue())
+						.setAwayEntryChip(Chip.NONE.getValue())
 						.setMatchWinner(0)
 				)));
 		this.tournamentKnockoutResultService.saveBatch(resultEntityList);
-	}
-
-	@Override
-	public List<TournamentInfoEntity> queryTournamentInfo(QueryParam param) {
-		return this.tournamentInfoService.queryTournamentInfo(param);
-	}
-
-	@Override
-	public String deleteTournamentByCupName(String tournamentName) {
-		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-				.eq(TournamentInfoEntity::getName, tournamentName));
-		if (tournamentInfoEntity == null) {
-			return "删除失败，赛事不存在！";
-		}
-		this.tournamentInfoService.removeById(tournamentInfoEntity.getId());
-		return "删除成功";
 	}
 
 }

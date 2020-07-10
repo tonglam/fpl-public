@@ -1,4 +1,4 @@
-package com.tong.fpl.constant;
+package com.tong.fpl.constant.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +8,6 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum GroupModeEnum {
-	No_group, Points_race, Battle_race, All_group
+public enum GroupMode {
+	No_group, Points_race, Battle_race
 }

@@ -1,4 +1,4 @@
-package com.tong.fpl.config;
+package com.tong.fpl.config.event;
 
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.service.impl.TournamentManagementServiceImpl;

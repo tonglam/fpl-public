@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
-
 /**
  * Create by tong on 2020/6/23
  */
@@ -42,6 +40,6 @@ public class TournamentInfoEntity {
 	private Integer knockoutEndGw;
 	private Integer knockoutRounds;
 	@TableField(fill = FieldFill.INSERT)
-	private Date createTime;
+	private String createTime;
 
 }

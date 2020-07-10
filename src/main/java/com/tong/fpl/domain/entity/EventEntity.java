@@ -4,8 +4,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
-
 @Data
 @Accessors(chain = true)
 @TableName(value = "event")
@@ -15,7 +13,7 @@ public class EventEntity {
     private Integer id;
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
     private String name;
-    private Date deadlineTime;
+	private String deadlineTime;
     private Integer averageEntryScore;
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
     private Boolean finished;

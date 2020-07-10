@@ -8,9 +8,10 @@ import lombok.Data;
  */
 @Data
 public class Past {
-    @JsonProperty("seasonName")
-    private String season_name;
-    @JsonProperty("totalPoints")
-    private int total_points;
+
+	@JsonProperty("season_name")
+	private String seasonName;
+	@JsonProperty("total_points")
+	private int totalPoints;
     private int rank;
 }

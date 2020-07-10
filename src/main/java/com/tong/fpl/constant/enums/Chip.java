@@ -1,4 +1,4 @@
-package com.tong.fpl.constant;
+package com.tong.fpl.constant.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum ChipEnum {
+public enum Chip {
 	NONE("n/a"), BB("bboost"), FH("freehit"), WC("wildcard"), TC("3xc");
 
 	private String value;

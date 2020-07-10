@@ -1,4 +1,4 @@
-package com.tong.fpl.constant;
+package com.tong.fpl.constant.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum PositionRuleEnum {
+public enum PositionRule {
 	MIN_NUM_GKP(1), MIN_NUM_DEF(3), MIN_NUM_FWD(1), MIN_PLAYERS(11);
 
 	private int num;

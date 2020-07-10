@@ -7,8 +7,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Date;
-
 /**
  * Create by tong on 2020/6/11
  */
@@ -35,7 +33,7 @@ public class TournamentGroupEntity {
 	@TableField(value = "`rank`")
 	private Integer rank;
 	private Boolean qualified;
-	private Date createTime;
-	private Date updateTime;
+	private String createTime;
+	private String updateTime;
 
 }
