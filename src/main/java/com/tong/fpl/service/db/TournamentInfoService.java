@@ -19,4 +19,16 @@ public class TournamentInfoService extends ServiceImpl<TournamentInfoMapper, Tou
 		return this.baseMapper.queryTournamentInfo(param);
 	}
 
+	public List<TournamentInfoEntity> getAllKnockoutTournamentsByEvent(int event) {
+		return this.baseMapper.getAllKnockoutTournamentsByEvent(event);
+	}
+
+	public List<TournamentInfoEntity> getAllPointsRaceGroupByEvent(int event) {
+		return this.baseMapper.getAllPointsRaceGroupByEvent(event);
+	}
+
+	public List<TournamentInfoEntity> getAllBattleRaceGroupByEvent(int event) {
+		return this.baseMapper.getAllBattleRaceGroupByEvent(event);
+	}
+
 }

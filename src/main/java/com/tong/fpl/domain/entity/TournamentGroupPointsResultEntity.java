@@ -5,12 +5,12 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * Create by tong on 2020/6/11
+ * Create by tong on 2020/7/17
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "tournament_group")
-public class TournamentGroupEntity {
+@TableName("tournament_group_points_reslut")
+public class TournamentGroupPointsResultEntity {
 
 	@TableId
 	private Integer id;
@@ -19,22 +19,15 @@ public class TournamentGroupEntity {
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer groupId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer groupIndex;
+	private Integer event;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer entry;
-	private Integer startGw;
-	private Integer endGw;
-	private Integer groupPoints;
-	private Integer groupRank;
-	private Integer play;
-	private Integer win;
-	private Integer draw;
-	private Integer lose;
-	private Boolean qualified;
-	private Integer overallPoints;
-	private Integer overallRank;
-	@TableField(fill = FieldFill.INSERT)
-	private String createTime;
-	@TableField(fill = FieldFill.UPDATE)
+	private Integer eventGroupRank;
+	private Integer eventPoints;
+	private Integer eventCost;
+	private Integer eventNetPoints;
+	private Integer eventRank;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 
 }

@@ -8,31 +8,30 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * Create by tong on 2020/6/11
+ * Create by tong on 2020/3/10
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "tournament_group_result")
-public class TournamentGroupResultEntity {
+@TableName(value = "entry_event_result")
+public class EntryEventResultEntity {
 
+	@TableField
 	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer tournamentId;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer groupId;
+	private Integer entry;
 	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer event;
-	private Integer round;
-	private Integer homeIndex;
-	private Integer homeEntry;
-	private Integer homeEntryNetPoint;
-	private Integer homeEntryRank;
-	private Integer awayIndex;
-	private Integer awayEntry;
-	private Integer awayEntryNetPoint;
-	private Integer awayEntryRank;
-	private Integer roundWinner;
-	@TableField(fill = FieldFill.UPDATE)
+	private Integer eventPoints;
+	private Integer eventTransfers;
+	private Integer eventTransfersCost;
+	private Integer eventNetPoints;
+	private Integer eventBenchPoints;
+	private Integer eventRank;
+	private Integer overallRank;
+	private String eventChip;
+	private String eventPicks;
+	private Boolean eventFinished;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 
 }

@@ -11,6 +11,7 @@ import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.data.eventLive.ElementStat;
 import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -42,7 +43,7 @@ public class StaticServiceImpl implements IStaticSerive {
 	private final PlayerValueService playerValueService;
 	private final EventFixtureService eventFixtureService;
 	private final EventLiveService eventLiveService;
-	private final InterfaceServiceImpl interfaceService;
+	private final IInterfaceService interfaceService;
 
 	@Override
 	public void insertPlayers() {
@@ -94,7 +95,7 @@ public class StaticServiceImpl implements IStaticSerive {
 	@Override
 	public void insertEventLive(int event) {
 		this.eventLiveService.remove(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getEvent, event));
-		Map<Integer, Boolean> playAtHomeMap = this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, event))
+		Map<Integer, String> playAtHomeMap = this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, event))
 				.stream()
 				.collect(new PlayAtHomeCollector());
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
@@ -137,18 +138,23 @@ public class StaticServiceImpl implements IStaticSerive {
 	}
 
 	@Override
-	public UserHistoryRes getUserHistory(int entry) {
-		return this.interfaceService.getUserHistory(entry).orElse(null);
+	public Optional<UserPicksRes> getUserPicks(int event, int entry) {
+		return this.interfaceService.getUserPicks(event, entry);
 	}
 
 	@Override
-	public ElementSummaryRes getElementSummary(int element) {
-		return this.interfaceService.getElementSummary(element).orElse(null);
+	public Optional<UserHistoryRes> getUserHistory(int entry) {
+		return this.interfaceService.getUserHistory(entry);
 	}
 
 	@Override
-	public EntryRes getEntry(int entry) {
-		return this.interfaceService.getEntry(entry).orElse(null);
+	public Optional<ElementSummaryRes> getElementSummary(int element) {
+		return this.interfaceService.getElementSummary(element);
+	}
+
+	@Override
+	public Optional<EntryRes> getEntry(int entry) {
+		return this.interfaceService.getEntry(entry);
 	}
 
 	private void insertPlayerEntity(StaticRes staticRes) {

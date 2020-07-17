@@ -78,8 +78,6 @@ public class HttpUtils {
 		UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters);
 		httpPost.setEntity(formEntity);
 		try (CloseableHttpResponse response = httpclient.execute(httpPost, httpClientContext)) {
-			// 执行请求
-			// 判断返回状态是否为200
 			if (response.getStatusLine().getStatusCode() == 200) {
 				String result = EntityUtils.toString(response.getEntity(), "UTF-8");
 				return Optional.of(result);
@@ -103,7 +101,6 @@ public class HttpUtils {
 		parameters.add(new BasicNameValuePair("redirect_uri", "https://fantasy.premierleague.com/"));
 		UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters);
 		httpPost.setEntity(formEntity);
-		// 伪装浏览器
 		httpPost.setHeader("User-Agent",
 				"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
 		try (CloseableHttpResponse response = httpclient.execute(httpPost, httpClientContext)) {

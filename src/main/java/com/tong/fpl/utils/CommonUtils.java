@@ -61,7 +61,7 @@ public class CommonUtils {
 	public static int getNowEvent() {
 		int event = 0;
 		Map<String, Integer> deadlineMap = CommonUtils.eventService.list()
-				.stream().collect(Collectors.toMap(EventEntity::getDeadlineTime, EventEntity::getId));
+				.stream().collect(Collectors.toMap(EventEntity::getDeadlineTime, EventEntity::getEvent));
 		Map<String, Integer> result = new LinkedHashMap<>();
 		// sort by value
 		deadlineMap.entrySet()

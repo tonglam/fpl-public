@@ -22,14 +22,13 @@ public class TournamentKnockoutResultEntity {
 	private Integer matchId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer playAginstId;
+	private Boolean eventFinished;
 	private Integer homeEntry;
 	private Integer homeEntryNetPoint;
 	private Integer homeEntryRank;
-	private String homeEntryChip;
 	private Integer awayEntry;
 	private Integer awayEntryNetPoint;
 	private Integer awayEntryRank;
-	private String awayEntryChip;
 	private Integer matchWinner;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;

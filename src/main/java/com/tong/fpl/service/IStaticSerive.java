@@ -3,9 +3,11 @@ package com.tong.fpl.service;
 import com.tong.fpl.domain.data.response.ElementSummaryRes;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
+import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Create by tong on 2020/6/29
@@ -28,10 +30,12 @@ public interface IStaticSerive {
 
 	List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId);
 
-	UserHistoryRes getUserHistory(int entry);
+	Optional<UserPicksRes> getUserPicks(int event, int entry);
 
-	ElementSummaryRes getElementSummary(int element);
+	Optional<UserHistoryRes> getUserHistory(int entry);
 
-	EntryRes getEntry(int entry);
+	Optional<ElementSummaryRes> getElementSummary(int element);
+
+	Optional<EntryRes> getEntry(int entry);
 
 }

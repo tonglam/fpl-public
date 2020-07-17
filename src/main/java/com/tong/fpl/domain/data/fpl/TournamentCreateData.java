@@ -9,7 +9,7 @@ import javax.validation.constraints.Pattern;
 /**
  * Create by tong on 2020/6/23
  */
-@Validated
+@Validated()
 @Data
 public class TournamentCreateData {
 
@@ -32,7 +32,7 @@ public class TournamentCreateData {
 	@NotBlank
 	private String knockoutMode;
 	private int knockoutRounds;
+	@NotBlank
 	private String knockoutStartGw;
-	private String knockoutEndGw;
 
 }

@@ -9,22 +9,22 @@ import lombok.experimental.Accessors;
 @TableName(value = "event")
 public class EventEntity {
 
-	@TableId(type = IdType.INPUT)
-    private Integer id;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private String name;
+	@TableId(value = "`event`", type = IdType.INPUT)
+	private Integer event;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String name;
 	private String deadlineTime;
-    private Integer averageEntryScore;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private Boolean finished;
-    private Integer highestScore;
-    private Integer highestScoringEntry;
+	private Integer averageEntryScore;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Boolean finished;
+	private Integer highestScore;
+	private Integer highestScoringEntry;
 	private Boolean isPrevious;
 	private Boolean isCurrent;
 	private Boolean isNext;
-    private Integer mostSelected;
-    private Integer mostTransferredIn;
-    private Integer mostCaptained;
-    private Integer mostViceCaptained;
+	private Integer mostSelected;
+	private Integer mostTransferredIn;
+	private Integer mostCaptained;
+	private Integer mostViceCaptained;
 
 }

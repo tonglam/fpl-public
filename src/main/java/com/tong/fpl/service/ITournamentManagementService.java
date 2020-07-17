@@ -57,8 +57,11 @@ public interface ITournamentManagementService {
 	 * @param teamsPerGroup    teamsPerGroup
 	 * @param groupFillAverage groupFillAverage
 	 * @param groupNum         groupNum
+	 * @param groupStartGw     groupStartGw
+	 * @param groupEndGw       groupEndGw
 	 */
-	void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage, int groupNum);
+	void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage, int groupNum,
+	                int groupStartGw, int groupEndGw);
 
 	/**
 	 * draw group battle
@@ -68,8 +71,9 @@ public interface ITournamentManagementService {
 	 * @param playAgainstNum playAgainstNum
 	 * @param knockoutTeam   knockoutTeam
 	 * @param groupNum       groupNum
+	 * @param groupStartGw   groupStartGw
 	 */
-	void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam, int groupNum);
+	void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam, int groupNum, int groupStartGw);
 
 	/**
 	 * draw knockout phase
@@ -78,13 +82,14 @@ public interface ITournamentManagementService {
 	 * @param groupMode              groupMode
 	 * @param groupNum               groupNum
 	 * @param groupQualifiers        groupQualifiers
+	 * @param knockoutMode           knockoutMode
 	 * @param knockoutPlayAgainstNum knockoutPlayAgainstNum
 	 * @param knockoutTeam           knockoutTeam
 	 * @param knockoutStartGw        knockoutStartGw
 	 * @param knockoutRounds         knockoutRounds
 	 */
 	void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
-	                   int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds);
+	                   String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds);
 
 	/**
 	 * query tournament_info list by param

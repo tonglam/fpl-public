@@ -46,7 +46,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 	}
 
 	@Override
-	public Optional<UserPicksRes> getUserPicks(int entry, int event) {
+	public Optional<UserPicksRes> getUserPicks(int event, int entry) {
 		try {
 			String result = HttpUtils.httpGet(String.format(Constant.USER_PICKS, entry, event)).orElse("");
 			if (StringUtils.isBlank(result) || result.contains("Not found")) {

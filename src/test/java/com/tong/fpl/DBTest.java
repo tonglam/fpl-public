@@ -1,18 +1,19 @@
 package com.tong.fpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.tong.fpl.config.collector.PlayAtHomeCollector;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
-import com.tong.fpl.domain.entity.EventFixtureEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
+import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.domain.entity.TournamentKnockoutResultEntity;
-import com.tong.fpl.service.db.*;
+import com.tong.fpl.service.db.EntryInfoService;
+import com.tong.fpl.service.db.PlayerService;
+import com.tong.fpl.service.db.TournamentInfoService;
+import com.tong.fpl.service.db.TournamentKnockoutResultService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -23,16 +24,14 @@ public class DBTest extends FplApplicationTests {
 	@Autowired
 	private EntryInfoService entryInfoService;
 	@Autowired
-	private EventResultService eventResultService;
-	@Autowired
 	private TournamentKnockoutResultService tournamentKnockoutResultService;
 	@Autowired
 	private PlayerService playerService;
 	@Autowired
-	private EventFixtureService eventFixtureService;
+	private TournamentInfoService tournamentInfoService;
 
 	@Test
-	public void test1() {
+	void test1() {
 		int entry = 1404;
 		List<TournamentKnockoutResultEntity> knockoutResultList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
 				.eq(TournamentKnockoutResultEntity::getTournamentId, 1)
@@ -45,13 +44,13 @@ public class DBTest extends FplApplicationTests {
 	}
 
 	@Test
-	public void test2() {
+	void test2() {
 		List<Integer> entryList = this.entryInfoService.list().stream().map(EntryInfoEntity::getEntry).collect(Collectors.toList());
 		System.out.println(entryList.size());
 	}
 
 	@Test
-	public void test3() {
+	void test3() {
 		List<PlayerEntity> list = this.playerService.list();
 		List<String> names = list.stream()
 				.filter(playerEntity -> playerEntity.getChanceOfPlayingNextRound() != 0)
@@ -64,10 +63,8 @@ public class DBTest extends FplApplicationTests {
 	}
 
 	@Test
-	public void colletor() {
-		Map<Integer, Boolean> playAtHomeMap = this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, 39))
-				.stream()
-				.collect(new PlayAtHomeCollector());
+	void test4() {
+		List<TournamentInfoEntity> tournamentInfoList = this.tournamentInfoService.getAllKnockoutTournamentsByEvent(10);
 		System.out.println(1);
 	}
 

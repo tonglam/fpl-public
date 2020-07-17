@@ -26,4 +26,19 @@ public interface TournamentInfoMapper extends BaseMapper<TournamentInfoEntity> {
 			"ORDER BY create_time ASC ")
 	List<TournamentInfoEntity> queryTournamentInfo(QueryParam param);
 
+	@Select("SELECT * FROM tournament_info " +
+			"WHERE knockout_mode <> 'No_knockout'" +
+			"And #{event} BETWEEN knockout_start_gw AND knockout_end_gw ")
+	List<TournamentInfoEntity> getAllKnockoutTournamentsByEvent(int event);
+
+	@Select("SELECT * FROM tournament_info " +
+			"WHERE group_mode = 'Points_race'" +
+			"And #{event} BETWEEN group_start_gw AND group_end_gw ")
+	List<TournamentInfoEntity> getAllPointsRaceGroupByEvent(int event);
+
+	@Select("SELECT * FROM tournament_info " +
+			"WHERE group_mode = 'Battle_race'" +
+			"And #{event} BETWEEN group_start_gw AND group_end_gw ")
+	List<TournamentInfoEntity> getAllBattleRaceGroupByEvent(int event);
+
 }

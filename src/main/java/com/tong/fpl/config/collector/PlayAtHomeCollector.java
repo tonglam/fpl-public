@@ -22,7 +22,7 @@ import java.util.stream.Collector;
  * <p>
  * Create by tong on 2020/7/9
  */
-public class PlayAtHomeCollector implements Collector<EventFixtureEntity, Multimap<Integer, Integer>, Map<Integer, Boolean>> {
+public class PlayAtHomeCollector implements Collector<EventFixtureEntity, Multimap<Integer, Integer>, Map<Integer, String>> {
 
 	@Override
 	public Supplier<Multimap<Integer, Integer>> supplier() {
@@ -43,12 +43,19 @@ public class PlayAtHomeCollector implements Collector<EventFixtureEntity, Multim
 	}
 
 	@Override
-	public Function<Multimap<Integer, Integer>, Map<Integer, Boolean>> finisher() {
+	public Function<Multimap<Integer, Integer>, Map<Integer, String>> finisher() {
 		return fixtureMap -> {
-			Map<Integer, Boolean> playAtHomeMap = Maps.newHashMap();
+			Map<Integer, String> playAtHomeMap = Maps.newHashMap();
 			for (int home : fixtureMap.keySet()) {
-				playAtHomeMap.put(home, true);
-				fixtureMap.get(home).forEach(away -> playAtHomeMap.put(away, false));
+				playAtHomeMap.put(home, "1");
+				fixtureMap.get(home).forEach(away -> {
+					if (playAtHomeMap.containsKey(away)) {
+						String oldValue = playAtHomeMap.get(away);
+						playAtHomeMap.put(away, oldValue + "0");
+					} else {
+						playAtHomeMap.put(away, "0");
+					}
+				});
 			}
 			return playAtHomeMap;
 		};
