@@ -88,9 +88,9 @@ public class InterfaceServiceImpl implements IInterfaceService {
 	}
 
 	@Override
-	public Optional<LeagueH2hRes> getH2HClassic(int classicId, int page) {
+	public Optional<LeagueH2hRes> getLeagueH2H(int h2hId, int page) {
 		try {
-			String result = HttpUtils.httpGet(String.format(Constant.LEAGUES_H2H, classicId, page)).orElse("");
+			String result = HttpUtils.httpGet(String.format(Constant.LEAGUES_H2H, h2hId, page)).orElse("");
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, LeagueH2hRes.class));

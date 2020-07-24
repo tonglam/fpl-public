@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * http calls
+ * <p>
  * Create by tong on 2020/6/29
  */
 public interface IInterfaceService {
@@ -20,7 +22,7 @@ public interface IInterfaceService {
 
 	Optional<LeagueClassicRes> getLeaguesClassic(int classicId, int page);
 
-	Optional<LeagueH2hRes> getH2HClassic(int classicId, int page);
+	Optional<LeagueH2hRes> getLeagueH2H(int h2hId, int page);
 
 	Optional<EventLiveRes> getEventLive(int event);
 

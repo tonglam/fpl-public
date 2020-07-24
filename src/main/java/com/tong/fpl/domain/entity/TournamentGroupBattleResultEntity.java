@@ -1,9 +1,6 @@
 package com.tong.fpl.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,23 +12,24 @@ import lombok.experimental.Accessors;
 @TableName(value = "tournament_group_battle_result")
 public class TournamentGroupBattleResultEntity {
 
-	private Integer id;
+	@TableId
+	private int id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer tournamentId;
+	private int tournamentId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer groupId;
+	private int groupId;
 	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer event;
-	private Integer round;
-	private Integer homeIndex;
-	private Integer homeEntry;
-	private Integer homeEntryNetPoint;
-	private Integer homeEntryRank;
-	private Integer awayIndex;
-	private Integer awayEntry;
-	private Integer awayEntryNetPoint;
-	private Integer awayEntryRank;
-	private Integer matchWinner;
+	private int event;
+	private int homeIndex;
+	private int homeEntry;
+	private int homeEntryNetPoints;
+	private int homeEntryRank;
+	private int homeEntryMatchPoints;
+	private int awayIndex;
+	private int awayEntry;
+	private int awayEntryNetPoints;
+	private int awayEntryRank;
+	private int awayEntryMatchPoints;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 

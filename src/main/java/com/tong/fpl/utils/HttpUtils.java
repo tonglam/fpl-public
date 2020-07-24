@@ -11,6 +11,7 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -26,7 +27,18 @@ import java.util.*;
 public class HttpUtils {
 
 	private static CookieStore cookieStore = new BasicCookieStore();
-	private static CloseableHttpClient httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).setConnectionManagerShared(true).build();
+	private static PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+	private static CloseableHttpClient httpclient = createHttpClient();
+
+	private static CloseableHttpClient createHttpClient() {
+		cm.setMaxTotal(10);
+		cm.setDefaultMaxPerRoute(10);
+		return HttpClients.custom()
+				.setDefaultCookieStore(cookieStore)
+				.setConnectionManager(cm)
+				.setConnectionManagerShared(true)
+				.build();
+	}
 
 	public static Optional<String> httpGet(String url) throws IOException {
 		HttpGet httpGet = new HttpGet(url);

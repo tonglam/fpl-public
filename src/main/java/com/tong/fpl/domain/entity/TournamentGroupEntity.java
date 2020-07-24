@@ -13,25 +13,25 @@ import lombok.experimental.Accessors;
 public class TournamentGroupEntity {
 
 	@TableId
-	private Integer id;
+	private int id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer tournamentId;
+	private int tournamentId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer groupId;
+	private int groupId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer groupIndex;
-	private Integer entry;
-	private Integer startGw;
-	private Integer endGw;
-	private Integer groupPoints;
-	private Integer groupRank;
-	private Integer play;
-	private Integer win;
-	private Integer draw;
-	private Integer lose;
-	private Boolean qualified;
-	private Integer overallPoints;
-	private Integer overallRank;
+	private int groupIndex;
+	private int entry;
+	private int startGw;
+	private int endGw;
+	private int groupPoints;
+	private int groupRank;
+	private int play;
+	private int win;
+	private int draw;
+	private int lose;
+	private boolean qualified;
+	private int overallPoints;
+	private int overallRank;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;
 	@TableField(fill = FieldFill.UPDATE)

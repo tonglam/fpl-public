@@ -1,6 +1,8 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.constant.enums.GroupMode;
+import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.data.fpl.TournamentCreateData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,24 +22,57 @@ public class TournamentTest extends FplApplicationTests {
 		try {
 			TournamentCreateData tournamentCreateData = new TournamentCreateData();
 			tournamentCreateData.setUrl("https://fantasy.premierleague.com/leagues/710/standings/c");
-			tournamentCreateData.setTournamentName("letletme3");
 			tournamentCreateData.setCreator("tong");
-			// group
-			tournamentCreateData.setGroupMode("Battle_race");
-			tournamentCreateData.setGroupPlayAgainstNum(1);
-			tournamentCreateData.setGroupStartGw("1");
-			tournamentCreateData.setGroupEndGw("");
-			tournamentCreateData.setTeamsPerGroup(7);
-			tournamentCreateData.setGroupFillAverage(true);
-			tournamentCreateData.setGroupQualifiers(4);
-			// knockout
-			tournamentCreateData.setKnockoutMode("Single_round");
-			tournamentCreateData.setKnockoutRounds(0);
-			tournamentCreateData.setKnockoutStartGw("");
+			tournamentCreateData.setTournamentName("points-normal-4");
+			this.configCreateData("points world cup home-away", tournamentCreateData);
 			String result = this.tournamentManagementService.createNewTournament(tournamentCreateData);
 			System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void configCreateData(String tournamnetMode, TournamentCreateData tournamentCreateData) {
+		switch (tournamnetMode) {
+			case "FA cup": {
+				tournamentCreateData.setGroupMode(GroupMode.No_group.name()).setKnockoutMode(KnockoutMode.Single_round.name());
+				tournamentCreateData.setKnockoutStartGw("39");
+				break;
+			}
+			case "FA cup home-away": {
+				tournamentCreateData.setGroupMode(GroupMode.No_group.name()).setKnockoutMode(KnockoutMode.Home_away.name());
+				tournamentCreateData.setKnockoutStartGw("39");
+				break;
+			}
+			case "classic": {
+				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.No_knockout.name());
+				tournamentCreateData.setTeamsPerGroup(0).setGroupStartGw("1").setGroupEndGw("47").setGroupQualifiers(1000);
+				break;
+			}
+			case "h2h": {
+				tournamentCreateData.setGroupMode(GroupMode.Battle_race.name()).setKnockoutMode(KnockoutMode.No_knockout.name());
+				tournamentCreateData.setTeamsPerGroup(0).setGroupStartGw("1").setGroupEndGw("47").setGroupQualifiers(0);
+				break;
+			}
+			case "points world cup": {
+				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.Single_round.name());
+				tournamentCreateData.setTeamsPerGroup(7).setGroupStartGw("1").setGroupEndGw("47").setGroupQualifiers(4);
+				break;
+			}
+			case "points world cup home-away": {
+				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.Home_away.name());
+				tournamentCreateData.setTeamsPerGroup(7).setGroupStartGw("1").setGroupEndGw("47").setGroupQualifiers(4);
+				break;
+			}
+			case "world cup": {
+				tournamentCreateData.setGroupMode(GroupMode.Battle_race.name()).setKnockoutMode(KnockoutMode.Single_round.name());
+				break;
+			}
+			case "world cup home-away": {
+				tournamentCreateData.setGroupMode(GroupMode.Battle_race.name()).setKnockoutMode(KnockoutMode.Home_away.name());
+				break;
+			}
+			default:
 		}
 	}
 
@@ -51,23 +86,25 @@ public class TournamentTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"1, Classic, 710"})
 	void saveEntryInfo(int tournamentId, String leagueType, int leagueId) {
-		this.tournamentManagementService.saveTournamentEntryInfo(tournamentId, leagueType, leagueId);
+		this.tournamentManagementService.saveTournamentEntryInfo(tournamentId, leagueType, leagueId, false);
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
 	@CsvSource({"2, Points_race, 107, false, 1, 1, 47"})
-	void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage, int groupNum,
-	                int groupStartGw, int groupEndGw) {
-		this.tournamentManagementService.drawGroups(tournamentId, groupMode, teamsPerGroup, groupFillAverage, groupNum,
-				groupStartGw, groupEndGw);
+	void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage,
+	                int groupNum, int groupStartGw, int groupEndGw) {
+		this.tournamentManagementService.drawGroups(tournamentId, groupMode, teamsPerGroup, groupFillAverage,
+				groupNum, groupStartGw, groupEndGw);
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1, No_group, 2, 64, 16, 1"})
-	void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam, int groupNum, int groupStartGw) {
-		this.tournamentManagementService.drawGroupBattle(tournamentId, groupMode, playAgainstNum, knockoutTeam, groupNum, groupStartGw);
+	@CsvSource({"1, No_group, 2, 64, 16, 1, 38"})
+	void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam,
+	                     int groupNum, int groupStartGw, int groupEndGw) {
+		this.tournamentManagementService.drawGroupBattle(tournamentId, groupMode, playAgainstNum, knockoutTeam,
+				groupNum, groupStartGw, groupEndGw);
 		System.out.println(1);
 	}
 

@@ -13,32 +13,32 @@ import lombok.experimental.Accessors;
 public class TournamentInfoEntity {
 
 	@TableId
-	private Integer id;
+	private int id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private String name;
 	private String creator;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private String leagueType;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer leagueId;
-	private Integer totalTeam;
+	private int leagueId;
+	private int totalTeam;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private String groupMode;
-	private Integer groupPlayAgainstNum;
-	private Integer teamPerGroup;
-	private Integer groupStartGw;
-	private Integer groupEndGw;
-	private Integer groupRounds;
-	private Integer groupQualifiers;
-	private Boolean groupFillAverage;
-	private Integer groupNum;
-	private Integer knockoutTeam;
+	private int groupPlayAgainstNum;
+	private int teamPerGroup;
+	private int groupStartGw;
+	private int groupEndGw;
+	private int groupRounds;
+	private int groupQualifiers;
+	private boolean groupFillAverage;
+	private int groupNum;
+	private int knockoutTeam;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private String knockoutMode;
-	private Integer knockoutPlayAgainstNum;
-	private Integer knockoutStartGw;
-	private Integer knockoutEndGw;
-	private Integer knockoutRounds;
+	private int knockoutPlayAgainstNum;
+	private int knockoutStartGw;
+	private int knockoutEndGw;
+	private int knockoutRounds;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;
 

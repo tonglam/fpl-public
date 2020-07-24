@@ -13,20 +13,20 @@ import lombok.experimental.Accessors;
 public class TournamentGroupPointsResultEntity {
 
 	@TableId
-	private Integer id;
+	private int id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer tournamentId;
+	private int tournamentId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer groupId;
+	private int groupId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer event;
+	private int event;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer entry;
-	private Integer eventGroupRank;
-	private Integer eventPoints;
-	private Integer eventCost;
-	private Integer eventNetPoints;
-	private Integer eventRank;
+	private int entry;
+	private int eventGroupRank;
+	private int eventPoints;
+	private int eventCost;
+	private int eventNetPoints;
+	private int eventRank;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 

@@ -13,24 +13,24 @@ import lombok.experimental.Accessors;
 public class PlayerValueEntity {
 
 	@TableId
-	private Integer id;
+	private int id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer element;
+	private int element;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer elementType;
-	private Integer event;
+	private int elementType;
+	private int event;
 	@TableField(value = "`value`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer value;
+	private int value;
 	private String changeDate;
 	private String changeType;
 	@TableField(value = "`last_value`")
-	private Integer lastValue;
+	private int lastValue;
 	private String selectedByPercent;
 	private String lastSelectedByPercent;
-	private Integer transfersInEvent;
-	private Integer transfersOutEvent;
-	private Integer transfersIn;
-	private Integer transfersOut;
+	private int transfersInEvent;
+	private int transfersOutEvent;
+	private int transfersIn;
+	private int transfersOut;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 

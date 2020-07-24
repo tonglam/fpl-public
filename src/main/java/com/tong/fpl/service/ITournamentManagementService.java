@@ -43,11 +43,12 @@ public interface ITournamentManagementService {
 	/**
 	 * save entry info in the tournament
 	 *
-	 * @param tournamentId tournamentId
-	 * @param leagueType   leagueType
-	 * @param leagueId     leagueId
+	 * @param tournamentId     tournamentId
+	 * @param leagueType       leagueType
+	 * @param leagueId         leagueId
+	 * @param groupFillAverage groupFillAverage
 	 */
-	void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId);
+	void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, boolean groupFillAverage);
 
 	/**
 	 * draw groups
@@ -72,8 +73,9 @@ public interface ITournamentManagementService {
 	 * @param knockoutTeam   knockoutTeam
 	 * @param groupNum       groupNum
 	 * @param groupStartGw   groupStartGw
+	 * @param groupEndGw     groupEndGw
 	 */
-	void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam, int groupNum, int groupStartGw);
+	void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam, int groupNum, int groupStartGw, int groupEndGw);
 
 	/**
 	 * draw knockout phase

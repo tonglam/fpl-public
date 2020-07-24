@@ -3,6 +3,7 @@ package com.tong.fpl.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.tong.fpl.config.collector.ElementLiveCollector;
 import com.tong.fpl.constant.enums.Chip;
@@ -12,6 +13,7 @@ import com.tong.fpl.domain.data.fpl.ElementLiveData;
 import com.tong.fpl.domain.data.fpl.LiveCalaData;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.EventFixtureEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
@@ -28,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -106,6 +109,25 @@ public class LiveCalcService implements ILiveCalcService {
 		return liveCalaData;
 	}
 
+	@Override
+	public Map<Integer, Integer> calcEventCaptainStat(int event, int num) {
+		// thread safety
+		Map<Integer, Integer> entryCaptainMap = Maps.newConcurrentMap();
+		List<Integer> entryList = Lists.newCopyOnWriteArrayList();
+		IntStream.range(1, (int) Math.round(num * 1.0 / 50)).parallel().forEach(page -> {
+			List<EntryInfoEntity> entryInfoEntityList = this.staticService.getLeaguesClassicByPage(314, page);
+			entryInfoEntityList.forEach(entryInfoEntity -> entryList.add(entryInfoEntity.getEntry()));
+		});
+		entryList.parallelStream().forEach(entry -> {
+			Optional<UserPicksRes> userPicksRes = this.staticService.getUserPicks(event, entry);
+			userPicksRes.ifPresent(userPicks -> userPicks.getPicks().parallelStream()
+					.filter(Pick::isCaptain)
+					.forEach(o -> entryCaptainMap.put(entry, o.getElement())));
+		});
+		entryCaptainMap.forEach((key, value) -> log.info("entry:{}, captain:{}", key, value));
+		return entryCaptainMap;
+	}
+
 	private int ifMultiplier(int event, int element) {
 		int teamId = this.playerService.getById(element).getTeamId();
 		if (teamId == 0) {
@@ -158,7 +180,7 @@ public class LiveCalcService implements ILiveCalcService {
 		if (CollectionUtils.isEmpty(eventFixtureList)) {
 			return true;
 		}
-		return eventFixtureList.get(0).getStarted();
+		return eventFixtureList.get(0).isStarted();
 	}
 
 	private List<ElementLiveData> getPickList(List<ElementLiveData> elementLiveDataList) {

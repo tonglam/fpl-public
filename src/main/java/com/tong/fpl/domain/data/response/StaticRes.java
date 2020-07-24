@@ -18,10 +18,10 @@ public class StaticRes {
     private List<Team> teams;
     @JsonProperty("total_players")
     private int totalPlayers;
-    @JsonProperty("elements")
-    private List<Player> players;
-    @JsonProperty("element_stats")
-    private List<ElementStat> elementStats;
+	@JsonProperty("elements")
+	private List<Player> elements;
+	@JsonProperty("element_stats")
+	private List<ElementStat> elementStats;
     @JsonProperty("element_types")
     private List<ElementType> elementTypes;
 }

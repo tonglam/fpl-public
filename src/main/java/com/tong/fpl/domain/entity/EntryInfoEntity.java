@@ -12,19 +12,21 @@ import lombok.experimental.Accessors;
 @TableName("entry_info")
 public class EntryInfoEntity {
 
-	@TableId(type = IdType.INPUT)
-	private Integer entry;
+	@TableId
+	private int id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer leagueId;
+	private int entry;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private int leagueId;
 	private String entryName;
 	private String playerName;
 	private String region;
-	private Integer startedEvent;
-	private Integer overallPoints;
-	private Integer overallRank;
-	private Integer bank;
-	private Integer teamValue;
-	private Integer totalTransfers;
+	private int startedEvent;
+	private int overallPoints;
+	private int overallRank;
+	private int bank;
+	private int teamValue;
+	private int totalTransfers;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;
 	@TableField(fill = FieldFill.UPDATE)

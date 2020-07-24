@@ -88,15 +88,31 @@ public class Player {
     private int penaltiesMissed;
     @JsonProperty("yellow_cards")
     private int yellowCards;
-    @JsonProperty("red_cards")
-    private int redCards;
-    private int saves;
-    private int bonus;
-    private int bps;
-    private String influence;
-    private String creativity;
-    private String threat;
-    @JsonProperty("ict_index")
-    private String ictIndex;
+	@JsonProperty("red_cards")
+	private int redCards;
+	private int saves;
+	private int bonus;
+	private int bps;
+	private String influence;
+	private String creativity;
+	private String threat;
+	@JsonProperty("ict_index")
+	private String ictIndex;
+	@JsonProperty("influence_rank")
+	private String influenceRank;
+	@JsonProperty("influence_rank_type")
+	private String influenceRankType;
+	@JsonProperty("creativity_rank")
+	private String creativityRank;
+	@JsonProperty("creativity_rank_type")
+	private String creativityRankType;
+	@JsonProperty("threat_rank")
+	private String threatRank;
+	@JsonProperty("threat_rank_type")
+	private String threatRankType;
+	@JsonProperty("ict_index_rank")
+	private String ictIndexRank;
+	@JsonProperty("ict_index_rank_type")
+	private String ictIndexRankType;
 
 }

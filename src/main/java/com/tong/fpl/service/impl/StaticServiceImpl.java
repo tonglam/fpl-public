@@ -7,7 +7,9 @@ import com.google.common.collect.Lists;
 import com.tong.fpl.config.collector.PlayAtHomeCollector;
 import com.tong.fpl.config.collector.PlayerValueCollector;
 import com.tong.fpl.constant.Constant;
+import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.ValueChangeType;
+import com.tong.fpl.domain.data.bootstrapStaic.Event;
 import com.tong.fpl.domain.data.eventLive.ElementStat;
 import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.domain.entity.*;
@@ -41,6 +43,7 @@ public class StaticServiceImpl implements IStaticSerive {
 	private final EventService eventService;
 	private final PlayerService playerService;
 	private final PlayerValueService playerValueService;
+	private final EntryEventResultService entryEventResultService;
 	private final EventFixtureService eventFixtureService;
 	private final EventLiveService eventLiveService;
 	private final IInterfaceService interfaceService;
@@ -71,6 +74,8 @@ public class StaticServiceImpl implements IStaticSerive {
 			insertPlayerEntity(o);
 			// event
 			insertEventEntity(o);
+			// average score
+			insertAverageEventResult(event, o);
 		});
 	}
 
@@ -126,14 +131,28 @@ public class StaticServiceImpl implements IStaticSerive {
 	@Override
 	public List<EntryInfoEntity> getEntryInfoListFromClassic(int classicId) {
 		List<EntryInfoEntity> list = Lists.newArrayList();
-		this.getOnePageEntryListFromClassic(list, classicId, 1);
+		this.getOnePageEntryListFromClassic(list, classicId, 1, true);
+		return list;
+	}
+
+	@Override
+	public List<EntryInfoEntity> getLeaguesClassicByPage(int classicId, int page) {
+		List<EntryInfoEntity> list = Lists.newArrayList();
+		this.getOnePageEntryListFromClassic(list, classicId, 1, false);
 		return list;
 	}
 
 	@Override
 	public List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId) {
 		List<EntryInfoEntity> list = Lists.newArrayList();
-		this.getOnePageEntryListFromH2h(list, h2hId, 1);
+		this.getOnePageEntryListFromH2h(list, h2hId, 1, true);
+		return list;
+	}
+
+	@Override
+	public List<EntryInfoEntity> getEntryInfoListFromH2hByPage(int h2hId, int page) {
+		List<EntryInfoEntity> list = Lists.newArrayList();
+		this.getOnePageEntryListFromH2h(list, h2hId, 1, false);
 		return list;
 	}
 
@@ -160,7 +179,7 @@ public class StaticServiceImpl implements IStaticSerive {
 	private void insertPlayerEntity(StaticRes staticRes) {
 		this.playerService.remove(new QueryWrapper<PlayerEntity>().eq("1", 1));
 		List<PlayerEntity> playerList = Lists.newArrayList();
-		staticRes.getPlayers().forEach(bootstrapPlayer -> {
+		staticRes.getElements().forEach(bootstrapPlayer -> {
 			PlayerEntity playerEntity = new PlayerEntity();
 			BeanUtil.copyProperties(bootstrapPlayer, playerEntity, CopyOptions.create().ignoreNullValue());
 			playerEntity.setElement(bootstrapPlayer.getId());
@@ -178,7 +197,8 @@ public class StaticServiceImpl implements IStaticSerive {
 		staticRes.getEvents().forEach(bootstrapEvent -> {
 			EventEntity eventEntity = new EventEntity();
 			BeanUtil.copyProperties(bootstrapEvent, eventEntity);
-			eventEntity.setDeadlineTime(CommonUtils.getZoneDate(bootstrapEvent.getDeadlineTime()));
+			eventEntity.setEvent(bootstrapEvent.getId())
+					.setDeadlineTime(CommonUtils.getZoneDate(bootstrapEvent.getDeadlineTime()));
 			eventList.add(eventEntity);
 		});
 		this.eventService.saveBatch(eventList);
@@ -186,7 +206,35 @@ public class StaticServiceImpl implements IStaticSerive {
 		eventList.clear();
 	}
 
-	private void insertPlayerValueEntity(StaticRes staticRes) {
+	public void insertAverageEventResult(int event, StaticRes staticRes) {
+		int averageScore = staticRes.getEvents().stream()
+				.filter(o -> o.getId() == event)
+				.map(Event::getAverageEntryScore)
+				.findFirst()
+				.orElse(0);
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, -1));
+		if (entryEventResultEntity != null) {
+			entryEventResultEntity.setEventPoints(averageScore).setEventNetPoints(averageScore);
+		} else {
+			entryEventResultEntity = new EntryEventResultEntity()
+					.setEntry(-1)
+					.setEvent(event)
+					.setEventPoints(averageScore)
+					.setEventTransfers(0)
+					.setEventTransfersCost(0)
+					.setEventNetPoints(averageScore)
+					.setEventBenchPoints(0)
+					.setEventRank(0)
+					.setOverallRank(0)
+					.setEventChip(Chip.NONE.getValue())
+					.setEventPicks("")
+					.setEventFinished(this.eventService.getById(event).isFinished());
+		}
+		this.entryEventResultService.saveOrUpdate(entryEventResultEntity);
+	}
+
+	public void insertPlayerValueEntity(StaticRes staticRes) {
 		this.playerValueService.remove(new QueryWrapper<PlayerValueEntity>().lambda()
 				.eq(PlayerValueEntity::getChangeDate, LocalDate.now().format(DateTimeFormatter.ofPattern(Constant.SHORTDAY))));
 		Map<Integer, PlayerValueEntity> lastValueMap = this.playerValueService.list()
@@ -194,7 +242,7 @@ public class StaticServiceImpl implements IStaticSerive {
 				.filter(o -> o.getValue() > 0)
 				.collect(new PlayerValueCollector());
 		List<PlayerValueEntity> playerValueList = Lists.newArrayList();
-		staticRes.getPlayers()
+		staticRes.getElements()
 				.stream()
 				.filter(o -> !lastValueMap.containsKey(o.getId()) || o.getNowCost() != lastValueMap.get(o.getId()).getValue())
 				.forEach(bootstrapPlayer -> {
@@ -230,7 +278,7 @@ public class StaticServiceImpl implements IStaticSerive {
 		return nowCost > lastCost ? ValueChangeType.Rise.name() : ValueChangeType.Faller.name();
 	}
 
-	private void getOnePageEntryListFromClassic(List<EntryInfoEntity> list, int classicId, int page) {
+	private void getOnePageEntryListFromClassic(List<EntryInfoEntity> list, int classicId, int page, boolean recursive) {
 		Optional<LeagueClassicRes> resResult = this.interfaceService.getLeaguesClassic(classicId, page);
 		if (resResult.isPresent()) {
 			LeagueClassicRes leagueClassicRes = resResult.get();
@@ -240,15 +288,15 @@ public class StaticServiceImpl implements IStaticSerive {
 						.setEntryName(EmojiManager.containsEmoji(o.getEntryName()) ? EmojiParser.parseToHtmlDecimal(o.getEntryName()) : o.getEntryName())
 						.setPlayerName(EmojiManager.containsEmoji(o.getPlayerName()) ? EmojiParser.parseToHtmlDecimal(o.getPlayerName()) : o.getPlayerName())));
 			}
-			if (leagueClassicRes.getStandings().isHasNext()) {
+			if (recursive && leagueClassicRes.getStandings().isHasNext()) {
 				page++;
-				getOnePageEntryListFromClassic(list, classicId, page);
+				getOnePageEntryListFromClassic(list, classicId, page, true);
 			}
 		}
 	}
 
-	private void getOnePageEntryListFromH2h(List<EntryInfoEntity> list, int h2hId, int page) {
-		Optional<LeagueH2hRes> resResult = this.interfaceService.getH2HClassic(h2hId, page);
+	private void getOnePageEntryListFromH2h(List<EntryInfoEntity> list, int h2hId, int page, boolean recursive) {
+		Optional<LeagueH2hRes> resResult = this.interfaceService.getLeagueH2H(h2hId, page);
 		if (resResult.isPresent()) {
 			LeagueH2hRes leagueH2hRes = resResult.get();
 			if (!CollectionUtils.isEmpty(leagueH2hRes.getStandings().getResults())) {
@@ -256,9 +304,9 @@ public class StaticServiceImpl implements IStaticSerive {
 						.setEntry(o.getEntry())
 						.setEntryName(EmojiManager.containsEmoji(o.getEntryName()) ? EmojiParser.parseToHtmlDecimal(o.getEntryName()) : o.getEntryName())
 						.setPlayerName(EmojiManager.containsEmoji(o.getPlayerName()) ? EmojiParser.parseToHtmlDecimal(o.getPlayerName()) : o.getPlayerName())));
-				if (leagueH2hRes.getStandings().isHasNext()) {
+				if (recursive && leagueH2hRes.getStandings().isHasNext()) {
 					page++;
-					getOnePageEntryListFromH2h(list, h2hId, page);
+					getOnePageEntryListFromH2h(list, h2hId, page, true);
 				}
 			}
 		}

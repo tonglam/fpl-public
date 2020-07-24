@@ -1,6 +1,7 @@
 package com.tong.fpl.domain.data.fpl;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
@@ -9,8 +10,9 @@ import javax.validation.constraints.Pattern;
 /**
  * Create by tong on 2020/6/23
  */
-@Validated()
+@Validated
 @Data
+@Accessors(chain = true)
 public class TournamentCreateData {
 
 	@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]]$")
@@ -19,19 +21,18 @@ public class TournamentCreateData {
 	private String tournamentName;
 	@NotBlank
 	private String creator;
-	// group configuration
+	// group params
 	@NotBlank
 	private String groupMode;
-	private int groupPlayAgainstNum;
 	private String groupStartGw;
 	private String groupEndGw;
 	private int teamsPerGroup;
 	private boolean groupFillAverage;
 	private int groupQualifiers;
-	// knockout configuration
+	// knockout params
 	@NotBlank
 	private String knockoutMode;
-	private int knockoutRounds;
+	//	private int knockoutRounds;
 	@NotBlank
 	private String knockoutStartGw;
 

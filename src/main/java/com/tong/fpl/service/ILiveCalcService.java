@@ -27,4 +27,6 @@ public interface ILiveCalcService {
 	 */
 	LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain);
 
+	Map<Integer, Integer> calcEventCaptainStat(int event, int num);
+
 }

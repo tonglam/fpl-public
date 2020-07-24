@@ -18,18 +18,19 @@ public class EventResultTest extends FplApplicationTests {
 	private IUpdateEventResultsService updateEventResultsService;
 
 	static IntStream intStreamProvider() {
-		return IntStream.range(1, 46);
+		return IntStream.range(1, 47);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"44"})
+//	@MethodSource("intStreamProvider")
+	@CsvSource({"46"})
 	void updateBaseInfoByEvent(int event) {
 		this.updateEventResultsService.updateBaseInfoByEvent(event);
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"45, 1"})
+	@CsvSource({"46, 1"})
 	void updateEventResult(int event, int tournamentId) {
 		System.out.println("start event: " + event);
 		this.updateEventResultsService.updateTournamentEntryEventResult(event, tournamentId);

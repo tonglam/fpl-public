@@ -16,10 +16,10 @@ import lombok.experimental.Accessors;
 public class TournamentEntryEntity {
 
 	@TableId
-	private Integer id;
-	private Integer tournamentId;
-	private Integer leagueId;
-	private Integer entry;
+	private int id;
+	private int tournamentId;
+	private int leagueId;
+	private int entry;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;
 
