@@ -11,6 +11,8 @@ import com.tong.fpl.utils.HttpUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -48,7 +50,9 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		IntStream.range(1, 108).forEach(System.out::println);
+		System.out.println(Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getDays() + " Days");
+		System.out.println("Deadline: " + Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getMonths() + " Month "
+				+ Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getDays() + " Days");
 	}
 
 	@Test

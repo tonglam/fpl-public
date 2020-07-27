@@ -23,7 +23,7 @@ public class EventResultTest extends FplApplicationTests {
 
 	@ParameterizedTest
 //	@MethodSource("intStreamProvider")
-	@CsvSource({"46"})
+	@CsvSource({"47"})
 	void updateBaseInfoByEvent(int event) {
 		this.updateEventResultsService.updateBaseInfoByEvent(event);
 		System.out.println(1);

@@ -68,7 +68,7 @@ public class StaticTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"46"})
+	@CsvSource({"47"})
 	void insertGwFixture(int event) {
 		this.staticService.insertEventFixture(event);
 	}
