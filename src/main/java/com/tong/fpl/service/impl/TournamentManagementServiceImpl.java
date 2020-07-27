@@ -5,11 +5,11 @@ import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
-import com.tong.fpl.domain.data.fpl.QueryParam;
 import com.tong.fpl.domain.data.fpl.TournamentCreateData;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
+import com.tong.fpl.domain.web.QueryParam;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.ITournamentManagementService;
 import com.tong.fpl.service.db.*;
@@ -259,7 +259,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 			return;
 		}
 		int groupRound = groupEndGw - groupStartGw + 1;
-		Multimap<Integer, String> abstractBattleMap = this.drawAbstarctBattle(teamPerGroup, playAgainstNum, groupRound);
+		Multimap<Integer, String> abstractBattleMap = this.drawAbstractBattle(teamPerGroup, playAgainstNum, groupRound);
 		// draw single group
 		List<TournamentGroupBattleResultEntity> groupBattleResultList = Lists.newArrayList();
 		IntStream.range(1, groupNum + 1).forEach(groupId ->
@@ -456,23 +456,20 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 				if (GroupMode.valueOf(tournamentInfoEntity.getGroupMode()) == GroupMode.No_group) {
 					tournamentInfoEntity.setKnockoutTeam(tournamentInfoEntity.getTotalTeam());
 					tournamentInfoEntity.setKnockoutStartGw(CommonUtils.getRealGw(tournamentCreateData.getKnockoutStartGw()));
-					tournamentInfoEntity.setKnockoutRounds((int) Math.ceil(Math.log(tournamentInfoEntity.getKnockoutTeam()) / Math.log(2)) *
-							tournamentInfoEntity.getKnockoutPlayAgainstNum());
-					tournamentInfoEntity.setKnockoutEndGw(tournamentInfoEntity.getKnockoutStartGw() + tournamentInfoEntity.getKnockoutRounds() - 1);
 				} else {
 					tournamentInfoEntity.setKnockoutTeam(tournamentInfoEntity.getGroupQualifiers() * tournamentInfoEntity.getGroupNum());
 					tournamentInfoEntity.setKnockoutStartGw(tournamentInfoEntity.getGroupEndGw() + 1);
-					tournamentInfoEntity.setKnockoutRounds((int) Math.ceil(Math.log(tournamentInfoEntity.getKnockoutTeam()) / Math.log(2)) *
-							tournamentInfoEntity.getKnockoutPlayAgainstNum());
-					tournamentInfoEntity.setKnockoutEndGw(tournamentInfoEntity.getKnockoutStartGw() + tournamentInfoEntity.getKnockoutRounds() - 1);
 				}
+				tournamentInfoEntity.setKnockoutRounds((int) Math.ceil(Math.log(tournamentInfoEntity.getKnockoutTeam()) / Math.log(2)) *
+						tournamentInfoEntity.getKnockoutPlayAgainstNum());
+				tournamentInfoEntity.setKnockoutEndGw(tournamentInfoEntity.getKnockoutStartGw() + tournamentInfoEntity.getKnockoutRounds() - 1);
 				break;
 			}
 			default:
 		}
 	}
 
-	private Multimap<Integer, String> drawAbstarctBattle(int teamPerGroup, int playAgainstNum, int groupRound) {
+	private Multimap<Integer, String> drawAbstractBattle(int teamPerGroup, int playAgainstNum, int groupRound) {
 		// make virtual entry list
 		ArrayList<Integer> entryList = Lists.newArrayList();
 		IntStream.range(1, teamPerGroup + 1).forEach(entryList::add);

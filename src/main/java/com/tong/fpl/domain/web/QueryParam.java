@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.data.fpl;
+package com.tong.fpl.domain.web;
 
 import lombok.Data;
 

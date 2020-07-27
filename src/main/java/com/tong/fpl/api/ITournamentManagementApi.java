@@ -1,8 +1,8 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.data.fpl.QueryParam;
 import com.tong.fpl.domain.data.fpl.TournamentCreateData;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
+import com.tong.fpl.domain.web.QueryParam;
 
 import java.util.List;
 
