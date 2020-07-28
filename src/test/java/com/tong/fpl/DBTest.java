@@ -1,19 +1,18 @@
 package com.tong.fpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Maps;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.entity.TournamentInfoEntity;
+import com.tong.fpl.domain.entity.TournamentEntryEntity;
 import com.tong.fpl.domain.entity.TournamentKnockoutResultEntity;
-import com.tong.fpl.service.db.EntryInfoService;
-import com.tong.fpl.service.db.PlayerService;
-import com.tong.fpl.service.db.TournamentInfoService;
-import com.tong.fpl.service.db.TournamentKnockoutResultService;
+import com.tong.fpl.service.db.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +22,10 @@ public class DBTest extends FplApplicationTests {
 
 	@Autowired
 	private EntryInfoService entryInfoService;
+	@Autowired
+	private TournamentEntryService tournamentEntryService;
+	@Autowired
+	private EntryEventResultService entryEventResultService;
 	@Autowired
 	private TournamentKnockoutResultService tournamentKnockoutResultService;
 	@Autowired
@@ -64,7 +67,12 @@ public class DBTest extends FplApplicationTests {
 
 	@Test
 	void test4() {
-		List<TournamentInfoEntity> tournamentInfoList = this.tournamentInfoService.getAllKnockoutTournamentsByEvent(10);
+		Map<String, Integer> map = Maps.newHashMap();
+		List<TournamentEntryEntity> tournamentEntryEntities = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda().eq(TournamentEntryEntity::getTournamentId, 1));
+		tournamentEntryEntities.forEach(o -> {
+			int total = this.entryEventResultService.sumEntryNetPoint(o.getEntry());
+			map.put(this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getEntry, o.getEntry())).getEntryName(), total);
+		});
 		System.out.println(1);
 	}
 

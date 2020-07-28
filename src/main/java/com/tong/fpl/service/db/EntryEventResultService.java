@@ -16,4 +16,8 @@ public class EntryEventResultService extends ServiceImpl<EntryEventResultMapper,
 		return this.baseMapper.sumEventNetPoint(event, entry);
 	}
 
+	public int sumEntryNetPoint(int entry) {
+		return this.baseMapper.sumEntryNetPoint(entry);
+	}
+
 }

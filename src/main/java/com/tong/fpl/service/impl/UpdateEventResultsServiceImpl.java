@@ -93,7 +93,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 				.in(EntryEventResultEntity::getEntry, entryList));
 		// update entry_event_result
 		List<EntryEventResultEntity> eventResultList = Lists.newArrayList();
-		entryList.forEach(entry -> this.calcEntryEventPoints(event, entry, eventResultList));
+		entryList.parallelStream().forEach(entry -> this.calcEntryEventPoints(event, entry, eventResultList));
 		this.entryEventResultService.saveBatch(eventResultList);
 	}
 

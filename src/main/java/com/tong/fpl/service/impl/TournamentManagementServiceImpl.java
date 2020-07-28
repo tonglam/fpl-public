@@ -73,8 +73,8 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		tournamentInfoEntity.setKnockoutPlayAgainstNum(this.setKnouckoutPlayAgainstNum(tournamentCreateData.getKnockoutMode()));
 		// check end gw
 		try {
-			this.checkEndGw(tournamentCreateData.getGroupEndGw(),
-					tournamentCreateData.getKnockoutStartGw(), tournamentInfoEntity.getTotalTeam());
+//			this.checkEndGw(tournamentCreateData.getGroupEndGw(),
+//					tournamentCreateData.getKnockoutStartGw(), tournamentInfoEntity.getTotalTeam());
 		} catch (Exception e) {
 			return "创建失败，请重新选择比赛时间！" + e.getMessage();
 		}

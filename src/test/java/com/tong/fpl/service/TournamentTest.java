@@ -21,10 +21,10 @@ public class TournamentTest extends FplApplicationTests {
 	void createNewTournament() {
 		try {
 			TournamentCreateData tournamentCreateData = new TournamentCreateData();
-			tournamentCreateData.setUrl("https://fantasy.premierleague.com/leagues/710/standings/c");
+			tournamentCreateData.setUrl("https://fantasy.premierleague.com/leagues/65/standings/c");
 			tournamentCreateData.setCreator("tong");
-			tournamentCreateData.setTournamentName("points-normal-4");
-			this.configCreateData("points world cup home-away", tournamentCreateData);
+			tournamentCreateData.setTournamentName("points-china");
+			this.configCreateData("classic", tournamentCreateData);
 			String result = this.tournamentManagementService.createNewTournament(tournamentCreateData);
 			System.out.println(result);
 		} catch (Exception e) {
