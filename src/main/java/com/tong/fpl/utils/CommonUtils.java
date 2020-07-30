@@ -1,15 +1,21 @@
 package com.tong.fpl.utils;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.userHistory.Current;
 import com.tong.fpl.domain.data.userHistory.HistoryChips;
+import com.tong.fpl.domain.data.userpick.Pick;
+import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EventEntity;
+import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EventService;
+import com.tong.fpl.service.db.PlayerService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -27,7 +33,9 @@ import java.util.stream.Collectors;
 @Component
 public class CommonUtils {
 
+	private static PlayerService playerService;
 	private static EventService eventService;
+	private static EntryEventResultService entryEventResultService;
 
 	public static String getCapitalLetterFromNum(int number) {
 		return (char) (number + 64) + "";
@@ -84,9 +92,33 @@ public class CommonUtils {
 		return LocalDateTime.ofInstant(Instant.parse(time), zoneId).atZone(zoneId).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
 	}
 
+	public static List<Pick> getPickList(int event, int entry) {
+		String eventPick = entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, entry)).getEventPicks();
+		if (StringUtils.isBlank(eventPick)) {
+			return Lists.newArrayList();
+		}
+		List<Pick> pickList = (List<Pick>) JsonUtils.json2Collection(eventPick, List.class, Pick.class);
+		if (CollectionUtils.isEmpty(pickList)) {
+			return Lists.newArrayList();
+		}
+		pickList.parallelStream().forEach(o -> o.setWebName(playerService.getById(o.getElement()).getWebName()));
+		return pickList;
+	}
+
+	@Autowired
+	private void setPlayerService(PlayerService playerService) {
+		CommonUtils.playerService = playerService;
+	}
+
 	@Autowired
 	private void setEventService(EventService eventService) {
 		CommonUtils.eventService = eventService;
+	}
+
+	@Autowired
+	private void setEventLiveService(EntryEventResultService entryEventResultService) {
+		CommonUtils.entryEventResultService = entryEventResultService;
 	}
 
 }

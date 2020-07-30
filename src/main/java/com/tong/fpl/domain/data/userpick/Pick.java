@@ -11,6 +11,8 @@ public class Pick {
 
 	private Integer element;
 	private Integer position;
+	@JsonProperty("web_name")
+	private String webName;
 	private Integer multiplier;
 	@JsonProperty("is_captain")
 	private boolean isCaptain;

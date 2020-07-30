@@ -12,12 +12,8 @@ import lombok.experimental.Accessors;
 @TableName("entry_info")
 public class EntryInfoEntity {
 
-	@TableId
-	private int id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	@TableId(type = IdType.INPUT)
 	private int entry;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int leagueId;
 	private String entryName;
 	private String playerName;
 	private String region;

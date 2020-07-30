@@ -3,6 +3,7 @@ package com.tong.fpl.utils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tong.fpl.constant.Constant;
 
@@ -59,7 +60,19 @@ public class JsonUtils {
 	public static Object json2obj(String json, Class<?> clz) {
 		try {
 			objectMapper = getMapper();
+			objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return objectMapper.readValue(json, clz);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Object json2Collection(String json, Class<?> collectionClass, Class<?> clz) {
+		try {
+			objectMapper = getMapper();
+			objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+			return objectMapper.readValue(json, objectMapper.getTypeFactory().constructParametricType(collectionClass, clz));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

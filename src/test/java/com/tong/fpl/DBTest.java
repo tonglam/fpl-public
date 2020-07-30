@@ -2,11 +2,13 @@ package com.tong.fpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
+import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.TournamentEntryEntity;
 import com.tong.fpl.domain.entity.TournamentKnockoutResultEntity;
 import com.tong.fpl.service.db.*;
+import com.tong.fpl.utils.CommonUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,8 +50,8 @@ public class DBTest extends FplApplicationTests {
 
 	@Test
 	void test2() {
-		List<Integer> entryList = this.entryInfoService.list().stream().map(EntryInfoEntity::getEntry).collect(Collectors.toList());
-		System.out.println(entryList.size());
+		int i = this.entryInfoService.count(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getEntry, 1404));
+		System.out.println(1);
 	}
 
 	@Test
@@ -75,5 +77,19 @@ public class DBTest extends FplApplicationTests {
 		});
 		System.out.println(1);
 	}
+
+	@Test
+	void test5() {
+		List<Pick> picks = CommonUtils.getPickList(42, 1908330);
+		picks.forEach(o -> {
+					if (o.isCaptain()) {
+						System.out.println(o.getWebName() + "-" + 2 * o.getPoints());
+					}
+					System.out.println(o.getWebName() + "-" + o.getPoints());
+				}
+		);
+		System.out.println(1);
+	}
+
 
 }

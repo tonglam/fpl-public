@@ -1,16 +1,8 @@
 spring:
-  thymeleaf:
-    cache: false
-    check-template: true
-    check-template-location: true
-    enabled: true
-    encoding: UTF-8
-    mode: HTML
-    prefix: classpath:/templates/
-    suffix: .html
-  mvc:
-    static-path-pattern: /static/**
   datasource:
+    url: jdbc:mysql://rm-8vb0q5u3t79l9t6bzoo.mysql.zhangbei.rds.aliyuncs.com:3306/fpl_1920?&autoReconnect=true&rewriteBatchedStatements=true&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true
+    username: tong
+    password: Tonglam14
     hikari:
       minimum-idle: 10
       maximum-pool-size: 10

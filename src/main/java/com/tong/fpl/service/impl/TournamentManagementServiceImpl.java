@@ -72,12 +72,12 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		tournamentInfoEntity.setTotalTeam(this.calcTotalTeamInLeague(tournamentInfoEntity.getLeagueType(), tournamentInfoEntity.getLeagueId()));
 		tournamentInfoEntity.setKnockoutPlayAgainstNum(this.setKnouckoutPlayAgainstNum(tournamentCreateData.getKnockoutMode()));
 		// check end gw
-		try {
+//		try {
 //			this.checkEndGw(tournamentCreateData.getGroupEndGw(),
 //					tournamentCreateData.getKnockoutStartGw(), tournamentInfoEntity.getTotalTeam());
-		} catch (Exception e) {
-			return "创建失败，请重新选择比赛时间！" + e.getMessage();
-		}
+//		} catch (Exception e) {
+//			return "创建失败，请重新选择比赛时间！" + e.getMessage();
+//		}
 		// config group info
 		this.configGroupInfo(tournamentInfoEntity, tournamentCreateData);
 		// config knockout info
@@ -130,11 +130,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 	@Override
 	public void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, boolean groupFillAverage) {
 		// save entry_info
-		List<EntryInfoEntity> entryInfoEntityList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
-				.eq(EntryInfoEntity::getLeagueId, leagueId));
-		if (CollectionUtils.isEmpty(entryInfoEntityList)) {
-			entryInfoEntityList = this.saveEntryInfoFromFplServer(leagueType, leagueId);
-		}
+		List<EntryInfoEntity> entryInfoEntityList = this.saveEntryInfoFromFplServer(leagueType, leagueId);
 		// save tournament_entry (add average)
 		this.saveTournamentEntry(tournamentId, leagueId, groupFillAverage, entryInfoEntityList);
 		log.info("create entry info success!");
@@ -148,9 +144,11 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 			entryInfoEntityList = this.staticSerive.getEntryInfoListFromH2h(leagueId);
 		}
 		entryInfoEntityList.parallelStream().forEach(entryInfoEntity -> {
+			if (this.entryInfoService.count(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getEntry, entryInfoEntity.getEntry())) > 0) {
+				return;
+			}
 			Optional<EntryRes> entryRes = this.staticSerive.getEntry(entryInfoEntity.getEntry());
 			entryRes.ifPresent(entry -> entryInfoEntity
-					.setLeagueId(leagueId)
 					.setRegion(entry.getPlayerRegionName())
 					.setStartedEvent(entry.getStartedEvent())
 					.setOverallPoints(entry.getSummaryOverallPoints())
