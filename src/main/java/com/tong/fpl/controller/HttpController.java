@@ -31,7 +31,7 @@ public class HttpController {
 	@GetMapping("/hello")
 	@ResponseBody
 	public String helloController() {
-		return "hello world";
+		return "hello world!";
 	}
 
 }
