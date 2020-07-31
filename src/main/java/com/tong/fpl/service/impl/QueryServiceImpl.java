@@ -44,7 +44,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	@Override
 	public EntryEventResultEntity qryEntryEvent(int event, int entry) {
 		return this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-				.eq(EntryEventResultEntity::getEvent, entry).eq(EntryEventResultEntity::getEntry, entry));
+				.eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, entry));
 	}
 
 
