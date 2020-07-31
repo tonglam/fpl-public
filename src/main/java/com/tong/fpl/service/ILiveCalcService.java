@@ -1,9 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.web.LiveCalaData;
-import com.tong.fpl.domain.web.PlayerValueData;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,7 +28,5 @@ public interface ILiveCalcService {
 	LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain);
 
 	Map<Integer, Integer> calcEventCaptainStat(int event, int num);
-
-	List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
 
 }

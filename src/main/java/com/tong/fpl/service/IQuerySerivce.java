@@ -1,4 +1,4 @@
-package com.tong.fpl.api;
+package com.tong.fpl.service;
 
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.web.PlayerValueData;
@@ -6,9 +6,9 @@ import com.tong.fpl.domain.web.PlayerValueData;
 import java.util.List;
 
 /**
- * Create by tong on 2020/7/20
+ * Create by tong on 2020/7/31
  */
-public interface IHttpApi {
+public interface IQuerySerivce {
 
 	List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
 

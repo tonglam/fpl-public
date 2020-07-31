@@ -12,15 +12,16 @@ import com.tong.fpl.constant.enums.PositionRule;
 import com.tong.fpl.domain.data.fpl.ElementLiveData;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
-import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.domain.entity.EventFixtureEntity;
+import com.tong.fpl.domain.entity.EventLiveEntity;
+import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.web.LiveCalaData;
-import com.tong.fpl.domain.web.PlayerValueData;
 import com.tong.fpl.service.ILiveCalcService;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.db.EventFixtureService;
 import com.tong.fpl.service.db.EventLiveService;
 import com.tong.fpl.service.db.PlayerService;
-import com.tong.fpl.service.db.PlayerValueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,6 @@ import java.util.stream.Stream;
 public class LiveCalcService implements ILiveCalcService {
 
     private final PlayerService playerService;
-    private final PlayerValueService playerValueService;
     private final EventFixtureService eventFixtureService;
     private final EventLiveService eventLiveService;
     private final IStaticSerive staticService;
@@ -126,20 +126,6 @@ public class LiveCalcService implements ILiveCalcService {
         });
         entryCaptainMap.forEach((key, value) -> log.info("entry:{}, captain:{}", key, value));
         return entryCaptainMap;
-    }
-
-    @Override
-    public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
-        List<PlayerValueData> playerValueDataList = Lists.newArrayList();
-        this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
-                .eq(PlayerValueEntity::getChangeDate, changeDate))
-                .forEach(o -> {
-                    PlayerValueData playerValueData = new PlayerValueData();
-                    BeanUtil.copyProperties(o, playerValueData);
-                    playerValueData.setWebName("");
-                    playerValueData.setElementTypeName("");
-                });
-        return playerValueDataList;
     }
 
     private int ifMultiplier(int event, int element) {
