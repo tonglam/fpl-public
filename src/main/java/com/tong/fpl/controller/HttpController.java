@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Validated
@@ -34,7 +34,7 @@ public class HttpController {
 
 	@GetMapping("/qryEntryEventResult")
 	@ResponseBody
-	public EntryEventResultEntity qryEntryEventResult(@RequestBody int event, @RequestBody int entry) {
+	public EntryEventResultEntity qryEntryEventResult(@RequestParam int event, @RequestParam int entry) {
 		return this.querySerivce.qryEntryEvent(event, entry);
 	}
 
