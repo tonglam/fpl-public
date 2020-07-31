@@ -17,7 +17,6 @@ mybatis-plus:
       id-type: auto
 server:
   port: 8014
-  address: 127.0.0.1
 logging:
   level:
     web: debug
