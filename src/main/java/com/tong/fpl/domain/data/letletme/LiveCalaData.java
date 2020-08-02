@@ -1,6 +1,5 @@
-package com.tong.fpl.domain.web;
+package com.tong.fpl.domain.data.letletme;
 
-import com.tong.fpl.domain.data.fpl.ElementLiveData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

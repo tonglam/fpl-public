@@ -1,6 +1,6 @@
 package com.tong.fpl.controller;
 
-import com.tong.fpl.domain.entity.EntryEventResultEntity;
+import com.tong.fpl.domain.data.letletme.EntryEventData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IStaticSerive;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class HttpController {
 
 	@GetMapping("/qryEntryEventResult")
 	@ResponseBody
-	public EntryEventResultEntity qryEntryEventResult(@RequestParam int event, @RequestParam int entry) {
+	public EntryEventData qryEntryEventResult(@RequestParam int event, @RequestParam int entry) {
 		return this.querySerivce.qryEntryEvent(event, entry);
 	}
 

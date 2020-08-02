@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.web;
+package com.tong.fpl.domain.data.letletme;
 
 import lombok.Data;
 

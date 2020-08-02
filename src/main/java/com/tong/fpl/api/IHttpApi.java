@@ -1,7 +1,7 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.entity.EntryEventResultEntity;
-import com.tong.fpl.domain.web.PlayerValueData;
+import com.tong.fpl.domain.data.letletme.EntryEventData;
+import com.tong.fpl.domain.data.letletme.PlayerValueData;
 
 import java.util.List;
 
@@ -10,8 +10,8 @@ import java.util.List;
  */
 public interface IHttpApi {
 
-	List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
+    List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
 
-	EntryEventResultEntity qryEntryEvent(int event, int entry);
+    EntryEventData qryEntryEvent(int event, int entry);
 
 }

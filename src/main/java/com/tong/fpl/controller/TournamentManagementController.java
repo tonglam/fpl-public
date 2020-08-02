@@ -1,6 +1,6 @@
 package com.tong.fpl.controller;
 
-import com.tong.fpl.domain.data.fpl.TournamentCreateData;
+import com.tong.fpl.domain.data.letletme.TournamentCreateData;
 import com.tong.fpl.service.impl.TournamentManagementServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

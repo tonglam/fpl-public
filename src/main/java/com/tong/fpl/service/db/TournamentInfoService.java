@@ -2,8 +2,8 @@ package com.tong.fpl.service.db;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.tong.fpl.domain.data.letletme.QueryParam;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
-import com.tong.fpl.domain.web.QueryParam;
 import com.tong.fpl.mapper.TournamentInfoMapper;
 import org.springframework.stereotype.Service;
 

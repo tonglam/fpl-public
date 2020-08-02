@@ -1,8 +1,8 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IHttpApi;
-import com.tong.fpl.domain.entity.EntryEventResultEntity;
-import com.tong.fpl.domain.web.PlayerValueData;
+import com.tong.fpl.domain.data.letletme.EntryEventData;
+import com.tong.fpl.domain.data.letletme.PlayerValueData;
 import com.tong.fpl.service.IQuerySerivce;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class HttpApiImpl implements IHttpApi {
 	}
 
 	@Override
-	public EntryEventResultEntity qryEntryEvent(int event, int entry) {
+	public EntryEventData qryEntryEvent(int event, int entry) {
 		return this.qryDayChangePlayerValue.qryEntryEvent(event, entry);
 	}
 
