@@ -1,0 +1,76 @@
+h1, h2, h3 {
+    font-size: 14px;
+}
+
+::-webkit-input-placeholder {
+    color: #999
+}
+
+/* 布局 */
+.site-inline {
+    font-size: 0;
+}
+
+.site-tree, .site-content {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    vertical-align: top;
+    font-size: 14px;
+}
+
+.site-tree {
+    width: 220px;
+    min-height: 900px;
+    padding: 5px 0 20px;
+}
+
+.site-content {
+    width: 899px;
+    min-height: 900px;
+    padding: 20px 0 10px 20px;
+}
+
+/* 头部 */
+.header {
+    height: 59px;
+    border-bottom: 1px solid #404553;
+    background-color: #393D49;
+}
+
+.logo {
+    position: absolute;
+    left: 0;
+    top: 18px;
+    color: white;
+    font-size: x-large;
+}
+
+.header .layui-nav {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 0;
+    background: none;
+}
+
+.header .layui-nav .layui-nav-item {
+    margin: 0 20px;
+}
+
+.header .layui-nav .layui-nav-item[mobile] {
+    display: none;
+}
+
+.header .layui-container .logo {
+    left: 15px;
+}
+
+.header .layui-container .layui-nav {
+    right: 5px;
+}
+
+.header .layui-nav .layui-badge,
+.header .layui-nav .layui-badge-dot {
+    right: 0;
+}

@@ -11,12 +11,18 @@ spring:
       connection-timeout: 30000
       validation-timeout: 5000
       idle-timeout: 600000
+  thymeleaf:
+    cache: true
+    check-template: true
+    check-template-location: true
+    enabled: true
+    encoding: UTF-8
+    mode: HTML
+    prefix: classpath:/templates/
+    suffix: .html
 mybatis-plus:
   global-config:
     db-config:
       id-type: auto
 server:
   port: 8014
-logging:
-  level:
-    web: debug
