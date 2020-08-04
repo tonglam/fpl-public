@@ -3,7 +3,9 @@ package com.tong.fpl.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.domain.data.letletme.EntryEventData;
+import com.tong.fpl.domain.data.letletme.EntryEventResultData;
 import com.tong.fpl.domain.data.letletme.PlayerValueData;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
@@ -11,6 +13,7 @@ import com.tong.fpl.domain.entity.PlayerValueEntity;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EntryInfoService;
+import com.tong.fpl.service.db.PlayerService;
 import com.tong.fpl.service.db.PlayerValueService;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -28,39 +31,71 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class QueryServiceImpl implements IQuerySerivce {
 
-    private final PlayerValueService playerValueService;
-    private final EntryInfoService entryInfoService;
-    private final EntryEventResultService entryEventResultService;
+	private final PlayerService playerService;
+	private final PlayerValueService playerValueService;
+	private final EntryInfoService entryInfoService;
+	private final EntryEventResultService entryEventResultService;
 
-    @Override
-    public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
-        List<PlayerValueData> playerValueDataList = Lists.newArrayList();
-        this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
-                .eq(PlayerValueEntity::getChangeDate, changeDate))
-                .forEach(o -> {
-                    PlayerValueData playerValueData = new PlayerValueData();
-                    BeanUtil.copyProperties(o, playerValueData);
-                    playerValueData.setWebName("");
-                    playerValueData.setElementTypeName("");
-                });
-        return playerValueDataList;
-    }
+	@Override
+	public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
+		List<PlayerValueData> playerValueDataList = Lists.newArrayList();
+		this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+				.eq(PlayerValueEntity::getChangeDate, changeDate))
+				.forEach(o -> {
+					PlayerValueData playerValueData = new PlayerValueData();
+					BeanUtil.copyProperties(o, playerValueData);
+					playerValueData.setWebName(this.playerService.getById(o.getElement()).getWebName());
+					playerValueData.setElementTypeName(Position.getNameFromElementType(o.getElementType()).name());
+					playerValueDataList.add(playerValueData);
+				});
+		return playerValueDataList;
+	}
 
-    @Override
-    public EntryEventData qryEntryEvent(int event, int entry) {
-        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, entry));
-        if (entryEventResultEntity == null) {
-            return new EntryEventData();
-        }
-        EntryEventData entryEventData = new EntryEventData();
-        BeanUtil.copyProperties(entryEventResultEntity, entryEventData);
-        entryEventData.setEventPicks(CommonUtils.getPickListFromPicks(entryEventResultEntity.getEventPicks()));
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda().
-                eq(EntryInfoEntity::getEntry, entry));
-        BeanUtil.copyProperties(entryInfoEntity, entryEventData);
-        return entryEventData;
-    }
+	@Override
+	public EntryEventData qryEntryResult(int entry) {
+		return this.qryEntryEventResultData(entry);
+	}
 
+	@Override
+	public EntryEventData qryEntryEventResult(int event, int entry) {
+		return this.qryEntryEventResultData(event, entry);
+	}
+
+	private EntryEventData qryEntryEventResultData(int entry) {
+		return this.qryEntryEventResultData(0, entry);
+	}
+
+	private EntryEventData qryEntryEventResultData(int event, int entry) {
+		EntryEventData entryEventData = new EntryEventData();
+		// entry_info
+		EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda().
+				eq(EntryInfoEntity::getEntry, entry));
+		if (entryInfoEntity == null) {
+			return entryEventData;
+		}
+		BeanUtil.copyProperties(entryInfoEntity, entryEventData);
+		// entry_event_result
+		entryEventData.setEventResultDatas(this.setEntryEventResult(event, entry));
+		return entryEventData;
+	}
+
+	private List<EntryEventResultData> setEntryEventResult(int event, int entry) {
+		List<EntryEventResultEntity> entryEventResultList;
+		if (event == 0) {
+			entryEventResultList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+					.eq(EntryEventResultEntity::getEntry, entry));
+		} else {
+			entryEventResultList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+					.eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, entry));
+		}
+		List<EntryEventResultData> entryEventResultDataList = Lists.newArrayList();
+		entryEventResultList.forEach(entryEventResultEntity -> {
+			EntryEventResultData entryEventResultData = new EntryEventResultData();
+			BeanUtil.copyProperties(entryEventResultEntity, entryEventResultData);
+			entryEventResultData.setEventPicks(CommonUtils.getPickListFromPicks(entryEventResultEntity.getEventPicks()));
+			entryEventResultDataList.add(entryEventResultData);
+		});
+		return entryEventResultDataList;
+	}
 
 }

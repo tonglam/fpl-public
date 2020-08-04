@@ -1,4 +1,4 @@
-package com.tong.fpl.constant.enums;
+package com.tong.fpl.constant.enums.teamName;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum TeamName {
+public enum TeamName_1920 {
 	Arsenal(1, "Arsenal", "ARS"),
 	AstonVilla(2, "Aston Villa", "AVL"),
 	Bournemouth(3, "Bournemouth", "BOU"),
@@ -30,7 +30,7 @@ public enum TeamName {
 	WestHam(19, "West Ham", "WHU"),
 	Wolves(20, "Wolves", "WOL");
 
-	private int teamId;
-	private String mame;
-	private String shortName;
+	private final int teamId;
+	private final String mame;
+	private final String shortName;
 }

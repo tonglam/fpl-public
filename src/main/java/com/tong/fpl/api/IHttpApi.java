@@ -12,6 +12,10 @@ public interface IHttpApi {
 
     List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
 
-    EntryEventData qryEntryEvent(int event, int entry);
+    void insertPlayerValue();
+
+    EntryEventData qryEntryResult(int entry);
+
+    EntryEventData qryEntryEventResult(int event, int entry);
 
 }

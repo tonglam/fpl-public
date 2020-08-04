@@ -3,7 +3,7 @@ package com.tong.fpl.constant.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Optional;
+import java.util.Arrays;
 
 /**
  * Create by tong on 2020/5/20
@@ -15,7 +15,11 @@ public enum Position {
 
 	private final int position;
 
-	public static Optional<Position> getNameFromElementType(int elementType) {
-		return Optional.empty();
+	public static Position getNameFromElementType(int elementType) {
+		return Arrays.stream(Position.values())
+				.filter(o -> o.getPosition() == elementType)
+				.findFirst()
+				.orElse(null);
 	}
+
 }

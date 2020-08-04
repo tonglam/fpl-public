@@ -3,12 +3,14 @@ package com.tong.fpl.utils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.tong.fpl.constant.Constant;
+import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.userHistory.Current;
 import com.tong.fpl.domain.data.userHistory.HistoryChips;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EventEntity;
+import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EventService;
 import com.tong.fpl.service.db.PlayerService;
@@ -102,12 +104,19 @@ public class CommonUtils {
     }
 
     public static List<Pick> getPickListFromPicks(String picks) {
-        List<Pick> pickList = (List<Pick>) JsonUtils.json2Collection(picks, List.class, Pick.class);
-        if (CollectionUtils.isEmpty(pickList)) {
-            return Lists.newArrayList();
-        }
-        pickList.parallelStream().forEach(o -> o.setWebName(playerService.getById(o.getElement()).getWebName()));
-        return pickList;
+	    List<Pick> pickList = (List<Pick>) JsonUtils.json2Collection(picks, List.class, Pick.class);
+	    if (CollectionUtils.isEmpty(pickList)) {
+		    return Lists.newArrayList();
+	    }
+	    pickList.parallelStream().forEach(pick -> {
+		    PlayerEntity playerEntity = playerService.getById(pick.getElement());
+		    if (playerEntity != null) {
+			    pick
+					    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()).name())
+					    .setWebName(playerEntity.getWebName());
+		    }
+	    });
+	    return pickList;
     }
 
     @Autowired

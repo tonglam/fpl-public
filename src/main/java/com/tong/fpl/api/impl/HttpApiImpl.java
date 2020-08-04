@@ -4,6 +4,7 @@ import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.domain.data.letletme.EntryEventData;
 import com.tong.fpl.domain.data.letletme.PlayerValueData;
 import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IStaticSerive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +20,27 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class HttpApiImpl implements IHttpApi {
 
-	private final IQuerySerivce qryDayChangePlayerValue;
+	private final IQuerySerivce querySerivce;
+	private final IStaticSerive staticSerive;
 
 	@Override
 	public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
-		return this.qryDayChangePlayerValue.qryDayChangePlayerValue(changeDate);
+		return this.querySerivce.qryDayChangePlayerValue(changeDate);
 	}
 
 	@Override
-	public EntryEventData qryEntryEvent(int event, int entry) {
-		return this.qryDayChangePlayerValue.qryEntryEvent(event, entry);
+	public void insertPlayerValue() {
+		this.staticSerive.insertPlayerValue();
+	}
+
+	@Override
+	public EntryEventData qryEntryResult(int entry) {
+		return this.querySerivce.qryEntryResult(entry);
+	}
+
+	@Override
+	public EntryEventData qryEntryEventResult(int event, int entry) {
+		return this.querySerivce.qryEntryEventResult(event, entry);
 	}
 
 }

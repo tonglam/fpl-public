@@ -26,9 +26,9 @@ import java.util.*;
  */
 public class HttpUtils {
 
-	private static CookieStore cookieStore = new BasicCookieStore();
-	private static PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
-	private static CloseableHttpClient httpclient = createHttpClient();
+	private static final CookieStore cookieStore = new BasicCookieStore();
+	private static final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+	private static final CloseableHttpClient httpclient = createHttpClient();
 
 	private static CloseableHttpClient createHttpClient() {
 		cm.setMaxTotal(10);
@@ -79,7 +79,6 @@ public class HttpUtils {
 	 * @return return
 	 */
 	public static Optional<String> httpPost(Map<String, String> map, String url) throws IOException {
-		long startTime = System.currentTimeMillis();
 		HttpClientContext httpClientContext = HttpClientContext.create();
 		HttpPost httpPost = new HttpPost(url);
 		List<NameValuePair> parameters = new ArrayList<>(0);

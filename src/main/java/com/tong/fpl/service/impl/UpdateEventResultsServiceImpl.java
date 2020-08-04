@@ -485,14 +485,13 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 
 	private String setUserPicks(List<Pick> picks, @NotEmpty Map<Integer, Integer> elementPointsMap) {
 		List<Pick> pickList = Lists.newArrayList();
-		picks.forEach(o -> {
-			Pick pick = new Pick();
-			pick.setElement(o.getElement());
-			pick.setCaptain(o.isCaptain());
-			pick.setViceCaptain(o.isViceCaptain());
-			pick.setPoints(elementPointsMap.getOrDefault(o.getElement(), 0));
-			pickList.add(pick);
-		});
+		picks.forEach(o -> pickList.add(new Pick()
+				.setElement(o.getElement())
+				.setPosition(o.getPosition())
+				.setCaptain(o.isCaptain())
+				.setViceCaptain(o.isViceCaptain())
+				.setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
+		));
 		return JsonUtils.obj2json(pickList);
 	}
 

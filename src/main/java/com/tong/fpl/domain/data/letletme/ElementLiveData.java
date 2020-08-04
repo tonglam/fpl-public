@@ -35,6 +35,7 @@ public class ElementLiveData {
 	private int bonus;
 	private int bps;
 	private int totalPoints;
+	private boolean pickAvtive;
 
 	@Override
 	public boolean equals(Object o) {

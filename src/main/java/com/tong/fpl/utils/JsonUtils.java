@@ -60,6 +60,7 @@ public class JsonUtils {
 	public static Object json2obj(String json, Class<?> clz) {
 		try {
 			objectMapper = getMapper();
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return objectMapper.readValue(json, clz);
 		} catch (Exception e) {
@@ -71,6 +72,7 @@ public class JsonUtils {
 	public static Object json2Collection(String json, Class<?> collectionClass, Class<?> clz) {
 		try {
 			objectMapper = getMapper();
+			objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 			objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return objectMapper.readValue(json, objectMapper.getTypeFactory().constructParametricType(collectionClass, clz));
 		} catch (Exception e) {

@@ -4,18 +4,14 @@ import com.tong.fpl.domain.data.letletme.TournamentCreateData;
 import com.tong.fpl.service.impl.TournamentManagementServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Create by tong on 2020/6/23
  */
 @Validated
-@Controller
+@RestController
 @RequestMapping(value = "/tournament")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentManagementController {

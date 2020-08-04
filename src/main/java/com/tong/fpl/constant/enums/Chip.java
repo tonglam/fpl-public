@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public enum Chip {
 	NONE("n/a"), BB("bboost"), FH("freehit"), WC("wildcard"), TC("3xc");
 
-	private String value;
+	private final String value;
 
 	public static Chip getChipFromValue(String value) {
 		return Stream.of(Chip.values())

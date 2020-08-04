@@ -12,6 +12,8 @@ public interface IQuerySerivce {
 
 	List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
 
-	EntryEventData qryEntryEvent(int event, int entry);
+	EntryEventData qryEntryResult(int entry);
+
+	EntryEventData qryEntryEventResult(int event, int entry);
 
 }

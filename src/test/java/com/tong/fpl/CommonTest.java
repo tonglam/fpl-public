@@ -1,23 +1,16 @@
 package com.tong.fpl;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.constant.Constant;
-import com.tong.fpl.domain.data.response.EntryRes;
-import com.tong.fpl.utils.HttpUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -53,28 +46,6 @@ public class CommonTest extends FplApplicationTests {
 		System.out.println(Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getDays() + " Days");
 		System.out.println("Deadline: " + Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getMonths() + " Month "
 				+ Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getDays() + " Days");
-	}
-
-	@Test
-	void http() {
-		List<Integer> chinaList = Lists.newArrayList();
-		IntStream.range(1, 7580961).forEach(entry -> {
-			try {
-				String result = HttpUtils.httpGet(String.format(Constant.ENTRY, entry)).orElse("");
-				ObjectMapper mapper = new ObjectMapper();
-				mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-				EntryRes entryRes = mapper.readValue(result, EntryRes.class);
-				if (entryRes == null) {
-					return;
-				}
-				if (entryRes.getPlayerRegionId() == 45) {
-					chinaList.add(entryRes.getId());
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-		System.out.println(chinaList.size());
 	}
 
 	@Test
