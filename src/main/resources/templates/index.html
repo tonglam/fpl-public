@@ -16,16 +16,14 @@
 </head>
 <body>
 
-<!-- 头部 -->
-<div class="layui-header header header-doc">
+<!-- header -->
+<div class="layui-header header header-doc" th:fragment="header">
     <div class="layui-main">
-        <a class="logo" href="/">
-            <p> let let me</p>
-        </a>
+        <a class="logo" href="/">let let me</a>
 
         <ul class="layui-nav">
             <li class="layui-nav-item layui-this">
-                <a href="javascript:;">自定义赛事</a>
+                <a href="javascript:">自定义赛事</a>
                 <dl class="layui-nav-child">
                     <dd><a href="">创建赛事</a></dd>
                     <dd><a href="">管理赛事</a></dd>
@@ -33,21 +31,21 @@
                 </dl>
             </li>
             <li class="layui-nav-item layui-this">
-                <a href="javascript:;">我的fpl</a>
+                <a href="javascript:">我的fpl</a>
                 <dl class="layui-nav-child">
                     <dd><a href="">得分查看</a></dd>
                     <dd><a href="">历史分析</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item layui-this">
-                <a href="javascript:;">实时结果</a>
+                <a href="javascript:">实时结果</a>
                 <dl class="layui-nav-child">
                     <dd><a href="">实时得分</a></dd>
                     <dd><a href="">小联赛实时排名</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item layui-this">
-                <a href="javascript:;">数据查询</a>
+                <a href="javascript:">数据查询</a>
                 <dl class="layui-nav-child">
                     <dd><a href="">比赛数据</a></dd>
                     <dd><a href="">球员数据</a></dd>
@@ -55,12 +53,30 @@
                     <dd><a href="">身价变化</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item">
-                <span style="margin-top: -5px" th:text="'entry:'+${entry}"></span>
+
+            <li class="layui-nav-item" lay-unselect="">
+                <a href="javascript:" th:text="'我的球队：'+${entry}"></a>
+                <dl class="layui-nav-child">
+                    <dd><a href="javascript:">修改球队id</a></dd>
+                </dl>
             </li>
         </ul>
 
 
+    </div>
+</div>
+
+<div>
+    <p>aaaaaaaaa</p>
+</div>
+
+<!-- footer -->
+<div class="layui-footer footer footer-doc" th:fragment="footer">
+    <div class="layui-main">
+        <p>&copy; 2020 <a href="/">letletme.top</a> MIT license</p>
+        <p>
+            <a href="http://beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备20026680号</a>
+        </p>
     </div>
 </div>
 
