@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout::header">
+    <meta charset="UTF-8">
+    <title></title>
+
+</head>
+<body>
+<div th:replace="layout::topnav">
+</div>
+
+<div class="layui-main">
+    <div class="site-content">
+
+        <h1 style="margin-bottom: 20px;font-size: 28px">创建自定义赛事</h1>
+
+        <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+            <legend><a name="compatibility">赛事信息</a></legend>
+        </fieldset>
+
+        <form action="" class="layui-form">
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">官方联赛url</label>
+                <div class="layui-input-block">
+                    <input autocomplete="on" class="layui-input" lay-verify="required" name="url"
+                           placeholder="https://fantasy.premierleague.com/leagues/xxx/standings/x" type="text">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">赛事名称</label>
+                <div class="layui-input-inline">
+                    <input autocomplete="off" class="layui-input" lay-verify="required" name="name" type="text">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">创建人</label>
+                <div class="layui-input-inline">
+                    <input autocomplete="on" class="layui-input" lay-verify="required" name="creator" type="text">
+                </div>
+            </div>
+
+            <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                <legend><a name="compatibility">小组赛设定</a></legend>
+            </fieldset>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">小组赛模式</label>
+                    <div class="layui-input-block">
+                        <select lay-filter="groupMode" lay-verify="required" name="groupModeSelect">
+                            <option value=""></option>
+                            <option value="0">无小组赛</option>
+                            <option value="1">积分赛</option>
+                            <option value="2">对阵赛</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">开始时间</label>
+                    <div class="layui-input-block">
+                        <select lay-filter="groupStartGw" lay-search="" lay-verify="required" name="groupStartGwSelect">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">结束时间</label>
+                    <div class="layui-input-block">
+                        <select lay-filter="groupEndgw" lay-search="" lay-verify="required" name="groupEndGwSelect">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">每组队伍</label>
+                <div class="layui-input-inline">
+                    <input autocomplete="off" class="layui-input" name="teamPerGroup" type="number">
+                </div>
+                <div class="layui-form-mid layui-word-aux">每个小组分配的队伍数量</div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">出线数量</label>
+                <div class="layui-input-inline">
+                    <input autocomplete="off" class="layui-input" name="qualifiers" type="number">
+                </div>
+                <div class="layui-form-mid layui-word-aux">每个小组出线的队伍数量</div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-row">
+                    <div class="layui-col-sm1" style="margin-right: 35px">
+                        <label class="layui-form-label">填充平均分</label>
+                    </div>
+                    <div class="layui-col-sm2" style="margin-right: 52px">
+                        <input lay-skin="switch" name="fillAverage" type="checkbox">
+                    </div>
+                    <div class="layui-col-sm6">
+                        <div class="layui-form-mid layui-word-aux">是否填充平均分使得每个小组的球队数量一样</div>
+                    </div>
+                </div>
+            </div>
+
+            <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                <legend><a name="compatibility">淘汰赛设定</a></legend>
+            </fieldset>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">淘汰赛模式</label>
+                    <div class="layui-input-block">
+                        <select lay-filter="knockoutMode" lay-verify="required" name="knockoutModeSelect">
+                            <option value=""></option>
+                            <option value="0">无淘汰赛</option>
+                            <option value="1">单循环</option>
+                            <option value="2">主客场</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">开始时间</label>
+                    <div class="layui-input-block">
+                        <select lay-filter="knockoutStartGw" lay-search="" lay-verify="required"
+                                name="knockoutStartGwSelect">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<div th:replace="layout::footer">
+
+</div>
+
+</body>
+
+<script>
+    layui.use(['form', 'element'], function () {
+    });
+</script>
+
+</html>
