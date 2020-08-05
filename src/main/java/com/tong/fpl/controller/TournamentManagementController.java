@@ -25,8 +25,16 @@ public class TournamentManagementController {
 
 	@RequestMapping(value = {"", "/"})
 	public String tournamentManagementController(Model model) {
+		model.addAttribute("title", "自定义赛事-letletme");
 		model.addAttribute("entry", 3697);
-		return "index";
+		return "tournament";
+	}
+
+	@RequestMapping(value = "/rule")
+	public String tournamentRuleController(Model model) {
+		model.addAttribute("title", "规则-自定义赛事-letletme");
+		model.addAttribute("entry", 3697);
+		return "rule";
 	}
 
 	@ResponseBody

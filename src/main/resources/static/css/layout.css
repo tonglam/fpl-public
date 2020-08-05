@@ -74,3 +74,44 @@ h1, h2, h3 {
 .header .layui-nav .layui-badge-dot {
     right: 0;
 }
+
+.component {
+    position: absolute;
+    width: 160px;
+    left: 120px;
+    top: 16px;
+}
+
+.component .layui-input {
+    height: 30px;
+    padding-left: 12px;
+    background-color: #424652;
+    background-color: rgba(255, 255, 255, .05);
+    border: none 0;
+    color: #fff;
+    color: rgba(255, 255, 255, .5);
+    font-size: 12px;
+}
+
+.component .layui-form-select .layui-edge {
+    display: none;
+    border-top-color: #999;
+}
+
+.component .layui-form-select dl {
+    top: 36px;
+    background-color: rgba(255, 255, 255, .9)
+}
+
+.footer {
+    background: #dedede;
+    padding: 30px 0;
+    line-height: 30px;
+    text-align: center;
+    color: #000000;
+    font-weight: 300;
+}
+
+.layui-text {
+    margin-bottom: 5px;
+}
