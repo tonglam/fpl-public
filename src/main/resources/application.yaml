@@ -20,6 +20,9 @@ spring:
     mode: HTML
     prefix: classpath:/templates/
     suffix: .html
+  devtools:
+    restart:
+      enabled: true
 mybatis-plus:
   global-config:
     db-config:

@@ -3,14 +3,10 @@ package com.tong.fpl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import com.tong.fpl.utils.CommonUtils;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -43,9 +39,8 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		System.out.println(Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getDays() + " Days");
-		System.out.println("Deadline: " + Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getMonths() + " Month "
-				+ Period.between(LocalDate.now(), LocalDate.of(2020, 9, 12)).getDays() + " Days");
+		Map<String, String> map = CommonUtils.createGwMapForOption();
+		System.out.println(1);
 	}
 
 	@Test
