@@ -162,6 +162,7 @@
                 <div class="layui-input-block">
                     <button class="layui-btn" lay-filter="createTournament" lay-submit="" type="submit">创建赛事
                     </button>
+                    <button class="layui-btn layui-btn-primary" id="reviewBtn">预览</button>
                     <button class="layui-btn layui-btn-primary" type="reset">重置</button>
                 </div>
             </div>
@@ -223,6 +224,12 @@
                 $("#knockoutGw").show();
                 $("#groupQualifiers").show();
             }
+            var data1 = form.val("tournamentForm");
+            console.log(data1);
+        });
+
+        $("reviewBtn").on('click', function () {
+
         });
 
         form.verify({
@@ -230,21 +237,36 @@
                 if (!new RegExp("^https://fantasy.premierleague.com/.*").test(value)) {
                     return "输入的官方联赛链接形式错误，请重新检查！"
                 }
-            }
+            },
+            number: [
+                /^[1-9]\d*$/,
+                "数字必须是正整数，请重新检查！"
+            ]
         });
 
         form.on('submit(createTournament)', function (data) {
-            if (data.field.groupMode == 0 && data.field.knockoutMode == 0) {
-                alert("!!!");
+            let formData = data.field;
+            if (formData.groupMode == 0 && formData.knockoutMode == 0) {
+                layer.alert("没有小组赛又没有淘汰赛还弄个啥？？？", {title: "逗我呢"});
                 return false;
             }
-            axios.post('/tournament/createNewTournament', data.field)
-                .then(function (response) {
-                    console.log(response);
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+            if (formData.groupStartGw != '' && formData.groupEndGw != '' && formData.groupStartGw >= formData.groupEndGw) {
+                layer.alert("开始时间不能在结束时间之后！", {title: "小组赛起始时间错误"});
+                return false;
+            }
+            if (formData.knockoutStartGw != '' && formData.knockoutEndGw != '' && formData.knockoutStartGw >= formData.knockoutEndGw) {
+                layer.alert("开始时间不能在结束时间之后！", {title: "淘汰赛起始时间错误"});
+                return false;
+            }
+            layer.confirm("确认创建？", {closeBtn: 0, title: ""}, function () {
+                axios.post('/tournament/createNewTournament111', data.field)
+                    .then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            });
             return false;
         });
 
