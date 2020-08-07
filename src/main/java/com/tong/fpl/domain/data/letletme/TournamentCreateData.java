@@ -15,7 +15,7 @@ import javax.validation.constraints.Pattern;
 @Accessors(chain = true)
 public class TournamentCreateData {
 
-	@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]]$")
+	@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$")
 	private String url;
 	@NotBlank
 	private String tournamentName;

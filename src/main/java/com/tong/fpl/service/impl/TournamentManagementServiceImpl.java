@@ -68,16 +68,9 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		tournamentInfoEntity.setName(tournamentCreateData.getTournamentName());
 		tournamentInfoEntity.setCreator(tournamentCreateData.getCreator());
 		tournamentInfoEntity.setLeagueType(tournamentCreateData.getUrl().contains("/standings/c") ? LeagueType.Classic.name() : LeagueType.H2h.name());
-		tournamentInfoEntity.setLeagueId(this.setLeagueIdByType(tournamentCreateData.getUrl(), tournamentInfoEntity.getLeagueType()));
+		tournamentInfoEntity.setLeagueId(this.getLeagueIdByType(tournamentCreateData.getUrl(), tournamentInfoEntity.getLeagueType()));
 		tournamentInfoEntity.setTotalTeam(this.calcTotalTeamInLeague(tournamentInfoEntity.getLeagueType(), tournamentInfoEntity.getLeagueId()));
 		tournamentInfoEntity.setKnockoutPlayAgainstNum(this.setKnouckoutPlayAgainstNum(tournamentCreateData.getKnockoutMode()));
-		// check end gw
-//		try {
-//			this.checkEndGw(tournamentCreateData.getGroupEndGw(),
-//					tournamentCreateData.getKnockoutStartGw(), tournamentInfoEntity.getTotalTeam());
-//		} catch (Exception e) {
-//			return "创建失败，请重新选择比赛时间！" + e.getMessage();
-//		}
 		// config group info
 		this.configGroupInfo(tournamentInfoEntity, tournamentCreateData);
 		// config knockout info
@@ -87,20 +80,6 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		// publish event
 		context.publishEvent(new CreateTournamentEventData(this, tournamentCreateData.getTournamentName()));
 		return "创建成功！";
-	}
-
-	private void checkEndGw(String groupEndGw, String knockoutStartGw, int totalTeam) throws Exception {
-		int lastGw = this.eventService.list()
-				.stream()
-				.map(EventEntity::getEvent)
-				.max(Comparator.naturalOrder())
-				.orElse(0);
-		if (CommonUtils.getRealGw(groupEndGw) > lastGw) {
-			throw new Exception("group gw error!");
-		}
-		if (CommonUtils.getRealGw(knockoutStartGw) + totalTeam - 1 > lastGw) {
-			throw new Exception("knockout gw error!");
-		}
 	}
 
 	@Override
@@ -553,7 +532,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		});
 	}
 
-	private int setLeagueIdByType(String url, String leagueType) {
+	private int getLeagueIdByType(String url, String leagueType) {
 		switch (LeagueType.valueOf(leagueType)) {
 			case Classic:
 				return Integer.parseInt(StringUtils.substringBetween(url, "https://fantasy.premierleague.com/leagues/", "/standings/c"));
@@ -680,6 +659,12 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 						.setMatchWinner(0)
 				)));
 		this.tournamentKnockoutResultService.saveBatch(resultEntityList);
+	}
+
+	public int countLeagueTeams(String url) {
+		return url.contains("/standings/c") ?
+				this.staticSerive.getEntryInfoListFromClassic(this.getLeagueIdByType(url, LeagueType.Classic.name())).size()
+				: this.staticSerive.getEntryInfoListFromH2h(this.getLeagueIdByType(url, LeagueType.H2h.name())).size();
 	}
 
 }
