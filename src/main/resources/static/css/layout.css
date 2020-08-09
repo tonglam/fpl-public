@@ -115,3 +115,20 @@ h1, h2, h3 {
 .layui-text {
     margin-bottom: 5px;
 }
+
+.label-required:before {
+    top: 8px;
+    right: 5px;
+    color: red;
+    content: '*';
+    position: absolute;
+    margin-left: 4px;
+    font-weight: 700;
+    line-height: 1.8em;
+}
+
+.layui-icon:before {
+    position: absolute;
+    margin-left: 4px;
+    margin-top: 11px;
+}

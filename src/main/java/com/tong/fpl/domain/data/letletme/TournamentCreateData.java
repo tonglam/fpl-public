@@ -1,11 +1,11 @@
 package com.tong.fpl.domain.data.letletme;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 
 /**
  * Create by tong on 2020/6/23
@@ -15,12 +15,14 @@ import javax.validation.constraints.Pattern;
 @Accessors(chain = true)
 public class TournamentCreateData {
 
-	@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$")
 	private String url;
-	@NotBlank
 	private String tournamentName;
-	@NotBlank
 	private String creator;
+	@JsonIgnore
+	private String leagueType;
+	@JsonIgnore
+	private int leagueId;
+	private int totalTeam;
 	// group params
 	@NotBlank
 	private String groupMode;
@@ -32,7 +34,6 @@ public class TournamentCreateData {
 	// knockout params
 	@NotBlank
 	private String knockoutMode;
-	@NotBlank
 	private String knockoutStartGw;
 	private String knockoutEndGw;
 

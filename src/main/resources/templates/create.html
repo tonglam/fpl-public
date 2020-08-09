@@ -21,175 +21,203 @@
             </fieldset>
 
             <!-- 基本设定 -->
-            <div class="layui-form-item">
-                <label class="layui-form-label">官方联赛url</label>
-                <div class="layui-input-block" style="width: 50%">
-                    <input autocomplete="on" class="layui-input" lay-reqtext="url不能为空" lay-verify="required|url"
-                           name="url"
-                           placeholder="https://fantasy.premierleague.com/leagues/***/standings/*" type="text">
-                </div>
-                <div class="layui-hide layui-form-mid layui-word-aux" id="totalTeam" style="margin-left: 24px"></div>
-            </div>
+            <div id="baseConfig">
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">赛事名称</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空" lay-verify="required"
-                           name="tournamentName" type="text">
+                <div class="layui-form-item">
+                    <label class="layui-form-label label-required">官方联赛</label>
+                    <div class="layui-input-block" style="width: 50%">
+                        <input autocomplete="on" class="layui-input" lay-reqtext="url不能为空"
+                               lay-verify="required|url" name="url"
+                               placeholder="https://fantasy.premierleague.com/leagues/***/standings/*" type="text">
+                    </div>
                 </div>
-            </div>
 
-            <div class="layui-form-item">
-                <label class="layui-form-label">创建人</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="on" class="layui-input" lay-reqtext="赛事创建人不能为空" lay-verify="required"
-                           name="creator" type="text">
+                <div class="layui-form-item" id="totalTeam">
+                    <label class="layui-form-label">联赛队伍</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="totalTeam" readonly type="number">
+                    </div>
+                    <div class="layui-hide" id="totalTeamTips">
+                        <div class="layui-icon layui-icon-loading"></div>
+                        <div class="layui-form-mid layui-word-aux" style="margin-left: 25px">稍候，统计中...
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
-                <legend><a name="compatibility">小组赛设定</a></legend>
-            </fieldset>
+                <div class="layui-form-item">
+                    <label class="layui-form-label label-required">赛事名称</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空" lay-verify="required"
+                               name="tournamentName" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label label-required">创建人</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="on" class="layui-input" lay-reqtext="赛事创建人不能为空" lay-verify="required"
+                               name="creator" type="text">
+                    </div>
+                </div>
+
+            </div>
 
             <!-- 小组赛设定 -->
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label">小组赛模式</label>
-                    <div class="layui-input-block">
-                        <select lay-filter="groupMode" lay-reqtext="请选择小组赛模式" lay-verify="required"
-                                name="groupMode">
-                            <option value=""></option>
-                            <option value="0">无小组赛</option>
-                            <option value="1">积分赛</option>
-                            <option value="2">对阵赛</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+            <div class="layui-hide" id="groupConfig">
 
-            <div class="layui-form-item" id="groupGw">
-                <div class="layui-inline">
-                    <label class="layui-form-label">开始时间</label>
-                    <div class="layui-input-block">
-                        <select lay-search="" name="groupStartGw">
-                            <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
-                                    th:value="${userStat.current.key}"></option>
-                        </select>
-                    </div>
-                </div>
-                <div class="layui-inline">
-                    <label class="layui-form-label">结束时间</label>
-                    <div class="layui-input-block">
-                        <select lay-search="" name="groupEndGw">
-                            <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
-                                    th:value="${userStat.current.key}"></option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                    <legend><a name="compatibility">小组赛设定</a></legend>
+                </fieldset>
 
-            <div class="layui-form-item" id="groupTeamsPerGroup">
-                <label class="layui-form-label">每组队伍</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="off" class="layui-input" lay-verify="number" name="teamsPerGroup"
-                           type="number">
-                </div>
-                <div class="layui-form-mid layui-word-aux">每个小组分配的队伍数量</div>
-            </div>
-
-            <div class="layui-form-item" id="groupNum">
-                <label class="layui-form-label">小组数量</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="off" class="layui-input" disabled name="groupNum" type="number">
-                </div>
-            </div>
-
-            <div class="layui-form-item" id="groupFillAverage">
-                <div class="layui-row">
-                    <div class="layui-col-sm1" style="margin-right: 35px">
-                        <label class="layui-form-label">加入平均分</label>
-                    </div>
-                    <div class="layui-col-sm2" style="margin-right: 48px">
-                        <input lay-skin="switch" lay-text="是|否" name="groupFillAverage" type="checkbox" value=1>
-                    </div>
-                    <div class="layui-col-sm6">
-                        <div class="layui-form-mid layui-word-aux">是否在小组内加入平均分average，使得每个小组的队伍数量一样</div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label label-required">小组赛模式</label>
+                        <div class="layui-input-block">
+                            <select lay-filter="groupMode" lay-reqtext="请选择小组赛模式" lay-verify="required"
+                                    name="groupMode">
+                                <option value=""></option>
+                                <option value="0">无小组赛</option>
+                                <option value="1">积分赛</option>
+                                <option value="2">对阵赛</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="layui-form-item" id="groupQualifiers">
-                <label class="layui-form-label">出线数量</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="off" class="layui-input" lay-verify="number" name="groupQualifiers"
-                           type="number">
+                <div class="layui-hide layui-form-item" id="groupGw">
+                    <div class="layui-inline">
+                        <label class="layui-form-label label-required">开始时间</label>
+                        <div class="layui-input-block">
+                            <select lay-filter="groupStartGw" lay-search="" name="groupStartGw">
+                                <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
+                                        th:value="${userStat.current.key}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label label-required">结束时间</label>
+                        <div class="layui-input-block">
+                            <select lay-filter="groupEndGw" lay-search="" name="groupEndGw">
+                                <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
+                                        th:value="${userStat.current.key}"></option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="layui-form-mid layui-word-aux">每个小组出线的队伍数量</div>
+
+                <div class="layui-hide layui-form-item" id="groupTeamsPerGroup">
+                    <label class="layui-form-label label-required">每组队伍</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" lay-verify="number" name="groupTeamsPerGroup"
+                               type="number">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">每个小组分配的队伍数量</div>
+                </div>
+
+                <div class="layui-hide layui-form-item" id="groupNum">
+                    <label class="layui-form-label">小组数量</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" name="groupNum" readonly type="number">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">小组赛分组数量</div>
+                </div>
+
+                <div class="layui-hide layui-form-item" id="groupFillAverage">
+                    <div class="layui-row">
+                        <div class="layui-col-sm1" style="margin-right: 35px">
+                            <label class="layui-form-label">加入平均分</label>
+                        </div>
+                        <div class="layui-col-sm2" style="margin-right: 48px">
+                            <input lay-skin="switch" lay-text="是|否" name="groupFillAverage" type="checkbox" value=1>
+                        </div>
+                        <div class="layui-col-sm6">
+                            <div class="layui-form-mid layui-word-aux">是否在小组内加入平均分average，使得每个小组的队伍数量一样</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layui-hide layui-form-item" id="groupQualifiers">
+                    <label class="layui-form-label label-required">出线数量</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" lay-verify="number" name="groupQualifiers"
+                               type="number">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">每个小组出线的队伍数量</div>
+                </div>
+
             </div>
 
             <!-- 淘汰赛设定 -->
-            <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
-                <legend><a name="compatibility">淘汰赛设定</a></legend>
-            </fieldset>
+            <div class="layui-hide" id="knockoutConfig">
 
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label">淘汰赛模式</label>
-                    <div class="layui-input-block">
-                        <select lay-filter="knockoutMode" lay-reqtext="请选择淘汰赛模式" lay-verify="required"
-                                name="knockoutMode">
-                            <option value=""></option>
-                            <option value="0">无淘汰赛</option>
-                            <option value="1">单循环</option>
-                            <option value="2">主客场</option>
-                        </select>
+                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                    <legend><a name="compatibility">淘汰赛设定</a></legend>
+                </fieldset>
+
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label label-required">淘汰赛模式</label>
+                        <div class="layui-input-block">
+                            <select lay-filter="knockoutMode" lay-reqtext="请选择淘汰赛模式" lay-verify="required"
+                                    name="knockoutMode">
+                                <option value=""></option>
+                                <option value="0">无淘汰赛</option>
+                                <option value="1">单循环</option>
+                                <option value="2">主客场</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="layui-form-item" id="knockoutGw">
-                <div class="layui-inline">
-                    <label class="layui-form-label">开始时间</label>
-                    <div class="layui-input-block">
-                        <select lay-filter="knockoutStartGw" lay-search="" name="knockoutStartGw">
-                            <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
-                                    th:value="${userStat.current.key}"></option>
-                        </select>
+                <div class="layui-form-item">
+                    <div class="layui-inline layui-hide" id="knockoutStartGwSelect">
+                        <label class="layui-form-label label-required" id="knockoutStartGwSelectLabel">开始时间</label>
+                        <div class="layui-input-block">
+                            <select lay-filter="knockoutStartGwSelect" lay-search="" lay-verify="gw"
+                                    name="knockoutStartGwSelect">
+                                <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
+                                        th:value="${userStat.current.key}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline layui-hide" id="knockoutStartGw">
+                        <label class="layui-form-label" id="knockoutStartGwLabel">开始时间</label>
+                        <div class="layui-input-inline">
+                            <input autocomplete="off" class="layui-input" name="knockoutStartGw" readonly type="text">
+                        </div>
+                    </div>
+                    <div class="layui-inline layui-hide" id="knockoutEndGw">
+                        <label class="layui-form-label" id="knockoutEndGwLabel">结束时间</label>
+                        <div class="layui-input-inline">
+                            <input autocomplete="off" class="layui-input" name="knockoutEndGw" readonly type="text">
+                        </div>
                     </div>
                 </div>
-                <div class="layui-inline">
-                    <label class="layui-form-label">结束时间</label>
+
+                <div class="layui-hide layui-form-item" id="knockoutTeams">
+                    <label class="layui-form-label">队伍数量</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" name="knockoutTeams" readonly type="number">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">淘汰赛球队总数</div>
+                </div>
+
+                <div class="layui-hide layui-form-item" id="knockoutRounds">
+                    <label class="layui-form-label">轮次</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" name="knockoutRounds" readonly type="number">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">淘汰赛总轮次</div>
+                </div>
+
+                <div class="layui-hide layui-form-item" id="createButton">
                     <div class="layui-input-block">
-                        <select disabled name="knockoutEndGw">
-                            <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
-                                    th:value="${userStat.current.key}"></option>
-                        </select>
+                        <button class="layui-btn" id="button" lay-filter="createTournament" lay-submit="" type="submit">
+                            创建赛事
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <div class="layui-form-item" id="knockoutTeams">
-                <label class="layui-form-label">队伍数量</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="off" class="layui-input" disabled name="knockoutTeams" type="number">
-                </div>
-                <div class="layui-form-mid layui-word-aux">淘汰赛球队总数</div>
-            </div>
-
-            <div class="layui-form-item" id="knockoutRounds">
-                <label class="layui-form-label">轮次</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="off" class="layui-input" disabled name="knockoutRounds" type="number">
-                </div>
-                <div class="layui-form-mid layui-word-aux">淘汰赛总轮次</div>
-            </div>
-
-            <div class="layui-form-item">
-                <div class="layui-input-block">
-                    <button class="layui-btn" lay-filter="createTournament" lay-submit="" type="submit">创建赛事
-                    </button>
-                    <button class="layui-btn layui-btn-primary" type="reset">重置</button>
-                </div>
             </div>
 
         </form>
@@ -207,11 +235,19 @@
 
 <script>
     layui.use(['form', 'element', 'layer'], function () {
-        var $ = layui.jquery;
-        var form = layui.form;
-        var layer = layui.layer;
+        let $ = layui.jquery;
+        let form = layui.form;
+        let layer = layui.layer;
 
+        /**
+         * 1.基础设置
+         * a.统计出联赛队伍数量
+         * b.展示小组赛设置
+         *
+         * @author tong 2020.08.08
+         */
         $("input[name=url]").on('focusout', function () {
+            $("#totalTeamTips").removeClass("layui-hide");
             let url = $("input[name=url]").val();
             if (!new RegExp("^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$").test(url)) {
                 return false;
@@ -222,161 +258,393 @@
                 }
             })
                 .then(function (response) {
-                    $("#totalTeam").text("联赛队伍：" + response.data).removeClass("layui-hide");
-                    let teamsPerGroup = $("input[name=teamsPerGroup]").val();
-                    if (teamsPerGroup != '') {
-                        let groupNum = Math.ceil(response.data / teamsPerGroup);
-                        $("input[name=groupNum]").val(groupNum);
-                        let groupQualifiersNum = $("input[name=groupQualifiers]").val();
-                        if (groupQualifiersNum != '') {
-                            $("input[name=knockoutTeams]").val(groupQualifiersNum * groupNum);
-                            let knockoutMode = $("select[name=knockoutMode]").val();
-                            if (knockoutMode == "1" || knockoutMode == "2") {
-                                let knockoutRounds = Math.ceil(Math.log(groupQualifiersNum * groupNum) / Math.log(2)) * knockoutMode;
-                                $("input[name=knockoutRounds]").val(knockoutRounds);
-                                let knockoutStartGw = $("select[name=knockoutStartGw]").val();
-                                if (knockoutStartGw != '') {
-                                    let endGw = knockoutStartGw + knockoutRounds - 1;
-                                    $("select[name=knockoutEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value=" + endGw + "]").click();
-                                }
-                            }
-                        }
-                    }
+                    $("input[name=totalTeam]").val(response.data);
+                    $("#totalTeamTips").hide();
+                    $("#groupConfig").removeClass("layui-hide");
                 })
                 .catch(function (error) {
-                    console.info(error)
+                    console.info(error);
                 });
         });
 
-        $("input[name=teamsPerGroup]").on('focusout', function () {
-            let totalTeamText = $("#totalTeam").text();
-            if (totalTeamText == '') {
-                return false;
-            }
-            let groupNum = Math.ceil(totalTeamText.split("：")[1] / $("input[name=teamsPerGroup]").val());
-            $("input[name=groupNum]").val(groupNum);
-            let groupQualifiersNum = $("input[name=groupQualifiers]").val();
-            if (groupQualifiersNum != '') {
-                $("input[name=knockoutTeams]").val(groupQualifiersNum * groupNum);
-                let knockoutMode = $("select[name=knockoutMode]").val();
-                if (knockoutMode == "1" || knockoutMode == "2") {
-                    let knockoutRounds = Math.ceil(Math.log(groupQualifiersNum * groupNum) / Math.log(2)) * knockoutMode;
-                    $("input[name=knockoutRounds]").val(knockoutRounds);
-                    let knockoutStartGw = $("select[name=knockoutStartGw]").val();
-                    if (knockoutStartGw != '') {
-                        let endGw = knockoutStartGw + knockoutRounds - 1;
-                        $("select[name=knockoutEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value=" + endGw + "]").click();
-                    }
-                }
-            }
-        });
-
-        $("input[name=groupQualifiers]").on('focusout', function () {
-            let knockoutTeams = $("input[name=knockoutTeams]");
-            let groupQualifiersNum = $("input[name=groupQualifiers]").val();
-            let groupNum = $("input[name=groupNum]").val();
-            if (groupQualifiersNum == 0) {
-                $("select[name=knockoutMode]").siblings("div.layui-form-select").find("dl").find("dd[lay-value=0]").click();
-                knockoutTeams.hide();
-            } else {
-                if (groupNum == '') {
-                    return false;
-                }
-                knockoutTeams.val(groupQualifiersNum * groupNum);
-                let knockoutMode = $("select[name=knockoutMode]").val();
-                if (knockoutMode == "1" || knockoutMode == "2") {
-                    let knockoutRounds = Math.ceil(Math.log(knockoutTeams.val()) / Math.log(2)) * knockoutMode;
-                    $("input[name=knockoutRounds]").val(knockoutRounds);
-                    let knockoutStartGw = $("select[name=knockoutStartGw]").val();
-                    if (knockoutStartGw != '') {
-                        let endGw = knockoutStartGw + knockoutRounds - 1;
-                        $("select[name=knockoutEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value=" + endGw + "]").click();
-                    }
-                }
-            }
-        });
-
+        /**
+         * 2.小组赛设置
+         * a.清除淘汰赛配置
+         * b..无小组赛：A.展示淘汰赛设置；B.设置淘汰赛队伍数量；
+         * C.设置淘汰赛开始时间必填；D.隐藏所有设置项；
+         * E.相关配置值重置
+         * c.积分赛：A.不展示平均分占位；B.有淘汰赛时，展示小组出线数量
+         *
+         * @author tong 2020.08.08
+         */
         form.on('select(groupMode)', function (data) {
-            var groupMode = data.value;
+            // a
+            $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+            $("input[name=knockoutStartGw]").val('');
+            $("input[name=knockoutEndGw]").val('');
+            $("input[name=knockoutTeams]").val('');
+            $("input[name=knockoutRounds]").val('');
+            let groupMode = data.value;
             switch (groupMode) {
                 case "0": { // 无小组赛
-                    $("#groupGw").hide();
-                    $("#groupTeamsPerGroup").hide();
-                    $("#groupQualifiers").hide();
-                    $("#groupFillAverage").hide();
-                    $("#groupNum").hide();
+                    // A
+                    $("#knockoutConfig").removeClass("layui-hide");
+                    // B
+                    $("input[name=knockoutTeams]").val($("input[name=totalTeam]").val());
+                    // C
+                    $("#knockoutStartGwLabel").addClass("label-required");
+                    $("select[name=knockoutStartGw]").attr("lay-search", "");
+                    form.render("select", "knockoutStartGw");
+                    // D
+                    $("#groupGw").addClass("layui-hide");
+                    $("#groupTeamsPerGroup").addClass("layui-hide");
+                    $("#groupNum").addClass("layui-hide");
+                    $("#groupFillAverage").addClass("layui-hide");
+                    $("#groupQualifiers").addClass("layui-hide");
+                    // E
+                    $("select[name=groupStartGw]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+                    $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+                    $("input[name=groupTeamsPerGroup]").val('');
+                    $("input[name=groupNum]").val('');
+                    $("input[name=groupFillAverage]").val('');
+                    $("input[name=groupQualifiers]").val('');
+                    // 校验
+                    if ($("select[name=knockoutMode]").val() == "0") {
+                        layer.alert("没有小组赛又没有淘汰赛还弄个啥？！", {title: "逗我呢"});
+                        return false;
+                    }
                     break;
                 }
                 case "1": { // 积分赛
-                    $("#groupGw").show();
-                    $("#groupTeamsPerGroup").show();
-                    $("#groupQualifiers").show();
-                    $("#groupFillAverage").hide();
-                    $("#groupNum").show();
+                    // A
+                    $("#knockoutConfig").removeClass("layui-hide");
+                    $("#groupGw").removeClass("layui-hide");
+                    $("#groupTeamsPerGroup").removeClass("layui-hide");
+                    $("#groupFillAverage").addClass("layui-hide");
+                    $("#groupNum").removeClass("layui-hide");
+                    $("#knockoutStartGwSelect").addClass("layui-hide");
+                    // B
+                    if ($("select[name=knockoutMode]").val() != "0") {
+                        $("#groupQualifiers").removeClass("layui-hide");
+                    }
+                    // C
+                    let knockoutTeams = $("input[name=knockoutTeams]");
+                    if (knockoutTeams.val() != '') {
+                        knockoutTeams.val('');
+                    }
+                    let knockoutRounds = $("input[name=knockoutRounds]");
+                    if (knockoutRounds.val() != '') {
+                        knockoutRounds.val('');
+                    }
                     break;
                 }
                 case "2": { // 对阵赛
-                    $("#groupGw").show();
-                    $("#groupTeamsPerGroup").show();
-                    $("#groupQualifiers").show();
-                    $("#groupFillAverage").show();
-                    $("#groupNum").show();
+                    // A
+                    $("#knockoutConfig").removeClass("layui-hide");
+                    $("#groupGw").removeClass("layui-hide");
+                    $("#groupTeamsPerGroup").removeClass("layui-hide");
+                    $("#groupFillAverage").removeClass("layui-hide");
+                    $("#groupNum").removeClass("layui-hide");
+                    $("#knockoutStartGwSelect").addClass("layui-hide");
+                    // B
+                    if ($("select[name=knockoutMode]").val() != "0") {
+                        $("#groupQualifiers").removeClass("layui-hide");
+                    }
+                    // C
+                    let knockoutTeams = $("input[name=knockoutTeams]");
+                    if (knockoutTeams.val() != '') {
+                        knockoutTeams.val('');
+                    }
+                    let knockoutRounds = $("input[name=knockoutRounds]");
+                    if (knockoutRounds.val() != '') {
+                        knockoutRounds.val('');
+                    }
                     break;
                 }
-                default: {
-                    $("#groupGw").show();
-                    $("#groupTeamsPerGroup").show();
-                    $("#groupQualifiers").show();
-                    $("#groupFillAverage").show();
+                default: { // 请选择
+                    $("#knockoutConfig").addClass("layui-hide");
+                    $("#groupGw").addClass("layui-hide");
+                    $("#groupTeamsPerGroup").addClass("layui-hide");
+                    $("#groupFillAverage").addClass("layui-hide");
+                    $("#groupNum").addClass("layui-hide");
                 }
             }
         });
 
+        /**
+         * 3.淘汰赛设置
+         * a.无淘汰赛：A.有小组赛时，展示创建按钮；B.隐藏配置；C.相关配置值重置
+         * b.有淘汰赛：A.展示创建按钮；
+         * B.无小组赛时：a).展示淘汰赛开始时间下拉项；b).展示淘汰赛队伍数量和淘汰赛轮次；c).计算淘汰赛结束时间；
+         * C.有小组赛时：a).展示每组出线数量，展示淘汰赛开始时间、结束时间输入框；D.有每组队伍和小组数时，计算淘汰赛数量；
+         * E.有淘汰赛球队数时，计算淘汰赛轮次；F.有小组赛结束时间时，计算淘汰赛开始时间；
+         * G.有开始时间时，计算结束时间
+         *
+         * @author tong 2020.08.08
+         */
         form.on('select(knockoutMode)', function (data) {
-            if (data.value == 0 && data.value != '') { // 无淘汰赛
-                $("#knockoutGw").hide();
-                $("#groupQualifiers").hide();
-                $("#knockoutTeams").hide();
-                $("#knockoutRounds").hide();
-            } else { // 有淘汰赛
-                $("#knockoutGw").show();
-                $("#groupQualifiers").show();
-                $("#knockoutTeams").show();
-                $("#knockoutRounds").show();
-                let knockoutTeams = $("input[name=knockoutTeams]").val();
-                if (knockoutTeams != '') {
-                    let knockoutRounds = Math.ceil(Math.log(knockoutTeams) / Math.log(2)) * data.value;
-                    $("input[name=knockoutRounds]").val(knockoutRounds);
-                    let knockoutStartGw = $("select[name=knockoutStartGw]").val();
-                    if (knockoutStartGw != '') {
-                        let endGw = knockoutStartGw + knockoutRounds - 1;
-                        $("select[name=knockoutEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value=" + endGw + "]").click();
+            let groupMode = $("select[name=groupMode]").val();
+            let knockoutMode = data.value;
+            switch (knockoutMode) {
+                case "0": {
+                    // A
+                    $("#createButton").removeClass("layui-hide");
+                    // B
+                    $("#groupQualifiers").addClass("layui-hide");
+                    $("#knockoutStartGw").addClass("layui-hide");
+                    $("#knockoutStartGwSelect").addClass("layui-hide");
+                    $("#knockoutEndGw").addClass("layui-hide");
+                    $("#knockoutTeams").addClass("layui-hide");
+                    $("#knockoutRounds").addClass("layui-hide");
+                    // C
+                    $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+                    $("input[name=knockoutStartGw]").val('');
+                    $("input[name=knockoutEndGw]").val('');
+                    $("input[name=knockoutTeams]").val('');
+                    $("input[name=knockoutRounds]").val('');
+                    break;
+                }
+                case "1":
+                case "2": {
+                    // A
+                    $("#createButton").removeClass("layui-hide");
+                    $("#knockoutTeams").removeClass("layui-hide");
+                    $("#knockoutRounds").removeClass("layui-hide");
+                    // B
+                    if (groupMode == "0") {
+                        // 展示
+                        $("#knockoutStartGwSelect").removeClass("layui-hide");
+                        $("#knockoutEndGw").removeClass("layui-hide");
+                        // 淘汰赛球队
+                        let knockoutTeamNum = $("input[name=totalTeam]").val();
+                        $("input[name=knockoutTeams]").val(knockoutTeamNum);
+                        // 淘汰赛轮次
+                        let roundNum = Math.ceil(Math.log(knockoutTeamNum) / Math.log(2)) * knockoutMode;
+                        $("input[name=knockoutRounds]").val(roundNum);
+                        // 淘汰赛结束时间
+                        let knockoutStartGwSelect = $("select[name=knockoutStartGwSelect]");
+                        let knockoutStartGw = knockoutStartGwSelect.val();
+                        let knockoutEndGw = $("input[name=knockoutEndGw]");
+                        if (knockoutStartGw != '') {
+                            let knockoutEndGwNum = parseInt(knockoutStartGw) + roundNum - 1;
+                            if (knockoutEndGwNum > 38) {
+                                layer.alert("淘汰赛最晚开始时间为：GW" + (38 - roundNum + 1) + "！", {title: "淘汰赛打不完啦"});
+                                knockoutStartGwSelect.siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+                                knockoutEndGw.val('');
+                                return false;
+                            }
+                            knockoutEndGw.val("GW" + knockoutEndGwNum);
+                        }
                     }
+                    // C
+                    if (groupMode == "1" || groupMode == "2") {
+                        // 展示
+                        $("#groupQualifiers").removeClass("layui-hide");
+                        $("#knockoutStartGwSelect").addClass("layui-hide");
+                        $("#knockoutStartGw").removeClass("layui-hide");
+                        $("#knockoutEndGw").removeClass("layui-hide");
+                        // 淘汰赛球队
+                        let qualifiers = $("input[name=groupQualifiers]").val();
+                        if (qualifiers == '') {
+                            return false;
+                        }
+                        let knockoutTeamNum = qualifiers * $("input[name=groupNum]").val();
+                        $("input[name=knockoutTeams]").val(knockoutTeamNum);
+                        // 淘汰赛轮次
+                        let roundNum = Math.ceil(Math.log(knockoutTeamNum) / Math.log(2)) * knockoutMode;
+                        $("input[name=knockoutRounds]").val(roundNum);
+                        // 淘汰赛开始时间
+                        let groupEndGw = $("select[name=groupEndGw]").val();
+                        if (groupEndGw != '') {
+                            let knockoutStartGwNum = parseInt(groupEndGw) + 1;
+                            if (knockoutStartGwNum > 38) {
+                                layer.alert("请重新修改小组赛起始时间！", {title: "淘汰赛打不完啦"});
+                                return false;
+                            }
+                            let knockoutStartGw = $("input[name=knockoutStartGw]");
+                            knockoutStartGw.val("GW" + knockoutStartGwNum);
+                            let knockoutEndGw = $("input[name=knockoutEndGw]");
+                            // 淘汰赛结束时间
+                            let knockoutEndGwNum = parseInt(groupEndGw) + roundNum;
+                            if (knockoutEndGwNum > 38) {
+                                layer.alert("请重新修改小组赛起始时间", {title: "淘汰赛打不完啦"});
+                                knockoutStartGw.val('');
+                                knockoutEndGw.val('');
+                                return false;
+                            }
+                            knockoutEndGw.val("GW" + knockoutEndGwNum);
+                        }
+                    }
+                    break;
+                }
+                default: { // 请选择
+                    $("#knockoutStartGwSelect").addClass("layui-hide");
+                    $("#knockoutStartGw").addClass("layui-hide");
+                    $("#knockoutEndGw").addClass("layui-hide");
+                    $("#groupQualifiers").addClass("layui-hide");
+                    $("#knockoutTeams").addClass("layui-hide");
+                    $("#knockoutRounds").addClass("layui-hide");
                 }
             }
         });
 
-        form.on('select(knockoutStartGw)', function (data) {
+        /**
+         * 计算淘汰赛开始时间，结束时间
+         *
+         * @author tong 2020/08/09
+         */
+        form.on('select(groupEndGw)', function () {
+            let knockoutTeams = $("input[name=knockoutTeams]").val();
             let knockoutRounds = $("input[name=knockoutRounds]").val();
-            let endGw = data.value + knockoutRounds - 1;
-            $("select[name=knockoutEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value=15]").click();
+            if (knockoutTeams != '' && knockoutRounds != '') {
+                // 淘汰赛开始时间
+                let groupEndGw = $("select[name=groupEndGw]").val();
+                $("input[name=knockoutStartGw]").val("GW" + parseInt(groupEndGw) + 1);
+                // 淘汰赛结束时间
+            }
         });
 
+        /**
+         * 每组队伍数量
+         * a.计算小组数量
+         * b.计算淘汰赛队伍数量和淘汰赛轮次
+         * c.如有有小组赛结束时间，计算淘汰赛时间
+         *
+         * @author tong 2020.08.09
+         */
+        $("input[name=groupTeamsPerGroup]").on('focusout', function () {
+            let groupTeamsPerGroup = $("input[name=groupTeamsPerGroup]").val();
+            if (groupTeamsPerGroup == "") {
+                return false;
+            }
+            // a
+            let groupNum = Math.ceil($("input[name=totalTeam]").val() / groupTeamsPerGroup);
+            $("input[name=groupNum]").val(groupNum);
+            // b
+            let knockoutMode = $("select[name=knockoutMode]").val();
+            if (knockoutMode == 1 || knockoutMode == 2) {
+                let groupQualifiers = $("input[name=groupQualifiers]").val();
+                if (groupQualifiers == '') {
+                    return false;
+                }
+                let knockoutTeams = groupQualifiers * groupNum;
+                $("input[name=knockoutTeams]").val(knockoutTeams);
+                let knockoutRounds = Math.ceil(Math.log(knockoutTeams) / Math.log(2)) * knockoutMode;
+                $("input[name=knockoutRounds]").val(knockoutRounds);
+                // c
+                let groupEndGw = $("input[name=groupEndGw]").val();
+                if (groupEndGw != '') {
+                    let knockoutStartGwNum = parseInt(groupEndGw) + 1;
+                    if (knockoutStartGwNum > 38) {
+                        layer.alert("请重新修改小组赛起始时间！", {title: "淘汰赛打不完啦"});
+                        return false;
+                    }
+                    let knockoutStartGw = $("input[name=knockoutStartGw]");
+                    knockoutStartGw.val("GW" + knockoutStartGwNum);
+                    let knockoutEndGw = $("input[name=knockoutEndGw]");
+                    // 淘汰赛结束时间
+                    let knockoutEndGwNum = parseInt(groupEndGw) + knockoutRounds;
+                    if (knockoutEndGwNum > 38) {
+                        layer.alert("请重新修改小组赛起始时间", {title: "淘汰赛打不完啦"});
+                        knockoutStartGw.val('');
+                        knockoutEndGw.val('');
+                        return false;
+                    }
+                    knockoutEndGw.val("GW" + knockoutEndGwNum);
+                }
+            }
+        });
+
+        /**
+         * 每组出线数量
+         * a.如果已有淘汰赛模式，计算淘汰赛球队数量
+         * b.如果已有淘汰赛模式，计算淘汰赛轮次
+         * c.如果已有淘汰赛开始时间，计算淘汰赛结束时间
+         *
+         * @author tong 2020.08.08
+         */
+        $("input[name=groupQualifiers]").on('focusout', function () {
+            let groupQualifiersNum = $("input[name=groupQualifiers]").val();
+            if (groupQualifiersNum == '') {
+                return false;
+            }
+            let knockoutMode = $("select[name=knockoutMode]").val();
+            if (knockoutMode == "1" && knockoutMode == "2") {
+                return false;
+            }
+            // a
+            let groupNum = $("input[name=groupNum]").val();
+            $("input[name=knockoutTeams]").val(groupQualifiersNum * groupNum);
+            let knockoutRounds = Math.ceil(Math.log(groupQualifiersNum * groupNum) / Math.log(2)) * knockoutMode;
+            $("input[name=knockoutRounds]").val(knockoutRounds);
+            // d
+            let knockoutStartGw = $("input[name=knockoutStartGw]").val();
+            if (knockoutStartGw != '') {
+                let endGw = parseInt(knockoutStartGw) + knockoutRounds - 1;
+                $("input[name=knockoutEndGw]").val("GW" + endGw);
+            }
+        });
+
+        /**
+         * 淘汰赛结束时间
+         *
+         * @author tong 2020.08.09
+         */
+        form.on('select(knockoutStartGwSelect)', function (data) {
+            let knockoutEndGw = $("input[name=knockoutEndGw]");
+            if (data.value == '') {
+                knockoutEndGw.val('');
+                return false;
+            }
+            let roundNum = $("input[name=knockoutRounds]").val();
+            if (roundNum == '') {
+                return false;
+            }
+            let endGw = parseInt(data.value) + parseInt(roundNum) - 1;
+            if (endGw > 38) {
+                layer.alert("淘汰赛最晚开始时间为：GW" + (38 - roundNum + 1) + "！", {title: "淘汰赛打不完啦"});
+                $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+                knockoutEndGw.val('');
+                return false;
+            }
+            knockoutEndGw.val("GW" + endGw);
+        });
+
+        /**
+         * 表单验证
+         *
+         * @author tong 2020.08.08
+         */
         form.verify({
             url: function (value) {
                 if (!new RegExp("^https://fantasy.premierleague.com/.*").test(value)) {
                     return "输入的官方联赛链接形式错误，请重新检查！"
                 }
             },
-            number: [
-                /^[1-9]\d*$/,
-                "数字必须是正整数，请重新检查！"
-            ]
+            number: function (value) {
+                if (!(new RegExp("^[0-9]\\d*$").test(value) || value == '')) {
+                    return "数字不能为负，请重新检查！";
+                }
+            }
         });
 
+        /**
+         * 表单提交
+         *
+         * @author 2020.08.08
+         */
         form.on('submit(createTournament)', function (data) {
             let formData = data.field;
-            let totalTeams = $("#totalTeams").val();
+            // 设置淘汰赛开始时间
+            let knockoutStartGw = $("input[name=knockoutStartGw]").val();
+            if (knockoutStartGw != '') {
+                formData.knockoutStartGw = knockoutStartGw;
+            } else {
+                formData.knockoutStartGw = $("select[name=knockoutStartGwSelect]").val();
+            }
+            // 设置小组加入平均分
+            formData.groupFillAverage == '1' ? formData.groupFillAverage = true : formData.groupFillAverage = false;
+            // 校验
             if (formData.groupMode == 0 && formData.knockoutMode == 0) {
                 layer.alert("没有小组赛又没有淘汰赛还弄个啥？！", {title: "逗我呢"});
                 return false;
@@ -389,17 +657,24 @@
                 layer.alert("开始时间必须早于结束时间！", {title: "淘汰赛起始时间错误"});
                 return false;
             }
-            if (totalTeams > 0 && formData.teamsPerGroup > totalTeams) {
-                layer.alert("分组队伍数量如何大于联赛队伍总数？！", {title: "每组队伍数量错误"});
+            if (formData.groupTeamsPerGroup > $("#totalTeams").val()) {
+                layer.alert("分组队伍数量可能大于联赛队伍总数吗？！", {title: "每组队伍数量错误"});
                 return false;
             }
+            if (formData.groupQualifiers > formData.groupTeamsPerGroup) {
+                layer.alert("小组出线数量可能大于小组队伍数量吗？！", {title: "小组赛配置错误"});
+                return false;
+            }
+
             layer.confirm("确认创建？", {closeBtn: 0, title: ""}, function () {
-                axios.post('/tournament/createNewTournament111', formData)
+                axios.post('/tournament/createNewTournament', formData)
                     .then(function (response) {
-                        layer.msg(response.data);
+                        layer.msg(response.data, {icon: 6, time: 1000}, function () {
+                            window.location.replace("/tournament/create");
+                        });
                     })
                     .catch(function (error) {
-                        layer.msg(error.data + "请重新尝试！");
+                        layer.msg(error.data + "请重新尝试！", {icon: 2});
                     });
             });
             return false;
