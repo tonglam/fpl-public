@@ -270,49 +270,45 @@
         /**
          * 2.小组赛设置
          * a.清除淘汰赛配置
-         * b..无小组赛：A.展示淘汰赛设置；B.设置淘汰赛队伍数量；
-         * C.设置淘汰赛开始时间必填；D.隐藏所有设置项；
-         * E.相关配置值重置
+         * b.无小组赛：A.展示淘汰赛设置；B.不能无淘汰赛；C.设置淘汰赛队伍数量；
+         * D.设置淘汰赛开始时间必填；E.隐藏所有设置项；F.相关配置值重置
          * c.积分赛：A.不展示平均分占位；B.有淘汰赛时，展示小组出线数量
          *
          * @author tong 2020.08.08
          */
         form.on('select(groupMode)', function (data) {
             // a
-            $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
-            $("input[name=knockoutStartGw]").val('');
-            $("input[name=knockoutEndGw]").val('');
-            $("input[name=knockoutTeams]").val('');
-            $("input[name=knockoutRounds]").val('');
+            clearKnockoutConfig();
             let groupMode = data.value;
             switch (groupMode) {
                 case "0": { // 无小组赛
                     // A
                     $("#knockoutConfig").removeClass("layui-hide");
                     // B
-                    $("input[name=knockoutTeams]").val($("input[name=totalTeam]").val());
+                    if ($("select[name=knockoutMode]").val() == "0") {
+                        layer.alert("没有小组赛又没有淘汰赛还弄个啥");
+                        return false;
+                    }
                     // C
+                    $("input[name=knockoutTeams]").val($("input[name=totalTeam]").val());
+                    // D
                     $("#knockoutStartGwLabel").addClass("label-required");
                     $("select[name=knockoutStartGw]").attr("lay-search", "");
                     form.render("select", "knockoutStartGw");
-                    // D
+                    // E
                     $("#groupGw").addClass("layui-hide");
                     $("#groupTeamsPerGroup").addClass("layui-hide");
                     $("#groupNum").addClass("layui-hide");
                     $("#groupFillAverage").addClass("layui-hide");
                     $("#groupQualifiers").addClass("layui-hide");
-                    // E
-                    $("select[name=groupStartGw]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
-                    $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+                    // F
+                    $("select[name=groupStartGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
+                    $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
                     $("input[name=groupTeamsPerGroup]").val('');
                     $("input[name=groupNum]").val('');
                     $("input[name=groupFillAverage]").val('');
                     $("input[name=groupQualifiers]").val('');
-                    // 校验
-                    if ($("select[name=knockoutMode]").val() == "0") {
-                        layer.alert("没有小组赛又没有淘汰赛还弄个啥？！", {title: "逗我呢"});
-                        return false;
-                    }
+
                     break;
                 }
                 case "1": { // 积分赛
@@ -373,7 +369,7 @@
 
         /**
          * 3.淘汰赛设置
-         * a.无淘汰赛：A.有小组赛时，展示创建按钮；B.隐藏配置；C.相关配置值重置
+         * a.无淘汰赛：A相关配置值重置；B.隐藏配置；C.不能无小组赛；D.有小组赛时，展示创建按钮
          * b.有淘汰赛：A.展示创建按钮；
          * B.无小组赛时：a).展示淘汰赛开始时间下拉项；b).展示淘汰赛队伍数量和淘汰赛轮次；c).计算淘汰赛结束时间；
          * C.有小组赛时：a).展示每组出线数量，展示淘汰赛开始时间、结束时间输入框；D.有每组队伍和小组数时，计算淘汰赛数量；
@@ -388,20 +384,21 @@
             switch (knockoutMode) {
                 case "0": {
                     // A
-                    $("#createButton").removeClass("layui-hide");
+                    clearKnockoutConfig();
                     // B
+                    if (groupMode == "0") {
+                        layer.msg("没有小组赛又没有淘汰赛还弄个啥");
+                        return false;
+                    }
+                    // C
+                    $("#createButton").removeClass("layui-hide");
+                    // D
                     $("#groupQualifiers").addClass("layui-hide");
                     $("#knockoutStartGw").addClass("layui-hide");
                     $("#knockoutStartGwSelect").addClass("layui-hide");
                     $("#knockoutEndGw").addClass("layui-hide");
                     $("#knockoutTeams").addClass("layui-hide");
                     $("#knockoutRounds").addClass("layui-hide");
-                    // C
-                    $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
-                    $("input[name=knockoutStartGw]").val('');
-                    $("input[name=knockoutEndGw]").val('');
-                    $("input[name=knockoutTeams]").val('');
-                    $("input[name=knockoutRounds]").val('');
                     break;
                 }
                 case "1":
@@ -423,17 +420,17 @@
                         $("input[name=knockoutRounds]").val(roundNum);
                         // 淘汰赛结束时间
                         let knockoutStartGwSelect = $("select[name=knockoutStartGwSelect]");
-                        let knockoutStartGw = knockoutStartGwSelect.val();
+                        let knockoutStartGw = getGwValue(knockoutStartGwSelect.val());
                         let knockoutEndGw = $("input[name=knockoutEndGw]");
                         if (knockoutStartGw != '') {
-                            let knockoutEndGwNum = parseInt(knockoutStartGw) + roundNum - 1;
+                            let knockoutEndGwNum = knockoutStartGw + roundNum - 1;
                             if (knockoutEndGwNum > 38) {
-                                layer.alert("淘汰赛最晚开始时间为：GW" + (38 - roundNum + 1) + "！", {title: "淘汰赛打不完啦"});
+                                layer.msg("淘汰赛打不完啦，最晚开始时间为：" + setGwStr(38 - roundNum + 1) + "！", {title: ""});
                                 knockoutStartGwSelect.siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
                                 knockoutEndGw.val('');
                                 return false;
                             }
-                            knockoutEndGw.val("GW" + knockoutEndGwNum);
+                            knockoutEndGw.val(setGwStr(knockoutEndGwNum));
                         }
                     }
                     // C
@@ -444,35 +441,39 @@
                         $("#knockoutStartGw").removeClass("layui-hide");
                         $("#knockoutEndGw").removeClass("layui-hide");
                         // 淘汰赛球队
-                        let qualifiers = $("input[name=groupQualifiers]").val();
+                        let qualifiers = parseInt($("input[name=groupQualifiers]").val());
                         if (qualifiers == '') {
                             return false;
                         }
-                        let knockoutTeamNum = qualifiers * $("input[name=groupNum]").val();
+                        let groupNum = parseInt($("input[name=groupNum]").val());
+                        if (groupNum == '') {
+                            return false;
+                        }
+                        let knockoutTeamNum = qualifiers * groupNum;
                         $("input[name=knockoutTeams]").val(knockoutTeamNum);
                         // 淘汰赛轮次
                         let roundNum = Math.ceil(Math.log(knockoutTeamNum) / Math.log(2)) * knockoutMode;
                         $("input[name=knockoutRounds]").val(roundNum);
                         // 淘汰赛开始时间
-                        let groupEndGw = $("select[name=groupEndGw]").val();
+                        let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
                         if (groupEndGw != '') {
-                            let knockoutStartGwNum = parseInt(groupEndGw) + 1;
+                            let knockoutStartGwNum = groupEndGw + 1;
                             if (knockoutStartGwNum > 38) {
-                                layer.alert("请重新修改小组赛起始时间！", {title: "淘汰赛打不完啦"});
+                                layer.msg("淘汰赛打不完啦，请修改小组赛配置！");
                                 return false;
                             }
                             let knockoutStartGw = $("input[name=knockoutStartGw]");
-                            knockoutStartGw.val("GW" + knockoutStartGwNum);
+                            knockoutStartGw.val(setGwStr(knockoutStartGwNum));
                             let knockoutEndGw = $("input[name=knockoutEndGw]");
                             // 淘汰赛结束时间
-                            let knockoutEndGwNum = parseInt(groupEndGw) + roundNum;
+                            let knockoutEndGwNum = groupEndGw + roundNum;
                             if (knockoutEndGwNum > 38) {
-                                layer.alert("请重新修改小组赛起始时间", {title: "淘汰赛打不完啦"});
+                                layer.msg("淘汰赛打不完啦，请修改小组赛起始时间！");
                                 knockoutStartGw.val('');
                                 knockoutEndGw.val('');
                                 return false;
                             }
-                            knockoutEndGw.val("GW" + knockoutEndGwNum);
+                            knockoutEndGw.val(setGwStr(knockoutEndGwNum));
                         }
                     }
                     break;
@@ -494,13 +495,23 @@
          * @author tong 2020/08/09
          */
         form.on('select(groupEndGw)', function () {
-            let knockoutTeams = $("input[name=knockoutTeams]").val();
-            let knockoutRounds = $("input[name=knockoutRounds]").val();
-            if (knockoutTeams != '' && knockoutRounds != '') {
+            let groupStartGw = $("select[name=groupStartGw]").val();
+            let groupEndGw = $("select[name=groupEndGw]").val();
+            if (groupStartGw != '' && groupEndGw != '' && groupStartGw >= groupEndGw) {
+                layer.msg("开始时间必须早于结束时间！");
+                return false;
+            }
+            let knockoutMode = $("select[name=knockoutMode]").val();
+            if (knockoutMode == "1" || knockoutMode == "2") {
                 // 淘汰赛开始时间
-                let groupEndGw = $("select[name=groupEndGw]").val();
-                $("input[name=knockoutStartGw]").val("GW" + parseInt(groupEndGw) + 1);
-                // 淘汰赛结束时间
+                let knouckoutStartGw = getGwValue(groupEndGw) + 1;
+                $("input[name=knockoutStartGw]").val(setGwStr(knouckoutStartGw));
+                let knockoutRounds = parseInt($("input[name=knockoutRounds]").val());
+                if (knockoutRounds != '') {
+                    // 淘汰赛结束时间
+                    let knouckoutEndGw = knouckoutStartGw + knockoutRounds;
+                    $("input[name=knouckoutEndGw]").val(setGwStr(knouckoutEndGw));
+                }
             }
         });
 
@@ -532,25 +543,25 @@
                 let knockoutRounds = Math.ceil(Math.log(knockoutTeams) / Math.log(2)) * knockoutMode;
                 $("input[name=knockoutRounds]").val(knockoutRounds);
                 // c
-                let groupEndGw = $("input[name=groupEndGw]").val();
+                let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
                 if (groupEndGw != '') {
-                    let knockoutStartGwNum = parseInt(groupEndGw) + 1;
+                    let knockoutStartGwNum = groupEndGw + 1;
                     if (knockoutStartGwNum > 38) {
-                        layer.alert("请重新修改小组赛起始时间！", {title: "淘汰赛打不完啦"});
+                        layer.msg("淘汰赛打不完啦，请修改小组赛配置！");
                         return false;
                     }
                     let knockoutStartGw = $("input[name=knockoutStartGw]");
-                    knockoutStartGw.val("GW" + knockoutStartGwNum);
+                    knockoutStartGw.val(setGwStr(knockoutStartGwNum));
                     let knockoutEndGw = $("input[name=knockoutEndGw]");
                     // 淘汰赛结束时间
-                    let knockoutEndGwNum = parseInt(groupEndGw) + knockoutRounds;
+                    let knockoutEndGwNum = groupEndGw + knockoutRounds;
                     if (knockoutEndGwNum > 38) {
-                        layer.alert("请重新修改小组赛起始时间", {title: "淘汰赛打不完啦"});
+                        layer.msg("淘汰赛打不完啦，请修改小组赛起始时间！");
                         knockoutStartGw.val('');
                         knockoutEndGw.val('');
                         return false;
                     }
-                    knockoutEndGw.val("GW" + knockoutEndGwNum);
+                    knockoutEndGw.val(setGwStr(knockoutEndGwNum));
                 }
             }
         });
@@ -574,14 +585,17 @@
             }
             // a
             let groupNum = $("input[name=groupNum]").val();
+            if (groupNum == '') {
+                return false;
+            }
             $("input[name=knockoutTeams]").val(groupQualifiersNum * groupNum);
             let knockoutRounds = Math.ceil(Math.log(groupQualifiersNum * groupNum) / Math.log(2)) * knockoutMode;
             $("input[name=knockoutRounds]").val(knockoutRounds);
             // d
-            let knockoutStartGw = $("input[name=knockoutStartGw]").val();
+            let knockoutStartGw = getGwValue($("input[name=knockoutStartGw]").val());
             if (knockoutStartGw != '') {
-                let endGw = parseInt(knockoutStartGw) + knockoutRounds - 1;
-                $("input[name=knockoutEndGw]").val("GW" + endGw);
+                let endGw = knockoutStartGw + knockoutRounds - 1;
+                $("input[name=knockoutEndGw]").val(setGwStr(endGw));
             }
         });
 
@@ -603,11 +617,11 @@
             let endGw = parseInt(data.value) + parseInt(roundNum) - 1;
             if (endGw > 38) {
                 layer.alert("淘汰赛最晚开始时间为：GW" + (38 - roundNum + 1) + "！", {title: "淘汰赛打不完啦"});
-                $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+                $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
                 knockoutEndGw.val('');
                 return false;
             }
-            knockoutEndGw.val("GW" + endGw);
+            knockoutEndGw.val(setGwStr(endGw));
         });
 
         /**
@@ -635,26 +649,21 @@
          */
         form.on('submit(createTournament)', function (data) {
             let formData = data.field;
-            // 设置淘汰赛开始时间
-            let knockoutStartGw = $("input[name=knockoutStartGw]").val();
+            // 设置时间
+            formData.groupStartGw = getGwValue(formData.groupStartGw);
+            formData.groupEndGw = getGwValue(formData.groupEndGw);
+            let knockoutStartGw = getGwValue($("input[name=knockoutStartGw]").val());
             if (knockoutStartGw != '') {
                 formData.knockoutStartGw = knockoutStartGw;
             } else {
-                formData.knockoutStartGw = $("select[name=knockoutStartGwSelect]").val();
+                formData.knockoutStartGw = getGwValue($("select[name=knockoutStartGwSelect]").val());
             }
+            formData.knockoutEndGw = getGwValue(formData.knockoutEndGw);
             // 设置小组加入平均分
             formData.groupFillAverage == '1' ? formData.groupFillAverage = true : formData.groupFillAverage = false;
             // 校验
             if (formData.groupMode == 0 && formData.knockoutMode == 0) {
                 layer.alert("没有小组赛又没有淘汰赛还弄个啥？！", {title: "逗我呢"});
-                return false;
-            }
-            if (formData.groupStartGw != '' && formData.groupEndGw != '' && formData.groupStartGw >= formData.groupEndGw) {
-                layer.alert("开始时间必须早于结束时间！", {title: "小组赛起始时间错误"});
-                return false;
-            }
-            if (formData.knockoutStartGw != '' && formData.knockoutEndGw != '' && formData.knockoutStartGw >= formData.knockoutEndGw) {
-                layer.alert("开始时间必须早于结束时间！", {title: "淘汰赛起始时间错误"});
                 return false;
             }
             if (formData.groupTeamsPerGroup > $("#totalTeams").val()) {
@@ -680,8 +689,38 @@
             return false;
         });
 
-    });
+    })
+    ;
 
+</script>
+
+<script>
+
+    function getGwValue(gwStr) {
+        if (gwStr == '') {
+            return '';
+        }
+        if (!gwStr.indexOf("GW") > 0) {
+            return parseInt(gwStr);
+        }
+        return parseInt(gwStr.substr(2, gwStr.length));
+    };
+
+    function setGwStr(value) {
+        if (value == '') {
+            return '';
+        }
+        return "GW" + value;
+    };
+
+    function clearKnockoutConfig() {
+        let $ = layui.jquery;
+        $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
+        $("input[name=knockoutStartGw]").val('');
+        $("input[name=knockoutEndGw]").val('');
+        $("input[name=knockoutTeams]").val('');
+        $("input[name=knockoutRounds]").val('');
+    };
 </script>
 
 </html>
