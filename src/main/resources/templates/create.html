@@ -270,9 +270,9 @@
         /**
          * 2.小组赛设置
          * a.清除淘汰赛配置
-         * b.无小组赛：A.展示淘汰赛设置；B.不能无淘汰赛；C.设置淘汰赛队伍数量；
-         * D.设置淘汰赛开始时间必填；E.隐藏所有设置项；F.相关配置值重置
-         * c.积分赛：A.不展示平均分占位；B.有淘汰赛时，展示小组出线数量
+         * b.无小组赛：A.展示淘汰赛设置；B.隐藏所有设置项；C.相关配置值重置；D.不能无淘汰赛；E.设置淘汰赛队伍数量；F.设置淘汰赛开始时间必填
+         * c.积分赛：A.有淘汰赛时，展示创建按钮；B.不展示平均分占位；C.有淘汰赛时，展示小组出线数量
+         * d.对阵赛：A.有淘汰赛时，展示创建按钮；B.不展示平均分占位；C.有淘汰赛时，展示小组出线数量
          *
          * @author tong 2020.08.08
          */
@@ -280,50 +280,53 @@
             // a
             clearKnockoutConfig();
             let groupMode = data.value;
+            let knockoutMode = $("select[name=knockoutMode]").val();
             switch (groupMode) {
                 case "0": { // 无小组赛
                     // A
                     $("#knockoutConfig").removeClass("layui-hide");
                     // B
-                    if ($("select[name=knockoutMode]").val() == "0") {
-                        layer.alert("没有小组赛又没有淘汰赛还弄个啥");
-                        return false;
-                    }
-                    // C
-                    $("input[name=knockoutTeams]").val($("input[name=totalTeam]").val());
-                    // D
-                    $("#knockoutStartGwLabel").addClass("label-required");
-                    $("select[name=knockoutStartGw]").attr("lay-search", "");
-                    form.render("select", "knockoutStartGw");
-                    // E
                     $("#groupGw").addClass("layui-hide");
                     $("#groupTeamsPerGroup").addClass("layui-hide");
                     $("#groupNum").addClass("layui-hide");
                     $("#groupFillAverage").addClass("layui-hide");
                     $("#groupQualifiers").addClass("layui-hide");
-                    // F
+                    // C
                     $("select[name=groupStartGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
                     $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
                     $("input[name=groupTeamsPerGroup]").val('');
                     $("input[name=groupNum]").val('');
                     $("input[name=groupFillAverage]").val('');
                     $("input[name=groupQualifiers]").val('');
-
+                    // D
+                    if ($("select[name=knockoutMode]").val() == "0") {
+                        layer.msg("没有小组赛又没有淘汰赛还弄个啥", {icon: 5, time: 1000});
+                        return false;
+                    }
+                    if (knockoutMode == "1" || knockoutMode == "2") {
+                        // E
+                        $("input[name=knockoutTeams]").val($("input[name=totalTeam]").val());
+                        // F
+                        $("#knockoutStartGwLabel").addClass("label-required");
+                        $("select[name=knockoutStartGw]").attr("lay-search", "");
+                        form.render("select", "knockoutStartGw");
+                    }
                     break;
                 }
                 case "1": { // 积分赛
                     // A
                     $("#knockoutConfig").removeClass("layui-hide");
+                    // B
                     $("#groupGw").removeClass("layui-hide");
                     $("#groupTeamsPerGroup").removeClass("layui-hide");
                     $("#groupFillAverage").addClass("layui-hide");
                     $("#groupNum").removeClass("layui-hide");
                     $("#knockoutStartGwSelect").addClass("layui-hide");
-                    // B
-                    if ($("select[name=knockoutMode]").val() != "0") {
+                    // C
+                    if (knockoutMode != '' && knockoutMode != "0") {
                         $("#groupQualifiers").removeClass("layui-hide");
                     }
-                    // C
+                    // D
                     let knockoutTeams = $("input[name=knockoutTeams]");
                     if (knockoutTeams.val() != '') {
                         knockoutTeams.val('');
@@ -337,16 +340,17 @@
                 case "2": { // 对阵赛
                     // A
                     $("#knockoutConfig").removeClass("layui-hide");
+                    // B
                     $("#groupGw").removeClass("layui-hide");
                     $("#groupTeamsPerGroup").removeClass("layui-hide");
                     $("#groupFillAverage").removeClass("layui-hide");
                     $("#groupNum").removeClass("layui-hide");
                     $("#knockoutStartGwSelect").addClass("layui-hide");
-                    // B
-                    if ($("select[name=knockoutMode]").val() != "0") {
+                    // C
+                    if (knockoutMode != '' && knockoutMode != 0) {
                         $("#groupQualifiers").removeClass("layui-hide");
                     }
-                    // C
+                    // D
                     let knockoutTeams = $("input[name=knockoutTeams]");
                     if (knockoutTeams.val() != '') {
                         knockoutTeams.val('');
@@ -386,19 +390,20 @@
                     // A
                     clearKnockoutConfig();
                     // B
-                    if (groupMode == "0") {
-                        layer.msg("没有小组赛又没有淘汰赛还弄个啥");
-                        return false;
-                    }
-                    // C
-                    $("#createButton").removeClass("layui-hide");
-                    // D
                     $("#groupQualifiers").addClass("layui-hide");
                     $("#knockoutStartGw").addClass("layui-hide");
                     $("#knockoutStartGwSelect").addClass("layui-hide");
                     $("#knockoutEndGw").addClass("layui-hide");
                     $("#knockoutTeams").addClass("layui-hide");
                     $("#knockoutRounds").addClass("layui-hide");
+                    // C
+                    if (groupMode == "0") {
+                        layer.msg("没有小组赛又没有淘汰赛还弄个啥", {icon: 5, time: 1000});
+                        $("#createButton").addClass("layui-hide");
+                        return false;
+                    }
+                    // D
+                    $("#createButton").removeClass("layui-hide");
                     break;
                 }
                 case "1":
@@ -425,8 +430,12 @@
                         if (knockoutStartGw != '') {
                             let knockoutEndGwNum = knockoutStartGw + roundNum - 1;
                             if (knockoutEndGwNum > 38) {
-                                layer.msg("淘汰赛打不完啦，最晚开始时间为：" + setGwStr(38 - roundNum + 1) + "！", {title: ""});
-                                knockoutStartGwSelect.siblings("div.layui-form-select").find("dl").find("dd[class=layui-select-tips]").click();
+                                layer.msg("淘汰赛打不完啦，最晚开始时间为：" + setGwStr(38 - roundNum + 1) + "！", {
+                                    icon: 5,
+                                    time: 1000,
+                                    title: ""
+                                });
+                                knockoutStartGwSelect.siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
                                 knockoutEndGw.val('');
                                 return false;
                             }
@@ -441,15 +450,15 @@
                         $("#knockoutStartGw").removeClass("layui-hide");
                         $("#knockoutEndGw").removeClass("layui-hide");
                         // 淘汰赛球队
-                        let qualifiers = parseInt($("input[name=groupQualifiers]").val());
+                        let qualifiers = $("input[name=groupQualifiers]").val();
                         if (qualifiers == '') {
                             return false;
                         }
-                        let groupNum = parseInt($("input[name=groupNum]").val());
+                        let groupNum = $("input[name=groupNum]").val();
                         if (groupNum == '') {
                             return false;
                         }
-                        let knockoutTeamNum = qualifiers * groupNum;
+                        let knockoutTeamNum = parseInt(qualifiers) * parseInt(groupNum);
                         $("input[name=knockoutTeams]").val(knockoutTeamNum);
                         // 淘汰赛轮次
                         let roundNum = Math.ceil(Math.log(knockoutTeamNum) / Math.log(2)) * knockoutMode;
@@ -459,7 +468,7 @@
                         if (groupEndGw != '') {
                             let knockoutStartGwNum = groupEndGw + 1;
                             if (knockoutStartGwNum > 38) {
-                                layer.msg("淘汰赛打不完啦，请修改小组赛配置！");
+                                layer.msg("淘汰赛打不完啦，请修改小组赛配置！", {icon: 5, time: 1000});
                                 return false;
                             }
                             let knockoutStartGw = $("input[name=knockoutStartGw]");
@@ -468,7 +477,7 @@
                             // 淘汰赛结束时间
                             let knockoutEndGwNum = groupEndGw + roundNum;
                             if (knockoutEndGwNum > 38) {
-                                layer.msg("淘汰赛打不完啦，请修改小组赛起始时间！");
+                                layer.msg("淘汰赛打不完啦，请修改小组赛起始时间！", {icon: 5, time: 1000});
                                 knockoutStartGw.val('');
                                 knockoutEndGw.val('');
                                 return false;
@@ -479,6 +488,7 @@
                     break;
                 }
                 default: { // 请选择
+                    $("#createButton").addClass("layui-hide");
                     $("#knockoutStartGwSelect").addClass("layui-hide");
                     $("#knockoutStartGw").addClass("layui-hide");
                     $("#knockoutEndGw").addClass("layui-hide");
@@ -495,22 +505,23 @@
          * @author tong 2020/08/09
          */
         form.on('select(groupEndGw)', function () {
-            let groupStartGw = $("select[name=groupStartGw]").val();
             let groupEndGw = $("select[name=groupEndGw]").val();
+            let groupStartGw = $("select[name=groupStartGw]").val();
             if (groupStartGw != '' && groupEndGw != '' && groupStartGw >= groupEndGw) {
-                layer.msg("开始时间必须早于结束时间！");
+                layer.msg("结束时间必须晚于开始时间！", {icon: 5, time: 1000});
+                $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
                 return false;
             }
             let knockoutMode = $("select[name=knockoutMode]").val();
             if (knockoutMode == "1" || knockoutMode == "2") {
-                // 淘汰赛开始时间
-                let knouckoutStartGw = getGwValue(groupEndGw) + 1;
-                $("input[name=knockoutStartGw]").val(setGwStr(knouckoutStartGw));
-                let knockoutRounds = parseInt($("input[name=knockoutRounds]").val());
+                let knockoutRounds = $("input[name=knockoutRounds]").val();
                 if (knockoutRounds != '') {
+                    // 淘汰赛开始时间
+                    let knouckoutStartGw = getGwValue(groupEndGw) + 1;
+                    $("input[name=knockoutStartGw]").val(setGwStr(knouckoutStartGw));
                     // 淘汰赛结束时间
                     let knouckoutEndGw = knouckoutStartGw + knockoutRounds;
-                    $("input[name=knouckoutEndGw]").val(setGwStr(knouckoutEndGw));
+                    $("input[name=knockoutEndGw]").val(setGwStr(knouckoutEndGw));
                 }
             }
         });
@@ -525,7 +536,12 @@
          */
         $("input[name=groupTeamsPerGroup]").on('focusout', function () {
             let groupTeamsPerGroup = $("input[name=groupTeamsPerGroup]").val();
-            if (groupTeamsPerGroup == "") {
+            if (groupTeamsPerGroup == '') {
+                $("input[name=groupNum]").val();
+                return false;
+            }
+            if (groupTeamsPerGroup > $("#totalTeams").val()) {
+                layer.msg("分组队伍数量可能大于联赛队伍总数吗？！", {icon: 5, time: 1000});
                 return false;
             }
             // a
@@ -547,7 +563,7 @@
                 if (groupEndGw != '') {
                     let knockoutStartGwNum = groupEndGw + 1;
                     if (knockoutStartGwNum > 38) {
-                        layer.msg("淘汰赛打不完啦，请修改小组赛配置！");
+                        layer.msg("淘汰赛打不完啦，请修改小组赛配置！", {icon: 5, time: 1000});
                         return false;
                     }
                     let knockoutStartGw = $("input[name=knockoutStartGw]");
@@ -556,7 +572,7 @@
                     // 淘汰赛结束时间
                     let knockoutEndGwNum = groupEndGw + knockoutRounds;
                     if (knockoutEndGwNum > 38) {
-                        layer.msg("淘汰赛打不完啦，请修改小组赛起始时间！");
+                        layer.msg("淘汰赛打不完啦，请修改小组赛起始时间！", {icon: 5, time: 1000});
                         knockoutStartGw.val('');
                         knockoutEndGw.val('');
                         return false;
@@ -580,7 +596,7 @@
                 return false;
             }
             let knockoutMode = $("select[name=knockoutMode]").val();
-            if (knockoutMode == "1" && knockoutMode == "2") {
+            if (knockoutMode != "1" && knockoutMode != "2") {
                 return false;
             }
             // a
@@ -592,11 +608,14 @@
             let knockoutRounds = Math.ceil(Math.log(groupQualifiersNum * groupNum) / Math.log(2)) * knockoutMode;
             $("input[name=knockoutRounds]").val(knockoutRounds);
             // d
-            let knockoutStartGw = getGwValue($("input[name=knockoutStartGw]").val());
-            if (knockoutStartGw != '') {
-                let endGw = knockoutStartGw + knockoutRounds - 1;
-                $("input[name=knockoutEndGw]").val(setGwStr(endGw));
+            let groupEndGw = $("select[name=groupEndGw]").val();
+            if (groupEndGw == '') {
+                return false;
             }
+            let knockoutStartGw = getGwValue(groupEndGw) + 1;
+            $("input[name=knockoutStartGw]").val(setGwStr(knockoutStartGw));
+            let endGw = knockoutStartGw + knockoutRounds - 1;
+            $("input[name=knockoutEndGw]").val(setGwStr(endGw));
         });
 
         /**
@@ -616,7 +635,7 @@
             }
             let endGw = parseInt(data.value) + parseInt(roundNum) - 1;
             if (endGw > 38) {
-                layer.alert("淘汰赛最晚开始时间为：GW" + (38 - roundNum + 1) + "！", {title: "淘汰赛打不完啦"});
+                layer.alert("淘汰赛最晚开始时间为：GW" + (38 - roundNum + 1) + "！", {icon: 5, time: 1000});
                 $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
                 knockoutEndGw.val('');
                 return false;
@@ -662,16 +681,8 @@
             // 设置小组加入平均分
             formData.groupFillAverage == '1' ? formData.groupFillAverage = true : formData.groupFillAverage = false;
             // 校验
-            if (formData.groupMode == 0 && formData.knockoutMode == 0) {
-                layer.alert("没有小组赛又没有淘汰赛还弄个啥？！", {title: "逗我呢"});
-                return false;
-            }
-            if (formData.groupTeamsPerGroup > $("#totalTeams").val()) {
-                layer.alert("分组队伍数量可能大于联赛队伍总数吗？！", {title: "每组队伍数量错误"});
-                return false;
-            }
             if (formData.groupQualifiers > formData.groupTeamsPerGroup) {
-                layer.alert("小组出线数量可能大于小组队伍数量吗？！", {title: "小组赛配置错误"});
+                layer.msg("小组出线数量可能大于小组队伍数量吗？！", {icon: 5, time: 1000});
                 return false;
             }
 
@@ -700,18 +711,18 @@
         if (gwStr == '') {
             return '';
         }
-        if (!gwStr.indexOf("GW") > 0) {
-            return parseInt(gwStr);
+        if (gwStr.indexOf("GW") > 0) {
+            parseInt(gwStr.substr(2, gwStr.length));
         }
-        return parseInt(gwStr.substr(2, gwStr.length));
-    };
+        return parseInt(gwStr);
+    }
 
     function setGwStr(value) {
         if (value == '') {
             return '';
         }
         return "GW" + value;
-    };
+    }
 
     function clearKnockoutConfig() {
         let $ = layui.jquery;
@@ -720,7 +731,7 @@
         $("input[name=knockoutEndGw]").val('');
         $("input[name=knockoutTeams]").val('');
         $("input[name=knockoutRounds]").val('');
-    };
+    }
 </script>
 
 </html>
