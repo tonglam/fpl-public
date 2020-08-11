@@ -330,6 +330,19 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
         return "删除成功";
     }
 
+    @Override
+    public int countLeagueTeams(String url) {
+        return url.contains("/standings/c") ?
+                this.staticSerive.getEntryInfoListFromClassic(this.getLeagueIdByType(url, LeagueType.Classic.name())).size()
+                : this.staticSerive.getEntryInfoListFromH2h(this.getLeagueIdByType(url, LeagueType.H2h.name())).size();
+    }
+
+    @Override
+    public boolean checkTournamentName(String name) {
+        return this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+                .eq(TournamentInfoEntity::getName, name)) == null;
+    }
+
     private void configGroupInfo(TournamentInfoEntity tournamentInfoEntity, TournamentCreateData tournamentCreateData) {
         GroupMode groupMode = GroupMode.valueOf(tournamentCreateData.getGroupMode());
         tournamentInfoEntity.setGroupMode(groupMode.toString());
@@ -618,12 +631,6 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
                         .setMatchWinner(0)
                 )));
         this.tournamentKnockoutResultService.saveBatch(resultEntityList);
-    }
-
-    public int countLeagueTeams(String url) {
-        return url.contains("/standings/c") ?
-                this.staticSerive.getEntryInfoListFromClassic(this.getLeagueIdByType(url, LeagueType.Classic.name())).size()
-                : this.staticSerive.getEntryInfoListFromH2h(this.getLeagueIdByType(url, LeagueType.H2h.name())).size();
     }
 
 }

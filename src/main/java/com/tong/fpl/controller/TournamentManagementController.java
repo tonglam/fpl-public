@@ -4,7 +4,7 @@ import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.domain.data.letletme.TournamentCreateData;
-import com.tong.fpl.service.impl.TournamentManagementServiceImpl;
+import com.tong.fpl.service.ITournamentManagementService;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +25,7 @@ import javax.validation.constraints.Pattern;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentManagementController {
 
-    private final TournamentManagementServiceImpl tournamentManagementService;
+    private final ITournamentManagementService tournamentManagementService;
 
     @RequestMapping(value = {"", "/"})
     public String tournamentManagementController(Model model) {
@@ -63,6 +63,13 @@ public class TournamentManagementController {
     public int countLeagueTeams(@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$") String url) {
 //		return this.tournamentManagementService.countLeagueTeams(url);
         return 107;
+    }
+
+    @ResponseBody
+    @GetMapping(value = "/checkTournamentName")
+    public boolean checkTournamentName(String name) {
+//        return this.tournamentManagementService.checkTournamentName(name);
+        return true;
     }
 
 }

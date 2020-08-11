@@ -109,4 +109,20 @@ public interface ITournamentManagementService {
 	 */
 	String deleteTournamentByCupName(String tournamentName);
 
+	/**
+	 * count league teams from fpl league url
+	 *
+	 * @param url url
+	 * @return numver
+	 */
+	int countLeagueTeams(String url);
+
+	/**
+	 * check if tournament name exists
+	 *
+	 * @param name name
+	 * @return retrun
+	 */
+	boolean checkTournamentName(String name);
+
 }
