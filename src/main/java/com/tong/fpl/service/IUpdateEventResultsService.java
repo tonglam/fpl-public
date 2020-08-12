@@ -14,6 +14,11 @@ public interface IUpdateEventResultsService {
 	void updateBaseInfoByEvent(int event);
 
 	/**
+	 * update all entry_info
+	 */
+	void updateEntryInfo();
+
+	/**
 	 * calculate event points and save
 	 *
 	 * @param event        event

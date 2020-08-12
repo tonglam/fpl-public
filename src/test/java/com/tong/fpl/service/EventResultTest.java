@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -26,6 +27,12 @@ public class EventResultTest extends FplApplicationTests {
 	@CsvSource({"47"})
 	void updateBaseInfoByEvent(int event) {
 		this.updateEventResultsService.updateBaseInfoByEvent(event);
+		System.out.println(1);
+	}
+
+	@Test
+	void updateEntryInfo() {
+		this.updateEventResultsService.updateEntryInfo();
 		System.out.println(1);
 	}
 

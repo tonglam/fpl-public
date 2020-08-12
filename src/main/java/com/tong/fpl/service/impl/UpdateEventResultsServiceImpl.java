@@ -58,25 +58,27 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 		this.updateEntryInfo();
 	}
 
-	private void updateEntryInfo() {
+	@Override
+	public void updateEntryInfo() {
 		List<EntryInfoEntity> updateEntryInfoList = Lists.newArrayList();
 		// get entry info list
-		List<EntryInfoEntity> entryInfoList = this.entryInfoService.list()
+		List<EntryInfoEntity> entryInfoList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+				.orderByAsc(EntryInfoEntity::getOverallRank).last("limit 1000"))
 				.stream()
 				.collect(Collectors.collectingAndThen(
 						Collectors.toCollection(() -> new TreeSet<>(
 								Comparator.comparing(EntryInfoEntity::getEntry)
 						)), Lists::newArrayList));
-		entryInfoList.forEach(entryInfoEntity -> {
+		entryInfoList.parallelStream().forEach(entryInfoEntity -> {
 			Optional<EntryRes> entryRes = this.staticSerive.getEntry(entryInfoEntity.getEntry());
 			entryRes.ifPresent(entry -> updateEntryInfoList.add(entryInfoEntity
-					.setEntryName(entry.getName())
-					.setPlayerName(entry.getPlayerFirstName() + " " + entry.getPlayerLastName())
-					.setOverallPoints(entry.getSummaryOverallPoints())
-					.setOverallRank(entry.getSummaryOverallRank())
-					.setBank(entry.getLastDeadlineBank())
-					.setTeamValue(entry.getLastDeadlineValue())
-					.setTotalTransfers(entry.getLastDeadlineTotalTransfers())
+//					.setEntryName(entry.getName())
+//					.setPlayerName(entry.getPlayerFirstName() + " " + entry.getPlayerLastName())
+//					.setOverallPoints(entry.getSummaryOverallPoints())
+							.setOverallRank(entry.getSummaryOverallRank())
+//					.setBank(entry.getLastDeadlineBank())
+//					.setTeamValue(entry.getLastDeadlineValue())
+//					.setTotalTransfers(entry.getLastDeadlineTotalTransfers())
 			));
 		});
 		// update

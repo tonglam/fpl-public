@@ -50,7 +50,8 @@ public class DBTest extends FplApplicationTests {
 
 	@Test
 	void test2() {
-		int i = this.entryInfoService.count(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getEntry, 1404));
+		List<EntryInfoEntity> entryInfoList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+				.orderByAsc(EntryInfoEntity::getOverallRank).last("limit 1000"));
 		System.out.println(1);
 	}
 
