@@ -15,7 +15,7 @@
 
             <h1 style="margin-bottom: 20px;font-size: 28px">创建自定义赛事</h1>
 
-            <form action="" class="layui-form" lay-filter="tournamentForm" method="post">
+            <form class="layui-form" lay-filter="tournamentForm">
 
                 <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
                     <legend><a name="compatibility">赛事信息</a></legend>
@@ -26,10 +26,12 @@
 
                     <div class="layui-form-item" id="url">
                         <label class="layui-form-label label-required">官方联赛</label>
-                        <div class="layui-input-block" style="width: 50%">
+                        <div class="layui-input-inline" style="width: 50%">
                             <input autocomplete="on" class="layui-input" lay-reqtext="url不能为空" lay-verify="required"
                                    name="url" placeholder="https://fantasy.premierleague.com/leagues/***/standings/*"
                                    type="text">
+                        </div>
+                        <div class="layui-form-mid layui-word-aux" style="margin-left: 25px">aaa
                         </div>
                     </div>
 
@@ -48,7 +50,8 @@
                     <div class="layui-form-item" id="tournamentName">
                         <label class="layui-form-label label-required">赛事名称</label>
                         <div class="layui-input-inline">
-                            <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空" lay-verify="required"
+                            <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空"
+                                   lay-verify="required"
                                    name="tournamentName" type="text">
                         </div>
                         <i class="layui-hide layui-icon layui-icon-ok" id="nameTipsIcon" style="color:black"></i>
@@ -57,7 +60,8 @@
                     <div class="layui-form-item" id="creator">
                         <label class="layui-form-label label-required">创建人</label>
                         <div class="layui-input-inline">
-                            <input autocomplete="on" class="layui-input" lay-reqtext="赛事创建人不能为空" lay-verify="required"
+                            <input autocomplete="on" class="layui-input" lay-reqtext="赛事创建人不能为空"
+                                   lay-verify="required"
                                    name="creator" type="text">
                         </div>
                     </div>
@@ -112,7 +116,7 @@
                         <div class="layui-input-inline">
                             <input class="layui-input" name="groupTeamsPerGroup" type="number">
                         </div>
-                        <div class="layui-form-mid layui-word-aux">每个小组分配的队伍数量</div>
+                        <div class="layui-form-mid layui-word-aux">小组数量</div>
                     </div>
 
                     <div class="layui-hide layui-form-item" id="groupNum">
@@ -129,7 +133,8 @@
                                 <label class="layui-form-label">加入平均分</label>
                             </div>
                             <div class="layui-col-sm2" style="margin-right: 48px">
-                                <input lay-skin="switch" lay-text="是|否" name="groupFillAverage" type="checkbox" value=1>
+                                <input lay-skin="switch" lay-text="是|否" name="groupFillAverage" type="checkbox"
+                                       value=1>
                             </div>
                             <div class="layui-col-sm6">
                                 <div class="layui-form-mid layui-word-aux">是否在小组内加入平均分average，使得每个小组的队伍数量一样</div>
@@ -255,7 +260,7 @@
                         shade: 0,
                         maxmin: true,
                         content: ['/tournament/rule', '#main'],
-                        offset: 'r',
+                        // offset: 'r',
                         zIndex: layer.zIndex,
                         success: function (layero) {
                             layer.setTop(layero);
@@ -372,10 +377,7 @@
          * 监听小组赛模式下拉框：下拉
          * 1.清除淘汰赛配置
          * 2.展示小组赛配置
-         * 3.根据小组赛模式：
-         * a.无小组赛时：A.隐藏小组赛配置；B.不能无淘汰赛；
-         * b.有小组赛时：A.展示小组赛配置；
-         * c.请选择时：A.隐藏淘汰赛配置；B.隐藏并重置小组赛配置
+         * 3.根据小组赛模式：a.无小组赛时：A.隐藏小组赛配置；B.不能无淘汰赛；b.有小组赛时：A.展示小组赛配置；c.请选择时：A.隐藏淘汰赛配置；B.隐藏并重置小组赛配置
          * 4.再次触发淘汰赛选择
          *
          * @author tong 2020.08.13
@@ -434,7 +436,7 @@
             // 校验开始时间
             let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
             if (groupEndGw != '' && groupStartGw >= groupEndGw) {
-                layer.tips("开始时间必须早于结束时间！", this, {time: 1500});
+                layer.tips("开始时间必须早于结束时间！", '#groupStartGw', {time: 1500});
                 $("select[name=groupStartGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
             }
         });
@@ -456,14 +458,12 @@
             }
             let groupStartGw = getGwValue($("select[name=groupStartGw]").val());
             if (groupStartGw != '' && groupStartGw >= groupEndGw) {
-                layer.tips("结束时间必须晚于开始时间！", this, {time: 1500});
+                layer.tips("结束时间必须晚于开始时间！", '#groupEndGw', {time: 1500});
                 $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
-                knockoutStartGwDom.trigger('focusout');
-                return false;
             }
             // 触发淘汰赛开始时间事件
-            let knockMode = $("select[name=knockMode]").val();
-            if (knockMode == "2" || knockMode == "3") {
+            let knockoutMode = $("select[name=knockoutMode]").val();
+            if (knockoutMode == "1" || knockoutMode == "2") {
                 knockoutStartGwDom.trigger('focusout');
             }
         });
@@ -508,8 +508,14 @@
                 groupNumDom.trigger('focusout');
                 return false;
             }
-            // 触发小组数量事件
-            groupNumDom.trigger('focusout');
+            // 计算小组数量
+            let groupNum = Math.ceil(parseInt(totalTeam) / parseInt(groupTeamsPerGroup));
+            $(this).val(groupNum);
+            // 触发淘汰赛队伍事件
+            let knockoutMode = $("select[name=knockoutMode]").val();
+            if (knockoutMode == "1" || knockoutMode == "2") {
+                $("input[name=knockoutTeams]").trigger('focusout');
+            }
         });
 
         /**
@@ -523,18 +529,19 @@
         $("input[name=groupNum]").on('focusout', function () {
             let knockoutTeamsDom = $("input[name=knockoutTeams]");
             // 计算小组数量
+            let groupNum = '';
             let totalTeam = $("input[name=totalTeam]").val();
             let groupTeamsPerGroup = $("input[name=groupTeamsPerGroup]").val();
             if (totalTeam == '' || groupTeamsPerGroup == '') {
-                this.val('');
+                $(this).val('');
                 knockoutTeamsDom.trigger('focusout');
-                return false;
+            } else {
+                groupNum = Math.ceil(parseInt(totalTeam) / parseInt(groupTeamsPerGroup));
             }
-            let groupNum = Math.ceil(parseInt(totalTeam) / parseInt(groupTeamsPerGroup));
             $(this).val(groupNum);
             // 触发淘汰赛队伍事件
             let knockoutMode = $("select[name=knockoutMode]").val();
-            if (knockoutMode == "2" || knockoutMode == "3") {
+            if (knockoutMode == "1" || knockoutMode == "2") {
                 knockoutTeamsDom.trigger('focusout');
             }
         });
@@ -578,10 +585,7 @@
         /**
          * 监听淘汰赛模式下拉框：下拉
          * 1.无淘汰赛时：a.重置淘汰赛配置；b.隐藏淘汰赛配置；c.不能无小组赛；d.有小组赛时，展示创建按钮
-         * 2.有淘汰赛时：a.展示创建按钮；b.展示淘汰赛队伍数量和淘汰赛轮次
-         * c.根据小组赛模式：
-         * A.无小组赛时：A1.展示淘汰赛开始时间下拉和结束时间；A2.触发淘汰赛队伍数量事件；
-         * B.有小组赛时：B1.展示淘汰赛开始时间和结束时间；B2.展示每组出线数量；B3.触发淘汰赛队伍数量事件；
+         * 2.有淘汰赛时：a.展示创建按钮；b.展示淘汰赛队伍数量和淘汰赛轮次；c.根据小组赛模式：A.无小组赛时：A1.展示淘汰赛开始时间下拉和结束时间；A2.触发淘汰赛队伍数量事件；B.有小组赛时：B1.展示淘汰赛开始时间和结束时间；B2.展示每组出线数量；B3.触发淘汰赛队伍数量事件；
          * 3.请选择时：A.隐藏并重置淘汰赛配置；B.隐藏提交按钮
          *
          * @author tong 2020.08.13
@@ -692,18 +696,18 @@
         $("input[name=knockoutStartGw]").on('focusout', function () {
             let knockoutEndGwDom = $("input[name=knockoutEndGw]");
             // 计算淘汰赛开始时间
+            let knockoutStartGw = '';
             let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
             if (groupEndGw == '') {
                 $(this).val('');
                 knockoutEndGwDom.trigger('focusout');
-                return false;
+            } else {
+                knockoutStartGw = groupEndGw + 1;
             }
-            let knockoutStartGw = groupEndGw + 1;
             // 校验淘汰赛开始时间
             if (knockoutStartGw > 38) {
-                layer.tips("淘汰赛打不完啦，请修改小组赛结束时间", this, {time: 1500});
-                $(this).val('');
-                knockoutEndGwDom.trigger('focusout');
+                layer.msg("淘汰赛打不完啦，请修改小组赛结束时间", {time: 1500});
+                clearGwRange();
                 return false;
             }
             // 设置淘汰赛开始时间
@@ -723,21 +727,23 @@
          */
         $("input[name=knockoutEndGw]").on('focusout', function () {
             // 计算淘汰赛结束时间
-            let knockoutStartGw = getKnockoutStartGw();
+            let knockoutStartGw = getCurrentKnockoutStartGw();
             let knockoutRounds = $("input[name=knockoutRounds]").val();
-            if (knockoutStartGw == '' || knockoutRounds == '') {
-                return false;
+            let knockoutEndGw = '';
+            if (knockoutStartGw != '' && knockoutRounds != '') {
+                knockoutEndGw = knockoutStartGw + parseInt(knockoutRounds) - 1;
             }
-            let knockoutEndGw = knockoutStartGw + parseInt(knockoutRounds) - 1;
             // 校验淘汰赛结束时间
             if (knockoutEndGw > 38) {
                 let groupMode = $("select[name=groupMode]").val();
                 if (groupMode == "0") {
-                    layer.tips("淘汰赛打不完啦，请修改淘汰赛开始时间", this, {time: 1500});
+                    let lastGw = 38 - knockoutRounds + 1;
+                    layer.msg("淘汰赛打不完啦，淘汰赛开始时间最迟为GW" + lastGw, {time: 1500});
                 } else if (groupMode == "1" || groupMode == "2") {
-                    layer.tips("淘汰赛打不完啦，请修改小组赛结束时间", this, {time: 1500});
+                    let lastGw = 38 - knockoutRounds;
+                    layer.msg("淘汰赛打不完啦，小组赛结束时间最迟为GW" + lastGw, {time: 1500});
                 }
-                $(this).val('');
+                clearGwRange();
                 return false;
             }
             // 设置淘汰赛结束时间
@@ -780,18 +786,22 @@
          */
         $("input[name=knockoutRounds]").on('focusout', function () {
             // 计算淘汰赛轮次
+            let knockoutRounds = "";
             let knockoutMode = $("select[name=knockoutMode]").val();
-            if (knockoutMode == '') {
-                return false;
-            }
             let knockoutTeams = $("input[name=knockoutTeams]").val();
-            if (knockoutTeams == '') {
-                return false;
+            if ((knockoutMode == "1" || knockoutMode == "2") && knockoutTeams != '') {
+                knockoutRounds = Math.ceil(Math.log(parseInt(knockoutTeams)) / Math.log(2)) * parseInt(knockoutMode);
             }
-            let knockoutRounds = Math.ceil(Math.log(parseInt(knockoutTeams)) / Math.log(2)) * parseInt(knockoutMode);
             $(this).val(knockoutRounds);
-            // 触发淘汰赛结束事件
-            $("input[name=knockoutEndGw]").trigger('focusout');
+            // 触发淘汰赛开始时间事件
+            let groupMode = $("select[name=groupMode]").val();
+            if (groupMode == "0") {
+                let knockoutStartGwSelectDom = $("select[name=knockoutStartGwSelect]");
+                let knockoutStartGwSelect = knockoutStartGwSelectDom.val();
+                knockoutStartGwSelectDom.siblings("div.layui-form-select").find("dl").find("dd[lay-value='" + knockoutStartGwSelect + "']").click();
+            } else if (groupMode == "1" || groupMode == "2") {
+                $("input[name=knockoutStartGw]").trigger('focusout');
+            }
         });
 
         /**
@@ -804,7 +814,7 @@
             // 设置时间
             formData.groupStartGw = getGwValue(formData.groupStartGw);
             formData.groupEndGw = getGwValue(formData.groupEndGw);
-            formData.knockoutStartGw = getKnockoutStartGw();
+            formData.knockoutStartGw = getActiveKnockoutStartGw();
             formData.knockoutEndGw = getGwValue(formData.knockoutEndGw);
             // 设置小组加入平均分
             formData.groupFillAverage == '1' ? formData.groupFillAverage = true : formData.groupFillAverage = false;
@@ -835,10 +845,8 @@
         if (gwStr == '') {
             return '';
         }
-
-        if (gwStr.indexOf("GW") != -1) {
-            let gw = gwStr.substr(2, gwStr.length);
-            parseInt(gw);
+        if (gwStr.indexOf("GW") == 0) {
+            gwStr = gwStr.substr(2, gwStr.length);
         }
         return parseInt(gwStr);
     }
@@ -896,13 +904,32 @@
         $("input[name=knockoutEndGw]").val('');
     }
 
-    function getKnockoutStartGw() {
+    function getCurrentKnockoutStartGw() {
+        let $ = layui.jquery;
+        let groupMode = $("select[name=groupMode]").val();
+        if (groupMode == "0") {
+            return getGwValue($("select[name=knockoutStartGwSelect]").val());
+        } else if (groupMode == "1" || groupMode == "2") {
+            return getGwValue($("input[name=knockoutStartGw]").val());
+        }
+        return '';
+    }
+
+    function getActiveKnockoutStartGw() {
         let $ = layui.jquery;
         let knockoutStartGw = $("select[name=knockoutStartGwSelect]").val();
-        if (knockoutStartGwSelect == '') {
+        if (knockoutStartGw == '') {
             knockoutStartGw = $("input[name=knockoutStartGw]").val();
         }
         return getGwValue(knockoutStartGw);
+    }
+
+    function clearGwRange() {
+        let $ = layui.jquery;
+        $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
+        $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
+        $("input[name=knockoutStartGw]").val('');
+        $("input[name=knockoutEndGw]").val('');
     }
 
 </script>
