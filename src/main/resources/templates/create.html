@@ -45,7 +45,7 @@
                         </div>
                     </div>
 
-                    <div class="layui-form-item" id="name">
+                    <div class="layui-form-item" id="tournamentName">
                         <label class="layui-form-label label-required">赛事名称</label>
                         <div class="layui-input-inline">
                             <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空" lay-verify="required"
@@ -266,6 +266,7 @@
         });
 
         /**
+         * url -> totalTeam
          * 监听url输入框：失去焦点
          * 1.校验url，不合法时，清空联赛队伍数量
          * 2.计算联赛队伍数量
@@ -313,6 +314,7 @@
         });
 
         /**
+         * url-> totalTeam
          * 监听联赛队伍数量输入框（不可操作）：失去焦点
          * 1.没有联赛队伍数量时，隐藏小组赛配置，重置小组赛配置
          * 2.有联赛队伍数量时，展示小组赛配置
@@ -374,18 +376,18 @@
          * a.无小组赛时：A.隐藏小组赛配置；B.不能无淘汰赛；
          * b.有小组赛时：A.展示小组赛配置；
          * c.请选择时：A.隐藏淘汰赛配置；B.隐藏并重置小组赛配置
+         * 4.再次触发淘汰赛选择
          *
          * @author tong 2020.08.13
          */
         form.on('select(groupMode)', function (data) {
             // div
             let knockoutConfigDiv = $("#knockoutConfig");
+            // dom
+            let knockoutModeDom = $("select[name=knockoutMode]");
             // val
             let groupMode = data.value;
-            let knockoutMode = $("select[name=knockoutMode]").val();
-
-            // 重置淘汰赛配置
-            clearKnockoutConfig();
+            let knockoutMode = knockoutModeDom.val();
             // 展示淘汰赛设置
             knockoutConfigDiv.removeClass("layui-hide");
             // 小组赛模式
@@ -395,8 +397,6 @@
                     hideGroupConfig();
                     // 不能无淘汰赛
                     if (knockoutMode == "0") {
-                        // 隐藏创建按钮
-                        $("#createButton").addClass("layui-hide");
                         layer.msg("没有小组赛又没有淘汰赛还弄个啥", {icon: 5, time: 1000});
                     }
                     break;
@@ -416,95 +416,8 @@
                     clearGroupConfig();
                 }
             }
-        });
-
-        /**
-         * 监听每组队伍数量输入框:失去焦点
-         * 1.校验每组队伍数量
-         * 2.需为正整数
-         * 3.校验联赛队伍数量
-         * 4.校验每组出线队伍数量
-         * 5.计算小组数量
-         *
-         * @author tong 2020.08.13
-         */
-        $("input[name=groupTeamsPerGroup]").on('focusout', function () {
-            let groupNumDom = $("input[name=groupNum]");
-            // 校验每组队伍数量
-            let groupTeamsPerGroup = $(this).val();
-            if (groupTeamsPerGroup == '') {
-                $(this).val('');
-                groupNumDom.val('');
-                return false;
-            }
-            // 需为正整数
-            if (parseInt(groupTeamsPerGroup) <= 0) {
-                layer.tips("需为正整数", this, {time: 1500});
-                $(this).val('');
-                groupNumDom.val('');
-                return false;
-            }
-            // 校验联赛队伍数量
-            let totalTeam = $("input[name=totalTeam]").val();
-            if (parseInt(groupTeamsPerGroup) > parseInt(totalTeam)) {
-                layer.tips("不能大于联赛队伍总数", this, {time: 1500});
-                $(this).val('');
-                groupNumDom.val('');
-                return false;
-            }
-            // 校验每组出线队伍数量
-            let groupQualifiers = $("input[name=groupQualifiers]").val();
-            if (parseInt(groupQualifiers) > parseInt(groupTeamsPerGroup)) {
-                layer.tips("不能大于每组队伍数量", this, {time: 1500});
-                $(this).val('');
-                return false;
-            }
-            // 计算小组数量
-            let groupNum = Math.ceil(parseInt(totalTeam) / parseInt(groupTeamsPerGroup));
-            groupNumDom.val(groupNum);
-        });
-
-        /**
-         * 监听每组出线数量(失去焦点)
-         * tips：有每组出线数量，一定得是有淘汰赛
-         * 1.校验每组出线数量
-         * 2.需为正整数
-         * 3.校验每组队伍数量
-         * 4.计算淘汰赛球队数量并触发事件
-         *
-         * @author tong 2020.08.13
-         */
-        $("input[name=groupQualifiers]").on('focusout', function () {
-            let knockoutTeamsDom = $("input[name=knockoutTeams]");
-            // 校验每组出线数量
-            let groupQualifiers = $(this).val();
-            if (groupQualifiers == '') {
-                knockoutTeamsDom.val('');
-                knockoutTeamsDom.trigger('focusout');
-                return false;
-            }
-            // 需为正整数
-            if (parseInt(groupQualifiers) <= 0) {
-                layer.tips("小组出线数量需为正整数", this, {time: 1500});
-                $(this).val('');
-                knockoutTeamsDom.val('');
-                knockoutTeamsDom.trigger('focusout');
-                return false;
-            }
-            // 校验每组队伍数量
-            let groupTeamsPerGroup = $("input[name=groupTeamsPerGroup]").val();
-            if (groupTeamsPerGroup == '' || groupQualifiers > groupTeamsPerGroup) {
-                layer.tips("每组出线数量不能大于每组队伍数量", this, {time: 1500});
-                $(this).val('');
-                knockoutTeamsDom.val('');
-                knockoutTeamsDom.trigger('focusout');
-                return false;
-            }
-            // 计算淘汰赛球队数量并触发事件
-            let groupNum = $("input[name=groupNum]").val();
-            let knockoutTeams = parseInt(groupQualifiers) * parseInt(groupNum);
-            knockoutTeamsDom.val(knockoutTeams);
-            knockoutTeamsDom.trigger('focusout');
+            // 再次触发淘汰赛选择
+            knockoutModeDom.siblings("div.layui-form-select").find("dl").find("dd[lay-value='" + knockoutMode + "']").click();
         });
 
         /**
@@ -514,16 +427,20 @@
          * @author tong 2020.08.13
          */
         form.on('select(groupStartGw)', function (data) {
-            // 校验开始时间
             let groupStartGw = getGwValue(data.value);
+            if (groupStartGw == '') {
+                return false;
+            }
+            // 校验开始时间
             let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
-            if (groupStartGw != '' && groupStartGw >= groupEndGw) {
+            if (groupEndGw != '' && groupStartGw >= groupEndGw) {
                 layer.tips("开始时间必须早于结束时间！", this, {time: 1500});
                 $("select[name=groupStartGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
             }
         });
 
         /**
+         * groupEndGw -> (knockMode = "2" || "3")knockoutStartGw
          * 监听小组赛结束时间下拉框：下拉
          * 1.校验结束时间
          * 2.触发淘汰赛开始时间事件
@@ -531,21 +448,131 @@
          * @author tong 2020.08.13
          */
         form.on('select(groupEndGw)', function (data) {
+            let knockoutStartGwDom = $("input[name=knockoutStartGw]");
             // 校验结束时间
-            let groupStartGw = getGwValue($("select[name=groupStartGw]").val());
             let groupEndGw = getGwValue(data.value);
+            if (groupEndGw == '') {
+                return false;
+            }
+            let groupStartGw = getGwValue($("select[name=groupStartGw]").val());
             if (groupStartGw != '' && groupStartGw >= groupEndGw) {
                 layer.tips("结束时间必须晚于开始时间！", this, {time: 1500});
                 $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
+                knockoutStartGwDom.trigger('focusout');
                 return false;
             }
             // 触发淘汰赛开始时间事件
-            let knockoutMode = $("select[name=knockoutMode]").val();
-            if (knockoutMode == "1") {
-                $("select[name=knockoutStartGwSelect]").click();
-            } else if (knockoutMode == "2") {
-                $("input[name=knockoutStartGw]").trigger('focusout');
+            let knockMode = $("select[name=knockMode]").val();
+            if (knockMode == "2" || knockMode == "3") {
+                knockoutStartGwDom.trigger('focusout');
             }
+        });
+
+        /**
+         * groupTeamsPerGroup -> groupNum
+         * 监听每组队伍数量输入框:失去焦点
+         * 1.校验每组队伍数量
+         * 2.触发小组数量事件
+         *
+         * @author tong 2020.08.13
+         */
+        $("input[name=groupTeamsPerGroup]").on('focusout', function () {
+            let groupNumDom = $("input[name=groupNum]");
+            // 校验每组队伍数量
+            let groupTeamsPerGroup = $(this).val();
+            if (groupTeamsPerGroup == '') {
+                $(this).val('');
+                groupNumDom.trigger('focusout');
+                return false;
+            }
+            // 需为正整数
+            if (parseInt(groupTeamsPerGroup) <= 0) {
+                layer.tips("需为正整数", this, {time: 1500});
+                $(this).val('');
+                groupNumDom.trigger('focusout');
+                return false;
+            }
+            // 校验联赛队伍数量
+            let totalTeam = $("input[name=totalTeam]").val();
+            if (parseInt(groupTeamsPerGroup) > parseInt(totalTeam)) {
+                layer.tips("不能大于联赛队伍总数", this, {time: 1500});
+                $(this).val('');
+                groupNumDom.trigger('focusout');
+                return false;
+            }
+            // 校验每组出线队伍数量
+            let groupQualifiers = $("input[name=groupQualifiers]").val();
+            if (parseInt(groupQualifiers) > parseInt(groupTeamsPerGroup)) {
+                layer.tips("不能大于每组队伍数量", this, {time: 1500});
+                $(this).val('');
+                groupNumDom.trigger('focusout');
+                return false;
+            }
+            // 触发小组数量事件
+            groupNumDom.trigger('focusout');
+        });
+
+        /**
+         * groupTeamsPerGroup -> groupNum -> (knockMode = "2" || "3")knockoutTeams
+         * 监听每组出线数量：失去焦点
+         * 1.计算小组数量
+         * 2.有淘汰赛时，触发淘汰赛队伍事件
+         *
+         * @author tong 2020.08.13
+         */
+        $("input[name=groupNum]").on('focusout', function () {
+            let knockoutTeamsDom = $("input[name=knockoutTeams]");
+            // 计算小组数量
+            let totalTeam = $("input[name=totalTeam]").val();
+            let groupTeamsPerGroup = $("input[name=groupTeamsPerGroup]").val();
+            if (totalTeam == '' || groupTeamsPerGroup == '') {
+                this.val('');
+                knockoutTeamsDom.trigger('focusout');
+                return false;
+            }
+            let groupNum = Math.ceil(parseInt(totalTeam) / parseInt(groupTeamsPerGroup));
+            $(this).val(groupNum);
+            // 触发淘汰赛队伍事件
+            let knockoutMode = $("select[name=knockoutMode]").val();
+            if (knockoutMode == "2" || knockoutMode == "3") {
+                knockoutTeamsDom.trigger('focusout');
+            }
+        });
+
+        /**
+         * groupQualifiers -> knockoutTeams
+         * 监听每组出线数量：失去焦点
+         * tips：有每组出线数量，一定得是有淘汰赛
+         * 1.校验每组出线数量
+         * 2.触发淘汰赛队伍数量事件
+         *
+         * @author tong 2020.08.13
+         */
+        $("input[name=groupQualifiers]").on('focusout', function () {
+            let knockoutTeamsDom = $("input[name=knockoutTeams]");
+            // 校验每组出线数量
+            let groupQualifiers = $(this).val();
+            if (groupQualifiers == '') {
+                knockoutTeamsDom.trigger('focusout');
+                return false;
+            }
+            // 需为正整数
+            if (parseInt(groupQualifiers) <= 0) {
+                layer.tips("小组出线数量需为正整数", this, {time: 1500});
+                $(this).val('');
+                knockoutTeamsDom.trigger('focusout');
+                return false;
+            }
+            // 校验每组队伍数量
+            let groupTeamsPerGroup = $("input[name=groupTeamsPerGroup]").val();
+            if (groupTeamsPerGroup == '' || parseInt(groupQualifiers) > parseInt(groupTeamsPerGroup)) {
+                layer.tips("每组出线数量不能大于每组队伍数量", this, {time: 1500});
+                $(this).val('');
+                knockoutTeamsDom.trigger('focusout');
+                return false;
+            }
+            // 触发淘汰赛队伍数量事件
+            knockoutTeamsDom.trigger('focusout');
         });
 
         /**
@@ -553,8 +580,8 @@
          * 1.无淘汰赛时：a.重置淘汰赛配置；b.隐藏淘汰赛配置；c.不能无小组赛；d.有小组赛时，展示创建按钮
          * 2.有淘汰赛时：a.展示创建按钮；b.展示淘汰赛队伍数量和淘汰赛轮次
          * c.根据小组赛模式：
-         * A.无小组赛时：A1.展示淘汰赛开始时间和结束时间；A2.展示淘汰赛队伍数量；
-         * B.有小组赛时：B1.展示淘汰赛开始时间和结束时间；B2.展示每组出线数量，触发每组出线数量事件；
+         * A.无小组赛时：A1.展示淘汰赛开始时间下拉和结束时间；A2.触发淘汰赛队伍数量事件；
+         * B.有小组赛时：B1.展示淘汰赛开始时间和结束时间；B2.展示每组出线数量；B3.触发淘汰赛队伍数量事件；
          * 3.请选择时：A.隐藏并重置淘汰赛配置；B.隐藏提交按钮
          *
          * @author tong 2020.08.13
@@ -567,7 +594,6 @@
                 // val
                 let groupMode = $("select[name=groupMode]").val();
                 let knockoutMode = data.value;
-
                 switch (knockoutMode) {
                     case "0": { // 无淘汰赛
                         // 重置淘汰赛配置
@@ -599,9 +625,7 @@
                                 // 展示淘汰赛开始时间下拉框和淘汰赛结束时间输入框
                                 $("#knockoutStartGwSelect").removeClass("layui-hide");
                                 $("#knockoutEndGw").removeClass("layui-hide");
-                                // 计算淘汰赛队伍数量，即联赛队伍数量
-                                let knockoutTeams = $("input[name=totalTeam]").val();
-                                knockoutTeamsDom.val(knockoutTeams);
+                                // 触发淘汰赛队伍数量事件
                                 knockoutTeamsDom.trigger("focusout");
                                 break;
                             }
@@ -614,116 +638,160 @@
                                 $("#knockoutEndGw").removeClass("layui-hide");
                                 // 展示每组出线数量事件
                                 $("#groupQualifiers").removeClass("layui-hide");
-                                // 触发每组出线数量事件
-                                $("input[name=groupQualifiers]").trigger('focusout');
+                                // 触发淘汰赛队伍数量事件
+                                knockoutTeamsDom.trigger('focusout');
                             }
                         }
                         break;
                     }
                     default: { // 请选择
-                        // 隐藏并重置淘汰赛配置
+                        // 隐藏淘汰赛配置
                         hideKnockoutConfig();
+                        // 重置淘汰赛配置
+                        clearKnockoutConfig();
                         // 隐藏提交按钮
                         createButtonDiv.addClass("layui-hide");
-                        clearKnockoutConfig();
                     }
                 }
             }
         );
 
         /**
+         * knockoutStartGwSelect -> knockoutEndGw
          * 监听淘汰赛开始时间下拉框：下拉
          * tips：只有无小组赛且有淘汰赛时出现
          * 1.校验淘汰赛开始时间
-         * 2.触发淘汰赛轮次失去焦点事件
+         * 2.触发淘汰赛结束时间事件
          *
          * @author tong 2020.08.13
          */
         form.on('select(knockoutStartGwSelect)', function (data) {
+            let knockoutEndGwDom = $("input[name=knockoutEndGw]");
             // 校验淘汰赛开始时间
             let knockoutStartGwSelect = getGwValue(data.value);
             if (knockoutStartGwSelect == '') {
                 // 清空淘汰赛结束时间
-                $("input[name=knockoutEndGw]").val('');
+                knockoutEndGwDom.val('');
                 return false;
             }
-            // 触发淘汰赛轮次失去焦点事件
-            let groupMode = $("select[name=groupMode]").val();
-            let knockoutMode = $("select[name=knockoutMode]").val();
-            if (groupMode == "0" && (knockoutMode == "1" || knockoutMode == "2")) {
-                $("input[name=knockoutRounds]").trigger('focusout');
-            }
+            // 触发淘汰赛结束时间失去焦点事件
+            knockoutEndGwDom.trigger('focusout');
         });
 
         /**
-         * 监听淘汰赛开始时间输入框：失去焦点
-         * tips：只有既有小组赛又有淘汰赛时出现
-         * 1.校验淘汰赛开始时间
-         * 2.触发淘汰赛轮次失去焦点事件
+         * groupEndGw -> knockoutStartGw -> knockoutEndGw
+         * 监听淘汰赛开始时间输入框（不可操作）：失去焦点
+         * tips：只有既有小组赛又有淘汰赛时出现，由小组赛结束时间触发
+         * 1.计算淘汰赛开始时间
+         * 2.校验淘汰赛开始时间
+         * 3.设置淘汰赛开始时间
+         * 4.触发淘汰赛结束时间事件
          *
          * @author tong 2020.08.13
          */
         $("input[name=knockoutStartGw]").on('focusout', function () {
-            // 校验淘汰赛开始时间
-            let knockoutStartGw = getGwValue($(this).val());
-            if (knockoutStartGw == '') {
-                // 清空淘汰赛结束时间
-                $("input[name=knockoutEndGw]").val('');
+            let knockoutEndGwDom = $("input[name=knockoutEndGw]");
+            // 计算淘汰赛开始时间
+            let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
+            if (groupEndGw == '') {
+                $(this).val('');
+                knockoutEndGwDom.trigger('focusout');
                 return false;
             }
-            // 触发淘汰赛轮次失去焦点事件
-            let groupMode = $("select[name=groupMode]").val();
-            let knockoutMode = $("select[name=knockoutMode]").val();
-            if ((groupMode == "1" || groupMode == "2") && (knockoutMode == "1" || knockoutMode == "2")) {
-                $("input[name=knockoutRounds]").trigger('focusout');
+            let knockoutStartGw = groupEndGw + 1;
+            // 校验淘汰赛开始时间
+            if (knockoutStartGw > 38) {
+                layer.tips("淘汰赛打不完啦，请修改小组赛结束时间", this, {time: 1500});
+                $(this).val('');
+                knockoutEndGwDom.trigger('focusout');
+                return false;
             }
+            // 设置淘汰赛开始时间
+            $(this).val(setGwStr(knockoutStartGw));
+            // 触发淘汰赛结束时间事件
+            knockoutEndGwDom.trigger('focusout');
         });
 
         /**
+         * (knockoutStartGwSelect or knockoutStartGw) + knockoutRounds -> knockoutEndGw
+         * 监听淘汰赛结束时间输入框（不可操作）：失去焦点
+         * 1.计算淘汰赛结束时间
+         * 2.校验淘汰赛结束时间
+         * 3.触发淘汰赛轮次失去焦点事件
+         *
+         * @author tong 2020.08.13
+         */
+        $("input[name=knockoutEndGw]").on('focusout', function () {
+            // 计算淘汰赛结束时间
+            let knockoutStartGw = getKnockoutStartGw();
+            let knockoutRounds = $("input[name=knockoutRounds]").val();
+            if (knockoutStartGw == '' || knockoutRounds == '') {
+                return false;
+            }
+            let knockoutEndGw = knockoutStartGw + parseInt(knockoutRounds) - 1;
+            // 校验淘汰赛结束时间
+            if (knockoutEndGw > 38) {
+                let groupMode = $("select[name=groupMode]").val();
+                if (groupMode == "0") {
+                    layer.tips("淘汰赛打不完啦，请修改淘汰赛开始时间", this, {time: 1500});
+                } else if (groupMode == "1" || groupMode == "2") {
+                    layer.tips("淘汰赛打不完啦，请修改小组赛结束时间", this, {time: 1500});
+                }
+                $(this).val('');
+                return false;
+            }
+            // 设置淘汰赛结束时间
+            $(this).val(setGwStr(knockoutEndGw));
+        });
+
+        /**
+         * (knockoutMode = 0) or (groupQualifiers * groupNum)-> knockoutTeams -> knockoutRounds
          * 监听淘汰赛队伍数量输入框（不可操作）：失去焦点
-         * tips：淘汰赛队伍数量变化必定触发淘汰赛轮次变化
-         * 1.没有淘汰赛队伍数量时，重置淘汰赛轮次
-         * 2.有淘汰赛队伍数量时，计算淘汰赛轮次
+         * 1.计算淘汰赛队伍数量
+         * 1.触发淘汰赛轮次事件
          *
          * @author tong 2020.08.13
          */
         $("input[name=knockoutTeams]").on('focusout', function () {
-            let knockoutRoundsDomDom = $("input[name=knockoutRounds]");
-            let knockoutTeams = $(this).val();
-            if (knockoutTeams == '') {
-                // 重置淘汰赛轮次
-                knockoutRoundsDomDom.val('');
-                return false;
+            // 计算淘汰赛队伍数量
+            let groupMode = $("select[name=groupMode]").val();
+            let knockoutTeams = '';
+            if (groupMode == "0") {
+                knockoutTeams = $("input[name=totalTeam]").val();
+            } else if (groupMode == "1" || groupMode == "2") {
+                let groupQualifiers = $("input[name=groupQualifiers]").val();
+                let groupNum = $("input[name=groupNum]").val();
+                if (groupQualifiers != '' && groupNum != '') {
+                    knockoutTeams = groupQualifiers * groupNum;
+                }
             }
-            // 计算淘汰赛轮次
-            let knockoutMode = $("select[name=knockoutMode]").val();
-            let knockoutRounds = Math.ceil(Math.log(knockoutTeams) / Math.log(2)) * knockoutMode;
-            knockoutRoundsDomDom.val(knockoutRounds);
-            knockoutRoundsDomDom.trigger('focusout');
+            $(this).val(knockoutTeams);
+            // 触发淘汰赛轮次事件
+            $("input[name=knockoutRounds]").trigger('focusout');
         });
 
         /**
+         * knockoutTeams -> knockoutRounds -> knockoutEndGw
          * 监听淘汰赛队伍轮次输入框（不可操作）：失去焦点
-         * 1.计算淘汰赛结束时间
+         * 1.计算淘汰赛轮次
+         * 2.触发淘汰赛结束事件
          *
          * @author tong 2020.08.13
          */
         $("input[name=knockoutRounds]").on('focusout', function () {
-            let knockoutEndGwDom = $("input[name=knockoutEndGw]");
-            // 计算淘汰赛结束时间
-            let knockoutStartGw = getKnockoutStartGw();
-            if (knockoutStartGw == '') {
+            // 计算淘汰赛轮次
+            let knockoutMode = $("select[name=knockoutMode]").val();
+            if (knockoutMode == '') {
                 return false;
             }
-            let knockoutRounds = $(this).val();
-            let knockoutEndGw = knockoutStartGw + parseInt(knockoutRounds) - 1;
-            if (knockoutEndGw > 38) {
-                layer.tips("淘汰赛打不完啦，最晚开始时间为：" + setGwStr(38 - knockoutRounds + 1), this, {time: 1500});
-                $(this).val('');
-                knockoutEndGwDom.val('');
+            let knockoutTeams = $("input[name=knockoutTeams]").val();
+            if (knockoutTeams == '') {
                 return false;
             }
-            knockoutEndGwDom.val(setGwStr(knockoutEndGw));
+            let knockoutRounds = Math.ceil(Math.log(parseInt(knockoutTeams)) / Math.log(2)) * parseInt(knockoutMode);
+            $(this).val(knockoutRounds);
+            // 触发淘汰赛结束事件
+            $("input[name=knockoutEndGw]").trigger('focusout');
         });
 
         /**
