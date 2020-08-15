@@ -19,11 +19,11 @@ public interface ITournamentManagementApi {
      */
     String createNewTournament(TournamentCreateData tournamentCreateData);
 
-	/**
-	 * query tournament_info list by param
-	 *
-	 * @param param param
-	 * @return tournament_info list
+    /**
+     * query tournament_info list by param
+     *
+     * @param param param
+     * @return tournament_info list
      */
     List<TournamentInfoEntity> queryTournamentInfo(QueryParam param);
 
