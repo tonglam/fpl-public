@@ -9,27 +9,27 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TeamName_2021 {
-	Arsenal(1, "ARS"),
-	AstonVilla(2, "AVL"),
-	Brighton(3, "BHA"),
-	Burnley(4, "BUR"),
-	Chelsea(5, "CHE"),
-	CrystalPalace(6, "CRY"),
-	Everton(7, "EVE"),
-	Fulham(8, "Ful"),
-	Leicester(9, "LEI"),
-	Leeds(10, "Lee"),
-	Liverpool(11, "LIV"),
-	ManCity(12, "MCI"),
-	ManUtd(13, "MUN"),
-	Newcastle(14, "NEW"),
-	SheffieldUtd(15, "SHU"),
-	Southampton(16, "SOU"),
-	Spurs(17, "TOT"),
-	Wesborm(18, "Wes"),
-	WestHam(19, "WHU"),
-	Wolves(20, "WOL");
+    Arsenal(1, "ARS"),
+    AstonVilla(2, "AVL"),
+    Brighton(3, "BHA"),
+    Burnley(4, "BUR"),
+    Chelsea(5, "CHE"),
+    CrystalPalace(6, "CRY"),
+    Everton(7, "EVE"),
+    Fulham(8, "FUL"),
+    Leicester(9, "LEI"),
+    Leeds(10, "LEE"),
+    Liverpool(11, "LIV"),
+    ManCity(12, "MCI"),
+    ManUtd(13, "MUN"),
+    Newcastle(14, "NEW"),
+    SheffieldUtd(15, "SHU"),
+    Southampton(16, "SOU"),
+    Spurs(17, "TOT"),
+    Wesborm(18, "WBA"),
+    WestHam(19, "WHU"),
+    Wolves(20, "WOL");
 
-	private final int teamId;
-	private final String shortName;
+    private final int teamId;
+    private final String shortName;
 }

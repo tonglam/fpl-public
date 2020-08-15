@@ -48,7 +48,7 @@ h1, h2, h3 {
 
 .header .layui-nav {
     position: absolute;
-    right: 0;
+    right: 20px;
     top: 0;
     padding: 0;
     background: none;
@@ -72,7 +72,20 @@ h1, h2, h3 {
 
 .header .layui-nav .layui-badge,
 .header .layui-nav .layui-badge-dot {
-    right: 0;
+}
+
+.header .layui-nav .layui-icon {
+    font-size: 20px;
+    position: absolute;
+    top: -10px;
+    left: -8px;
+}
+
+.header .nav-teamId {
+    color: white;
+    position: absolute;
+    top: 20px;
+    left: -200px;
 }
 
 .component {

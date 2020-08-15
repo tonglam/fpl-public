@@ -18,21 +18,31 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentManagementApiImpl implements ITournamentManagementApi {
 
-	private final ITournamentManagementService tournamentManagementService;
+    private final ITournamentManagementService tournamentManagementService;
 
-	@Override
-	public String createNewTournament(TournamentCreateData tournamentCreateData) {
-		return this.tournamentManagementService.createNewTournament(tournamentCreateData);
-	}
+    @Override
+    public String createNewTournament(TournamentCreateData tournamentCreateData) {
+        return this.tournamentManagementService.createNewTournament(tournamentCreateData);
+    }
 
-	@Override
-	public List<TournamentInfoEntity> queryTournamentInfo(QueryParam param) {
-		return this.tournamentManagementService.queryTournamentInfo(param);
-	}
+    @Override
+    public List<TournamentInfoEntity> queryTournamentInfo(QueryParam param) {
+        return this.tournamentManagementService.queryTournamentInfo(param);
+    }
 
-	@Override
-	public String deleteTournamentByCupName(String cupName) {
-		return this.tournamentManagementService.deleteTournamentByCupName(cupName);
-	}
+    @Override
+    public String deleteTournamentByCupName(String cupName) {
+        return this.tournamentManagementService.deleteTournamentByCupName(cupName);
+    }
+
+    @Override
+    public int countLeagueTeams(String url) {
+        return this.tournamentManagementService.countLeagueTeams(url);
+    }
+
+    @Override
+    public boolean checkTournamentName(String name) {
+        return this.tournamentManagementService.checkTournamentName(name);
+    }
 
 }
