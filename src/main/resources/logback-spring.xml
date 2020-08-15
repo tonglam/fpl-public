@@ -11,6 +11,7 @@
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/home/workspace/fpl/log/fpl.%d{yyyy-MM-dd}.log</fileNamePattern>
+<!--            <fileNamePattern>/Users/tonglam/product/home/workspace/fpl/log/fpl.%d{yyyy-MM-dd}.log</fileNamePattern>-->
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
