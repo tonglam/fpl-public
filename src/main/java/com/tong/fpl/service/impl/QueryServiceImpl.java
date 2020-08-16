@@ -11,6 +11,7 @@ import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.PlayerValueEntity;
 import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EntryInfoService;
 import com.tong.fpl.service.db.PlayerService;
@@ -35,6 +36,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	private final PlayerValueService playerValueService;
 	private final EntryInfoService entryInfoService;
 	private final EntryEventResultService entryEventResultService;
+	private final IStaticSerive staticSerive;
 
 	@Override
 	public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {

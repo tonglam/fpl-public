@@ -3,9 +3,9 @@
 <head th:replace="layout::header">
     <meta charset="UTF-8">
     <title></title>
-
 </head>
 <body>
+
 <div th:replace="layout::topnav">
 </div>
 
@@ -13,6 +13,43 @@
     <div class="layui-main">
         <div class="site-content">
 
+            <div class="index-content">
+
+                <div style="font-size: 30px" th:text="'下一个比赛周：GW'+${nextGw}"></div>
+                <br>
+                <div style="font-size: 30px" th:text="'deadline：'+${deadline}"></div>
+                <br>
+
+                <div class="timeTo timeTo-blue" id="countdown"></div>
+
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+
+                <form class="layui-form" lay-filter="startForm">
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">team_id</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="knockoutRounds" placeholder="请输入球队id"
+                                   type="number">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" id="submitButton" lay-filter="startnament"
+                                    lay-submit="createTournament" type="submit">开始
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
 
         </div>
     </div>
@@ -24,8 +61,17 @@
 
 </body>
 
+<script th:replace="layout::baseScript"></script>
+
 <script>
-    layui.use(['element'], function () {
+    let dateStr = '2020-09-12 20:30:00';
+    $('#countdown').timeTo({
+        timeTo: new Date(Date.parse(dateStr.replace(/-/g, "/"))),
+        displayDays: 2,
+        displayCaptions: true,
+        fontSize: 48,
+        captionSize: 20,
+        lang: 'cn'
     });
 </script>
 

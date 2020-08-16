@@ -13,8 +13,11 @@
 
     <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
     <link rel="stylesheet" th:href="@{/css/layout.css}"/>
+    <link rel="stylesheet" th:href="@{/css/timeTo.css}"/>
 
     <script th:src="@{/layui/layui.js}"></script>
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/jquery.time-to.js}"></script>
     <script th:src="@{/js/axios.min.js}"></script>
 </head>
 
@@ -59,12 +62,15 @@
                 </dl>
             </li>
 
-            <li class="nav-teamId">
-                <i class="layui-icon layui-icon-username"></i>
-                <span style="margin-left: 20px">team_id</span>
-                <a class="layui-badge">187022222</a>
+            <li class="nav-icon">
+                <a class="layui-icon layui-icon-username" style="font-size: 25px;color: white"></a>
             </li>
 
+            <li class="nav-teamId">
+                <span style="margin-left: 5px">team_id:</span>
+                <button class="layui-btn layui-badge" id="teamIdBtn" style="top:19px;text-align: center"
+                        th:text="${entry}" title="点击更换team_id" type="button"></button>
+            </li>
         </ul>
 
     </div>
@@ -81,9 +87,26 @@
 </div>
 </body>
 
-<script>
-    layui.use('element', function () {
-
+<script th:fragment="baseScript">
+    layui.use(['element', 'layer'], function () {
+        let $ = layui.jquery;
+        $("#teamIdBtn").on('click', function () {
+            layer.prompt({title: '更换team_id'}, function (value, index) {
+                // 校验
+                let current = $("#teamIdBtn").html();
+                if (value == current) {
+                    layer.msg('team_id没有改变', {time: 1500});
+                    layer.close(index);
+                    return false;
+                } else if (!new RegExp("^[1-9]\\d*$").test(value)) {
+                    layer.msg('team_id需为正整数', {time: 1500});
+                    layer.close(index);
+                    return false;
+                }
+                $("#teamIdBtn").text(value);
+            });
+        });
     });
 </script>
+
 </html>

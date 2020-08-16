@@ -282,8 +282,8 @@ public class StaticServiceImpl implements IStaticSerive {
 		Optional<LeagueClassicRes> resResult = this.interfaceService.getLeaguesClassic(classicId, page);
 		if (resResult.isPresent()) {
 			LeagueClassicRes leagueClassicRes = resResult.get();
-			if (!CollectionUtils.isEmpty(leagueClassicRes.getStandings().getResults())) {
-				leagueClassicRes.getStandings().getResults().forEach(o -> list.add(new EntryInfoEntity()
+			if (!CollectionUtils.isEmpty(leagueClassicRes.getNewEntries().getResults())) {
+				leagueClassicRes.getNewEntries().getResults().forEach(o -> list.add(new EntryInfoEntity()
 						.setEntry(o.getEntry())
 						.setEntryName(EmojiManager.containsEmoji(o.getEntryName()) ? EmojiParser.parseToHtmlDecimal(o.getEntryName()) : o.getEntryName())
 						.setPlayerName(EmojiManager.containsEmoji(o.getPlayerName()) ? EmojiParser.parseToHtmlDecimal(o.getPlayerName()) : o.getPlayerName())));

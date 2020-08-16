@@ -30,12 +30,14 @@ public class TournamentManagementController {
     @RequestMapping(value = {"", "/"})
     public String tournamentManagementController(Model model) {
         model.addAttribute("title", "自定义赛事-letletme");
+        model.addAttribute("entry", "9999999");
         return "index";
     }
 
     @RequestMapping(value = "/create")
     public String tournamentCreateController(Model model) {
         model.addAttribute("title", "创建赛事-自定义赛事-letletme");
+        model.addAttribute("entry", "9999999");
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
         return "create";
     }
@@ -43,6 +45,7 @@ public class TournamentManagementController {
     @RequestMapping(value = "/rule")
     public String tournamentRuleController(Model model) {
         model.addAttribute("title", "规则-自定义赛事-letletme");
+        model.addAttribute("entry", "9999999");
         return "rule";
     }
 
