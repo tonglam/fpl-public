@@ -3,12 +3,15 @@ package com.tong.fpl.constant.enums.teamName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.stream.Stream;
+
 /**
  * Create by tong on 2020/7/9
  */
 @Getter
 @AllArgsConstructor
 public enum TeamName_2021 {
+
     Arsenal(1, "ARS"),
     AstonVilla(2, "AVL"),
     Brighton(3, "BHA"),
@@ -32,4 +35,12 @@ public enum TeamName_2021 {
 
     private final int teamId;
     private final String shortName;
+
+    public static TeamName_2021 getTeamNameFromId(int teamId) {
+        return Stream.of(TeamName_2021.values())
+                .filter(o -> o.getTeamId() == teamId)
+                .findFirst()
+                .orElse(null);
+    }
+
 }

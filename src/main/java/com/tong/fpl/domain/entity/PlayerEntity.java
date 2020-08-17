@@ -14,27 +14,27 @@ public class PlayerEntity {
 	private int code;
 	private int chanceOfPlayingNextRound;
 	private int chanceOfPlayingThisRound;
-	private int dreamteamCount;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int elementType;
-	private int eventPoints;
-	private String firstName;
-	private String secondName;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private String webName;
-	private int teamId;
-	private String form;
-	private Boolean inDreamteam;
-	private String news;
-	private String newsAdded;
-	private String pointsPerGame;
-	private String selectedByPercent;
-	private int minutes;
-	private int goalsScored;
-	private int assists;
-	private int cleanSheets;
-	private int goalsConceded;
-	private int ownGoals;
+    private int dreamteamCount;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private int elementType;
+    private int eventPoints;
+    private String firstName;
+    private String secondName;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private String webName;
+    private int teamId;
+    private String form;
+    private boolean inDreamteam;
+    private String news;
+    private String newsAdded;
+    private String pointsPerGame;
+    private String selectedByPercent;
+    private int minutes;
+    private int goalsScored;
+    private int assists;
+    private int cleanSheets;
+    private int goalsConceded;
+    private int ownGoals;
 	private int penaltiesSaved;
 	private int penaltiesMissed;
 	private int yellowCards;

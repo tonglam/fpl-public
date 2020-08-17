@@ -12,6 +12,7 @@
     <div class="layui-main">
         <div class="site-content">
 
+            <table class="layui-hide" id="playerTable"></table>
 
         </div>
     </div>
@@ -19,8 +20,24 @@
 
 <div th:replace="layout::footer"></div>
 
-</body>
-
 <script th:replace="layout::baseScript"></script>
+
+<script>
+    layui.use('table', function () {
+        layui.table.render({
+            elem: '#playerTable',
+            url: '/my_fpl/qryPlayerDataList?current=1&size=20',
+            page: true,
+            cols: [[
+                {field: 'webName', width: 80, title: '名字', sort: true},
+                {field: 'elementTypeName', width: 80, title: '位置', sort: true},
+                {field: 'teamName', width: 80, title: '球队', sort: true},
+                {field: 'value', width: 80, title: '身价'}
+            ]]
+        });
+    });
+</script>
+
+</body>
 
 </html>
