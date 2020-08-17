@@ -19,6 +19,8 @@ public interface IHttpApi {
 
 	EntryEventData qryEntryEventResult(int event, int entry);
 
-	List<EventLiveEntity> qryEventLive(int element);
+	List<EventLiveEntity> qryEventLiveAll(int element);
+
+	List<EventLiveEntity> qryEventLive(int event, int element);
 
 }

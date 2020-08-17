@@ -64,10 +64,16 @@ public class HttpController {
 		return liveCalcApi.calcLivePointsByElementList(event, elementMap, captain, viceCaptain);
 	}
 
+	@GetMapping("/qryEventLiveAll")
+	@ResponseBody
+	public List<EventLiveEntity> qryEventLiveAll(@RequestParam int element) {
+		return this.httpApi.qryEventLiveAll(element);
+	}
+
 	@GetMapping("/qryEventLive")
 	@ResponseBody
-	public List<EventLiveEntity> qryEventLive(@RequestParam int element) {
-		return this.httpApi.qryEventLive(element);
+	public List<EventLiveEntity> qryEventLive(@RequestParam int event, @RequestParam int element) {
+		return this.httpApi.qryEventLive(event, element);
 	}
 
 }

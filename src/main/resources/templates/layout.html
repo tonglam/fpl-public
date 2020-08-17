@@ -94,13 +94,13 @@
         let $ = layui.jquery;
         $("#teamIdBtn").on('click', function () {
             let btn = $("#teamIdBtn");
-            layer.prompt(
+            var index = layer.prompt(
                 {
                     title: '更换team_id',
                     offset: '100px',
                     shade: 0.8,
                     shadeClose: true,
-                    success: function (layero, index) {
+                    success: function (layero) {
                         this.enterConfirm = function (event) {
                             if (event.keyCode === 13) {
                                 $(".layui-layer-btn0").click();

@@ -45,8 +45,13 @@ public class HttpApiImpl implements IHttpApi {
 	}
 
 	@Override
-	public List<EventLiveEntity> qryEventLive(int element) {
-		return this.querySerivce.qryEventLive(element);
+	public List<EventLiveEntity> qryEventLiveAll(int element) {
+		return this.querySerivce.qryEventLiveAll(element);
+	}
+
+	@Override
+	public List<EventLiveEntity> qryEventLive(int event, int element) {
+		return this.querySerivce.qryEventLive(event, element);
 	}
 
 }

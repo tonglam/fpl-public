@@ -61,8 +61,14 @@ public class QueryServiceImpl implements IQuerySerivce {
 	}
 
 	@Override
-	public List<EventLiveEntity> qryEventLive(int element) {
+	public List<EventLiveEntity> qryEventLiveAll(int element) {
 		return this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getElement, element));
+	}
+
+	@Override
+	public List<EventLiveEntity> qryEventLive(int event, int element) {
+		return this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event).eq(EventLiveEntity::getElement, element));
 	}
 
 	private EntryEventData qryEntryEventResultData(int entry) {
