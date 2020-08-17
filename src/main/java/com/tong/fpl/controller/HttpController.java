@@ -5,6 +5,7 @@ import com.tong.fpl.api.ILiveCalcApi;
 import com.tong.fpl.domain.data.letletme.EntryEventData;
 import com.tong.fpl.domain.data.letletme.LiveCalaData;
 import com.tong.fpl.domain.data.letletme.PlayerValueData;
+import com.tong.fpl.domain.entity.EventLiveEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -53,7 +54,7 @@ public class HttpController {
 
 	@GetMapping("/qryLivePointsByEntry")
 	@ResponseBody
-	public LiveCalaData qryLivePointsByEntry(int event, int entry) {
+	public LiveCalaData qryLivePointsByEntry(@RequestParam int event, @RequestParam int entry) {
 		return this.liveCalcApi.calcLivePointsByEntry(event, entry);
 	}
 
@@ -61,6 +62,12 @@ public class HttpController {
 	@ResponseBody
 	public LiveCalaData qryLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
 		return liveCalcApi.calcLivePointsByElementList(event, elementMap, captain, viceCaptain);
+	}
+
+	@GetMapping("/qryEventLive")
+	@ResponseBody
+	public List<EventLiveEntity> qryEventLive(@RequestParam int element) {
+		return this.httpApi.qryEventLive(element);
 	}
 
 }

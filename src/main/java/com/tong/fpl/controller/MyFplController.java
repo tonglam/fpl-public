@@ -19,7 +19,6 @@ public class MyFplController {
 
     @RequestMapping(value = {"/pick"})
     public String pickController(Model model) {
-        model.addAttribute("title", "阵容选择-我的FPL-letletme");
         return "pick";
     }
 

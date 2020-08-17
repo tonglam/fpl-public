@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout::header">
-    <meta charset="UTF-8">
-    <title></title>
+<head th:replace="layout::header(~{::title},~{::link})">
+    <title>letletme</title>
+    <link id="a" rel="stylesheet" th:href="@{/css/timeTo.css}"/>
+    <link rel="stylesheet" th:href="@{/css/index.css}"/>
 </head>
+
 <body>
 
-<div th:replace="layout::topnav">
-</div>
+<div th:replace="layout::topnav"></div>
 
-<div class="layui-fluid">
+<div class="layui-fluid" th:fragment="main">
     <div class="layui-main">
         <div class="site-content">
 
@@ -62,11 +63,12 @@
 </body>
 
 <script th:replace="layout::baseScript"></script>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/jquery.time-to.js}"></script>
 
-<script>
-    let dateStr = '2020-09-12 20:30:00';
+<script th:inline="javascript">
     $('#countdown').timeTo({
-        timeTo: new Date(Date.parse(dateStr.replace(/-/g, "/"))),
+        timeTo: new Date(Date.parse([[${deadline}]].replace(/-/g, "/"))),
         displayDays: 2,
         displayCaptions: true,
         fontSize: 48,

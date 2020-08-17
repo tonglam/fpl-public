@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout::header">
-    <meta charset="UTF-8">
-    <title></title>
-
+<head th:replace="layout::header(~{::title},~{})">
+    <title>创建赛事-自定义赛事-letletme</title>
 </head>
-<body>
-<div th:replace="layout::topnav">
-</div>
 
-<div class="layui-fluid">
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid" th:fragment="main">
     <div class="layui-main" id="main">
         <div class="site-content">
 
@@ -203,15 +202,21 @@
     </div>
 </div>
 
-<div th:replace="layout::footer">
+<div th:replace="layout::footer"></div>
 
-</div>
+<div th:replace="rule::main"></div>
 
 </body>
+
+<script th:replace="layout::baseScript"></script>
 
 <script>
     layui.use(['form', 'element', 'layer', 'util'], function () {
         let $ = layui.jquery, form = layui.form, layer = layui.layer, util = layui.util;
+
+        $(document).ready(function () {
+            $("#rule").addClass("layui-hide");
+        });
 
         /**
          * 公告层
@@ -226,6 +231,7 @@
                 time: 2500,
                 area: '400px;',
                 shade: 0.8,
+                shadeClose: true,
                 moveType: 1,
                 content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
                     '输入官方联赛url来开始创建你的自定义联赛吧！' + '<br><br>' + 'ps：*为标单必填项' + '</div>',
@@ -250,16 +256,15 @@
             bar1: "&#xe607;", click: function (type) {
                 if (type == 'bar1') {
                     layer.open({
-                        type: 2,
-                        title: '',
-                        area: ['700px', '400px'],
-                        shade: 0,
-                        maxmin: true,
-                        content: ['/tournament/rule', '#main'],
-                        zIndex: layer.zIndex,
-                        success: function (layero) {
-                            layer.setTop(layero);
-                        }
+                        type: 1,
+                        title: '自定义赛事规则',
+                        area: ['750px', '75%'],
+                        offset: ['100px', '1100px'],
+                        maxmin: false,
+                        content: $("#rule").html(),
+                        shade: 0.01,
+                        shadeClose: true,
+                        resize: false
                     });
                 }
             }

@@ -9,13 +9,10 @@ import com.tong.fpl.domain.data.letletme.EntryEventResultData;
 import com.tong.fpl.domain.data.letletme.PlayerValueData;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerValueEntity;
 import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IStaticSerive;
-import com.tong.fpl.service.db.EntryEventResultService;
-import com.tong.fpl.service.db.EntryInfoService;
-import com.tong.fpl.service.db.PlayerService;
-import com.tong.fpl.service.db.PlayerValueService;
+import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +31,9 @@ public class QueryServiceImpl implements IQuerySerivce {
 
 	private final PlayerService playerService;
 	private final PlayerValueService playerValueService;
+	private final EventLiveService eventLiveService;
 	private final EntryInfoService entryInfoService;
 	private final EntryEventResultService entryEventResultService;
-	private final IStaticSerive staticSerive;
 
 	@Override
 	public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
@@ -61,6 +58,11 @@ public class QueryServiceImpl implements IQuerySerivce {
 	@Override
 	public EntryEventData qryEntryEventResult(int event, int entry) {
 		return this.qryEntryEventResultData(event, entry);
+	}
+
+	@Override
+	public List<EventLiveEntity> qryEventLive(int element) {
+		return this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getElement, element));
 	}
 
 	private EntryEventData qryEntryEventResultData(int entry) {

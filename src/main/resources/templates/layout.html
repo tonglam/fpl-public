@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="header">
-    <title th:text="${title}"></title>
+<head th:fragment="header(title,links)">
+
+    <title th:replace="${title}"></title>
 
     <meta charset="utf-8">
     <meta content="webkit" name="renderer">
@@ -13,12 +14,12 @@
 
     <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
     <link rel="stylesheet" th:href="@{/css/layout.css}"/>
-    <link rel="stylesheet" th:href="@{/css/timeTo.css}"/>
+    <th:block th:replace="${links}"/>
 
-    <script th:src="@{/layui/layui.js}"></script>
     <script th:src="@{/js/jquery.min.js}"></script>
-    <script th:src="@{/js/jquery.time-to.js}"></script>
+    <script th:src="@{/layui/layui.js}"></script>
     <script th:src="@{/js/axios.min.js}"></script>
+
 </head>
 
 <body>
@@ -31,34 +32,34 @@
             <li class="layui-nav-item">
                 <a href="javascript:">自定义赛事</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="/tournament/create">创建赛事</a></dd>
-                    <dd><a href="">管理赛事</a></dd>
-                    <dd><a href="">查看赛果</a></dd>
-                    <dd><a href="/tournament/rule">规则</a></dd>
+                    <dd><a href="/tournament/create" target="_blank">创建赛事</a></dd>
+                    <dd><a href="" target="_blank">管理赛事</a></dd>
+                    <dd><a href="" target="_blank">查看赛果</a></dd>
+                    <dd><a href="/tournament/rule" target="_blank">规则</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item">
-                <a href="javascript:">我的fpl</a>
+                <a href="javascript:" target="_blank">我的fpl</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="/my_fpl/pick">阵容选择</a></dd>
-                    <dd><a href="">得分查看</a></dd>
-                    <dd><a href="">历史分析</a></dd>
+                    <dd><a href="/my_fpl/pick" target="_blank">阵容选择</a></dd>
+                    <dd><a href="" target="_blank">得分查看</a></dd>
+                    <dd><a href="" target="_blank">历史分析</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item">
                 <a href="javascript:">实时结果</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="">实时得分</a></dd>
-                    <dd><a href="">小联赛实时排名</a></dd>
+                    <dd><a href="" target="_blank">实时得分</a></dd>
+                    <dd><a href="" target="_blank">小联赛实时排名</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item">
                 <a href="javascript:">数据查询</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="">比赛数据</a></dd>
-                    <dd><a href="">球员数据</a></dd>
-                    <dd><a href="">fpl数据</a></dd>
-                    <dd><a href="">身价变化</a></dd>
+                    <dd><a href="" target="_blank">比赛数据</a></dd>
+                    <dd><a href="" target="_blank">球员数据</a></dd>
+                    <dd><a href="" target="_blank">fpl数据</a></dd>
+                    <dd><a href="" target="_blank">身价变化</a></dd>
                 </dl>
             </li>
 
@@ -69,7 +70,8 @@
             <li class="nav-teamId">
                 <span style="margin-left: 5px">team_id:</span>
                 <button class="layui-btn layui-badge" id="teamIdBtn" style="top:19px;text-align: center"
-                        th:text="${entry}" title="点击更换team_id" type="button"></button>
+                        th:text="${session.entry}? ${session.entry} : '请输入id'" title="点击更换team_id"
+                        type="button"></button>
             </li>
         </ul>
 
@@ -79,7 +81,7 @@
 <!-- footer -->
 <div class="layui-footer footer footer-doc" th:fragment="footer">
     <div class="layui-main">
-        <p>&copy; 2020 <a href="/">letletme.top</a></p>
+        <p>&copy; 2020 <a href="/" target="_blank">letletme.top</a></p>
         <p>
             <a href="http://beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备20026680号</a>
         </p>
@@ -91,20 +93,60 @@
     layui.use(['element', 'layer'], function () {
         let $ = layui.jquery;
         $("#teamIdBtn").on('click', function () {
-            layer.prompt({title: '更换team_id'}, function (value, index) {
-                // 校验
-                let current = $("#teamIdBtn").html();
-                if (value == current) {
-                    layer.msg('team_id没有改变', {time: 1500});
-                    layer.close(index);
-                    return false;
-                } else if (!new RegExp("^[1-9]\\d*$").test(value)) {
-                    layer.msg('team_id需为正整数', {time: 1500});
-                    layer.close(index);
-                    return false;
-                }
-                $("#teamIdBtn").text(value);
-            });
+            let btn = $("#teamIdBtn");
+            layer.prompt(
+                {
+                    title: '更换team_id',
+                    offset: '100px',
+                    shade: 0.8,
+                    shadeClose: true,
+                    success: function (layero, index) {
+                        this.enterConfirm = function (event) {
+                            if (event.keyCode === 13) {
+                                $(".layui-layer-btn0").click();
+                                return false;
+                            }
+                        };
+                        this.escQuit = function (event) {
+                            if (event.keyCode === 0x1B) {
+                                layer.close(index);
+                                return false;
+                            }
+                        }
+                        $(document).on('keyup', this.enterConfirm);
+                        $(document).on('keyup', this.escQuit);
+                        $(".layui-layer-btn0").on("click", function () {
+                            // 校验
+                            let entry = layero.find("input").val();
+                            if (entry == btn.html()) {
+                                layer.msg('team_id没有改变', {offset: '100px', shade: 0.8, shadeClose: true, time: 1500});
+                                layer.close(index);
+                                return false;
+                            } else if (!new RegExp("^[1-9]\\d*$").test(entry)) {
+                                layer.msg('team_id需为正整数', {offset: '100px', shade: 0.8, shadeClose: true, time: 1500});
+                                layer.close(index);
+                                return false;
+                            }
+                            // 回填
+                            btn.text(entry);
+                            // 保存
+                            axios.get('/saveEntry?entry=' + entry);
+                            // 关闭
+                            layer.msg('team_id更新成功', {
+                                offset: '100px',
+                                icon: 6,
+                                shade: 0.8,
+                                shadeClose: true,
+                                time: 1500
+                            });
+                            layer.close(index);
+                        })
+                    },
+                    end: function () {
+                        $(document).off('keydown', this.enterConfirm);
+                        $(document).off('keydown', this.escQuit);
+                    }
+                });
         });
     });
 </script>

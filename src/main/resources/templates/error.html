@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout::header">
-    <meta charset="UTF-8">
-    <title></title>
-
+<head th:replace="layout::header(~{::title},~{})">
+    <title>出错啦-letletme</title>
 </head>
-<body>
-<div th:replace="layout::topnav">
-</div>
 
-<div class="layui-fluid">
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid" th:fragment="main">
     <div class="layui-main">
         <div class="site-content">
 
@@ -19,15 +18,10 @@
     </div>
 </div>
 
-<div th:replace="layout::footer">
-
-</div>
+<div th:replace="layout::footer"></div>
 
 </body>
 
-<script>
-    layui.use(['element'], function () {
-    });
-</script>
+<script th:replace="layout::baseScript"></script>
 
 </html>

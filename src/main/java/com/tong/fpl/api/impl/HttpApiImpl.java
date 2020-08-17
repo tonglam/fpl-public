@@ -3,6 +3,7 @@ package com.tong.fpl.api.impl;
 import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.domain.data.letletme.EntryEventData;
 import com.tong.fpl.domain.data.letletme.PlayerValueData;
+import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IStaticSerive;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,11 @@ public class HttpApiImpl implements IHttpApi {
 	@Override
 	public EntryEventData qryEntryEventResult(int event, int entry) {
 		return this.querySerivce.qryEntryEventResult(event, entry);
+	}
+
+	@Override
+	public List<EventLiveEntity> qryEventLive(int element) {
+		return this.querySerivce.qryEventLive(element);
 	}
 
 }
