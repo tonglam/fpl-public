@@ -1,8 +1,10 @@
 package com.tong.fpl.aop;
 
 import com.tong.fpl.log.ControllerLog;
+import com.tong.fpl.utils.HttpUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -31,6 +33,7 @@ public class ControllerLogAspect {
 		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 		if (attributes != null) {
 			HttpServletRequest request = attributes.getRequest();
+			MDC.put("ip", HttpUtils.getRealIp(request));
 			stringBuffer.append("url:{").append(request.getRequestURI()).append("}");
 			stringBuffer.append(", method:{").append(request.getMethod()).append("}");
 			stringBuffer.append(", args:{").append(Arrays.toString(joinPoint.getArgs())).append("}");

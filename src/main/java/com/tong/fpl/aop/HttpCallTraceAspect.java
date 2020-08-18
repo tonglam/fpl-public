@@ -24,20 +24,18 @@ import java.util.UUID;
 @Configuration
 public class HttpCallTraceAspect {
 
-    ThreadLocal<String> uuid = new ThreadLocal<>();
     ThreadLocal<Long> startTime = new ThreadLocal<>();
 
     @Before(value = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
     public void before(JoinPoint joinPoint) {
-        uuid.set(UUID.randomUUID().toString());
-        MDC.put("uuid", uuid.get());
+        MDC.put("uuid", UUID.randomUUID().toString());
         startTime.set(System.currentTimeMillis());
-        String methodName = joinPoint.getSignature().toShortString();
         Optional<ServletRequestAttributes> attributes = Optional.ofNullable((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
         attributes.ifPresent(o -> {
             HttpServletRequest request = o.getRequest();
             MDC.put("ip", HttpUtils.getRealIp(request));
-            HttpCallLog.info("request:{url=%s, method=%s, args=%s}", request.getRequestURI(), methodName, Arrays.toString(joinPoint.getArgs()));
+            MDC.put("url", request.getRequestURI());
+            HttpCallLog.info("request:{args=%s}", Arrays.toString(joinPoint.getArgs()));
         });
     }
 

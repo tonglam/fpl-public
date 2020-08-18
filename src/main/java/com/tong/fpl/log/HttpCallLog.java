@@ -17,7 +17,7 @@ public class HttpCallLog {
 	}
 
 	public static void timeElapsed(long time) {
-		info("time elapsed: {} ms!", time);
+		info("time elapsed:" + time + " ms!");
 	}
 
 	public static void error(String str, String errorMsg) {
