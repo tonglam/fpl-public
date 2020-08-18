@@ -10,8 +10,27 @@
 
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!--            <fileNamePattern>/home/workspace/fpl/log/fpl.%d{yyyy-MM-dd}.log</fileNamePattern>-->
-            <fileNamePattern>/Users/tonglam/product/home/workspace/fpl/log/fpl.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/home/workspace/fpl/log/fpl.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="controllerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/home/workspace/fpl/log/controller.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="httpCallLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/home/workspace/fpl/log/http_call.%d{yyyy-MM-dd}.log</fileNamePattern>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
@@ -23,5 +42,13 @@
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
     </root>
+
+    <logger name="com.netease.qualityControl.log.ControllerLog" additivity="false">
+        <appender-ref ref="controllerLog"/>
+    </logger>
+
+    <logger name="com.netease.qualityControl.log.httpCallLog" additivity="false">
+        <appender-ref ref="httpCallLog"/>
+    </logger>
 
 </configuration>

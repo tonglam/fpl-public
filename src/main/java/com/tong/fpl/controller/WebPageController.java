@@ -20,7 +20,7 @@ import javax.servlet.http.HttpSession;
 public class WebPageController {
 
 	@RequestMapping(value = {"", "/"})
-	public String indexController(Model model, HttpSession session) {
+	public String indexController(Model model) {
 		int currentEvent = CommonUtils.getNowEvent();
 		model.addAttribute("nextGw", currentEvent);
 		model.addAttribute("deadline", CommonUtils.getDeadlineTime(currentEvent));

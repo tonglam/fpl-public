@@ -1,6 +1,7 @@
 package com.tong.fpl.utils;
 
 import com.tong.fpl.constant.Constant;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -16,6 +17,7 @@ import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.rmi.server.ExportException;
@@ -153,6 +155,23 @@ public class HttpUtils {
 			}
 		}
 		return url + stringBuilder.toString();
+	}
+
+	/**
+	 * 获取真实ip
+	 */
+	public static String getRealIp(HttpServletRequest req) {
+		String x_ip = req.getHeader("Cdn-Src-Ip");
+		if (StringUtils.isEmpty(x_ip)) {
+			x_ip = req.getHeader("X-Forwarded-For");
+		}
+		if (StringUtils.isEmpty(x_ip)) {
+			x_ip = req.getHeader("X-Real-IP");
+		}
+		if (StringUtils.isEmpty(x_ip)) {
+			x_ip = req.getRemoteAddr();
+		}
+		return x_ip;
 	}
 
 }

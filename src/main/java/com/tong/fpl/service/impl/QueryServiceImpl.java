@@ -43,11 +43,16 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.forEach(o -> {
 					PlayerValueData playerValueData = new PlayerValueData();
 					BeanUtil.copyProperties(o, playerValueData);
-					playerValueData.setWebName(this.playerService.getById(o.getElement()).getWebName());
+					playerValueData.setWebName(getPlayerWebName(o.getElement()));
 					playerValueData.setElementTypeName(Position.getNameFromElementType(o.getElementType()).name());
 					playerValueDataList.add(playerValueData);
 				});
 		return playerValueDataList;
+	}
+
+	private String getPlayerWebName(int element) {
+		PlayerEntity playerEntity = this.playerService.getById(element);
+		return playerEntity != null ? playerEntity.getWebName() : "";
 	}
 
 	@Override

@@ -1,0 +1,51 @@
+package com.tong.fpl.aop;
+
+import com.tong.fpl.log.ControllerLog;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+
+/**
+ * Create by tong on 2019/10/9
+ */
+@Aspect
+@Component
+public class ControllerLogAspect {
+
+	ThreadLocal<Long> startTime = new ThreadLocal<>();
+	StringBuffer stringBuffer;
+
+	@Pointcut("execution(public * com.tong.fpl.controller.*.*(..))")
+	public void controllerLog() {
+	}
+
+	@Before("controllerLog()")
+	public void doBefore(JoinPoint joinPoint) {
+		startTime.set(System.currentTimeMillis());
+		stringBuffer = new StringBuffer();
+		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+		if (attributes != null) {
+			HttpServletRequest request = attributes.getRequest();
+			stringBuffer.append("url:{").append(request.getRequestURI()).append("}");
+			stringBuffer.append(", method:{").append(request.getMethod()).append("}");
+			stringBuffer.append(", args:{").append(Arrays.toString(joinPoint.getArgs())).append("}");
+		}
+	}
+
+	@After("controllerLog()")
+	public void doAfter() {
+	}
+
+	@AfterReturning(returning = "obj", pointcut = "controllerLog()")
+	public void doAfterReturnig(Object obj) {
+		stringBuffer.append(", response:{").append(obj).append("}");
+		stringBuffer.append(", elapsed time:").append(System.currentTimeMillis() - startTime.get()).append("ms!");
+		ControllerLog.info(stringBuffer.toString());
+	}
+
+}
