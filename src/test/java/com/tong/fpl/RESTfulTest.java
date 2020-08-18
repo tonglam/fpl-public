@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Create by tong on 2020/8/3
  */
@@ -52,5 +54,15 @@ public class RESTfulTest {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"/my_fpl/qryPlayerDataList, 1,20"})
+	void qryPlayerDataList(String url, String current, String size) throws Exception {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("current", current);
+		params.add("size", size);
+		MvcResult mvcResult = this.mockResult(url, params);
+		String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+		System.out.println(1);
+	}
 
 }

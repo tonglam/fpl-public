@@ -22,19 +22,18 @@ public class WebPageController {
 	@RequestMapping(value = {"", "/"})
 	public String indexController(Model model, HttpSession session) {
 		int currentEvent = CommonUtils.getNowEvent();
-		session.removeAttribute("entry");
 		model.addAttribute("nextGw", currentEvent);
 		model.addAttribute("deadline", CommonUtils.getDeadlineTime(currentEvent));
 		return "index";
 	}
 
 	@RequestMapping(value = "/404")
-	public String errorController(Model model) {
+	public String errorController() {
 		return "error";
 	}
 
 	@RequestMapping(value = "/test")
-	public String testController(Model model) {
+	public String testController() {
 		return "test";
 	}
 

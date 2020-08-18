@@ -34,8 +34,8 @@ public class TournamentManagementController {
     }
 
     @RequestMapping(value = "/rule")
-    public String tournamentRuleController(Model model) {
-        return "rule";
+    public String tournamentRuleController() {
+	    return "rule";
     }
 
     @ResponseBody

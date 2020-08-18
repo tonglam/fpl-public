@@ -1,5 +1,6 @@
 package com.tong.fpl.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.domain.data.letletme.EntryEventData;
 import com.tong.fpl.domain.data.letletme.PlayerData;
 import com.tong.fpl.domain.data.letletme.PlayerValueData;
@@ -22,6 +23,6 @@ public interface IQuerySerivce {
 
     List<EventLiveEntity> qryEventLive(int event, int element);
 
-    List<PlayerData> qryPlayerDataList(long current, long size);
+	Page<PlayerData> qryPlayerDataList(long current, long size);
 
 }
