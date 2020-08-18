@@ -43,11 +43,11 @@
         <appender-ref ref="file"/>
     </root>
 
-    <logger name="com.netease.qualityControl.log.ControllerLog" additivity="false">
+    <logger name="com.tong.fpl.log.ControllerLog" additivity="false">
         <appender-ref ref="controllerLog"/>
     </logger>
 
-    <logger name="com.netease.qualityControl.log.httpCallLog" additivity="false">
+    <logger name="com.tong.fpl.log.httpCallLog" additivity="false">
         <appender-ref ref="httpCallLog"/>
     </logger>
 
