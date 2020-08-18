@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 @Validated
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping(value = "/api")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
