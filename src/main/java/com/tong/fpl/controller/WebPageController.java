@@ -38,7 +38,7 @@ public class WebPageController {
 		return "test";
 	}
 
-	@GetMapping("/saveEntry")
+	@GetMapping(value = "/saveEntry")
 	@ResponseBody
 	public void saveEntry(@RequestParam int entry, HttpSession session) {
 		session.setAttribute("entry", entry);
