@@ -12,18 +12,7 @@
     <div class="layui-main">
         <div class="site-content">
 
-            <table class="layui-table"
-                   lay-data="{height:315, url:'/my_fpl/qryPlayerDataList?current=1&size=20', page:true, id:'playerTable'}"
-                   lay-filter="playerTable">
-                <thead>
-                <tr>
-                    <th lay-data="{field: 'webName', width: 80, sort: true}">名字</th>
-                    <th lay-data="{field: 'elementTypeName', width: 80, sort: true}">位置</th>
-                    <th lay-data="{field: 'teamName', width: 80, sort: true}">球队</th>
-                    <th lay-data="{field: 'value', width: 80, sort: true}">身价</th>
-                </tr>
-                </thead>
-            </table>
+            <table class="layui-table" id="playerTable" lay-filter="playerTable"></table>
 
         </div>
     </div>
@@ -33,9 +22,30 @@
 
 <script th:replace="layout::baseScript"></script>
 
-<script>
-    layui.use('table', function () {
-
+<script th:inline="none">
+    layui.use(['form', 'table', 'soulTable'], function () {
+        let table = layui.table, soulTable = layui.soulTable;
+        table.render({
+            elem: '#playerTable',
+            height: 500,
+            toolbar: '#toolbar',
+            page: true,
+            url: '/my_fpl/qryPlayerDataList',
+            request: {
+                pageName: 'current',
+                limitName: 'size'
+            },
+            limit: 20,
+            cols: [[
+                {field: 'element', type: 'numbers', title: 'ID', width: 50, align: 'center', hide: true},
+                {field: 'webName', title: '名字', width: 150, align: 'center', sort: true},
+                {field: 'elementTypeName', title: '位置', width: 70, align: 'center', filter: true},
+                {field: 'teamName', title: '球队', width: 80, align: 'center'},
+                {field: 'value', title: '身价', width: 80, align: 'center', sort: true}
+            ]], done: function () {
+                soulTable.render(this)
+            }
+        });
     });
 </script>
 
