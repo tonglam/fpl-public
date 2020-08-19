@@ -20,10 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,7 +60,7 @@ public class CommonUtils {
 		return chips.stream().anyMatch(chip -> lastEvents.contains(chip.getEvent()));
 	}
 
-	public static int getNowEvent() {
+	public static int getCurrentEvent() {
 		int event = 1;
 		Map<String, Integer> deadlineMap = CommonUtils.eventService.list()
 				.stream().collect(Collectors.toMap(EventEntity::getDeadlineTime, EventEntity::getEvent));
@@ -127,6 +124,11 @@ public class CommonUtils {
 		map.put("", "请选择");
 		IntStream.range(1, 39).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
 		return map;
+	}
+
+	public static String getCurrentSeason() {
+		return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
+				String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
 	}
 
 	@Autowired

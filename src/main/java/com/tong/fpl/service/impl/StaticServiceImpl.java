@@ -181,6 +181,7 @@ public class StaticServiceImpl implements IStaticSerive {
 		List<PlayerEntity> playerList = Lists.newArrayList();
 		staticRes.getElements().forEach(bootstrapPlayer -> {
 			PlayerEntity playerEntity = new PlayerEntity();
+			playerEntity.setPrice(this.getPlayerCurrentPrice(bootstrapPlayer.getId()));
 			BeanUtil.copyProperties(bootstrapPlayer, playerEntity, CopyOptions.create().ignoreNullValue());
 			playerEntity.setElement(bootstrapPlayer.getId());
 			playerEntity.setTeamId(bootstrapPlayer.getTeam());
@@ -189,6 +190,13 @@ public class StaticServiceImpl implements IStaticSerive {
 		this.playerService.saveBatch(playerList);
 		log.info("insert player size is " + playerList.size() + "!");
 		playerList.clear();
+	}
+
+	private int getPlayerCurrentPrice(int element) {
+		return this.playerValueService.getOne(new QueryWrapper<PlayerValueEntity>().lambda()
+				.eq(PlayerValueEntity::getElement, element)
+				.orderByDesc(PlayerValueEntity::getUpdateTime))
+				.getValue();
 	}
 
 	private void insertEventEntity(StaticRes staticRes) {
@@ -252,7 +260,7 @@ public class StaticServiceImpl implements IStaticSerive {
 					playerValueList.add(new PlayerValueEntity()
 							.setElement(element)
 							.setElementType(bootstrapPlayer.getElementType())
-							.setEvent(CommonUtils.getNowEvent())
+							.setEvent(CommonUtils.getCurrentEvent())
 							.setValue(bootstrapPlayer.getNowCost())
 							.setChangeDate(LocalDate.now().format(DateTimeFormatter.ofPattern(Constant.SHORTDAY)))
 							.setChangeType(this.getChangeType(bootstrapPlayer.getNowCost(), lastValue))

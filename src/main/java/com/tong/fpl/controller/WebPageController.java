@@ -21,7 +21,7 @@ public class WebPageController {
 
 	@RequestMapping(value = {"", "/"})
 	public String indexController(Model model) {
-		int currentEvent = CommonUtils.getNowEvent();
+		int currentEvent = CommonUtils.getCurrentEvent();
 		model.addAttribute("nextGw", currentEvent);
 		model.addAttribute("deadline", CommonUtils.getDeadlineTime(currentEvent));
 		return "index";
