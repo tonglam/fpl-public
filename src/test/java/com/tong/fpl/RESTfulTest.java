@@ -23,46 +23,47 @@ import java.nio.charset.StandardCharsets;
 @AutoConfigureMockMvc
 public class RESTfulTest {
 
-	@Autowired
-	private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-	MvcResult mockResult(String url, MultiValueMap<String, String> params) throws Exception {
-		return mockMvc
-				.perform(MockMvcRequestBuilders.get(url)
-						.contentType(MediaType.ALL).params(params))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(MockMvcResultHandlers.print())
-				.andReturn();
-	}
+    MvcResult mockResult(String url, MultiValueMap<String, String> params) throws Exception {
+        return mockMvc
+                .perform(MockMvcRequestBuilders.get(url)
+                        .contentType(MediaType.ALL).params(params))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andReturn();
+    }
 
-	@ParameterizedTest
-	@CsvSource({"/api/qryEntryEventResult, 47, 3697"})
-	void qryEntryEventResult(String url, String event, String entry) throws Exception {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("event", event);
-		params.add("entry", entry);
-		MvcResult mvcResult = this.mockResult(url, params);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"/api/qryEntryEventResult, 1920, 47, 3697"})
+    void qryEntryEventResult(String url, String season, String event, String entry) throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("season", season);
+        params.add("event", event);
+        params.add("entry", entry);
+        MvcResult mvcResult = this.mockResult(url, params);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"/api/qryDayChangePlayerValue, 20200726"})
-	void qryDayChangePlayerValue(String url, String changeDate) throws Exception {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("changeDate", changeDate);
-		MvcResult mvcResult = this.mockResult(url, params);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"/api/qryDayChangePlayerValue, 20200726"})
+    void qryDayChangePlayerValue(String url, String changeDate) throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("changeDate", changeDate);
+        MvcResult mvcResult = this.mockResult(url, params);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"/my_fpl/qryPlayerDataList, 1,20"})
-	void qryPlayerDataList(String url, String current, String size) throws Exception {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		params.add("current", current);
-		params.add("size", size);
-		MvcResult mvcResult = this.mockResult(url, params);
-		String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"/my_fpl/qryPlayerDataList, 1, 20"})
+    void qryPlayerDataList(String url, String current, String size) throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("current", current);
+        params.add("size", size);
+        MvcResult mvcResult = this.mockResult(url, params);
+        String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        System.out.println(1);
+    }
 
 }

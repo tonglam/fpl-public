@@ -12,8 +12,6 @@ import java.util.Optional;
  */
 public interface IInterfaceService {
 
-	Optional<String> getPlProfileViaLogin(String username, String password);
-
 	Optional<EntryRes> getEntry(int entry);
 
 	Optional<UserPicksRes> getUserPicks(int event, int entry);

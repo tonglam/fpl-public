@@ -4,6 +4,7 @@ import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.domain.data.letletme.EntryEventData;
 import com.tong.fpl.domain.data.letletme.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
+import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IStaticSerive;
 import lombok.RequiredArgsConstructor;
@@ -21,37 +22,42 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class HttpApiImpl implements IHttpApi {
 
-	private final IQuerySerivce querySerivce;
-	private final IStaticSerive staticSerive;
+    private final IQuerySerivce querySerivce;
+    private final IStaticSerive staticSerive;
 
-	@Override
-	public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
-		return this.querySerivce.qryDayChangePlayerValue(changeDate);
-	}
+    @Override
+    public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
+        return this.querySerivce.qryDayChangePlayerValue(changeDate);
+    }
 
-	@Override
-	public void insertPlayerValue() {
-		this.staticSerive.insertPlayerValue();
-	}
+    @Override
+    public void insertPlayerValue() {
+        this.staticSerive.insertPlayerValue();
+    }
 
-	@Override
-	public EntryEventData qryEntryResult(int entry) {
-		return this.querySerivce.qryEntryResult(entry);
-	}
+    @Override
+    public EntryEventData qryEntryResult(String season, int entry) {
+        return this.querySerivce.qryEntryResult(season, entry);
+    }
 
-	@Override
-	public EntryEventData qryEntryEventResult(int event, int entry) {
-		return this.querySerivce.qryEntryEventResult(event, entry);
-	}
+    @Override
+    public EntryEventData qryEntryEventResult(String season, int event, int entry) {
+        return this.querySerivce.qryEntryEventResult(season, event, entry);
+    }
 
-	@Override
-	public List<EventLiveEntity> qryEventLiveAll(int element) {
-		return this.querySerivce.qryEventLiveAll(element);
-	}
+    @Override
+    public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
+        return this.querySerivce.qryEventLiveAll(season, element);
+    }
 
-	@Override
-	public List<EventLiveEntity> qryEventLive(int event, int element) {
-		return this.querySerivce.qryEventLive(event, element);
-	}
+    @Override
+    public List<EventLiveEntity> qryEventLive(String season, int event, int element) {
+        return this.querySerivce.qryEventLive(season, event, element);
+    }
+
+    @Override
+    public PlayerEntity qryPlayerInfo(String season, int element) {
+        return this.querySerivce.qryPlayerInfo(season, element);
+    }
 
 }

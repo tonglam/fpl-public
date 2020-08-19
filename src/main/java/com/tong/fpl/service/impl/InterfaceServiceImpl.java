@@ -23,16 +23,6 @@ import java.util.Optional;
 public class InterfaceServiceImpl implements IInterfaceService {
 
 	@Override
-	public Optional<String> getPlProfileViaLogin(String username, String password) {
-		try {
-			return Optional.of(HttpUtils.httpLogin(username, password));
-		} catch (IOException e) {
-			log.error("login error: " + e.getMessage());
-		}
-		return Optional.empty();
-	}
-
-	@Override
 	public Optional<EntryRes> getEntry(int entry) {
 		try {
 			String result = HttpUtils.httpGet(String.format(Constant.ENTRY, entry)).orElse("");

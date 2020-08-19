@@ -7,6 +7,7 @@ import com.tong.fpl.domain.data.letletme.EntryEventData;
 import com.tong.fpl.domain.data.letletme.LiveCalaData;
 import com.tong.fpl.domain.data.letletme.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
+import com.tong.fpl.domain.entity.PlayerEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -21,63 +22,70 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class HttpController {
 
-	private final IHttpApi httpApi;
-	private final ILiveCalcApi liveCalcApi;
+    private final IHttpApi httpApi;
+    private final ILiveCalcApi liveCalcApi;
 
-	@TraceHttpCall
-	@GetMapping("/insertplayerValue")
-	@ResponseBody
-	public void insertPlayerValue() {
-		this.httpApi.insertPlayerValue();
-	}
+    @TraceHttpCall
+    @GetMapping("/insertplayerValue")
+    @ResponseBody
+    public void insertPlayerValue() {
+        this.httpApi.insertPlayerValue();
+    }
 
-	@TraceHttpCall
-	@GetMapping("/qryDayChangePlayerValue")
-	@ResponseBody
-	public List<PlayerValueData> qryDayChangePlayerValue(@RequestParam String changeDate) {
-		return this.httpApi.qryDayChangePlayerValue(changeDate);
-	}
+    @TraceHttpCall
+    @GetMapping("/qryDayChangePlayerValue")
+    @ResponseBody
+    public List<PlayerValueData> qryDayChangePlayerValue(@RequestParam String changeDate) {
+        return this.httpApi.qryDayChangePlayerValue(changeDate);
+    }
 
-	@TraceHttpCall
-	@GetMapping("/qryEntryResult")
-	@ResponseBody
-	public EntryEventData qryEntryResult(@RequestParam int entry) {
-		return this.httpApi.qryEntryResult(entry);
-	}
+    @TraceHttpCall
+    @GetMapping("/qryEntryResult")
+    @ResponseBody
+    public EntryEventData qryEntryResult(@RequestParam String season, @RequestParam int entry) {
+        return this.httpApi.qryEntryResult(season, entry);
+    }
 
-	@TraceHttpCall
-	@GetMapping("/qryEntryEventResult")
-	@ResponseBody
-	public EntryEventData qryEntryEventResult(@RequestParam int event, @RequestParam int entry) {
-		return this.httpApi.qryEntryEventResult(event, entry);
-	}
+    @TraceHttpCall
+    @GetMapping("/qryEntryEventResult")
+    @ResponseBody
+    public EntryEventData qryEntryEventResult(@RequestParam String season, @RequestParam int event, @RequestParam int entry) {
+        return this.httpApi.qryEntryEventResult(season, event, entry);
+    }
 
-	@TraceHttpCall
-	@GetMapping("/qryLivePointsByEntry")
-	@ResponseBody
-	public LiveCalaData qryLivePointsByEntry(@RequestParam int event, @RequestParam int entry) {
-		return this.liveCalcApi.calcLivePointsByEntry(event, entry);
-	}
+    @TraceHttpCall
+    @GetMapping("/qryLivePointsByEntry")
+    @ResponseBody
+    public LiveCalaData qryLivePointsByEntry(@RequestParam int event, @RequestParam int entry) {
+        return this.liveCalcApi.calcLivePointsByEntry(event, entry);
+    }
 
-	@TraceHttpCall
-	@GetMapping("/qryLivePointsByElementList")
-	@ResponseBody
-	public LiveCalaData qryLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
-		return liveCalcApi.calcLivePointsByElementList(event, elementMap, captain, viceCaptain);
-	}
+    @TraceHttpCall
+    @GetMapping("/qryLivePointsByElementList")
+    @ResponseBody
+    public LiveCalaData qryLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
+        return liveCalcApi.calcLivePointsByElementList(event, elementMap, captain, viceCaptain);
+    }
 
-	@TraceHttpCall
-	@GetMapping("/qryEventLiveAll")
-	@ResponseBody
-	public List<EventLiveEntity> qryEventLiveAll(@RequestParam int element) {
-		return this.httpApi.qryEventLiveAll(element);
-	}
+    @TraceHttpCall
+    @GetMapping("/qryEventLiveAll")
+    @ResponseBody
+    public List<EventLiveEntity> qryEventLiveAll(@RequestParam String season, @RequestParam int element) {
+        return this.httpApi.qryEventLiveAll(season, element);
+    }
 
-	@TraceHttpCall
-	@GetMapping("/qryEventLive")
-	@ResponseBody
-	public List<EventLiveEntity> qryEventLive(@RequestParam int event, @RequestParam int element) {
-		return this.httpApi.qryEventLive(event, element);
-	}
+    @TraceHttpCall
+    @GetMapping("/qryEventLive")
+    @ResponseBody
+    public List<EventLiveEntity> qryEventLive(@RequestParam String season, @RequestParam int event, @RequestParam int element) {
+        return this.httpApi.qryEventLive(season, event, element);
+    }
+
+    @TraceHttpCall
+    @GetMapping("/qryPlayerInfo")
+    @ResponseBody
+    public PlayerEntity qryPlayerInfo(@RequestParam String season, @RequestParam int element) {
+        return this.httpApi.qryPlayerInfo(season, element);
+    }
 
 }

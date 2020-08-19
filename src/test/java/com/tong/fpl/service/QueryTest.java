@@ -11,21 +11,21 @@ import java.util.List;
 
 public class QueryTest extends FplApplicationTests {
 
-	@Autowired
-	private IQuerySerivce querySerivce;
+    @Autowired
+    private IQuerySerivce querySerivce;
 
-	@ParameterizedTest
-	@CsvSource({"20200726"})
-	void qryDayChangePlayerValue(String changeDate) {
-		List<PlayerValueData> playerValueDataList = this.querySerivce.qryDayChangePlayerValue(changeDate);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"20200726"})
+    void qryDayChangePlayerValue(String changeDate) {
+        List<PlayerValueData> playerValueDataList = this.querySerivce.qryDayChangePlayerValue(changeDate);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"47,3697"})
-	void qryEntryEvent(int event, int entry) {
-		EntryEventData entryEventData = this.querySerivce.qryEntryEventResult(event, entry);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"1920,47,3697"})
+    void qryEntryEvent(String season, int event, int entry) {
+        EntryEventData entryEventData = this.querySerivce.qryEntryEventResult(season, event, entry);
+        System.out.println(1);
+    }
 
 }
