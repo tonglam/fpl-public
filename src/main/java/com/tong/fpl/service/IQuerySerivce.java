@@ -5,7 +5,6 @@ import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
 
 import java.util.List;
 
@@ -28,6 +27,6 @@ public interface IQuerySerivce {
 
 	Page<PlayerData> qryPagePlayerDataList(long current, long size);
 
-	PlayerEntity qryPlayerInfo(String season, int element);
+    List<PlayerData> qryAllPlayers();
 
 }

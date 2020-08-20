@@ -11,25 +11,27 @@ import java.util.Optional;
  */
 public interface IStaticSerive {
 
-	void insertPlayers();
+    void insertPlayers();
 
-	void insertEvent();
+    void insertEvent();
 
-	void insertPlayerValue();
+    void insertPlayerValue();
 
-	void insertPlayerValueEntity(StaticRes staticRes);
+    void insertPlayerValueEntity(StaticRes staticRes);
 
-	void insertBaseData(int event);
+    void updatePlayerValue();
 
-	void insertEventFixture(int event);
+    void insertBaseData(int event);
 
-	void insertEventLive(int event);
+    void insertEventFixture(int event);
 
-	List<EntryInfoEntity> getEntryInfoListFromClassic(int classicId);
+    void insertEventLive(int event);
 
-	List<EntryInfoEntity> getLeaguesClassicByPage(int classicId, int page);
+    List<EntryInfoEntity> getEntryInfoListFromClassic(int classicId);
 
-	List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId);
+    List<EntryInfoEntity> getLeaguesClassicByPage(int classicId, int page);
+
+    List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId);
 
 	List<EntryInfoEntity> getEntryInfoListFromH2hByPage(int h2hId, int page);
 

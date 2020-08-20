@@ -4,7 +4,6 @@ import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
 
 import java.util.List;
 
@@ -25,8 +24,8 @@ public interface IHttpApi {
 
     List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-    PlayerEntity qryPlayerInfo(String season, int element);
-
     PlayerData qryPlayerData(int element);
+
+    List<PlayerData> qryAllPlayers();
 
 }

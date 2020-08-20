@@ -5,7 +5,6 @@ import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IStaticSerive;
 import lombok.RequiredArgsConstructor;
@@ -58,13 +57,13 @@ public class HttpApiImpl implements IHttpApi {
 	}
 
 	@Override
-	public PlayerEntity qryPlayerInfo(String season, int element) {
-		return this.querySerivce.qryPlayerInfo(season, element);
+	public PlayerData qryPlayerData(int element) {
+		return this.querySerivce.qryPlayerData(element);
 	}
 
 	@Override
-	public PlayerData qryPlayerData(int element) {
-		return this.querySerivce.qryPlayerData(element);
+	public List<PlayerData> qryAllPlayers() {
+		return this.querySerivce.qryAllPlayers();
 	}
 
 }

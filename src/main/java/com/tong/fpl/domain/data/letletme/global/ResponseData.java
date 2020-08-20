@@ -16,35 +16,35 @@ import java.time.format.DateTimeFormatter;
 @Accessors(chain = true)
 public class ResponseData<T> implements Serializable {
 
-	private static final long serialVersionUID = 7028710860837708314L;
+    private static final long serialVersionUID = 7028710860837708314L;
 
-	private int code;
-	private T data;
-	private String message;
-	private String timestamp;
+    private int code;
+    private T data;
+    private String message;
+    private String timestamp;
 
-	public static <T> ResponseData<T> success() {
-		return success(null);
-	}
+    public static <T> ResponseData<T> success() {
+        return success(null);
+    }
 
-	public static <T> ResponseData<T> success(T data) {
-		return new ResponseData<T>()
-				.setCode(HttpStatus.OK.value())
-				.setMessage("success")
-				.setData(data)
-				.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)));
-	}
+    public static <T> ResponseData<T> success(T data) {
+        return new ResponseData<T>()
+                .setCode(HttpStatus.OK.value())
+                .setMessage("success")
+                .setData(data)
+                .setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)));
+    }
 
-	public static <T> ResponseData<T> fail(String msg) {
-		return fail(msg, null);
-	}
+    public static <T> ResponseData<T> fail(int code, String msg) {
+        return fail(code, msg, null);
+    }
 
-	public static <T> ResponseData<T> fail(String msg, T data) {
-		return new ResponseData<T>()
-				.setCode(HttpStatus.BAD_REQUEST.value())
-				.setMessage(msg)
-				.setData(data)
-				.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)));
-	}
+    public static <T> ResponseData<T> fail(int code, String msg, T data) {
+        return new ResponseData<T>()
+                .setCode(code)
+                .setMessage(msg)
+                .setData(data)
+                .setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)));
+    }
 
 }

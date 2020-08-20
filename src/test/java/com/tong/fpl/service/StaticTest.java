@@ -46,6 +46,11 @@ public class StaticTest extends FplApplicationTests {
 		this.staticService.insertPlayerValue();
 	}
 
+	@Test
+	void updatePlayerValue() {
+		this.staticService.updatePlayerValue();
+	}
+
 	@ParameterizedTest
 	@ValueSource(strings = {"E:\\0719.json"})
 	void insertPlayerValueFromFile(String filename) {

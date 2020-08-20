@@ -212,11 +212,11 @@ public class QueryServiceImpl implements IQuerySerivce {
     }
 
     @Override
-    public PlayerEntity qryPlayerInfo(String season, int element) {
-        MybatisPlusConfig.season.set(season);
-        PlayerEntity playerEntity = this.playerService.getById(element);
-        MybatisPlusConfig.season.remove();
-        return playerEntity;
+    public List<PlayerData> qryAllPlayers() {
+        List<PlayerData> list = Lists.newArrayList();
+        List<PlayerEntity> playerEntityList = this.playerService.list();
+        playerEntityList.forEach(playerEntity -> list.add(this.setPlayerInfo(playerEntity)));
+        return list;
     }
 
     private EntryEventData qryEntryEventResultData(String season, int entry) {

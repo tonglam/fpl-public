@@ -8,7 +8,6 @@ import com.tong.fpl.domain.data.letletme.api.LiveCalaData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -83,17 +82,17 @@ public class HttpController {
     }
 
     @TraceHttpCall
-    @GetMapping("/qryPlayerInfo")
-    @ResponseBody
-    public PlayerEntity qryPlayerInfo(@RequestParam String season, @RequestParam int element) {
-        return this.httpApi.qryPlayerInfo(season, element);
-    }
-
-    @TraceHttpCall
     @GetMapping("/qryPlayerData")
     @ResponseBody
     public PlayerData qryPlayerData(int element) {
         return this.httpApi.qryPlayerData(element);
+    }
+
+    @TraceHttpCall
+    @GetMapping("/qryAllPlayers")
+    @ResponseBody
+    public List<PlayerData> qryAllPlayers() {
+        return this.httpApi.qryAllPlayers();
     }
 
 }
