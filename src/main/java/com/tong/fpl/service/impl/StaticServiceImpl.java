@@ -189,7 +189,6 @@ public class StaticServiceImpl implements IStaticSerive {
 		});
 		this.playerService.saveBatch(playerList);
 		log.info("insert player size is " + playerList.size() + "!");
-		playerList.clear();
 	}
 
 	private int getPlayerCurrentPrice(int element) {
@@ -211,7 +210,6 @@ public class StaticServiceImpl implements IStaticSerive {
 		});
 		this.eventService.saveBatch(eventList);
 		log.info("insert event size is " + eventList.size() + "!");
-		eventList.clear();
 	}
 
 	public void insertAverageEventResult(int event, StaticRes staticRes) {
@@ -275,8 +273,12 @@ public class StaticServiceImpl implements IStaticSerive {
 				});
 		this.playerValueService.saveBatch(playerValueList);
 		log.info("insert player value size is " + playerValueList.size() + "!");
-		playerValueList.clear();
-		lastValueMap.clear();
+		// update price in table player
+		List<PlayerEntity> updatePlayerList = Lists.newArrayList();
+		playerValueList.forEach(playerValueEntity -> updatePlayerList.add(new PlayerEntity()
+				.setElement(playerValueEntity.getElement())
+				.setPrice(playerValueEntity.getValue())));
+		this.playerService.updateBatchById(updatePlayerList);
 	}
 
 	private String getChangeType(int nowCost, int lastCost) {

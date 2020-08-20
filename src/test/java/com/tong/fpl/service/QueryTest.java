@@ -22,7 +22,7 @@ public class QueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1920,47,3697"})
+    @CsvSource({"1920, 1, 1404"})
     void qryEntryEvent(String season, int event, int entry) {
         EntryEventData entryEventData = this.querySerivce.qryEntryEventResult(season, event, entry);
         System.out.println(1);

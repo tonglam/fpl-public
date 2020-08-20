@@ -108,7 +108,7 @@ public class CommonUtils {
 		if (CollectionUtils.isEmpty(pickList)) {
 			return Lists.newArrayList();
 		}
-		pickList.parallelStream().forEach(pick -> {
+		pickList.forEach(pick -> {
 			PlayerEntity playerEntity = playerService.getById(pick.getElement());
 			if (playerEntity != null) {
 				pick

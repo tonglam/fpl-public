@@ -36,7 +36,7 @@ public class RESTfulTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/api/qryEntryEventResult, 1920, 47, 3697"})
+    @CsvSource({"/api/qryEntryEventResult, 1920, 1, 1404"})
     void qryEntryEventResult(String url, String season, String event, String entry) throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("season", season);
