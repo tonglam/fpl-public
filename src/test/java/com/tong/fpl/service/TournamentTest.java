@@ -3,7 +3,7 @@ package com.tong.fpl.service;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
-import com.tong.fpl.domain.data.letletme.TournamentCreateData;
+import com.tong.fpl.domain.data.letletme.tournament.TournamentCreateData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;

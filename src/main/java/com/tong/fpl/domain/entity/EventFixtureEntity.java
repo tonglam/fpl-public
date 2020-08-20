@@ -25,8 +25,10 @@ public class EventFixtureEntity {
 	private boolean finishedProvisional;
 	private int minutes;
 	private int teamH;
+	private int teamHDifficulty;
 	private int teamHScore;
 	private int teamA;
+	private int teamADifficulty;
 	private int teamAScore;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;

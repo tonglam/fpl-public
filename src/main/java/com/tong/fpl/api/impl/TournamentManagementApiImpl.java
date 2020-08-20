@@ -1,8 +1,8 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.ITournamentManagementApi;
-import com.tong.fpl.domain.data.letletme.QueryParam;
-import com.tong.fpl.domain.data.letletme.TournamentCreateData;
+import com.tong.fpl.domain.data.letletme.global.QueryParam;
+import com.tong.fpl.domain.data.letletme.tournament.TournamentCreateData;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.service.ITournamentManagementService;
 import lombok.RequiredArgsConstructor;

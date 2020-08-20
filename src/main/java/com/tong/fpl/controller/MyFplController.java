@@ -2,7 +2,7 @@ package com.tong.fpl.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.api.IMyFplApi;
-import com.tong.fpl.domain.data.letletme.PlayerData;
+import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

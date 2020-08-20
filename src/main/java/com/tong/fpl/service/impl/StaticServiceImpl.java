@@ -87,7 +87,7 @@ public class StaticServiceImpl implements IStaticSerive {
 		eventFixtureResList.ifPresent(list -> {
 			list.forEach(o -> {
 				EventFixtureEntity eventFixture = new EventFixtureEntity();
-				BeanUtil.copyProperties(o, eventFixture);
+				BeanUtil.copyProperties(o, eventFixture, CopyOptions.create().ignoreNullValue());
 				eventFixture.setKickoffTime(CommonUtils.getZoneDate(o.getKickoffTime()));
 				eventFixtureList.add(eventFixture);
 			});
@@ -114,7 +114,7 @@ public class StaticServiceImpl implements IStaticSerive {
 				int teamId = playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0;
 				ElementStat elementStat = o.getStats();
 				EventLiveEntity eventLive = new EventLiveEntity();
-				BeanUtil.copyProperties(elementStat, eventLive);
+				BeanUtil.copyProperties(elementStat, eventLive, CopyOptions.create().ignoreNullValue());
 				eventLive.setElement(element);
 				eventLive.setElementType(playerMap.containsKey(element) ?
 						playerMap.get(element).getElementType() : 0);
@@ -203,7 +203,7 @@ public class StaticServiceImpl implements IStaticSerive {
 		List<EventEntity> eventList = Lists.newArrayList();
 		staticRes.getEvents().forEach(bootstrapEvent -> {
 			EventEntity eventEntity = new EventEntity();
-			BeanUtil.copyProperties(bootstrapEvent, eventEntity);
+			BeanUtil.copyProperties(bootstrapEvent, eventEntity, CopyOptions.create().ignoreNullValue());
 			eventEntity.setEvent(bootstrapEvent.getId())
 					.setDeadlineTime(CommonUtils.getZoneDate(bootstrapEvent.getDeadlineTime()));
 			eventList.add(eventEntity);

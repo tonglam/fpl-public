@@ -1,6 +1,6 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.data.letletme.LiveCalaData;
+import com.tong.fpl.domain.data.letletme.api.LiveCalaData;
 
 import java.util.Map;
 

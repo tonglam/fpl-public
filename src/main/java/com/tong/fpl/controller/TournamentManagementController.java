@@ -4,7 +4,7 @@ import com.tong.fpl.api.ITournamentManagementApi;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
-import com.tong.fpl.domain.data.letletme.TournamentCreateData;
+import com.tong.fpl.domain.data.letletme.tournament.TournamentCreateData;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;

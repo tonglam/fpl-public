@@ -1,7 +1,7 @@
 package com.tong.fpl.api;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.tong.fpl.domain.data.letletme.PlayerData;
+import com.tong.fpl.domain.data.letletme.player.PlayerData;
 
 /**
  * Create by tong on 2020/8/15

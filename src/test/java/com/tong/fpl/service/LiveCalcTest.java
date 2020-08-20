@@ -3,7 +3,7 @@ package com.tong.fpl.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Maps;
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.data.letletme.LiveCalaData;
+import com.tong.fpl.domain.data.letletme.api.LiveCalaData;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.service.db.PlayerService;
 import org.junit.jupiter.params.ParameterizedTest;

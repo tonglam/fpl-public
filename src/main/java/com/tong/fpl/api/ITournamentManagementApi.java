@@ -1,7 +1,7 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.data.letletme.QueryParam;
-import com.tong.fpl.domain.data.letletme.TournamentCreateData;
+import com.tong.fpl.domain.data.letletme.global.QueryParam;
+import com.tong.fpl.domain.data.letletme.tournament.TournamentCreateData;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
 
 import java.util.List;

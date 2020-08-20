@@ -3,8 +3,8 @@ package com.tong.fpl.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.domain.data.letletme.TournamentKnockoutNextRoundData;
-import com.tong.fpl.domain.data.letletme.TournamentKnockoutResultData;
+import com.tong.fpl.domain.data.letletme.tournament.TournamentKnockoutNextRoundData;
+import com.tong.fpl.domain.data.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
@@ -72,13 +72,13 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 		entryInfoList.parallelStream().forEach(entryInfoEntity -> {
 			Optional<EntryRes> entryRes = this.staticSerive.getEntry(entryInfoEntity.getEntry());
 			entryRes.ifPresent(entry -> updateEntryInfoList.add(entryInfoEntity
-//					.setEntryName(entry.getName())
-//					.setPlayerName(entry.getPlayerFirstName() + " " + entry.getPlayerLastName())
-//					.setOverallPoints(entry.getSummaryOverallPoints())
-							.setOverallRank(entry.getSummaryOverallRank())
-//					.setBank(entry.getLastDeadlineBank())
-//					.setTeamValue(entry.getLastDeadlineValue())
-//					.setTotalTransfers(entry.getLastDeadlineTotalTransfers())
+					.setEntryName(entry.getName())
+					.setPlayerName(entry.getPlayerFirstName() + " " + entry.getPlayerLastName())
+					.setOverallPoints(entry.getSummaryOverallPoints())
+					.setOverallRank(entry.getSummaryOverallRank())
+					.setBank(entry.getLastDeadlineBank())
+					.setTeamValue(entry.getLastDeadlineValue())
+					.setTotalTransfers(entry.getLastDeadlineTotalTransfers())
 			));
 		});
 		// update

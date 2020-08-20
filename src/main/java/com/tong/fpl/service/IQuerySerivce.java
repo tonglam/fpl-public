@@ -1,9 +1,9 @@
 package com.tong.fpl.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.tong.fpl.domain.data.letletme.EntryEventData;
-import com.tong.fpl.domain.data.letletme.PlayerData;
-import com.tong.fpl.domain.data.letletme.PlayerValueData;
+import com.tong.fpl.domain.data.letletme.api.EntryEventData;
+import com.tong.fpl.domain.data.letletme.player.PlayerData;
+import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 
@@ -14,18 +14,20 @@ import java.util.List;
  */
 public interface IQuerySerivce {
 
-    List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
+	List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
 
-    EntryEventData qryEntryResult(String season, int entry);
+	EntryEventData qryEntryResult(String season, int entry);
 
-    EntryEventData qryEntryEventResult(String season, int event, int entry);
+	EntryEventData qryEntryEventResult(String season, int event, int entry);
 
-    List<EventLiveEntity> qryEventLiveAll(String season, int element);
+	List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-    List<EventLiveEntity> qryEventLive(String season, int event, int element);
+	List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-    Page<PlayerData> qryPlayerDataList(long current, long size);
+	PlayerData qryPlayerData(int element);
 
-    PlayerEntity qryPlayerInfo(String season, int element);
+	Page<PlayerData> qryPagePlayerDataList(long current, long size);
+
+	PlayerEntity qryPlayerInfo(String season, int element);
 
 }

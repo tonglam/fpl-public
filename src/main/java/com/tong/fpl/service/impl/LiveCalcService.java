@@ -1,6 +1,7 @@
 package com.tong.fpl.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -9,8 +10,8 @@ import com.tong.fpl.config.collector.ElementLiveCollector;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.PositionRule;
-import com.tong.fpl.domain.data.letletme.ElementLiveData;
-import com.tong.fpl.domain.data.letletme.LiveCalaData;
+import com.tong.fpl.domain.data.letletme.api.ElementLiveData;
+import com.tong.fpl.domain.data.letletme.api.LiveCalaData;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
@@ -90,7 +91,7 @@ public class LiveCalcService implements ILiveCalcService {
 			EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
 					.eq(EventLiveEntity::getEvent, event).eq(EventLiveEntity::getElement, element));
 			if (eventLiveEntity != null) {
-				BeanUtil.copyProperties(eventLiveEntity, elementLiveData);
+				BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
 			}
 			elementLiveData.setGwStarted(this.isFixtureStarted(event, element));
 			elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
@@ -157,7 +158,7 @@ public class LiveCalcService implements ILiveCalcService {
 			EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
 					.eq(EventLiveEntity::getEvent, event).eq(EventLiveEntity::getElement, element));
 			if (eventLiveEntity != null) {
-				BeanUtil.copyProperties(eventLiveEntity, elementLiveData);
+				BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
 			}
 			elementLiveData.setGwStarted(this.isFixtureStarted(event, element));
 			elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);

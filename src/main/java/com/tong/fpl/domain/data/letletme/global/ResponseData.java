@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.data.letletme;
+package com.tong.fpl.domain.data.letletme.global;
 
 import com.tong.fpl.constant.Constant;
 import lombok.Data;

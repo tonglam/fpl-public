@@ -1,15 +1,15 @@
-package com.tong.fpl.domain.data.letletme;
+package com.tong.fpl.domain.data.letletme.player;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
+/**
+ * Create by tong on 2020/8/20
+ */
 @Data
-public class PlayerData {
+@Accessors(chain = true)
+public class PlayerCurrentData {
 
-	private int element;
-	private String webName;
-	private String elementTypeName;
-	private String teamName;
-	private int value;
 	private String selectedByPercent;
 	private int chanceOfPlayingNextRound;
 	private int chanceOfPlayingThisRound;

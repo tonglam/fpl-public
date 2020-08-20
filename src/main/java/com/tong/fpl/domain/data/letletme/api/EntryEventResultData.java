@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.data.letletme;
+package com.tong.fpl.domain.data.letletme.api;
 
 import com.tong.fpl.domain.data.userpick.Pick;
 import lombok.Data;

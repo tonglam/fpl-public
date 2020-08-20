@@ -1,7 +1,7 @@
 package com.tong.fpl.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.tong.fpl.domain.data.letletme.QueryParam;
+import com.tong.fpl.domain.data.letletme.global.QueryParam;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import org.apache.ibatis.annotations.Select;
 

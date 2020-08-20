@@ -1,8 +1,8 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.data.letletme.EntryEventData;
-import com.tong.fpl.domain.data.letletme.PlayerValueData;
+import com.tong.fpl.domain.data.letletme.api.EntryEventData;
+import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;

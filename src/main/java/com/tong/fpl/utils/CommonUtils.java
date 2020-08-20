@@ -5,9 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.Position;
-import com.tong.fpl.domain.data.response.UserHistoryRes;
-import com.tong.fpl.domain.data.userHistory.Current;
-import com.tong.fpl.domain.data.userHistory.HistoryChips;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EventEntity;
@@ -38,26 +35,9 @@ public class CommonUtils {
 	private static EventService eventService;
 	private static EntryEventResultService entryEventResultService;
 
-	public static String getCapitalLetterFromNum(int number) {
-		return (char) (number + 64) + "";
-	}
-
 	public static int getRealGw(String inputGw) {
 		return inputGw.contains("GW") ? Integer.parseInt(StringUtils.substringAfter(inputGw, "GW"))
 				: Integer.parseInt(inputGw);
-	}
-
-	public static boolean checkActive(int event, UserHistoryRes historyRes) {
-		List<Integer> lastEvents = Lists.newArrayList(event - 2, event - 1, event);
-		return (checkActiveTransfer(historyRes.getCurrent(), lastEvents)) || (checkActiveChips(historyRes.getChips(), lastEvents));
-	}
-
-	private static boolean checkActiveTransfer(List<Current> currents, List<Integer> lastEvents) {
-		return currents.stream().filter(current -> lastEvents.contains(current.getEvent())).anyMatch(current -> current.getEventTransfers() > 0);
-	}
-
-	private static boolean checkActiveChips(List<HistoryChips> chips, List<Integer> lastEvents) {
-		return chips.stream().anyMatch(chip -> lastEvents.contains(chip.getEvent()));
 	}
 
 	public static int getCurrentEvent() {
@@ -103,6 +83,7 @@ public class CommonUtils {
 		return getPickListFromPicks(eventPick);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<Pick> getPickListFromPicks(String picks) {
 		List<Pick> pickList = (List<Pick>) JsonUtils.json2Collection(picks, List.class, Pick.class);
 		if (CollectionUtils.isEmpty(pickList)) {

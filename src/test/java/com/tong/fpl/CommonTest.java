@@ -3,7 +3,6 @@ package com.tong.fpl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.utils.CommonUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -42,7 +41,7 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		System.out.println(CommonUtils.getCurrentSeason());
+		System.out.println(System.currentTimeMillis() / 1000);
 	}
 
 	@Test

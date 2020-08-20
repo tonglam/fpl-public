@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 /**
  * Create by tong on 2020/1/20
@@ -27,6 +28,12 @@ public class StaticTest extends FplApplicationTests {
 	@Test
 	void insertEvents() {
 		this.staticService.insertEvent();
+	}
+
+	@ParameterizedTest
+	@ValueSource(ints = {1})
+	void insertEventsFixture(int event) {
+		this.staticService.insertEventFixture(event);
 	}
 
 	@Test
@@ -51,10 +58,12 @@ public class StaticTest extends FplApplicationTests {
 		}
 	}
 
-	@ParameterizedTest
-	@CsvSource({"47"})
-	void insertGwFixture(int event) {
-		this.staticService.insertEventFixture(event);
+	@Test
+	void insertGwFixture() {
+		IntStream.range(1, 39).forEach(event -> {
+			this.staticService.insertEventFixture(event);
+			System.out.println("end gw: " + event);
+		});
 	}
 
 	@ParameterizedTest

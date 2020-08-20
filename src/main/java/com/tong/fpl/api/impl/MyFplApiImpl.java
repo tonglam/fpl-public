@@ -2,7 +2,7 @@ package com.tong.fpl.api.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.api.IMyFplApi;
-import com.tong.fpl.domain.data.letletme.PlayerData;
+import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.service.IQuerySerivce;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class MyFplApiImpl implements IMyFplApi {
 
     @Override
     public Page<PlayerData> qryPlayerDataList(long current, long size) {
-        return this.querySerivce.qryPlayerDataList(current, size);
+        return this.querySerivce.qryPagePlayerDataList(current, size);
     }
 
 }
