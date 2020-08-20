@@ -2,6 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.data.letletme.api.EntryEventData;
+import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -25,6 +26,13 @@ public class QueryTest extends FplApplicationTests {
     @CsvSource({"1920, 1, 1404"})
     void qryEntryEvent(String season, int event, int entry) {
         EntryEventData entryEventData = this.querySerivce.qryEntryEventResult(season, event, entry);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"254"})
+    void qryPlayerData(int element) {
+        PlayerData playerData = this.querySerivce.qryPlayerData(element);
         System.out.println(1);
     }
 

@@ -9,7 +9,7 @@ public class PlayerData {
 
 	private PlayerInfoData infoData;
 	private List<PlayerFixtureData> fixtureDataList;
-	private PlayerCurrentData currentSeasonData;
-	private List<PlayerHistoryData> historySeasonDataList;
+	private PlayerDetailData currentSeason;
+	private List<PlayerDetailData> historySeasonList;
 
 }

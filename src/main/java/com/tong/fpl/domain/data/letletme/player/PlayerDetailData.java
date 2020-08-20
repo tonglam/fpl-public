@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class PlayerCurrentData {
+public class PlayerDetailData {
 
 	private String selectedByPercent;
 	private int chanceOfPlayingNextRound;

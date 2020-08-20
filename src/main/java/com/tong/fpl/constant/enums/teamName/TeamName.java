@@ -10,7 +10,7 @@ import java.util.stream.Stream;
  */
 @Getter
 @AllArgsConstructor
-public enum TeamName_2021 {
+public enum TeamName {
 
     Arsenal(1, "ARS"),
     AstonVilla(2, "AVL"),
@@ -36,8 +36,8 @@ public enum TeamName_2021 {
     private final int teamId;
     private final String shortName;
 
-    public static TeamName_2021 getTeamNameFromId(int teamId) {
-        return Stream.of(TeamName_2021.values())
+    public static TeamName getTeamNameFromId(int teamId) {
+        return Stream.of(TeamName.values())
                 .filter(o -> o.getTeamId() == teamId)
                 .findFirst()
                 .orElse(null);

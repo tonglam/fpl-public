@@ -11,7 +11,8 @@ import lombok.experimental.Accessors;
 public class PlayerFixtureData {
 
 	private int event;
-	private String playAgainstTeam;
+	private String againstTeam;
+	private String AgainstTeamShortName;
 	private String kickoffTime;
 	private int difficulty;
 	private boolean wasHome;
