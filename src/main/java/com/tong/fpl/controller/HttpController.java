@@ -85,7 +85,7 @@ public class HttpController {
     @TraceHttpCall
     @GetMapping("/qryPlayerData")
     @ResponseBody
-    public PlayerData qryPlayerData(@RequestParam PlayerQueryParam playerQueryParam) throws Exception {
+    public PlayerData qryPlayerData(@RequestBody PlayerQueryParam playerQueryParam) throws Exception {
         return this.httpApi.qryPlayerData(playerQueryParam);
     }
 
