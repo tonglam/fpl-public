@@ -62,8 +62,8 @@ public class HttpApiImpl implements IHttpApi {
 	}
 
 	@Override
-	public List<PlayerData> qryAllPlayers() {
-		return this.querySerivce.qryAllPlayers();
+	public List<PlayerData> qryAllPlayers(String season) {
+		return this.querySerivce.qryAllPlayers(season);
 	}
 
 }

@@ -27,6 +27,6 @@ public interface IQuerySerivce {
 
 	Page<PlayerData> qryPagePlayerDataList(long current, long size);
 
-    List<PlayerData> qryAllPlayers();
+    List<PlayerData> qryAllPlayers(String season);
 
 }

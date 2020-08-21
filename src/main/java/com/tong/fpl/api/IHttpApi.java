@@ -26,6 +26,6 @@ public interface IHttpApi {
 
     PlayerData qryPlayerData(int element);
 
-    List<PlayerData> qryAllPlayers();
+    List<PlayerData> qryAllPlayers(String season);
 
 }

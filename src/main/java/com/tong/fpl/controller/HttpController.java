@@ -63,7 +63,7 @@ public class HttpController {
     @TraceHttpCall
     @GetMapping("/qryLivePointsByElementList")
     @ResponseBody
-    public LiveCalaData qryLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
+    public LiveCalaData qryLivePointsByElementList(@RequestParam int event, @RequestParam Map<Integer, Integer> elementMap, @RequestParam int captain, @RequestParam int viceCaptain) {
         return liveCalcApi.calcLivePointsByElementList(event, elementMap, captain, viceCaptain);
     }
 
@@ -84,15 +84,15 @@ public class HttpController {
     @TraceHttpCall
     @GetMapping("/qryPlayerData")
     @ResponseBody
-    public PlayerData qryPlayerData(int element) {
+    public PlayerData qryPlayerData(@RequestParam int element) {
         return this.httpApi.qryPlayerData(element);
     }
 
     @TraceHttpCall
     @GetMapping("/qryAllPlayers")
     @ResponseBody
-    public List<PlayerData> qryAllPlayers() {
-        return this.httpApi.qryAllPlayers();
+    public List<PlayerData> qryAllPlayers(@RequestParam String season) {
+        return this.httpApi.qryAllPlayers(season);
     }
 
 }
