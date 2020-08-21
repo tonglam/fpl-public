@@ -131,6 +131,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		PlayerData playerData = new PlayerData();
 		playerData.setInfoData(new PlayerInfoData()
 				.setElement(playerEntity.getElement())
+				.setCode(playerEntity.getCode())
 				.setWebName(playerEntity.getWebName())
 				.setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()).name())
 				.setTeamId(playerEntity.getTeamId())
@@ -195,7 +196,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 
 	private PlayerDetailData setHistorySeasonData(PlayerData playerData) {
 		PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
-				.eq(PlayerEntity::getWebName, playerData.getInfoData().getWebName()));
+				.eq(PlayerEntity::getCode, playerData.getInfoData().getCode()));
 		if (playerEntity == null) {
 			return null;
 		}

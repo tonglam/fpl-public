@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 public class PlayerInfoData {
 
 	private int element;
+	private int code;
 	private String webName;
 	private String elementTypeName;
 	private int teamId;
