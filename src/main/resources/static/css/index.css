@@ -1,17 +1,5 @@
-.index-content {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%);
-}
-
-.layui-anim {
-    position: absolute;
-    top: 90%;
-    transform: translate(-10%);
-}
-
 .site-content {
-    width: 899px;
-    min-height: 600px;
+    width: 900px;
+    min-height: 580px;
     padding: 20px 0 10px 20px;
 }

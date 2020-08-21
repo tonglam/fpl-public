@@ -24,6 +24,7 @@
 </head>
 
 <body>
+
 <!-- header -->
 <div class="layui-header header header-doc" th:fragment="topnav">
     <div class="layui-main">
@@ -33,8 +34,8 @@
             <li class="layui-nav-item">
                 <a href="javascript:void(0)">自定义赛事</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="/tournament/create" target="_blank">创建赛事</a></dd>
-                    <dd><a href="" target="_blank">管理赛事</a></dd>
+                    <dd><a href="/tournament/create">创建赛事</a></dd>
+                    <dd><a href="">管理赛事</a></dd>
                     <dd><a href="" target="_blank">查看赛果</a></dd>
                     <dd><a href="/tournament/rule" target="_blank">规则</a></dd>
                 </dl>
@@ -42,25 +43,25 @@
             <li class="layui-nav-item">
                 <a href="javascript:void(0)">我的fpl</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="/my_fpl/pick" target="_blank">阵容选择</a></dd>
-                    <dd><a href="" target="_blank">得分查看</a></dd>
-                    <dd><a href="" target="_blank">历史分析</a></dd>
+                    <dd><a href="/my_fpl/pick">阵容选择</a></dd>
+                    <dd><a href="">得分查看</a></dd>
+                    <dd><a href="">历史分析</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item">
                 <a href="javascript:void(0)">实时结果</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="" target="_blank">实时得分</a></dd>
-                    <dd><a href="" target="_blank">小联赛实时排名</a></dd>
+                    <dd><a href="">实时得分</a></dd>
+                    <dd><a href="">小联赛实时排名</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item">
                 <a href="javascript:void(0)">数据查询</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="" target="_blank">比赛数据</a></dd>
-                    <dd><a href="" target="_blank">球员数据</a></dd>
-                    <dd><a href="" target="_blank">fpl数据</a></dd>
-                    <dd><a href="" target="_blank">身价变化</a></dd>
+                    <dd><a href="">比赛数据</a></dd>
+                    <dd><a href="">球员数据</a></dd>
+                    <dd><a href="">fpl数据</a></dd>
+                    <dd><a href="">身价变化</a></dd>
                 </dl>
             </li>
 
@@ -105,62 +106,61 @@
         let $ = layui.jquery;
         $("#teamIdBtn").on('click', function () {
             let btn = $("#teamIdBtn");
-            let index = layer.prompt(
-                {
-                    title: '更换team_id',
-                    offset: '100px',
-                    shade: 0.8,
-                    shadeClose: true,
-                    success: function (layero) {
-                        // 回车
-                        this.enterConfirm = function (event) {
-                            if (event.keyCode === 13) {
-                                $(".layui-layer-btn0").click();
-                                return false;
-                            }
-                        };
-                        // esc
-                        this.escQuit = function (event) {
-                            if (event.keyCode === 0x1B) {
-                                layer.close(index);
-                                return false;
-                            }
+            let index = layer.prompt({
+                title: '更换team_id',
+                offset: '100px',
+                shade: 0.8,
+                shadeClose: true,
+                success: function (layero) {
+                    // 回车
+                    this.enterConfirm = function (event) {
+                        if (event.keyCode === 13) {
+                            $(".layui-layer-btn0").click();
+                            return false;
                         }
-                        $(document).on('keyup', this.enterConfirm);
-                        $(document).on('keyup', this.escQuit);
-                        // 确认按钮
-                        $(".layui-layer-btn0").on("click", function () {
-                            // 校验
-                            let entry = layero.find("input").val();
-                            if (entry == btn.html()) {
-                                layer.msg('team_id没有改变', {offset: '100px', shade: 0.8, shadeClose: true, time: 1500});
-                                layer.close(index);
-                                return false;
-                            } else if (!new RegExp("^[1-9]\\d*$").test(entry)) {
-                                layer.msg('team_id需为正整数', {offset: '100px', shade: 0.8, shadeClose: true, time: 1500});
-                                layer.close(index);
-                                return false;
-                            }
-                            // 回填
-                            btn.text(entry);
-                            // 保存
-                            axios.get('/saveEntry?entry=' + entry);
-                            // 关闭
-                            layer.msg('team_id更新成功', {
-                                offset: '100px',
-                                icon: 6,
-                                shade: 0.8,
-                                shadeClose: true,
-                                time: 1500
-                            });
+                    };
+                    // esc
+                    this.escQuit = function (event) {
+                        if (event.keyCode === 0x1B) {
                             layer.close(index);
-                        })
-                    },
-                    end: function () {
-                        $(document).off('keydown', this.enterConfirm);
-                        $(document).off('keydown', this.escQuit);
+                            return false;
+                        }
                     }
-                });
+                    $(document).on('keyup', this.enterConfirm);
+                    $(document).on('keyup', this.escQuit);
+                    // 确认按钮
+                    $(".layui-layer-btn0").on("click", function () {
+                        // 校验
+                        let entry = layero.find("input").val();
+                        if (entry == btn.html()) {
+                            layer.msg('team_id没有改变', {offset: '100px', shade: 0.8, shadeClose: true, time: 1500});
+                            layer.close(index);
+                            return false;
+                        } else if (!new RegExp("^[1-9]\\d*$").test(entry)) {
+                            layer.msg('team_id需为正整数', {offset: '100px', shade: 0.8, shadeClose: true, time: 1500});
+                            layer.close(index);
+                            return false;
+                        }
+                        // 回填
+                        btn.text(entry);
+                        // 保存
+                        axios.get('/saveEntry?entry=' + entry);
+                        // 关闭
+                        layer.msg('team_id更新成功', {
+                            offset: '100px',
+                            icon: 6,
+                            shade: 0.8,
+                            shadeClose: true,
+                            time: 1500
+                        });
+                        layer.close(index);
+                    })
+                },
+                end: function () {
+                    $(document).off('keydown', this.enterConfirm);
+                    $(document).off('keydown', this.escQuit);
+                }
+            });
         });
     });
 </script>

@@ -6,6 +6,7 @@ import com.tong.fpl.api.ILiveCalcApi;
 import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.api.LiveCalaData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
+import com.tong.fpl.domain.data.letletme.player.PlayerQueryParam;
 import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import lombok.RequiredArgsConstructor;
@@ -84,8 +85,8 @@ public class HttpController {
     @TraceHttpCall
     @GetMapping("/qryPlayerData")
     @ResponseBody
-    public PlayerData qryPlayerData(@RequestParam int element) {
-        return this.httpApi.qryPlayerData(element);
+    public PlayerData qryPlayerData(@RequestParam PlayerQueryParam playerQueryParam) throws Exception {
+        return this.httpApi.qryPlayerData(playerQueryParam);
     }
 
     @TraceHttpCall

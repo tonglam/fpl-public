@@ -3,6 +3,7 @@ package com.tong.fpl.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
+import com.tong.fpl.domain.data.letletme.player.PlayerQueryParam;
 import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 
@@ -23,10 +24,10 @@ public interface IQuerySerivce {
 
 	List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-	PlayerData qryPlayerData(int element);
+	PlayerData qryPlayerData(PlayerQueryParam playerQueryParam) throws Exception;
 
 	Page<PlayerData> qryPagePlayerDataList(long current, long size);
 
-    List<PlayerData> qryAllPlayers(String season);
+	List<PlayerData> qryAllPlayers(String season);
 
 }

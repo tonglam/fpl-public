@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="layout::header(~{::title},~{::link})">
     <title>letletme</title>
-    <link id="a" rel="stylesheet" th:href="@{/css/timeTo.css}"/>
+    <link rel="stylesheet" th:href="@{/css/timeTo.css}"/>
     <link rel="stylesheet" th:href="@{/css/index.css}"/>
 </head>
 
@@ -14,49 +14,38 @@
     <div class="layui-main">
         <div class="site-content">
 
+            <div class="layui-row">
 
-            <div class="index-content">
+                <div class="layui-col-md8 layui-col-md-offset4">
 
-                <div style="font-size: 30px" th:text="'下一个比赛周：GW'+${nextGw}"></div>
-                <br>
-                <div style="font-size: 30px" th:text="'deadline：'+${deadline}"></div>
-                <br>
-
-                <div class="timeTo timeTo-blue" id="countdown"></div>
-
-
-                <form class="layui-form" lay-filter="startForm">
-
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">team_id</label>
-                        <div class="layui-input-inline">
-                            <input class="layui-input" name="knockoutRounds" placeholder="请输入球队id"
-                                   type="number">
-                        </div>
+                    <div class="layui-col-md12 layui-col-md-offset4" id="letletme">
+                        <img style="width: 150px;height: 150px" th:src="@{/img/begbeg.jpg}">
                     </div>
 
-                    <div class="layui-form-item">
-                        <div class="layui-input-block">
+                    <div class="layui-col-md12" style="margin-top: 30px">
+                        <div class="layui-form-item layui-col-md-offset3">
+                            <div class="layui-input-inline">
+                                <input class="layui-input" name="knockoutRounds" placeholder="请输入球队id">
+                            </div>
                             <button class="layui-btn" id="submitButton" lay-filter="startnament"
                                     lay-submit="createTournament" type="submit">开始
                             </button>
                         </div>
                     </div>
 
-                    <br>
-                    <br>
-                    <br>
-                    <br>
+                    <div class="layui-col-md12 layui-col-md-offset1" style="font-size: 30px;margin-top: 30px"
+                         th:text="'GW'+${nextGw}+' deadline：'+${deadline}"></div>
 
-                    <div id="letletme">
-                        <div class="layui-anim layui-anim-scaleSpring layui-anim-loop"
-                             style="font-size: 30px;color: red;">
-                            让让我吧
-                        </div>
-                        <img th:href="@{/img/begbeg.jpg}">
+                    <div class="layui-col-md12 layui-col-md-offset2 timeTo timeTo-blue" id="countdown"
+                         style="margin-top: 30px"></div>
+                </div>
+
+                <div class="layui-col-md12 layui-col-md-offset5" style="margin-top: 100px">
+                    <div class="layui-anim layui-anim-scaleSpring layui-anim-loop"
+                         style="font-size: 30px;color: red;">
+                        让让我吧
                     </div>
-
-                </form>
+                </div>
 
             </div>
 
@@ -82,6 +71,12 @@
         fontSize: 48,
         captionSize: 20,
         lang: 'cn'
+    });
+</script>
+
+<script>
+    $("#submitButton").on('click', function () {
+        $("#teamIdBtn").trigger("click");
     });
 </script>
 
