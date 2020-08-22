@@ -140,7 +140,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 
     private PlayerData qryPlayerData(PlayerEntity playerEntity) {
         // info
-        PlayerData playerData = this.setPlayerInfo(playerEntity);
+        PlayerData playerData = this.setPlayerInfo(CommonUtils.getCurrentSeason(), playerEntity);
         // fixture, next 5 gw
         this.setPlayerFixture(playerData);
         // current season data
@@ -150,7 +150,7 @@ public class QueryServiceImpl implements IQuerySerivce {
         return playerData;
     }
 
-    private PlayerData setPlayerInfo(PlayerEntity playerEntity) {
+    private PlayerData setPlayerInfo(String season, PlayerEntity playerEntity) {
         PlayerData playerData = new PlayerData();
         playerData.setInfoData(new PlayerInfoData()
                 .setElement(playerEntity.getElement())
@@ -158,7 +158,7 @@ public class QueryServiceImpl implements IQuerySerivce {
                 .setWebName(playerEntity.getWebName())
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()).name())
                 .setTeamId(playerEntity.getTeamId())
-                .setTeamName(CommonUtils.getTeamNameByTeamId(CommonUtils.getCurrentSeason(), playerEntity.getTeamId()))
+                .setTeamName(CommonUtils.getTeamNameByTeamId(season, playerEntity.getTeamId()))
                 .setPrice(playerEntity.getPrice())
         );
         return playerData;
@@ -242,7 +242,7 @@ public class QueryServiceImpl implements IQuerySerivce {
         List<PlayerData> list = Lists.newArrayList();
         MybatisPlusConfig.season.set(season);
         List<PlayerEntity> playerEntityList = this.playerService.list();
-        playerEntityList.forEach(playerEntity -> list.add(this.setPlayerInfo(playerEntity)));
+        playerEntityList.forEach(playerEntity -> list.add(this.setPlayerInfo(season, playerEntity)));
         MybatisPlusConfig.season.remove();
         return list;
     }
