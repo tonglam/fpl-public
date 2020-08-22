@@ -24,91 +24,88 @@ import java.util.stream.Collectors;
  */
 public class DBTest extends FplApplicationTests {
 
-	@Autowired
-	private EntryInfoService entryInfoService;
-	@Autowired
-	private TournamentEntryService tournamentEntryService;
-	@Autowired
-	private EntryEventResultService entryEventResultService;
-	@Autowired
-	private TournamentKnockoutResultService tournamentKnockoutResultService;
-	@Autowired
-	private PlayerService playerService;
-	@Autowired
-	private TournamentInfoService tournamentInfoService;
+    @Autowired
+    private EntryInfoService entryInfoService;
+    @Autowired
+    private TournamentEntryService tournamentEntryService;
+    @Autowired
+    private EntryEventResultService entryEventResultService;
+    @Autowired
+    private TournamentKnockoutResultService tournamentKnockoutResultService;
+    @Autowired
+    private PlayerService playerService;
 
-	@Test
-	void test1() {
-		int entry = 1404;
-		List<TournamentKnockoutResultEntity> knockoutResultList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-				.eq(TournamentKnockoutResultEntity::getTournamentId, 1)
-				.eq(TournamentKnockoutResultEntity::getEvent, 1)
-				.and(o -> o.eq(TournamentKnockoutResultEntity::getHomeEntry, entry)
-						.or(i -> i.eq(TournamentKnockoutResultEntity::getAwayEntry, entry)
-						))
-				.orderByAsc(TournamentKnockoutResultEntity::getMatchId));
-		System.out.println(1);
-	}
+    @Test
+    void test1() {
+        int entry = 1404;
+        List<TournamentKnockoutResultEntity> knockoutResultList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
+                .eq(TournamentKnockoutResultEntity::getTournamentId, 1)
+                .eq(TournamentKnockoutResultEntity::getEvent, 1)
+                .and(o -> o.eq(TournamentKnockoutResultEntity::getHomeEntry, entry)
+                        .or(i -> i.eq(TournamentKnockoutResultEntity::getAwayEntry, entry)
+                        ))
+                .orderByAsc(TournamentKnockoutResultEntity::getMatchId));
+        System.out.println(1);
+    }
 
-	@Test
-	void test2() {
-		List<EntryInfoEntity> entryInfoList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
-				.orderByAsc(EntryInfoEntity::getOverallRank).last("limit 1000"));
-		System.out.println(1);
-	}
+    @Test
+    void test2() {
+        List<EntryInfoEntity> entryInfoList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+                .orderByAsc(EntryInfoEntity::getOverallRank).last("limit 1000"));
+        System.out.println(1);
+    }
 
-	@Test
-	void test3() {
-		List<PlayerEntity> list = this.playerService.list();
-		List<String> names = list.stream()
-				.filter(playerEntity -> playerEntity.getChanceOfPlayingNextRound() != 0)
-				.filter(playerEntity -> playerEntity.getElementType() == 1)
-				.map(playerEntity -> playerEntity.getFirstName() + "-" + playerEntity.getSecondName())
-				.sorted(Comparator.comparing(String::length).reversed())
-				.limit(2)
-				.collect(Collectors.toList());
-		System.out.println(names.toString());
-	}
+    @Test
+    void test3() {
+        List<PlayerEntity> list = this.playerService.list();
+        List<String> names = list.stream()
+                .filter(playerEntity -> playerEntity.getChanceOfPlayingNextRound() != 0)
+                .filter(playerEntity -> playerEntity.getElementType() == 1)
+                .map(playerEntity -> playerEntity.getFirstName() + "-" + playerEntity.getSecondName())
+                .sorted(Comparator.comparing(String::length).reversed())
+                .limit(2)
+                .collect(Collectors.toList());
+        System.out.println(names.toString());
+    }
 
-	@Test
-	void test4() {
-		Map<String, Integer> map = Maps.newHashMap();
-		List<TournamentEntryEntity> tournamentEntryEntities = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda().eq(TournamentEntryEntity::getTournamentId, 1));
-		tournamentEntryEntities.forEach(o -> {
-			int total = this.entryEventResultService.sumEntryNetPoint(o.getEntry());
-			map.put(this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getEntry, o.getEntry())).getEntryName(), total);
-		});
-		System.out.println(1);
-	}
+    @Test
+    void test4() {
+        Map<String, Integer> map = Maps.newHashMap();
+        List<TournamentEntryEntity> tournamentEntryEntities = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda().eq(TournamentEntryEntity::getTournamentId, 1));
+        tournamentEntryEntities.forEach(o -> {
+            int total = this.entryEventResultService.sumEntryNetPoint(o.getEntry());
+            map.put(this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda().eq(EntryInfoEntity::getEntry, o.getEntry())).getEntryName(), total);
+        });
+        System.out.println(1);
+    }
 
-	@Test
-	void test5() {
-		List<Pick> picks = CommonUtils.getPickList(42, 1908330);
-		picks.forEach(o -> {
-					if (o.isCaptain()) {
-						System.out.println(o.getWebName() + "-" + 2 * o.getPoints());
-					}
-					System.out.println(o.getWebName() + "-" + o.getPoints());
-				}
-		);
-		System.out.println(1);
-	}
+    @Test
+    void test5() {
+        List<Pick> picks = CommonUtils.getPickList(42, 1908330);
+        picks.forEach(o -> {
+                    if (o.isCaptain()) {
+                        System.out.println(o.getWebName() + "-" + 2 * o.getPoints());
+                    }
+                    System.out.println(o.getWebName() + "-" + o.getPoints());
+                }
+        );
+        System.out.println(1);
+    }
 
-	@Test
-	void page() {
-		Page<PlayerEntity> playerPage = this.playerService.getBaseMapper().selectPage(
-				new Page<>(2, 20, false), new QueryWrapper<>());
-		System.out.println(1);
-	}
+    @Test
+    void page() {
+        Page<PlayerEntity> playerPage = this.playerService.getBaseMapper().selectPage(
+                new Page<>(2, 20, false), new QueryWrapper<>());
+        System.out.println(1);
+    }
 
-	@Test
-	void dynamic() {
+    @Test
+    void dynamic() {
         MybatisPlusConfig.season.set("1920");
         EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>()
                 .lambda()
                 .eq(EntryInfoEntity::getEntry, 1404));
         System.out.println(1);
     }
-
 
 }

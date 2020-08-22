@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.HistorySeason;
 import com.tong.fpl.constant.enums.Position;
-import com.tong.fpl.constant.enums.teamName.TeamName;
 import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.api.EntryEventResultData;
 import com.tong.fpl.domain.data.letletme.player.*;
@@ -159,7 +158,7 @@ public class QueryServiceImpl implements IQuerySerivce {
                 .setWebName(playerEntity.getWebName())
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()).name())
                 .setTeamId(playerEntity.getTeamId())
-                .setTeamName(TeamName.getTeamNameFromId(playerEntity.getTeamId()).name())
+                .setTeamName(CommonUtils.getTeamNameByTeamId(CommonUtils.getCurrentSeason(), playerEntity.getTeamId()))
                 .setPrice(playerEntity.getPrice())
         );
         return playerData;
@@ -176,11 +175,13 @@ public class QueryServiceImpl implements IQuerySerivce {
             );
             eventFixtureEntityList.forEach(eventFixtureEntity -> {
                 boolean wasHome = eventFixtureEntity.getTeamH() == teamId;
-                TeamName playAgainstTeam = wasHome ? TeamName.getTeamNameFromId(teamId) : TeamName.getTeamNameFromId(eventFixtureEntity.getTeamA());
+                String season = CommonUtils.getCurrentSeason();
                 fixtureDataList.add(new PlayerFixtureData()
                         .setEvent(event)
-                        .setAgainstTeam(playAgainstTeam.name())
-                        .setAgainstTeamShortName(playAgainstTeam.getShortName())
+                        .setAgainstTeam(wasHome ?
+                                CommonUtils.getTeamNameByTeamId(season, teamId) : CommonUtils.getTeamNameByTeamId(season, eventFixtureEntity.getTeamA()))
+                        .setAgainstTeamShortName(wasHome ?
+                                CommonUtils.getTeamShortNameByTeamId(season, teamId) : CommonUtils.getTeamShortNameByTeamId(season, eventFixtureEntity.getTeamA()))
                         .setKickoffTime(eventFixtureEntity.getKickoffTime())
                         .setDifficulty(wasHome ? eventFixtureEntity.getTeamHDifficulty() : eventFixtureEntity.getTeamADifficulty())
                         .setWasHome(wasHome)
