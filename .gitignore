@@ -29,3 +29,4 @@ target/
 !/.idea/encodings.xml
 !/.idea/libraries/
 /.idea/
+src/main/resources/.DS_Store
