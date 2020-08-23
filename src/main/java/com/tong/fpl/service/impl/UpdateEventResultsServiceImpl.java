@@ -50,10 +50,6 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 
 	@Override
 	public void updateBaseInfoByEvent(int event) {
-		// 1.player and event
-		this.staticSerive.insertBaseData(event);
-		// 2.event_fixture
-		this.staticSerive.insertEventFixture(event);
 		// 3.entry_info
 		this.updateEntryInfo();
 	}

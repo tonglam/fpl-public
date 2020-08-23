@@ -56,46 +56,9 @@ public class StaticServiceImpl implements IStaticSerive {
     }
 
     @Override
-    public void insertEvent() {
-        Optional<StaticRes> staticRes = this.interfaceService.getBootstrapStaic();
-        staticRes.ifPresent(this::insertEventEntity);
-    }
-
-    @Override
     public void insertPlayerValue() {
         Optional<StaticRes> staticRes = this.interfaceService.getBootstrapStaic();
         staticRes.ifPresent(this::insertPlayerValueEntity);
-    }
-
-    @Override
-    public void insertBaseData(int event) {
-        Optional<StaticRes> staticRes = this.interfaceService.getBootstrapStaic();
-        staticRes.ifPresent(o -> {
-            // player
-            insertPlayerEntity(o);
-            // event
-            insertEventEntity(o);
-            // average score
-            insertAverageEventResult(event, o);
-        });
-    }
-
-    @Override
-    public void insertEventFixture(int event) {
-        this.eventFixtureService.remove(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, event));
-        List<EventFixtureEntity> eventFixtureList = Lists.newArrayList();
-        Optional<List<EventFixturesRes>> eventFixtureResList = this.interfaceService.getEventFixture(event);
-        eventFixtureResList.ifPresent(list -> {
-            list.forEach(o -> {
-                EventFixtureEntity eventFixture = new EventFixtureEntity();
-                BeanUtil.copyProperties(o, eventFixture, CopyOptions.create().ignoreNullValue());
-                eventFixture.setKickoffTime(CommonUtils.getZoneDate(o.getKickoffTime()));
-                eventFixtureList.add(eventFixture);
-            });
-            this.eventFixtureService.saveBatch(eventFixtureList);
-            log.info("insert event_fixture size is " + eventFixtureList.size() + "!");
-            eventFixtureList.clear();
-        });
     }
 
     @Override
@@ -127,6 +90,35 @@ public class StaticServiceImpl implements IStaticSerive {
             log.info("insert event_live size is " + eventLiveList.size() + "!");
             eventLiveList.clear();
         });
+    }
+
+    @Override
+    public void insertAverageEventResult(int event, StaticRes staticRes) {
+        int averageScore = staticRes.getEvents().stream()
+                .filter(o -> o.getId() == event)
+                .map(Event::getAverageEntryScore)
+                .findFirst()
+                .orElse(0);
+        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, -1));
+        if (entryEventResultEntity != null) {
+            entryEventResultEntity.setEventPoints(averageScore).setEventNetPoints(averageScore);
+        } else {
+            entryEventResultEntity = new EntryEventResultEntity()
+                    .setEntry(-1)
+                    .setEvent(event)
+                    .setEventPoints(averageScore)
+                    .setEventTransfers(0)
+                    .setEventTransfersCost(0)
+                    .setEventNetPoints(averageScore)
+                    .setEventBenchPoints(0)
+                    .setEventRank(0)
+                    .setOverallRank(0)
+                    .setEventChip(Chip.NONE.getValue())
+                    .setEventPicks("")
+                    .setEventFinished(this.eventService.getById(event).isFinished());
+        }
+        this.entryEventResultService.saveOrUpdate(entryEventResultEntity);
     }
 
     @Override
@@ -201,48 +193,6 @@ public class StaticServiceImpl implements IStaticSerive {
             return 0;
         }
         return playerValueEntityList.get(0).getValue();
-    }
-
-    private void insertEventEntity(StaticRes staticRes) {
-        this.eventService.remove(new QueryWrapper<EventEntity>().eq("1", 1));
-        List<EventEntity> eventList = Lists.newArrayList();
-        staticRes.getEvents().forEach(bootstrapEvent -> {
-            EventEntity eventEntity = new EventEntity();
-            BeanUtil.copyProperties(bootstrapEvent, eventEntity, CopyOptions.create().ignoreNullValue());
-            eventEntity.setEvent(bootstrapEvent.getId())
-                    .setDeadlineTime(CommonUtils.getZoneDate(bootstrapEvent.getDeadlineTime()));
-            eventList.add(eventEntity);
-        });
-        this.eventService.saveBatch(eventList);
-        log.info("insert event size is " + eventList.size() + "!");
-    }
-
-    public void insertAverageEventResult(int event, StaticRes staticRes) {
-        int averageScore = staticRes.getEvents().stream()
-                .filter(o -> o.getId() == event)
-                .map(Event::getAverageEntryScore)
-                .findFirst()
-                .orElse(0);
-        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, -1));
-        if (entryEventResultEntity != null) {
-            entryEventResultEntity.setEventPoints(averageScore).setEventNetPoints(averageScore);
-        } else {
-            entryEventResultEntity = new EntryEventResultEntity()
-                    .setEntry(-1)
-                    .setEvent(event)
-                    .setEventPoints(averageScore)
-                    .setEventTransfers(0)
-                    .setEventTransfersCost(0)
-                    .setEventNetPoints(averageScore)
-                    .setEventBenchPoints(0)
-                    .setEventRank(0)
-                    .setOverallRank(0)
-                    .setEventChip(Chip.NONE.getValue())
-                    .setEventPicks("")
-                    .setEventFinished(this.eventService.getById(event).isFinished());
-        }
-        this.entryEventResultService.saveOrUpdate(entryEventResultEntity);
     }
 
     public void insertPlayerValueEntity(StaticRes staticRes) {

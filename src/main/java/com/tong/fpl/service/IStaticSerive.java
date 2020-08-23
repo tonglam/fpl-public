@@ -13,19 +13,15 @@ public interface IStaticSerive {
 
     void insertPlayers();
 
-    void insertEvent();
-
     void insertPlayerValue();
 
     void insertPlayerValueEntity(StaticRes staticRes);
 
     void updatePlayerValue();
 
-    void insertBaseData(int event);
-
-    void insertEventFixture(int event);
-
     void insertEventLive(int event);
+
+    void insertAverageEventResult(int event, StaticRes staticRes);
 
     List<EntryInfoEntity> getEntryInfoListFromClassic(int classicId);
 
@@ -33,9 +29,9 @@ public interface IStaticSerive {
 
     List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId);
 
-	List<EntryInfoEntity> getEntryInfoListFromH2hByPage(int h2hId, int page);
+    List<EntryInfoEntity> getEntryInfoListFromH2hByPage(int h2hId, int page);
 
-	Optional<UserPicksRes> getUserPicks(int event, int entry);
+    Optional<UserPicksRes> getUserPicks(int event, int entry);
 
 	Optional<UserHistoryRes> getUserHistory(int entry);
 

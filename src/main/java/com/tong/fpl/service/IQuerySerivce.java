@@ -5,6 +5,7 @@ import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerQueryParam;
 import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.entity.EventEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 
 import java.util.List;
@@ -14,20 +15,22 @@ import java.util.List;
  */
 public interface IQuerySerivce {
 
-	List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
+    EventEntity qryEventEntityByEvent(int event);
 
-	EntryEventData qryEntryResult(String season, int entry);
+    List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
 
-	EntryEventData qryEntryEventResult(String season, int event, int entry);
+    EntryEventData qryEntryResult(String season, int entry);
 
-	List<EventLiveEntity> qryEventLiveAll(String season, int element);
+    EntryEventData qryEntryEventResult(String season, int event, int entry);
 
-	List<EventLiveEntity> qryEventLive(String season, int event, int element);
+    List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-	PlayerData qryPlayerData(PlayerQueryParam playerQueryParam) throws Exception;
+    List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-	Page<PlayerData> qryPagePlayerDataList(long current, long size);
+    PlayerData qryPlayerData(PlayerQueryParam playerQueryParam) throws Exception;
 
-	List<PlayerData> qryAllPlayers(String season);
+    Page<PlayerData> qryPagePlayerDataList(long current, long size);
+
+    List<PlayerData> qryAllPlayers(String season);
 
 }

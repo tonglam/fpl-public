@@ -115,24 +115,23 @@ public class CommonUtils {
                 String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
     }
 
-    public static TeamNameEntity getTeamNameEntityByTeamId(String season, int teamId) {
+    public static TeamNameEntity getTeamNameEntityByTeamId(int teamId) {
         return teamNameService.getOne(new QueryWrapper<TeamNameEntity>()
                 .lambda()
-                .eq(TeamNameEntity::getSeason, season)
                 .eq(TeamNameEntity::getTeamId, teamId)
         );
     }
 
-    public static String getTeamNameByTeamId(String season, int teamId) {
-        TeamNameEntity teamNameEntity = getTeamNameEntityByTeamId(season, teamId);
+    public static String getTeamNameByTeamId(int teamId) {
+        TeamNameEntity teamNameEntity = getTeamNameEntityByTeamId(teamId);
         if (teamNameEntity != null) {
             return teamNameEntity.getName();
         }
         return "";
     }
 
-    public static String getTeamShortNameByTeamId(String season, int teamId) {
-        TeamNameEntity teamNameEntity = getTeamNameEntityByTeamId(season, teamId);
+    public static String getTeamShortNameByTeamId(int teamId) {
+        TeamNameEntity teamNameEntity = getTeamNameEntityByTeamId(teamId);
         if (teamNameEntity != null) {
             return teamNameEntity.getShortName();
         }
@@ -140,7 +139,7 @@ public class CommonUtils {
     }
 
     @Autowired
-    public static void setTeamNameService(TeamNameService teamNameService) {
+    private void setTeamNameService(TeamNameService teamNameService) {
         CommonUtils.teamNameService = teamNameService;
     }
 

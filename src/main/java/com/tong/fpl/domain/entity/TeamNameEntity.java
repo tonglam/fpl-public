@@ -1,5 +1,7 @@
 package com.tong.fpl.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -12,7 +14,7 @@ import lombok.experimental.Accessors;
 @TableName(value = "team_name")
 public class TeamNameEntity {
 
-    private String season;
+    @TableId(type = IdType.INPUT)
     private int teamId;
     private String name;
     private String shortName;
