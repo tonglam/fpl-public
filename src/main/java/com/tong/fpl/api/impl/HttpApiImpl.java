@@ -27,13 +27,13 @@ public class HttpApiImpl implements IHttpApi {
     private final IStaticSerive staticSerive;
 
     @Override
-    public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
-        return this.querySerivce.qryDayChangePlayerValue(changeDate);
+    public void insertPlayerValue() {
+        this.staticSerive.insertPlayerValue();
     }
 
     @Override
-    public void insertPlayerValue() {
-        this.staticSerive.insertPlayerValue();
+    public List<PlayerValueData> qryDayChangePlayerValue(String changeDate) {
+        return this.querySerivce.qryDayChangePlayerValue(changeDate);
     }
 
     @Override

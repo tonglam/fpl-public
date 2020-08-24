@@ -40,7 +40,6 @@ public class HttpController {
     @TraceHttpCall
     @GetMapping("/qryDayChangePlayerValue")
     @ResponseBody
-    @Cacheable(value = "qryDayChangePlayerValue")
     public List<PlayerValueData> qryDayChangePlayerValue(@RequestParam String changeDate) {
         return this.httpApi.qryDayChangePlayerValue(changeDate);
     }
@@ -48,7 +47,6 @@ public class HttpController {
     @TraceHttpCall
     @GetMapping("/qryEntryResult")
     @ResponseBody
-    @Cacheable(value = "qryEntryResult")
     public EntryEventData qryEntryResult(@RequestParam String season, @RequestParam int entry) {
         return this.httpApi.qryEntryResult(season, entry);
     }
@@ -56,7 +54,6 @@ public class HttpController {
     @TraceHttpCall
     @GetMapping("/qryEntryEventResult")
     @ResponseBody
-    @Cacheable(value = "qryEntryEventResult")
     public EntryEventData qryEntryEventResult(@RequestParam String season, @RequestParam int event, @RequestParam int entry) {
         return this.httpApi.qryEntryEventResult(season, event, entry);
     }
