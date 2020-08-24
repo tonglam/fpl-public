@@ -50,12 +50,6 @@ public class StaticServiceImpl implements IStaticSerive {
     private final IInterfaceService interfaceService;
 
     @Override
-    public void insertPlayers() {
-        Optional<StaticRes> staticRes = this.interfaceService.getBootstrapStaic();
-        staticRes.ifPresent(this::insertPlayerEntity);
-    }
-
-    @Override
     public void insertPlayerValue() {
         Optional<StaticRes> staticRes = this.interfaceService.getBootstrapStaic();
         staticRes.ifPresent(this::insertPlayerValueEntity);
@@ -167,32 +161,6 @@ public class StaticServiceImpl implements IStaticSerive {
     @Override
     public Optional<EntryRes> getEntry(int entry) {
         return this.interfaceService.getEntry(entry);
-    }
-
-    private void insertPlayerEntity(StaticRes staticRes) {
-        this.playerService.remove(new QueryWrapper<PlayerEntity>().eq("1", 1));
-        List<PlayerEntity> playerList = Lists.newArrayList();
-        staticRes.getElements().forEach(bootstrapPlayer -> {
-            PlayerEntity playerEntity = new PlayerEntity();
-            playerEntity.setPrice(this.getPlayerCurrentPrice(bootstrapPlayer.getId()));
-            BeanUtil.copyProperties(bootstrapPlayer, playerEntity, CopyOptions.create().ignoreNullValue());
-            playerEntity.setElement(bootstrapPlayer.getId());
-            playerEntity.setTeamId(bootstrapPlayer.getTeam());
-            playerList.add(playerEntity);
-        });
-        this.playerService.saveBatch(playerList);
-        log.info("insert player size is " + playerList.size() + "!");
-    }
-
-    private int getPlayerCurrentPrice(int element) {
-        List<PlayerValueEntity> playerValueEntityList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>()
-                .lambda()
-                .eq(PlayerValueEntity::getElement, element)
-                .orderByDesc(PlayerValueEntity::getUpdateTime));
-        if (CollectionUtils.isEmpty(playerValueEntityList)) {
-            return 0;
-        }
-        return playerValueEntityList.get(0).getValue();
     }
 
     public void insertPlayerValueEntity(StaticRes staticRes) {

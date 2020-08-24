@@ -25,11 +25,6 @@ public class StaticTest extends FplApplicationTests {
 	private IInterfaceService interfaceService;
 
 	@Test
-	void insertPlayers() {
-		this.staticService.insertPlayers();
-	}
-
-	@Test
 	void insertPlayerValue() {
 		this.staticService.insertPlayerValue();
 	}

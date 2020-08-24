@@ -102,9 +102,7 @@ public class DBTest extends FplApplicationTests {
     @Test
     void dynamic() {
         MybatisPlusConfig.season.set("1920");
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>()
-                .lambda()
-                .eq(EntryInfoEntity::getEntry, 1404));
+        List<EntryInfoEntity> entryInfoEntity = this.entryInfoService.list();
         System.out.println(1);
     }
 

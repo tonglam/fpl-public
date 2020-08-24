@@ -11,8 +11,6 @@ import java.util.Optional;
  */
 public interface IStaticSerive {
 
-    void insertPlayers();
-
     void insertPlayerValue();
 
     void insertPlayerValueEntity(StaticRes staticRes);

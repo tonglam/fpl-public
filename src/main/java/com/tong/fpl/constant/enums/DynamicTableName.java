@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum DynamicTableName {
-	Player("player"), Player_Value("player_value"),
+	Team("team"), Player("player"), Player_Value("player_value"),
 	Entry_info("entry_info"), Entry_event_result("entry_event_result"),
 	Event("event"), Event_fixture("event_fixture"), Event_live("event_live");
 

@@ -11,12 +11,12 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "team_name")
-public class TeamNameEntity {
+@TableName(value = "team")
+public class TeamEntity {
 
-    @TableId(type = IdType.INPUT)
-    private int teamId;
-    private String name;
-    private String shortName;
+	@TableId(type = IdType.INPUT)
+	private int id;
+	private String name;
+	private String shortName;
 
 }

@@ -33,7 +33,6 @@ public class HttpApiImpl implements IHttpApi {
 
     @Override
     public void insertPlayerValue() {
-        this.staticSerive.insertPlayers();
         this.staticSerive.insertPlayerValue();
     }
 

@@ -5,14 +5,20 @@ package com.tong.fpl.service;
  */
 public interface ICacheSerive {
 
-    void insertTeamName();
+	void insertTeam();
 
-    void insertEvent();
+	void insertHisTeam(String season);
 
-    void insertEventFixture();
+	void insertEvent();
 
-    void insertPlayers();
+	void insertHisEvent(String season);
 
-    void insertPlayerValue();
+	void insertPlayer();
+
+	void insertHisPlayer(String season);
+
+	void insertEventFixture();
+
+	void insertPlayerValue();
 
 }

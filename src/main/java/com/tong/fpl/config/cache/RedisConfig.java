@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.interceptor.KeyGenerator;
@@ -32,65 +33,70 @@ import java.time.Duration;
 @Configuration
 public class RedisConfig extends CachingConfigurerSupport {
 
-    @Bean
-    public KeyGenerator keyGenerator() {
-        return (target, method, params) -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(target.getClass().getSimpleName())
-                    .append(method.getName())
-                    .append("::");
-            for (Object obj : params) {
-                sb.append(obj.toString());
-            }
-            return sb.toString();
-        };
-    }
+	@Bean
+	public KeyGenerator keyGenerator() {
+		return (target, method, params) -> {
+			StringBuilder sb = new StringBuilder();
+			sb.append(target.getClass().getSimpleName())
+					.append(method.getName())
+					.append("::");
+			for (Object obj : params) {
+				sb.append(obj.toString());
+			}
+			return sb.toString();
+		};
+	}
 
-    @Bean
-    @Primary
-    public CacheManager cacheManager(LettuceConnectionFactory factory) {
-        RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofDays(1))
-                .disableCachingNullValues()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer((valueSerializer())));
-        return RedisCacheManager
-                .builder(RedisCacheWriter.nonLockingRedisCacheWriter(factory))
-                .cacheDefaults(cacheConfig).build();
-    }
+	@Bean("entityKeyGenerator")
+	public KeyGenerator entityKeyGenerator() {
+		return (target, method, params) -> StringUtils.join(params, "::");
+	}
 
-    @Bean
-    @Primary
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-        template.setKeySerializer(this.keySerializer());
-        template.setHashKeySerializer(this.keySerializer());
-        template.setValueSerializer(this.valueSerializer());
-        template.setHashValueSerializer(this.valueSerializer());
-        template.afterPropertiesSet();
-        return template;
-    }
+	@Bean
+	@Primary
+	public CacheManager cacheManager(LettuceConnectionFactory factory) {
+		RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+				.entryTtl(Duration.ofDays(1))
+				.disableCachingNullValues()
+				.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer()))
+				.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer((valueSerializer())));
+		return RedisCacheManager
+				.builder(RedisCacheWriter.nonLockingRedisCacheWriter(factory))
+				.cacheDefaults(cacheConfig).build();
+	}
 
-    @Bean
-    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
-        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
-        stringRedisTemplate.setConnectionFactory(factory);
-        return stringRedisTemplate;
-    }
+	@Bean
+	@Primary
+	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+		RedisTemplate<String, Object> template = new RedisTemplate<>();
+		template.setConnectionFactory(redisConnectionFactory);
+		template.setKeySerializer(this.keySerializer());
+		template.setHashKeySerializer(this.keySerializer());
+		template.setValueSerializer(this.valueSerializer());
+		template.setHashValueSerializer(this.valueSerializer());
+		template.afterPropertiesSet();
+		return template;
+	}
 
-    private RedisSerializer<String> keySerializer() {
-        return new StringRedisSerializer();
-    }
+	@Bean
+	public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
+		StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
+		stringRedisTemplate.setConnectionFactory(factory);
+		return stringRedisTemplate;
+	}
 
-    private RedisSerializer<Object> valueSerializer() {
-        Jackson2JsonRedisSerializer<Object> jacksonSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.WRAPPER_ARRAY);
-        objectMapper.registerModule(new GuavaModule());
-        jacksonSerializer.setObjectMapper(objectMapper);
-        return jacksonSerializer;
-    }
+	private RedisSerializer<String> keySerializer() {
+		return new StringRedisSerializer();
+	}
+
+	private RedisSerializer<Object> valueSerializer() {
+		Jackson2JsonRedisSerializer<Object> jacksonSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+		objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.WRAPPER_ARRAY);
+		objectMapper.registerModule(new GuavaModule());
+		jacksonSerializer.setObjectMapper(objectMapper);
+		return jacksonSerializer;
+	}
 
 }

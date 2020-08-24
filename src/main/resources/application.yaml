@@ -9,7 +9,7 @@ spring:
         min-idle: 0
         max-wait: -1
     password: tongRedis
-    timeout: 2000ms
+    timeout: 5000ms
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://rm-8vb0q5u3t79l9t6bzoo.mysql.zhangbei.rds.aliyuncs.com:3306/fpl?&autoReconnect=true&rewriteBatchedStatements=true&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true

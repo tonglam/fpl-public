@@ -9,11 +9,9 @@ import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EventEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.entity.TeamNameEntity;
 import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EventService;
 import com.tong.fpl.service.db.PlayerService;
-import com.tong.fpl.service.db.TeamNameService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,7 +31,6 @@ import java.util.stream.IntStream;
 @Component
 public class CommonUtils {
 
-    private static TeamNameService teamNameService;
     private static PlayerService playerService;
     private static EventService eventService;
     private static EntryEventResultService entryEventResultService;
@@ -46,7 +43,7 @@ public class CommonUtils {
     public static int getCurrentEvent() {
         int event = 1;
         Map<String, Integer> deadlineMap = CommonUtils.eventService.list()
-                .stream().collect(Collectors.toMap(EventEntity::getDeadlineTime, EventEntity::getEvent));
+                .stream().collect(Collectors.toMap(EventEntity::getDeadlineTime, EventEntity::getId));
         Map<String, Integer> result = new LinkedHashMap<>();
         // sort by value
         deadlineMap.entrySet()
@@ -65,7 +62,7 @@ public class CommonUtils {
     }
 
     public static String getDeadlineTime(int event) {
-        return CommonUtils.eventService.list(new QueryWrapper<EventEntity>().lambda().eq(EventEntity::getEvent, event))
+        return CommonUtils.eventService.list(new QueryWrapper<EventEntity>().lambda().eq(EventEntity::getId, event))
                 .stream()
                 .map(EventEntity::getDeadlineTime)
                 .findFirst()
@@ -113,34 +110,6 @@ public class CommonUtils {
     public static String getCurrentSeason() {
         return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
                 String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
-    }
-
-    public static TeamNameEntity getTeamNameEntityByTeamId(int teamId) {
-        return teamNameService.getOne(new QueryWrapper<TeamNameEntity>()
-                .lambda()
-                .eq(TeamNameEntity::getTeamId, teamId)
-        );
-    }
-
-    public static String getTeamNameByTeamId(int teamId) {
-        TeamNameEntity teamNameEntity = getTeamNameEntityByTeamId(teamId);
-        if (teamNameEntity != null) {
-            return teamNameEntity.getName();
-        }
-        return "";
-    }
-
-    public static String getTeamShortNameByTeamId(int teamId) {
-        TeamNameEntity teamNameEntity = getTeamNameEntityByTeamId(teamId);
-        if (teamNameEntity != null) {
-            return teamNameEntity.getShortName();
-        }
-        return "";
-    }
-
-    @Autowired
-    private void setTeamNameService(TeamNameService teamNameService) {
-        CommonUtils.teamNameService = teamNameService;
     }
 
     @Autowired

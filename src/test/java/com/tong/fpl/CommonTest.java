@@ -3,6 +3,7 @@ package com.tong.fpl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import com.tong.fpl.domain.entity.EventEntity;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -41,7 +42,18 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		System.out.println(System.currentTimeMillis() / 1000);
+		List<EventEntity> list = Lists.newArrayList();
+		EventEntity eventEntity = new EventEntity();
+		eventEntity.setId(1444);
+		list.add(eventEntity);
+		list.forEach(eventEntity1 -> {
+			try {
+				System.out.println(eventEntity1.getClass().getDeclaredField("event").getModifiers());
+			} catch (NoSuchFieldException e) {
+				e.printStackTrace();
+			}
+		});
+		System.out.println(1);
 	}
 
 	@Test

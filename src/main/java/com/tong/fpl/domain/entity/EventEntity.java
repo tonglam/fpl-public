@@ -9,8 +9,8 @@ import lombok.experimental.Accessors;
 @TableName(value = "event")
 public class EventEntity {
 
-	@TableId(value = "`event`", type = IdType.INPUT)
-	private int event;
+	@TableId(type = IdType.INPUT)
+	private int id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private String name;
 	private String deadlineTime;
