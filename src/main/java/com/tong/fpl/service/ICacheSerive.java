@@ -1,35 +1,26 @@
 package com.tong.fpl.service;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * Create by tong on 2020/8/23
  */
 public interface ICacheSerive {
 
-    void insertTeam();
+	void insertTeam();
 
-    void insertHisTeam(String season);
+	void insertHisTeam(String season);
 
-    void insertEvent();
+	void insertEvent();
 
-    void insertHisEvent(String season);
+	void insertHisEvent(String season);
 
-    void insertPlayer();
+	void insertEventFixture();
 
-    void insertHisPlayer(String season);
+	void insertHisEventFixture(String season);
 
-    void insertEventFixture();
+	void insertPlayer();
 
-    void insertPlayerValue();
+	void insertHisPlayer(String season);
 
-    <T> String createKey(T entity, String keyName, Object key);
-
-    <T> String createKey(String season, T entity, String keyName, Object key);
-
-    void setCache(Map<String, Object> cacheMap, long expireSeconds);
-
-    List<Object> getMultiValues(String pattern);
+	void insertPlayerValue();
 
 }

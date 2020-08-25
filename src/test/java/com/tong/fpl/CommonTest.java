@@ -4,6 +4,8 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.tong.fpl.domain.entity.EventEntity;
+import com.tong.fpl.utils.CommonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -42,17 +44,7 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		List<EventEntity> list = Lists.newArrayList();
-		EventEntity eventEntity = new EventEntity();
-		eventEntity.setId(1444);
-		list.add(eventEntity);
-		list.forEach(eventEntity1 -> {
-			try {
-				System.out.println(eventEntity1.getClass().getDeclaredField("event").getModifiers());
-			} catch (NoSuchFieldException e) {
-				e.printStackTrace();
-			}
-		});
+		String a = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
 		System.out.println(1);
 	}
 

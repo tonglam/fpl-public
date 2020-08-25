@@ -16,6 +16,7 @@ import com.tong.fpl.service.ICacheSerive;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
+import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -287,12 +288,12 @@ public class QueryServiceImpl implements IQuerySerivce {
 
     @Override
     public List<PlayerData> qryAllPlayers(String season) {
-        List<PlayerData> list = Lists.newArrayList();
-        List<PlayerEntity> playerEntityList = this.cacheSerive.getMultiValues("PlayerEntity::element::" + season + "*")
-                .stream()
-                .map(o -> (PlayerEntity) o)
-                .sorted(Comparator.comparing(PlayerEntity::getElement))
-                .collect(Collectors.toList());
+	    List<PlayerData> list = Lists.newArrayList();
+	    List<PlayerEntity> playerEntityList = RedisUtils.getMultiValues("PlayerEntity::element::" + season + "*")
+			    .stream()
+			    .map(o -> (PlayerEntity) o)
+			    .sorted(Comparator.comparing(PlayerEntity::getElement))
+			    .collect(Collectors.toList());
         playerEntityList.forEach(playerEntity -> list.add(this.setPlayerInfo(playerEntity)));
         return list;
     }

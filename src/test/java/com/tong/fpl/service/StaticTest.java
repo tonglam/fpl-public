@@ -64,9 +64,5 @@ public class StaticTest extends FplApplicationTests {
 		System.out.println("done!");
 	}
 
-	@Test
-	void temp() {
-
-	}
 
 }
