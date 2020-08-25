@@ -44,17 +44,6 @@ public class CacheTest extends FplApplicationTests {
 	}
 
 	@Test
-	void insertPlayer() {
-		this.cacheSerive.insertPlayer();
-	}
-
-	@ParameterizedTest
-	@CsvSource({"1920"})
-	void insertHisPlayer(String season) {
-		this.cacheSerive.insertHisPlayer(season);
-	}
-
-	@Test
 	void insertEventFixture() {
 		this.cacheSerive.insertEventFixture();
 	}
@@ -63,6 +52,17 @@ public class CacheTest extends FplApplicationTests {
 	@CsvSource({"1920"})
 	void insertHisEventFixture(String season) {
 		this.cacheSerive.insertHisEventFixture(season);
+	}
+
+	@Test
+	void insertPlayer() {
+		this.cacheSerive.insertPlayer();
+	}
+
+	@ParameterizedTest
+	@CsvSource({"1920"})
+	void insertHisPlayer(String season) {
+		this.cacheSerive.insertHisPlayer(season);
 	}
 
 	@Test
