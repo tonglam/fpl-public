@@ -25,12 +25,6 @@ public class PlayerValueEntity {
 	private String changeType;
 	@TableField(value = "`last_value`")
 	private int lastValue;
-	private String selectedByPercent;
-	private String lastSelectedByPercent;
-	private int transfersInEvent;
-	private int transfersOutEvent;
-	private int transfersIn;
-	private int transfersOut;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 

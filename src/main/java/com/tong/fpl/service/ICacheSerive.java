@@ -21,6 +21,8 @@ public interface ICacheSerive {
 
 	void insertHisPlayer(String season);
 
+	void insertPlayerStat();
+
 	void insertPlayerValue();
 
 }

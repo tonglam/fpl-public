@@ -15,8 +15,6 @@ public interface IStaticSerive {
 
     void insertPlayerValueEntity(StaticRes staticRes);
 
-    void updatePlayerValue();
-
     void insertEventLive(int event);
 
     void insertAverageEventResult(int event, StaticRes staticRes);

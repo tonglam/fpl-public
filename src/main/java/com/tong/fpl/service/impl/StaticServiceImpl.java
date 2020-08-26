@@ -19,7 +19,6 @@ import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -184,12 +183,6 @@ public class StaticServiceImpl implements IStaticSerive {
 							.setChangeDate(LocalDate.now().format(DateTimeFormatter.ofPattern(Constant.SHORTDAY)))
 							.setChangeType(this.getChangeType(bootstrapPlayer.getNowCost(), lastValue))
 							.setLastValue(lastValue)
-							.setSelectedByPercent(bootstrapPlayer.getSelectedByPercent())
-							.setLastSelectedByPercent(lastEntity != null ? lastEntity.getSelectedByPercent() : "empty")
-							.setTransfersInEvent(bootstrapPlayer.getTransfersInEvent())
-							.setTransfersOutEvent(bootstrapPlayer.getTransfersOutEvent())
-							.setTransfersIn(bootstrapPlayer.getTransfersIn())
-							.setTransfersOut(bootstrapPlayer.getTransfersOut())
 					);
 				});
 		this.playerValueService.saveBatch(playerValueList);
@@ -202,37 +195,6 @@ public class StaticServiceImpl implements IStaticSerive {
 			updatePlayerList.add(playerEntity);
 		});
 		this.playerService.updateBatchById(updatePlayerList);
-	}
-
-	@Override
-	public void updatePlayerValue() {
-		List<PlayerValueEntity> updatePlayerValueList = Lists.newArrayList();
-		Map<Integer, PlayerValueEntity> playerValueEntityMap = this.playerValueService.list()
-				.stream()
-				.filter(o -> o.getValue() > 0)
-				.collect(new PlayerValueCollector());
-		Optional<StaticRes> result = this.interfaceService.getBootstrapStaic();
-		result.ifPresent(staticRes ->
-				staticRes.getElements().forEach(bootstrapPlayer -> {
-					int element = bootstrapPlayer.getId();
-					if (!playerValueEntityMap.containsKey(element)) {
-						return;
-					}
-					PlayerValueEntity playerValueEntity = playerValueEntityMap.get(element);
-					String currentSelected = playerValueEntity.getSelectedByPercent();
-					if (StringUtils.isNoneBlank(currentSelected) && !StringUtils.equals("0.0", currentSelected)) {
-						playerValueEntity.setLastSelectedByPercent(currentSelected);
-					}
-					playerValueEntity.setSelectedByPercent(bootstrapPlayer.getSelectedByPercent());
-					playerValueEntity.setTransfersInEvent(bootstrapPlayer.getTransfersInEvent());
-					playerValueEntity.setTransfersOutEvent(bootstrapPlayer.getTransfersOutEvent());
-					playerValueEntity.setTransfersIn(bootstrapPlayer.getTransfersIn());
-					playerValueEntity.setTransfersOut(bootstrapPlayer.getTransfersOut());
-					updatePlayerValueList.add(playerValueEntity);
-
-				}));
-		this.playerValueService.updateBatchById(updatePlayerValueList);
-		log.info("update player value size is " + updatePlayerValueList.size() + "!");
 	}
 
 	private String getChangeType(int nowCost, int lastCost) {

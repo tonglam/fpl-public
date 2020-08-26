@@ -67,6 +67,11 @@ public class CacheTest extends FplApplicationTests {
 	}
 
 	@Test
+	void insertPlayerStat() {
+		this.cacheSerive.insertPlayerStat();
+	}
+
+	@Test
 	void redis() {
 		int a = RedisUtils.countCacheByKeyPattern("Player*");
 		System.out.println(1);

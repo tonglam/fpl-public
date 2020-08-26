@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -123,12 +124,24 @@ public class RedisUtils {
 		return redisTemplate.opsForValue().multiGet(keys);
 	}
 
-	public static <T> T getObjectFromZset(String key, int score, Class<T> classType) {
+	public static <T> T getObjectFromZset(String key, int score, Class<T> clz) {
 		Set<Object> set = redisTemplate.opsForZSet().rangeByScore(key, score, score);
 		if (CollectionUtils.isEmpty(set)) {
 			return null;
 		}
-		return set.stream().map(classType::cast).findFirst().orElse(null);
+		return set.stream().map(o -> JsonUtils.json2obj(o.toString(), clz)).findFirst().orElse(null);
+	}
+
+	public static <T> List<T> getObjectListFromZset(String key, Class<T> clz) {
+		Optional<Long> max = Optional.ofNullable(redisTemplate.opsForZSet().size(key));
+		if (!max.isPresent()) {
+			return null;
+		}
+		Set<Object> set = redisTemplate.opsForZSet().rangeByScore(key, 1, max.get());
+		if (CollectionUtils.isEmpty(set)) {
+			return null;
+		}
+		return set.stream().map(o -> JsonUtils.json2obj(o.toString(), clz)).collect(Collectors.toList());
 	}
 
 	public static <T> List<T> getObjectListFromZset(String key, int minScore, int maxScore, Class<T> classType) {
