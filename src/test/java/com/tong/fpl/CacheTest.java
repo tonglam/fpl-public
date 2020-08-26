@@ -2,6 +2,7 @@ package com.tong.fpl;
 
 import com.google.common.collect.Sets;
 import com.tong.fpl.service.ICacheSerive;
+import com.tong.fpl.utils.RedisUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -67,6 +68,7 @@ public class CacheTest extends FplApplicationTests {
 
 	@Test
 	void redis() {
+		int a = RedisUtils.countCacheByKeyPattern("Player*");
 		System.out.println(1);
 	}
 

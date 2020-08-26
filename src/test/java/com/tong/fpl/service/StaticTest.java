@@ -1,17 +1,15 @@
 package com.tong.fpl.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.data.response.LeagueClassicRes;
-import com.tong.fpl.domain.data.response.StaticRes;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.service.db.EntryInfoService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -23,6 +21,8 @@ public class StaticTest extends FplApplicationTests {
 	private IStaticSerive staticService;
 	@Autowired
 	private IInterfaceService interfaceService;
+	@Autowired
+	private EntryInfoService entryInfoService;
 
 	@Test
 	void insertPlayerValue() {
@@ -32,18 +32,6 @@ public class StaticTest extends FplApplicationTests {
 	@Test
 	void updatePlayerValue() {
 		this.staticService.updatePlayerValue();
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = {"E:\\0719.json"})
-	void insertPlayerValueFromFile(String filename) {
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			StaticRes staticRes = mapper.readValue(new File(filename), StaticRes.class);
-			this.staticService.insertPlayerValueEntity(staticRes);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	@ParameterizedTest
@@ -60,9 +48,23 @@ public class StaticTest extends FplApplicationTests {
 
 	@Test
 	void classic() {
-		Optional<LeagueClassicRes> leagueClassic = this.interfaceService.getLeaguesClassic(710, 1);
+		Optional<LeagueClassicRes> resResult = this.interfaceService.getLeaguesClassic(11316, 1);
+		if (resResult.isPresent()) {
+			LeagueClassicRes leagueClassicRes = resResult.get();
+			if (!CollectionUtils.isEmpty(leagueClassicRes.getNewEntries().getResults())) {
+				leagueClassicRes.getNewEntries().getResults().forEach(o -> {
+					if (o.getEntry() != 1870) {
+						return;
+					}
+					EntryInfoEntity entryInfoEntity = new EntryInfoEntity();
+					entryInfoEntity.setEntry(o.getEntry());
+					entryInfoEntity.setEntryName(o.getEntryName());
+					entryInfoEntity.setPlayerName(o.getPlayerName());
+					this.entryInfoService.save(entryInfoEntity);
+				});
+			}
+		}
 		System.out.println("done!");
 	}
-
 
 }

@@ -1,6 +1,5 @@
 package com.tong.fpl.utils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Create by tong on 2020/8/25
@@ -22,14 +22,6 @@ import java.util.concurrent.TimeUnit;
 public class RedisUtils {
 
 	private static RedisTemplate<String, Object> redisTemplate;
-
-	public static <T> String createKey(T entity, String keyName, Object key) {
-		return createKey(CommonUtils.getCurrentSeason(), entity, keyName, key);
-	}
-
-	public static <T> String createKey(String season, T entity, String keyName, Object key) {
-		return StringUtils.joinWith("::", entity.getClass().getSimpleName(), keyName, season, key);
-	}
 
 	public static void pipelineValueCache(Map<String, Object> cacheMap, long expire, TimeUnit timeUnit) {
 		redisTemplate.executePipelined(new RedisCallback<Object>() {
@@ -129,6 +121,38 @@ public class RedisUtils {
 			return null;
 		}
 		return redisTemplate.opsForValue().multiGet(keys);
+	}
+
+	public static <T> T getObjectFromZset(String key, int score, Class<T> classType) {
+		Set<Object> set = redisTemplate.opsForZSet().rangeByScore(key, score, score);
+		if (CollectionUtils.isEmpty(set)) {
+			return null;
+		}
+		return set.stream().map(classType::cast).findFirst().orElse(null);
+	}
+
+	public static <T> List<T> getObjectListFromZset(String key, int minScore, int maxScore, Class<T> classType) {
+		Set<Object> set = redisTemplate.opsForZSet().rangeByScore(key, minScore, maxScore);
+		if (CollectionUtils.isEmpty(set)) {
+			return null;
+		}
+		return set.stream().map(classType::cast).collect(Collectors.toList());
+	}
+
+	public static void removeCacheByKeyPattern(String pattern) {
+		Set<String> keys = redisTemplate.keys(pattern);
+		if (CollectionUtils.isEmpty(keys)) {
+			return;
+		}
+		redisTemplate.delete(keys);
+	}
+
+	public static int countCacheByKeyPattern(String pattern) {
+		Set<String> keys = redisTemplate.keys(pattern);
+		if (CollectionUtils.isEmpty(keys)) {
+			return 0;
+		}
+		return keys.size();
 	}
 
 	@Autowired

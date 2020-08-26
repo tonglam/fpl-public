@@ -3,9 +3,8 @@ package com.tong.fpl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.domain.entity.EventEntity;
-import com.tong.fpl.utils.CommonUtils;
-import org.apache.commons.lang3.StringUtils;
+import com.tong.fpl.domain.data.userpick.Pick;
+import com.tong.fpl.utils.JsonUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -44,7 +43,8 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		String a = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
+		String picks = "[{\"element\":366,\"points\":1,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":182,\"points\":5,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":181,\"points\":2,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":203,\"points\":8,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":141,\"points\":6,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":214,\"points\":20,\"is_captain\":false,\"is_vice_captain\":true},{\"element\":133,\"points\":1,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":265,\"points\":3,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":191,\"points\":12,\"is_captain\":true,\"is_vice_captain\":false},{\"element\":409,\"points\":2,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":68,\"points\":2,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":48,\"points\":0,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":420,\"points\":3,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":128,\"points\":6,\"is_captain\":false,\"is_vice_captain\":false},{\"element\":130,\"points\":1,\"is_captain\":false,\"is_vice_captain\":false}]";
+		List<Pick> pickList = JsonUtils.json2Collection(picks, List.class, Pick.class);
 		System.out.println(1);
 	}
 

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DailyTask {
 
-    private IStaticSerive staticSerive;
+    private final IStaticSerive staticSerive;
 
     @Scheduled(cron = "0 30 9 * * *")
     public void refreshPlayerValue() {

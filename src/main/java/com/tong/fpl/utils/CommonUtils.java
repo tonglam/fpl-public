@@ -31,100 +31,99 @@ import java.util.stream.IntStream;
 @Component
 public class CommonUtils {
 
-    private static PlayerService playerService;
-    private static EventService eventService;
-    private static EntryEventResultService entryEventResultService;
+	private static PlayerService playerService;
+	private static EventService eventService;
+	private static EntryEventResultService entryEventResultService;
 
-    public static int getRealGw(String inputGw) {
-        return inputGw.contains("GW") ? Integer.parseInt(StringUtils.substringAfter(inputGw, "GW"))
-                : Integer.parseInt(inputGw);
-    }
+	public static int getRealGw(String inputGw) {
+		return inputGw.contains("GW") ? Integer.parseInt(StringUtils.substringAfter(inputGw, "GW"))
+				: Integer.parseInt(inputGw);
+	}
 
-    public static int getCurrentEvent() {
-        int event = 1;
-        Map<String, Integer> deadlineMap = CommonUtils.eventService.list()
-                .stream().collect(Collectors.toMap(EventEntity::getDeadlineTime, EventEntity::getId));
-        Map<String, Integer> result = new LinkedHashMap<>();
-        // sort by value
-        deadlineMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue())
-                .forEachOrdered(e -> result.put(e.getKey(), e.getValue()));
-        for (String deadlineTime :
-                result.keySet()) {
-            if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadlineTime, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
-                event = result.get(deadlineTime);
-            } else {
-                break;
-            }
-        }
-        return event;
-    }
+	public static int getCurrentEvent() {
+		int event = 1;
+		Map<String, Integer> deadlineMap = CommonUtils.eventService.list()
+				.stream().collect(Collectors.toMap(EventEntity::getDeadlineTime, EventEntity::getId));
+		Map<String, Integer> result = new LinkedHashMap<>();
+		// sort by value
+		deadlineMap.entrySet()
+				.stream()
+				.sorted(Map.Entry.comparingByValue())
+				.forEachOrdered(e -> result.put(e.getKey(), e.getValue()));
+		for (String deadlineTime :
+				result.keySet()) {
+			if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadlineTime, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+				event = result.get(deadlineTime);
+			} else {
+				break;
+			}
+		}
+		return event;
+	}
 
-    public static String getDeadlineTime(int event) {
-        return CommonUtils.eventService.list(new QueryWrapper<EventEntity>().lambda().eq(EventEntity::getId, event))
-                .stream()
-                .map(EventEntity::getDeadlineTime)
-                .findFirst()
-                .orElse("");
-    }
+	public static String getDeadlineTime(int event) {
+		return CommonUtils.eventService.list(new QueryWrapper<EventEntity>().lambda().eq(EventEntity::getId, event))
+				.stream()
+				.map(EventEntity::getDeadlineTime)
+				.findFirst()
+				.orElse("");
+	}
 
-    public static String getZoneDate(String time) {
-        ZoneId zoneId = ZonedDateTime.now().getZone();
-        return LocalDateTime.ofInstant(Instant.parse(time), zoneId).atZone(zoneId).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
-    }
+	public static String getZoneDate(String time) {
+		ZoneId zoneId = ZonedDateTime.now().getZone();
+		return LocalDateTime.ofInstant(Instant.parse(time), zoneId).atZone(zoneId).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
+	}
 
-    public static List<Pick> getPickList(int event, int entry) {
-        String eventPick = entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, entry)).getEventPicks();
-        if (StringUtils.isBlank(eventPick)) {
-            return Lists.newArrayList();
-        }
-        return getPickListFromPicks(eventPick);
-    }
+	public static List<Pick> getPickList(int event, int entry) {
+		String eventPick = entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, entry)).getEventPicks();
+		if (StringUtils.isBlank(eventPick)) {
+			return Lists.newArrayList();
+		}
+		return getPickListFromPicks(eventPick);
+	}
 
-    @SuppressWarnings("unchecked")
-    public static List<Pick> getPickListFromPicks(String picks) {
-        List<Pick> pickList = (List<Pick>) JsonUtils.json2Collection(picks, List.class, Pick.class);
-        if (CollectionUtils.isEmpty(pickList)) {
-            return Lists.newArrayList();
-        }
-        pickList.forEach(pick -> {
-            PlayerEntity playerEntity = playerService.getById(pick.getElement());
-            if (playerEntity != null) {
-                pick
-                        .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()).name())
-                        .setWebName(playerEntity.getWebName());
-            }
-        });
-        return pickList;
-    }
+	@SuppressWarnings("unchecked")
+	public static List<Pick> getPickListFromPicks(String picks) {
+		List<Pick> pickList = JsonUtils.json2Collection(picks, List.class, Pick.class);
+		if (CollectionUtils.isEmpty(pickList)) {
+			return Lists.newArrayList();
+		}
+		pickList.forEach(pick -> {
+			PlayerEntity playerEntity = playerService.getById(pick.getElement());
+			if (playerEntity != null) {
+				pick.setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()).name())
+						.setWebName(playerEntity.getWebName());
+			}
+		});
+		return pickList;
+	}
 
-    public static Map<String, String> createGwMapForOption() {
-        Map<String, String> map = Maps.newLinkedHashMap();
-        map.put("", "请选择");
-        IntStream.range(1, 39).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
-        return map;
-    }
+	public static Map<String, String> createGwMapForOption() {
+		Map<String, String> map = Maps.newLinkedHashMap();
+		map.put("", "请选择");
+		IntStream.range(1, 39).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
+		return map;
+	}
 
-    public static String getCurrentSeason() {
-        return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
-                String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
-    }
+	public static String getCurrentSeason() {
+		return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
+				String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
+	}
 
-    @Autowired
-    private void setPlayerService(PlayerService playerService) {
-        CommonUtils.playerService = playerService;
-    }
+	@Autowired
+	private void setPlayerService(PlayerService playerService) {
+		CommonUtils.playerService = playerService;
+	}
 
-    @Autowired
-    private void setEventService(EventService eventService) {
-        CommonUtils.eventService = eventService;
-    }
+	@Autowired
+	private void setEventService(EventService eventService) {
+		CommonUtils.eventService = eventService;
+	}
 
-    @Autowired
-    private void setEventLiveService(EntryEventResultService entryEventResultService) {
-        CommonUtils.entryEventResultService = entryEventResultService;
-    }
+	@Autowired
+	private void setEventLiveService(EntryEventResultService entryEventResultService) {
+		CommonUtils.entryEventResultService = entryEventResultService;
+	}
 
 }
