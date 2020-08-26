@@ -4,13 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Maps;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
-import com.tong.fpl.domain.data.response.StaticRes;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.TournamentEntryEntity;
 import com.tong.fpl.domain.entity.TournamentKnockoutResultEntity;
-import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Create by tong on 2020/1/19
@@ -36,9 +33,9 @@ public class DBTest extends FplApplicationTests {
     @Autowired
     private PlayerService playerService;
     @Autowired
-    private PlayerStatService playerStatService;
+    private PlayerValueService playerValueService;
     @Autowired
-    private IInterfaceService interfaceService;
+    private PlayerStatService playerStatService;
 
     @Test
     void test1() {
@@ -96,14 +93,6 @@ public class DBTest extends FplApplicationTests {
         MybatisPlusConfig.season.set("1920");
         List<EntryInfoEntity> entryInfoEntity = this.entryInfoService.list();
         System.out.println(1);
-    }
-
-    @Test
-    void playerStatService() {
-        Optional<StaticRes> res = this.interfaceService.getBootstrapStaic();
-        res.ifPresent(staticRes -> {
-
-        });
     }
 
 }

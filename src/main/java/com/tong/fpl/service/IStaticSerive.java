@@ -35,6 +35,4 @@ public interface IStaticSerive {
 
 	Optional<EntryRes> getEntry(int entry);
 
-
-
 }
