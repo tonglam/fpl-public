@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.data.letletme.player.PlayerQueryParam;
+import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.PlayerStatEntity;
@@ -17,28 +17,28 @@ import java.util.Map;
  */
 public interface IQuerySerivce {
 
-	Map<Integer, PlayerEntity> getAllPlayerList(String season);
+    Map<Integer, PlayerEntity> qryAllPlayerList(String season);
 
-	Map<Integer, PlayerStatEntity> getAllPlayerStatList(String season);
+    Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season);
 
-	PlayerEntity qryPlayerEntityByElement(int element);
+    int qryPlayerElementByCode(String season, int code);
 
-	PlayerEntity qryPlayerEntityByElement(String season, int element);
+    int qryPlayerElementByWebName(String season, String webName) throws Exception;
 
-	EntryEventData qryEntryResult(String season, int entry);
+    EntryEventData qryEntryResult(String season, int entry);
 
-	EntryEventData qryEntryEventResult(String season, int event, int entry);
+    EntryEventData qryEntryEventResult(String season, int event, int entry);
 
-	List<EventLiveEntity> qryEventLiveAll(String season, int element);
+    List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-	List<EventLiveEntity> qryEventLive(String season, int event, int element);
+    List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-	PlayerData qryPlayerData(PlayerQueryParam playerQueryParam) throws Exception;
+    PlayerData qryPlayerData(int element);
 
-	PlayerData qryPlayerData(int element);
+    Page<PlayerData> qryPagePlayerDataList(long current, long size);
 
-	Page<PlayerData> qryPagePlayerDataList(long current, long size);
+    List<PlayerInfoData> qryAllPlayers(String season);
 
-	List<PlayerInfoData> qryAllPlayers(String season);
+    List<Pick> qryPickListFromPicks(String season, String picks);
 
 }

@@ -1,6 +1,6 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.data.letletme.team.TeamFixtureData;
+import com.tong.fpl.domain.data.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.entity.EventFixtureEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.PlayerStatEntity;
@@ -40,11 +40,13 @@ public interface IRedisCacheSerive {
 
 	Map<Integer, String> getTeamShortNameMap(String season);
 
+	Map<Integer, String> getDeadlineMap(String season);
+
 	String getDeadlineByEvent(String season, int event);
 
 	List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
 
-	List<TeamFixtureData> getEventFixtureByTeamId(String season, int teamId);
+	List<PlayerFixtureData> getEventFixtureByTeamId(String season, int teamId);
 
 	PlayerEntity getPlayerByElememt(String season, int element);
 

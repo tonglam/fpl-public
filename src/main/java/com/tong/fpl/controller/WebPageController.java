@@ -1,5 +1,6 @@
 package com.tong.fpl.controller;
 
+import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,14 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class WebPageController {
 
+    private final IHttpApi httpApi;
+
     @RequestMapping(value = {"", "/"})
     public String indexController(Model model, HttpSession session) {
         model.addAttribute("entry", session.getAttribute("entry"));
         int currentEvent = CommonUtils.getCurrentEvent();
         model.addAttribute("nextGw", currentEvent);
-        model.addAttribute("deadline", CommonUtils.getDeadlineTime(currentEvent));
+        model.addAttribute("deadline", httpApi.qryDeadlineByEvent(currentEvent));
         return "index";
     }
 

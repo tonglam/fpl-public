@@ -54,7 +54,6 @@ public class HttpController {
 	@TraceHttpCall
 	@GetMapping("/qryLivePointsByEntry")
 	@ResponseBody
-	@Cacheable(value = "qryLivePointsByEntry")
 	public LiveCalaData qryLivePointsByEntry(@RequestParam int event, @RequestParam int entry) {
 		return this.liveCalcApi.calcLivePointsByEntry(event, entry);
 	}
@@ -86,9 +85,8 @@ public class HttpController {
 	@TraceHttpCall
 	@GetMapping("/qryPlayerData")
 	@ResponseBody
-	@Cacheable(value = "qryPlayerData")
-	public PlayerData qryPlayerData(@RequestBody PlayerQueryParam playerQueryParam) throws Exception {
-		return this.httpApi.qryPlayerData(playerQueryParam);
+	public PlayerData qryPlayerData(@RequestBody PlayerQueryParam queryParam) throws Exception {
+		return this.httpApi.qryPlayerData(queryParam);
 	}
 
 	@TraceHttpCall

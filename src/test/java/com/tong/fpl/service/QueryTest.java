@@ -4,7 +4,6 @@ import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.data.letletme.player.PlayerQueryParam;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -35,13 +34,10 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
-	@Test
-	void qryPlayerData() throws Exception {
-		PlayerQueryParam playerQueryParam = new PlayerQueryParam()
-//                .setElement(483)
-//                .setCode(225321)
-				.setWebName("Ward");
-		PlayerData playerData = this.querySerivce.qryPlayerData(playerQueryParam);
+	@ParameterizedTest
+	@CsvSource({"483"})
+	void qryPlayerData(int element) {
+		PlayerData playerData = this.querySerivce.qryPlayerData(element);
 		System.out.println(1);
 	}
 
