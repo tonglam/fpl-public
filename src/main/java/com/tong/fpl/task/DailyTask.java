@@ -1,6 +1,6 @@
 package com.tong.fpl.task;
 
-import com.tong.fpl.service.IStaticSerive;
+import com.tong.fpl.service.IRedisCacheSerive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DailyTask {
 
-    private final IStaticSerive staticSerive;
+    private final IRedisCacheSerive redisCacheSerive;
 
     @Scheduled(cron = "0 30 9 * * *")
     public void refreshPlayerValue() {
-        this.staticSerive.insertPlayerValue();
+        this.redisCacheSerive.insertPlayerValue();
     }
 
     public void refreshPlayer() {

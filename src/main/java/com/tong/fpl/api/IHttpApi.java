@@ -2,8 +2,8 @@ package com.tong.fpl.api;
 
 import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
+import com.tong.fpl.domain.data.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.data.letletme.player.PlayerQueryParam;
-import com.tong.fpl.domain.data.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 
 import java.util.List;
@@ -12,8 +12,6 @@ import java.util.List;
  * Create by tong on 2020/7/20
  */
 public interface IHttpApi {
-
-    List<PlayerValueData> qryDayChangePlayerValue(String changeDate);
 
     void insertPlayerValue();
 
@@ -27,6 +25,6 @@ public interface IHttpApi {
 
     PlayerData qryPlayerData(PlayerQueryParam playerQueryParam) throws Exception;
 
-    List<PlayerData> qryAllPlayers(String season);
+    List<PlayerInfoData> qryAllPlayers(String season);
 
 }

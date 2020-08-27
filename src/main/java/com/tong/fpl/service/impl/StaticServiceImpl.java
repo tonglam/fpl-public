@@ -5,10 +5,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.tong.fpl.config.collector.PlayAtHomeCollector;
-import com.tong.fpl.config.collector.PlayerValueCollector;
-import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.data.bootstrapStaic.Event;
 import com.tong.fpl.domain.data.eventLive.ElementStat;
 import com.tong.fpl.domain.data.response.*;
@@ -16,15 +13,12 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.db.*;
-import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,22 +34,16 @@ public class StaticServiceImpl implements IStaticSerive {
 
 	private final EventService eventService;
 	private final PlayerService playerService;
-	private final PlayerValueService playerValueService;
 	private final EntryEventResultService entryEventResultService;
 	private final EventFixtureService eventFixtureService;
 	private final EventLiveService eventLiveService;
 	private final IInterfaceService interfaceService;
 
 	@Override
-	public void insertPlayerValue() {
-		Optional<StaticRes> staticRes = this.interfaceService.getBootstrapStaic();
-		staticRes.ifPresent(this::insertPlayerValueEntity);
-	}
-
-	@Override
 	public void insertEventLive(int event) {
 		this.eventLiveService.remove(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getEvent, event));
-		Map<Integer, String> playAtHomeMap = this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, event))
+		Map<Integer, String> playAtHomeMap = this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda()
+				.eq(EventFixtureEntity::getEvent, event))
 				.stream()
 				.collect(new PlayAtHomeCollector());
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
@@ -158,50 +146,6 @@ public class StaticServiceImpl implements IStaticSerive {
 	@Override
 	public Optional<EntryRes> getEntry(int entry) {
 		return this.interfaceService.getEntry(entry);
-	}
-
-	public void insertPlayerValueEntity(StaticRes staticRes) {
-		this.playerValueService.remove(new QueryWrapper<PlayerValueEntity>().lambda()
-				.eq(PlayerValueEntity::getChangeDate, LocalDate.now().format(DateTimeFormatter.ofPattern(Constant.SHORTDAY))));
-		Map<Integer, PlayerValueEntity> lastValueMap = this.playerValueService.list()
-				.stream()
-				.filter(o -> o.getValue() > 0)
-				.collect(new PlayerValueCollector());
-		List<PlayerValueEntity> playerValueList = Lists.newArrayList();
-		staticRes.getElements()
-				.stream()
-				.filter(o -> !lastValueMap.containsKey(o.getId()) || o.getNowCost() != lastValueMap.get(o.getId()).getValue())
-				.forEach(bootstrapPlayer -> {
-					int element = bootstrapPlayer.getId();
-					PlayerValueEntity lastEntity = lastValueMap.containsKey(element) ? lastValueMap.get(bootstrapPlayer.getId()) : null;
-					int lastValue = lastEntity != null ? lastEntity.getValue() : 0;
-					playerValueList.add(new PlayerValueEntity()
-							.setElement(element)
-							.setElementType(bootstrapPlayer.getElementType())
-							.setEvent(CommonUtils.getCurrentEvent())
-							.setValue(bootstrapPlayer.getNowCost())
-							.setChangeDate(LocalDate.now().format(DateTimeFormatter.ofPattern(Constant.SHORTDAY)))
-							.setChangeType(this.getChangeType(bootstrapPlayer.getNowCost(), lastValue))
-							.setLastValue(lastValue)
-					);
-				});
-		this.playerValueService.saveBatch(playerValueList);
-		log.info("insert player value size is " + playerValueList.size() + "!");
-		// update price in table player
-		List<PlayerEntity> updatePlayerList = Lists.newArrayList();
-		playerValueList.forEach(playerValueEntity -> {
-			PlayerEntity playerEntity = this.playerService.getById(playerValueEntity.getElement());
-			playerEntity.setPrice(playerValueEntity.getValue());
-			updatePlayerList.add(playerEntity);
-		});
-		this.playerService.updateBatchById(updatePlayerList);
-	}
-
-	private String getChangeType(int nowCost, int lastCost) {
-		if (lastCost == 0) {
-			return ValueChangeType.Start.name();
-		}
-		return nowCost > lastCost ? ValueChangeType.Rise.name() : ValueChangeType.Faller.name();
 	}
 
 	private void getOnePageEntryListFromClassic(List<EntryInfoEntity> list, int classicId, int page, boolean recursive) {

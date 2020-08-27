@@ -11,10 +11,6 @@ import java.util.Optional;
  */
 public interface IStaticSerive {
 
-    void insertPlayerValue();
-
-    void insertPlayerValueEntity(StaticRes staticRes);
-
     void insertEventLive(int event);
 
     void insertAverageEventResult(int event, StaticRes staticRes);

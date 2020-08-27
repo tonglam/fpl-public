@@ -37,11 +37,9 @@ public class RedisConfig extends CachingConfigurerSupport {
 	public KeyGenerator keyGenerator() {
 		return (target, method, params) -> {
 			StringBuilder sb = new StringBuilder();
-			sb.append(target.getClass().getSimpleName())
-					.append(method.getName())
-					.append("::");
+			sb.append(StringUtils.joinWith("::", target.getClass().getSimpleName(), method.getName()));
 			for (Object obj : params) {
-				sb.append(obj.toString());
+				sb.append("::").append(obj.toString());
 			}
 			return sb.toString();
 		};
@@ -56,7 +54,7 @@ public class RedisConfig extends CachingConfigurerSupport {
 	@Primary
 	public CacheManager cacheManager(LettuceConnectionFactory factory) {
 		RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-				.entryTtl(Duration.ofDays(1))
+				.entryTtl(Duration.ofHours(2))
 				.disableCachingNullValues()
 				.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer()))
 				.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer((valueSerializer())));

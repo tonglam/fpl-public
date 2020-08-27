@@ -13,9 +13,10 @@ public class PlayerInfoData {
 	private int element;
 	private int code;
 	private String webName;
+	private int elementType;
 	private String elementTypeName;
 	private int teamId;
 	private String teamName;
-	private int price;
+	private double price;
 
 }

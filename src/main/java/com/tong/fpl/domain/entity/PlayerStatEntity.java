@@ -12,6 +12,7 @@ public class PlayerStatEntity {
 	@TableId(type = IdType.INPUT)
 	private int element;
 	private int code;
+	private int matchPlayed;
 	private int chanceOfPlayingNextRound;
 	private int chanceOfPlayingThisRound;
 	private int dreamteamCount;
