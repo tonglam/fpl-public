@@ -24,31 +24,31 @@ import java.util.UUID;
 @Configuration
 public class HttpCallTraceAspect {
 
-    ThreadLocal<Long> startTime = new ThreadLocal<>();
+	ThreadLocal<Long> startTime = new ThreadLocal<>();
 
-    @Before(value = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
-    public void before(JoinPoint joinPoint) {
-        MDC.put("uuid", UUID.randomUUID().toString());
-        startTime.set(System.currentTimeMillis());
-        Optional<ServletRequestAttributes> attributes = Optional.ofNullable((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
-        attributes.ifPresent(o -> {
-            HttpServletRequest request = o.getRequest();
-            MDC.put("ip", HttpUtils.getRealIp(request));
-            MDC.put("url", request.getRequestURI());
-            HttpCallLog.info("request:{args=%s}", Arrays.toString(joinPoint.getArgs()));
-        });
-    }
+	@Before(value = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
+	public void before(JoinPoint joinPoint) {
+		MDC.put("uuid", UUID.randomUUID().toString());
+		startTime.set(System.currentTimeMillis());
+		Optional<ServletRequestAttributes> attributes = Optional.ofNullable((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
+		attributes.ifPresent(o -> {
+			HttpServletRequest request = o.getRequest();
+			MDC.put("ip", HttpUtils.getRealIp(request));
+			MDC.put("url", request.getRequestURI());
+			HttpCallLog.info("request:{args=%s}", Arrays.toString(joinPoint.getArgs()));
+		});
+	}
 
-    @AfterReturning(returning = "object", pointcut = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
-    public void afterReturning(Object object) {
-        HttpCallLog.info("response:{%s}", object);
-        HttpCallLog.timeElapsed(System.currentTimeMillis() - startTime.get());
-    }
+	@AfterReturning(returning = "object", pointcut = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
+	public void afterReturning(Object object) {
+		HttpCallLog.info("response:{%s}", "data");
+		HttpCallLog.timeElapsed(System.currentTimeMillis() - startTime.get());
+	}
 
-    @AfterThrowing(throwing = "e", pointcut = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
-    public void afterThrowing(Exception e) {
-        HttpCallLog.error("exception:{%s}", e.getMessage());
-        e.printStackTrace();
-    }
+	@AfterThrowing(throwing = "e", pointcut = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
+	public void afterThrowing(Exception e) {
+		HttpCallLog.error("exception:{%s}", e.getMessage());
+		e.printStackTrace();
+	}
 
 }

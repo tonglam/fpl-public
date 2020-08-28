@@ -1,6 +1,5 @@
 package com.tong.fpl.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.domain.data.letletme.api.EntryEventData;
 import com.tong.fpl.domain.data.letletme.player.PlayerData;
 import com.tong.fpl.domain.data.letletme.player.PlayerInfoData;
@@ -8,6 +7,7 @@ import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.PlayerStatEntity;
+import com.tong.fpl.utils.CommonUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -17,28 +17,44 @@ import java.util.Map;
  */
 public interface IQuerySerivce {
 
-    Map<Integer, PlayerEntity> qryAllPlayerList(String season);
+	default Map<Integer, PlayerEntity> qryAllPlayerList() {
+		return this.qryAllPlayerList(CommonUtils.getCurrentSeason());
+	}
 
-    Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season);
+	Map<Integer, PlayerEntity> qryAllPlayerList(String season);
 
-    int qryPlayerElementByCode(String season, int code);
+	default Map<Integer, PlayerStatEntity> qryAllPlayerStatList() {
+		return this.qryAllPlayerStatList(CommonUtils.getCurrentSeason());
+	}
 
-    int qryPlayerElementByWebName(String season, String webName) throws Exception;
+	Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season);
 
-    EntryEventData qryEntryResult(String season, int entry);
+	default int qryPlayerElementByCode(int code) {
+		return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
+	}
 
-    EntryEventData qryEntryEventResult(String season, int event, int entry);
+	int qryPlayerElementByCode(String season, int code);
 
-    List<EventLiveEntity> qryEventLiveAll(String season, int element);
+	default int qryPlayerElementByWebName(String webName) throws Exception {
+		return this.qryPlayerElementByWebName(CommonUtils.getCurrentSeason(), webName);
+	}
 
-    List<EventLiveEntity> qryEventLive(String season, int event, int element);
+	int qryPlayerElementByWebName(String season, String webName) throws Exception;
 
-    PlayerData qryPlayerData(int element);
+	EntryEventData qryEntryResult(String season, int entry);
 
-    Page<PlayerData> qryPagePlayerDataList(long current, long size);
+	EntryEventData qryEntryEventResult(String season, int event, int entry);
 
-    List<PlayerInfoData> qryAllPlayers(String season);
+	List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-    List<Pick> qryPickListFromPicks(String season, String picks);
+	List<EventLiveEntity> qryEventLive(String season, int event, int element);
+
+	PlayerData qryPlayerData(int element);
+
+	PlayerInfoData initPlayerInfo(PlayerEntity playerEntity);
+
+	List<PlayerInfoData> qryAllPlayers(String season);
+
+	List<Pick> qryPickListFromPicks(String season, String picks);
 
 }

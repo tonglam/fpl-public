@@ -11,7 +11,6 @@ import com.tong.fpl.domain.data.letletme.player.PlayerQueryParam;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +28,6 @@ public class HttpController {
 
 	private final IHttpApi httpApi;
 	private final ILiveCalcApi liveCalcApi;
-
-	@TraceHttpCall
-	@GetMapping("/insertplayerValue")
-	@ResponseBody
-	public void insertPlayerValue() {
-		this.httpApi.insertPlayerValue();
-	}
 
 	@TraceHttpCall
 	@GetMapping("/qryEntryResult")
@@ -61,15 +53,14 @@ public class HttpController {
 	@TraceHttpCall
 	@GetMapping("/qryLivePointsByElementList")
 	@ResponseBody
-	@Cacheable(value = "qryLivePointsByElementList")
-	public LiveCalaData qryLivePointsByElementList(@RequestParam int event, @RequestParam Map<Integer, Integer> elementMap, @RequestParam int captain, @RequestParam int viceCaptain) {
+	public LiveCalaData qryLivePointsByElementList(@RequestParam int event, @RequestParam Map<Integer, Integer> elementMap,
+	                                               @RequestParam int captain, @RequestParam int viceCaptain) {
 		return liveCalcApi.calcLivePointsByElementList(event, elementMap, captain, viceCaptain);
 	}
 
 	@TraceHttpCall
 	@GetMapping("/qryEventLiveAll")
 	@ResponseBody
-	@Cacheable(value = "qryEventLiveAll")
 	public List<EventLiveEntity> qryEventLiveAll(@RequestParam String season, @RequestParam int element) {
 		return this.httpApi.qryEventLiveAll(season, element);
 	}
@@ -77,7 +68,6 @@ public class HttpController {
 	@TraceHttpCall
 	@GetMapping("/qryEventLive")
 	@ResponseBody
-	@Cacheable(value = "qryEventLive")
 	public List<EventLiveEntity> qryEventLive(@RequestParam String season, @RequestParam int event, @RequestParam int element) {
 		return this.httpApi.qryEventLive(season, event, element);
 	}

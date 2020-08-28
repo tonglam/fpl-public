@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,9 +32,10 @@ import java.time.Duration;
  * Create by tong on 2020/8/22
  */
 @Configuration
+@EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
 
-	@Bean
+	@Override
 	public KeyGenerator keyGenerator() {
 		return (target, method, params) -> {
 			StringBuilder sb = new StringBuilder();
@@ -45,14 +47,21 @@ public class RedisConfig extends CachingConfigurerSupport {
 		};
 	}
 
-	@Bean("entityKeyGenerator")
-	public KeyGenerator entityKeyGenerator() {
-		return (target, method, params) -> StringUtils.join(params, "::");
+	@Primary
+	@Bean
+	public CacheManager cacheManager(LettuceConnectionFactory factory) {
+		RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+				.entryTtl(Duration.ofMinutes(30))
+				.disableCachingNullValues()
+				.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer()))
+				.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer((valueSerializer())));
+		return RedisCacheManager
+				.builder(RedisCacheWriter.nonLockingRedisCacheWriter(factory))
+				.cacheDefaults(cacheConfig).build();
 	}
 
-	@Bean
-	@Primary
-	public CacheManager cacheManager(LettuceConnectionFactory factory) {
+	@Bean("apiCacheManager")
+	public CacheManager apiCacheManager(LettuceConnectionFactory factory) {
 		RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
 				.entryTtl(Duration.ofHours(2))
 				.disableCachingNullValues()
@@ -64,7 +73,6 @@ public class RedisConfig extends CachingConfigurerSupport {
 	}
 
 	@Bean
-	@Primary
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<String, Object> template = new RedisTemplate<>();
 		template.setConnectionFactory(redisConnectionFactory);

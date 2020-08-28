@@ -2,8 +2,8 @@ package com.tong.fpl.api.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.api.IMyFplApi;
-import com.tong.fpl.domain.data.letletme.player.PlayerData;
-import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.domain.data.letletme.table.PlayTableData;
+import com.tong.fpl.service.IPageQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,11 +15,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MyFplApiImpl implements IMyFplApi {
 
-    private final IQuerySerivce querySerivce;
+	private final IPageQueryService pageQueryService;
 
-    @Override
-    public Page<PlayerData> qryPlayerDataList(long current, long size) {
-        return this.querySerivce.qryPagePlayerDataList(current, size);
-    }
+	@Override
+	public Page<PlayTableData> qryPlayerDataList(long current, long size) {
+		return this.pageQueryService.qryPagePlayerDataList(current, size);
+	}
 
 }

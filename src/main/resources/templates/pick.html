@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="layout::header(~{::title},~{})">
-    <title>阵容选择-我的FPL-letletme</title>
+    <title>pick</title>
 </head>
 
 <body>
@@ -23,12 +23,11 @@
 <script th:replace="layout::baseScript"></script>
 
 <script th:inline="none">
-    layui.use(['form', 'table', 'soulTable'], function () {
-        let table = layui.table, soulTable = layui.soulTable;
+    layui.use(['form', 'table'], function () {
+        let table = layui.table;
         table.render({
+            toolbar: 'default',
             elem: '#playerTable',
-            height: 500,
-            toolbar: '#toolbar',
             page: true,
             url: '/my_fpl/qryPlayerDataList',
             request: {
@@ -36,15 +35,14 @@
                 limitName: 'size'
             },
             limit: 20,
+            loading: true,
             cols: [[
-                {field: 'element', type: 'numbers', title: 'ID', width: 50, align: 'center', hide: true},
-                {field: 'webName', title: '名字', width: 150, align: 'center', sort: true},
-                {field: 'elementTypeName', title: '位置', width: 70, align: 'center', filter: true},
-                {field: 'teamName', title: '球队', width: 80, align: 'center'},
-                {field: 'value', title: '身价', width: 80, align: 'center', sort: true}
-            ]], done: function () {
-                soulTable.render(this)
-            }
+                {field: 'element', type: 'numbers', title: 'ID', align: 'center', hide: true},
+                {field: 'webName', title: '名字', align: 'center', sort: true},
+                {field: 'elementTypeName', title: '位置', align: 'center'},
+                {field: 'teamName', title: '球队', align: 'center'},
+                {field: 'price', title: '身价', align: 'center', sort: true}
+            ]]
         });
     });
 </script>

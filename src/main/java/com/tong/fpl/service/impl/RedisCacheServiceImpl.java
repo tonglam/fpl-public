@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -384,7 +385,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
                         playerValueList.add(new PlayerValueEntity()
                                 .setElement(element)
                                 .setElementType(bootstrapPlayer.getElementType())
-                                .setEvent(CommonUtils.getCurrentEvent())
+                                .setEvent(this.getCurrentEvent())
                                 .setValue(bootstrapPlayer.getNowCost())
                                 .setChangeDate(changeDate)
                                 .setChangeType(this.getChangeType(bootstrapPlayer.getNowCost(), lastValue))
@@ -403,6 +404,19 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
             // update price in table player
             this.updatePriceOfPlayer(playerValueList);
         });
+    }
+
+    @Override
+    public int getCurrentEvent() {
+        int event = 1;
+        for (int i = 1; i < 39; i++) {
+            String deadline = this.getDeadlineByEvent(i);
+            if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+                event = i;
+                break;
+            }
+        }
+        return event;
     }
 
     private String getChangeType(int nowCost, int lastCost) {

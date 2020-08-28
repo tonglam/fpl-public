@@ -13,7 +13,6 @@
     <meta content="telephone=no" name="format-detection">
 
     <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
-    <link rel="stylesheet" th:href="@{/layui/css/soulTable.css}"/>
     <link rel="stylesheet" th:href="@{/css/layout.css}"/>
     <th:block th:replace="${links}"/>
 
@@ -92,16 +91,6 @@
 </body>
 
 <script th:fragment="baseScript" th:inline="javascript">
-    layui.config({
-        base: 'layui/',
-        version: 'v1.5.17'
-    }).extend({
-        soulTable: 'soulTable/soulTable',
-        tableChild: 'soulTable/tableChild',
-        tableMerge: 'soulTable/tableMerge',
-        tableFilter: 'soulTable/tableFilter',
-        excel: 'soulTable/excel',
-    });
     layui.use(['element', 'layer'], function () {
         let $ = layui.jquery;
         $("#teamIdBtn").on('click', function () {
@@ -154,7 +143,7 @@
                         layer.close(index);
                         // 回填
                         btn.text(entry);
-                        window.location.href("");
+                        window.location.reload();
                     })
                 },
                 end: function () {

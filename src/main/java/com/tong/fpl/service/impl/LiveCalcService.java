@@ -26,7 +26,6 @@ import com.tong.fpl.service.db.PlayerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -48,7 +47,6 @@ public class LiveCalcService implements ILiveCalcService {
 	private final EventLiveService eventLiveService;
 	private final IStaticSerive staticService;
 
-	@Cacheable(value = "calcLivePointsByEntry")
 	@Override
 	public LiveCalaData calcLivePointsByEntry(int event, int entry) {
 		LiveCalaData liveCalaData = new LiveCalaData();
@@ -75,7 +73,6 @@ public class LiveCalcService implements ILiveCalcService {
 		return liveCalaData;
 	}
 
-	@Cacheable(value = "calcLivePointsByElementList")
 	@Override
 	public LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
 		LiveCalaData liveCalaData = new LiveCalaData();
