@@ -78,46 +78,8 @@
 </script>
 
 <script>
-    layui.use(['element', 'layer'], function () {
-        $("#submitButton").on('click', function () {
-            //     let $ = layui.jquery;
-            //     $.ajax({
-            //         type: "get",
-            //         url: "http://letletme.top/api/qryPlayerData",
-            //         data: "{'element': 255, 'code': 122798, 'web_name': 'Robertson'}",
-            //         dataType: "json",
-            //         headers: {
-            //             "Content-Type": "application/json"
-            //         },
-            //         success: function (data) {
-            //             console.log(data);
-            //         },
-            //         error: function (error) {
-            //             console.log(error);
-            //         }
-            //     });
-            // let data = JSON.stringify({"element": 255, "code": 122798, "web_name": "Robertson"});
-            //
-            // let config = {
-            //     method: 'get',
-            //     url: 'http://letletme.top/api/qryPlayerData',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     data: data
-            // };
-            //
-            // axios(config)
-            //     .then(function (response) {
-            //         console.log(JSON.stringify(response.data));
-            //     })
-            //     .catch(function (error) {
-            //         console.log(error);
-            //     });
-
-
-        });
-        // $("#teamIdBtn").trigger("click");
+    $("#submitButton").on('click', function () {
+        $("#teamIdBtn").trigger("click");
     });
 </script>
 
