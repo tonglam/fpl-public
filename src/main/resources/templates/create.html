@@ -299,14 +299,14 @@
             })
                 .then(function (response) {
                     layer.close(loadIndex);
-                    let totalTeam = response.data;
+                    let totalTeam = response.data.data;
                     if (totalTeam == 0) {
                         layer.tips('联赛队伍总数为0，请重新填写官方联赛url', '#url', {time: 1500});
                         totalTeamDom.html("");
                         groupConfigDiv.addClass("layui-hide");
                         return false;
                     }
-                    totalTeamDom.html("队伍总数：" + response.data);
+                    totalTeamDom.html("队伍总数：" + totalTeam);
                     groupConfigDiv.removeClass("layui-hide");
                 })
                 .catch(function (error) {
@@ -546,66 +546,65 @@
          * @author tong 2020.08.13
          */
         form.on('select(knockoutMode)', function (data) {
-                // div
-                let createButtonDiv = $("#createButton");
-                // dom
+            // div
+            let createButtonDiv = $("#createButton");
+            // dom
             let knockoutRoundsDom = $("input[name=knockoutRounds]");
-                // val
-                let groupMode = $("select[name=groupMode]").val();
-                let knockoutMode = data.value;
-                switch (knockoutMode) {
-                    case "0": { // 无淘汰赛
-                        // 重置淘汰赛配置
-                        clearKnockoutConfig();
-                        // 隐藏淘汰赛配置
-                        hideKnockoutConfig();
-                        // 不能无小组赛
-                        if (groupMode == "0") {
-                            layer.msg("没有小组赛又没有淘汰赛还弄个啥", {icon: 5, time: 1000});
-                            createButtonDiv.addClass("layui-hide");
-                            return false;
-                        }
-                        // 有小组赛时，展示创建按钮
-                        createButtonDiv.removeClass("layui-hide");
-                        break;
-                    }
-                    case "1": // 单循环
-                    case "2": { // 主客场
-                        // 展示创建按钮
-                        createButtonDiv.removeClass("layui-hide");
-                        // 触发淘汰赛轮次事件
-                        knockoutRoundsDom.trigger("focusout");
-                        // 根据小组赛模式
-                        switch (groupMode) { // 无小组赛
-                            case "0": {
-                                // 展示淘汰赛轮次
-                                $("#knockoutRounds").removeClass("layui-hide");
-                                // 隐藏淘汰赛开始时间输入框
-                                $("#knockoutStartGw").addClass("layui-hide");
-                                // 展示淘汰赛开始时间下拉框和淘汰赛结束时间输入框
-                                $("#knockoutStartGwSelect").removeClass("layui-hide");
-                                $("#knockoutEndGw").removeClass("layui-hide");
-                                break;
-                            }
-                            case "1":
-                            case "2": {
-                                // 展示每组出线数量事件
-                                $("#groupQualifiers").removeClass("layui-hide");
-                            }
-                        }
-                        break;
-                    }
-                    default: { // 请选择
-                        // 隐藏淘汰赛配置
-                        hideKnockoutConfig();
-                        // 重置淘汰赛配置
-                        clearKnockoutConfig();
-                        // 隐藏提交按钮
+            // val
+            let groupMode = $("select[name=groupMode]").val();
+            let knockoutMode = data.value;
+            switch (knockoutMode) {
+                case "0": { // 无淘汰赛
+                    // 重置淘汰赛配置
+                    clearKnockoutConfig();
+                    // 隐藏淘汰赛配置
+                    hideKnockoutConfig();
+                    // 不能无小组赛
+                    if (groupMode == "0") {
+                        layer.msg("没有小组赛又没有淘汰赛还弄个啥", {icon: 5, time: 1000});
                         createButtonDiv.addClass("layui-hide");
+                        return false;
                     }
+                    // 有小组赛时，展示创建按钮
+                    createButtonDiv.removeClass("layui-hide");
+                    break;
+                }
+                case "1": // 单循环
+                case "2": { // 主客场
+                    // 展示创建按钮
+                    createButtonDiv.removeClass("layui-hide");
+                    // 触发淘汰赛轮次事件
+                    knockoutRoundsDom.trigger("focusout");
+                    // 根据小组赛模式
+                    switch (groupMode) { // 无小组赛
+                        case "0": {
+                            // 展示淘汰赛轮次
+                            $("#knockoutRounds").removeClass("layui-hide");
+                            // 隐藏淘汰赛开始时间输入框
+                            $("#knockoutStartGw").addClass("layui-hide");
+                            // 展示淘汰赛开始时间下拉框和淘汰赛结束时间输入框
+                            $("#knockoutStartGwSelect").removeClass("layui-hide");
+                            $("#knockoutEndGw").removeClass("layui-hide");
+                            break;
+                        }
+                        case "1":
+                        case "2": {
+                            // 展示每组出线数量事件
+                            $("#groupQualifiers").removeClass("layui-hide");
+                        }
+                    }
+                    break;
+                }
+                default: { // 请选择
+                    // 隐藏淘汰赛配置
+                    hideKnockoutConfig();
+                    // 重置淘汰赛配置
+                    clearKnockoutConfig();
+                    // 隐藏提交按钮
+                    createButtonDiv.addClass("layui-hide");
                 }
             }
-        );
+        });
 
         /**
          * knockoutStartGwSelect -> knockoutEndGw

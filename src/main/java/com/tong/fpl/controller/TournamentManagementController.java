@@ -46,22 +46,19 @@ public class TournamentManagementController {
                 .setLeagueId(Integer.parseInt(StringUtils.substringBetween(tournamentCreateData.getUrl(), "https://fantasy.premierleague.com/leagues/", "/standings")))
                 .setGroupMode(GroupMode.getGroupModeFromValue(tournamentCreateData.getGroupMode()).name())
                 .setKnockoutMode(KnockoutMode.getKnockoutModeFromValue(tournamentCreateData.getKnockoutMode()).name());
-//        return this.tournamentManagementApi.createNewTournament(tournamentCreateData);
-        return "创建成功!";
+        return this.tournamentManagementApi.createNewTournament(tournamentCreateData);
     }
 
     @ResponseBody
     @GetMapping(value = "/countLeagueTeams")
     public int countLeagueTeams(@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$") String url) {
-//        return this.tournamentManagementApi.countLeagueTeams(url);
-        return 107;
+        return this.tournamentManagementApi.countLeagueTeams(url);
     }
 
     @ResponseBody
     @GetMapping(value = "/checkTournamentName")
     public boolean checkTournamentName(String name) {
-//        return this.tournamentManagementApi.checkTournamentName(name);
-        return true;
+        return this.tournamentManagementApi.checkTournamentName(name);
     }
 
 }

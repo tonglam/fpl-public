@@ -3,7 +3,6 @@
 <head th:replace="layout::header(~{::title},~{::link})">
     <title>letletme</title>
     <link rel="stylesheet" th:href="@{/css/timeTo.css}"/>
-    <link rel="stylesheet" th:href="@{/css/index.css}"/>
 </head>
 
 <body>
@@ -34,7 +33,7 @@
                     </div>
 
                     <div class="layui-col-md12 layui-col-md-offset1" style="font-size: 30px;margin-top: 30px"
-                         th:text="'GW'+${nextGw}+' deadline：'+${deadline}"></div>
+                         id="deadlineTime"></div>
 
                     <div class="layui-col-md12 layui-col-md-offset2 timeTo timeTo-blue" id="countdown"
                          style="margin-top: 30px"></div>
@@ -64,8 +63,12 @@
 <script th:src="@{/js/jquery.time-to.js}"></script>
 
 <script th:inline="javascript">
-    $('#countdown').timeTo({
-        timeTo: new Date(Date.parse([[${deadline}]].replace(/-/g, "/"))),
+    let nextGw = [[${nextGw}]];
+    let deadline = getLocalTime([[${deadline}]]);
+    let deadLineTime = "GW" + nextGw + " deadline：" + deadline.format("yyyy-MM-dd hh:mm:ss");
+    $("#deadlineTime").html(deadLineTime);
+    $("#countdown").timeTo({
+        timeTo: deadline,
         displayDays: 2,
         displayCaptions: true,
         fontSize: 48,

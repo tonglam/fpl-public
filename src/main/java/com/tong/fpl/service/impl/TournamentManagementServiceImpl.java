@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -332,6 +333,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 		return "删除成功";
 	}
 
+	@Cacheable(value = "tournamentCountLeagueTeams", key = "#url")
 	@Override
 	public int countLeagueTeams(String url) {
 		return url.contains("/standings/c") ?
@@ -339,6 +341,7 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
 				: this.staticSerive.getEntryInfoListFromH2h(this.getLeagueIdByType(url, LeagueType.H2h.name())).size();
 	}
 
+	@Cacheable(value = "tournamentcheckTournamentName", key = "#name")
 	@Override
 	public boolean checkTournamentName(String name) {
 		return this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
