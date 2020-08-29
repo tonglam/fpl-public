@@ -41,7 +41,7 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
                 return JsonUtils.obj2json(ResponseData.success(body.toString()));
             }
         }
-        return ResponseData.success(body);
+        return body;
     }
 
 }
