@@ -30,14 +30,16 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
         if (body == null) {
             return ResponseData.success();
         }
-        if (body instanceof ResponseData) {
-            return body;
-        }
         if (body instanceof Page<?>) {
             return TablePageData.success((Page<?>) body);
         }
-        if (body instanceof String) {
-            return JsonUtils.obj2json(ResponseData.success(body.toString()));
+        if (returnType.getExecutable().getClass().getSimpleName().contains("Http")) {
+            if (body instanceof ResponseData) {
+                return body;
+            }
+            if (body instanceof String) {
+                return JsonUtils.obj2json(ResponseData.success(body.toString()));
+            }
         }
         return ResponseData.success(body);
     }

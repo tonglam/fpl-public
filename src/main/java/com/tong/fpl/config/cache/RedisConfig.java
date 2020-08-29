@@ -9,7 +9,6 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +31,6 @@ import java.time.Duration;
  * Create by tong on 2020/8/22
  */
 @Configuration
-@EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
 
 	@Override
@@ -47,8 +45,8 @@ public class RedisConfig extends CachingConfigurerSupport {
 		};
 	}
 
-	@Primary
 	@Bean
+	@Primary
 	public CacheManager cacheManager(LettuceConnectionFactory factory) {
 		RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
 				.entryTtl(Duration.ofMinutes(30))

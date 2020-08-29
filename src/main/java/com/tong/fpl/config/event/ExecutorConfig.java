@@ -1,4 +1,4 @@
-package com.tong.fpl.config.executor;
+package com.tong.fpl.config.event;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 /**
  * Create by tong on 2020/7/2
  */
-//@EnableAsync
 @Configuration
 public class ExecutorConfig {
 

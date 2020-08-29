@@ -164,8 +164,7 @@
                         <div class="layui-inline layui-hide" id="knockoutStartGwSelect">
                             <label class="layui-form-label label-required">开始时间</label>
                             <div class="layui-input-block">
-                                <select lay-filter="knockoutStartGwSelect" lay-reqtext="请选择淘汰赛开始时间" lay-search=""
-                                        lay-verify="required" name="knockoutStartGwSelect">
+                                <select lay-filter="knockoutStartGwSelect" lay-search="" name="knockoutStartGwSelect">
                                     <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
                                             th:value="${userStat.current.key}"></option>
                                 </select>
@@ -292,14 +291,14 @@
             // 展示加载层
             let loadIndex = layer.load();
             // 计算联赛队伍数量
-            axios.get('/tournament/countLeagueTeams', {
+            axios.get('/tournament/countTournamentLeagueTeams', {
                 params: {
                     url: url
                 }
             })
                 .then(function (response) {
                     layer.close(loadIndex);
-                    let totalTeam = response.data.data;
+                    let totalTeam = response.data;
                     if (totalTeam == 0) {
                         layer.tips('联赛队伍总数为0，请重新填写官方联赛url', '#url', {time: 1500});
                         totalTeamDom.html("");
@@ -349,7 +348,8 @@
                         $(this).val('');
                     }
                 })
-                .catch(function () {
+                .catch(function (error) {
+                    console.info(error);
                     layer.tips("赛事名称查询错误，请重试", this, {time: 1500});
                     $(this).val('');
                 });

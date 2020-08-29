@@ -73,7 +73,7 @@ public class HttpController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/qryPlayerData")
+	@RequestMapping("/qryPlayerData")
 	@ResponseBody
 	public PlayerData qryPlayerData(@RequestBody PlayerQueryParam queryParam) throws Exception {
 		return this.httpApi.qryPlayerData(queryParam);

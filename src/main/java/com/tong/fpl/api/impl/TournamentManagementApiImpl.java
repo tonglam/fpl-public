@@ -36,8 +36,8 @@ public class TournamentManagementApiImpl implements ITournamentManagementApi {
     }
 
     @Override
-    public int countLeagueTeams(String url) {
-        return this.tournamentManagementService.countLeagueTeams(url);
+    public int countTournamentLeagueTeams(String url) {
+        return this.tournamentManagementService.countTournamentLeagueTeams(url);
     }
 
     @Override

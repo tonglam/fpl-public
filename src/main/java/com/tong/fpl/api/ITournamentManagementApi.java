@@ -41,7 +41,7 @@ public interface ITournamentManagementApi {
      * @param url url
      * @return numver
      */
-    int countLeagueTeams(String url);
+    int countTournamentLeagueTeams(String url);
 
     /**
      * check if tournament name exists

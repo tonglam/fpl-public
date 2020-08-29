@@ -50,9 +50,9 @@ public class TournamentManagementController {
     }
 
     @ResponseBody
-    @GetMapping(value = "/countLeagueTeams")
-    public int countLeagueTeams(@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$") String url) {
-        return this.tournamentManagementApi.countLeagueTeams(url);
+    @GetMapping(value = "/countTournamentLeagueTeams")
+    public int countTournamentLeagueTeams(@Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$") String url) {
+        return this.tournamentManagementApi.countTournamentLeagueTeams(url);
     }
 
     @ResponseBody
