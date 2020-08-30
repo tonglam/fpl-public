@@ -33,8 +33,8 @@
                 <a href="javascript:void(0)">自定义赛事</a>
                 <dl class="layui-nav-child">
                     <dd><a href="/tournament/create">创建赛事</a></dd>
-                    <dd><a href="">管理赛事</a></dd>
-                    <dd><a href="" target="_blank">查看赛果</a></dd>
+                    <dd><a href="/tournament/manage">管理赛事</a></dd>
+                    <dd><a href="/tournament/result">查看赛果</a></dd>
                     <dd><a href="/tournament/rule" target="_blank">规则</a></dd>
                 </dl>
             </li>
@@ -130,19 +130,23 @@
                             return false;
                         }
                         // 保存
-                        axios.get('/saveEntry?entry=' + entry);
-                        // 关闭
-                        layer.msg('team_id更新成功', {
-                            offset: '100px',
-                            icon: 6,
-                            shade: 0.8,
-                            shadeClose: true,
-                            time: 1500
-                        });
-                        layer.close(index);
-                        // 回填
-                        btn.text(entry);
-                        window.location.reload();
+                        axios.get('/saveEntry?entry=' + entry)
+                            .then(function () {
+                                // 关闭
+                                layer.msg('team_id更新成功', {
+                                    offset: '100px',
+                                    icon: 6,
+                                    shade: 0.8,
+                                    shadeClose: true,
+                                    time: 1500
+                                });
+                                layer.close(index);
+                                // 回填
+                                btn.text(entry);
+                            })
+                            .catch(function (error) {
+                                console.error(error);
+                            });
                     })
                 },
                 end: function () {

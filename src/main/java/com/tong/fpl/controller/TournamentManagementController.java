@@ -30,12 +30,22 @@ public class TournamentManagementController {
     @RequestMapping(value = "/create")
     public String tournamentCreateController(Model model) {
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-        return "create";
+        return "tournamentCreate";
+    }
+
+    @RequestMapping(value = "/manage")
+    public String tournamentManageController() {
+        return "tournamentManage";
+    }
+
+    @RequestMapping(value = "/result")
+    public String tournamentResultController() {
+        return "tournamentResult";
     }
 
     @RequestMapping(value = "/rule")
     public String tournamentRuleController() {
-	    return "rule";
+        return "tournamentRule";
     }
 
     @ResponseBody

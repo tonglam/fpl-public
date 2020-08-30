@@ -3,6 +3,7 @@
 <head th:replace="layout::header(~{::title},~{::link})">
     <title>letletme</title>
     <link rel="stylesheet" th:href="@{/css/timeTo.css}"/>
+    <link rel="stylesheet" th:href="@{/css/index.css}"/>
 </head>
 
 <body>
@@ -16,6 +17,9 @@
             <div class="layui-row">
 
                 <div class="layui-col-md8 layui-col-md-offset4">
+
+                    <br>
+                    <br>
 
                     <div class="layui-col-md12 layui-col-md-offset4" id="letletme">
                         <img style="width: 150px;height: 150px" th:src="@{/img/begbeg.jpg}">
@@ -78,8 +82,29 @@
 </script>
 
 <script>
-    $("#submitButton").on('click', function () {
-        $("#teamIdBtn").trigger("click");
+    layui.use(['element', 'layer'], function () {
+        $("#submitButton").on('click', function () {
+            let entry = $("input[name=knockoutRounds]").val();
+            // 保存
+            axios.get('/saveEntry?entry=' + entry)
+                .then(function () {
+                    // 关闭
+                    layer.msg('team_id更新成功', {
+                        offset: '100px',
+                        icon: 6,
+                        shade: 0.8,
+                        shadeClose: true,
+                        time: 1500
+                    });
+                    // 回填
+                    $("#teamIdBtn").text(entry);
+                    // 重置
+                    $("input[name=knockoutRounds]").val("");
+                })
+                .catch(function (error) {
+                    console.error(error);
+                });
+        });
     });
 </script>
 

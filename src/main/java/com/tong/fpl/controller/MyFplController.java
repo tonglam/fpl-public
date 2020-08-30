@@ -22,8 +22,8 @@ public class MyFplController {
 
 	@RequestMapping(value = "/pick")
 	public String pickController() {
-		return "pick";
-	}
+        return "myFplPick";
+    }
 
 	@GetMapping("/qryPlayerDataList")
 	@ResponseBody

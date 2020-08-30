@@ -16,12 +16,12 @@
 
             <form class="layui-form" lay-filter="tournamentForm">
 
-                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
-                    <legend><a name="compatibility">赛事信息</a></legend>
-                </fieldset>
-
                 <!-- 基本设定 -->
-                <div id="baseConfig">
+                <div class="layui-hide" id="baseConfig">
+
+                    <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                        <legend><a name="compatibility">赛事信息</a></legend>
+                    </fieldset>
 
                     <div class="layui-form-item" id="url">
                         <label class="layui-form-label label-required">官方联赛</label>
@@ -203,7 +203,7 @@
 
 <div th:replace="layout::footer"></div>
 
-<div th:replace="rule::main"></div>
+<div th:replace="tournamentRule::main"></div>
 
 </body>
 
@@ -222,7 +222,8 @@
          *
          * @author 2020.08.15
          */
-        $(document).ready(function () {
+        layer.ready(function () {
+            $("#baseConfig").removeClass("layui-hide");
             layer.open({
                 type: 1,
                 title: false,
@@ -310,7 +311,7 @@
                 })
                 .catch(function (error) {
                     layer.close(loadIndex);
-                    console.info(error)
+                    console.error(error);
                     layer.tips("联赛url读取错误，请重试", '#url', {time: 1500});
                     totalTeamDom.html("");
                     groupConfigDiv.addClass("layui-hide");
@@ -349,7 +350,7 @@
                     }
                 })
                 .catch(function (error) {
-                    console.info(error);
+                    console.error(error);
                     layer.tips("赛事名称查询错误，请重试", this, {time: 1500});
                     $(this).val('');
                 });

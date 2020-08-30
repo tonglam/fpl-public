@@ -347,7 +347,6 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
                 : this.staticSerive.getEntryInfoListFromH2h(this.getLeagueIdByType(url, LeagueType.H2h.name())).size();
     }
 
-    @Cacheable(value = "checkTournamentName", key = "#name")
     @Override
     public boolean checkTournamentName(String name) {
         return this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()

@@ -1,4 +1,8 @@
 spring:
+  session:
+    redis:
+      flush-mode: immediate
+    store-type: redis
   redis:
     host: 39.101.195.167
     port: 6379
