@@ -5,20 +5,18 @@ import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
-import com.tong.fpl.domain.data.letletme.global.QueryParam;
-import com.tong.fpl.domain.data.letletme.tournament.TournamentCreateData;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
+import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
 import com.tong.fpl.service.IStaticSerive;
-import com.tong.fpl.service.ITournamentManagementService;
+import com.tong.fpl.service.ITournamentService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -36,7 +34,7 @@ import java.util.stream.IntStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class TournamentManagementServiceImpl implements ITournamentManagementService {
+public class TournamentServiceImpl implements ITournamentService {
 
     private final EntryInfoService entryInfoService;
     private final TournamentInfoService tournamentInfoService;
@@ -62,11 +60,13 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
         // config basic info
         tournamentInfoEntity.setName(tournamentCreateData.getTournamentName());
         tournamentInfoEntity.setCreator(tournamentCreateData.getCreator());
+        tournamentInfoEntity.setAdminerEntry(tournamentCreateData.getAdminerEntry());
         tournamentInfoEntity.setSeason(CommonUtils.getCurrentSeason());
         tournamentInfoEntity.setLeagueType(tournamentCreateData.getLeagueType());
         tournamentInfoEntity.setLeagueId(tournamentCreateData.getLeagueId());
         tournamentInfoEntity.setTotalTeam(tournamentCreateData.getTotalTeam());
         tournamentInfoEntity.setKnockoutPlayAgainstNum(this.setKnouckoutPlayAgainstNum(tournamentCreateData.getKnockoutMode()));
+        tournamentInfoEntity.setState(1);
         // config group info
         this.configGroupInfo(tournamentInfoEntity, tournamentCreateData);
         // config knockout info
@@ -76,6 +76,81 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
         // publish event
         context.publishEvent(new CreateTournamentEventData(this, tournamentCreateData.getTournamentName()));
         return "创建成功！";
+    }
+
+    private void configGroupInfo(TournamentInfoEntity tournamentInfoEntity, TournamentCreateData tournamentCreateData) {
+        GroupMode groupMode = GroupMode.valueOf(tournamentCreateData.getGroupMode());
+        tournamentInfoEntity.setGroupMode(groupMode.toString());
+        switch (groupMode) {
+            case No_group: {
+                tournamentInfoEntity.setGroupPlayAgainstNum(0);
+                tournamentInfoEntity.setTeamPerGroup(0);
+                tournamentInfoEntity.setGroupStartGw(-1);
+                tournamentInfoEntity.setGroupEndGw(-1);
+                tournamentInfoEntity.setGroupRounds(0);
+                tournamentInfoEntity.setGroupQualifiers(0);
+                tournamentInfoEntity.setGroupFillAverage(false);
+                tournamentInfoEntity.setGroupNum(0);
+                break;
+            }
+            case Points_race: {
+                tournamentInfoEntity.setGroupPlayAgainstNum(0);
+                tournamentInfoEntity.setTeamPerGroup(KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout ?
+                        tournamentInfoEntity.getTotalTeam() : tournamentCreateData.getTeamsPerGroup());
+                tournamentInfoEntity.setGroupStartGw(CommonUtils.getRealGw(tournamentCreateData.getGroupStartGw()));
+                tournamentInfoEntity.setGroupEndGw(CommonUtils.getRealGw(tournamentCreateData.getGroupEndGw()));
+                tournamentInfoEntity.setGroupRounds(tournamentInfoEntity.getGroupEndGw() - tournamentInfoEntity.getGroupStartGw() + 1);
+                tournamentInfoEntity.setGroupQualifiers(KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout ?
+                        0 : tournamentCreateData.getGroupQualifiers());
+                tournamentInfoEntity.setGroupFillAverage(false);
+                tournamentInfoEntity.setGroupNum((int) (Math.ceil(tournamentInfoEntity.getTotalTeam() * 1.0 / tournamentInfoEntity.getTeamPerGroup())));
+                break;
+            }
+            case Battle_race: {
+                tournamentInfoEntity.setTeamPerGroup(KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout ?
+                        tournamentInfoEntity.getTotalTeam() : tournamentCreateData.getTeamsPerGroup());
+                tournamentInfoEntity.setGroupStartGw(CommonUtils.getRealGw(tournamentCreateData.getGroupStartGw()));
+                tournamentInfoEntity.setGroupEndGw(CommonUtils.getRealGw(tournamentCreateData.getGroupEndGw()));
+                tournamentInfoEntity.setGroupRounds(tournamentInfoEntity.getGroupEndGw() - tournamentInfoEntity.getGroupStartGw() + 1);
+                tournamentInfoEntity.setGroupPlayAgainstNum((int) Math.ceil(tournamentInfoEntity.getGroupRounds() * 1.0 /
+                        (tournamentInfoEntity.getTeamPerGroup() - 1)));
+                tournamentInfoEntity.setGroupQualifiers(KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout ?
+                        0 : tournamentCreateData.getGroupQualifiers());
+                tournamentInfoEntity.setGroupFillAverage(tournamentCreateData.isGroupFillAverage());
+                tournamentInfoEntity.setGroupNum((int) (Math.ceil(tournamentInfoEntity.getTotalTeam() * 1.0 / tournamentInfoEntity.getTeamPerGroup())));
+                break;
+            }
+            default:
+        }
+    }
+
+    private void configKnockoutInfo(TournamentInfoEntity tournamentInfoEntity, TournamentCreateData tournamentCreateData) {
+        KnockoutMode knockoutMode = KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode());
+        tournamentInfoEntity.setKnockoutMode(knockoutMode.toString());
+        switch (knockoutMode) {
+            case No_knockout: {
+                tournamentInfoEntity.setKnockoutTeam(0);
+                tournamentInfoEntity.setKnockoutStartGw(-1);
+                tournamentInfoEntity.setKnockoutEndGw(-1);
+                tournamentInfoEntity.setKnockoutRounds(0);
+                break;
+            }
+            case Single_round:
+            case Home_away: {
+                if (GroupMode.valueOf(tournamentInfoEntity.getGroupMode()) == GroupMode.No_group) {
+                    tournamentInfoEntity.setKnockoutTeam(tournamentInfoEntity.getTotalTeam());
+                    tournamentInfoEntity.setKnockoutStartGw(CommonUtils.getRealGw(tournamentCreateData.getKnockoutStartGw()));
+                } else {
+                    tournamentInfoEntity.setKnockoutTeam(tournamentInfoEntity.getGroupQualifiers() * tournamentInfoEntity.getGroupNum());
+                    tournamentInfoEntity.setKnockoutStartGw(tournamentInfoEntity.getGroupEndGw() + 1);
+                }
+                tournamentInfoEntity.setKnockoutRounds((int) Math.ceil(Math.log(tournamentInfoEntity.getKnockoutTeam()) / Math.log(2)) *
+                        tournamentInfoEntity.getKnockoutPlayAgainstNum());
+                tournamentInfoEntity.setKnockoutEndGw(tournamentInfoEntity.getKnockoutStartGw() + tournamentInfoEntity.getKnockoutRounds() - 1);
+                break;
+            }
+            default:
+        }
     }
 
     @Override
@@ -321,24 +396,6 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
         log.info("draw knockouts success!");
     }
 
-    @Cacheable(value = "queryTournamentInfo", key = "#param.cupName")
-    @Override
-    public List<TournamentInfoEntity> queryTournamentInfo(QueryParam param) {
-        return this.tournamentInfoService.queryTournamentInfo(param);
-    }
-
-    @CacheEvict(value = "deleteTournament", key = "#name")
-    @Override
-    public String deleteTournamentByCupName(String name) {
-        TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-                .eq(TournamentInfoEntity::getName, name));
-        if (tournamentInfoEntity == null) {
-            return "删除失败，赛事不存在！";
-        }
-        this.tournamentInfoService.removeById(tournamentInfoEntity.getId());
-        return "删除成功";
-    }
-
     @Cacheable(value = "countTournamentLeagueTeams", key = "#url")
     @Override
     public int countTournamentLeagueTeams(String url) {
@@ -347,85 +404,47 @@ public class TournamentManagementServiceImpl implements ITournamentManagementSer
                 : this.staticSerive.getEntryInfoListFromH2h(this.getLeagueIdByType(url, LeagueType.H2h.name())).size();
     }
 
+    @Cacheable(cacheNames = "tournamentInfo", key = "#name")
     @Override
     public boolean checkTournamentName(String name) {
         return this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
                 .eq(TournamentInfoEntity::getName, name)) == null;
     }
 
-    private void configGroupInfo(TournamentInfoEntity tournamentInfoEntity, TournamentCreateData tournamentCreateData) {
-        GroupMode groupMode = GroupMode.valueOf(tournamentCreateData.getGroupMode());
-        tournamentInfoEntity.setGroupMode(groupMode.toString());
-        switch (groupMode) {
-            case No_group: {
-                tournamentInfoEntity.setGroupPlayAgainstNum(0);
-                tournamentInfoEntity.setTeamPerGroup(0);
-                tournamentInfoEntity.setGroupStartGw(-1);
-                tournamentInfoEntity.setGroupEndGw(-1);
-                tournamentInfoEntity.setGroupRounds(0);
-                tournamentInfoEntity.setGroupQualifiers(0);
-                tournamentInfoEntity.setGroupFillAverage(false);
-                tournamentInfoEntity.setGroupNum(0);
-                break;
-            }
-            case Points_race: {
-                tournamentInfoEntity.setGroupPlayAgainstNum(0);
-                tournamentInfoEntity.setTeamPerGroup(KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout ?
-                        tournamentInfoEntity.getTotalTeam() : tournamentCreateData.getTeamsPerGroup());
-                tournamentInfoEntity.setGroupStartGw(CommonUtils.getRealGw(tournamentCreateData.getGroupStartGw()));
-                tournamentInfoEntity.setGroupEndGw(CommonUtils.getRealGw(tournamentCreateData.getGroupEndGw()));
-                tournamentInfoEntity.setGroupRounds(tournamentInfoEntity.getGroupEndGw() - tournamentInfoEntity.getGroupStartGw() + 1);
-                tournamentInfoEntity.setGroupQualifiers(KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout ?
-                        0 : tournamentCreateData.getGroupQualifiers());
-                tournamentInfoEntity.setGroupFillAverage(false);
-                tournamentInfoEntity.setGroupNum((int) (Math.ceil(tournamentInfoEntity.getTotalTeam() * 1.0 / tournamentInfoEntity.getTeamPerGroup())));
-                break;
-            }
-            case Battle_race: {
-                tournamentInfoEntity.setTeamPerGroup(KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout ?
-                        tournamentInfoEntity.getTotalTeam() : tournamentCreateData.getTeamsPerGroup());
-                tournamentInfoEntity.setGroupStartGw(CommonUtils.getRealGw(tournamentCreateData.getGroupStartGw()));
-                tournamentInfoEntity.setGroupEndGw(CommonUtils.getRealGw(tournamentCreateData.getGroupEndGw()));
-                tournamentInfoEntity.setGroupRounds(tournamentInfoEntity.getGroupEndGw() - tournamentInfoEntity.getGroupStartGw() + 1);
-                tournamentInfoEntity.setGroupPlayAgainstNum((int) Math.ceil(tournamentInfoEntity.getGroupRounds() * 1.0 /
-                        (tournamentInfoEntity.getTeamPerGroup() - 1)));
-                tournamentInfoEntity.setGroupQualifiers(KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode()) == KnockoutMode.No_knockout ?
-                        0 : tournamentCreateData.getGroupQualifiers());
-                tournamentInfoEntity.setGroupFillAverage(tournamentCreateData.isGroupFillAverage());
-                tournamentInfoEntity.setGroupNum((int) (Math.ceil(tournamentInfoEntity.getTotalTeam() * 1.0 / tournamentInfoEntity.getTeamPerGroup())));
-                break;
-            }
-            default:
+    @Override
+    public String updateTournament(TournamentCreateData tournamentCreateData) {
+        boolean update = false;
+        TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+                .eq(TournamentInfoEntity::getName, tournamentCreateData.getTournamentName()));
+        if (tournamentInfoEntity == null) {
+            return "更新失败，赛事不存在！";
         }
+        if (!StringUtils.equals(tournamentCreateData.getCreator(), tournamentInfoEntity.getCreator())) {
+            tournamentInfoEntity.setCreator(tournamentCreateData.getCreator());
+            update = true;
+        }
+        if (tournamentCreateData.getAdminerEntry() != tournamentInfoEntity.getAdminerEntry()) {
+            tournamentInfoEntity.setAdminerEntry(tournamentCreateData.getAdminerEntry());
+            update = true;
+        }
+        if (!update) {
+            return "更新失败，没有要更新的数据！";
+        }
+        this.tournamentInfoService.updateById(tournamentInfoEntity);
+        return "更新成功！";
     }
 
-    private void configKnockoutInfo(TournamentInfoEntity tournamentInfoEntity, TournamentCreateData tournamentCreateData) {
-        KnockoutMode knockoutMode = KnockoutMode.valueOf(tournamentCreateData.getKnockoutMode());
-        tournamentInfoEntity.setKnockoutMode(knockoutMode.toString());
-        switch (knockoutMode) {
-            case No_knockout: {
-                tournamentInfoEntity.setKnockoutTeam(0);
-                tournamentInfoEntity.setKnockoutStartGw(-1);
-                tournamentInfoEntity.setKnockoutEndGw(-1);
-                tournamentInfoEntity.setKnockoutRounds(0);
-                break;
-            }
-            case Single_round:
-            case Home_away: {
-                if (GroupMode.valueOf(tournamentInfoEntity.getGroupMode()) == GroupMode.No_group) {
-                    tournamentInfoEntity.setKnockoutTeam(tournamentInfoEntity.getTotalTeam());
-                    tournamentInfoEntity.setKnockoutStartGw(CommonUtils.getRealGw(tournamentCreateData.getKnockoutStartGw()));
-                } else {
-                    tournamentInfoEntity.setKnockoutTeam(tournamentInfoEntity.getGroupQualifiers() * tournamentInfoEntity.getGroupNum());
-                    tournamentInfoEntity.setKnockoutStartGw(tournamentInfoEntity.getGroupEndGw() + 1);
-                }
-                tournamentInfoEntity.setKnockoutRounds((int) Math.ceil(Math.log(tournamentInfoEntity.getKnockoutTeam()) / Math.log(2)) *
-                        tournamentInfoEntity.getKnockoutPlayAgainstNum());
-                tournamentInfoEntity.setKnockoutEndGw(tournamentInfoEntity.getKnockoutStartGw() + tournamentInfoEntity.getKnockoutRounds() - 1);
-                break;
-            }
-            default:
+    @Override
+    public String deleteTournamentByName(String name) {
+        TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+                .eq(TournamentInfoEntity::getName, name));
+        if (tournamentInfoEntity == null) {
+            return "删除失败，赛事不存在！";
         }
+        // set state = 0
+        tournamentInfoEntity.setState(0);
+        this.tournamentInfoService.updateById(tournamentInfoEntity);
+        return "删除成功";
     }
 
     private Multimap<Integer, String> drawAbstractBattle(int teamPerGroup, int playAgainstNum, int groupRound) {

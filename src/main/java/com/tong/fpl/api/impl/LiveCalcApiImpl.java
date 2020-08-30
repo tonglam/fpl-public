@@ -1,7 +1,7 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.ILiveCalcApi;
-import com.tong.fpl.domain.data.letletme.api.LiveCalaData;
+import com.tong.fpl.domain.letletme.api.LiveCalaData;
 import com.tong.fpl.service.ILiveCalcService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.tong.fpl.config.event;
 
 import com.tong.fpl.domain.event.CreateTournamentEventData;
-import com.tong.fpl.service.impl.TournamentManagementServiceImpl;
+import com.tong.fpl.service.impl.TournamentServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentEventLister {
 
-    private final TournamentManagementServiceImpl tournamentManagement;
+    private final TournamentServiceImpl tournamentManagement;
 
     @Async("eventExecutor")
     @EventListener

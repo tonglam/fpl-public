@@ -30,8 +30,7 @@
                             <div class="layui-input-inline">
                                 <input class="layui-input" name="knockoutRounds" placeholder="请输入球队id">
                             </div>
-                            <button class="layui-btn" id="submitButton" lay-filter="startnament"
-                                    lay-submit="createTournament" type="submit">开始
+                            <button class="layui-btn" id="submitButton" lay-submit="createTournament" type="submit">开始
                             </button>
                         </div>
                     </div>
@@ -102,7 +101,7 @@
                     $("input[name=knockoutRounds]").val("");
                 })
                 .catch(function (error) {
-                    console.error(error);
+                    console.info(error.message);
                 });
         });
     });

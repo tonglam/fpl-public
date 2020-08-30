@@ -43,6 +43,16 @@
                         <i class="layui-hide layui-icon layui-icon-ok" id="nameTipsIcon" style="color:black"></i>
                     </div>
 
+                    <div class="layui-form-item" id="adminer">
+                        <label class="layui-form-label label-required">管理员id</label>
+                        <div class="layui-input-inline">
+                            <input autocomplete="on" class="layui-input" lay-reqtext="管理员id不能为空"
+                                   lay-verify="required" name="adminer"
+                                   th:placeholder="${session.entry}? ${session.entry} : '请输入管理员id'"
+                                   type="number">
+                        </div>
+                    </div>
+
                     <div class="layui-form-item" id="creator">
                         <label class="layui-form-label label-required">创建人</label>
                         <div class="layui-input-inline">
@@ -283,7 +293,7 @@
                 return false;
             }
             if (!new RegExp("^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$").test(url)) {
-                layer.tips('联赛url格式错误，请重试', '#url', {time: 1500});
+                layer.msg('联赛url格式错误，请重试', {time: 1500});
                 totalTeamDom.html("");
                 groupConfigDiv.addClass("layui-hide");
                 clearGroupConfig();
@@ -301,7 +311,7 @@
                     layer.close(loadIndex);
                     let totalTeam = response.data;
                     if (totalTeam == 0) {
-                        layer.tips('联赛队伍总数为0，请重新填写官方联赛url', '#url', {time: 1500});
+                        layer.msg('联赛队伍总数为0，请重新填写官方联赛url', {time: 1500});
                         totalTeamDom.html("");
                         groupConfigDiv.addClass("layui-hide");
                         return false;
@@ -311,8 +321,8 @@
                 })
                 .catch(function (error) {
                     layer.close(loadIndex);
-                    console.error(error);
-                    layer.tips("联赛url读取错误，请重试", '#url', {time: 1500});
+                    console.info(error.message);
+                    layer.msg("联赛url读取错误，请重试", {time: 1500});
                     totalTeamDom.html("");
                     groupConfigDiv.addClass("layui-hide");
                     clearGroupConfig();
@@ -344,15 +354,15 @@
                     if (response.data == true) {
                         nameTipsIconDiv.removeClass("layui-hide");
                     } else if (response.data == false) {
-                        layer.tips("赛事名称已存在，请更换", this, {time: 1500});
+                        layer.msg("赛事名称已存在，请更换", {time: 1500});
                         nameTipsIconDiv.addClass("layui-hide");
-                        $(this).val('');
+                        $(this).html('');
                     }
                 })
                 .catch(function (error) {
-                    console.error(error);
-                    layer.tips("赛事名称查询错误，请重试", this, {time: 1500});
-                    $(this).val('');
+                    console.info(error.message);
+                    layer.msg("赛事名称查询错误，请重试", {time: 1500});
+                    $(this).html('');
                 });
         });
 
@@ -419,7 +429,7 @@
             // 校验开始时间
             let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
             if (groupEndGw != '' && groupStartGw >= groupEndGw) {
-                layer.tips("开始时间必须早于结束时间！", '#groupStartGw', {time: 1500});
+                layer.msg("开始时间必须早于结束时间！", {time: 1500});
                 $("select[name=groupStartGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
             }
         });
@@ -438,7 +448,7 @@
             let groupStartGw = getGwValue($("select[name=groupStartGw]").val());
             let groupEndGw = getGwValue(data.value);
             if (groupStartGw != '' && groupEndGw != '' && groupStartGw >= groupEndGw) {
-                layer.tips("结束时间必须晚于开始时间！", '#groupEndGw', {time: 1500});
+                layer.msg("结束时间必须晚于开始时间！", {time: 1500});
                 $("select[name=groupEndGw]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
             }
             // 触发淘汰赛开始时间事件
@@ -466,21 +476,21 @@
             }
             // 需为正整数
             if (parseInt(groupTeamsPerGroup) <= 0) {
-                layer.tips("需为正整数", this, {time: 1500});
+                layer.msg("需为正整数", {time: 1500});
                 clearGroupTeamsPerGroup();
                 return false;
             }
             // 校验联赛队伍数量
             let totalTeam = getValueFromStr($("#totalTeam").html());
             if (parseInt(groupTeamsPerGroup) > parseInt(totalTeam)) {
-                layer.tips("不能大于联赛队伍总数：" + totalTeam, this, {time: 1500});
+                layer.msg("不能大于联赛队伍总数：" + totalTeam, {time: 1500});
                 clearGroupTeamsPerGroup();
                 return false;
             }
             // 校验每组出线队伍数量
             let groupQualifiers = $("input[name=groupQualifiers]").val();
             if (parseInt(groupQualifiers) > parseInt(groupTeamsPerGroup)) {
-                layer.tips("不能大于每组队伍数量：" + groupTeamsPerGroup, this, {time: 1500});
+                layer.msg("不能大于每组队伍数量：" + groupTeamsPerGroup, {time: 1500});
                 clearGroupTeamsPerGroup();
                 return false;
             }
@@ -512,7 +522,7 @@
             }
             // 需为正整数
             if (parseInt(groupQualifiers) <= 0) {
-                layer.tips("小组出线数量需为正整数", this, {time: 1500});
+                layer.msg("小组出线数量需为正整数", {time: 1500});
                 $(this).val('');
                 knockoutRoundsDom.trigger('focusout');
                 return false;
@@ -529,7 +539,7 @@
             // 校验每组队伍数量
             let groupTeamsPerGroup = $("input[name=groupTeamsPerGroup]").val();
             if (groupTeamsPerGroup == '' || parseInt(groupQualifiers) > parseInt(groupTeamsPerGroup)) {
-                layer.tips("每组出线数量不能大于每组队伍数量：" + groupTeamsPerGroup, this, {time: 1500});
+                layer.msg("每组出线数量不能大于每组队伍数量：" + groupTeamsPerGroup, {time: 1500});
                 $(this).val('');
                 knockoutRoundsDom.trigger('focusout');
                 return false;
@@ -759,6 +769,7 @@
             tournamentCreateData.url = formData.url;
             tournamentCreateData.tournamentName = formData.tournamentName;
             tournamentCreateData.creator = formData.creator;
+            tournamentCreateData.adminerEntry = formData.adminerEntry;
             tournamentCreateData.leagueType = formData.leagueType;
             tournamentCreateData.leagueId = formData.leagueId;
             tournamentCreateData.totalTeam = getValueFromStr($("#totalTeam").html());
@@ -782,7 +793,8 @@
                         });
                     })
                     .catch(function (error) {
-                        layer.msg(error.data + "请重新尝试！", {icon: 2, time: 1500});
+                        console.info(error.message);
+                        layer.msg("创建失败，请重新尝试！", {icon: 2, time: 1500});
                         $(this).removeAttr("disabled");
                     });
             });

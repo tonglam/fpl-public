@@ -1,9 +1,9 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.data.letletme.api.EntryEventData;
-import com.tong.fpl.domain.data.letletme.player.PlayerData;
-import com.tong.fpl.domain.data.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.api.EntryEventData;
+import com.tong.fpl.domain.letletme.player.PlayerData;
+import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;

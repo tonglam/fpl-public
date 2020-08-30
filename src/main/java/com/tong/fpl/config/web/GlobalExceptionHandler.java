@@ -1,6 +1,6 @@
 package com.tong.fpl.config.web;
 
-import com.tong.fpl.domain.data.letletme.global.ResponseData;
+import com.tong.fpl.domain.letletme.global.ResponseData;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

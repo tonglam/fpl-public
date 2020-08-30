@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.data.letletme.global;
+package com.tong.fpl.domain.letletme.global;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;

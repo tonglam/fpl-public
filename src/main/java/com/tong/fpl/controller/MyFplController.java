@@ -2,7 +2,7 @@ package com.tong.fpl.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.api.IMyFplApi;
-import com.tong.fpl.domain.data.letletme.table.PlayTableData;
+import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,7 +27,7 @@ public class MyFplController {
 
 	@GetMapping("/qryPlayerDataList")
 	@ResponseBody
-	public Page<PlayTableData> qryPlayerDataList(long current, long size) {
+	public Page<PlayerInfoData> qryPlayerDataList(long current, long size) {
 		return this.myFplApi.qryPlayerDataList(current, size);
 	}
 

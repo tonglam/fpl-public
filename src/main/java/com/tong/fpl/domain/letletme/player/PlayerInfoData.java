@@ -1,19 +1,21 @@
-package com.tong.fpl.domain.data.letletme.table;
+package com.tong.fpl.domain.letletme.player;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * Create by tong on 2020/8/28
+ * Create by tong on 2020/8/20
  */
 @Data
 @Accessors(chain = true)
-public class PlayTableData {
+public class PlayerInfoData {
 
 	private int element;
+	private int code;
 	private String webName;
 	private int elementType;
 	private String elementTypeName;
+	private int teamId;
 	private String teamName;
 	private double price;
 

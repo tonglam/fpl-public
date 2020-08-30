@@ -3,7 +3,7 @@ package com.tong.fpl.service;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
-import com.tong.fpl.domain.data.letletme.tournament.TournamentCreateData;
+import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class TournamentTest extends FplApplicationTests {
 
-	@Autowired
-	private ITournamentManagementService tournamentManagementService;
+    @Autowired
+    private ITournamentService tournamentManagementService;
 
 	@Test
 	void createNewTournament() {
