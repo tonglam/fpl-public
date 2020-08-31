@@ -18,22 +18,30 @@
 
             <div class="layui-inline">
                 <label class="layui-form-label">赛事名称</label>
-                <div class="layui-input-inline">
+                <div class="layui-input-inline" style="width: 180px">
                     <input autocomplete="on" class="layui-input" name="name" type="text">
                 </div>
             </div>
 
             <div class="layui-inline">
-                <label class="layui-form-label">官方联赛id</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="on" class="layui-input" name="leagueId" type="number">
+                <label class="layui-form-label" style="margin-left: -50px">创建者</label>
+                <div class="layui-input-inline" style="width: 150px">
+                    <input autocomplete="on" class="layui-input" name="creator" type="text">
                 </div>
             </div>
 
             <div class="layui-inline">
-                <label class="layui-form-label">创建者</label>
+                <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
+                <div class="layui-input-inline" style="width: 110px">
+                    <input autocomplete="on" class="layui-input" name="leagueId" type="text">
+                </div>
+            </div>
+
+            <div class="layui-inline">
+                <label class="layui-form-label" style="margin-left: -30px">创建日期</label>
                 <div class="layui-input-inline">
-                    <input autocomplete="on" class="layui-input" name="creator" type="text">
+                    <input autocomplete="off" class="layui-input" id="createTime" lay-verify="date" name="createTime"
+                           placeholder="yyyy-MM-dd" type="text">
                 </div>
             </div>
 
@@ -59,7 +67,7 @@
 </script>
 
 <script th:inline="none">
-    layui.use(['form', 'table', 'layer', 'soulTable'], function () {
+    layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
         layui.soulTable.config({
             drag: true,
             overflow: {
@@ -69,7 +77,12 @@
             }
         });
 
-        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, layer = layui.layer;
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, layer = layui.layer,
+            laydate = layui.laydate;
+
+        laydate.render({
+            elem: 'input[name=createTime]'
+        });
 
         $("#searchButton").on('click', function () {
             let name = $("input[name=name]").val();

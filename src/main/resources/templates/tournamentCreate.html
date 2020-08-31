@@ -88,7 +88,8 @@
                         <div class="layui-inline" id="groupStartGw">
                             <label class="layui-form-label label-required">开始时间</label>
                             <div class="layui-input-block">
-                                <select lay-filter="groupStartGw" lay-search="" name="groupStartGw">
+                                <select lay-filter="groupStartGw" lay-search="" lay-verify="required"
+                                        name="groupStartGw">
                                     <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
                                             th:value="${userStat.current.key}"></option>
                                 </select>
@@ -97,7 +98,7 @@
                         <div class="layui-inline" id="groupEndGw">
                             <label class="layui-form-label label-required">结束时间</label>
                             <div class="layui-input-block">
-                                <select lay-filter="groupEndGw" lay-search="" name="groupEndGw">
+                                <select lay-filter="groupEndGw" lay-search="" lay-verify="required" name="groupEndGw">
                                     <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
                                             th:value="${userStat.current.key}"></option>
                                 </select>
@@ -108,7 +109,7 @@
                     <div class="layui-hide layui-form-item" id="groupTeamsPerGroup">
                         <label class="layui-form-label label-required">每组队伍</label>
                         <div class="layui-input-inline">
-                            <input class="layui-input" name="groupTeamsPerGroup" type="number">
+                            <input class="layui-input" lay-verify="required" name="groupTeamsPerGroup" type="number">
                         </div>
                         <div class="layui-form-mid layui-word-aux" id="groupNum"></div>
                     </div>
@@ -372,7 +373,7 @@
          * 监听小组赛模式下拉框：下拉
          * 1.清除淘汰赛配置
          * 2.展示小组赛配置
-         * 3.根据小组赛模式：a.无小组赛时：A.隐藏小组赛配置；B.不能无淘汰赛；b.有小组赛时：A.展示小组赛配置；c.请选择时：A.隐藏淘汰赛配置；B.隐藏并重置小组赛配置
+         * 3.根据小组赛模式：a.无小组赛时：A.隐藏小组赛配置；B.去除必选属性；C.不能无淘汰赛；b.有小组赛时：A.展示小组赛配置；B.增加必选属性；c.请选择时：A.隐藏淘汰赛配置；B.隐藏并重置小组赛配置
          * 4.再次触发淘汰赛选择
          *
          * @author tong 2020.08.13
@@ -392,6 +393,8 @@
                 case "0": { // 无小组赛
                     // 隐藏小组赛设置
                     hideGroupConfig();
+                    // 去除必选属性
+                    removeGroupRequired();
                     // 不能无淘汰赛
                     if (knockoutMode == "0") {
                         layer.msg("没有小组赛又没有淘汰赛还弄个啥", {icon: 5, time: 1000});
@@ -402,6 +405,8 @@
                 case "2": { // 对阵赛
                     // 展示小组赛设置
                     showGroupConfig();
+                    // 增加必选属性
+                    addGroupRequired();
                     break;
                 }
                 default: { // 请选择
@@ -602,6 +607,11 @@
                         case "2": {
                             // 展示每组出线数量事件
                             $("#groupQualifiers").removeClass("layui-hide");
+                            // 隐藏淘汰赛开始时间下拉框
+                            $("#knockoutStartGwSelect").addClass("layui-hide");
+                            // 展示淘汰赛开始时间输入框和淘汰赛结束时间输入框
+                            $("#knockoutStartGw").removeClass("layui-hide");
+                            $("#knockoutEndGw").removeClass("layui-hide");
                         }
                     }
                     // 触发淘汰赛轮次事件
@@ -841,6 +851,14 @@
         $("#groupTeamsPerGroup").addClass("layui-hide");
         $("#groupFillAverage").addClass("layui-hide");
         $("#groupQualifiers").addClass("layui-hide");
+
+    }
+
+    function removeGroupRequired() {
+        let $ = layui.jquery;
+        $("input[name=groupTeamsPerGroup]").removeAttr("lay-verify");
+        $("select[name=groupStartGw]").removeAttr("lay-verify");
+        $("select[name=groupEndGw]").removeAttr("lay-verify");
     }
 
     function showGroupConfig() {
@@ -852,6 +870,13 @@
         } else {
             $("#groupFillAverage").addClass("layui-hide");
         }
+    }
+
+    function addGroupRequired() {
+        let $ = layui.jquery;
+        $("input[name=groupTeamsPerGroup]").attr("lay-verify", "required");
+        $("select[name=groupStartGw]").attr("lay-verify", "required");
+        $("select[name=groupEndGw]").attr("lay-verify", "required");
     }
 
     function hideKnockoutConfig() {
@@ -874,7 +899,6 @@
 
     function clearKnockoutConfig() {
         let $ = layui.jquery;
-        $("").val();
         $("select[name=knockoutStartGwSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='']").click();
         $("input[name=knockoutStartGw]").val('');
         $("input[name=knockoutEndGw]").val('');
