@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="layout::header(~{::title},~{::link})">
     <title>letletme</title>
-    <link rel="stylesheet" th:href="@{/css/timeTo.css}"/>
+    <link href="https://cdn.jsdelivr.net/npm/time-to@1.3.1/timeTo.css" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" th:href="@{/css/index.css}"/>
 </head>
 
@@ -62,8 +62,8 @@
 </body>
 
 <script th:replace="layout::baseScript"></script>
-<script th:src="@{/js/jquery.min.js}"></script>
-<script th:src="@{/js/jquery.time-to.js}"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/time-to@1.3.1/jquery.time-to.min.js"></script>
 
 <script th:inline="javascript">
     let nextGw = [[${nextGw}]];

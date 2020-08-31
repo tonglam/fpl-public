@@ -12,12 +12,13 @@
     <meta content="yes" name="apple-mobile-web-app-capable">
     <meta content="telephone=no" name="format-detection">
 
-    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+    <link href="https://www.layuicdn.com/layui-v2.5.6/css/layui.css" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" th:href="@{/css/layout.css}"/>
+    <link href="https://unpkg.com/layui-soul-table/docs/soulTable.css" media="all" rel="stylesheet"/>
     <th:block th:replace="${links}"/>
 
-    <script th:src="@{/layui/layui.js}"></script>
-    <script th:src="@{/js/axios.min.js}"></script>
+    <script src="https://www.layuicdn.com/layui-v2.5.6/layui.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.1.0/axios.min.js"></script>
 
 </head>
 
@@ -90,6 +91,17 @@
 </body>
 
 <script th:fragment="baseScript" th:inline="javascript">
+    layui.config({
+        base: 'static/layui/modules/',
+        version: 'v1.5.17'
+    }).extend({
+        soulTable: '{/}https://unpkg.com/layui-soul-table/docs/ext/soulTable',
+        tableChild: '{/}https://unpkg.com/layui-soul-table/docs/ext/tableChild',
+        tableMerge: '{/}https://unpkg.com/layui-soul-table/docs/ext/tableMerge',
+        tableFilter: '{/}https://unpkg.com/layui-soul-table/docs/ext/tableFilter',
+        excel: '{/}https://unpkg.com/layui-soul-table/docs/ext/excel'
+    });
+
     layui.use(['element', 'layer'], function () {
         let $ = layui.jquery;
         $("#teamIdBtn").on('click', function () {

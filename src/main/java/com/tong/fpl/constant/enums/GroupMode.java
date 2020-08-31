@@ -12,15 +12,16 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum GroupMode {
-    No_group("0"), Points_race("1"), Battle_race("2");
+	No_group("0", "无小组赛"), Points_race("1", "积分赛"), Battle_race("2", "对阵赛");
 
-    private final String value;
+	private final String value;
+	private final String modeName;
 
-    public static GroupMode getGroupModeFromValue(String value) {
-        return Stream.of(GroupMode.values())
-                .filter(o -> StringUtils.equals(o.getValue(), value))
-                .findFirst()
-                .orElse(GroupMode.No_group);
-    }
+	public static GroupMode getGroupModeFromValue(String value) {
+		return Stream.of(GroupMode.values())
+				.filter(o -> StringUtils.equals(o.getValue(), value))
+				.findFirst()
+				.orElse(GroupMode.No_group);
+	}
 
 }

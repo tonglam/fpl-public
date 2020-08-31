@@ -12,15 +12,16 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum KnockoutMode {
-    No_knockout("0"), Single_round("1"), Home_away("2");
+	No_knockout("0", "无淘汰赛"), Single_round("1", "单循环"), Home_away("2", "主客场");
 
-    private final String value;
+	private final String value;
+	private final String modeName;
 
-    public static KnockoutMode getKnockoutModeFromValue(String value) {
-        return Stream.of(KnockoutMode.values())
-                .filter(o -> StringUtils.equals(o.getValue(), value))
-                .findFirst()
-                .orElse(KnockoutMode.No_knockout);
-    }
+	public static KnockoutMode getKnockoutModeFromValue(String value) {
+		return Stream.of(KnockoutMode.values())
+				.filter(o -> StringUtils.equals(o.getValue(), value))
+				.findFirst()
+				.orElse(KnockoutMode.No_knockout);
+	}
 
 }

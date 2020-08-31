@@ -46,8 +46,7 @@
                     <div class="layui-form-item" id="adminer">
                         <label class="layui-form-label label-required">管理员id</label>
                         <div class="layui-input-inline">
-                            <input autocomplete="on" class="layui-input" lay-reqtext="管理员id不能为空"
-                                   lay-verify="required" name="adminer"
+                            <input class="layui-input" lay-reqtext="管理员id不能为空" lay-verify="required" name="adminerEntry"
                                    th:placeholder="${session.entry}? ${session.entry} : '请输入管理员id'"
                                    type="number">
                         </div>
@@ -57,8 +56,7 @@
                         <label class="layui-form-label label-required">创建人</label>
                         <div class="layui-input-inline">
                             <input autocomplete="on" class="layui-input" lay-reqtext="赛事创建人不能为空"
-                                   lay-verify="required"
-                                   name="creator" type="text">
+                                   lay-verify="required" name="creator" type="text">
                         </div>
                     </div>
 
@@ -287,14 +285,15 @@
             // 校验url
             let url = formatUrl($(this).val());
             if (url == '') {
-                totalTeamDom.html("");
+                totalTeamDom.val("");
                 groupConfigDiv.addClass("layui-hide");
                 clearGroupConfig();
                 return false;
             }
             if (!new RegExp("^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$").test(url)) {
                 layer.msg('联赛url格式错误，请重试', {time: 1500});
-                totalTeamDom.html("");
+                $(this).val('');
+                totalTeamDom.val("");
                 groupConfigDiv.addClass("layui-hide");
                 clearGroupConfig();
                 return false;
@@ -309,9 +308,10 @@
             })
                 .then(function (response) {
                     layer.close(loadIndex);
-                    let totalTeam = response.data;
+                    let totalTeam = response;
                     if (totalTeam == 0) {
                         layer.msg('联赛队伍总数为0，请重新填写官方联赛url', {time: 1500});
+                        $(this).val('');
                         totalTeamDom.html("");
                         groupConfigDiv.addClass("layui-hide");
                         return false;
@@ -323,7 +323,8 @@
                     layer.close(loadIndex);
                     console.info(error.message);
                     layer.msg("联赛url读取错误，请重试", {time: 1500});
-                    totalTeamDom.html("");
+                    $(this).val('');
+                    totalTeamDom.val("");
                     groupConfigDiv.addClass("layui-hide");
                     clearGroupConfig();
                 });
@@ -338,6 +339,7 @@
          */
         $("input[name=tournamentName]").on('focusout', function () {
             let nameTipsIconDiv = $("#nameTipsIcon");
+            let tournamentNameDom = $("input[name=tournamentName]");
             // 校验赛事名称
             let name = $(this).val();
             if (name == '') {
@@ -351,18 +353,18 @@
                 }
             })
                 .then(function (response) {
-                    if (response.data == true) {
+                    if (response == "true") {
                         nameTipsIconDiv.removeClass("layui-hide");
-                    } else if (response.data == false) {
+                    } else if (response == "false") {
                         layer.msg("赛事名称已存在，请更换", {time: 1500});
                         nameTipsIconDiv.addClass("layui-hide");
-                        $(this).html('');
+                        tournamentNameDom.val('');
                     }
                 })
                 .catch(function (error) {
                     console.info(error.message);
                     layer.msg("赛事名称查询错误，请重试", {time: 1500});
-                    $(this).html('');
+                    tournamentNameDom.val('');
                 });
         });
 
@@ -551,7 +553,7 @@
         /**
          * 监听淘汰赛模式下拉框：下拉
          * 1.无淘汰赛时：a.重置淘汰赛配置；b.隐藏淘汰赛配置；c.不能无小组赛；d.有小组赛时，展示创建按钮
-         * 2.有淘汰赛时：a.展示创建按钮；b.触发淘汰赛轮次事件；c.根据小组赛模式：A.无小组赛时：A1.展示淘汰赛开始时间下拉和结束时间；A2.触发淘汰赛队伍数量事件；B.有小组赛时：展示每组出线数量；
+         * 2.有淘汰赛时：a.展示创建按钮；b.根据小组赛模式：A.无小组赛时：A1.展示淘汰赛开始时间下拉和结束时间；A2.触发淘汰赛队伍数量事件；B.有小组赛时：展示每组出线数量；c.触发淘汰赛轮次事件；
          * 3.请选择时：A.隐藏并重置淘汰赛配置；B.隐藏提交按钮
          *
          * @author tong 2020.08.13
@@ -584,8 +586,6 @@
                 case "2": { // 主客场
                     // 展示创建按钮
                     createButtonDiv.removeClass("layui-hide");
-                    // 触发淘汰赛轮次事件
-                    knockoutRoundsDom.trigger("focusout");
                     // 根据小组赛模式
                     switch (groupMode) { // 无小组赛
                         case "0": {
@@ -604,6 +604,8 @@
                             $("#groupQualifiers").removeClass("layui-hide");
                         }
                     }
+                    // 触发淘汰赛轮次事件
+                    knockoutRoundsDom.trigger("focusout");
                     break;
                 }
                 default: { // 请选择
@@ -780,6 +782,8 @@
             tournamentCreateData.groupQualifiers = formData.groupQualifiers;
             formData.groupFillAverage == '1' ? tournamentCreateData.groupFillAverage = true : tournamentCreateData.groupFillAverage = false;
             tournamentCreateData.knockoutMode = formData.knockoutMode;
+            tournamentCreateData.knockoutTeam = getValueFromStr($("#knockoutTeams").html());
+            tournamentCreateData.knockoutRounds = formData.knockoutRounds;
             tournamentCreateData.knockoutStartGw = getActiveKnockoutStartGw();
             tournamentCreateData.knockoutEndGw = getGwValue(formData.knockoutEndGw);
             // 禁用提交按钮
@@ -788,7 +792,7 @@
             layer.confirm("确认创建？", {closeBtn: 0, title: ""}, function () {
                 axios.post('/tournament/createNewTournament', tournamentCreateData)
                     .then(function (response) {
-                        layer.msg(response.data, {icon: 6, time: 1500}, function () {
+                        layer.msg(response, {icon: 6, time: 1500}, function () {
                             window.location.replace("/tournament/create");
                         });
                     })

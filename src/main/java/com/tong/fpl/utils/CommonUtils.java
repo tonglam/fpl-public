@@ -22,6 +22,13 @@ public class CommonUtils {
 				: Integer.parseInt(inputGw);
 	}
 
+	public static String setRealGw(int gw) {
+		if (gw == -1) {
+			return "无";
+		}
+		return "GW" + gw;
+	}
+
 	public static String getZoneDate(String time) {
 		ZoneId zoneId = ZonedDateTime.now().getZone();
 		return LocalDateTime.ofInstant(Instant.parse(time), zoneId).atZone(zoneId).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
