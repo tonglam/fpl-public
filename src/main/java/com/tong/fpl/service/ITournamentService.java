@@ -1,5 +1,6 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
 
 /**
@@ -121,5 +122,7 @@ public interface ITournamentService {
      * @return message
      */
     String deleteTournamentByName(String name);
+
+    EntryInfoEntity getEntryInfo(int entry);
 
 }

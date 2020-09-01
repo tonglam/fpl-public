@@ -8,11 +8,13 @@
 
 <div th:replace="layout::topnav"></div>
 
-<div class="layui-fluid" th:fragment="main">
+<div class="layui-fluid">
     <div class="layui-main" id="main">
-        <div class="site-content">
+        <div class="site-content" style="width: 900px">
 
-            <h1 style="margin-bottom: 20px;font-size: 28px">创建自定义赛事</h1>
+            <h1 style="font-size: 28px">创建自定义赛事</h1>
+
+            <div style="margin-top: 30px"></div>
 
             <form class="layui-form" lay-filter="tournamentForm">
 
@@ -786,11 +788,12 @@
             tournamentCreateData.leagueId = formData.leagueId;
             tournamentCreateData.totalTeam = getValueFromStr($("#totalTeam").html());
             tournamentCreateData.groupMode = formData.groupMode;
+            tournamentCreateData.teamsPerGroup = formData.groupTeamsPerGroup;
+            tournamentCreateData.groupNum = getValueFromStr($("#groupNum").html());
+            formData.groupFillAverage == '1' ? tournamentCreateData.groupFillAverage = true : tournamentCreateData.groupFillAverage = false;
             tournamentCreateData.groupStartGw = getGwValue(formData.groupStartGw);
             tournamentCreateData.groupEndGw = getGwValue(formData.groupEndGw);
-            tournamentCreateData.teamsPerGroup = formData.teamsPerGroup;
             tournamentCreateData.groupQualifiers = formData.groupQualifiers;
-            formData.groupFillAverage == '1' ? tournamentCreateData.groupFillAverage = true : tournamentCreateData.groupFillAverage = false;
             tournamentCreateData.knockoutMode = formData.knockoutMode;
             tournamentCreateData.knockoutTeam = getValueFromStr($("#knockoutTeams").html());
             tournamentCreateData.knockoutRounds = formData.knockoutRounds;

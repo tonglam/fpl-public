@@ -1,8 +1,7 @@
 package com.tong.fpl.config.web;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.domain.letletme.global.ResponseData;
-import com.tong.fpl.domain.letletme.global.TablePageData;
+import com.tong.fpl.domain.letletme.table.TableData;
 import com.tong.fpl.utils.JsonUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -19,29 +18,31 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 @RestControllerAdvice
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
-    @Override
-    public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return true;
-    }
+	@Override
+	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+		return true;
+	}
 
-    @Override
-    @Nullable
-    public Object beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
-        if (body == null) {
-            return ResponseData.success();
-        }
-        if (body instanceof Page<?>) {
-            return TablePageData.success((Page<?>) body);
-        }
-        if (returnType.getExecutable().getClass().getSimpleName().contains("Http")) {
-            if (body instanceof ResponseData) {
-                return body;
-            }
-            if (body instanceof String) {
-                return JsonUtils.obj2json(ResponseData.success(body.toString()));
-            }
-        }
-        return body;
-    }
+	@Override
+	@Nullable
+	public Object beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+		if (body == null) {
+			return ResponseData.success();
+		}
+		// 拦截table数据返回前段
+		if (body instanceof TableData<?>) {
+			return body;
+		}
+		// 拦截api数据
+		if (returnType.getExecutable().getClass().getSimpleName().contains("Http")) {
+			if (body instanceof ResponseData) {
+				return body;
+			}
+			if (body instanceof String) {
+				return JsonUtils.obj2json(ResponseData.success(body.toString()));
+			}
+		}
+		return body;
+	}
 
 }

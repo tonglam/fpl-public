@@ -8,9 +8,11 @@
 
 <div th:replace="layout::topnav"></div>
 
-<div class="layui-fluid" th:fragment="main">
+<div class="layui-fluid">
     <div class="layui-main">
         <div class="site-content">
+
+            <div th:replace="layout::tournamentContent('查看赛果')"></div>
 
         </div>
     </div>
@@ -21,5 +23,82 @@
 <script th:replace="layout::baseScript"></script>
 
 </body>
+
+<script id="barDemo" type="text/html">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">查看</a>
+</script>
+
+<script th:inline="none">
+
+    layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
+
+        layui.soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, layer = layui.layer,
+            laydate = layui.laydate;
+
+        let entry = $("button[name=teamIdBtn]").html();
+
+        $(document).ready(function () {
+            if (entry == "请输入id") {
+                $("#teamIdBtn").click();
+            }
+        });
+
+        laydate.render({
+            elem: 'input[name=createTime]'
+        });
+
+        $("#searchButton").on('click', function () {
+
+            let name = $("input[name=name]").val();
+            let leagueId = $("input[name=leagueId]").val();
+            let creator = $("input[name=creator]").val();
+            let createTime = $("input[name=createTime]").val();
+
+            table.render({
+                elem: '#tournamentTable',
+                method: 'post',
+                contentType: 'application/json',
+                url: '/tournament/qryEntryTournamenList',
+                where: {
+                    entry: entry,
+                    name: name,
+                    leagueId: leagueId,
+                    creator: creator,
+                    createTime: createTime
+                },
+                loading: true,
+                cols: [[
+                    {field: 'name', title: '赛事名字', align: 'center'},
+                    {field: 'creator', title: '创建者', align: 'center', edit: 'text'},
+                    {field: 'season', title: '赛季', align: 'center'},
+                    {field: 'leagueType', title: '类型', align: 'center', width: '8%'},
+                    {field: 'leagueId', title: '官方联赛id', align: 'center', width: '10%'},
+                    {field: 'createTime', title: '创建时间', align: 'center'},
+                    {fixed: 'right', title: '操作', toolbar: '#barDemo', align: 'center'}
+                ]],
+                initSort: {
+                    field: 'createTime',
+                    type: 'asc'
+                },
+                id: 'name',
+                done: function () {
+                    soulTable.render(this);
+                }
+            });
+
+        });
+
+    });
+
+</script>
 
 </html>

@@ -31,6 +31,7 @@ public class TournamentCreateData {
     private String groupStartGw;
     private String groupEndGw;
     private int teamsPerGroup;
+    private int groupNum;
     private int groupQualifiers;
     private boolean groupFillAverage;
     // knockout params

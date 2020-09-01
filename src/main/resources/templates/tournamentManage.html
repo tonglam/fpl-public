@@ -8,52 +8,13 @@
 
 <div th:replace="layout::topnav"></div>
 
-<div class="layui-fluid" th:fragment="main">
-    <div class="layui-main" style="min-height: 900px">
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
 
-        <div class="layui-form-item">
-
-            <br>
-            <br>
-
-            <div class="layui-inline">
-                <label class="layui-form-label">赛事名称</label>
-                <div class="layui-input-inline" style="width: 180px">
-                    <input autocomplete="on" class="layui-input" name="name" type="text">
-                </div>
-            </div>
-
-            <div class="layui-inline">
-                <label class="layui-form-label" style="margin-left: -50px">创建者</label>
-                <div class="layui-input-inline" style="width: 150px">
-                    <input autocomplete="on" class="layui-input" name="creator" type="text">
-                </div>
-            </div>
-
-            <div class="layui-inline">
-                <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
-                <div class="layui-input-inline" style="width: 110px">
-                    <input autocomplete="on" class="layui-input" name="leagueId" type="text">
-                </div>
-            </div>
-
-            <div class="layui-inline">
-                <label class="layui-form-label" style="margin-left: -30px">创建日期</label>
-                <div class="layui-input-inline">
-                    <input autocomplete="off" class="layui-input" id="createTime" lay-verify="date" name="createTime"
-                           placeholder="yyyy-MM-dd" type="text">
-                </div>
-            </div>
-
-            <div class="layui-inline">
-                <button class="layui-btn" id="searchButton" lay-submit="searchTournament" type="submit">搜索
-                </button>
-            </div>
+            <div th:replace="layout::tournamentContent('管理赛事')"></div>
 
         </div>
-
-        <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable" style="width: 100%"></table>
-
     </div>
 </div>
 
@@ -68,8 +29,9 @@
 
 <script th:inline="none">
     layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
+
         layui.soulTable.config({
-            drag: true,
+            drag: false,
             overflow: {
                 type: 'tips',
                 header: true,
@@ -88,6 +50,7 @@
             let name = $("input[name=name]").val();
             let leagueId = $("input[name=leagueId]").val();
             let creator = $("input[name=creator]").val();
+            let createTime = $("input[name=createTime]").val();
 
             table.render({
                 elem: '#tournamentTable',
@@ -98,8 +61,7 @@
                     name: name,
                     leagueId: leagueId,
                     creator: creator,
-                    current: 1,
-                    size: 50
+                    createTime: createTime
                 },
                 loading: true,
                 toolbar: true,
@@ -116,9 +78,10 @@
                                     {field: 'groupMode', title: '模式', align: 'center'},
                                     {field: 'groupStartGw', title: '开始时间', align: 'center'},
                                     {field: 'groupEndGw', title: '结束时间', align: 'center'},
+                                    {field: 'teamPerGroup', title: '每组队伍', align: 'center'},
+                                    {field: 'groupNum', title: '小组数量', align: 'center'},
                                     {field: 'groupQualifiers', title: '每组出线数量', align: 'center'},
-                                    {field: 'groupFillAverage', title: '加入平均分', align: 'center'},
-                                    {field: 'groupNum', title: '小组数量', align: 'center'}
+                                    {field: 'groupFillAverage', title: '加入平均分', align: 'center'}
                                 ]],
                                 done: function () {
                                     soulTable.render(this);
@@ -135,6 +98,7 @@
                                     {field: 'knockoutMode', title: '模式', align: 'center'},
                                     {field: 'knockoutStartGw', title: '开始时间', align: 'center'},
                                     {field: 'knockoutEndGw', title: '结束时间', align: 'center'},
+                                    {field: 'knockoutTeam', title: '队伍数量', align: 'center'},
                                     {field: 'knockoutRounds', title: '总轮次', align: 'center'}
                                 ]],
                                 done: function () {
@@ -153,7 +117,7 @@
                     {fixed: 'right', title: '操作', toolbar: '#barDemo', align: 'center'}
                 ]],
                 initSort: {
-                    field: 'id',
+                    field: 'createTime',
                     type: 'asc'
                 },
                 id: 'name',
@@ -181,7 +145,7 @@
                     tournamentCreateData.adminerEntry = adminerEntry;
                     axios.post('/tournament/updateTournament', tournamentCreateData)
                         .then(function (response) {
-                            layer.msg(response.data, {icon: 6, time: 1500});
+                            layer.msg(response, {icon: 6, time: 1500});
                             obj.update(field);
                         })
                         .catch(function (error) {
@@ -190,7 +154,6 @@
                         });
                 });
             });
-
 
             table.on('tool(tournamentTable)', function (obj) {
                     let data = obj.data;
@@ -211,7 +174,7 @@
                                 // 提交
                                 axios.get('/tournament/deleteTournamentByName?name=' + name)
                                     .then(function (response) {
-                                        layer.msg(response.data, {icon: 6, time: 1500});
+                                        layer.msg(response, {icon: 6, time: 1500});
                                         obj.del();
                                     })
                                     .catch(function (error) {
@@ -241,7 +204,7 @@
                                 tournamentCreateData.adminerEntry = value;
                                 axios.post('/tournament/updateTournament', tournamentCreateData)
                                     .then(function (response) {
-                                        layer.msg(response.data, {icon: 6, time: 1500});
+                                        layer.msg(response, {icon: 6, time: 1500});
                                         obj.update({
                                             adminerEntry: value
                                         });
@@ -253,8 +216,7 @@
                             });
                         });
                     }
-                }
-            );
+            });
 
         });
 

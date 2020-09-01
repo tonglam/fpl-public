@@ -1,8 +1,8 @@
 package com.tong.fpl.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.api.IMyFplApi;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.table.TableData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,12 +22,12 @@ public class MyFplController {
 
 	@RequestMapping(value = "/pick")
 	public String pickController() {
-        return "myFplPick";
-    }
+		return "myFplPick";
+	}
 
 	@GetMapping("/qryPlayerDataList")
 	@ResponseBody
-	public Page<PlayerInfoData> qryPlayerDataList(long current, long size) {
+	public TableData<PlayerInfoData> qryPlayerDataList(long current, long size) {
 		return this.myFplApi.qryPlayerDataList(current, size);
 	}
 

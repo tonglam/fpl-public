@@ -1,11 +1,13 @@
 package com.tong.fpl.api.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tong.fpl.api.ITournamentApi;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.domain.letletme.table.TableData;
+import com.tong.fpl.domain.letletme.tournament.EntryTournamentData;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
-import com.tong.fpl.service.IPageQueryService;
+import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.ITournamentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class TournamentApiImpl implements ITournamentApi {
 
     private final ITournamentService tournamentService;
-    private final IPageQueryService pageQueryService;
+    private final ITableQueryService tableQueryService;
 
     @Override
     public String createNewTournament(TournamentCreateData tournamentCreateData) {
@@ -27,8 +29,8 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
-    public Page<TournamentInfoData> qryTournamenList(TournamentQueryParam param) {
-        return this.pageQueryService.qryTournamenList(param);
+    public TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param) {
+        return this.tableQueryService.qryTournamenList(param);
     }
 
     @Override
@@ -49,6 +51,16 @@ public class TournamentApiImpl implements ITournamentApi {
     @Override
     public String deleteTournamentByName(String name) {
         return this.tournamentService.deleteTournamentByName(name);
+    }
+
+    @Override
+    public TableData<EntryTournamentData> qryEntryTournamenList(TournamentQueryParam param) {
+        return this.tableQueryService.qryEntryTournamenList(param);
+    }
+
+    @Override
+    public EntryInfoEntity getEntryInfo(int entry) {
+        return this.tournamentService.getEntryInfo(entry);
     }
 
 }

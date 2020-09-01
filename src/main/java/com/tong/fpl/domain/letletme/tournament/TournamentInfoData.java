@@ -28,6 +28,7 @@ public class TournamentInfoData {
 	private String knockoutMode;
 	private String knockoutStartGw;
 	private String knockoutEndGw;
+	private int knockoutTeam;
 	private int knockoutRounds;
 	private String createTime;
 

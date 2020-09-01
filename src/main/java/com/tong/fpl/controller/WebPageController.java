@@ -34,11 +34,6 @@ public class WebPageController {
         return "error";
     }
 
-    @RequestMapping(value = "/test")
-    public String testController() {
-        return "test";
-    }
-
     @RequestMapping(value = "/saveEntry")
     @ResponseBody
     public void saveEntry(@RequestParam int entry, HttpSession session) {
