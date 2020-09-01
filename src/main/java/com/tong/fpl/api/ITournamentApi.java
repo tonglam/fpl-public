@@ -50,18 +50,18 @@ public interface ITournamentApi {
 	 * @param tournamentCreateData tournamentCreateData
 	 * @return message
 	 */
-	String updateTournament(TournamentCreateData tournamentCreateData);
+    String updateTournament(TournamentCreateData tournamentCreateData);
 
-	/**
-	 * delete tournament
-	 *
-	 * @param name tournament_name
-	 * @return message
-	 */
-	String deleteTournamentByName(String name);
+    /**
+     * delete tournament
+     *
+     * @param name tournament_name
+     * @return message
+     */
+    String deleteTournamentByName(String name);
 
-	TableData<EntryTournamentData> qryEntryTournamenList(TournamentQueryParam param);
+    TableData<EntryTournamentData> qryEntryTournamenList(int entry);
 
-	EntryInfoEntity getEntryInfo(int entry);
+    EntryInfoEntity getEntryInfo(int entry);
 
 }

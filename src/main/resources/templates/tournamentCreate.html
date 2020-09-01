@@ -9,7 +9,7 @@
 <div th:replace="layout::topnav"></div>
 
 <div class="layui-fluid">
-    <div class="layui-main" id="main">
+    <div class="layui-main">
         <div class="site-content" style="width: 900px">
 
             <h1 style="font-size: 28px">创建自定义赛事</h1>
@@ -302,7 +302,7 @@
                 return false;
             }
             // 展示加载层
-            let loadIndex = layer.load();
+            let loadIndex = layer.load(1);
             // 计算联赛队伍数量
             axios.get('/tournament/countTournamentLeagueTeams', {
                 params: {

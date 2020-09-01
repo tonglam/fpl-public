@@ -54,8 +54,8 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
-    public TableData<EntryTournamentData> qryEntryTournamenList(TournamentQueryParam param) {
-        return this.tableQueryService.qryEntryTournamenList(param);
+    public TableData<EntryTournamentData> qryEntryTournamenList(int entry) {
+        return this.tableQueryService.qryEntryTournamenList(entry);
     }
 
     @Override

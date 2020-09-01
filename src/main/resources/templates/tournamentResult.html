@@ -12,7 +12,12 @@
     <div class="layui-main">
         <div class="site-content">
 
-            <div th:replace="layout::tournamentContent('查看赛果')"></div>
+            <h1 style="font-size: 28px">查看赛果</h1>
+
+            <div style="margin-top: 50px"></div>
+
+            <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"
+                   style="width: 100%"></table>
 
         </div>
     </div>
@@ -24,13 +29,48 @@
 
 </body>
 
-<script id="barDemo" type="text/html">
-    <a class="layui-btn layui-btn-xs" lay-event="edit">查看</a>
-</script>
-
 <script th:inline="none">
 
-    layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
+    layui.use(['table', 'layer', 'soulTable', 'laydate'], function () {
+
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, laydate = layui.laydate;
+
+        layer.ready(function () {
+            if ($("button[name=teamIdBtn]").html() == "请输入id") {
+                layer.prompt({
+                    title: '请输入team_id',
+                    offset: '100px',
+                    shade: 0.8,
+                    success: function (layero) {
+                        // 确认按钮
+                        $(".layui-layer-btn0").on("click", function () {
+                            // 校验
+                            let entry = layero.find("input").val();
+                            if (!new RegExp("^[1-9]\\d*$").test(entry)) {
+                                layer.msg('team_id需为正整数', {
+                                    offset: '100px',
+                                    shade: 0,
+                                    shadeClose: true,
+                                    time: 1000
+                                });
+                                layero.find("input").val('');
+                                return false;
+                            }
+                            // 保存
+                            axios.get('/saveEntry?entry=' + entry)
+                                .then(function () {
+                                    layer.close();
+                                    // 刷新
+                                    window.location.replace("/tournament/result");
+                                })
+                                .catch(function (error) {
+                                    console.info(error.message);
+                                });
+                        })
+                    }
+                });
+            }
+        });
 
         layui.soulTable.config({
             drag: false,
@@ -41,64 +81,40 @@
             }
         });
 
-        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, layer = layui.layer,
-            laydate = layui.laydate;
-
-        let entry = $("button[name=teamIdBtn]").html();
-
-        $(document).ready(function () {
-            if (entry == "请输入id") {
-                $("#teamIdBtn").click();
-            }
-        });
-
         laydate.render({
             elem: 'input[name=createTime]'
         });
 
-        $("#searchButton").on('click', function () {
-
-            let name = $("input[name=name]").val();
-            let leagueId = $("input[name=leagueId]").val();
-            let creator = $("input[name=creator]").val();
-            let createTime = $("input[name=createTime]").val();
-
-            table.render({
-                elem: '#tournamentTable',
-                method: 'post',
-                contentType: 'application/json',
-                url: '/tournament/qryEntryTournamenList',
-                where: {
-                    entry: entry,
-                    name: name,
-                    leagueId: leagueId,
-                    creator: creator,
-                    createTime: createTime
-                },
-                loading: true,
-                cols: [[
-                    {field: 'name', title: '赛事名字', align: 'center'},
-                    {field: 'creator', title: '创建者', align: 'center', edit: 'text'},
-                    {field: 'season', title: '赛季', align: 'center'},
-                    {field: 'leagueType', title: '类型', align: 'center', width: '8%'},
-                    {field: 'leagueId', title: '官方联赛id', align: 'center', width: '10%'},
-                    {field: 'createTime', title: '创建时间', align: 'center'},
-                    {fixed: 'right', title: '操作', toolbar: '#barDemo', align: 'center'}
-                ]],
-                initSort: {
-                    field: 'createTime',
-                    type: 'asc'
-                },
-                id: 'name',
-                done: function () {
-                    soulTable.render(this);
-                }
-            });
-
+        table.render({
+            elem: '#tournamentTable',
+            method: 'get',
+            url: '/tournament/qryEntryTournamenList',
+            loading: true,
+            width: 900,
+            cols: [[
+                {field: 'name', title: '赛事名字', align: 'center', templet: '#nameTpl'},
+                {field: 'creator', title: '创建者', align: 'center', width: '18%'},
+                {field: 'season', title: '赛季', align: 'center', width: '10%'},
+                {field: 'leagueType', title: '类型', align: 'center', width: '10%'},
+                {field: 'leagueId', title: '官方联赛id', align: 'center', width: '15%'},
+                {field: 'createTime', title: '创建时间', align: 'center', width: '18%'}
+            ]],
+            initSort: {
+                field: 'createTime',
+                type: 'asc'
+            },
+            id: 'name',
+            done: function () {
+                soulTable.render(this);
+            }
         });
 
     });
 
+</script>
+
+<script id="nameTpl" type="text/html">
+    <a href="/tournament/result?id={{d.tournamentId}}" class="layui-table-link">{{d.name}}</a>
 </script>
 
 </html>

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Pattern;
 
 /**
@@ -32,74 +33,84 @@ import javax.validation.constraints.Pattern;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentController {
 
-	private final ITournamentApi tournamentApi;
+    private final ITournamentApi tournamentApi;
 
-	@RequestMapping(value = "/create")
-	public String tournamentCreateController(Model model) {
-		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-		return "tournamentCreate";
-	}
+    @RequestMapping(value = "/create")
+    public String tournamentCreateController(Model model) {
+        model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+        return "tournamentCreate";
+    }
 
-	@RequestMapping(value = "/manage")
-	public String tournamentManageController() {
-		return "tournamentManage";
-	}
+    @RequestMapping(value = "/manage")
+    public String tournamentManageController() {
+        return "tournamentManage";
+    }
 
-	@RequestMapping(value = "/result")
-	public String tournamentResultController() {
-		return "tournamentResult";
-	}
+    @RequestMapping(value = "/result")
+    public String tournamentResultController(Model model, HttpSession session) {
+        if (session.getAttribute("entry") != null) {
+            int entry = (int) session.getAttribute("entry");
+            if (entry > 0) {
+                model.addAttribute("tournamentList", this.tournamentApi.qryEntryTournamenList(entry));
+            }
+        }
+        return "tournamentResult";
+    }
 
-	@RequestMapping(value = "/rule")
-	public String tournamentRuleController() {
-		return "tournamentRule";
-	}
+    @RequestMapping(value = "/rule")
+    public String tournamentRuleController() {
+        return "tournamentRule";
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/createNewTournament")
-	public String createNewTournament(@RequestBody TournamentCreateData tournamentCreateData) {
-		tournamentCreateData
-				.setLeagueType(tournamentCreateData.getUrl().contains("/standings/c") ? LeagueType.Classic.name() : LeagueType.H2h.name())
-				.setLeagueId(Integer.parseInt(StringUtils.substringBetween(tournamentCreateData.getUrl(), "https://fantasy.premierleague.com/leagues/", "/standings")))
-				.setGroupMode(GroupMode.getGroupModeFromValue(tournamentCreateData.getGroupMode()).name())
-				.setKnockoutMode(KnockoutMode.getKnockoutModeFromValue(tournamentCreateData.getKnockoutMode()).name());
-		return this.tournamentApi.createNewTournament(tournamentCreateData);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/createNewTournament")
+    public String createNewTournament(@RequestBody TournamentCreateData tournamentCreateData) {
+        tournamentCreateData
+                .setLeagueType(tournamentCreateData.getUrl().contains("/standings/c") ? LeagueType.Classic.name() : LeagueType.H2h.name())
+                .setLeagueId(Integer.parseInt(StringUtils.substringBetween(tournamentCreateData.getUrl(), "https://fantasy.premierleague.com/leagues/", "/standings")))
+                .setGroupMode(GroupMode.getGroupModeFromValue(tournamentCreateData.getGroupMode()).name())
+                .setKnockoutMode(KnockoutMode.getKnockoutModeFromValue(tournamentCreateData.getKnockoutMode()).name());
+        return this.tournamentApi.createNewTournament(tournamentCreateData);
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/countTournamentLeagueTeams")
-	public int countTournamentLeagueTeams(@RequestParam @Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$") String url) {
-		return this.tournamentApi.countTournamentLeagueTeams(url);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/countTournamentLeagueTeams")
+    public int countTournamentLeagueTeams(@RequestParam @Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$") String url) {
+        return this.tournamentApi.countTournamentLeagueTeams(url);
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/checkTournamentName")
-	public boolean checkTournamentName(@RequestParam String name) {
-		return this.tournamentApi.checkTournamentName(name);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/checkTournamentName")
+    public boolean checkTournamentName(@RequestParam String name) {
+        return this.tournamentApi.checkTournamentName(name);
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/qryTournamenList")
-	public TableData<TournamentInfoData> qryTournamenList(@RequestBody TournamentQueryParam param) {
-		return this.tournamentApi.qryTournamenList(param);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/qryTournamenList")
+    public TableData<TournamentInfoData> qryTournamenList(@RequestBody TournamentQueryParam param) {
+        return this.tournamentApi.qryTournamenList(param);
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/updateTournament")
-	public String updateTournament(@RequestBody TournamentCreateData tournamentCreateData) {
-		return this.tournamentApi.updateTournament(tournamentCreateData);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/updateTournament")
+    public String updateTournament(@RequestBody TournamentCreateData tournamentCreateData) {
+        return this.tournamentApi.updateTournament(tournamentCreateData);
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/deleteTournamentByName")
-	public String deleteTournamentByName(@RequestParam String name) {
-		return this.tournamentApi.deleteTournamentByName(name);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/deleteTournamentByName")
+    public String deleteTournamentByName(@RequestParam String name) {
+        return this.tournamentApi.deleteTournamentByName(name);
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/qryEntryTournamenList")
-	public TableData<EntryTournamentData> qryEntryTournamenList(@RequestBody TournamentQueryParam param) {
-		return this.tournamentApi.qryEntryTournamenList(param);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/qryEntryTournamenList")
+    public TableData<EntryTournamentData> qryEntryTournamenList(HttpSession session) {
+        int entry = 0;
+        if (session.getAttribute("entry") != null) {
+            entry = (int) session.getAttribute("entry");
+        }
+        return this.tournamentApi.qryEntryTournamenList(entry);
+    }
 
 }

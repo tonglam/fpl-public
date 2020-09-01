@@ -11,10 +11,10 @@ import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
  */
 public interface ITableQueryService {
 
-	TableData<PlayerInfoData> qryPagePlayerDataList(long current, long size);
+    TableData<PlayerInfoData> qryPagePlayerDataList(long current, long size);
 
-	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+    TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-	TableData<EntryTournamentData> qryEntryTournamenList(TournamentQueryParam param);
+    TableData<EntryTournamentData> qryEntryTournamenList(int entry);
 
 }
