@@ -19,36 +19,36 @@ import java.util.Arrays;
 @Component
 public class ControllerLogAspect {
 
-	ThreadLocal<Long> startTime = new ThreadLocal<>();
-	StringBuffer stringBuffer;
+    ThreadLocal<Long> startTime = new ThreadLocal<>();
+    StringBuffer stringBuffer;
 
-	@Pointcut("execution(public * com.tong.fpl.controller.*.*(..))")
-	public void controllerLog() {
-	}
+    @Pointcut("execution(public * com.tong.fpl.controller.*.*(..))")
+    public void controllerLog() {
+    }
 
-	@Before("controllerLog()")
-	public void doBefore(JoinPoint joinPoint) {
-		startTime.set(System.currentTimeMillis());
-		stringBuffer = new StringBuffer();
-		ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		if (attributes != null) {
-			HttpServletRequest request = attributes.getRequest();
-			MDC.put("ip", HttpUtils.getRealIp(request));
-			stringBuffer.append("url:{").append(request.getRequestURI()).append("}");
-			stringBuffer.append(", method:{").append(request.getMethod()).append("}");
-			stringBuffer.append(", args:{").append(Arrays.toString(joinPoint.getArgs())).append("}");
-		}
-	}
+    @Before("controllerLog()")
+    public void doBefore(JoinPoint joinPoint) {
+        startTime.set(System.currentTimeMillis());
+        stringBuffer = new StringBuffer();
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes != null) {
+            HttpServletRequest request = attributes.getRequest();
+            MDC.put("ip", HttpUtils.getRealIp(request));
+            stringBuffer.append("url:{").append(request.getRequestURI()).append("}");
+            stringBuffer.append(", method:{").append(request.getMethod()).append("}");
+            stringBuffer.append(", args:{").append(Arrays.toString(joinPoint.getArgs())).append("}");
+        }
+    }
 
-	@After("controllerLog()")
-	public void doAfter() {
-	}
+    @After("controllerLog()")
+    public void doAfter() {
+    }
 
-	@AfterReturning(returning = "obj", pointcut = "controllerLog()")
-	public void doAfterReturnig(Object obj) {
-		stringBuffer.append(", response:{").append(obj).append("}");
-		stringBuffer.append(", elapsed time:").append(System.currentTimeMillis() - startTime.get()).append("ms!");
-		ControllerLog.info(stringBuffer.toString());
-	}
+    @AfterReturning(returning = "obj", pointcut = "controllerLog()")
+    public void doAfterReturnig(Object obj) {
+        stringBuffer.append(", response:{data}");
+        stringBuffer.append(", elapsed time:").append(System.currentTimeMillis() - startTime.get()).append("ms!");
+        ControllerLog.info(stringBuffer.toString());
+    }
 
 }

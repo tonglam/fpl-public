@@ -75,7 +75,10 @@
 <script th:inline="none">
     layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
 
-        layui.soulTable.config({
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, layer = layui.layer,
+            laydate = layui.laydate;
+
+        soulTable.config({
             drag: false,
             overflow: {
                 type: 'tips',
@@ -83,9 +86,6 @@
                 total: true
             }
         });
-
-        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, layer = layui.layer,
-            laydate = layui.laydate;
 
         laydate.render({
             elem: 'input[name=createTime]'

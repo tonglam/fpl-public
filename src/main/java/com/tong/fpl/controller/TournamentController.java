@@ -38,12 +38,12 @@ public class TournamentController {
     @RequestMapping(value = "/create")
     public String tournamentCreateController(Model model) {
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-        return "tournamentCreate";
+        return "create";
     }
 
     @RequestMapping(value = "/manage")
     public String tournamentManageController() {
-        return "tournamentManage";
+        return "manage";
     }
 
     @RequestMapping(value = "/result")
@@ -54,12 +54,12 @@ public class TournamentController {
                 model.addAttribute("tournamentList", this.tournamentApi.qryEntryTournamenList(entry));
             }
         }
-        return "tournamentResult";
+        return "result";
     }
 
     @RequestMapping(value = "/rule")
     public String tournamentRuleController() {
-        return "tournamentRule";
+        return "rule";
     }
 
     @ResponseBody

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout::header(~{::title},~{::link})">
+    <title>队长统计-数据查询-letletme</title>
+    <link rel="stylesheet" th:href="@{/css/captain.css}"/>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+
+        <div class="site-content">
+
+            <h1 style="font-size: 28px">队长统计</h1>
+
+            <div style="margin-top: 20px"></div>
+
+            <div class="layui-tab" lay-allowClose="true" lay-filter="entryTab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" th:text="${tournamentName}"></li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <table class="layui-table" id="captainTable" lay-filter="captainTable">
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+<script th:replace="layout::baseScript"></script>
+
+</body>
+
+<script th:inline="none">
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, table = layui.table,
+            soulTable = layui.soulTable;
+
+        // soulTable.config({
+        //     drag: false,
+        //     overflow: {
+        //         type: 'tips',
+        //         header: true,
+        //         total: true
+        //     }
+        // });
+
+        table.render({
+            elem: '#captainTable',
+            method: 'get',
+            url: '/stat/qryEntryInfoByTournament',
+            where: {tournamentId: 1, season: '1920'},
+            page: true,
+            limit: 150,
+            limits: [20, 50, 100, 150],
+            toolbar: true,
+            loading: true,
+            overflow: {
+                type: 'tips',
+                hoverTime: 300,
+                color: 'black',
+                bgColor: 'white'
+            },
+            cols: [[
+                {title: '排名', type: 'numbers', templet: '#indexTpl'},
+                {field: 'entryName', title: '队伍名字', align: 'center', width: '30%'},
+                {field: 'playerName', title: '玩家名字', align: 'center', width: '22%'},
+                {field: 'overallPoints', title: '总得分', align: 'center', width: '10%', sort: true},
+                {field: 'overallRank', title: '总排名', align: 'center', width: '10%', sort: true},
+                {field: 'capTotalPoints', title: '队长总分', align: 'center', width: '12%', sort: true},
+                {field: 'percent', title: '占比', align: 'center', width: '10%', sort: true}
+            ]],
+            initSort: {
+                field: 'capTotalPoints',
+                type: 'desc'
+            },
+            id: 'entry',
+            done: function () {
+                console.info(this);
+                soulTable.render(this);
+            }
+        });
+
+        table.on('row(captainTable)', function (obj) {
+            let entry = obj.data.entry;
+            let entryName = obj.data.entryName;
+            // 是否存在
+            if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
+                //选项卡已经存在
+                element.tabChange('entryTab', entry);
+                return false;
+            }
+            // 增加标签页
+            element.tabAdd('entryTab', {
+                title: entryName,
+                content: '<table class="layui-table" id=tabTable lay-filter=tabTable></table>',
+                id: entry
+            });
+            // 切换
+            element.tabChange('entryTab', entry);
+        });
+
+        element.on('tab(entryTab)', function () {
+            let entry = $(this).attr("lay-id");
+            if (entry == null) {
+                return false;
+            }
+            table.render({
+                elem: "#tabTable",
+                method: 'get',
+                url: '/stat/qryEntryCaptainList',
+                where: {season: '1920', entry: entry},
+                page: true,
+                limit: 38,
+                limits: [15, 30, 40],
+                loading: true,
+                cols: [[
+                    {title: '排名', type: 'numbers', templet: '#indexTpl'},
+                    {field: 'event', title: '比赛周', align: 'center', width: '20%', sort: true},
+                    {field: 'chip', title: '开卡', align: 'center', width: '20%'},
+                    {field: 'webName', title: '队长', align: 'center', width: 150, sort: true},
+                    {field: 'points', title: '原始分', align: 'center', width: '20%', sort: true},
+                    {field: 'totalPoints', title: '总得分', align: 'center', width: '20%', sort: true},
+                ]],
+                done: function () {
+                    soulTable.render(this);
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<script id="nameTpl" type="text/html">
+    <a href="/tournament/result?id={{d.tournamentId}}" class="layui-table-link">{{d.name}}</a>
+</script>
+
+</html>

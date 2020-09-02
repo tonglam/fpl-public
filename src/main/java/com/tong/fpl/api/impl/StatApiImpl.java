@@ -16,16 +16,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatApiImpl implements IStatApi {
 
-	private final ITableQueryService tableQueryService;
+    private final ITableQueryService tableQueryService;
 
-	@Override
-	public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId, long page, long limit) {
-		return this.tableQueryService.qryPageEntryInfoByTournament(season, tournamentId, page, limit);
-	}
+    @Override
+    public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId, long page, long limit) {
+        return this.tableQueryService.qryPageEntryInfoByTournament(season, tournamentId, page, limit);
+    }
 
-	@Override
-	public TableData<EntryEventCaptainData> qryTournamentCaptainList(String season, int entry, int event) {
-		return this.tableQueryService.qryTournamentCaptainList(season, entry, event);
-	}
+    @Override
+    public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit) {
+        return this.tableQueryService.qryEntryCaptainList(season, entry, page, limit);
+    }
 
 }

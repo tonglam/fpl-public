@@ -9,8 +9,8 @@ import com.tong.fpl.domain.letletme.table.TableData;
  */
 public interface IStatApi {
 
-	TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId, long page, long limit);
+    TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId, long page, long limit);
 
-	TableData<EntryEventCaptainData> qryTournamentCaptainList(String season, int event, int entry);
+    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit);
 
 }

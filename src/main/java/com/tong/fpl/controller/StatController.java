@@ -22,26 +22,25 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatController {
 
-	private final IStatApi statApi;
+    private final IStatApi statApi;
 
-	@RequestMapping(value = "/captain")
-	public String captainStatController(Model model) {
-		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-		model.addAttribute("tournamentName", "让让我吧");
-		return "statCaptain";
-	}
+    @RequestMapping(value = "/captain")
+    public String captainStatController(Model model) {
+        model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+        model.addAttribute("tournamentName", "赛事：让让我吧");
+        return "captain";
+    }
 
-	@GetMapping("/qryEntryInfoByTournament")
-	@ResponseBody
-	public TableData<EntryInfoData> qryEntryInfoByTournament(@RequestParam String season, @RequestParam int tournamentId, @RequestParam long page, @RequestParam long limit) {
-		return this.statApi.qryEntryInfoByTournament(season, tournamentId, page, limit);
-	}
+    @GetMapping("/qryEntryInfoByTournament")
+    @ResponseBody
+    public TableData<EntryInfoData> qryEntryInfoByTournament(@RequestParam String season, @RequestParam int tournamentId, @RequestParam long page, @RequestParam long limit) {
+        return this.statApi.qryEntryInfoByTournament(season, tournamentId, page, limit);
+    }
 
-	@GetMapping("/qryTournamentCaptainList")
-	@ResponseBody
-	public TableData<EntryEventCaptainData> qryTournamentCaptainList(@RequestParam String season, @RequestParam int entry, @RequestParam int event) {
-		return this.statApi.qryTournamentCaptainList(season, entry, event);
-	}
-
+    @GetMapping("/qryEntryCaptainList")
+    @ResponseBody
+    public TableData<EntryEventCaptainData> qryEntryCaptainList(@RequestParam String season, @RequestParam int entry, @RequestParam long page, @RequestParam long limit) {
+        return this.statApi.qryEntryCaptainList(season, entry, page, limit);
+    }
 
 }

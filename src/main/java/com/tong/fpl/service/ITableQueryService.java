@@ -13,14 +13,14 @@ import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
  */
 public interface ITableQueryService {
 
-	TableData<PlayerInfoData> qryPagePlayerDataList(long page, long limit);
+    TableData<PlayerInfoData> qryPagePlayerDataList(long page, long limit);
 
-	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+    TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-	TableData<EntryTournamentData> qryEntryTournamenList(int entry);
+    TableData<EntryTournamentData> qryEntryTournamenList(int entry);
 
-	TableData<EntryInfoData> qryPageEntryInfoByTournament(String season, int tournamentId, long page, long limit);
+    TableData<EntryInfoData> qryPageEntryInfoByTournament(String season, int tournamentId, long page, long limit);
 
-	TableData<EntryEventCaptainData> qryTournamentCaptainList(String season, int entry, int event);
+    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit);
 
 }
