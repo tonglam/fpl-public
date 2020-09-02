@@ -17,44 +17,44 @@ import java.util.Map;
  */
 public interface IQuerySerivce {
 
-	default Map<Integer, PlayerEntity> qryAllPlayerList() {
-		return this.qryAllPlayerList(CommonUtils.getCurrentSeason());
-	}
+    default Map<Integer, PlayerEntity> qryAllPlayerList() {
+        return this.qryAllPlayerList(CommonUtils.getCurrentSeason());
+    }
 
-	Map<Integer, PlayerEntity> qryAllPlayerList(String season);
+    Map<Integer, PlayerEntity> qryAllPlayerList(String season);
 
-	default Map<Integer, PlayerStatEntity> qryAllPlayerStatList() {
-		return this.qryAllPlayerStatList(CommonUtils.getCurrentSeason());
-	}
+    default Map<Integer, PlayerStatEntity> qryAllPlayerStatList() {
+        return this.qryAllPlayerStatList(CommonUtils.getCurrentSeason());
+    }
 
-	Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season);
+    Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season);
 
-	default int qryPlayerElementByCode(int code) {
-		return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
-	}
+    default int qryPlayerElementByCode(int code) {
+        return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
+    }
 
-	int qryPlayerElementByCode(String season, int code);
+    int qryPlayerElementByCode(String season, int code);
 
-	default int qryPlayerElementByWebName(String webName) throws Exception {
-		return this.qryPlayerElementByWebName(CommonUtils.getCurrentSeason(), webName);
-	}
+    default int qryPlayerElementByWebName(String webName) throws Exception {
+        return this.qryPlayerElementByWebName(CommonUtils.getCurrentSeason(), webName);
+    }
 
-	int qryPlayerElementByWebName(String season, String webName) throws Exception;
+    int qryPlayerElementByWebName(String season, String webName) throws Exception;
 
-	EntryEventData qryEntryResult(String season, int entry);
+    EntryEventData qryEntryResult(String season, int entry);
 
-	EntryEventData qryEntryEventResult(String season, int event, int entry);
+    EntryEventData qryEntryEventResult(String season, int event, int entry);
 
-	List<EventLiveEntity> qryEventLiveAll(String season, int element);
+    List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-	List<EventLiveEntity> qryEventLive(String season, int event, int element);
+    List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-	PlayerData qryPlayerData(int element);
+    PlayerData qryPlayerData(int element);
 
-	PlayerInfoData initPlayerInfo(PlayerEntity playerEntity);
+    PlayerInfoData initPlayerInfo(PlayerEntity playerEntity);
 
-	List<PlayerInfoData> qryAllPlayers(String season);
+    List<PlayerInfoData> qryAllPlayers(String season);
 
-	List<Pick> qryPickListFromPicks(String season, String picks);
+    List<Pick> qryPickListFromPicks(String season, String picks);
 
 }

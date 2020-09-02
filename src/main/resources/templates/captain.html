@@ -46,14 +46,14 @@
         let $ = layui.jquery, element = layui.element, table = layui.table,
             soulTable = layui.soulTable;
 
-        // soulTable.config({
-        //     drag: false,
-        //     overflow: {
-        //         type: 'tips',
-        //         header: true,
-        //         total: true
-        //     }
-        // });
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
 
         table.render({
             elem: '#captainTable',
@@ -92,8 +92,7 @@
         });
 
         table.on('row(captainTable)', function (obj) {
-            let entry = obj.data.entry;
-            let entryName = obj.data.entryName;
+            let entry = obj.data.entry, entryName = obj.data.entryName;
             // 是否存在
             if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
                 //选项卡已经存在
@@ -136,7 +135,6 @@
                     soulTable.render(this);
                 }
             });
-
         });
 
     });

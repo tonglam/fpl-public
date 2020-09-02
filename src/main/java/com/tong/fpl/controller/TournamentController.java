@@ -51,6 +51,7 @@ public class TournamentController {
         if (session.getAttribute("entry") != null) {
             int entry = (int) session.getAttribute("entry");
             if (entry > 0) {
+                model.addAttribute("entryInfo", this.tournamentApi.getEntryInfo(entry));
                 model.addAttribute("tournamentList", this.tournamentApi.qryEntryTournamenList(entry));
             }
         }
