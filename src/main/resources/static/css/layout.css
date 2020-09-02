@@ -30,7 +30,6 @@ h1, h2, h3 {
     padding: 30px 0;
 }
 
-/* 头部 */
 .header {
     height: 59px;
     border-bottom: 1px solid #404553;
@@ -113,7 +112,7 @@ h1, h2, h3 {
 }
 
 .footer {
-    background: #dedede;
+    background: #ffffff;
     padding: 30px 0;
     line-height: 30px;
     text-align: center;
