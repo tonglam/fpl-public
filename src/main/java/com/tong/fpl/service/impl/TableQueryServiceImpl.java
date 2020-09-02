@@ -187,7 +187,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		// entry_captain_stat
 		EntryCaptainStatEntity entryCaptainStatEntity = this.entryCaptainStatService.getOne(new QueryWrapper<EntryCaptainStatEntity>().lambda()
 				.eq(EntryCaptainStatEntity::getEntry, entry)
-				.eq(EntryCaptainStatEntity::getEvent, entry));
+				.eq(EntryCaptainStatEntity::getEvent, event));
 		if (entryCaptainStatEntity == null) {
 			MybatisPlusConfig.season.remove();
 			return new TableData<>(entryEventCaptainData);

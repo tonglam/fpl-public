@@ -27,6 +27,7 @@ public class StatController {
 	@RequestMapping(value = "/captain")
 	public String captainStatController(Model model) {
 		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+		model.addAttribute("tournamentName", "让让我吧");
 		return "statCaptain";
 	}
 
