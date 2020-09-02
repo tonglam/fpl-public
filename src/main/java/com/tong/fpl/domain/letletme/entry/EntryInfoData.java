@@ -16,5 +16,6 @@ public class EntryInfoData {
 	private int overallPoints;
 	private int overallRank;
 	private int capTotalPoints;
+	private String percent;
 
 }

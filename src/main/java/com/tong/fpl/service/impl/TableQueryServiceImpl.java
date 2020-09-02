@@ -2,6 +2,7 @@ package com.tong.fpl.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -157,14 +158,17 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				return;
 			}
 			EntryCaptainStatEntity entryCaptainStatEntity = captainStatList.get(0);
-			entryInfoList.add(new EntryInfoData()
+			EntryInfoData entryInfoData = new EntryInfoData()
 					.setEntry(entry)
 					.setEntryName(entryCaptainStatEntity.getEntryName())
 					.setPlayerName(entryCaptainStatEntity.getPlayerName())
 					.setOverallPoints(entryCaptainStatEntity.getOverallPoints())
 					.setOverallRank(entryCaptainStatEntity.getOverallRank())
-					.setCapTotalPoints(this.calcEntryCapTotalPoints(captainStatList))
-			);
+					.setCapTotalPoints(this.calcEntryCapTotalPoints(captainStatList));
+
+			String percent = NumberUtil.decimalFormat("#.##%", NumberUtil.div(entryInfoData.getCapTotalPoints(), entryInfoData.getOverallPoints(), 2));
+			entryInfoData.setPercent(percent);
+			entryInfoList.add(entryInfoData);
 		});
 		Page<EntryInfoData> pageResult = new Page<>(page, limit, tournamentEntryPage.getTotal());
 		pageResult.setRecords(entryInfoList);

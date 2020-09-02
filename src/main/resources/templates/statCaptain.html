@@ -58,21 +58,41 @@
             url: '/stat/qryEntryInfoByTournament',
             where: {tournamentId: 1, season: '1920'},
             page: true,
-            limit: 20,
+            limit: 150,
             limits: [20, 50, 100, 150],
             toolbar: true,
             loading: true,
             cols: [[
-                {field: 'entryName', title: '队伍名字', align: 'center', width: '30%'},
+                // cols: [[
+                //     {
+                //         fixed: 'left', title: '', width: '5%', align: 'left', children: [
+                //             {
+                //                 title: '小组赛',
+                //                 data: function (d) {
+                //                     // d 为当前行数据
+                //                     return [d];
+                //                 },
+                //                 cols: [[
+                //                     {field: 'groupMode', title: '模式', align: 'center'}
+                //                 ]],
+                //                 done: function () {
+                //                     soulTable.render(this);
+                //                 }
+                //             }
+                //         ]
+                //     },
+                {title: '排名', type: 'numbers', templet: '#indexTpl'},
+                {field: 'entryName', title: '队伍名字', align: 'center', width: '25%'},
                 {field: 'playerName', title: '玩家名字', align: 'center', width: '20%'},
                 {field: 'overallPoints', title: '总得分', align: 'center', width: '10%'},
-                {field: 'overallRank', title: '总排名', align: 'center', width: '10%'},
-                {field: 'capTotalPoints', title: '队长总分', align: 'center', width: '15%', sort: true},
-                {fixed: 'right', title: '选择比赛周', toolbar: '#qryEventTml', align: 'center'}
+                {field: 'overallRank', title: '总排名', align: 'center', width: '10%', sort: true},
+                {field: 'capTotalPoints', title: '队长总分', align: 'center', width: '12%', sort: true},
+                {field: 'percent', title: '占比', align: 'center', width: '10%', sort: true},
+                {fixed: 'right', title: '选择比赛周', toolbar: '#qryEventTml', align: 'center', minWidth: 120}
             ]],
             initSort: {
-                field: 'overallRank',
-                type: 'asc'
+                field: 'capTotalPoints',
+                type: 'desc'
             },
             id: 'entry',
             done: function () {
