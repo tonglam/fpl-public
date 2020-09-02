@@ -18,8 +18,8 @@ public class MyFplApiImpl implements IMyFplApi {
 	private final ITableQueryService tableQueryService;
 
 	@Override
-	public TableData<PlayerInfoData> qryPlayerDataList(long current, long size) {
-		return this.tableQueryService.qryPagePlayerDataList(current, size);
+	public TableData<PlayerInfoData> qryPlayerDataList(long page, long limit) {
+		return this.tableQueryService.qryPagePlayerDataList(page, limit);
 	}
 
 }

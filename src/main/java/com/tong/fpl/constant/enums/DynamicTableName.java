@@ -11,8 +11,9 @@ import lombok.Getter;
 public enum DynamicTableName {
 	Team("team"),
 	Player("player"), Player_Stat("player_stat"), Player_Value("player_value"),
-	Entry_info("entry_info"), Entry_event_result("entry_event_result"),
-	Event("event"), Event_fixture("event_fixture"), Event_live("event_live");
+	Entry_info("entry_info"), Entry_event_result("entry_event_result"), Entry_captain_stat("entry_captain_stat"),
+	Event("event"), Event_fixture("event_fixture"), Event_live("event_live"),
+	Tournament_info("tournament_entry"), Tournament_entry("tournament_entry");
 
 	private final String tableName;
 

@@ -44,8 +44,6 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		TournamentInfoData a = new TournamentInfoData().setId(1111);
-		TableData<TournamentInfoData> b = new TableData<>(a);
 		System.out.println(1);
 	}
 

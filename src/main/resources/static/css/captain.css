@@ -1,0 +1,11 @@
+/* 防止下拉框的下拉列表被隐藏---必须设置--- */
+.layui-table-cell {
+    overflow: visible !important;
+}
+
+/* 使得下拉框与单元格刚好合适 */
+td .layui-form-select {
+    margin-top: -10px;
+    margin-left: -15px;
+    margin-right: -15px;
+}

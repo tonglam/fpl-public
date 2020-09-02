@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -27,8 +28,8 @@ public class MyFplController {
 
 	@GetMapping("/qryPlayerDataList")
 	@ResponseBody
-	public TableData<PlayerInfoData> qryPlayerDataList(long current, long size) {
-		return this.myFplApi.qryPlayerDataList(current, size);
+	public TableData<PlayerInfoData> qryPlayerDataList(@RequestParam long page, @RequestParam long limit) {
+		return this.myFplApi.qryPlayerDataList(page, limit);
 	}
 
 }

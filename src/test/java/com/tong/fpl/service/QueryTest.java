@@ -55,4 +55,11 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"2021"})
+	void qryPickListFromPicks(String season) {
+
+
+	}
+
 }

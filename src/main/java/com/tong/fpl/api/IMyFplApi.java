@@ -8,6 +8,6 @@ import com.tong.fpl.domain.letletme.table.TableData;
  */
 public interface IMyFplApi {
 
-	TableData<PlayerInfoData> qryPlayerDataList(long current, long size);
+	TableData<PlayerInfoData> qryPlayerDataList(long page, long limit);
 
 }

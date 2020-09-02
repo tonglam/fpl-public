@@ -32,12 +32,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StaticServiceImpl implements IStaticSerive {
 
+	private final IInterfaceService interfaceService;
 	private final EventService eventService;
 	private final PlayerService playerService;
 	private final EntryEventResultService entryEventResultService;
 	private final EventFixtureService eventFixtureService;
 	private final EventLiveService eventLiveService;
-	private final IInterfaceService interfaceService;
 
 	@Override
 	public void insertEventLive(int event) {
@@ -67,7 +67,6 @@ public class StaticServiceImpl implements IStaticSerive {
 			});
 			this.eventLiveService.saveBatch(eventLiveList);
 			log.info("insert event_live size is " + eventLiveList.size() + "!");
-			eventLiveList.clear();
 		});
 	}
 
@@ -128,26 +127,6 @@ public class StaticServiceImpl implements IStaticSerive {
 		return list;
 	}
 
-	@Override
-	public Optional<UserPicksRes> getUserPicks(int event, int entry) {
-		return this.interfaceService.getUserPicks(event, entry);
-	}
-
-	@Override
-	public Optional<UserHistoryRes> getUserHistory(int entry) {
-		return this.interfaceService.getUserHistory(entry);
-	}
-
-	@Override
-	public Optional<ElementSummaryRes> getElementSummary(int element) {
-		return this.interfaceService.getElementSummary(element);
-	}
-
-	@Override
-	public Optional<EntryRes> getEntry(int entry) {
-		return this.interfaceService.getEntry(entry);
-	}
-
 	private void getOnePageEntryListFromClassic(List<EntryInfoEntity> list, int classicId, int page, boolean recursive) {
 		Optional<LeagueClassicRes> resResult = this.interfaceService.getLeaguesClassic(classicId, page);
 		if (resResult.isPresent()) {
@@ -182,6 +161,26 @@ public class StaticServiceImpl implements IStaticSerive {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Optional<UserPicksRes> getUserPicks(int event, int entry) {
+		return this.interfaceService.getUserPicks(event, entry);
+	}
+
+	@Override
+	public Optional<UserHistoryRes> getUserHistory(int entry) {
+		return this.interfaceService.getUserHistory(entry);
+	}
+
+	@Override
+	public Optional<ElementSummaryRes> getElementSummary(int element) {
+		return this.interfaceService.getElementSummary(element);
+	}
+
+	@Override
+	public Optional<EntryRes> getEntry(int entry) {
+		return this.interfaceService.getEntry(entry);
 	}
 
 }
