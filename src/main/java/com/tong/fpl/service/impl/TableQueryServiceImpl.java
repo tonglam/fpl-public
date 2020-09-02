@@ -173,7 +173,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	}
 
 	private int calcEntryCapTotalPoints(List<EntryCaptainStatEntity> captainStatList) {
-		return captainStatList.stream().mapToInt(EntryCaptainStatEntity::getOverallPoints).sum();
+		return captainStatList.stream().mapToInt(EntryCaptainStatEntity::getTotalPoints).sum();
 	}
 
 	@Override
