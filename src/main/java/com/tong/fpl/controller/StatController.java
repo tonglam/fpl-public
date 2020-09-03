@@ -49,10 +49,10 @@ public class StatController {
         return this.statApi.qryEntryCaptainList(season, entry, page, limit);
     }
 
-    @GetMapping("/qryPagePlayerList")
+    @RequestMapping("/qryPagePlayerList")
     @ResponseBody
-    public TableData<PlayerInfoData> qryPagePlayerList(@RequestParam String season, @RequestParam long page, @RequestParam long limit) {
-        return this.statApi.qryPagePlayerList(season, page, limit);
+    public TableData<PlayerInfoData> qryPagePlayerList(@RequestParam String season) {
+        return this.statApi.qryPagePlayerList(season);
     }
 
 }

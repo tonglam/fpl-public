@@ -30,8 +30,8 @@ public class StatApiImpl implements IStatApi {
     }
 
     @Override
-    public TableData<PlayerInfoData> qryPagePlayerList(String season, long page, long limit) {
-        return this.tableQueryService.qryPagePlayerList(season, page, limit);
+    public TableData<PlayerInfoData> qryPagePlayerList(String season) {
+        return this.tableQueryService.qryPagePlayerList(season);
     }
 
 }

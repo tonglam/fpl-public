@@ -51,7 +51,7 @@ public interface IQuerySerivce {
 
     PlayerData qryPlayerData(int element);
 
-    PlayerInfoData initPlayerInfo(PlayerEntity playerEntity);
+    PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity);
 
     List<PlayerInfoData> qryAllPlayers(String season);
 
