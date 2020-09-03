@@ -23,4 +23,6 @@ public interface ITableQueryService {
 
     TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit);
 
+    TableData<PlayerInfoData> qryPagePlayerList(String season, long page, long limit);
+
 }

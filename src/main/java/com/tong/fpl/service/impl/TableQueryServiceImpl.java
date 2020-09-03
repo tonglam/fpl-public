@@ -23,6 +23,7 @@ import com.tong.fpl.domain.letletme.tournament.EntryTournamentData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
 import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.db.EntryCaptainStatService;
 import com.tong.fpl.service.db.PlayerService;
@@ -40,6 +41,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +53,7 @@ import java.util.stream.Collectors;
 public class TableQueryServiceImpl implements ITableQueryService {
 
     private final IQuerySerivce querySerivce;
+    private final IRedisCacheSerive redisCacheSerive;
     private final PlayerService playerService;
     private final EntryCaptainStatService entryCaptainStatService;
     private final TournamentInfoService tournamentInfoService;
@@ -111,16 +114,16 @@ public class TableQueryServiceImpl implements ITableQueryService {
 
     @Override
     public TableData<EntryTournamentData> qryEntryTournamentList(int entry) {
-	    List<EntryTournamentData> list = Lists.newArrayList();
-	    if (entry == 0) {
-		    return new TableData<>();
-	    }
-	    // get tournament_list
-	    List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-			    .eq(TournamentEntryEntity::getEntry, entry))
-			    .stream()
-			    .map(TournamentEntryEntity::getTournamentId)
-			    .collect(Collectors.toList());
+        List<EntryTournamentData> list = Lists.newArrayList();
+        if (entry == 0) {
+            return new TableData<>();
+        }
+        // get tournament_list
+        List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+                .eq(TournamentEntryEntity::getEntry, entry))
+                .stream()
+                .map(TournamentEntryEntity::getTournamentId)
+                .collect(Collectors.toList());
         // return
         this.tournamentInfoService.list(new QueryWrapper<TournamentInfoEntity>().lambda()
                 .in(TournamentInfoEntity::getId, tournamentList)
@@ -194,18 +197,48 @@ public class TableQueryServiceImpl implements ITableQueryService {
             MybatisPlusConfig.season.remove();
             return new TableData<>(entryEventCaptainList);
         }
-        entryCaptainStatPage.getRecords().forEach(entryCaptainStatEntity ->
+        entryCaptainStatPage.getRecords().forEach(o ->
                 entryEventCaptainList.add(new EntryEventCaptainData()
-                        .setEntry(entryCaptainStatEntity.getEntry())
-                        .setEvent(entryCaptainStatEntity.getEvent())
-                        .setChip(entryCaptainStatEntity.getChip())
-                        .setElement(entryCaptainStatEntity.getElement())
-                        .setWebName(entryCaptainStatEntity.getWebName())
-                        .setPoints(entryCaptainStatEntity.getPoints())
-                        .setTotalPoints(entryCaptainStatEntity.getTotalPoints())
+                        .setEntry(o.getEntry())
+                        .setEvent(o.getEvent())
+                        .setChip(o.getChip())
+                        .setElement(o.getElement())
+                        .setWebName(o.getWebName())
+                        .setPoints(o.getPoints())
+                        .setTotalPoints(o.getTotalPoints())
                 ));
         Page<EntryEventCaptainData> pageResult = new Page<>(page, limit, entryCaptainStatPage.getTotal());
         pageResult.setRecords(entryEventCaptainList);
+        MybatisPlusConfig.season.remove();
+        return new TableData<>(pageResult);
+    }
+
+    @Override
+    public TableData<PlayerInfoData> qryPagePlayerList(String season, long page, long limit) {
+        List<PlayerInfoData> playerList = Lists.newArrayList();
+        MybatisPlusConfig.season.set(season);
+        Page<PlayerEntity> playerPage = this.playerService.getBaseMapper().selectPage(
+                new Page<>(page, limit, this.setSearchTotal(page)), new QueryWrapper<PlayerEntity>().lambda()
+                        .orderByAsc(PlayerEntity::getElement));
+        if (playerPage == null) {
+            MybatisPlusConfig.season.remove();
+            return new TableData<>(playerList);
+        }
+        Map<Integer, String> teamNameMap = this.redisCacheSerive.getTeamNameMap();
+        Map<Integer, String> positionMap = CommonUtils.getPositonMap();
+        playerPage.getRecords().forEach(o ->
+                playerList.add(new PlayerInfoData()
+                        .setElement(o.getElement())
+                        .setCode(o.getCode())
+                        .setWebName(o.getWebName())
+                        .setElementType(o.getElementType())
+                        .setElementTypeName(positionMap.get(o.getElementType()))
+                        .setTeamId(o.getTeamId())
+                        .setTeamName(teamNameMap.get(o.getTeamId()))
+                        .setPrice(NumberUtil.div(o.getPrice(), 10, 1))
+                ));
+        Page<PlayerInfoData> pageResult = new Page<>(page, limit, playerPage.getTotal());
+        pageResult.setRecords(playerList);
         MybatisPlusConfig.season.remove();
         return new TableData<>(pageResult);
     }

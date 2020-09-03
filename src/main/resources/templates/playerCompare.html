@@ -1,107 +1,146 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <!-- <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script> -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
-    <!-- <script src="chartjs-plugin-annotation.min.js"></script> -->
-    <script src="chartjs-plugin-annotation-nn.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
-    <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-    <script src="https://www.jqueryscript.net/demo/Transpose-Table-jQuery-Plugin/scripts/jquery.table.transpose.min.js"></script>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout::header(~{::title},~{::link})">
+    <title>球员比较-数据查询-letletme</title>
     <link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
-    <script>
-        window.chartColors = {
-            white: 'rgb(255, 255, 255)',
-            black: 'rgb(0, 0, 0)',
-            red: 'rgb(255, 99, 132)',
-            orange: 'rgb(255, 159, 64)',
-            yellow: 'rgb(255, 205, 86)',
-            green: 'rgb(75, 192, 192)',
-            blue: 'rgb(54, 162, 235)',
-            purple: 'rgb(153, 102, 255)',
-            grey: 'rgb(201, 203, 207)'
-        };
-        window.chartAlphaColors = {
-            white: 'rgba(255, 255, 255, 0.4)',
-            black: 'rgba(0, 0, 0, 0.7)',
-            red: 'rgba(255, 99, 132, 0.4)',
-            orange: 'rgba(255, 159, 64, 0.4)',
-            yellow: 'rgba(255, 205, 86, 0.4)',
-            green: 'rgba(75, 192, 192, 0.4)',
-            blue: 'rgba(54, 162, 235, 0.4)',
-            purple: 'rgba(153, 102, 255, 0.4)',
-            grey: 'rgba(201, 203, 207, 0.4)'
-        };
-        dataSetColour = ['red', 'blue', 'green'];
-        entryColour = ['yellow', 'purple'];
-    </script>
-    <title>球员比较</title>
 </head>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+<script th:src="@{/js/chartjs-plugin-annotation-nn.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://www.jqueryscript.net/demo/Transpose-Table-jQuery-Plugin/scripts/jquery.table.transpose.min.js"></script>
+
 <body ng-controller="testCtrl">
-<div style="width:1080px; margin-left:auto; margin-right:auto">
-    <div>
-        <div style="float:left;">
-            Season:
-            <select id="season_select" onchange="selectSeason(this)">
-                <option selected value="1920">2019/2020</option>
-                <option value="2021">2020/2021</option>
-            </select><br>
-            Player 1:
-            <select id="playerList_select1" onchange="selectPlayer(this)">
-                <option value="-1">- Select -</option>
-            </select><br>
-            <!-- <input type="text" id="player_txt1" placeholder="239" value=239>
-            <input type="button" id="player_bnt1" value="Go"/><br> -->
-            Player 2:
-            <select id="playerList_select2" onchange="selectPlayer(this)">
-                <option value="-1">- Select -</option>
-            </select><br><br>
-            <!-- <input type="text" id="player_txt2" value=215>
-            <input type="button" id="player_bnt2" value="Go"/><br><br> -->
-            Entry 1:
-            <input id="entry_txt1" type="text" value=1404>
-            <input id="entry_bnt1" type="button" value="Go"/><br>
-            Entry 2:
-            <input id="entry_txt2" type="text" value=1829>
-            <input id="entry_bnt2" type="button" value="Go"/><br><br>
-            <input id="reset_bnt" type="button" value="Reset"/>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main" style="min-height: 900px">
+
+        <div style="margin-top: 20px"></div>
+
+        <h1 style="font-size: 28px">球员比较</h1>
+
+        <div style="margin-top: 30px"></div>
+
+        <div class="layui-tab" lay-allowClose="true" lay-filter="widowTab">
+            <ul class="layui-tab-title">
+                <li class="layui-this">球员列表</li>
+                <li lay-id="window">window</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+
+                    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                        <legend> 选择两个球员进行比较</legend>
+                    </fieldset>
+
+                    <div class="layui-col-md6">
+                        <table class="layui-table" id="playerTable" lay-filter="playerTable"></table>
+                    </div>
+
+                    <div class="layui-col-md6" style="margin-top: 50px">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">球员1</label>
+                            <div class="layui-input-inline">
+                                <input class="layui-input" name="player1" type="text">
+                            </div>
+                            <button class="layui-btn layui-btn-sm" id="reset1" style="margin-top: 4px;margin-left: 8px"
+                                    type="reset">
+                                <i class="layui-icon layui-icon-refresh"></i>
+                            </button>
+                        </div>
+                        <div style="margin-top: 30px"></div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">球员2</label>
+                            <div class="layui-input-inline">
+                                <input class="layui-input" name="player2" type="text">
+                            </div>
+                            <button class="layui-btn layui-btn-sm" id="reset2" style="margin-top: 4px;margin-left: 8px"
+                                    type="reset">
+                                <i class="layui-icon layui-icon-refresh"></i>
+                            </button>
+                        </div>
+                        <div style="margin-top: 30px"></div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
+                                        lay-submit="confirmButton" type="submit">确定
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="layui-tab-item">
+
+                    <div class="layui-row">
+
+                        <div class="layui-col-md3">
+                            Season:
+                            <select id="season_select" onchange="selectSeason(this)">
+                                <option selected value="1920">2019/2020</option>
+                                <option value="2021">2020/2021</option>
+                            </select><br>
+                            Player 1:
+                            <select id="playerList_select1" onchange="selectPlayer(this)">
+                                <option value="-1">- Select -</option>
+                            </select><br>
+                            Player 2:
+                            <select id="playerList_select2" onchange="selectPlayer(this)">
+                                <option value="-1">- Select -</option>
+                            </select><br><br>
+                        </div>
+
+                        <div class="layui-col-md3">
+                            <table class="display" id="example" width="100%"></table>
+                        </div>
+
+                        <div class="layui-col-md-offset1 layui-col-md5" style="margin-top: -20px">
+                            <canvas height="400" id="myRadarChart" width="400"></canvas>
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top: 30px"></div>
+
+                    <div>
+                        <canvas height="40" id="myChart" width="150"></canvas>
+                    </div>
+
+                </div>
+            </div>
         </div>
-        <span style="float:left;">
-                    <table class="display" id="example" width="100%"></table>
-                </span>
-        <div style="float:right;">
-            <canvas height="400" id="myRadarChart" width="400"></canvas>
-        </div>
-    </div>
-    <div>
-        <canvas height="40" id="myChart" width="150"></canvas>
+
     </div>
 </div>
 
+<div th:replace="layout::footer"></div>
+
 <script>
-    var player_id;
-    var playerNameList = [];
-    var entry_id;
-    var entry_list = [];
-    var point_dict;
-    var event_picks;
-    var datasetOrder;
-    var selectedSeason;
-    var playerTable;
-    var tableDataSet = [
+    let player_id;
+    let playerNameList = [];
+    let entry_id;
+    let entry_list = [];
+    let point_dict;
+    let event_picks;
+    let datasetOrder;
+    let selectedSeason;
+    let playerTable;
+    let tableDataSet = [
         [" - ", " - ", " - ", " - ",],
         [" - ", " - ", " - ", " - ",],
     ];
 
     // Line Chart
-    var gameweek_labels = [];
+    let gameweek_labels = [];
     for (i = 0; i < 38; i++)
         gameweek_labels[i] = "GW" + (i + 1);
-    var ctx = document.getElementById('myChart');
-    var myChart = new Chart(ctx, {
+    let ctx = document.getElementById('myChart');
+    let myChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: gameweek_labels,
@@ -140,8 +179,8 @@
     });
 
     // Radar Chart
-    var radctx = document.getElementById('myRadarChart');
-    var myRadarChart = new Chart(radctx, {
+    let radctx = document.getElementById('myRadarChart');
+    let myRadarChart = new Chart(radctx, {
         type: 'radar',
         data: {
             // labels: ['Influence', 'Creativity', 'Threat', 'Bonus', 'ICT Index'],
@@ -192,8 +231,8 @@
 </script>
 <script>
     function average(nums) {
-        var total = 0;
-        for (var i = 0; i < nums.length; i++)
+        let total = 0;
+        for (let i = 0; i < nums.length; i++)
             total += nums[i];
         return total / nums.length;
     }
@@ -276,7 +315,7 @@
     }
 
     function getPlayerPoints(event_live) {
-        var point_dict = {'events': [], 'presentPoints': [], 'MathPoints': []};
+        let point_dict = {'events': [], 'presentPoints': [], 'MathPoints': []};
         console.log(event_live);
         for (e in event_live) {
             point_dict.events.push(event_live[e].event);
@@ -329,18 +368,18 @@
     function getAllPlayerList(selectDropdown, response) {
         // allPlayerList = response.data;
         allPlayerList = response;
-        var len = allPlayerList.length;
+        let len = allPlayerList.length;
         console.log(len);
         selectDropdown.empty();
         selectDropdown.append("<option value=-1>- Select -</option>");
-        for (var i = 0; i < len; i++) {
-            var playerCode = allPlayerList[i]['code'];
-            var player_id = allPlayerList[i]['element'];
-            var playerName = allPlayerList[i]['webName'];
+        for (let i = 0; i < len; i++) {
+            let playerCode = allPlayerList[i]['code'];
+            let player_id = allPlayerList[i]['element'];
+            let playerName = allPlayerList[i]['webName'];
             selectDropdown.append("<option value='" + playerCode + "-" + player_id + "'>" + playerName + "</option>");
         }
-        var selected = selectDropdown.val(); // cache selected value, before reordering
-        var opts_list = selectDropdown.find('option');
+        let selected = selectDropdown.val(); // cache selected value, before reordering
+        let opts_list = selectDropdown.find('option');
         opts_list.sort(function (a, b) {
             return $(a).text() > $(b).text() ? 1 : -1;
         });
@@ -365,7 +404,7 @@
         player_id = obj.options[obj.selectedIndex].value.split('-')[1];
         console.log(playerCode);
 
-        var settings = {
+        let settings = {
             "url": "http://letletme.top/api/qryPlayerData",
             "method": "POST",
             "dataType": 'json',
@@ -415,7 +454,7 @@
         if (!$("#example").is(":blk-transpose"))
             $("#example").transpose({mode: 1});
 
-        var currentMode = $("#example").data("tp_mode");
+        let currentMode = $("#example").data("tp_mode");
         if (currentMode == undefined)
             $("#example").transpose("transpose");
         else
@@ -423,7 +462,7 @@
     }
 
     function initialiseTable() {
-        var playerTable = $('#example').DataTable({
+        let playerTable = $('#example').DataTable({
             data: tableDataSet,
             "bFilter": false,
             "paging": false,
@@ -444,7 +483,7 @@
     $(document).ready(function () {
         playerTable = initialiseTable();
 
-        // var settings = {
+        // let settings = {
         //     "url": "http://letletme.top/api/qryPlayerData",
         //     "method": "POST",
         //     "dataType": 'json',
@@ -467,8 +506,8 @@
         });
 
         $("#entry_bnt1").click(function () {
-            // $.getJSON("http://letletme.top/api/qryEntryEventResult?event=47&entry=1404", function(response) {
-            $.getJSON("1404.json", function (response) {
+            $.getJSON("http://letletme.top/api/qryEntryEventResult?event=47&entry=1404", function (response) {
+                // $.getJSON("1404.json", function (response) {
                 // $.getJSON("http://letletme.top/api/qryEntryResult", {season: 1920, entry: $("#entry_txt1").val()}, function(response) {
                 event_results = response.data;
                 event_picks = getEntryPicks(event_results);
@@ -480,8 +519,8 @@
         });
 
         $("#entry_bnt2").click(function () {
-            // $.getJSON("http://letletme.top/api/qryEntryEventResult?event=47&entry=1404", function(response) {
-            $.getJSON("1829.json", function (response) {
+            $.getJSON("http://letletme.top/api/qryEntryEventResult?event=47&entry=1404", function (response) {
+                // $.getJSON("1829.json", function (response) {
                 // $.getJSON("http://letletme.top/api/qryEntryResult", {season: 1920, entry: $("#entry_txt1").val()}, function(response) {
                 event_results = response.data;
                 event_picks = getEntryPicks(event_results);
@@ -611,5 +650,134 @@
         return pick_result;
     }
 </script>
+
 </body>
+
+<script>
+    window.chartColors = {
+        white: 'rgb(255, 255, 255)',
+        black: 'rgb(0, 0, 0)',
+        red: 'rgb(255, 99, 132)',
+        orange: 'rgb(255, 159, 64)',
+        yellow: 'rgb(255, 205, 86)',
+        green: 'rgb(75, 192, 192)',
+        blue: 'rgb(54, 162, 235)',
+        purple: 'rgb(153, 102, 255)',
+        grey: 'rgb(201, 203, 207)'
+    };
+    window.chartAlphaColors = {
+        white: 'rgba(255, 255, 255, 0.4)',
+        black: 'rgba(0, 0, 0, 0.7)',
+        red: 'rgba(255, 99, 132, 0.4)',
+        orange: 'rgba(255, 159, 64, 0.4)',
+        yellow: 'rgba(255, 205, 86, 0.4)',
+        green: 'rgba(75, 192, 192, 0.4)',
+        blue: 'rgba(54, 162, 235, 0.4)',
+        purple: 'rgba(153, 102, 255, 0.4)',
+        grey: 'rgba(201, 203, 207, 0.4)'
+    };
+    dataSetColour = ['red', 'blue', 'green'];
+    entryColour = ['yellow', 'purple'];
+</script>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:inline="none">
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, table = layui.table,
+            soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        table.render({
+            elem: '#playerTable',
+            method: 'get',
+            url: '/stat/qryPagePlayerList',
+            where: {season: '2021'},
+            loading: true,
+            page: true,
+            limit: 15,
+            limits: [15, 30, 50],
+            width: 550,
+            overflow: {
+                type: 'tips',
+                hoverTime: 300,
+                color: 'black',
+                bgColor: 'white'
+            },
+            cols: [[
+                {field: 'webName', title: '名字', align: 'center'},
+                {field: 'elementTypeName', title: '位置', align: 'center', width: 120, filter: true, sort: true},
+                {field: 'teamName', title: '球队', align: 'center', width: 120, filter: true, sort: true},
+                {field: 'price', title: '身价', align: 'center', width: 120, filter: true, sort: true}
+            ]],
+            initSort: {
+                field: 'price',
+                type: 'desc'
+            },
+            id: 'element',
+            filter: {
+                items: ['data', 'condition'],
+                bottom: false
+            },
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        $('#reset1').on('click', function () {
+            $("input[name=player1]").val('');
+        });
+
+        $('#reset2').on('click', function () {
+            $("input[name=player2]").val('');
+        });
+
+        $('#confirmButton').on('click', function () {
+            // 切换选项卡
+            element.tabChange('widowTab', 'window');
+        });
+
+        table.on('row(playerTable)', function (obj) {
+            let webName = obj.data.webName;
+            // 填充球员信息
+            let select1Dom = $("input[name=player1]");
+            let select2Dom = $("input[name=player2]");
+            if (select1Dom.val() != '' && select2Dom.val() != '') {
+                select1Dom.val('');
+                select2Dom.val('');
+            }
+            if (select1Dom.val() == '') {
+                select1Dom.val(webName);
+                $("#playerList_select1").find("option").each(function () {
+                    if ($(this).text() == webName) {
+                        $(this).attr("selected", true);
+                        $(this).trigger("change");
+                    }
+                });
+            } else {
+                if (select1Dom.val() == webName) {
+                    return false;
+                }
+                select2Dom.val(webName);
+                $("#playerList_select2").find("option").each(function () {
+                    if ($(this).text() == webName) {
+                        $(this).attr("selected", true);
+                        $(this).trigger("change");
+                    }
+                });
+            }
+        });
+
+    });
+</script>
+
 </html>
