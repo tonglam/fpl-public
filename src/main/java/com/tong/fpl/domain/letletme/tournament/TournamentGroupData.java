@@ -12,8 +12,11 @@ public class TournamentGroupData {
 
 	private int tournamentId;
 	private int groupId;
+	private String groupIdName;
 	private int groupIndex;
 	private int entry;
+	private String entryName;
+	private String playerName;
 	private int groupPoints;
 	private int groupRank;
 	private int play;

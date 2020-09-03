@@ -638,30 +638,4 @@ public class TournamentServiceImpl implements ITournamentService {
 		return "删除成功";
 	}
 
-	@Cacheable(value = "qryEntryInfo")
-	@Override
-	public EntryInfoEntity qryEntryInfo(int entry) {
-		return this.entryInfoService.getById(entry);
-	}
-
-	@Cacheable(value = "qryTournamentInfoById")
-	@Override
-	public TournamentInfoEntity qryTournamentInfoById(int tournamentId) {
-		return this.tournamentInfoService.getById(tournamentId);
-	}
-
-	@Cacheable(value = "qryGroupListByTournamentId")
-	@Override
-	public List<TournamentGroupEntity> qryGroupListByTournamentId(int tournamentId) {
-		return this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-				.eq(TournamentGroupEntity::getTournamentId, tournamentId));
-	}
-
-	@Cacheable(value = "qryKnockoutListByTournamentId")
-	@Override
-	public List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId) {
-		return this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId));
-	}
-
 }

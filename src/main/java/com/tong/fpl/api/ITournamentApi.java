@@ -4,8 +4,6 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.table.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 
-import java.util.List;
-
 /**
  * Create by tong on 2020/6/24
  */
@@ -65,8 +63,6 @@ public interface ITournamentApi {
 
 	TournamentInfoData qryTournamentInfoById(int tournamentId);
 
-	List<TournamentGroupData> qryGroupListByTournamentId(int tournamentId);
-
-	List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
+	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
 }

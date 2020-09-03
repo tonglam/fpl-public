@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.table.TableData;
 import com.tong.fpl.domain.letletme.tournament.EntryTournamentData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
 
@@ -22,5 +23,7 @@ public interface ITableQueryService {
     TableData<EntryInfoData> qryPageEntryInfoByTournament(String season, int tournamentId, long page, long limit);
 
     TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit);
+
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
 }

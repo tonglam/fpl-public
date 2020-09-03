@@ -5,10 +5,7 @@ import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.domain.letletme.table.TableData;
-import com.tong.fpl.domain.letletme.tournament.EntryTournamentData;
-import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
-import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
+import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -120,6 +117,12 @@ public class TournamentController {
 			entry = (int) session.getAttribute("entry");
 		}
 		return this.tournamentApi.qryEntryTournamentList(entry);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/qryGroupInfoListByGroupId")
+	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int groupId) {
+		return this.tournamentApi.qryGroupInfoListByGroupId(tournamentId, groupId);
 	}
 
 }

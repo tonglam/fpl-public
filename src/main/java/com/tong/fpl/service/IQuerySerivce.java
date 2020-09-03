@@ -1,9 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.data.userpick.Pick;
-import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.entity.PlayerStatEntity;
+import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.api.EntryEventData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -47,14 +45,18 @@ public interface IQuerySerivce {
 
     List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-    List<EventLiveEntity> qryEventLive(String season, int event, int element);
+	List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-    PlayerData qryPlayerData(int element);
+	PlayerData qryPlayerData(int element);
 
-    PlayerInfoData initPlayerInfo(PlayerEntity playerEntity);
+	PlayerInfoData initPlayerInfo(PlayerEntity playerEntity);
 
-    List<PlayerInfoData> qryAllPlayers(String season);
+	List<PlayerInfoData> qryAllPlayers(String season);
 
-    List<Pick> qryPickListFromPicks(String season, String picks);
+	List<Pick> qryPickListFromPicks(String season, String picks);
+
+	TournamentInfoEntity qryTournamentInfoById(int tournamentId);
+
+	EntryInfoEntity qryEntryInfo(int entry);
 
 }
