@@ -22,25 +22,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatController {
 
-    private final IStatApi statApi;
+	private final IStatApi statApi;
 
-    @RequestMapping(value = "/captain")
-    public String captainStatController(Model model) {
-        model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-        model.addAttribute("tournamentName", "赛事：让让我吧");
-        return "captain";
-    }
+	@RequestMapping(value = "/pickingwindow")
+	public String pickingwindowController() {
+		return "picking_window";
+	}
 
-    @GetMapping("/qryEntryInfoByTournament")
-    @ResponseBody
-    public TableData<EntryInfoData> qryEntryInfoByTournament(@RequestParam String season, @RequestParam int tournamentId, @RequestParam long page, @RequestParam long limit) {
-        return this.statApi.qryEntryInfoByTournament(season, tournamentId, page, limit);
-    }
+	@RequestMapping(value = "/captain")
+	public String captainController(Model model) {
+		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+		model.addAttribute("tournamentName", "赛事：让让我吧");
+		return "captain";
+	}
 
-    @GetMapping("/qryEntryCaptainList")
-    @ResponseBody
-    public TableData<EntryEventCaptainData> qryEntryCaptainList(@RequestParam String season, @RequestParam int entry, @RequestParam long page, @RequestParam long limit) {
-        return this.statApi.qryEntryCaptainList(season, entry, page, limit);
-    }
+	@GetMapping("/qryEntryInfoByTournament")
+	@ResponseBody
+	public TableData<EntryInfoData> qryEntryInfoByTournament(@RequestParam String season, @RequestParam int tournamentId, @RequestParam long page, @RequestParam long limit) {
+		return this.statApi.qryEntryInfoByTournament(season, tournamentId, page, limit);
+	}
+
+	@GetMapping("/qryEntryCaptainList")
+	@ResponseBody
+	public TableData<EntryEventCaptainData> qryEntryCaptainList(@RequestParam String season, @RequestParam int entry, @RequestParam long page, @RequestParam long limit) {
+		return this.statApi.qryEntryCaptainList(season, entry, page, limit);
+	}
 
 }

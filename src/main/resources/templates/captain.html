@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout::header(~{::title},~{::link})">
+<head th:replace="layout::header(~{::title},~{})">
     <title>队长统计-数据查询-letletme</title>
-    <link rel="stylesheet" th:href="@{/css/captain.css}"/>
 </head>
 
 <body>
@@ -86,7 +85,6 @@
             },
             id: 'entry',
             done: function () {
-                console.info(this);
                 soulTable.render(this);
             }
         });

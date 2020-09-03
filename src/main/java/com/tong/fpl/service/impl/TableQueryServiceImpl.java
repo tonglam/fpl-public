@@ -110,17 +110,17 @@ public class TableQueryServiceImpl implements ITableQueryService {
     }
 
     @Override
-    public TableData<EntryTournamentData> qryEntryTournamenList(int entry) {
-        List<EntryTournamentData> list = Lists.newArrayList();
-        if (entry == 0) {
-            return new TableData<>();
-        }
-        // get tournament_list
-        List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getEntry, entry))
-                .stream()
-                .map(TournamentEntryEntity::getTournamentId)
-                .collect(Collectors.toList());
+    public TableData<EntryTournamentData> qryEntryTournamentList(int entry) {
+	    List<EntryTournamentData> list = Lists.newArrayList();
+	    if (entry == 0) {
+		    return new TableData<>();
+	    }
+	    // get tournament_list
+	    List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+			    .eq(TournamentEntryEntity::getEntry, entry))
+			    .stream()
+			    .map(TournamentEntryEntity::getTournamentId)
+			    .collect(Collectors.toList());
         // return
         this.tournamentInfoService.list(new QueryWrapper<TournamentInfoEntity>().lambda()
                 .in(TournamentInfoEntity::getId, tournamentList)

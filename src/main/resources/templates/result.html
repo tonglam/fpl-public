@@ -16,11 +16,9 @@
 
             <div style="margin-top: 20px"></div>
 
-            <div style="margin-top: 20px"></div>
-
             <div class="layui-tab" lay-allowClose="true" lay-filter="tournamentTab">
                 <ul class="layui-tab-title">
-                    <li class="layui-this" th:text="${entryInfo.getEntryName()}"></li>
+                    <li class="layui-this" th:text="${entryInfo?.getEntryName()}"></li>
                 </ul>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">

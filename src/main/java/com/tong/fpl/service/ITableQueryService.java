@@ -17,7 +17,7 @@ public interface ITableQueryService {
 
     TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-    TableData<EntryTournamentData> qryEntryTournamenList(int entry);
+    TableData<EntryTournamentData> qryEntryTournamentList(int entry);
 
     TableData<EntryInfoData> qryPageEntryInfoByTournament(String season, int tournamentId, long page, long limit);
 

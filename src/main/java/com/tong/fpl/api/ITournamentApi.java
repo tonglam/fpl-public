@@ -1,11 +1,10 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.table.TableData;
-import com.tong.fpl.domain.letletme.tournament.EntryTournamentData;
-import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
-import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
+import com.tong.fpl.domain.letletme.tournament.*;
+
+import java.util.List;
 
 /**
  * Create by tong on 2020/6/24
@@ -50,18 +49,24 @@ public interface ITournamentApi {
 	 * @param tournamentCreateData tournamentCreateData
 	 * @return message
 	 */
-    String updateTournament(TournamentCreateData tournamentCreateData);
+	String updateTournament(TournamentCreateData tournamentCreateData);
 
-    /**
-     * delete tournament
-     *
-     * @param name tournament_name
-     * @return message
-     */
-    String deleteTournamentByName(String name);
+	/**
+	 * delete tournament
+	 *
+	 * @param name tournament_name
+	 * @return message
+	 */
+	String deleteTournamentByName(String name);
 
-    TableData<EntryTournamentData> qryEntryTournamenList(int entry);
+	TableData<EntryTournamentData> qryEntryTournamentList(int entry);
 
-    EntryInfoEntity getEntryInfo(int entry);
+	EntryInfoData qryEntryInfoData(int entry);
+
+	TournamentInfoData qryTournamentInfoById(int tournamentId);
+
+	List<TournamentGroupData> qryGroupListByTournamentId(int tournamentId);
+
+	List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
 
 }
