@@ -26,7 +26,7 @@ public class StatController {
 
 	@RequestMapping(value = "/pickingwindow")
 	public String pickingwindowController() {
-		return "picking_window";
+		return "pickingwindow";
 	}
 
 	@RequestMapping(value = "/captain")
