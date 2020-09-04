@@ -3,6 +3,7 @@ package com.tong.fpl.api.impl;
 import com.tong.fpl.api.IStatApi;
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.table.TableData;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,11 @@ public class StatApiImpl implements IStatApi {
     @Override
     public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit) {
         return this.tableQueryService.qryEntryCaptainList(season, entry, page, limit);
+    }
+
+    @Override
+    public TableData<PlayerInfoData> qryPagePlayerList(String season) {
+        return this.tableQueryService.qryPagePlayerList(season);
     }
 
 }
