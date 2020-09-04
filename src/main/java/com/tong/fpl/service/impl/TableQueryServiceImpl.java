@@ -57,7 +57,8 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		List<PlayerInfoData> list = Lists.newArrayList();
 		Page<PlayerEntity> playerPage = this.playerService.getBaseMapper().selectPage(
 				new Page<>(page, limit, this.setSearchTotal(page)), new QueryWrapper<>());
-		playerPage.getRecords().forEach(o -> list.add(BeanUtil.copyProperties(this.querySerivce.initPlayerInfo(o), PlayerInfoData.class)));
+		playerPage.getRecords().forEach(o ->
+				list.add(BeanUtil.copyProperties(this.querySerivce.initPlayerInfo(CommonUtils.getCurrentSeason(), o), PlayerInfoData.class)));
 		Page<PlayerInfoData> pageResult = new Page<>(page, limit, playerPage.getTotal());
 		pageResult.setRecords(list);
 		return new TableData<>(pageResult);
@@ -190,15 +191,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			MybatisPlusConfig.season.remove();
 			return new TableData<>(entryEventCaptainList);
 		}
-		entryCaptainStatPage.getRecords().forEach(entryCaptainStatEntity ->
+		entryCaptainStatPage.getRecords().forEach(o ->
 				entryEventCaptainList.add(new EntryEventCaptainData()
-						.setEntry(entryCaptainStatEntity.getEntry())
-						.setEvent(entryCaptainStatEntity.getEvent())
-						.setChip(entryCaptainStatEntity.getChip())
-						.setElement(entryCaptainStatEntity.getElement())
-						.setWebName(entryCaptainStatEntity.getWebName())
-						.setPoints(entryCaptainStatEntity.getPoints())
-						.setTotalPoints(entryCaptainStatEntity.getTotalPoints())
+						.setEntry(o.getEntry())
+						.setEvent(o.getEvent())
+						.setChip(o.getChip())
+						.setElement(o.getElement())
+						.setWebName(o.getWebName())
+						.setPoints(o.getPoints())
+						.setTotalPoints(o.getTotalPoints())
 				));
 		Page<EntryEventCaptainData> pageResult = new Page<>(page, limit, entryCaptainStatPage.getTotal());
 		pageResult.setRecords(entryEventCaptainList);
@@ -229,6 +230,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			list.add(tournamentGroupData);
 		});
 		return new TableData<>(list);
+	}
+
+	@Override
+	public TableData<PlayerInfoData> qryPagePlayerList(String season) {
+		return new TableData<>(this.querySerivce.qryAllPlayers(season));
 	}
 
 }

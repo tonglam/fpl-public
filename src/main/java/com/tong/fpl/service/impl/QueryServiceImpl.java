@@ -2,6 +2,7 @@ package com.tong.fpl.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
@@ -165,7 +166,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		}
 		PlayerData playerData = new PlayerData();
 		// info
-		playerData.setInfoData(this.initPlayerInfo(playerEntity));
+		playerData.setInfoData(this.initPlayerInfo(CommonUtils.getCurrentSeason(), playerEntity));
 		// fixture, next 5 gw
 		playerData.setFixtureDataList(this.setPlayerFixture(playerEntity.getTeamId()));
 		// current season data
@@ -177,8 +178,8 @@ public class QueryServiceImpl implements IQuerySerivce {
 
 	@Cacheable(value = "initPlayerInfo", key = "#playerEntity.element", condition = "#playerEntity.element gt 0")
 	@Override
-	public PlayerInfoData initPlayerInfo(PlayerEntity playerEntity) {
-		Map<Integer, String> teamNameMap = this.redisCacheSerive.getTeamNameMap();
+	public PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity) {
+		Map<Integer, String> teamNameMap = this.redisCacheSerive.getTeamNameMap(season);
 		Map<Integer, String> positionMap = CommonUtils.getPositonMap();
 		return new PlayerInfoData()
 				.setElement(playerEntity.getElement())
@@ -188,7 +189,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.setElementTypeName(positionMap.get(playerEntity.getElementType()))
 				.setTeamId(playerEntity.getTeamId())
 				.setTeamName(teamNameMap.get(playerEntity.getTeamId()))
-				.setPrice(playerEntity.getPrice() / 10.0);
+				.setPrice(NumberUtil.div(playerEntity.getPrice(), 10, 2));
 	}
 
 	private List<PlayerFixtureData> setPlayerFixture(int teamId) {
@@ -228,7 +229,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	public List<PlayerInfoData> qryAllPlayers(String season) {
 		List<PlayerInfoData> list = Lists.newArrayList();
 		this.qryAllPlayerList(season).values()
-				.forEach(o -> list.add(initPlayerInfo(o)));
+				.forEach(o -> list.add(initPlayerInfo(season, o)));
 		return list;
 	}
 
