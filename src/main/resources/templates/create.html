@@ -821,7 +821,8 @@
             tournamentCreateData.groupMode = formData.groupMode;
             tournamentCreateData.teamsPerGroup = formData.groupTeamsPerGroup;
             tournamentCreateData.groupNum = getValueFromStr($("#groupNum").html());
-            formData.groupFillAverage == '1' ? tournamentCreateData.groupFillAverage = true : tournamentCreateData.groupFillAverage = false;
+            $("input[name=groupFillAverage]").siblings("div.layui-form-switch").children("em").text() == "是" ?
+                tournamentCreateData.groupFillAverage = true : tournamentCreateData.groupFillAverage = false;
             tournamentCreateData.groupStartGw = getGwValue(formData.groupStartGw);
             tournamentCreateData.groupEndGw = getGwValue(formData.groupEndGw);
             tournamentCreateData.groupQualifiers = formData.groupQualifiers;
@@ -996,14 +997,12 @@
 
     function turnOffFillAverage() {
         let $ = layui.jquery;
-        $("input[name=groupFillAverage]").val('0');
         $("input[name=groupFillAverage]").siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
         $("input[name=groupFillAverage]").siblings("div.layui-form-switch").children("em").text("否");
     }
 
     function turnOnFillAverage() {
         let $ = layui.jquery;
-        $("input[name=groupFillAverage]").val('1');
         $("input[name=groupFillAverage]").siblings("div.layui-form-switch").addClass("layui-form-onswitch");
         $("input[name=groupFillAverage]").siblings("div.layui-form-switch").children("em").text("是");
     }
