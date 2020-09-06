@@ -1,12 +1,6 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.entity.EntryInfoEntity;
-import com.tong.fpl.domain.entity.TournamentGroupEntity;
-import com.tong.fpl.domain.entity.TournamentInfoEntity;
-import com.tong.fpl.domain.entity.TournamentKnockoutEntity;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
-
-import java.util.List;
 
 /**
  * Create by tong on 2020/6/24
@@ -93,7 +87,8 @@ public interface ITournamentService {
      * @param knockoutRounds         knockoutRounds
      */
     void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
-                       String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds);
+                       String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam,
+                       int knockoutStartGw, int knockoutRounds);
 
     /**
      * count league teams from fpl league url
@@ -127,13 +122,5 @@ public interface ITournamentService {
      * @return message
      */
     String deleteTournamentByName(String name);
-
-    EntryInfoEntity qryEntryInfo(int entry);
-
-    TournamentInfoEntity qryTournamentInfoById(int tournamentId);
-
-    List<TournamentGroupEntity> qryGroupListByTournamentId(int tournamentId);
-
-    List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId);
 
 }

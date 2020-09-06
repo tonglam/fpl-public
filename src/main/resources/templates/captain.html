@@ -1,5 +1,7 @@
 <!DOCTYPE html>
+
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="layout::header(~{::title},~{})">
     <title>队长统计-数据查询-letletme</title>
 </head>
@@ -35,9 +37,9 @@
 
 <div th:replace="layout::footer"></div>
 
-<script th:replace="layout::baseScript"></script>
-
 </body>
+
+<script th:replace="layout::baseScript"></script>
 
 <script th:inline="none">
     layui.use(['element', 'table', 'layer', 'soulTable'], function () {

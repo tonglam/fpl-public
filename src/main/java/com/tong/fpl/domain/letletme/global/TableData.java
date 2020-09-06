@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.letletme.table;
+package com.tong.fpl.domain.letletme.global;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;

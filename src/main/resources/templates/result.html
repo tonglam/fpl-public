@@ -1,5 +1,7 @@
 <!DOCTYPE html>
+
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="layout::header(~{::title},~{})">
     <title>查看赛果-自定义赛事-letletme</title>
 </head>
@@ -16,16 +18,7 @@
 
             <div style="margin-top: 20px"></div>
 
-            <div class="layui-tab" lay-allowClose="true" lay-filter="tournamentTab">
-                <ul class="layui-tab-title">
-                    <li class="layui-this" th:text="${entryInfo?.getEntryName()}"></li>
-                </ul>
-                <div class="layui-tab-content">
-                    <div class="layui-tab-item layui-show">
-                        <table class="layui-table" id="entryTournamentTable" lay-filter="entryTournamentTable"></table>
-                    </div>
-                </div>
-            </div>
+            <table class="layui-table" id="entryTournamentTable" lay-filter="entryTournamentTable"></table>
 
         </div>
     </div>
@@ -33,16 +26,15 @@
 
 <div th:replace="layout::footer"></div>
 
-<script th:replace="layout::baseScript"></script>
-
 </body>
+
+<script th:replace="layout::baseScript"></script>
 
 <script th:inline="none">
 
-    layui.use(['element', 'table', 'layer', 'soulTable', 'laydate'], function () {
+    layui.use(['table', 'layer', 'laydate'], function () {
 
-        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable,
-            laydate = layui.laydate;
+        let $ = layui.jquery, table = layui.table, laydate = layui.laydate;
 
         layer.ready(function () {
             if ($("button[name=teamIdBtn]").html() == "请输入id") {
@@ -81,15 +73,6 @@
             }
         });
 
-        soulTable.config({
-            drag: false,
-            overflow: {
-                type: 'tips',
-                header: true,
-                total: true
-            }
-        });
-
         laydate.render({
             elem: 'input[name=createTime]'
         });
@@ -104,43 +87,21 @@
                 {field: 'name', title: '赛事名字', align: 'center', width: 300, templet: '#nameTpl'},
                 {field: 'creator', title: '创建者', align: 'center'},
                 {field: 'season', title: '赛季', align: 'center'},
-                {field: 'leagueType', title: '类型', align: 'center'},
-                {field: 'leagueId', title: '官方联赛id', align: 'center'},
+                {field: 'groupMode', title: '小组赛模式', align: 'center'},
+                {field: 'knockoutMode', title: '淘汰赛模式', align: 'center'},
+                {field: 'stadge', title: '比赛阶段', align: 'center'},
                 {field: 'createTime', title: '创建时间', align: 'center', width: 120}
             ]],
             initSort: {
                 field: 'createTime',
                 type: 'asc'
             },
-            id: 'name',
-            done: function () {
-                soulTable.render(this);
-            }
+            id: 'entryTournamentTable'
         });
 
         table.on('row(entryTournamentTable)', function (obj) {
-            let id = obj.data.tournamentId, name = obj.data.name;
-            // 是否存在
-            if ($(".layui-tab-title li[lay-id='" + name + "']").length > 0) {
-                //选项卡已经存在
-                element.tabChange('tournamentTab', id);
-                return false;
-            }
-            // 增加标签页
-            element.tabAdd('tournamentTab', {
-                title: name,
-                content: '<table class="layui-table" id=tournamentTable lay-filter=tournamentTable></table>',
-                id: id
-            });
-            // 切换
-            element.tabChange('tournamentTab', id);
-        });
-
-        element.on('tab(tournamentTab)', function () {
-            let id = $(this).attr("lay-id");
-            if (id == null) {
-                return false;
-            }
+            let id = obj.data.tournamentId;
+            window.location.replace("/tournament/checkresult?id=" + id);
         });
 
     });

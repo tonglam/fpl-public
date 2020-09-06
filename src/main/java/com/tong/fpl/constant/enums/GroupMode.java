@@ -17,7 +17,7 @@ public enum GroupMode {
 	private final String value;
 	private final String modeName;
 
-	public static GroupMode getGroupModeFromValue(String value) {
+	public static GroupMode getGroupModeByValue(String value) {
 		return Stream.of(GroupMode.values())
 				.filter(o -> StringUtils.equals(o.getValue(), value))
 				.findFirst()

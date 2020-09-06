@@ -1,5 +1,7 @@
 <!DOCTYPE html>
+
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="layout::header(~{::title},~{})">
     <title>管理赛事-自定义赛事-letletme</title>
 </head>
@@ -65,12 +67,9 @@
 
 <div th:replace="layout::footer"></div>
 
-<script th:replace="layout::baseScript"></script>
+</body>
 
-<script id="barDemo" type="text/html">
-    <a class="layui-btn layui-btn-xs" lay-event="edit">更换管理员</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-</script>
+<script th:replace="layout::baseScript"></script>
 
 <script th:inline="none">
     layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
@@ -109,7 +108,6 @@
                     createTime: createTime
                 },
                 loading: true,
-                toolbar: true,
                 cols: [[
                     {
                         fixed: 'left', title: '', width: '5%', align: 'left', children: [
@@ -144,7 +142,8 @@
                                     {field: 'knockoutStartGw', title: '开始时间', align: 'center'},
                                     {field: 'knockoutEndGw', title: '结束时间', align: 'center'},
                                     {field: 'knockoutTeam', title: '队伍数量', align: 'center'},
-                                    {field: 'knockoutRounds', title: '总轮次', align: 'center'}
+                                    {field: 'knockoutRounds', title: '总轮次', align: 'center'},
+                                    {field: 'knockoutEvents', title: '总比赛周', align: 'center'}
                                 ]],
                                 done: function () {
                                     soulTable.render(this);
@@ -268,6 +267,9 @@
     });
 </script>
 
-</body>
+<script id="barDemo" type="text/html">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">更换管理员</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
 
 </html>

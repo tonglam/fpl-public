@@ -21,8 +21,7 @@ public class WebPageController {
     private final IHttpApi httpApi;
 
     @RequestMapping(value = {"", "/"})
-    public String indexController(Model model, HttpSession session) {
-        model.addAttribute("entry", session.getAttribute("entry"));
+    public String indexController(Model model) {
         int currentEvent = this.httpApi.getCurrentEvent();
         model.addAttribute("nextGw", currentEvent);
         model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(currentEvent));
@@ -32,6 +31,12 @@ public class WebPageController {
     @RequestMapping(value = "/404")
     public String errorController() {
         return "error";
+    }
+
+    @RequestMapping(value = "/test")
+    public String testController(Model model) {
+        model.addAttribute("test", 222222);
+        return "test";
     }
 
     @RequestMapping(value = "/saveEntry")

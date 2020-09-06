@@ -1,7 +1,7 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
-import com.tong.fpl.domain.letletme.table.TableData;
+import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 
 import java.util.List;
@@ -11,62 +11,64 @@ import java.util.List;
  */
 public interface ITournamentApi {
 
-	/**
-	 * Create a new tournament
-	 *
-	 * @param tournamentCreateData data
-	 * @return message
-	 */
-	String createNewTournament(TournamentCreateData tournamentCreateData);
+    /**
+     * Create a new tournament
+     *
+     * @param tournamentCreateData data
+     * @return message
+     */
+    String createNewTournament(TournamentCreateData tournamentCreateData);
 
-	/**
-	 * query tournament_info list by param
-	 *
-	 * @param param param
-	 * @return tournament_info list
-	 */
-	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+    /**
+     * query tournament_info list by param
+     *
+     * @param param param
+     * @return tournament_info list
+     */
+    TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-	/**
-	 * count league teams from fpl league url
-	 *
-	 * @param url url
-	 * @return number
-	 */
-	int countTournamentLeagueTeams(String url);
+    /**
+     * count league teams from fpl league url
+     *
+     * @param url url
+     * @return number
+     */
+    int countTournamentLeagueTeams(String url);
 
-	/**
-	 * check if tournament name exists
-	 *
-	 * @param name name
-	 * @return retrun
-	 */
-	boolean checkTournamentName(String name);
+    /**
+     * check if tournament name exists
+     *
+     * @param name name
+     * @return retrun
+     */
+    boolean checkTournamentName(String name);
 
-	/**
-	 * update tournament info
-	 *
-	 * @param tournamentCreateData tournamentCreateData
-	 * @return message
-	 */
-	String updateTournament(TournamentCreateData tournamentCreateData);
+    /**
+     * update tournament info
+     *
+     * @param tournamentCreateData tournamentCreateData
+     * @return message
+     */
+    String updateTournament(TournamentCreateData tournamentCreateData);
 
-	/**
-	 * delete tournament
-	 *
-	 * @param name tournament_name
-	 * @return message
-	 */
-	String deleteTournamentByName(String name);
+    /**
+     * delete tournament
+     *
+     * @param name tournament_name
+     * @return message
+     */
+    String deleteTournamentByName(String name);
 
-	TableData<EntryTournamentData> qryEntryTournamentList(int entry);
+    TableData<EntryTournamentData> qryEntryTournamentList(int entry);
 
-	EntryInfoData qryEntryInfoData(int entry);
+    EntryInfoData qryEntryInfoData(int entry);
 
-	TournamentInfoData qryTournamentInfoById(int tournamentId);
+    TournamentInfoData qryTournamentInfoById(int tournamentId);
 
-	List<TournamentGroupData> qryGroupListByTournamentId(int tournamentId);
+    List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
 
-	List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+
+    List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
 }

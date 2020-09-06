@@ -1,12 +1,11 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.data.userpick.Pick;
-import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.entity.PlayerStatEntity;
+import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.api.EntryEventData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.utils.CommonUtils;
 
 import java.util.List;
@@ -56,5 +55,13 @@ public interface IQuerySerivce {
     List<PlayerInfoData> qryAllPlayers(String season);
 
     List<Pick> qryPickListFromPicks(String season, String picks);
+
+    EntryInfoEntity qryEntryInfo(int entry);
+
+    TournamentInfoEntity qryTournamentInfoById(int tournamentId);
+
+    List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId);
+
+    List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
 }

@@ -10,18 +10,21 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TournamentGroupData {
 
-	private int tournamentId;
-	private int groupId;
-	private int groupIndex;
-	private int entry;
-	private int groupPoints;
-	private int groupRank;
-	private int play;
-	private int win;
-	private int draw;
-	private int lose;
-	private boolean qualified;
-	private int overallPoints;
-	private int overallRank;
+    private int tournamentId;
+    private int groupId;
+    private String groupName;
+    private int groupIndex;
+    private int entry;
+    private String entryName;
+    private String playerName;
+    private int groupPoints;
+    private int groupRank;
+    private int play;
+    private int win;
+    private int draw;
+    private int lose;
+    private boolean qualified;
+    private int overallPoints;
+    private int overallRank;
 
 }
