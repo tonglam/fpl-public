@@ -12,8 +12,8 @@ public class TableQueryTest extends FplApplicationTests {
 
 	@ParameterizedTest
 	@CsvSource({"1920, 1, 2, 20"})
-	void qryEntryInfoByTournament(String season, int tournamentId, long page, long limit) {
-		this.tableQueryService.qryPageEntryInfoByTournament(season, tournamentId, page, limit);
+	void qryEntryInfoByTournament(String season, int tournamentId) {
+		this.tableQueryService.qryEntryInfoByTournament(season, tournamentId);
 		System.out.println(1);
 	}
 

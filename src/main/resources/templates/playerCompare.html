@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="layout::header(~{::title},~{::link})">
+<head th:replace="layout::header(~{::title},~{})">
     <title>球员比较-数据查询-letletme</title>
-    <link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+    <!--    <link rel="stylesheet" th:href="@{/css/jquery.dataTables.css}"/>-->
 </head>
 
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -34,44 +34,57 @@
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show">
 
-                    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
                         <legend> 选择两个球员进行比较</legend>
                     </fieldset>
 
                     <div class="layui-col-md6">
                         <table class="layui-table" id="playerTable" lay-filter="playerTable"></table>
+                        <div id="page"></div>
                     </div>
 
                     <div class="layui-col-md6" style="margin-top: 50px">
-                        <div class="layui-form-item">
-                            <label class="layui-form-label">球员1</label>
-                            <div class="layui-input-inline">
-                                <input class="layui-input" name="player1" type="text">
+                        <form class="layui-form">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">赛季</label>
+                                <div class="layui-input-block">
+                                    <input checked lay-filter="seasonRadio" name="1920" title="19/20" type="radio"
+                                           value="1920">
+                                    <input lay-filter="seasonRadio" name="2021" title="20/21" type="radio" value="2021">
+                                </div>
                             </div>
-                            <button class="layui-btn layui-btn-sm" id="reset1" style="margin-top: 4px;margin-left: 8px"
-                                    type="reset">
-                                <i class="layui-icon layui-icon-refresh"></i>
-                            </button>
-                        </div>
-                        <div style="margin-top: 30px"></div>
-                        <div class="layui-form-item">
-                            <label class="layui-form-label">球员2</label>
-                            <div class="layui-input-inline">
-                                <input class="layui-input" name="player2" type="text">
-                            </div>
-                            <button class="layui-btn layui-btn-sm" id="reset2" style="margin-top: 4px;margin-left: 8px"
-                                    type="reset">
-                                <i class="layui-icon layui-icon-refresh"></i>
-                            </button>
-                        </div>
-                        <div style="margin-top: 30px"></div>
-                        <div class="layui-form-item">
-                            <div class="layui-input-block">
-                                <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
-                                        lay-submit="confirmButton" type="submit">确定
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">球员1</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" name="player1" type="text">
+                                </div>
+                                <button class="layui-btn layui-btn-sm" id="reset1"
+                                        style="margin-top: 4px;margin-left: 8px"
+                                        type="reset">
+                                    <i class="layui-icon layui-icon-refresh"></i>
                                 </button>
                             </div>
-                        </div>
+                            <div style="margin-top: 30px"></div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">球员2</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" name="player2" type="text">
+                                </div>
+                                <button class="layui-btn layui-btn-sm" id="reset2"
+                                        style="margin-top: 4px;margin-left: 8px"
+                                        type="reset">
+                                    <i class="layui-icon layui-icon-refresh"></i>
+                                </button>
+                            </div>
+                            <div style="margin-top: 30px"></div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
+                                            lay-submit="confirmButton" type="button">确定
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
 
                 </div>
@@ -119,6 +132,8 @@
 </div>
 
 <div th:replace="layout::footer"></div>
+
+</body>
 
 <script>
     let player_id;
@@ -229,6 +244,7 @@
     });
 
 </script>
+
 <script>
     function average(nums) {
         let total = 0;
@@ -591,6 +607,7 @@
         });
     });
 </script>
+
 <script>
     function isGoodWindow(point_list, start_gw = 1, end_gw = 2) {
         expected_avg = average(point_list);
@@ -651,8 +668,6 @@
     }
 </script>
 
-</body>
-
 <script>
     window.chartColors = {
         white: 'rgb(255, 255, 255)',
@@ -683,9 +698,9 @@
 <script th:replace="layout::baseScript"></script>
 
 <script th:inline="none">
-    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
+    layui.use(['element', 'form', 'table', 'layer', 'soulTable'], function () {
 
-        let $ = layui.jquery, element = layui.element, table = layui.table,
+        let $ = layui.jquery, element = layui.element, form = layui.form, table = layui.table,
             soulTable = layui.soulTable;
 
         soulTable.config({
@@ -697,38 +712,55 @@
             }
         });
 
-        table.render({
-            elem: '#playerTable',
-            method: 'get',
-            url: '/stat/qryPagePlayerList',
-            where: {season: '2021'},
-            loading: true,
-            width: 550,
-            overflow: {
-                type: 'tips',
-                hoverTime: 300,
-                color: 'black',
-                bgColor: 'white'
-            },
-            cols: [[
-                {field: 'webName', title: '名字', align: 'center'},
-                {field: 'elementTypeName', title: '位置', align: 'center', width: 120, filter: true, sort: true},
-                {field: 'teamName', title: '球队', align: 'center', width: 120, filter: true, sort: true},
-                {field: 'price', title: '身价', align: 'center', width: 120, filter: true, sort: true}
-            ]],
-            initSort: {
-                field: 'price',
-                type: 'desc'
-            },
-            id: 'element',
-            filter: {
-                items: ['data', 'condition'],
-                bottom: false
-            },
-            done: function () {
-                soulTable.render(this);
-            }
+        $(document).ready(function () {
+            initPlayerData("1920");
         });
+
+        function initPlayerData(season) {
+            axios.get('/stat/qryPlayerList', {
+                params: {
+                    season: season
+                }
+            })
+                .then(function (response) {
+                    let pageData = response.data;
+                    table.render({
+                        elem: '#playerTable',
+                        data: pageData,
+                        limit: 15,
+                        limits: [15, 30, 50, 100],
+                        loading: true,
+                        page: true,
+                        width: 550,
+                        cols: [[
+                            {field: 'webName', title: '名字', align: 'center'},
+                            {
+                                field: 'elementTypeName',
+                                title: '位置',
+                                align: 'center',
+                                width: 120,
+                                filter: true,
+                                sort: true
+                            },
+                            {field: 'teamName', title: '球队', align: 'center', width: 120, filter: true, sort: true},
+                            {field: 'price', title: '身价', align: 'center', width: 120, filter: true, sort: true}
+                        ]],
+                        id: 'playerTable',
+                        filter: {
+                            items: ['data', 'condition'],
+                            bottom: false
+                        },
+                        done: function () {
+                            soulTable.render(this);
+                        }
+                    });
+                })
+                .catch(function (error) {
+                    console.info(error.message);
+                });
+        };
+
+        form
 
         $('#reset1').on('click', function () {
             $("input[name=player1]").val('');

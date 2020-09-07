@@ -20,12 +20,12 @@ public interface ITableQueryService {
 
     TableData<EntryTournamentData> qryEntryTournamentList(int entry);
 
-    TableData<EntryInfoData> qryPageEntryInfoByTournament(String season, int tournamentId, long page, long limit);
+    TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
 
-    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit);
-
-    TableData<PlayerInfoData> qryPagePlayerList(String season);
+    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
 
     TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+
+    TableData<PlayerInfoData> qryPlayerList(String season);
 
 }

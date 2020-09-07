@@ -36,6 +36,7 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -175,20 +176,19 @@ public class TableQueryServiceImpl implements ITableQueryService {
 
 	@Cacheable(value = "qryPageEntryInfoByTournament")
 	@Override
-	public TableData<EntryInfoData> qryPageEntryInfoByTournament(String season, int tournamentId, long page, long limit) {
+	public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId) {
 		List<EntryInfoData> entryInfoList = Lists.newArrayList();
 		MybatisPlusConfig.season.set(season);
-		Page<TournamentEntryEntity> tournamentEntryPage = this.tournamentEntryService.getBaseMapper().selectPage(
-				new Page<>(page, limit, this.setSearchTotal(page)), new QueryWrapper<TournamentEntryEntity>().lambda()
-						.eq(TournamentEntryEntity::getTournamentId, tournamentId)
-						.orderByAsc(TournamentEntryEntity::getEntry));
-		List<Integer> entryList = tournamentEntryPage.getRecords()
+		List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+				.eq(TournamentEntryEntity::getTournamentId, tournamentId)
+				.orderByAsc(TournamentEntryEntity::getEntry))
 				.stream()
 				.map(TournamentEntryEntity::getEntry)
 				.collect(Collectors.toList());
 		entryList.forEach(entry -> {
 			List<EntryCaptainStatEntity> captainStatList = this.entryCaptainStatService.list(new QueryWrapper<EntryCaptainStatEntity>().lambda()
-					.eq(EntryCaptainStatEntity::getEntry, entry));
+					.eq(EntryCaptainStatEntity::getEntry, entry)
+					.orderByAsc(EntryCaptainStatEntity::getOverallRank));
 			if (CollectionUtils.isEmpty(captainStatList)) {
 				return;
 			}
@@ -200,15 +200,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setOverallPoints(entryCaptainStatEntity.getOverallPoints())
 					.setOverallRank(entryCaptainStatEntity.getOverallRank())
 					.setCapTotalPoints(this.calcEntryCapTotalPoints(captainStatList));
-
 			String percent = NumberUtil.decimalFormat("#.##%", NumberUtil.div(entryInfoData.getCapTotalPoints(), entryInfoData.getOverallPoints(), 2));
 			entryInfoData.setPercent(percent);
 			entryInfoList.add(entryInfoData);
 		});
-		Page<EntryInfoData> pageResult = new Page<>(page, limit, tournamentEntryPage.getTotal());
-		pageResult.setRecords(entryInfoList);
 		MybatisPlusConfig.season.remove();
-		return new TableData<>(pageResult);
+		return new TableData<>(entryInfoList);
 	}
 
 	private int calcEntryCapTotalPoints(List<EntryCaptainStatEntity> captainStatList) {
@@ -217,37 +214,24 @@ public class TableQueryServiceImpl implements ITableQueryService {
 
 	@Cacheable(value = "qryEntryCaptainList")
 	@Override
-	public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit) {
+	public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry) {
 		List<EntryEventCaptainData> entryEventCaptainList = Lists.newArrayList();
 		MybatisPlusConfig.season.set(season);
 		// entry_captain_stat list
-		Page<EntryCaptainStatEntity> entryCaptainStatPage = this.entryCaptainStatService.getBaseMapper().selectPage(
-				new Page<>(page, limit, this.setSearchTotal(page)), new QueryWrapper<EntryCaptainStatEntity>().lambda()
-						.eq(EntryCaptainStatEntity::getEntry, entry)
-						.orderByAsc(EntryCaptainStatEntity::getEvent));
-		if (entryCaptainStatPage == null) {
-			MybatisPlusConfig.season.remove();
-			return new TableData<>(entryEventCaptainList);
-		}
-		entryCaptainStatPage.getRecords().forEach(o ->
-				entryEventCaptainList.add(new EntryEventCaptainData()
-						.setEntry(o.getEntry())
-						.setEvent(o.getEvent())
-						.setChip(o.getChip())
-						.setElement(o.getElement())
-						.setWebName(o.getWebName())
-						.setPoints(o.getPoints())
-						.setTotalPoints(o.getTotalPoints())
-				));
-		Page<EntryEventCaptainData> pageResult = new Page<>(page, limit, entryCaptainStatPage.getTotal());
-		pageResult.setRecords(entryEventCaptainList);
+		this.entryCaptainStatService.list(new QueryWrapper<EntryCaptainStatEntity>().lambda()
+				.eq(EntryCaptainStatEntity::getEntry, entry).orderByAsc(EntryCaptainStatEntity::getEvent))
+				.forEach(o ->
+						entryEventCaptainList.add(new EntryEventCaptainData()
+								.setEntry(o.getEntry())
+								.setEvent(o.getEvent())
+								.setChip(o.getChip())
+								.setElement(o.getElement())
+								.setWebName(o.getWebName())
+								.setPoints(o.getPoints())
+								.setTotalPoints(o.getTotalPoints())
+						));
 		MybatisPlusConfig.season.remove();
-		return new TableData<>(pageResult);
-	}
-
-	@Override
-	public TableData<PlayerInfoData> qryPagePlayerList(String season) {
-		return new TableData<>(this.querySerivce.qryAllPlayers(season));
+		return new TableData<>(entryEventCaptainList);
 	}
 
 	@Override
@@ -268,7 +252,14 @@ public class TableQueryServiceImpl implements ITableQueryService {
 								.setPlayerName(entryInfoEntity.getPlayerName());
 					}
 					list.add(tournamentGroupData);
-		});
+				});
+		return new TableData<>(list);
+	}
+
+	@Override
+	public TableData<PlayerInfoData> qryPlayerList(String season) {
+		List<PlayerInfoData> list = this.querySerivce.qryAllPlayers(season);
+		list = list.stream().sorted(Comparator.comparing(PlayerInfoData::getPrice).reversed()).collect(Collectors.toList());
 		return new TableData<>(list);
 	}
 

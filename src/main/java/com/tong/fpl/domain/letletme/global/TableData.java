@@ -39,7 +39,7 @@ public class TableData<T> implements Serializable {
 	public TableData(List<T> data) {
 		this.code = 0;
 		this.msg = "success";
-		this.count = 0;
+		this.count = data.size();
 		this.data = data;
 	}
 

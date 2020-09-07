@@ -10,10 +10,10 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
  */
 public interface IStatApi {
 
-    TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId, long page, long limit);
+    TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
 
-    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit);
+    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
 
-    TableData<PlayerInfoData> qryPagePlayerList(String season);
+    TableData<PlayerInfoData> qryPlayerList(String season);
 
 }

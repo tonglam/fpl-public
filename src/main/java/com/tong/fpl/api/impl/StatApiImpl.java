@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Create by tong on 2020/9/2
  */
@@ -17,21 +21,25 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatApiImpl implements IStatApi {
 
-    private final ITableQueryService tableQueryService;
+	private final ITableQueryService tableQueryService;
 
-    @Override
-    public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId, long page, long limit) {
-        return this.tableQueryService.qryPageEntryInfoByTournament(season, tournamentId, page, limit);
-    }
+	@Override
+	public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId) {
+		List<EntryInfoData> list = this.tableQueryService.qryEntryInfoByTournament(season, tournamentId).getData()
+				.stream()
+				.sorted(Comparator.comparing(EntryInfoData::getOverallRank))
+				.collect(Collectors.toList());
+		return new TableData<>(list);
+	}
 
-    @Override
-    public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit) {
-        return this.tableQueryService.qryEntryCaptainList(season, entry, page, limit);
-    }
+	@Override
+	public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry) {
+		return this.tableQueryService.qryEntryCaptainList(season, entry);
+	}
 
-    @Override
-    public TableData<PlayerInfoData> qryPagePlayerList(String season) {
-        return this.tableQueryService.qryPagePlayerList(season);
-    }
+	@Override
+	public TableData<PlayerInfoData> qryPlayerList(String season) {
+		return this.tableQueryService.qryPlayerList(season);
+	}
 
 }
