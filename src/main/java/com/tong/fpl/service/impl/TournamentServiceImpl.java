@@ -134,6 +134,7 @@ public class TournamentServiceImpl implements ITournamentService {
 			case No_knockout: {
 				tournamentInfoEntity.setKnockoutTeam(0);
 				tournamentInfoEntity.setKnockoutRounds(0);
+				tournamentInfoEntity.setKnockoutEvents(0);
 				tournamentInfoEntity.setKnockoutStartGw(-1);
 				tournamentInfoEntity.setKnockoutEndGw(-1);
 				break;
@@ -142,8 +143,9 @@ public class TournamentServiceImpl implements ITournamentService {
 			case Home_away: {
 				tournamentInfoEntity.setKnockoutTeam(tournamentCreateData.getKnockoutTeam());
 				tournamentInfoEntity.setKnockoutRounds(tournamentCreateData.getKnockoutRounds());
+				tournamentInfoEntity.setKnockoutEvents(tournamentCreateData.getKnockoutEvents());
 				tournamentInfoEntity.setKnockoutStartGw(CommonUtils.getRealGw(tournamentCreateData.getKnockoutStartGw()));
-				tournamentInfoEntity.setKnockoutEndGw(tournamentInfoEntity.getKnockoutStartGw() + tournamentInfoEntity.getKnockoutRounds() - 1);
+				tournamentInfoEntity.setKnockoutEndGw(CommonUtils.getRealGw(tournamentCreateData.getKnockoutEndGw()));
 				break;
 			}
 			default:
@@ -169,9 +171,10 @@ public class TournamentServiceImpl implements ITournamentService {
 		this.drawGroupBattle(tournamentId, groupMode, tournamentInfo.getGroupPlayAgainstNum(), tournamentInfo.getTeamPerGroup(),
 				groupNum, tournamentInfo.getGroupStartGw(), tournamentInfo.getGroupEndGw());
 		// draw knockouts
-		this.drawKnockouts(tournamentId, groupMode, groupNum, tournamentInfo.getGroupQualifiers(),
-				tournamentInfo.getKnockoutMode(), tournamentInfo.getKnockoutPlayAgainstNum(),
-				tournamentInfo.getKnockoutTeam(), tournamentInfo.getKnockoutStartGw(), tournamentInfo.getKnockoutRounds());
+		this.drawKnockouts(tournamentId, groupMode, groupNum,
+				tournamentInfo.getGroupQualifiers(), tournamentInfo.getKnockoutMode(),
+				tournamentInfo.getKnockoutPlayAgainstNum(), tournamentInfo.getKnockoutTeam(),
+				tournamentInfo.getKnockoutStartGw(), tournamentInfo.getKnockoutRounds());
 	}
 
 	@Override
@@ -458,7 +461,8 @@ public class TournamentServiceImpl implements ITournamentService {
 
 	@Override
 	public void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
-	                          String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds) {
+	                          String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam,
+	                          int knockoutStartGw, int knockoutRounds) {
 		if (KnockoutMode.valueOf(knockoutMode) == KnockoutMode.No_knockout) {
 			log.info("do not need to draw knockouts!");
 			return;
@@ -480,9 +484,9 @@ public class TournamentServiceImpl implements ITournamentService {
 			return;
 		}
 		// add blank teams
-		int oneRoundTeams = knockoutRounds / knockoutPlayAgainstNum;
-		int blankNum = (int) Math.pow(2, oneRoundTeams) - knockoutTeam;
+		int blankNum = (int) Math.pow(2, knockoutRounds) - knockoutTeam;
 		if (blankNum >= entryList.size()) {
+			log.error("blank num is bigger than entry num!");
 			return;
 		}
 		List<TournamentKnockoutEntity> knockoutEntityList = Lists.newArrayList();

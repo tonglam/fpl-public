@@ -1,8 +1,8 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IMyFplApi;
+import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.table.TableData;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

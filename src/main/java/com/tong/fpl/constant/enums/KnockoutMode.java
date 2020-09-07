@@ -17,7 +17,7 @@ public enum KnockoutMode {
 	private final String value;
 	private final String modeName;
 
-	public static KnockoutMode getKnockoutModeFromValue(String value) {
+	public static KnockoutMode getKnockoutModeByValue(String value) {
 		return Stream.of(KnockoutMode.values())
 				.filter(o -> StringUtils.equals(o.getValue(), value))
 				.findFirst()

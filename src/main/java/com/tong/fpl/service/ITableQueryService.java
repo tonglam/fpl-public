@@ -2,8 +2,8 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.table.TableData;
 import com.tong.fpl.domain.letletme.tournament.EntryTournamentData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -24,8 +24,8 @@ public interface ITableQueryService {
 
     TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry, long page, long limit);
 
-    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
-
     TableData<PlayerInfoData> qryPagePlayerList(String season);
+
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
 }

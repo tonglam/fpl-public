@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.HistorySeason;
@@ -15,6 +16,7 @@ import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.db.*;
@@ -22,6 +24,7 @@ import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -51,6 +54,8 @@ public class QueryServiceImpl implements IQuerySerivce {
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
 	private final TournamentInfoService tournamentInfoService;
+	private final TournamentKnockoutService tournamentKnockoutService;
+	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 
 	@Override
 	public Map<Integer, PlayerEntity> qryAllPlayerList(String season) {
@@ -250,16 +255,102 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return pickList;
 	}
 
+	@Cacheable(value = "qryEntryInfo")
+	@Override
+	public EntryInfoEntity qryEntryInfo(int entry) {
+		return this.entryInfoService.getById(entry);
+	}
+
 	@Cacheable(value = "qryTournamentInfoById")
 	@Override
 	public TournamentInfoEntity qryTournamentInfoById(int tournamentId) {
 		return this.tournamentInfoService.getById(tournamentId);
 	}
 
-	@Cacheable(value = "qryEntryInfo")
+	@Cacheable(value = "qryKnockoutListByTournamentId")
 	@Override
-	public EntryInfoEntity qryEntryInfo(int entry) {
-		return this.entryInfoService.getById(entry);
+	public List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId) {
+		return this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId));
+	}
+
+	@Cacheable(value = "qryKnockoutResultByTournament")
+	@Override
+	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
+		List<TournamentKnockoutResultData> knockoutResultDataList = Lists.newArrayList();
+		int currentEvent = this.redisCacheSerive.getCurrentEvent();
+		// knockout
+		Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+				.eq(TournamentKnockoutEntity::getStartGw, currentEvent))
+				.stream()
+				.collect(Collectors.toMap(TournamentKnockoutEntity::getMatchId, v -> v));
+		if (CollectionUtils.isEmpty(knockoutMap)) {
+			return knockoutResultDataList;
+		}
+		// knouckout_result, every match_id return a knockoutResultData
+		knockoutMap.keySet().forEach(matchId -> {
+			List<TournamentKnockoutResultEntity> knockoutResultList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
+					.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+					.eq(TournamentKnockoutResultEntity::getMatchId, matchId));
+			// knockoutResultData
+			TournamentKnockoutResultData knockoutResultData = new TournamentKnockoutResultData();
+			TournamentKnockoutResultEntity o = knockoutResultList.get(0);
+			knockoutResultData
+					.setTournamentId(tournamentId)
+					.setRound(knockoutMap.get(o.getMatchId()).getRound())
+					.setEvent(o.getEvent())
+					.setPlayAgainstId(o.getPlayAginstId())
+					.setMatchId(o.getMatchId())
+					.setHomeEntry(o.getHomeEntry())
+					.setAwayEntry(o.getAwayEntry())
+					.setHomeEntryName(this.getKnockoutResultEntryName(o.getHomeEntry()))
+					.setAwayEntryName(this.getKnockoutResultEntryName(o.getAwayEntry()))
+					.setHomeEntryNetPoint(this.calcKnockoutResultDataNetPont(knockoutResultList, "home"))
+					.setAwayEntryNetPoint(this.calcKnockoutResultDataNetPont(knockoutResultList, "away"))
+					.setHomeEntryRank(o.getHomeEntryRank())
+					.setAwayEntryRank(o.getAwayEntryRank())
+					.setMatchWinner(o.getMatchWinner());
+			// match informantion
+			Map<Integer, String> entryNameMap = ImmutableMap.of(knockoutResultData.getHomeEntry(), knockoutResultData.getHomeEntryName(),
+					knockoutResultData.getAwayEntry(), knockoutResultData.getAwayEntryName());
+			knockoutResultData.setMatchInfo(this.setRoundMatchInformation(knockoutResultList, entryNameMap));
+			knockoutResultDataList.add(knockoutResultData);
+		});
+		return knockoutResultDataList;
+	}
+
+	private String getKnockoutResultEntryName(int entry) {
+		if (entry < 0) {
+			return "BYE";
+		}
+		EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
+		if (entryInfoEntity == null) {
+			return "";
+		}
+		return entryInfoEntity.getEntryName();
+	}
+
+	private int calcKnockoutResultDataNetPont(List<TournamentKnockoutResultEntity> knockoutResultList, String type) {
+		if (StringUtils.equals(type, "home")) {
+			return knockoutResultList.stream().mapToInt(TournamentKnockoutResultEntity::getHomeEntryNetPoints).sum();
+		} else if (StringUtils.equals(type, "away")) {
+			return knockoutResultList.stream().mapToInt(TournamentKnockoutResultEntity::getAwayEntryNetPoints).sum();
+		}
+		return 0;
+	}
+
+	private String setRoundMatchInformation(List<TournamentKnockoutResultEntity> knockoutResultList, Map<Integer, String> entryNameMap) {
+		StringBuilder builder = new StringBuilder();
+		knockoutResultList.forEach(o ->
+				builder.append("GW").append(o.getEvent()).append(": ")
+						.append(entryNameMap.get(o.getHomeEntry()))
+						.append("（").append(o.getHomeEntryNetPoints()).append("）")
+						.append("- ")
+						.append(entryNameMap.get(o.getAwayEntry()))
+						.append("（").append(o.getAwayEntryNetPoints()).append("）")
+		);
+		return builder.toString();
 	}
 
 }

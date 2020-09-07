@@ -1,9 +1,11 @@
 package com.tong.fpl.api.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.google.common.collect.Lists;
 import com.tong.fpl.api.ITournamentApi;
+import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
-import com.tong.fpl.domain.letletme.table.TableData;
+import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.ITableQueryService;
@@ -11,6 +13,8 @@ import com.tong.fpl.service.ITournamentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Create by tong on 2020/6/24
@@ -65,12 +69,32 @@ public class TournamentApiImpl implements ITournamentApi {
 
 	@Override
 	public TournamentInfoData qryTournamentInfoById(int tournamentId) {
-		return BeanUtil.copyProperties(this.querySerivce.qryTournamentInfoById(tournamentId), TournamentInfoData.class);
+		TournamentInfoData tournamentInfoData = new TournamentInfoData();
+		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return tournamentInfoData;
+		}
+		BeanUtil.copyProperties(tournamentInfoEntity, tournamentInfoData);
+		tournamentInfoData.setShowNum((int) Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
+		return tournamentInfoData;
+	}
+
+	@Override
+	public List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId) {
+		List<TournamentKnockoutData> list = Lists.newArrayList();
+		this.querySerivce.qryKnockoutListByTournamentId(tournamentId).forEach(o ->
+				list.add(BeanUtil.copyProperties(o, TournamentKnockoutData.class)));
+		return list;
 	}
 
 	@Override
 	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
 		return this.tableQueryService.qryGroupInfoListByGroupId(tournamentId, groupId);
+	}
+
+	@Override
+	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
+		return this.querySerivce.qryKnockoutResultByTournament(tournamentId);
 	}
 
 }

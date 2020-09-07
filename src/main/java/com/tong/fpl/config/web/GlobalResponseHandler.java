@@ -1,7 +1,7 @@
 package com.tong.fpl.config.web;
 
 import com.tong.fpl.domain.letletme.global.ResponseData;
-import com.tong.fpl.domain.letletme.table.TableData;
+import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.utils.JsonUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;

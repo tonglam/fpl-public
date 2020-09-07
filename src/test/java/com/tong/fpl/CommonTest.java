@@ -4,8 +4,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.domain.letletme.table.TableData;
+import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
+import com.tong.fpl.utils.JsonUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -44,7 +45,10 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		System.out.println(1);
+		List<String> list = Lists.newArrayList();
+		list.add("111");
+		list.add("222");
+		System.out.println(JsonUtils.obj2json(list));
 	}
 
 	@Test

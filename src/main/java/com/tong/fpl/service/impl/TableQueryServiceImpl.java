@@ -14,13 +14,14 @@ import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.table.TableData;
 import com.tong.fpl.domain.letletme.tournament.EntryTournamentData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
 import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -34,7 +35,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +49,9 @@ import java.util.stream.Collectors;
 public class TableQueryServiceImpl implements ITableQueryService {
 
 	private final IQuerySerivce querySerivce;
+	private final IRedisCacheSerive redisCacheSerive;
 	private final PlayerService playerService;
+	private final EntryInfoService entryInfoService;
 	private final EntryCaptainStatService entryCaptainStatService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
@@ -112,27 +117,60 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (entry == 0) {
 			return new TableData<>();
 		}
+		int currentEvent = this.redisCacheSerive.getCurrentEvent();
 		// get tournament_list
 		List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
 				.eq(TournamentEntryEntity::getEntry, entry))
 				.stream()
 				.map(TournamentEntryEntity::getTournamentId)
 				.collect(Collectors.toList());
+		// stadge_mode
+		Map<String, GroupMode> groupModeMap = Arrays.stream(GroupMode.values()).collect(Collectors.toMap(Enum::name, v -> v));
+		Map<String, KnockoutMode> knockModeMap = Arrays.stream(KnockoutMode.values()).collect(Collectors.toMap(Enum::name, v -> v));
 		// return
 		this.tournamentInfoService.list(new QueryWrapper<TournamentInfoEntity>().lambda()
 				.in(TournamentInfoEntity::getId, tournamentList)
 				.eq(TournamentInfoEntity::getState, 1))
-				.forEach(o -> list.add(new EntryTournamentData()
-						.setEntry(entry)
-						.setTournamentId(o.getId())
-						.setName(o.getName())
-						.setCreator(o.getCreator())
-						.setSeason(o.getSeason())
-						.setLeagueType(o.getLeagueType())
-						.setLeagueId(o.getLeagueId())
-						.setCreateTime(StringUtils.substringBefore(o.getCreateTime(), " "))
-				));
+				.forEach(o ->
+						list.add(new EntryTournamentData()
+								.setEntry(entry)
+								.setTournamentId(o.getId())
+								.setName(o.getName())
+								.setCreator(o.getCreator())
+								.setSeason(o.getSeason())
+								.setLeagueType(o.getLeagueType())
+								.setLeagueId(o.getLeagueId())
+								.setGroupMode(groupModeMap.get(o.getGroupMode()).getModeName())
+								.setKnockoutMode(knockModeMap.get(o.getKnockoutMode()).getModeName())
+								.setStadge(this.setCurrentStadge(currentEvent, groupModeMap.get(o.getGroupMode()), o))
+								.setCreateTime(StringUtils.substringBefore(o.getCreateTime(), " "))
+						));
 		return new TableData<>(list);
+	}
+
+	private String setCurrentStadge(int currentEvent, GroupMode groupMode, TournamentInfoEntity tournamentInfoEntity) {
+		switch (groupMode) {
+			case No_group: {
+				if (currentEvent > tournamentInfoEntity.getKnockoutStartGw()) {
+					return "淘汰赛";
+				} else if (currentEvent > tournamentInfoEntity.getKnockoutEndGw()) {
+					return "已结束";
+				}
+				break;
+			}
+			case Points_race:
+			case Battle_race: {
+				if (currentEvent > tournamentInfoEntity.getGroupStartGw()) {
+					return "小组赛";
+				} else if (currentEvent > tournamentInfoEntity.getKnockoutStartGw()) {
+					return "淘汰赛";
+				} else if (currentEvent > tournamentInfoEntity.getKnockoutEndGw()) {
+					return "已结束";
+				}
+				break;
+			}
+		}
+		return "未开始";
 	}
 
 	@Cacheable(value = "qryPageEntryInfoByTournament")
@@ -208,33 +246,30 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	}
 
 	@Override
-	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
-		List<TournamentGroupData> list = Lists.newArrayList();
-		List<TournamentGroupEntity> tournamentGroupList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
-				.eq(TournamentGroupEntity::getGroupId, groupId)
-				.orderByAsc(TournamentGroupEntity::getGroupRank));
-		if (CollectionUtils.isEmpty(tournamentGroupList)) {
-			return new TableData<>(list);
-		}
-		tournamentGroupList.forEach(o -> {
-			TournamentGroupData tournamentGroupData = new TournamentGroupData();
-			BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
-			tournamentGroupData.setGroupIdName(CommonUtils.getCapitalLetterFromNum(tournamentGroupData.getGroupId()) + "组");
-			EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(o.getEntry());
-			if (entryInfoEntity != null) {
-				tournamentGroupData
-						.setEntryName(entryInfoEntity.getEntryName())
-						.setPlayerName(entryInfoEntity.getPlayerName());
-			}
-			list.add(tournamentGroupData);
-		});
-		return new TableData<>(list);
+	public TableData<PlayerInfoData> qryPagePlayerList(String season) {
+		return new TableData<>(this.querySerivce.qryAllPlayers(season));
 	}
 
 	@Override
-	public TableData<PlayerInfoData> qryPagePlayerList(String season) {
-		return new TableData<>(this.querySerivce.qryAllPlayers(season));
+	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
+		List<TournamentGroupData> list = Lists.newArrayList();
+		this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
+				.eq(TournamentGroupEntity::getGroupId, groupId)
+				.orderByAsc(TournamentGroupEntity::getGroupRank))
+				.forEach(o -> {
+					TournamentGroupData tournamentGroupData = new TournamentGroupData();
+					BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
+					EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(o.getEntry());
+					if (entryInfoEntity != null) {
+						tournamentGroupData
+								.setGroupName(CommonUtils.getCapitalLetterFromNum(o.getGroupId()))
+								.setEntryName(entryInfoEntity.getEntryName())
+								.setPlayerName(entryInfoEntity.getPlayerName());
+					}
+					list.add(tournamentGroupData);
+		});
+		return new TableData<>(list);
 	}
 
 }

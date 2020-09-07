@@ -12,6 +12,8 @@ public class TournamentKnockoutData {
 
 	private int tournamentId;
 	private int round;
+	private int matchId;
+	private int nextMatchId;
 	private int homeEntry;
 	private int awayEntry;
 	private int roundWinner;

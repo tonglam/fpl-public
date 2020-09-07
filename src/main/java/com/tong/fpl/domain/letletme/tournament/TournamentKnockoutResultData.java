@@ -10,12 +10,21 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TournamentKnockoutResultData {
 
-	private int matchId;
-	private int event;
+	private int tournamentId;
 	private int round;
+	private int event;
 	private int playAgainstId;
+	private int matchId;
+	private int homeEntry;
+	private int awayEntry;
+	private String homeEntryName;
+	private String awayEntryName;
+	private int homeEntryNetPoint;
+	private int awayEntryNetPoint;
+	private int homeEntryRank;
+	private int awayEntryRank;
+	private String matchInfo;
 	private int matchWinner;
 	private int winnerRank;
-	private int roundWinner;
 
 }

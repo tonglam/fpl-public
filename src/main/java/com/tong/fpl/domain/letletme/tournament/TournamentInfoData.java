@@ -25,11 +25,13 @@ public class TournamentInfoData {
 	private int groupQualifiers;
 	private String groupFillAverage;
 	private int groupNum;
+	private int showNum;
 	private String knockoutMode;
 	private String knockoutStartGw;
 	private String knockoutEndGw;
 	private int knockoutTeam;
 	private int knockoutRounds;
+	private int knockoutEvents;
 	private String createTime;
 
 }

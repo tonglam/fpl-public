@@ -39,7 +39,8 @@ public class TournamentCreateData {
     private String knockoutMode;
     private int knockoutTeam;
     private int knockoutRounds;
-    private String knockoutStartGw;
+	private int knockoutEvents;
+	private String knockoutStartGw;
     private String knockoutEndGw;
 
 }

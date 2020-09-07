@@ -87,7 +87,8 @@ public interface ITournamentService {
      * @param knockoutRounds         knockoutRounds
      */
     void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
-                       String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds);
+                       String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam,
+                       int knockoutStartGw, int knockoutRounds);
 
     /**
      * count league teams from fpl league url

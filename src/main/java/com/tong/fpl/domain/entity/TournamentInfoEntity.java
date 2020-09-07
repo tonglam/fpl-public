@@ -41,6 +41,7 @@ public class TournamentInfoEntity {
     private int knockoutStartGw;
     private int knockoutEndGw;
     private int knockoutRounds;
+    private int knockoutEvents;
     private int state;
     @TableField(fill = FieldFill.INSERT)
     private String createTime;

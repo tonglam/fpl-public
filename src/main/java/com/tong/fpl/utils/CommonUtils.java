@@ -1,13 +1,17 @@
 package com.tong.fpl.utils;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.Position;
+import com.tong.fpl.domain.letletme.global.BracketData;
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -52,6 +56,23 @@ public class CommonUtils {
 
 	public static Map<Integer, String> getPositonMap() {
 		return Arrays.stream(Position.values()).collect(Collectors.toMap(Position::getPosition, Enum::name));
+	}
+
+	public static BracketData setBracketData(List<TournamentKnockoutResultData> knockoutResultList) {
+		BracketData bracketData = new BracketData();
+		List<List<String>> teams = Lists.newArrayList();
+		List<List<String>> results = Lists.newArrayList();
+		knockoutResultList.forEach(o -> {
+			List<String> team = Lists.newArrayList(String.valueOf(o.getHomeEntry()), String.valueOf(o.getAwayEntry()));
+			teams.add(team);
+			List<String> result = Lists.newArrayList(String.valueOf(o.getHomeEntryNetPoint()),
+					String.valueOf(o.getAwayEntryNetPoint()),
+					o.getMatchInfo());
+			results.add(result);
+		});
+		bracketData.setTeams(teams);
+		bracketData.setResult(results);
+		return bracketData;
 	}
 
 }

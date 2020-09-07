@@ -1,10 +1,11 @@
 package com.tong.fpl.controller;
 
+import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.ITournamentApi;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
-import com.tong.fpl.domain.letletme.table.TableData;
+import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 /**
  * Create by tong on 2020/6/23
@@ -31,6 +33,7 @@ import javax.validation.constraints.Pattern;
 public class TournamentController {
 
 	private final ITournamentApi tournamentApi;
+	private final IHttpApi httpApi;
 
 	@RequestMapping(value = "/create")
 	public String createController(Model model) {
@@ -47,20 +50,25 @@ public class TournamentController {
 	public String resultController(Model model, HttpSession session) {
 		if (session.getAttribute("entry") != null) {
 			int entry = (int) session.getAttribute("entry");
-			if (entry > 0) {
-				model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfoData(entry));
-				model.addAttribute("tournamentList", this.tournamentApi.qryEntryTournamentList(entry));
-			}
+			model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfoData(entry));
+			model.addAttribute("tournamentList", this.tournamentApi.qryEntryTournamentList(entry));
 		}
 		return "result";
 	}
 
-	@RequestMapping(value = "/tournamentresult")
-	public String tournamentresultController(@RequestParam int id, Model model) {
-		model.addAttribute("tournamentInfo", this.tournamentApi.qryTournamentInfoById(id));
-//		model.addAttribute("tournamentGroupList", this.tournamentApi.qryGroupListByTournamentId(id));
-//		model.addAttribute("tournamentKnockoutList", this.tournamentApi.qryKnockoutListByTournamentId(id));
-		return "tournamentresult";
+	@RequestMapping(value = "/checkresult")
+	public String checkresultController(@RequestParam int id, Model model, HttpSession session) {
+		TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
+		if (tournamentInfoData != null) {
+			model.addAttribute("tournamentInfo", tournamentInfoData);
+			model.addAttribute("showNum", Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
+		}
+		if (session.getAttribute("entry") != null) {
+			int entry = (int) session.getAttribute("entry");
+			model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfoData(entry));
+		}
+		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+		return "checkresult";
 	}
 
 	@RequestMapping(value = "/rule")
@@ -74,8 +82,8 @@ public class TournamentController {
 		tournamentCreateData
 				.setLeagueType(tournamentCreateData.getUrl().contains("/standings/c") ? LeagueType.Classic.name() : LeagueType.H2h.name())
 				.setLeagueId(Integer.parseInt(StringUtils.substringBetween(tournamentCreateData.getUrl(), "https://fantasy.premierleague.com/leagues/", "/standings")))
-				.setGroupMode(GroupMode.getGroupModeFromValue(tournamentCreateData.getGroupMode()).name())
-				.setKnockoutMode(KnockoutMode.getKnockoutModeFromValue(tournamentCreateData.getKnockoutMode()).name());
+				.setGroupMode(GroupMode.getGroupModeByValue(tournamentCreateData.getGroupMode()).name())
+				.setKnockoutMode(KnockoutMode.getKnockoutModeByValue(tournamentCreateData.getKnockoutMode()).name());
 		return this.tournamentApi.createNewTournament(tournamentCreateData);
 	}
 
@@ -123,6 +131,12 @@ public class TournamentController {
 	@RequestMapping(value = "/qryGroupInfoListByGroupId")
 	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int groupId) {
 		return this.tournamentApi.qryGroupInfoListByGroupId(tournamentId, groupId);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/qryKnockoutResultByTournament")
+	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(@RequestParam int tournamentId) {
+		return this.tournamentApi.qryKnockoutResultByTournament(tournamentId);
 	}
 
 }

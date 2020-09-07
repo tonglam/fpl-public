@@ -8,13 +8,12 @@ import com.google.common.collect.Table;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.domain.data.userpick.Pick;
-import com.tong.fpl.domain.entity.EntryEventResultEntity;
-import com.tong.fpl.domain.entity.EntryInfoEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.entity.TournamentEntryEntity;
+import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.db.*;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -40,6 +39,8 @@ public class DBTest extends FplApplicationTests {
 	private EntryEventResultService entryEventResultService;
 	@Autowired
 	private IQuerySerivce querySerivce;
+	@Autowired
+	private TournamentKnockoutService tournamentKnockoutService;
 
 	@Test
 	void test() {
@@ -111,6 +112,16 @@ public class DBTest extends FplApplicationTests {
 	private Map<Integer, Integer> getCaptainFromPick(String eventPicks) {
 		List<Pick> pickList = this.querySerivce.qryPickListFromPicks("1920", eventPicks);
 		return pickList.stream().filter(Pick::isCaptain).collect(Collectors.toMap(Pick::getElement, Pick::getPoints));
+	}
+
+	@ParameterizedTest
+	@CsvSource({"1, 6"})
+	void knockout(int tournamentId, int event) {
+		List<TournamentKnockoutEntity> list = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+				.ge(TournamentKnockoutEntity::getStartGw, event)
+				.le(TournamentKnockoutEntity::getEndGw, event));
+		System.out.println(1);
 	}
 
 }
