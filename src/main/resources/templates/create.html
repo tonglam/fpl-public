@@ -128,10 +128,12 @@
                             </div>
                             <div class="layui-col-sm2" style="margin-right: 48px">
                                 <input class="layui-input" lay-skin="switch" lay-text="是|否" name="groupFillAverage"
-                                       type="checkbox" value=1>
+                                       lay-filter="groupFillAverage" type="checkbox" value=1>
                             </div>
                             <div class="layui-col-sm6">
-                                <div class="layui-form-mid layui-word-aux" id="fillAverageTips"></div>
+                                <div class="layui-form-mid layui-word-aux" id="fillAverageTips">
+                                    是否在小组内加入平均分average，使每个小组队伍数量一样
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -423,8 +425,6 @@
                     showGroupConfig(groupMode);
                     // 增加必选属性
                     addGroupRequired();
-                    // 开关重置
-                    turnOffFillAverage();
                     break;
                 }
                 default: { // 请选择
@@ -487,13 +487,14 @@
          * groupTeamsPerGroup -> (knockMode = "1" || "2")knockoutTeams
          * 监听每组队伍数量输入框:失去焦点
          * 1.校验每组队伍数量
+         * 2.校验是否允许切换加入平均分开关
          * 2.触发小组数量事件
-         * 3.积分赛模式，自动回填平均分按钮
          *
          * @author tong 2020.08.13
          */
         $("input[name=groupTeamsPerGroup]").on('focusout', function () {
             let groupNumDom = $("#groupNum");
+            let groupFillAverageDom = $("input[name=groupFillAverage]");
             // 校验每组队伍数量
             let groupTeamsPerGroup = $(this).val();
             if (groupTeamsPerGroup == '') {
@@ -520,20 +521,23 @@
                 clearGroupTeamsPerGroup();
                 return false;
             }
+            // 校验是否允许切换加入平均分开关
+            let groupMode = $("select[name=groupMode]").val();
+            if (groupMode == "1" || groupMode == "2") {
+                if (totalTeam % groupTeamsPerGroup == 0) {
+                    groupFillAverageDom.attr("disabled", "");
+                    groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
+                    groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
+                    $("#fillAverageTips").text("每个小组队伍数量已经一样，无需加入平均分");
+                } else {
+                    groupFillAverageDom.removeAttr("disabled");
+                }
+            }
             // 计算小组数量
             let groupNum = Math.ceil(parseInt(totalTeam) / parseInt(groupTeamsPerGroup));
             groupNumDom.html("小组数量：" + groupNum);
             // 触发淘汰赛队伍事件
             $("input[name=knockoutRounds]").trigger('focusout');
-            // 积分赛模式，自动回填平均分按钮
-            let groupMode = $("select[name=groupMode]").val();
-            if (groupMode == "1") {
-                if (parseInt(totalTeam) % parseInt(groupTeamsPerGroup) == 0) {
-                    turnOffFillAverage();
-                } else {
-                    turnOnFillAverage();
-                }
-            }
         });
 
         /**
@@ -904,22 +908,10 @@
         let $ = layui.jquery;
         $("#groupGw").removeClass("layui-hide");
         $("#groupTeamsPerGroup").removeClass("layui-hide");
-        switch (groupMode) {
-            case "1": {
-                $("#groupFillAverage").removeClass("layui-hide");
-                $("input[name=groupFillAverage]").attr("disabled", "");
-                $("#fillAverageTips").text("积分赛根据分组情况判断是否需要加入平均分average，使每个小组队伍数量一样");
-                break;
-            }
-            case "2": {
-                $("#groupFillAverage").removeClass("layui-hide");
-                $("input[name=groupFillAverage]").removeAttr("disabled");
-                $("#fillAverageTips").text("是否在小组内加入平均分average，使每个小组队伍数量一样");
-                break;
-            }
-            default: {
-                $("#groupFillAverage").addClass("layui-hide");
-            }
+        if (groupMode == "1" || groupMode == "2") {
+            $("#groupFillAverage").removeClass("layui-hide");
+        } else {
+            $("#groupFillAverage").addClass("layui-hide");
         }
     }
 
@@ -945,7 +937,6 @@
         $("select[name=groupStartGw]").val('0');
         $("select[name=groupEndGw]").val('0');
         $("input[name=groupTeamsPerGroup]").val('');
-        turnOffFillAverage();
         $("input[name=groupQualifiers]").val('');
     }
 
@@ -988,27 +979,10 @@
         $("input[name=groupTeamsPerGroup]").val('');
         $("#groupNum").html("");
         $("input[name=knockoutRounds]").trigger('focusout');
-        turnOffFillAverage();
     }
 
     function getValueFromStr(str) {
         return str.substr(str.indexOf("：") + 1, str.length);
-    }
-
-    function turnOffFillAverage() {
-        let $ = layui.jquery;
-        let groupFillAverageDom = $("input[name=groupFillAverage]");
-        groupFillAverageDom.val('0');
-        groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
-        groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
-    }
-
-    function turnOnFillAverage() {
-        let $ = layui.jquery;
-        let groupFillAverageDom = $("input[name=groupFillAverage]");
-        groupFillAverageDom.val('1');
-        groupFillAverageDom.siblings("div.layui-form-switch").addClass("layui-form-onswitch");
-        groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("是");
     }
 
 </script>

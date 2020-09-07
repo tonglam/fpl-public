@@ -255,7 +255,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return pickList;
 	}
 
-	@Cacheable(value = "qryEntryInfo")
+//	@Cacheable(value = "qryEntryInfo")
 	@Override
 	public EntryInfoEntity qryEntryInfo(int entry) {
 		return this.entryInfoService.getById(entry);
@@ -274,7 +274,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId));
 	}
 
-	@Cacheable(value = "qryKnockoutResultByTournament")
+	//	@Cacheable(value = "qryKnockoutResultByTournament")
 	@Override
 	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
 		List<TournamentKnockoutResultData> knockoutResultDataList = Lists.newArrayList();
@@ -282,7 +282,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		// knockout
 		Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
 				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-				.eq(TournamentKnockoutEntity::getStartGw, currentEvent))
+				.eq(TournamentKnockoutEntity::getRound, 1))
 				.stream()
 				.collect(Collectors.toMap(TournamentKnockoutEntity::getMatchId, v -> v));
 		if (CollectionUtils.isEmpty(knockoutMap)) {

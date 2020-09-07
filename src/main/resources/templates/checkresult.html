@@ -44,9 +44,8 @@
                                 <div class="layui-form-item">
                                     <label class="layui-form-label">比分详情</label>
                                     <div class="layui-input-inline">
-                                        <input checked lay-filter="infoSwitch" lay-skin="switch"
-                                               lay-text="开|关"
-                                               name="infoSwitch" type="checkbox">
+                                        <input lay-filter="infoSwitch" lay-skin="switch"
+                                               lay-text="开|关" name="infoSwitch" type="checkbox">
                                     </div>
                                     <label class="layui-form-label">队伍：</label>
                                     <div class="layui-input-inline">
@@ -63,17 +62,17 @@
 
                             </form>
 
-                            <div class="layui-row" id="info">
+                            <div class="layui-row layui-hide" id="info">
                                 <div class="layui-col-sm1" style="width:4%;margin-top:-5px">
                                     <button class="layui-btn layui-btn-sm layui-btn-primary" id="reset"
                                             style="border: none" type="reset">
                                         <i class="layui-icon layui-icon-refresh"></i>
                                     </button>
                                 </div>
-                                <div class="layui-col-sm1" style="margin-left:-15px;margin-right:-25px">
+                                <div class="layui-col-sm2" style="margin-right:-25px">
                                     <div style="font-size:16px">比分详情：</div>
                                 </div>
-                                <div class="layui-col-sm8">
+                                <div class="layui-col-sm8" style="margin-left:-40px">
                                     <div id="matchInfo" style="font-size:16px;color:red"></div>
                                 </div>
                             </div>
@@ -96,6 +95,7 @@
 </body>
 
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-bracket/0.11.1/jquery.bracket.min.js"></script>
 
 <script th:replace="layout::baseScript"></script>
@@ -109,7 +109,7 @@
         axios.get('/tournament/qryKnockoutResultByTournament?tournamentId=' + tournamentId)
             .then(function (response) {
                 if (response.length == 0) {
-                    layer.msg("无淘汰赛数据", {time: 1500});
+                    layer.msg("当前比赛周无淘汰赛数据", {time: 1500});
                     return false;
                 }
                 $("#config").removeClass("layui-hide");
@@ -173,18 +173,17 @@
         let $ = layui.jquery, element = layui.element, layer = layui.layer, form = layui.form;
 
         $(document).ready(function () {
+            let bracketDom = $("#bracket");
             // 无小组赛关闭小组赛tab
             let groupNum = [[${tournamentInfo?.getGroupNum()}]];
             if (groupNum == 0) {
                 element.tabDelete('stageTab', 'groupTab');
                 // 渲染对阵图
-                $("#bracket").removeClass("layui-hide");
-                let index = layer.load(2);
-                initBracket();
-                layer.close(index);
+                bracketDom.removeClass("layui-hide");
+                initKnockoutResult();
                 return false;
             }
-            $("#bracket").addClass("layui-hide");
+            bracketDom.addClass("layui-hide");
             // 无淘汰赛关闭淘汰赛tab
             let knockoutNum = [[${tournamentInfo?.getKnockoutTeam()}]];
             if (knockoutNum == 0) {
@@ -197,15 +196,14 @@
         });
 
         element.on('tab(stageTab)', function (data) {
+            let bracketDom = $("#bracket");
             if (data.index == 1) {
-                $("#bracket").removeClass("layui-hide");
-                if ($("#bracket").childNodes.length == 0) {
-                    let index = layer.load(2);
-                    initBracket();
-                    layer.close(index);
+                bracketDom.removeClass("layui-hide");
+                if (bracketDom.children().length == 0) {
+                    initKnockoutResult();
                 }
             } else {
-                $("#bracket").addClass("layui-hide");
+                bracketDom.addClass("layui-hide");
             }
         });
 
@@ -220,6 +218,18 @@
         $('#reset').on('click', function () {
             $("#matchInfo").text('');
         });
+
+        function initKnockoutResult() {
+            let currentGw = [[${currentGw}]];
+            let knockoutStartGw = [[${tournamentInfo?.getKnockoutStartGw()}]];
+            if (knockoutStartGw > currentGw) {
+                layer.msg("淘汰赛开始时间：GW" + knockoutStartGw, {time: 1500});
+                return false;
+            }
+            let index = layer.load(2);
+            initBracket();
+            layer.close(index);
+        }
 
     });
 

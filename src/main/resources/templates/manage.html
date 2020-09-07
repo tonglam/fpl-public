@@ -71,6 +71,11 @@
 
 <script th:replace="layout::baseScript"></script>
 
+<script id="barDemo" type="text/html">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">更换管理员</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
 <script th:inline="none">
     layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
 
@@ -265,11 +270,6 @@
         });
 
     });
-</script>
-
-<script id="barDemo" type="text/html">
-    <a class="layui-btn layui-btn-xs" lay-event="edit">更换管理员</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
 </html>

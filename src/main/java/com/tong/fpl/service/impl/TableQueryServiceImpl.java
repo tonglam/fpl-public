@@ -164,11 +164,14 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			}
 			case Points_race:
 			case Battle_race: {
-				if (currentEvent > tournamentInfoEntity.getGroupStartGw()) {
+				int groupStartGw = tournamentInfoEntity.getGroupStartGw();
+				int knockoutStartGw = tournamentInfoEntity.getKnockoutStartGw();
+				int knockoutEndGw = tournamentInfoEntity.getKnockoutEndGw();
+				if (groupStartGw > 0 && currentEvent > groupStartGw) {
 					return "小组赛";
-				} else if (currentEvent > tournamentInfoEntity.getKnockoutStartGw()) {
+				} else if (knockoutStartGw > 0 && currentEvent > knockoutStartGw) {
 					return "淘汰赛";
-				} else if (currentEvent > tournamentInfoEntity.getKnockoutEndGw()) {
+				} else if (knockoutEndGw > 0 && currentEvent > knockoutEndGw) {
 					return "已结束";
 				}
 				break;
@@ -243,16 +246,23 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.eq(TournamentGroupEntity::getGroupId, groupId)
-				.orderByAsc(TournamentGroupEntity::getGroupRank))
+				.orderByAsc(TournamentGroupEntity::getGroupRank)
+				.orderByAsc(TournamentGroupEntity::getGroupIndex))
 				.forEach(o -> {
 					TournamentGroupData tournamentGroupData = new TournamentGroupData();
 					BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
-					EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(o.getEntry());
-					if (entryInfoEntity != null) {
+					tournamentGroupData.setGroupName(CommonUtils.getCapitalLetterFromNum(o.getGroupId()));
+					if (o.getEntry() < 0) {
 						tournamentGroupData
-								.setGroupName(CommonUtils.getCapitalLetterFromNum(o.getGroupId()))
-								.setEntryName(entryInfoEntity.getEntryName())
-								.setPlayerName(entryInfoEntity.getPlayerName());
+								.setEntryName("平均分")
+								.setPlayerName("平均分");
+					} else {
+						EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(o.getEntry());
+						if (entryInfoEntity != null) {
+							tournamentGroupData
+									.setEntryName(entryInfoEntity.getEntryName())
+									.setPlayerName(entryInfoEntity.getPlayerName());
+						}
 					}
 					list.add(tournamentGroupData);
 				});

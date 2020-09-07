@@ -94,25 +94,26 @@ public class TournamentServiceImpl implements ITournamentService {
 		tournamentInfoEntity.setGroupMode(groupMode.toString());
 		switch (groupMode) {
 			case No_group: {
-				tournamentInfoEntity.setGroupPlayAgainstNum(0);
 				tournamentInfoEntity.setTeamPerGroup(0);
+				tournamentInfoEntity.setGroupNum(0);
 				tournamentInfoEntity.setGroupStartGw(-1);
 				tournamentInfoEntity.setGroupEndGw(-1);
-				tournamentInfoEntity.setGroupRounds(0);
-				tournamentInfoEntity.setGroupQualifiers(0);
 				tournamentInfoEntity.setGroupFillAverage(false);
-				tournamentInfoEntity.setGroupNum(0);
+				tournamentInfoEntity.setGroupRounds(0);
+				tournamentInfoEntity.setGroupPlayAgainstNum(0);
+				tournamentInfoEntity.setGroupQualifiers(0);
+
 				break;
 			}
 			case Points_race:
 			case Battle_race: {
 				tournamentInfoEntity.setTeamPerGroup(tournamentCreateData.getTeamsPerGroup());
 				tournamentInfoEntity.setGroupNum(tournamentCreateData.getGroupNum());
-				tournamentInfoEntity.setGroupFillAverage(tournamentCreateData.isGroupFillAverage());
-				tournamentInfoEntity.setGroupRounds(tournamentInfoEntity.getGroupEndGw() - tournamentInfoEntity.getGroupStartGw() + 1);
-				tournamentInfoEntity.setGroupPlayAgainstNum(this.setGroupPlayAgainstNumByMode(groupMode, tournamentInfoEntity.getGroupRounds(), tournamentInfoEntity.getTeamPerGroup()));
 				tournamentInfoEntity.setGroupStartGw(CommonUtils.getRealGw(tournamentCreateData.getGroupStartGw()));
 				tournamentInfoEntity.setGroupEndGw(CommonUtils.getRealGw(tournamentCreateData.getGroupEndGw()));
+				tournamentInfoEntity.setGroupRounds(tournamentInfoEntity.getGroupEndGw() - tournamentInfoEntity.getGroupStartGw() + 1);
+				tournamentInfoEntity.setGroupFillAverage(tournamentCreateData.isGroupFillAverage());
+				tournamentInfoEntity.setGroupPlayAgainstNum(this.setGroupPlayAgainstNumByMode(groupMode, tournamentInfoEntity.getGroupRounds(), tournamentInfoEntity.getTeamPerGroup()));
 				tournamentInfoEntity.setGroupQualifiers(tournamentCreateData.getGroupQualifiers());
 				break;
 			}
@@ -247,50 +248,53 @@ public class TournamentServiceImpl implements ITournamentService {
 				.filter(o -> o.getEntry() > 0)
 				.map(TournamentEntryEntity::getEntry)
 				.collect(Collectors.toList());
-		// shuffle
-		Collections.shuffle(entryList);
-		// add average, represent by nagative num
+		// draw
 		Multimap<Integer, Integer> teamInGroupMap = ArrayListMultimap.create();
 		Multimap<Integer, Integer> groupIndexMap = ArrayListMultimap.create();
-		int averageNum = this.tournamentEntryService.count(new QueryWrapper<TournamentEntryEntity>().lambda()
-				.eq(TournamentEntryEntity::getTournamentId, tournamentId)
-				.lt(TournamentEntryEntity::getEntry, 0));
 		Random random = new Random();
-		if (groupFillAverage) {
-			IntStream.range(1, averageNum + 1).forEach(i -> {
-				int entry = -1 * i;
+		// add average, represent by nagative num
+		List<Integer> averageList = Lists.newArrayList();
+		int averageNum = teamsPerGroup * groupNum - entryList.size();
+		if (averageNum > 0) {
+			IntStream.range(1, averageNum + 1).forEach(i -> averageList.add(-1 * i));
+			// draw average to diffrent group
+			averageList.forEach(entry -> {
 				int groupId = this.drawAverageToGroup(random, entry, groupNum, teamInGroupMap);
-				tournamentGroupList.add(new TournamentGroupEntity()
+				TournamentGroupEntity tournamentGroupEntity = new TournamentGroupEntity()
 						.setTournamentId(tournamentId)
 						.setGroupId(groupId)
-						.setGroupIndex(this.drawGroupIndex(random, groupId, teamsPerGroup, groupIndexMap, averageNum))
+						.setGroupIndex(this.drawGroupIndex(random, groupId, teamsPerGroup, groupIndexMap))
 						.setEntry(entry)
 						.setStartGw(groupStartGw)
 						.setEndGw(groupEndGw)
 						.setGroupPoints(0)
-						.setGroupRank(0)
+						.setGroupRank(1)
 						.setPlay(0)
 						.setWin(0)
 						.setDraw(0)
 						.setLose(0)
 						.setQualified(false)
 						.setOverallPoints(0)
-						.setOverallRank(0)
-				);
+						.setOverallRank(0);
+				if (groupFillAverage) {
+					tournamentGroupList.add(tournamentGroupEntity);
+				}
 			});
 		}
+		// shuffle
+		Collections.shuffle(entryList);
 		// draw entry list
 		IntStream.range(0, entryList.size()).forEach(i -> {
-			int groupId = this.drawToGroup(random, entryList.get(i), groupNum, teamsPerGroup, teamInGroupMap, averageNum);
+			int groupId = this.drawToGroup(random, entryList.get(i), groupNum, teamsPerGroup, teamInGroupMap);
 			tournamentGroupList.add(new TournamentGroupEntity()
 					.setTournamentId(tournamentId)
 					.setGroupId(groupId)
-					.setGroupIndex(this.drawGroupIndex(random, groupId, teamsPerGroup, groupIndexMap, averageNum))
+					.setGroupIndex(this.drawGroupIndex(random, groupId, teamsPerGroup, groupIndexMap))
 					.setEntry(entryList.get(i))
 					.setStartGw(groupStartGw)
 					.setEndGw(groupEndGw)
 					.setGroupPoints(0)
-					.setGroupRank(0)
+					.setGroupRank(1)
 					.setPlay(0)
 					.setWin(0)
 					.setDraw(0)
@@ -314,19 +318,19 @@ public class TournamentServiceImpl implements ITournamentService {
 		return groupId;
 	}
 
-	private int drawToGroup(Random random, int entry, int groupNum, int teamsPerGroup, Multimap<Integer, Integer> teamInGroup, int averageNum) {
+	private int drawToGroup(Random random, int entry, int groupNum, int teamsPerGroup, Multimap<Integer, Integer> teamInGroup) {
 		int groupId = random.nextInt(groupNum) + 1;
-		while (teamInGroup.get(groupId).size() + +1 > teamsPerGroup + averageNum) {
+		while (teamInGroup.get(groupId).size() + 1 > teamsPerGroup) {
 			groupId = random.nextInt(groupNum) + 1;
 		}
 		teamInGroup.put(groupId, entry);
 		return groupId;
 	}
 
-	private int drawGroupIndex(Random random, int groupId, int teamsPerGroup, Multimap<Integer, Integer> groupIndexMap, int averageNum) {
-		int index = random.nextInt(teamsPerGroup + averageNum) + 1;
+	private int drawGroupIndex(Random random, int groupId, int teamsPerGroup, Multimap<Integer, Integer> groupIndexMap) {
+		int index = random.nextInt(teamsPerGroup) + 1;
 		while (groupIndexMap.containsEntry(groupId, index)) {
-			index = random.nextInt(teamsPerGroup + averageNum) + 1;
+			index = random.nextInt(teamsPerGroup) + 1;
 		}
 		groupIndexMap.put(groupId, index);
 		return index;
