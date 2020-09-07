@@ -169,7 +169,7 @@
     });
 
     layui.use(['element', 'layer'], function () {
-        let $ = layui.jquery;
+        let $ = layui.jquery, layer = layui.layer;
         $("#teamIdBtn").on('click', function () {
             let btn = $("#teamIdBtn");
             let index = layer.prompt({
