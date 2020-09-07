@@ -125,6 +125,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.stream()
 				.map(TournamentEntryEntity::getTournamentId)
 				.collect(Collectors.toList());
+		if (CollectionUtils.isEmpty(tournamentList)) {
+			return new TableData<>();
+		}
 		// stadge_mode
 		Map<String, GroupMode> groupModeMap = Arrays.stream(GroupMode.values()).collect(Collectors.toMap(Enum::name, v -> v));
 		Map<String, KnockoutMode> knockModeMap = Arrays.stream(KnockoutMode.values()).collect(Collectors.toMap(Enum::name, v -> v));

@@ -1,11 +1,8 @@
 package com.tong.fpl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.domain.letletme.global.TableData;
-import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.utils.JsonUtils;
 import org.junit.jupiter.api.Test;
 
@@ -51,18 +48,6 @@ public class CommonTest extends FplApplicationTests {
 		System.out.println(JsonUtils.obj2json(list));
 	}
 
-	@Test
-	void tableData() {
-		TournamentInfoData a = new TournamentInfoData().setId(1111);
-		TableData<TournamentInfoData> aa = new TableData<>(a);
-		List<TournamentInfoData> list = Lists.newArrayList();
-		list.add(a);
-		TableData<TournamentInfoData> ab = new TableData<>(list);
-		Page<TournamentInfoData> page = new Page<>();
-		page.setRecords(list);
-		TableData<TournamentInfoData> ac = new TableData<>(page);
-		System.out.println(1);
-	}
 
 	@Test
 	void guavaTable() {
