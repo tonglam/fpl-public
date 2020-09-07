@@ -27,7 +27,7 @@
                 <div class="layui-tab-item layui-show">
 
                     <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-                        <legend> 选择两个球员进行比较</legend>
+                        <legend> 选择球员进行比较</legend>
                     </fieldset>
 
                     <div class="layui-col-md6">
@@ -45,6 +45,7 @@
                                     <input lay-filter="seasonRadio" name="2021" title="20/21" type="radio" value="2021">
                                 </div>
                             </div>
+                            <div style="margin-top: 30px"></div>
                             <div class="layui-form-item">
                                 <label class="layui-form-label">球员1</label>
                                 <div class="layui-input-inline">
@@ -52,7 +53,7 @@
                                 </div>
                                 <button class="layui-btn layui-btn-sm" id="reset1"
                                         style="margin-top: 4px;margin-left: 8px"
-                                        type="reset">
+                                        type="button">
                                     <i class="layui-icon layui-icon-refresh"></i>
                                 </button>
                             </div>
@@ -64,7 +65,31 @@
                                 </div>
                                 <button class="layui-btn layui-btn-sm" id="reset2"
                                         style="margin-top: 4px;margin-left: 8px"
-                                        type="reset">
+                                        type="button">
+                                    <i class="layui-icon layui-icon-refresh"></i>
+                                </button>
+                            </div>
+                            <div style="margin-top: 30px"></div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">球员3</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" name="player3" type="text">
+                                </div>
+                                <button class="layui-btn layui-btn-sm" id="reset3"
+                                        style="margin-top: 4px;margin-left: 8px"
+                                        type="button">
+                                    <i class="layui-icon layui-icon-refresh"></i>
+                                </button>
+                            </div>
+                            <div style="margin-top: 30px"></div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">球员4</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" name="player4" type="text">
+                                </div>
+                                <button class="layui-btn layui-btn-sm" id="reset4"
+                                        style="margin-top: 4px;margin-left: 8px"
+                                        type="button">
                                     <i class="layui-icon layui-icon-refresh"></i>
                                 </button>
                             </div>
@@ -85,26 +110,43 @@
                     <div class="layui-row">
 
                         <div class="layui-col-md3">
-                            Season:
-                            <select id="season_select" onchange="selectSeason(this)">
-                                <option selected value="1920">2019/2020</option>
-                                <option value="2021">2020/2021</option>
-                            </select><br>
-                            Player 1:
-                            <select id="playerList_select1" onchange="selectPlayer(this)">
-                                <option value="-1">- Select -</option>
-                            </select><br>
-                            Player 2:
-                            <select id="playerList_select2" onchange="selectPlayer(this)">
-                                <option value="-1">- Select -</option>
-                            </select><br><br>
+                            赛季:
+                            <input id="season_input" readonly style="border: none" value="2019/2020">
+                            <br>
+                            球员 1:
+                            <input id="playerList_1" readonly style="border: none">
+                            <br>
+                            球员 2:
+                            <input id="playerList_2" readonly style="border: none">
+                            <br>
+                            球员 3:
+                            <input id="playerList_3" readonly style="border: none">
+                            <br>
+                            球员 4:
+                            <input id="playerList_4" readonly style="border: none">
+                            <br><br>
+                            技术统计:<br>
+                            <input checked id="point" name="stats" type="radio" value="totalPoints">
+                            <label>得分</label>
+                            <input id="goal" name="stats" type="radio" value="goalsScored">
+                            <label>进球</label>
+                            <input id="assists" name="stats" type="radio" value="assists">
+                            <label>助攻</label>
+                            <input id="minutes" name="stats" type="radio" value="minutes">
+                            <label>上场时间</label>
+                            <br>
+                            <input id="bonus" name="stats" type="radio" value="bonus">
+                            <label>Bonus</label>
+                            <input id="bps" name="stats" type="radio" value="bps">
+                            <label>bps</label><br><br>
+                            <input id="reset_bnt" type="button" value="重置"/>
                         </div>
 
-                        <div class="layui-col-md3">
+                        <div class="layui-col-md4">
                             <table class="display" id="example" width="100%"></table>
                         </div>
 
-                        <div class="layui-col-md-offset1 layui-col-md5" style="margin-top: -20px">
+                        <div class="layui-col-md-offset1 layui-col-md4" style="margin-top: -20px">
                             <canvas height="400" id="myRadarChart" width="400"></canvas>
                         </div>
 
@@ -113,7 +155,7 @@
                     <div style="margin-top: 30px"></div>
 
                     <div>
-                        <canvas height="40" id="myChart" width="150"></canvas>
+                        <canvas height="40" id="myLineChart" width="150"></canvas>
                     </div>
 
                 </div>
@@ -142,30 +184,61 @@
 <script src="https://www.jqueryscript.net/demo/Transpose-Table-jQuery-Plugin/scripts/jquery.table.transpose.min.js"></script>
 
 <script>
-    let player_id;
-    let playerNameList = [];
-    let entry_id;
-    let entry_list = [];
-    let point_dict;
-    let event_picks;
-    let datasetOrder;
-    let selectedSeason;
-    let playerTable;
-    let tableDataSet = [
+    window.chartColors = {
+        white: 'rgb(255, 255, 255)',
+        black: 'rgb(0, 0, 0)',
+        red: 'rgb(255, 99, 132)',
+        orange: 'rgb(255, 159, 64)',
+        yellow: 'rgb(255, 205, 86)',
+        green: 'rgb(75, 192, 192)',
+        blue: 'rgb(54, 162, 235)',
+        purple: 'rgb(153, 102, 255)',
+        grey: 'rgb(201, 203, 207)'
+    };
+    window.chartAlphaColors = {
+        white: 'rgba(255, 255, 255, 0.4)',
+        black: 'rgba(0, 0, 0, 0.7)',
+        red: 'rgba(255, 99, 132, 0.4)',
+        orange: 'rgba(255, 159, 64, 0.4)',
+        yellow: 'rgba(255, 205, 86, 0.4)',
+        green: 'rgba(75, 192, 192, 0.4)',
+        blue: 'rgba(54, 162, 235, 0.4)',
+        purple: 'rgba(153, 102, 255, 0.4)',
+        grey: 'rgba(201, 203, 207, 0.4)'
+    };
+    dataSetColour = ['red', 'blue', 'green', 'orange'];
+    entryColour = ['yellow', 'purple'];
+</script>
+
+<script>
+    var player_id;
+    var playerEventList = [-1, -1, -1, -1];
+    var playerNameList = [-1, -1, -1, -1];
+    var entry_id;
+    var entry_list = [];
+    var point_dict;
+    var event_picks;
+    var datasetOrder;
+    var selectedSeason;
+    var playerTable;
+    var statsMode = 'totalPoints';
+    var tableDataSet = [
+        [" - ", " - ", " - ", " - ",],
+        [" - ", " - ", " - ", " - ",],
         [" - ", " - ", " - ", " - ",],
         [" - ", " - ", " - ", " - ",],
     ];
 
     // Line Chart
-    let gameweek_labels = [];
+    var gameweek_labels = [];
     for (i = 0; i < 38; i++)
         gameweek_labels[i] = "GW" + (i + 1);
-    let ctx = document.getElementById('myChart');
-    let myChart = new Chart(ctx, {
+    var ctx = document.getElementById('myLineChart');
+    var myLineChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: gameweek_labels,
-            datasets: [{}]
+            datasets: []
         },
         options: {
             responsive: true,
@@ -200,12 +273,12 @@
     });
 
     // Radar Chart
-    let radctx = document.getElementById('myRadarChart');
-    let myRadarChart = new Chart(radctx, {
+    var radctx = document.getElementById('myRadarChart');
+    var myRadarChart = new Chart(radctx, {
         type: 'radar',
         data: {
             // labels: ['Influence', 'Creativity', 'Threat', 'Bonus', 'ICT Index'],
-            labels: ['Minutes', 'Influence', 'Creativity', 'Threat', 'Bps', 'ICT Index'],
+            labels: ['Creativity', 'Threat', '上场时间', 'Bps', 'Influence'],
             datasets: [],
         },
         options: {
@@ -216,7 +289,7 @@
             },
             title: {
                 display: true,
-                text: 'ICT and bps and Minutes'
+                text: 'ICT 技术统计'
             },
             scale: {
                 angleLines: {
@@ -248,7 +321,6 @@
             }
         },
     });
-
 </script>
 
 <script>
@@ -309,7 +381,15 @@
 
     function addPlayerDataForLine(chart, labels, newdata, avg, datasetOrder, playerName) {
         console.log(playerName);
-        // currentDataID = chart.data.datasets.length;
+        currentLength = chart.data.datasets.length;
+        // console.log(datasetOrder);
+        i = currentLength;
+        if (currentLength < (datasetOrder)) {
+            do {
+                chart.data.datasets[i] = {};
+                i++;
+            } while (i <= (datasetOrder - currentLength));
+        }
         playerDataset = {
             label: playerName,
             borderColor: window.chartColors[dataSetColour[datasetOrder]],
@@ -317,14 +397,20 @@
             fill: false,
             data: newdata
         };
-        // chart.data.datasets[0].data = newdata;
         chart.data.datasets[datasetOrder] = playerDataset;
-        addAverage(myChart, avg, datasetOrder);
+        addAverage(myLineChart, avg, datasetOrder);
         chart.update();
     }
 
     function addPlayerDataForRadar(chart, newdata, datasetOrder, playerName) {
-        // currentDataID = chart.data.datasets.length;
+        currentLength = chart.data.datasets.length;
+        i = currentLength;
+        if (currentLength < (datasetOrder)) {
+            do {
+                chart.data.datasets[i] = {};
+                i++;
+            } while (i <= (datasetOrder - currentLength));
+        }
         playerDataset = {
             label: playerName,
             borderColor: window.chartColors[dataSetColour[datasetOrder]],
@@ -336,12 +422,12 @@
         chart.update();
     }
 
-    function getPlayerPoints(event_live) {
-        let point_dict = {'events': [], 'presentPoints': [], 'MathPoints': []};
-        console.log(event_live);
+    function getPlayerPoints(event_live, statsMode) {
+        var point_dict = {'events': [], 'presentPoints': [], 'MathPoints': []};
+        // console.log(event_live);
         for (e in event_live) {
             point_dict.events.push(event_live[e].event);
-            point_dict.presentPoints.push(event_live[e].totalPoints);
+            point_dict.presentPoints.push(event_live[e][statsMode]);
         }
         if (point_dict.events.length > 38) {
             point_dict.presentPoints.splice(29, 9);
@@ -367,67 +453,89 @@
         // event_picks.splice(29, 9);
         if (event_picks.length > 38)
             event_picks.splice(29 - event_results.eventResultDatas[0].event + 1, 9);
-        console.log(event_picks);
+        // console.log(event_picks);
         return event_picks;
     }
 
-    function removePlayerData(chart) {
-        if (chart.data.datasets)
-            chart.data.datasets = [{}];
-        if ('annotation' in chart.options)
-            chart.options.annotation.annotations = [];
-        playerNameList = [];
-        chart.update();
+    function removePlayerData(chart, datasetOrder) {
+        currentLength = chart.data.datasets.length;
+        if (datasetOrder < 0) { // all remove
+            if (chart.data.datasets)
+                chart.data.datasets = [];
+            if ('annotation' in chart.options)
+                chart.options.annotation.annotations = [];
+            chart.update();
+        } else if (currentLength >= datasetOrder) {
+            if (chart.data.datasets)
+                chart.data.datasets[datasetOrder] = {};
+            if ('annotation' in chart.options)
+                chart.options.annotation.annotations[datasetOrder] = NaN;
+            chart.update();
+            tableDataSet[datasetOrder] = [" - ", " - ", " - ", " - ",]
+            updateTable(tableDataSet);
+        }
+
     }
 
     function updateChartTitle() {
-        myChart.options.title.text = '20' + selectedSeason.slice(0, 2) + '/20' + selectedSeason.slice(2, 4) + ' 赛季得分';
-        myRadarChart.options.title.text = '20' + selectedSeason.slice(0, 2) + '/20' + selectedSeason.slice(2, 4) + ' ICT and bps and Minutes';
-        myChart.update();
+        let selectedSeason = "19/20";
+        titleMap = {
+            'totalPoints': '得分',
+            'goalsScored': '进球',
+            'assists': '助攻',
+            'minutes': '上场时间',
+            'bonus': 'bonus',
+            'bps': 'bps',
+        }
+        myLineChart.options.title.text = '20' + selectedSeason.slice(0, 2) + '/20' + selectedSeason.slice(2, 4) + ' 赛季 ' + titleMap[statsMode] + ' 统计';
+        myRadarChart.options.title.text = '20' + selectedSeason.slice(0, 2) + '/20' + selectedSeason.slice(2, 4) + ' ICT 技术统计';
+        myLineChart.update();
         myRadarChart.update();
     }
 
-    function getAllPlayerList(selectDropdown, response) {
-        // allPlayerList = response.data;
-        allPlayerList = response;
-        let len = allPlayerList.length;
-        console.log(len);
-        selectDropdown.empty();
-        selectDropdown.append("<option value=-1>- Select -</option>");
-        for (let i = 0; i < len; i++) {
-            let playerCode = allPlayerList[i]['code'];
-            let player_id = allPlayerList[i]['element'];
-            let playerName = allPlayerList[i]['webName'];
-            selectDropdown.append("<option value='" + playerCode + "-" + player_id + "'>" + playerName + "</option>");
-        }
-        let selected = selectDropdown.val(); // cache selected value, before reordering
-        let opts_list = selectDropdown.find('option');
-        opts_list.sort(function (a, b) {
-            return $(a).text() > $(b).text() ? 1 : -1;
-        });
-        selectDropdown.html('').append(opts_list);
-        selectDropdown.val(selected);
-    }
+    // function getAllPlayerList(selectDropdown, response) {
+    //     // allPlayerList = response.data;
+    //     allPlayerList = response;
+    //     var len = allPlayerList.length;
+    //     // console.log(len);
+    //     selectDropdown.empty();
+    //     selectDropdown.append("<option value=-1>- Select -</option>");
+    //     for (var i = 0; i < len; i++) {
+    //         var playerCode = allPlayerList[i]['code'];
+    //         var player_id = allPlayerList[i]['element'];
+    //         var playerName = allPlayerList[i]['webName'];
+    //         selectDropdown.append("<option value='" + playerCode + "-" + player_id + "'>" + playerName + "</option>");
+    //     }
+    //     var selected = selectDropdown.val(); // cache selected value, before reordering
+    //     var opts_list = selectDropdown.find('option');
+    //     opts_list.sort(function (a, b) {
+    //         return $(a).text() > $(b).text() ? 1 : -1;
+    //     });
+    //     selectDropdown.html('').append(opts_list);
+    //     selectDropdown.val(selected);
+    // }
 
-    function selectSeason(obj) {
-        selectedSeason = obj.options[obj.selectedIndex].value
-        $.getJSON("http://letletme.top/api/qryAllPlayers", {season: selectedSeason}, function (response) {
-        }).done(function (response) {
-            getAllPlayerList($('#playerList_select1'), response);
-            getAllPlayerList($('#playerList_select2'), response);
-        });
+    function selectSeason() {
+        selectedSeason = "1920"
+        // $.getJSON("http://letletme.top/api/qryAllPlayers", {season: selectedSeason}, function (response) {
+        // }).done(function (response) {
+        //     getAllPlayerList($('#playerList_select1'), response);
+        //     getAllPlayerList($('#playerList_select2'), response);
+        // });
         updateChartTitle();
     }
 
-    function selectPlayer(obj) {
-        datasetOrder = obj.id[obj.id.length - 1] - 1;
-        playerName = obj.options[obj.selectedIndex].label;
-        playerCode = obj.options[obj.selectedIndex].value.split('-')[0];
-        player_id = obj.options[obj.selectedIndex].value.split('-')[1];
+    function selectPlayer(index, season, element, code, webName) {
+        let player_dict;
+        let selectedSeason = season;
+        let datasetOrder = index - 1;
+        playerName = webName;
+        playerCode = code;
+        player_id = element;
         console.log(playerCode);
 
-        let settings = {
-            "url": "http://letletme.top/api/qryPlayerData",
+        var settings = {
+            "url": "/api/qryPlayerData",
             "method": "POST",
             "dataType": 'json',
             "contentType": "application/json",
@@ -435,39 +543,49 @@
         };
 
         $.ajax(settings).done(function (response) {
-            console.log(response);
+            // console.log(response);
             if (response.historySeasonList == null) {
                 alert('无数据，请重新选择');
-                removePlayerData(myChart);
-                removePlayerData(myRadarChart);
+                removePlayerData(myLineChart, datasetOrder);
+                removePlayerData(myRadarChart, datasetOrder);
+                playerEventList[datasetOrder] = -1;
+                playerNameList[datasetOrder] = -1;
             } else {
                 for (s in response.historySeasonList) {
-                    if (response.historySeasonList[s].season == selectedSeason)
+                    if (response.historySeasonList[s].season == selectedSeason) {
                         player_dict = response.historySeasonList[s];
+                        break;
+                    }
                 }
-                radarData = [player_dict.minutes, player_dict.influence, player_dict.creativity, player_dict.threat, player_dict.bps, player_dict.ictIndex];
-                addPlayerDataForRadar(myRadarChart, radarData, datasetOrder, playerName);
-
                 playerInfo = response.infoData;
                 tableDataSet[datasetOrder] = [playerInfo.webName, playerInfo.elementTypeName, playerInfo.teamName, "£" + playerInfo.price + "m"];
-                playerTable.clear();
-                playerTable.rows.add(tableDataSet);
-                playerTable.draw();
-                $("#example").transpose("transpose");
+                updateTable(tableDataSet);
+
+                radarData = [player_dict.creativity, player_dict.threat, player_dict.minutes, player_dict.bps, player_dict.influence];
+                addPlayerDataForRadar(myRadarChart, radarData, datasetOrder, playerName);
+
+                console.log(selectedSeason);
+                $.getJSON("/api/qryEventLiveAll", {
+                    season: selectedSeason,
+                    element: player_id
+                }, function (response) {
+                    // $.getJSON("342.json", function(response){
+                    // event_live = response.data;
+                    event_live = response;
+                    playerEventList[datasetOrder] = event_live;
+                    playerNameList[datasetOrder] = playerName;
+                    point_dict = getPlayerPoints(event_live, statsMode);
+                    addPlayerDataForLine(myLineChart, [], point_dict.presentPoints, average(point_dict.MathPoints).toPrecision(4), datasetOrder, playerName);
+                });
             }
         });
+    }
 
-        console.log(selectedSeason);
-        $.getJSON("http://letletme.top/api/qryEventLiveAll", {
-            season: selectedSeason,
-            element: player_id
-        }, function (response) {
-            // $.getJSON("342.json", function(response){
-            // event_live = response.data;
-            event_live = response;
-            point_dict = getPlayerPoints(event_live);
-            addPlayerDataForLine(myChart, [], point_dict.presentPoints, average(point_dict.MathPoints).toPrecision(4), datasetOrder, playerName);
-        });
+    function updateTable(tableDataSet) {
+        playerTable.clear();
+        playerTable.rows.add(tableDataSet);
+        playerTable.draw();
+        $("#example").transpose("transpose");
     }
 
     function transposeTable() {
@@ -476,7 +594,7 @@
         if (!$("#example").is(":blk-transpose"))
             $("#example").transpose({mode: 1});
 
-        let currentMode = $("#example").data("tp_mode");
+        var currentMode = $("#example").data("tp_mode");
         if (currentMode == undefined)
             $("#example").transpose("transpose");
         else
@@ -484,17 +602,17 @@
     }
 
     function initialiseTable() {
-        let playerTable = $('#example').DataTable({
+        playerTable = $('#example').DataTable({
             data: tableDataSet,
             "bFilter": false,
             "paging": false,
             "ordering": false,
             "info": false,
             columns: [
-                {title: "Player Name"},
-                {title: "Position"},
-                {title: "Team"},
-                {title: "Price"}
+                {title: "球员名"},
+                {title: "位置"},
+                {title: "球队"},
+                {title: "价格"}
             ]
         });
         transposeTable();
@@ -505,200 +623,34 @@
     $(document).ready(function () {
         playerTable = initialiseTable();
 
-        // let settings = {
-        //     "url": "http://letletme.top/api/qryPlayerData",
-        //     "method": "POST",
-        //     "dataType": 'json',
-        //     "contentType": "application/json",
-        //     "data": JSON.stringify({"code": 75115}),
-        // };
-
-        // $.ajax(settings).done(function (response) {
-        //     console.log(response);
-        // });
-
-        // fill the dropdown
-        selectedSeason = $('#season_select option:selected').val()
-        $.getJSON("http://letletme.top/api/qryAllPlayers", {"season": selectedSeason}, function (response) {
-        }).done(function (response) {
-            // console.log(response);
-            getAllPlayerList($('#playerList_select1'), response);
-            getAllPlayerList($('#playerList_select2'), response);
+        $('input:radio[name="stats"]').change(function () {
+            statsMode = $(this).val();
+            removePlayerData(myLineChart, -1);
+            console.log(statsMode);
             updateChartTitle();
-        });
-
-        $("#entry_bnt1").click(function () {
-            $.getJSON("http://letletme.top/api/qryEntryEventResult?event=47&entry=1404", function (response) {
-                // $.getJSON("1404.json", function (response) {
-                // $.getJSON("http://letletme.top/api/qryEntryResult", {season: 1920, entry: $("#entry_txt1").val()}, function(response) {
-                event_results = response.data;
-                event_picks = getEntryPicks(event_results);
-                pickingWindows = getWindow(event_picks, point_dict.presentPoints, parseInt(player_id));
-                for (i in pickingWindows) {
-                    addWindow(myChart, pickingWindows[i].start, pickingWindows[i].end, pickingWindows[i].difference);
+            for (p in playerEventList) {
+                if (playerEventList[p] != -1) {
+                    point_dict = getPlayerPoints(playerEventList[p], statsMode);
+                    addPlayerDataForLine(myLineChart, [], point_dict.presentPoints, average(point_dict.MathPoints).toPrecision(4), p, playerNameList[p]);
                 }
-            });
-        });
-
-        $("#entry_bnt2").click(function () {
-            $.getJSON("http://letletme.top/api/qryEntryEventResult?event=47&entry=1404", function (response) {
-                // $.getJSON("1829.json", function (response) {
-                // $.getJSON("http://letletme.top/api/qryEntryResult", {season: 1920, entry: $("#entry_txt1").val()}, function(response) {
-                event_results = response.data;
-                event_picks = getEntryPicks(event_results);
-                pickingWindows = getWindow(event_picks, point_dict.presentPoints, parseInt(player_id));
-                for (i in pickingWindows) {
-                    addWindow(myChart, pickingWindows[i].start, pickingWindows[i].end, pickingWindows[i].difference);
-                }
-            });
+            }
         });
 
         $("#reset_bnt").click(function () {
-            removePlayerData(myChart);
-            removePlayerData(myRadarChart);
+            removePlayerData(myLineChart, -1);
+            removePlayerData(myRadarChart, -1);
+            tableDataSet = [
+                [" - ", " - ", " - ", " - ",],
+                [" - ", " - ", " - ", " - ",],
+                [" - ", " - ", " - ", " - ",],
+                [" - ", " - ", " - ", " - ",],
+            ]
+            updateTable(tableDataSet);
+            playerEventList = [];
+            playerNameList = [];
         });
 
-        $("#player_bnt1").click(function () {
-            player_id = $("#player_txt1").val();
-            $.getJSON("http://letletme.top/api/qryPlayerInfo", {
-                season: 1920,
-                element: $("#player_txt1").val()
-            }, function (response) {
-                // $.getJSON("players.json", function (response){
-                // player_id = $("#player_txt1").val();
-                // player_dict = response[player_id];
-                player_dict = response.data;
-                radarData = [player_dict.minutes, player_dict.influence, player_dict.creativity, player_dict.threat, player_dict.bps, player_dict.ictIndex];
-                // radarData = [player_dict.influence/player_dict.minutes, player_dict.creativity/player_dict.minutes, player_dict.threat/player_dict.minutes, player_dict.bps/player_dict.minutes, player_dict.ictIndex/player_dict.minutes];
-                playerName = player_dict.webName;
-                addPlayerDataForRadar(myRadarChart, radarData, playerName);
-                $.getJSON("http://letletme.top/api/qryEventLiveAll", {
-                    season: 1920,
-                    element: $("#player_txt1").val()
-                }, function (response) {
-                    // $.getJSON("239.json", function(response){
-                    event_live = response.data;
-                    point_dict = getPlayerPoints(event_live);
-                    addPlayerDataForLine(myChart, [], point_dict.presentPoints, average(point_dict.MathPoints).toPrecision(4), playerName);
-                });
-            });
-        });
-
-        $("#player_bnt2").click(function () {
-            player_id = $("#player_txt2").val();
-            $.getJSON("http://letletme.top/api/qryPlayerInfo", {
-                season: 1920,
-                element: $("#player_txt2").val()
-            }, function (response) {
-                // $.getJSON("players.json", function (response){
-                // player_id = $("#player_txt2").val();
-                // player_dict = response[player_id];
-                player_dict = response.data;
-                radarData = [player_dict.minutes, player_dict.influence, player_dict.creativity, player_dict.threat, player_dict.bps, player_dict.ictIndex];
-                // radarData = [player_dict.influence/player_dict.minutes, player_dict.creativity/player_dict.minutes, player_dict.threat/player_dict.minutes, player_dict.bps/player_dict.minutes, player_dict.ictIndex/player_dict.minutes];
-                playerName = player_dict.webName;
-                // playerNameList.push(playerName);
-                addPlayerDataForRadar(myRadarChart, radarData, playerName);
-                $.getJSON("http://letletme.top/api/qryEventLiveAll", {
-                    season: 1920,
-                    element: $("#player_txt2").val()
-                }, function (response) {
-                    // $.getJSON("342.json", function(response){
-                    event_live = response.data;
-                    point_dict = getPlayerPoints(event_live);
-                    addPlayerDataForLine(myChart, [], point_dict.presentPoints, average(point_dict.MathPoints).toPrecision(4), playerName);
-                });
-            });
-
-        });
     });
-</script>
-
-<script>
-    function isGoodWindow(point_list, start_gw = 1, end_gw = 2) {
-        expected_avg = average(point_list);
-        // # print(expected_avg)
-        window_point = point_list.slice(start_gw - 1, end_gw);
-        console.log(window_point);
-        difference = (average(window_point) - expected_avg).toPrecision(3);
-        if (difference >= 0)
-            console.log("GW" + start_gw + " - GW" + end_gw + ", Good window, difference: " + difference);
-        else
-            console.log("GW" + start_gw + " - GW" + end_gw + ", bad window, difference: " + difference);
-
-        return difference;
-    }
-
-    function getWindow(event_picks, point_list, player_id) {
-        start_gw = 1;
-        is_own = false;
-        end_gw = 1;
-        // console.log(event_picks);
-        pick_result = [];
-        for (i in event_picks) {
-            event_pick = event_picks[i];
-            // console.log(event_pick);
-            assets_list = [];
-            for (a in event_pick)
-                assets_list.push(event_pick[a].element);
-
-            // console.log(' =');
-            // # print('i {}'.format(i))
-            // console.log(assets_list);
-            i++;
-            if (assets_list.includes(player_id) && is_own == false) {
-                start_gw = i;
-                is_own = true;
-                // console.log('start: '+start_gw);
-            }
-            if ((!assets_list.includes(player_id) && is_own) || (is_own && i == 38)) {
-                if (i != 38)
-                    end_gw = i - 1;
-                else {
-                    end_gw = 38;
-                    // console.log('end: '+end_gw);
-                }
-                if (end_gw >= start_gw) {
-                    difference = isGoodWindow(point_list, start_gw, end_gw);
-                    pick_result.push({
-                        'start': start_gw,
-                        'end': end_gw,
-                        'difference': difference
-                    });
-                    // # print(isGoodWindow(point_list=point_list, start_gw=start_gw, end_gw=end_gw))
-                    is_own = false;
-                }
-            }
-        }
-        return pick_result;
-    }
-</script>
-
-<script>
-    window.chartColors = {
-        white: 'rgb(255, 255, 255)',
-        black: 'rgb(0, 0, 0)',
-        red: 'rgb(255, 99, 132)',
-        orange: 'rgb(255, 159, 64)',
-        yellow: 'rgb(255, 205, 86)',
-        green: 'rgb(75, 192, 192)',
-        blue: 'rgb(54, 162, 235)',
-        purple: 'rgb(153, 102, 255)',
-        grey: 'rgb(201, 203, 207)'
-    };
-    window.chartAlphaColors = {
-        white: 'rgba(255, 255, 255, 0.4)',
-        black: 'rgba(0, 0, 0, 0.7)',
-        red: 'rgba(255, 99, 132, 0.4)',
-        orange: 'rgba(255, 159, 64, 0.4)',
-        yellow: 'rgba(255, 205, 86, 0.4)',
-        green: 'rgba(75, 192, 192, 0.4)',
-        blue: 'rgba(54, 162, 235, 0.4)',
-        purple: 'rgba(153, 102, 255, 0.4)',
-        grey: 'rgba(201, 203, 207, 0.4)'
-    };
-    dataSetColour = ['red', 'blue', 'green'];
-    entryColour = ['yellow', 'purple'];
 </script>
 
 <script th:replace="layout::baseScript"></script>
@@ -706,7 +658,7 @@
 <script th:inline="none">
     layui.use(['element', 'form', 'table', 'layer', 'soulTable'], function () {
 
-        let $ = layui.jquery, element = layui.element, form = layui.form, table = layui.table,
+        let $ = layui.jquery, element = layui.element, table = layui.table,
             soulTable = layui.soulTable;
 
         soulTable.config({
@@ -764,9 +716,7 @@
                 .catch(function (error) {
                     console.info(error.message);
                 });
-        };
-
-        form
+        }
 
         $('#reset1').on('click', function () {
             $("input[name=player1]").val('');
@@ -776,39 +726,82 @@
             $("input[name=player2]").val('');
         });
 
+        $('#reset3').on('click', function () {
+            $("input[name=player3]").val('');
+        });
+
+        $('#reset4').on('click', function () {
+            $("input[name=player4]").val('');
+        });
+
         $('#confirmButton').on('click', function () {
             // 切换选项卡
             element.tabChange('widowTab', 'window');
         });
 
         table.on('row(playerTable)', function (obj) {
+            let season = "1920";
+            let element = obj.data.element;
             let webName = obj.data.webName;
+            let code = obj.data.code;
             // 填充球员信息
             let select1Dom = $("input[name=player1]");
             let select2Dom = $("input[name=player2]");
-            if (select1Dom.val() != '' && select2Dom.val() != '') {
+            let select3Dom = $("input[name=player3]");
+            let select4Dom = $("input[name=player4]");
+            if (select1Dom.val() != '' && select2Dom.val() != ''
+                && select3Dom.val() != '' && select4Dom.val() != '') {
                 select1Dom.val('');
                 select2Dom.val('');
+                select3Dom.val('');
+                select4Dom.val('');
             }
-            if (select1Dom.val() == '') {
+            let player1 = select1Dom.val();
+            let player2 = select2Dom.val();
+            let player3 = select3Dom.val();
+            let player4 = select4Dom.val();
+            let playerSelected = [player1, player2, player3, player4];
+            if (player1 == '') {
                 select1Dom.val(webName);
-                $("#playerList_select1").find("option").each(function () {
-                    if ($(this).text() == webName) {
-                        $(this).attr("selected", true);
-                        $(this).trigger("change");
-                    }
-                });
+                playerSelected.push(webName);
+                // 回填
+                let playerList_1 = $("#playerList_1");
+                playerList_1.val(webName);
+                playerList_1.attr("code", code);
+                selectPlayer(1, season, element, code, webName);
+                return false;
             } else {
-                if (select1Dom.val() == webName) {
+                if (player2 == '' && !playerSelected.includes(webName)) {
+                    select2Dom.val(webName);
+                    playerSelected.push(webName);
+                    // 回填
+                    let playerList_2 = $("#playerList_2");
+                    playerList_2.val(webName);
+                    playerList_2.attr("code", code);
+                    selectPlayer(2, season, element, code, webName);
                     return false;
-                }
-                select2Dom.val(webName);
-                $("#playerList_select2").find("option").each(function () {
-                    if ($(this).text() == webName) {
-                        $(this).attr("selected", true);
-                        $(this).trigger("change");
+                } else {
+                    if (player3 == '' && !playerSelected.includes(webName)) {
+                        select3Dom.val(webName);
+                        playerSelected.push(webName);
+                        // 回填
+                        let playerList_3 = $("#playerList_3");
+                        playerList_3.val(webName);
+                        playerList_3.attr("code", code);
+                        selectPlayer(3, season, element, code, webName);
+                        return false;
+                    } else {
+                        if (player4 == '' && !playerSelected.includes(webName)) {
+                            select4Dom.val(webName);
+                            playerSelected.push(webName);
+                            // 回填
+                            let playerList_4 = $("#playerList_4");
+                            playerList_4.val(webName);
+                            playerList_4.attr("code", code);
+                            selectPlayer(4, season, element, code, webName);
+                        }
                     }
-                });
+                }
             }
         });
 
