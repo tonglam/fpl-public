@@ -35,56 +35,74 @@
                 </ul>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
-                        <div th:replace="layout::tournamentContent(${tournamentInfo?.getId()},${showNum})"></div>
-                    </div>
-                    <div class="layui-tab-item">
 
-                        <div class="layui-hide" id="config">
-                            <form class="layui-form">
+                        <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,showNum)}"
+                             th:if="${showNum} gt 1">
 
-                                <div class="layui-form-item">
-                                    <label class="layui-form-label">比分详情</label>
-                                    <div class="layui-input-inline">
-                                        <input lay-filter="infoSwitch" lay-skin="switch"
-                                               lay-text="开|关" name="infoSwitch" type="checkbox">
-                                    </div>
-                                    <label class="layui-form-label">队伍：</label>
-                                    <div class="layui-input-inline">
-                                        <input class="layui-input" name="entryName" readonly
-                                               style="border: none" th:value="${entryInfo?.entryName}" type="text">
-                                    </div>
+                            <div class="layui-col-md6 layui-hide" th:attr="id='group'+((${index}*2)-1)">
+                                <table class="layui-table" th:attr="id='group'+((${index}*2)-1)+'Table'"></table>
+                            </div>
 
-                                    <label class="layui-form-label">玩家：</label>
-                                    <div class="layui-input-inline">
-                                        <input class="layui-input" name="playerName" readonly
-                                               style="border: none" th:value="${entryInfo?.playerName}" type="text">
-                                    </div>
-                                </div>
-
-                            </form>
-
-                            <div class="layui-row layui-hide" id="info">
-                                <div class="layui-col-sm1" style="width:4%;margin-top:-5px">
-                                    <button class="layui-btn layui-btn-sm layui-btn-primary" id="reset"
-                                            style="border: none" type="reset">
-                                        <i class="layui-icon layui-icon-refresh"></i>
-                                    </button>
-                                </div>
-                                <div class="layui-col-sm2" style="margin-right:-25px">
-                                    <div style="font-size:16px">比分详情：</div>
-                                </div>
-                                <div class="layui-col-sm8" style="margin-left:-40px">
-                                    <div id="matchInfo" style="font-size:16px;color:red"></div>
-                                </div>
+                            <div class="layui-col-md6 layui-hide" th:attr="id='group'+${index}*2">
+                                <table class="layui-table" th:attr="id='group'+${index}*2+'Table'"></table>
                             </div>
 
                         </div>
 
+                        <table class="layui-table" th:attr="id='group'+${index}*2+'Table'"
+                               th:if="${showNum} eq 1"></table>
+
                     </div>
+                </div>
+                <div class="layui-tab-item">
+
+                    <div class="layui-hide" id="config">
+                        <form class="layui-form">
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">比分详情</label>
+                                <div class="layui-input-inline">
+                                    <input lay-filter="infoSwitch" lay-skin="switch"
+                                           lay-text="开|关" name="infoSwitch" type="checkbox">
+                                </div>
+                                <label class="layui-form-label">队伍：</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" name="entryName" readonly
+                                           style="border: none" th:value="${entryInfo?.entryName}" type="text">
+                                </div>
+
+                                <label class="layui-form-label">玩家：</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" name="playerName" readonly
+                                           style="border: none" th:value="${entryInfo?.playerName}" type="text">
+                                </div>
+                            </div>
+
+                        </form>
+
+                        <div class="layui-row layui-hide" id="info">
+                            <div class="layui-col-sm1" style="width:4%;margin-top:-5px">
+                                <button class="layui-btn layui-btn-sm layui-btn-primary" id="reset"
+                                        style="border: none" type="reset">
+                                    <i class="layui-icon layui-icon-refresh"></i>
+                                </button>
+                            </div>
+                            <div class="layui-col-sm2" style="margin-right:-25px">
+                                <div style="font-size:16px">比分详情：</div>
+                            </div>
+                            <div class="layui-col-sm8" style="margin-left:-40px">
+                                <div id="matchInfo" style="font-size:16px;color:red"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
             </div>
 
             <div id="bracket"></div>
+
+            <div class="layui-hide" id="groupNum" th:text="${tournamentInfo?.getGroupNum()}"></div>
 
         </div>
     </div>
@@ -101,8 +119,7 @@
 
 <script th:replace="layout::baseScript"></script>
 
-<script th:replace="layout::groupScript(${tournamentInfo?.getGroupNum()})"></script>
-
+<!-- 淘汰赛插件 -->
 <script th:inline="none">
 
     function initBracket() {
@@ -167,6 +184,66 @@
         }
     }
 
+</script>
+
+<!-- 表格 -->
+<script th:inline="none">
+    layui.use(['table', 'soulTable'], function () {
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
+        let tournamentId = getUrlParam("id"), groupNum = $("#groupNum").text();
+
+        for (let i = 1; i < groupNum + 1; i++) {
+            let id = "group" + i + "Table";
+            let elem = "#" + id;
+            // 展示
+            $("#group" + i).removeClass("layui-hide");
+            // 渲染
+            table.render({
+                elem: elem,
+                method: 'get',
+                url: '/tournament/qryGroupInfoListByGroupId',
+                where: {tournamentId: tournamentId, groupId: i},
+                loading: true,
+                cellMinWidth: 60,
+                cols: [[
+                    {
+                        fixed: 'left', title: '', width: '5%', align: 'left', children: [
+                            {
+                                title: '小组赛',
+                                data: function (d) {
+                                    // d 为当前行数据
+                                    return [d];
+                                },
+                                cols: [[
+                                    {field: 'groupMode', title: '模式', align: 'center'},
+                                    {field: 'groupStartGw', title: '开始时间', align: 'center'},
+                                    {field: 'groupEndGw', title: '结束时间', align: 'center'},
+                                    {field: 'teamPerGroup', title: '每组队伍', align: 'center'},
+                                    {field: 'groupNum', title: '小组数量', align: 'center'},
+                                    {field: 'groupQualifiers', title: '每组出线数量', align: 'center'},
+                                    {field: 'groupFillAverage', title: '加入平均分', align: 'center'}
+                                ]],
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            }]
+                    },
+                    {field: 'groupName', title: '组别', align: 'center'},
+                    {field: 'groupRank', title: '排名', align: 'center'},
+                    {field: 'entryName', title: '队名', align: 'center', width: 175},
+                    {field: 'win', title: '胜', align: 'center'},
+                    {field: 'draw', title: '平', align: 'center'},
+                    {field: 'lose', title: '负', align: 'center'},
+                    {field: 'groupPoints', title: '积分', align: 'center'},
+                ]],
+                id: id,
+                done: function () {
+                    soulTable.render(this);
+                }
+            });
+        }
+
+    });
 </script>
 
 <script th:inline="javascript">
