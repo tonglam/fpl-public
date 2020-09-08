@@ -131,9 +131,7 @@
                                        lay-filter="groupFillAverage" type="checkbox" value=1>
                             </div>
                             <div class="layui-col-sm6">
-                                <div class="layui-form-mid layui-word-aux" id="fillAverageTips">
-                                    是否在小组内加入平均分average，使每个小组队伍数量一样
-                                </div>
+                                <div class="layui-form-mid layui-word-aux" id="fillAverageTips"></div>
                             </div>
                         </div>
                     </div>
@@ -391,7 +389,11 @@
          * 监听小组赛模式下拉框：下拉
          * 1.清除淘汰赛配置
          * 2.展示小组赛配置
-         * 3.根据小组赛模式：a.无小组赛时：A.隐藏小组赛配置；B.去除必选属性；C.不能无淘汰赛；b.有小组赛时：A.展示小组赛配置；B.增加必选属性；c.请选择时：A.隐藏淘汰赛配置；B.隐藏并重置小组赛配置
+         * 3.根据小组赛模式：
+         * a.无小组赛时：A.隐藏小组赛配置；B.去除必选属性；C.不能无淘汰赛；
+         * b.积分赛时：A.展示小组赛配置；B.增加必选属性；C平均分开关可操作；
+         * c.对阵赛时：A.展示小组赛配置；B.增加必选属性；C平均分开关可操作；
+         * c.请选择时：A.隐藏淘汰赛配置；B.隐藏并重置小组赛配置
          * 4.再次触发淘汰赛选择
          *
          * @author tong 2020.08.13
@@ -401,6 +403,9 @@
             let knockoutConfigDiv = $("#knockoutConfig");
             // dom
             let knockoutModeDom = $("select[name=knockoutMode]");
+            let groupFillAverageDom = $("input[name=groupFillAverage]");
+            let fillAverageTipsDom = $("#fillAverageTips");
+            let groupTeamsPerGroupDom = $("input[name=groupTeamsPerGroup]");
             // val
             let groupMode = data.value;
             let knockoutMode = knockoutModeDom.val();
@@ -419,12 +424,28 @@
                     }
                     break;
                 }
-                case "1": // 积分赛
+                case "1": { // 积分赛
+                    // 展示小组赛设置
+                    showGroupConfig(groupMode);
+                    // 增加必选属性
+                    addGroupRequired();
+                    // 平均分开关可操作
+                    groupFillAverageDom.removeAttr("disabled");
+                    fillAverageTipsDom.text("");
+                    // 触发小组队伍数量事件
+                    groupTeamsPerGroupDom.trigger('focusout');
+                    break;
+                }
                 case "2": { // 对阵赛
                     // 展示小组赛设置
                     showGroupConfig(groupMode);
                     // 增加必选属性
                     addGroupRequired();
+                    // 平均分开关不可操作
+                    groupFillAverageDom.attr("disabled", "");
+                    fillAverageTipsDom.text("");
+                    // 触发小组队伍数量事件
+                    groupTeamsPerGroupDom.trigger('focusout');
                     break;
                 }
                 default: { // 请选择
@@ -488,7 +509,8 @@
          * 监听每组队伍数量输入框:失去焦点
          * 1.校验每组队伍数量
          * 2.校验是否允许切换加入平均分开关
-         * 2.触发小组数量事件
+         * 3.触发小组数量事件
+         * 4.校验平均分开关：A.积分赛时，小组队伍数量一致时禁用开关，不一致时可手动选择；B.对阵赛时，小组队伍偶数禁用开关，奇数启用开关
          *
          * @author tong 2020.08.13
          */
@@ -523,13 +545,33 @@
             }
             // 校验是否允许切换加入平均分开关
             let groupMode = $("select[name=groupMode]").val();
-            if (groupMode == "1" || groupMode == "2") {
-                if (totalTeam % groupTeamsPerGroup == 0) {
+            switch (groupMode) {
+                case "1": {
+                    if (totalTeam % groupTeamsPerGroup == 0) {
+                        groupFillAverageDom.attr("disabled", "");
+                        groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
+                        groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
+                        $("#fillAverageTips").text("每个小组队伍数量已经一样，无需加入平均分");
+                    } else {
+                        groupFillAverageDom.removeAttr("disabled", "");
+                        $("#fillAverageTips").text("  是否在小组内加入平均分average，使每个小组队伍数量一样");
+                    }
+                    break;
+                }
+                case "2": {
                     groupFillAverageDom.attr("disabled", "");
-                    groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
-                    groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
-                    $("#fillAverageTips").text("每个小组队伍数量已经一样，无需加入平均分");
-                } else {
+                    if (groupTeamsPerGroup % 2 == 0) {
+                        groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
+                        groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
+                        $("#fillAverageTips").text("每个小组队伍数量为偶数，无需加入平均分");
+                    } else {
+                        groupFillAverageDom.siblings("div.layui-form-switch").addClass("layui-form-onswitch");
+                        groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("是");
+                        $("#fillAverageTips").text("每个小组队伍数量为奇数，自动加入平均分");
+                    }
+                    break;
+                }
+                default: {
                     groupFillAverageDom.removeAttr("disabled");
                 }
             }

@@ -31,6 +31,7 @@
                 <ul class="layui-tab-title">
                     <li class="layui-this" lay-id="groupTab">小组赛</li>
                     <li lay-id="knockoutTab">淘汰赛</li>
+                    <li lay-id="eventResultTab">本轮战绩</li>
                 </ul>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
@@ -169,7 +170,7 @@
 </script>
 
 <script th:inline="javascript">
-    layui.use(['element', 'layer', 'form'], function () {
+    layui.use(['element', 'table', 'layer', 'form'], function () {
         let $ = layui.jquery, element = layui.element, layer = layui.layer, form = layui.form;
 
         $(document).ready(function () {
@@ -196,6 +197,7 @@
         });
 
         element.on('tab(stageTab)', function (data) {
+            $("#config").addClass("layui-hide");
             let bracketDom = $("#bracket");
             if (data.index == 1) {
                 bracketDom.removeClass("layui-hide");
@@ -205,6 +207,14 @@
             } else {
                 bracketDom.addClass("layui-hide");
             }
+        });
+
+        element.on('tab(knockoutTab)', function () {
+            $("#config").removeClass("layui-hide");
+        });
+
+        element.on('tab(eventResultTab)', function () {
+            $("#config").addClass("layui-hide");
         });
 
         form.on('switch(infoSwitch)', function () {
@@ -224,7 +234,6 @@
             let knockoutStartGw = [[${tournamentInfo?.getKnockoutStartGw()}]];
             if (knockoutStartGw > currentGw) {
                 layer.msg("淘汰赛开始时间：GW" + knockoutStartGw, {time: 1500});
-                return false;
             }
             let index = layer.load(2);
             initBracket();
