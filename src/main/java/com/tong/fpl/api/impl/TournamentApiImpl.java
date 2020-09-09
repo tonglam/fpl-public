@@ -4,17 +4,20 @@ import cn.hutool.core.bean.BeanUtil;
 import com.google.common.collect.Lists;
 import com.tong.fpl.api.ITournamentApi;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.ITournamentService;
+import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * Create by tong on 2020/6/24
@@ -95,6 +98,14 @@ public class TournamentApiImpl implements ITournamentApi {
 	@Override
 	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
 		return this.querySerivce.qryKnockoutResultByTournament(tournamentId);
+	}
+
+	@Override
+	public TableData<EntryEventResultData> qryEntryEventResult(int startGw, int endGw, int entry) {
+		List<EntryEventResultData> entryEventResultList = Lists.newArrayList();
+		IntStream.range(startGw, endGw + 1).forEach(event ->
+				entryEventResultList.add(this.querySerivce.qryEntryEventResult(CommonUtils.getCurrentSeason(), event, entry)));
+		return new TableData<>(entryEventResultList);
 	}
 
 }

@@ -92,68 +92,6 @@
     </div>
 </div>
 
-<!-- tournament group -->
-<div th:fragment="tournamentContent(tournamentId,showNum)">
-    <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,showNum)}"
-         th:if="${showNum} gt 1">
-
-        <div class="layui-col-md6 layui-hide" th:attr="id='group'+((${index}*2)-1)+'Table'">
-            <table class="layui-table"
-                   th:attr="lay-filter='group'+((${index}*2)-1)+'Table',
-                           lay-data='{url:\'/tournament/qryGroupInfoListByGroupId\', where: {tournamentId:'+${tournamentId}
-                           +', groupId:'+((${index}*2)-1)+'}, cellMinWidth:60, id:\'group'+((${index}*2)-1)+'Table\' }'">
-                <thead>
-                <tr>
-                    <th lay-data="{field:'groupName', align: 'center'}">组别</th>
-                    <th lay-data="{field:'groupRank', align: 'center'}">排名</th>
-                    <th lay-data="{field:'entryName', align: 'center', width:180}">队名</th>
-                    <th lay-data="{field:'groupPoints', align: 'center'}">积分</th>
-                    <th lay-data="{field:'win', align: 'center'}">胜</th>
-                    <th lay-data="{field:'draw', align: 'center'}">平</th>
-                    <th lay-data="{field:'lose', align: 'center'}">负</th>
-                </tr>
-                </thead>
-            </table>
-        </div>
-
-        <div class="layui-col-md6 layui-hide" th:attr="id='group'+${index}*2+'Table'">
-            <table class="layui-table"
-                   th:attr="lay-filter='group'+${index}*2+'Table',
-                           lay-data='{url:\'/tournament/qryGroupInfoListByGroupId\', where: {tournamentId:'+${tournamentId}
-                           +', groupId:'+${index}*2+'}, cellMinWidth:60, id:\'group'+${index}*2+'Table\' }'">
-                <thead>
-                <tr>
-                    <th lay-data="{field:'groupName', align: 'center'}">组别</th>
-                    <th lay-data="{field:'groupRank', align: 'center'}">排名</th>
-                    <th lay-data="{field:'entryName', align: 'center', width:180}">队名</th>
-                    <th lay-data="{field:'groupPoints', align: 'center'}">积分</th>
-                    <th lay-data="{field:'win', align: 'center'}">胜</th>
-                    <th lay-data="{field:'draw', align: 'center'}">平</th>
-                    <th lay-data="{field:'lose', align: 'center'}">负</th>
-                </tr>
-                </thead>
-            </table>
-        </div>
-
-    </div>
-    <table class="layui-table" th:attr="lay-filter='group1Table',
-                           lay-data='{url:\'/tournament/qryGroupInfoListByGroupId\', where: {tournamentId:'+${tournamentId}
-                           +', groupId:1}, cellMinWidth:60, id:\'group1Table\' }'"
-           th:if="${showNum} eq 1">
-        <thead>
-        <tr>
-            <th lay-data="{field:'groupName', align: 'center'}">组别</th>
-            <th lay-data="{field:'groupRank', align: 'center'}">排名</th>
-            <th lay-data="{field:'entryName', align: 'center', width:180}">队名</th>
-            <th lay-data="{field:'win', align: 'center'}">胜</th>
-            <th lay-data="{field:'draw', align: 'center'}">平</th>
-            <th lay-data="{field:'lose', align: 'center'}">负</th>
-            <th lay-data="{field:'groupPoints', align: 'center'}">积分</th>
-        </tr>
-        </thead>
-    </table>
-</div>
-
 </body>
 
 <script th:fragment="baseScript" th:inline="javascript">
@@ -271,19 +209,10 @@
         return null;
     }
 
-</script>
+    function getCapitalLetterFromNum(num) {
+        return String.fromCharCode(num + 64);
+    }
 
-<script th:fragment="groupScript(groupNum)" th:inline="javascript">
-    layui.use(['table', 'util'], function () {
-        let $ = layui.jquery, util = layui.util, groupNum = [[${groupNum}]];
-        $(document).ready(function () {
-            for (let i = 1; i < groupNum + 1; i++) {
-                let elem = "#group" + i + "Table";
-                $(elem).removeClass("layui-hide");
-            }
-        });
-        util.fixbar();
-    });
 </script>
 
 </html>

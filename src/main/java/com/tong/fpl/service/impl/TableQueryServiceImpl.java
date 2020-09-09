@@ -251,7 +251,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.forEach(o -> {
 					TournamentGroupData tournamentGroupData = new TournamentGroupData();
 					BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
-					tournamentGroupData.setGroupName(CommonUtils.getCapitalLetterFromNum(o.getGroupId()));
+					tournamentGroupData
+							.setStartGw(o.getStartGw())
+							.setEndGw(o.getEndGw());
 					if (o.getEntry() < 0) {
 						tournamentGroupData
 								.setEntryName("平均分")

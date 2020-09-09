@@ -12,7 +12,6 @@ public class TournamentGroupData {
 
 	private int tournamentId;
 	private int groupId;
-	private String groupName;
 	private int groupIndex;
 	private int entry;
 	private String entryName;
@@ -26,5 +25,7 @@ public class TournamentGroupData {
 	private boolean qualified;
 	private int overallPoints;
 	private int overallRank;
+	private int startGw;
+	private int endGw;
 
 }

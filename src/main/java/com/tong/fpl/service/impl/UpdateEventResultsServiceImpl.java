@@ -7,6 +7,7 @@ import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.service.IStaticSerive;
@@ -482,8 +483,8 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 	}
 
 	private String setUserPicks(List<Pick> picks, @NotEmpty Map<Integer, Integer> elementPointsMap) {
-		List<Pick> pickList = Lists.newArrayList();
-		picks.forEach(o -> pickList.add(new Pick()
+		List<EntryPickData> pickList = Lists.newArrayList();
+		picks.forEach(o -> pickList.add(new EntryPickData()
 				.setElement(o.getElement())
 				.setPosition(o.getPosition())
 				.setCaptain(o.isCaptain())

@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.letletme.api;
+package com.tong.fpl.domain.letletme.entry;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

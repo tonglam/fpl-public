@@ -31,7 +31,6 @@
                 <ul class="layui-tab-title">
                     <li class="layui-this" lay-id="groupTab">小组赛</li>
                     <li lay-id="knockoutTab">淘汰赛</li>
-                    <li lay-id="eventResultTab">本轮战绩</li>
                 </ul>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
@@ -40,10 +39,12 @@
                              th:if="${showNum} gt 1">
 
                             <div class="layui-col-md6 layui-hide" th:attr="id='group'+((${index}*2)-1)">
+                                <div th:attr="id='group'+((${index}*2)-1)+'Name'"></div>
                                 <table class="layui-table" th:attr="id='group'+((${index}*2)-1)+'Table'"></table>
                             </div>
 
                             <div class="layui-col-md6 layui-hide" th:attr="id='group'+${index}*2">
+                                <div th:attr="id='group'+${index}*2+'Name'"></div>
                                 <table class="layui-table" th:attr="id='group'+${index}*2+'Table'"></table>
                             </div>
 
@@ -190,14 +191,27 @@
 <script th:inline="none">
     layui.use(['table', 'soulTable'], function () {
         let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
         let tournamentId = getUrlParam("id"), groupNum = $("#groupNum").text();
 
         for (let i = 1; i < groupNum + 1; i++) {
-            let id = "group" + i + "Table";
-            let elem = "#" + id;
+            // 回填组名
+            let groupName = getCapitalLetterFromNum(i) + "组";
+            $("#group" + i + "Name").text(groupName);
             // 展示
             $("#group" + i).removeClass("layui-hide");
             // 渲染
+            let id = "group" + i + "Table";
+            let elem = "#" + id;
             table.render({
                 elem: elem,
                 method: 'get',
@@ -207,30 +221,34 @@
                 cellMinWidth: 60,
                 cols: [[
                     {
-                        fixed: 'left', title: '', width: '5%', align: 'left', children: [
+                        field: 'groupRank', title: '排名', lazy: true, children: [
                             {
-                                title: '小组赛',
+                                title: "",
                                 data: function (d) {
-                                    // d 为当前行数据
-                                    return [d];
+                                    return getEntryResult(d)
                                 },
+                                page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
+                                loading: true,
+                                limit: 5,
+                                limits: [5, 10, 15],
                                 cols: [[
-                                    {field: 'groupMode', title: '模式', align: 'center'},
-                                    {field: 'groupStartGw', title: '开始时间', align: 'center'},
-                                    {field: 'groupEndGw', title: '结束时间', align: 'center'},
-                                    {field: 'teamPerGroup', title: '每组队伍', align: 'center'},
-                                    {field: 'groupNum', title: '小组数量', align: 'center'},
-                                    {field: 'groupQualifiers', title: '每组出线数量', align: 'center'},
-                                    {field: 'groupFillAverage', title: '加入平均分', align: 'center'}
+                                    {field: 'event', title: 'GW', align: 'center', filter: true},
+                                    {field: 'points', title: '得分', align: 'center'},
+                                    {field: 'transfers', title: '转会', align: 'center'},
+                                    {field: 'transfersCost', title: '扣分', align: 'center'},
+                                    {field: 'netPoints', title: '净得分', align: 'center'},
+                                    {field: 'benchPoints', title: '板凳分', align: 'center'},
                                 ]],
+                                filter: {
+                                    items: ['data', 'condition'],
+                                    bottom: false
+                                },
                                 done: function () {
                                     soulTable.render(this);
                                 }
                             }]
                     },
-                    {field: 'groupName', title: '组别', align: 'center'},
-                    {field: 'groupRank', title: '排名', align: 'center'},
-                    {field: 'entryName', title: '队名', align: 'center', width: 175},
+                    {field: 'entryName', title: '队名', align: 'center', width: 180},
                     {field: 'win', title: '胜', align: 'center'},
                     {field: 'draw', title: '平', align: 'center'},
                     {field: 'lose', title: '负', align: 'center'},
@@ -243,6 +261,22 @@
             });
         }
 
+        function getEntryResult(d) {
+            let data = [];
+            $.ajax({
+                url: "/tournament/qryEntryEventResult",
+                type: "get",
+                async: false,
+                data: {"startGw": d.startGw, "endGw": d.endGw, "entry": d.entry},
+                success: function (response) {
+                    data = Array.from(response.data);
+                },
+                error: function (error) {
+                    console.info(error.message);
+                }
+            });
+            return data;
+        }
     });
 </script>
 

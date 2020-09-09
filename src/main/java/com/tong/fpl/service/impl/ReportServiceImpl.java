@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryCaptainStatEntity;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.TournamentEntryEntity;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.IReportService;
@@ -68,11 +68,11 @@ public class ReportServiceImpl implements IReportService {
 			return;
 		}
 		entryEventResultList.forEach(entryEventResult -> {
-			List<Pick> captainPickList = this.querySerivce.qryPickListFromPicks(season, entryEventResult.getEventPicks())
+			List<EntryPickData> captainPickList = this.querySerivce.qryPickListFromPicks(season, entryEventResult.getEventPicks())
 					.stream()
 					.filter(o -> o.isCaptain() || o.isViceCaptain())
 					.collect(Collectors.toList());
-			Pick captainPick = this.getRealCaptainPoints(captainPickList);
+			EntryPickData captainPick = this.getRealCaptainPoints(captainPickList);
 			if (captainPick == null) {
 				return;
 			}
@@ -96,12 +96,12 @@ public class ReportServiceImpl implements IReportService {
 		log.info("insert entry_captain_stat size is " + entryCaptainStatList.size() + "!");
 	}
 
-	private Pick getRealCaptainPoints(List<Pick> captainPickList) {
+	private EntryPickData getRealCaptainPoints(List<EntryPickData> captainPickList) {
 		if (CollectionUtils.isEmpty(captainPickList)) {
 			return null;
 		}
-		Pick captain = captainPickList.stream().filter(Pick::isCaptain).findFirst().orElse(null);
-		Pick viceCaptain = captainPickList.stream().filter(Pick::isViceCaptain).findFirst().orElse(null);
+		EntryPickData captain = captainPickList.stream().filter(EntryPickData::isCaptain).findFirst().orElse(null);
+		EntryPickData viceCaptain = captainPickList.stream().filter(EntryPickData::isViceCaptain).findFirst().orElse(null);
 		if (captain == null || viceCaptain == null) {
 			return null;
 		}

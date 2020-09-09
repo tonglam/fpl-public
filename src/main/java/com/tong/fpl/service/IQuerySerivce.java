@@ -1,8 +1,9 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
-import com.tong.fpl.domain.letletme.api.EntryEventData;
+import com.tong.fpl.domain.letletme.entry.EntryEventData;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
@@ -32,19 +33,21 @@ public interface IQuerySerivce {
         return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
     }
 
-    int qryPlayerElementByCode(String season, int code);
+	int qryPlayerElementByCode(String season, int code);
 
-    default int qryPlayerElementByWebName(String webName) throws Exception {
-        return this.qryPlayerElementByWebName(CommonUtils.getCurrentSeason(), webName);
-    }
+	default int qryPlayerElementByWebName(String webName) throws Exception {
+		return this.qryPlayerElementByWebName(CommonUtils.getCurrentSeason(), webName);
+	}
 
-    int qryPlayerElementByWebName(String season, String webName) throws Exception;
+	int qryPlayerElementByWebName(String season, String webName) throws Exception;
 
-    EntryEventData qryEntryResult(String season, int entry);
+	EntryEventData qryEntryInfoData(String season, int entry);
 
-    EntryEventData qryEntryEventResult(String season, int event, int entry);
+	List<EntryEventResultData> qryEntryResult(String season, int entry);
 
-    List<EventLiveEntity> qryEventLiveAll(String season, int element);
+	EntryEventResultData qryEntryEventResult(String season, int event, int entry);
+
+	List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
 	List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
@@ -54,7 +57,7 @@ public interface IQuerySerivce {
 
 	List<PlayerInfoData> qryAllPlayers(String season);
 
-	List<Pick> qryPickListFromPicks(String season, String picks);
+	List<EntryPickData> qryPickListFromPicks(String season, String picks);
 
 	EntryInfoEntity qryEntryInfo(int entry);
 

@@ -7,8 +7,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.db.*;
 import org.junit.jupiter.api.Test;
@@ -110,8 +110,8 @@ public class DBTest extends FplApplicationTests {
 	}
 
 	private Map<Integer, Integer> getCaptainFromPick(String eventPicks) {
-		List<Pick> pickList = this.querySerivce.qryPickListFromPicks("1920", eventPicks);
-		return pickList.stream().filter(Pick::isCaptain).collect(Collectors.toMap(Pick::getElement, Pick::getPoints));
+		List<EntryPickData> pickList = this.querySerivce.qryPickListFromPicks("1920", eventPicks);
+		return pickList.stream().filter(EntryPickData::isCaptain).collect(Collectors.toMap(EntryPickData::getElement, EntryPickData::getPoints));
 	}
 
 	@ParameterizedTest

@@ -8,10 +8,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.HistorySeason;
-import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
-import com.tong.fpl.domain.letletme.api.EntryEventData;
-import com.tong.fpl.domain.letletme.api.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryEventData;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
@@ -96,27 +96,9 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return playerList.get(0) == null ? 0 : playerList.get(0).getElement();
 	}
 
-	@Cacheable(value = "qryAllPlayerList", key = "#season+'::'+#entry", cacheManager = "apiCacheManager")
+	@Cacheable(value = "qryEntryInfoData", key = "#season+'::'+#entry", cacheManager = "apiCacheManager")
 	@Override
-	public EntryEventData qryEntryResult(String season, int entry) {
-		EntryEventData entryEventData = this.setEntryInfoData(season, entry);
-		List<EntryEventResultData> list = Lists.newArrayList();
-		IntStream.range(1, 39).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
-		entryEventData.setEventResultList(list);
-		return entryEventData;
-	}
-
-	@Cacheable(value = "qryAllPlayerList", key = "#season+'::'+#event+'::'+#entry", cacheManager = "apiCacheManager")
-	@Override
-	public EntryEventData qryEntryEventResult(String season, int event, int entry) {
-		EntryEventData entryEventData = this.setEntryInfoData(season, entry);
-		List<EntryEventResultData> list = Lists.newArrayList();
-		list.add(this.setEntryEventResult(season, event, entry));
-		entryEventData.setEventResultList(list);
-		return entryEventData;
-	}
-
-	private EntryEventData setEntryInfoData(String season, int entry) {
+	public EntryEventData qryEntryInfoData(String season, int entry) {
 		EntryEventData entryEventData = new EntryEventData();
 		MybatisPlusConfig.season.set(season);
 		EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda().
@@ -129,6 +111,24 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return entryEventData;
 	}
 
+	@Cacheable(value = "qryEntryResult", key = "#season+'::'+#entry", cacheManager = "apiCacheManager")
+	@Override
+	public List<EntryEventResultData> qryEntryResult(String season, int entry) {
+		List<EntryEventResultData> list = Lists.newArrayList();
+		if (StringUtils.equals(season, "1920")) {
+			IntStream.range(1, 48).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
+		} else {
+			IntStream.range(1, 39).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
+		}
+		return list;
+	}
+
+	@Cacheable(value = "qryEntryEventResult", key = "#season+'::'+#event+'::'+#entry", cacheManager = "apiCacheManager")
+	@Override
+	public EntryEventResultData qryEntryEventResult(String season, int event, int entry) {
+		return this.setEntryEventResult(season, event, entry);
+	}
+
 	private EntryEventResultData setEntryEventResult(String season, int event, int entry) {
 		EntryEventResultData entryEventResultData = new EntryEventResultData();
 		MybatisPlusConfig.season.set(season);
@@ -138,8 +138,17 @@ public class QueryServiceImpl implements IQuerySerivce {
 		if (entryEventResultEntity == null) {
 			return entryEventResultData;
 		}
-		BeanUtil.copyProperties(entryEventResultEntity, entryEventResultData, CopyOptions.create().ignoreNullValue());
-		entryEventResultData.setEventPicks(this.qryPickListFromPicks(season, entryEventResultEntity.getEventPicks()));
+		entryEventResultData
+				.setEntry(entry)
+				.setEvent(event)
+				.setPoints(entryEventResultEntity.getEventPoints())
+				.setTransfers(entryEventResultEntity.getEventTransfers())
+				.setTransfersCost(entryEventResultEntity.getEventTransfersCost())
+				.setNetPoints(entryEventResultEntity.getEventNetPoints())
+				.setBenchPoints(entryEventResultEntity.getEventBenchPoints())
+				.setRank(entryEventResultEntity.getEventRank())
+				.setChip(entryEventResultEntity.getEventChip())
+				.setPicks(this.qryPickListFromPicks(season, entryEventResultEntity.getEventPicks()));
 		return entryEventResultData;
 	}
 
@@ -239,8 +248,8 @@ public class QueryServiceImpl implements IQuerySerivce {
 	}
 
 	@Override
-	public List<Pick> qryPickListFromPicks(String season, @NotNull String picks) {
-		List<Pick> pickList = JsonUtils.json2Collection(picks, List.class, Pick.class);
+	public List<EntryPickData> qryPickListFromPicks(String season, @NotNull String picks) {
+		List<EntryPickData> pickList = JsonUtils.json2Collection(picks, List.class, EntryPickData.class);
 		if (CollectionUtils.isEmpty(pickList)) {
 			return Lists.newArrayList();
 		}
@@ -255,7 +264,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return pickList;
 	}
 
-//	@Cacheable(value = "qryEntryInfo")
+	//	@Cacheable(value = "qryEntryInfo")
 	@Override
 	public EntryInfoEntity qryEntryInfo(int entry) {
 		return this.entryInfoService.getById(entry);
@@ -278,7 +287,6 @@ public class QueryServiceImpl implements IQuerySerivce {
 	@Override
 	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
 		List<TournamentKnockoutResultData> knockoutResultDataList = Lists.newArrayList();
-		int currentEvent = this.redisCacheSerive.getCurrentEvent();
 		// knockout
 		Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
 				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
