@@ -4,10 +4,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.tournament.EntryTournamentData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
-import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
+import com.tong.fpl.domain.letletme.tournament.*;
 
 /**
  * Create by tong on 2020/8/28
@@ -18,7 +15,7 @@ public interface ITableQueryService {
 
     TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-    TableData<EntryTournamentData> qryEntryTournamentList(int entry);
+    TableData<TournamentEntryData> qryEntryTournamentList(int entry);
 
     TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
 
@@ -27,5 +24,9 @@ public interface ITableQueryService {
     TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
     TableData<PlayerInfoData> qryPlayerList(String season);
+
+    TableData<TournamentPointsGroupEventResultData> qryPointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+
+    TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
 }

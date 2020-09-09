@@ -43,8 +43,8 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 	private final TournamentEntryService tournamentEntryService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentGroupService tournamentGroupService;
-	private final TournamentGroupPointsResultService tournamentGroupPointsResultService;
-	private final TournamentGroupBattleResultService tournamentGroupBattleResultService;
+	private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
+	private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 	private final IStaticSerive staticSerive;
@@ -162,31 +162,31 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 			updateGroupList.add(tournamentGroupEntity);
 		});
 		// tournament_group_points_result
-		List<TournamentGroupPointsResultEntity> updateGroupPointsResultList = Lists.newArrayList();
+		List<TournamentPointsGroupResultEntity> updateGroupPointsResultList = Lists.newArrayList();
 		tournamentGroupEntityList.forEach(tournamentGroupEntity -> {
 			int entry = tournamentGroupEntity.getEntry();
-			TournamentGroupPointsResultEntity tournamentGroupPointsResultEntity = new TournamentGroupPointsResultEntity();
-			tournamentGroupPointsResultEntity.setTournamentId(tournamentGroupEntity.getTournamentId());
-			tournamentGroupPointsResultEntity.setGroupId(tournamentGroupEntity.getGroupId());
-			tournamentGroupPointsResultEntity.setEvent(event);
-			tournamentGroupPointsResultEntity.setEntry(entry);
-			tournamentGroupPointsResultEntity.setEventGroupRank(tournamentGroupEntity.getGroupRank());
+			TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity = new TournamentPointsGroupResultEntity();
+			tournamentPointsGroupResultEntity.setTournamentId(tournamentGroupEntity.getTournamentId());
+			tournamentPointsGroupResultEntity.setGroupId(tournamentGroupEntity.getGroupId());
+			tournamentPointsGroupResultEntity.setEvent(event);
+			tournamentPointsGroupResultEntity.setEntry(entry);
+			tournamentPointsGroupResultEntity.setEventGroupRank(tournamentGroupEntity.getGroupRank());
 			if (eventResultMap.containsKey(entry)) {
-				tournamentGroupPointsResultEntity.setEventPoints(eventResultMap.get(entry).getEventPoints());
-				tournamentGroupPointsResultEntity.setEventCost(eventResultMap.get(entry).getEventTransfersCost());
-				tournamentGroupPointsResultEntity.setEventNetPoints(tournamentGroupPointsResultEntity.getEventPoints() - tournamentGroupPointsResultEntity.getEventCost());
-				tournamentGroupPointsResultEntity.setEventRank(eventResultMap.get(entry).getEventRank());
+				tournamentPointsGroupResultEntity.setEventPoints(eventResultMap.get(entry).getEventPoints());
+				tournamentPointsGroupResultEntity.setEventCost(eventResultMap.get(entry).getEventTransfersCost());
+				tournamentPointsGroupResultEntity.setEventNetPoints(tournamentPointsGroupResultEntity.getEventPoints() - tournamentPointsGroupResultEntity.getEventCost());
+				tournamentPointsGroupResultEntity.setEventRank(eventResultMap.get(entry).getEventRank());
 			} else {
-				tournamentGroupPointsResultEntity.setEventPoints(0);
-				tournamentGroupPointsResultEntity.setEventCost(0);
-				tournamentGroupPointsResultEntity.setEventNetPoints(0);
-				tournamentGroupPointsResultEntity.setEventRank(0);
+				tournamentPointsGroupResultEntity.setEventPoints(0);
+				tournamentPointsGroupResultEntity.setEventCost(0);
+				tournamentPointsGroupResultEntity.setEventNetPoints(0);
+				tournamentPointsGroupResultEntity.setEventRank(0);
 			}
-			updateGroupPointsResultList.add(tournamentGroupPointsResultEntity);
+			updateGroupPointsResultList.add(tournamentPointsGroupResultEntity);
 		});
 		// update
 		this.tournamentGroupService.updateBatchById(updateGroupList);
-		this.tournamentGroupPointsResultService.saveOrUpdateBatch(updateGroupPointsResultList);
+		this.tournamentPointsGroupResultService.saveOrUpdateBatch(updateGroupPointsResultList);
 	}
 
 	@Override
@@ -213,11 +213,11 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 	}
 
 	private Table<Integer, Integer, Integer> updateGroupBattleResult(int event, int tournamentId, Map<Integer, EntryEventResultEntity> eventResultMap) {
-		List<TournamentGroupBattleResultEntity> updateGroupBattleResultList = Lists.newArrayList();
+		List<TournamentBattleGroupResultEntity> updateGroupBattleResultList = Lists.newArrayList();
 		Table<Integer, Integer, Integer> battleResultTable = HashBasedTable.create(); // groupId-> entry-> matchPoints
-		this.tournamentGroupBattleResultService.list(new QueryWrapper<TournamentGroupBattleResultEntity>()
+		this.tournamentBattleGroupResultService.list(new QueryWrapper<TournamentBattleGroupResultEntity>()
 				.lambda()
-				.eq(TournamentGroupBattleResultEntity::getTournamentId, tournamentId).eq(TournamentGroupBattleResultEntity::getEvent, event))
+				.eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId).eq(TournamentBattleGroupResultEntity::getEvent, event))
 				.forEach(groupBattleResult -> {
 					int homeEntry = groupBattleResult.getHomeEntry();
 					int awayEntry = groupBattleResult.getAwayEntry();
@@ -241,7 +241,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 					);
 				});
 		// update
-		this.tournamentGroupBattleResultService.updateBatchById(updateGroupBattleResultList);
+		this.tournamentBattleGroupResultService.updateBatchById(updateGroupBattleResultList);
 		// return
 		return battleResultTable;
 	}

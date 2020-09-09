@@ -40,7 +40,7 @@ public class TournamentServiceImpl implements ITournamentService {
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
-	private final TournamentGroupBattleResultService tournamentGroupBattleService;
+	private final TournamentBattleGroupResultService tournamentGroupBattleService;
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 	private final IStaticSerive staticSerive;
@@ -345,7 +345,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		int groupRound = groupEndGw - groupStartGw + 1;
 		Multimap<Integer, String> abstractBattleMap = this.drawAbstractBattle(teamPerGroup, playAgainstNum, groupRound);
 		// draw single group
-		List<TournamentGroupBattleResultEntity> groupBattleResultList = Lists.newArrayList();
+		List<TournamentBattleGroupResultEntity> groupBattleResultList = Lists.newArrayList();
 		IntStream.range(1, groupNum + 1).forEach(groupId ->
 				this.drawSingleGroupBattle(tournamentId, groupId, abstractBattleMap, groupBattleResultList));
 		// save
@@ -353,7 +353,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		log.info("draw group battle success!");
 	}
 
-	private void drawSingleGroupBattle(int tournamentId, int groupId, Multimap<Integer, String> abstractBattleMap, List<TournamentGroupBattleResultEntity> groupBattleResultList) {
+	private void drawSingleGroupBattle(int tournamentId, int groupId, Multimap<Integer, String> abstractBattleMap, List<TournamentBattleGroupResultEntity> groupBattleResultList) {
 		// get group entry list
 		BiMap<Integer, Integer> groupIndexMap = HashBiMap.create();
 		this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
@@ -373,7 +373,7 @@ public class TournamentServiceImpl implements ITournamentService {
 			battleList.forEach(battle -> {
 				int homeEntry = Integer.parseInt(StringUtils.substringBefore(battle, "vs"));
 				int awayEntry = Integer.parseInt(StringUtils.substringAfter(battle, "vs"));
-				groupBattleResultList.add(new TournamentGroupBattleResultEntity()
+				groupBattleResultList.add(new TournamentBattleGroupResultEntity()
 						.setTournamentId(tournamentId)
 						.setGroupId(groupId)
 						.setEvent(event)

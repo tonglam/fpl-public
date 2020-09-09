@@ -1,6 +1,5 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
@@ -12,30 +11,32 @@ import java.util.List;
  */
 public interface ITournamentApi {
 
-	String createNewTournament(TournamentCreateData tournamentCreateData);
+    String createNewTournament(TournamentCreateData tournamentCreateData);
 
-	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+    TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-	int countTournamentLeagueTeams(String url);
+    int countTournamentLeagueTeams(String url);
 
-	boolean checkTournamentName(String name);
+    boolean checkTournamentName(String name);
 
-	String updateTournament(TournamentCreateData tournamentCreateData);
+    String updateTournament(TournamentCreateData tournamentCreateData);
 
-	String deleteTournamentByName(String name);
+    String deleteTournamentByName(String name);
 
-	TableData<EntryTournamentData> qryEntryTournamentList(int entry);
+    TableData<TournamentEntryData> qryEntryTournamentList(int entry);
 
-	EntryInfoData qryEntryInfoData(int entry);
+    EntryInfoData qryEntryInfoData(int entry);
 
-	TournamentInfoData qryTournamentInfoById(int tournamentId);
+    TournamentInfoData qryTournamentInfoById(int tournamentId);
 
-	List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
+    List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
 
-	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
-	List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
+    List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
-	TableData<EntryEventResultData> qryEntryEventResult(int startGw, int endGw, int entry);
+    TableData<TournamentPointsGroupEventResultData> qryPointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+
+    TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
 }

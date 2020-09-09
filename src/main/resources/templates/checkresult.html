@@ -221,32 +221,63 @@
                 cellMinWidth: 60,
                 cols: [[
                     {
-                        field: 'groupRank', title: '排名', lazy: true, children: [
-                            {
-                                title: "",
-                                data: function (d) {
-                                    return getEntryResult(d)
-                                },
-                                page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
-                                loading: true,
-                                limit: 5,
-                                limits: [5, 10, 15],
-                                cols: [[
-                                    {field: 'event', title: 'GW', align: 'center', filter: true},
-                                    {field: 'points', title: '得分', align: 'center'},
-                                    {field: 'transfers', title: '转会', align: 'center'},
-                                    {field: 'transfersCost', title: '扣分', align: 'center'},
-                                    {field: 'netPoints', title: '净得分', align: 'center'},
-                                    {field: 'benchPoints', title: '板凳分', align: 'center'},
-                                ]],
-                                filter: {
-                                    items: ['data', 'condition'],
-                                    bottom: false
-                                },
-                                done: function () {
-                                    soulTable.render(this);
-                                }
-                            }]
+                        field: 'groupRank', title: '排名', lazy: true, children: function (d) {
+                            let groupMode = d.groupMode;
+                            if (groupMode == "Points_race") {
+                                return [{
+                                    title: "每轮赛果",
+                                    url: '/tournament/qryPointsGroupResult',
+                                    where: {tournamentId: tournamentId, groupId: i, entry: d.entry},
+                                    // data: function (d) {
+                                    //     return qryPointsGroupResult(tournamentId, i, d.entry)
+                                    // },
+                                    page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
+                                    loading: true,
+                                    limit: 5,
+                                    limits: [5, 10, 15],
+                                    cols: [[
+                                        {field: 'event', title: 'GW', align: 'center'},
+                                        {field: 'points', title: '得分', align: 'center'},
+                                        {field: 'cost', title: '扣分', align: 'center'},
+                                        {field: 'netPoints', title: '净得分', align: 'center'},
+                                        {field: 'rank', title: '排名', align: 'center'},
+                                    ]],
+                                    filter: {
+                                        items: ['condition'],
+                                        bottom: false
+                                    },
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
+                                }]
+                            } else if (groupMode == "Battle_race") {
+                                return [{
+                                    title: "每轮赛果",
+                                    url: '/tournament/qryBattleGroupResult',
+                                    where: {tournamentId: tournamentId, groupId: i, entry: d.entry},
+                                    // data: function (d) {
+                                    //     return qryBattleGroupResult(tournamentId, i, d.entry)
+                                    // },
+                                    page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
+                                    loading: true,
+                                    limit: 5,
+                                    limits: [5, 10, 15],
+                                    cols: [[
+                                        {field: 'event', title: 'GW', align: 'center', width: 80},
+                                        {field: 'homeEntryName', title: '主队', align: 'center'},
+                                        {field: 'score', title: '比分', align: 'center', width: 80},
+                                        {field: 'awayEntryName', title: '客队', align: 'center'}
+                                    ]],
+                                    filter: {
+                                        items: ['condition'],
+                                        bottom: false
+                                    },
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
+                                }]
+                            }
+                        }
                     },
                     {field: 'entryName', title: '队名', align: 'center', width: 180},
                     {field: 'win', title: '胜', align: 'center'},
@@ -261,13 +292,13 @@
             });
         }
 
-        function getEntryResult(d) {
+        function qryPointsGroupResult(tournamentId, groupId, entry) {
             let data = [];
             $.ajax({
-                url: "/tournament/qryEntryEventResult",
+                url: "/tournament/qryPointsGroupResult",
                 type: "get",
                 async: false,
-                data: {"startGw": d.startGw, "endGw": d.endGw, "entry": d.entry},
+                data: {tournamentId: tournamentId, groupId: groupId, entry: entry},
                 success: function (response) {
                     data = Array.from(response.data);
                 },
@@ -277,6 +308,24 @@
             });
             return data;
         }
+
+        function qryBattleGroupResult(tournamentId, groupId, entry) {
+            let data = [];
+            $.ajax({
+                url: "/tournament/qryBattleGroupResult",
+                type: "get",
+                async: false,
+                data: {tournamentId: tournamentId, groupId: groupId, entry: entry},
+                success: function (response) {
+                    data = Array.from(response.data);
+                },
+                error: function (error) {
+                    console.info(error.message);
+                }
+            });
+            return data;
+        }
+
     });
 </script>
 
