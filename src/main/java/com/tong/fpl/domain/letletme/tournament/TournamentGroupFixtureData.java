@@ -12,8 +12,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class TournamentGroupFixtureData {
 
-	private int tournamentId;
-	private int event;
-	private List<TournamentGroupEventGroupFixtureData> eventFixtureList;
+    private int tournamentId;
+    private int event;
+    private List<TournamentGroupEventGroupFixtureData> groupEventFixtureList;
 
 }

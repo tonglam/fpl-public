@@ -1,51 +1,95 @@
 package com.tong.fpl.config.collector;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.tong.fpl.domain.entity.TournamentBattleGroupResultEntity;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventFixtureData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventEntryFixtureData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventGroupFixtureData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
+import com.tong.fpl.utils.CommonUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
- * * input: ElementLiveData(element_type, isGwStarted, isplayed)
- * * accumulate: map-> key:element_type, value:dataList
- * * return: map->key:element_type, value:table->row(active), column(start), value(dataList)
+ * * input: tournament_battle_group_result, order by event, groupId
+ * * accumulate: table-> row:event, column:group_id, value:tournament_group_event_fixture
+ * * return: List<TournamentGroupFixtureData> list
  * * <p>
  * Create by tong on 2020/9/10
- * // event -> groupId -> data
  */
-public class BattleGroupResultCollector implements Collector<TournamentBattleGroupResultEntity, Map<Integer, List<TournamentGroupEventFixtureData>>, Table<Integer, Integer, List<TournamentGroupEventFixtureData>>> {
+public class BattleGroupResultCollector implements Collector<TournamentBattleGroupResultEntity, Table<Integer, Integer, List<TournamentGroupEventEntryFixtureData>>, List<TournamentGroupFixtureData>> {
 
-	@Override
-	public Supplier<Map<Integer, List<TournamentGroupEventFixtureData>>> supplier() {
-		return null;
-	}
+    @Override
+    public Supplier<Table<Integer, Integer, List<TournamentGroupEventEntryFixtureData>>> supplier() {
+        return HashBasedTable::create;
+    }
 
-	@Override
-	public BiConsumer<Map<Integer, List<TournamentGroupEventFixtureData>>, TournamentBattleGroupResultEntity> accumulator() {
-		return null;
-	}
+    @Override
+    public BiConsumer<Table<Integer, Integer, List<TournamentGroupEventEntryFixtureData>>, TournamentBattleGroupResultEntity> accumulator() {
+        return (Table<Integer, Integer, List<TournamentGroupEventEntryFixtureData>> table, TournamentBattleGroupResultEntity o) -> {
+            int event = o.getEvent();
+            int groupId = o.getGroupId();
+            List<TournamentGroupEventEntryFixtureData> list = Lists.newArrayList();
+            if (table.contains(event, groupId)) {
+                list = table.get(event, groupId);
+            }
+            TournamentGroupEventEntryFixtureData tournamentGroupFixtureData = new TournamentGroupEventEntryFixtureData();
+            tournamentGroupFixtureData
+                    .setHomeEntry(o.getHomeEntry())
+                    .setHomeEntryPoints(o.getHomeEntryNetPoints())
+                    .setAwayEntry(o.getAwayEntry())
+                    .setAwayEntryPoints(o.getAwayEntryNetPoints());
+            list.add(tournamentGroupFixtureData);
+            table.put(event, groupId, list);
+        };
+    }
 
-	@Override
-	public BinaryOperator<Map<Integer, List<TournamentGroupEventFixtureData>>> combiner() {
-		return null;
-	}
+    @Override
+    public BinaryOperator<Table<Integer, Integer, List<TournamentGroupEventEntryFixtureData>>> combiner() {
+        return (table1, table2) -> {
+            table1.putAll(table2);
+            return table1;
+        };
+    }
 
-	@Override
-	public Function<Map<Integer, List<TournamentGroupEventFixtureData>>, Table<Integer, Integer, List<TournamentGroupEventFixtureData>>> finisher() {
-		return null;
-	}
+    @Override
+    public Function<Table<Integer, Integer, List<TournamentGroupEventEntryFixtureData>>, List<TournamentGroupFixtureData>> finisher() {
+        return table -> {
+            List<TournamentGroupFixtureData> list = Lists.newArrayList();
+            table.rowKeySet().forEach(event -> {
+                // each event
+                TournamentGroupFixtureData groupFixtureData = new TournamentGroupFixtureData();
+                groupFixtureData.setEvent(event);
+                List<TournamentGroupEventGroupFixtureData> groupEventFixtureList = Lists.newArrayList();
+                // each group
+                table.row(event).keySet().forEach(groupId ->
+                        groupEventFixtureList.add(new TournamentGroupEventGroupFixtureData()
+                                .setGroupId(groupId)
+                                .setGroupName(CommonUtils.getCapitalLetterFromNum(groupId))
+                                .setEventEntryFixtureList(table.get(event, groupId))));
+                groupFixtureData.setGroupEventFixtureList(groupEventFixtureList
+                        .stream()
+                        .sorted(Comparator.comparing(TournamentGroupEventGroupFixtureData::getGroupId))
+                        .collect(Collectors.toList()));
+                list.add(groupFixtureData);
+            });
+            return list
+                    .stream()
+                    .sorted(Comparator.comparing(TournamentGroupFixtureData::getEvent))
+                    .collect(Collectors.toList());
+        };
+    }
 
-	@Override
-	public Set<Characteristics> characteristics() {
-		return null;
-	}
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Collections.unmodifiableSet(EnumSet.of(Characteristics.UNORDERED));
+    }
 
 }

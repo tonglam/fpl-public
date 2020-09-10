@@ -1,6 +1,5 @@
 package com.tong.fpl.controller;
 
-import com.google.common.collect.Lists;
 import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.ITournamentApi;
 import com.tong.fpl.constant.enums.GroupMode;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Pattern;
 import java.util.List;
-import java.util.stream.IntStream;
 
 /**
  * Create by tong on 2020/6/23
@@ -73,18 +71,7 @@ public class TournamentController {
 		TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
 		if (tournamentInfoData != null) {
 			model.addAttribute("tournamentInfo", tournamentInfoData);
-			// groupGw
-			List<Integer> groupGwList = Lists.newArrayList();
-			IntStream.range(Integer.parseInt(tournamentInfoData.getGroupStartGw()), Integer.parseInt(tournamentInfoData.getGroupEndGw()) + 1)
-					.forEach(groupGwList::add);
-			model.addAttribute("groupGwList", groupGwList);
-			// knockoutGw
-			List<Integer> knockoutGwList = Lists.newArrayList();
-			IntStream.range(Integer.parseInt(tournamentInfoData.getKnockoutStartGw()), Integer.parseInt(tournamentInfoData.getKnockoutEndGw()) + 1)
-					.forEach(knockoutGwList::add);
-			model.addAttribute("knockoutGwList", knockoutGwList);
 		}
-
 		List<TournamentGroupFixtureData> groupFixtureList = this.tournamentApi.qryGroupFixtureListById(id);
 		model.addAttribute("groupFixtureList", groupFixtureList);
 		List<TournamentKnockoutFixtureData> knockoutFixtureList = this.tournamentApi.qryKnockoutFixtureListById(id);

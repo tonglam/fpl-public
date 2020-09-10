@@ -8,16 +8,12 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class TournamentKnockoutEventFixtureData {
+public class TournamentGroupEventEntryFixtureData {
 
-    private int matchId;
-    private int playAgainstId;
     private int homeEntry;
     private int homeEntryPoints;
-    private int homeEntryRank;
     private int awayEntry;
     private int awayEntryPoints;
-    private int awayEntryRank;
     private String showMessage;
 
 }
