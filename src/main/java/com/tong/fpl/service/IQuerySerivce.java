@@ -6,6 +6,8 @@ import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.utils.CommonUtils;
 
@@ -66,5 +68,9 @@ public interface IQuerySerivce {
 	List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId);
 
 	List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
+
+	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
+
+	List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
 
 }

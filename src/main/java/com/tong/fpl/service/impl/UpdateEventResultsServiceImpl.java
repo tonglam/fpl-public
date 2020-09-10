@@ -406,7 +406,6 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 			);
 			// add update list
 			knockoutResultUpdateList.add(knockoutResult
-					.setEventFinished(homeEntry > 0 ? homeEventResult.isEventFinished() : awayEventResult.isEventFinished())
 					.setHomeEntryNetPoints(homeEntry > 0 ? homeEventResult.getEventNetPoints() : 0)
 					.setHomeEntryRank(homeEntry > 0 ? homeEventResult.getEventRank() : 0)
 					.setAwayEntryNetPoints(awayEntry > 0 ? awayEventResult.getEventNetPoints() : 0)

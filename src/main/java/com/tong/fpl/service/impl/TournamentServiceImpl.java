@@ -573,7 +573,6 @@ public class TournamentServiceImpl implements ITournamentService {
 						.setEvent(roundMatchEntity.getStartGw() - 1 + i)
 						.setMatchId(roundMatchEntity.getMatchId())
 						.setPlayAginstId(i)
-						.setEventFinished(false)
 						.setHomeEntry(i % 2 == 1 ? roundMatchEntity.getHomeEntry() : roundMatchEntity.getAwayEntry())
 						.setHomeEntryNetPoints(0)
 						.setHomeEntryRank(0)

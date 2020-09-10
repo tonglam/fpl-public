@@ -19,6 +19,7 @@ public class TournamentInfoData {
 	private String leagueType;
 	private int leagueId;
 	private String groupMode;
+	private String groupModeName;
 	private String teamPerGroup;
 	private String groupStartGw;
 	private String groupEndGw;
@@ -27,6 +28,7 @@ public class TournamentInfoData {
 	private int groupNum;
 	private int showNum;
 	private String knockoutMode;
+	private String knockoutModeName;
 	private String knockoutStartGw;
 	private String knockoutEndGw;
 	private int knockoutTeam;

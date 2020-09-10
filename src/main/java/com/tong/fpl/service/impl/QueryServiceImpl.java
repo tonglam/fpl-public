@@ -6,7 +6,10 @@ import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
+import com.tong.fpl.config.collector.BattleGroupResultCollector;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
+import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.HistorySeason;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventData;
@@ -16,7 +19,7 @@ import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
+import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.db.*;
@@ -54,6 +57,8 @@ public class QueryServiceImpl implements IQuerySerivce {
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
 	private final TournamentInfoService tournamentInfoService;
+	private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
+	private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 
@@ -314,8 +319,8 @@ public class QueryServiceImpl implements IQuerySerivce {
 					.setAwayEntry(o.getAwayEntry())
 					.setHomeEntryName(this.getKnockoutResultEntryName(o.getHomeEntry()))
 					.setAwayEntryName(this.getKnockoutResultEntryName(o.getAwayEntry()))
-					.setHomeEntryNetPoint(this.calcKnockoutResultDataNetPont(knockoutResultList, "home"))
-					.setAwayEntryNetPoint(this.calcKnockoutResultDataNetPont(knockoutResultList, "away"))
+					.setHomeEntryNetPoint(this.calcKnockoutResultDataNetPoint(knockoutResultList, "home"))
+					.setAwayEntryNetPoint(this.calcKnockoutResultDataNetPoint(knockoutResultList, "away"))
 					.setHomeEntryRank(o.getHomeEntryRank())
 					.setAwayEntryRank(o.getAwayEntryRank())
 					.setMatchWinner(o.getMatchWinner());
@@ -339,7 +344,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return entryInfoEntity.getEntryName();
 	}
 
-	private int calcKnockoutResultDataNetPont(List<TournamentKnockoutResultEntity> knockoutResultList, String type) {
+	private int calcKnockoutResultDataNetPoint(List<TournamentKnockoutResultEntity> knockoutResultList, String type) {
 		if (StringUtils.equals(type, "home")) {
 			return knockoutResultList.stream().mapToInt(TournamentKnockoutResultEntity::getHomeEntryNetPoints).sum();
 		} else if (StringUtils.equals(type, "away")) {
@@ -360,5 +365,120 @@ public class QueryServiceImpl implements IQuerySerivce {
 		);
 		return builder.toString();
 	}
+
+	@Override
+	public List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId) {
+		List<TournamentGroupFixtureData> list = Lists.newArrayList();
+		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return list;
+		}
+		if (!StringUtils.equals(tournamentInfoEntity.getGroupMode(), GroupMode.Battle_race.name())) {
+			return list;
+		}
+		int currentGw = this.redisCacheSerive.getCurrentEvent();
+		// reCollect data
+		List<TournamentBattleGroupResultEntity> tournamentBattleGroupResultEntityList = this.tournamentBattleGroupResultService.list(new QueryWrapper<TournamentBattleGroupResultEntity>().lambda()
+				.eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
+				.orderByAsc(TournamentBattleGroupResultEntity::getEvent)
+				.orderByAsc(TournamentBattleGroupResultEntity::getGroupId));
+		Table<Integer, Integer, List<TournamentGroupEventFixtureData>> dataTable = tournamentBattleGroupResultEntityList
+				.stream()
+				.collect(new BattleGroupResultCollector());
+		dataTable.columnKeySet().forEach(event -> {
+			TournamentGroupFixtureData tournamentGroupFixtureData = new TournamentGroupFixtureData();
+			tournamentGroupFixtureData.setTournamentId(tournamentId).setEvent(event);
+			List<TournamentGroupEventGroupFixtureData> eventFixtureList = Lists.newArrayList();
+			dataTable.column(event).keySet().forEach(groupId -> {
+				TournamentGroupEventGroupFixtureData tournamentGroupEventGroupFixtureData = new TournamentGroupEventGroupFixtureData();
+				tournamentGroupEventGroupFixtureData.setGroupId(groupId).setGroupName(CommonUtils.getCapitalLetterFromNum(groupId));
+				tournamentGroupEventGroupFixtureData.setEventFixtureList(dataTable.get(event, groupId));
+				eventFixtureList.add(tournamentGroupEventGroupFixtureData);
+			});
+			tournamentGroupFixtureData.setEventFixtureList(eventFixtureList);
+			list.add(tournamentGroupFixtureData);
+		});
+
+
+//		TournamentGroupFixtureData tournamentGroupFixtureData = new TournamentGroupFixtureData();
+//		tournamentGroupFixtureData
+//				.setTournamentId(tournamentId)
+//				.setGroupId(o.getGroupId())
+//				.setGroupName(CommonUtils.getCapitalLetterFromNum(o.getGroupId()))
+//				.setEvent(o.getEvent())
+//				.setHomeEntry(o.getHomeEntry())
+//				.setHomeEntryPoints(o.getHomeEntryNetPoints())
+//				.setAwayEntry(o.getAwayEntry())
+//				.setAwayEntryPoints(o.getAwayEntryNetPoints());
+//		tournamentGroupFixtureData.setShowMessage(this.setGroupFixtureMsg(currentGw, tournamentGroupFixtureData.getEvent(),
+//				tournamentGroupFixtureData.getHomeEntry(), tournamentGroupFixtureData.getAwayEntry(),
+//				tournamentGroupFixtureData.getHomeEntryPoints(), tournamentGroupFixtureData.getAwayEntryPoints()));
+//		list.add(tournamentGroupFixtureData);
+		return list;
+	}
+
+	private String setGroupFixtureMsg(int currentGw, int event, int homeEntry, int awayEntry, int homeEntryPoints, int awayEntryPoints) {
+		// home
+		String homeMsg = this.setKnockoutEntryMsg(homeEntry);
+		// away
+		String awayMsg = this.setKnockoutEntryMsg(awayEntry);
+		// points
+		String pointsMsg = this.setKnockoutPointsMsg(currentGw, event, homeEntryPoints, awayEntryPoints);
+		return homeMsg + " " + pointsMsg + " " + awayMsg;
+	}
+
+	private String setKnockoutEntryMsg(int entry) {
+		String entryName = "";
+		String playerName = "";
+		if (entry < 0) {
+			entryName = "平均分";
+			playerName = "平均分";
+		} else if (entry == 0) {
+			entryName = "轮空";
+			playerName = "轮空";
+		} else {
+			EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
+			if (entryInfoEntity != null) {
+				entryName = entryInfoEntity.getEntryName();
+				playerName = entryInfoEntity.getPlayerName();
+			}
+		}
+		return entryName + "(" + playerName + ")";
+	}
+
+	private String setKnockoutPointsMsg(int currentGw, int event, int homeEntryPoints, int awayEntryPoints) {
+		if (event > currentGw) {
+			return "vs";
+		} else {
+			return homeEntryPoints + "-" + awayEntryPoints;
+		}
+	}
+
+	@Override
+	public List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId) {
+		List<TournamentKnockoutFixtureData> list = Lists.newArrayList();
+//		int currentGw = this.redisCacheSerive.getCurrentEvent();
+//		List<TournamentKnockoutResultEntity> knockoutResultList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
+//				.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+//				.orderByAsc(TournamentKnockoutResultEntity::getEvent)
+//				.orderByAsc(TournamentKnockoutResultEntity::getMatchId));
+//		knockoutResultList.forEach(o -> {
+//			TournamentKnockoutFixtureData tournamentKnockoutFixtureData = new TournamentKnockoutFixtureData();
+//			tournamentKnockoutFixtureData
+//					.setTournamentId(tournamentId)
+//					.setEvent(o.getEvent())
+//					.setMatchId(o.getMatchId())
+//					.setHomeEntry(o.getHomeEntry())
+//					.setHomeEntryPoints(o.getHomeEntryNetPoints())
+//					.setAwayEntry(o.getAwayEntry())
+//					.setAwayEntryPoints(o.getAwayEntryNetPoints());
+//			tournamentKnockoutFixtureData.setShowMessage(this.setGroupFixtureMsg(currentGw, tournamentKnockoutFixtureData.getEvent(),
+//					tournamentKnockoutFixtureData.getHomeEntry(), tournamentKnockoutFixtureData.getAwayEntry(),
+//					tournamentKnockoutFixtureData.getHomeEntryPoints(), tournamentKnockoutFixtureData.getAwayEntryPoints()));
+//			list.add(tournamentKnockoutFixtureData);
+//		});
+		return list;
+	}
+
 
 }

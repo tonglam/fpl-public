@@ -1,5 +1,7 @@
 <!DOCTYPE html>
+
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="layout::header(~{::title},~{})">
     <title>球员比较-数据查询-letletme</title>
     <!--    <link rel="stylesheet" th:href="@{/css/jquery.dataTables.css}"/>-->
@@ -40,9 +42,11 @@
                             <div class="layui-form-item">
                                 <label class="layui-form-label">赛季</label>
                                 <div class="layui-input-block">
-                                    <input checked lay-filter="seasonRadio" name="1920" title="19/20" type="radio"
+                                    <input checked lay-filter="seasonRadio" name="seasonRadio" title="19/20"
+                                           type="radio"
                                            value="1920">
-                                    <input lay-filter="seasonRadio" name="2021" title="20/21" type="radio" value="2021">
+                                    <input lay-filter="seasonRadio" name="seasonRadio" title="20/21" type="radio"
+                                           value="2021">
                                 </div>
                             </div>
                             <div style="margin-top: 30px"></div>

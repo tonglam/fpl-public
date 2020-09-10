@@ -17,6 +17,10 @@ import java.util.stream.IntStream;
  */
 public class CommonUtils {
 
+	public static String getCapitalLetterFromNum(int number) {
+		return (char) (number + 64) + "";
+	}
+
 	public static int getRealGw(String inputGw) {
 		return inputGw.contains("GW") ? Integer.parseInt(StringUtils.substringAfter(inputGw, "GW"))
 				: Integer.parseInt(inputGw);

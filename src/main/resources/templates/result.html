@@ -101,7 +101,18 @@
 
         table.on('row(entryTournamentTable)', function (obj) {
             let id = obj.data.tournamentId;
-            window.location.replace("/tournament/checkresult?id=" + id);
+            layer.msg('选择查看的内容', {
+                offset: '100px',
+                shade: 0.1,
+                shadeClose: true,
+                time: 10000,
+                btn: ['查看赛程', '查看赛果'],
+                yes: function () {
+                    window.location.replace("/tournament/checkfixture?id=" + id);
+                }, btn2: function () {
+                    window.location.replace("/tournament/checkresult?id=" + id);
+                }
+            });
         });
 
     });

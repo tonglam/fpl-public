@@ -22,7 +22,7 @@
                 </button>
             </div>
             <div class="layui-input-inline" style="margin-left: 10px">
-                <h1 style="font-size: 28px" th:text="${tournamentInfo?.getName()}+' - GW'+${currentGw}"></h1>
+                <h1 style="font-size: 28px" th:text="${tournamentInfo?.getName()}+'- 赛果 - GW'+${currentGw}"></h1>
             </div>
 
             <div style="margin-top: 30px"></div>
@@ -34,6 +34,8 @@
                 </ul>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 20px"></div>
 
                         <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,showNum)}"
                              th:if="${showNum} gt 1">
@@ -54,50 +56,50 @@
                                th:if="${showNum} eq 1"></table>
 
                     </div>
-                </div>
-                <div class="layui-tab-item">
+                    <div class="layui-tab-item">
 
-                    <div class="layui-hide" id="config">
-                        <form class="layui-form">
+                        <div class="layui-hide" id="config">
+                            <form class="layui-form">
 
-                            <div class="layui-form-item">
-                                <label class="layui-form-label">比分详情</label>
-                                <div class="layui-input-inline">
-                                    <input lay-filter="infoSwitch" lay-skin="switch"
-                                           lay-text="开|关" name="infoSwitch" type="checkbox">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">比分详情</label>
+                                    <div class="layui-input-inline">
+                                        <input lay-filter="infoSwitch" lay-skin="switch"
+                                               lay-text="开|关" name="infoSwitch" type="checkbox">
+                                    </div>
+                                    <label class="layui-form-label">队伍：</label>
+                                    <div class="layui-input-inline">
+                                        <input class="layui-input" name="entryName" readonly
+                                               style="border: none" th:value="${entryInfo?.entryName}" type="text">
+                                    </div>
+
+                                    <label class="layui-form-label">玩家：</label>
+                                    <div class="layui-input-inline">
+                                        <input class="layui-input" name="playerName" readonly
+                                               style="border: none" th:value="${entryInfo?.playerName}" type="text">
+                                    </div>
                                 </div>
-                                <label class="layui-form-label">队伍：</label>
-                                <div class="layui-input-inline">
-                                    <input class="layui-input" name="entryName" readonly
-                                           style="border: none" th:value="${entryInfo?.entryName}" type="text">
+
+                            </form>
+
+                            <div class="layui-row layui-hide" id="info">
+                                <div class="layui-col-sm1" style="width:4%;margin-top:-5px">
+                                    <button class="layui-btn layui-btn-sm layui-btn-primary" id="reset"
+                                            style="border: none" type="reset">
+                                        <i class="layui-icon layui-icon-refresh"></i>
+                                    </button>
                                 </div>
-
-                                <label class="layui-form-label">玩家：</label>
-                                <div class="layui-input-inline">
-                                    <input class="layui-input" name="playerName" readonly
-                                           style="border: none" th:value="${entryInfo?.playerName}" type="text">
+                                <div class="layui-col-sm2" style="margin-right:-25px">
+                                    <div style="font-size:16px">比分详情：</div>
+                                </div>
+                                <div class="layui-col-sm8" style="margin-left:-40px">
+                                    <div id="matchInfo" style="font-size:16px;color:red"></div>
                                 </div>
                             </div>
 
-                        </form>
-
-                        <div class="layui-row layui-hide" id="info">
-                            <div class="layui-col-sm1" style="width:4%;margin-top:-5px">
-                                <button class="layui-btn layui-btn-sm layui-btn-primary" id="reset"
-                                        style="border: none" type="reset">
-                                    <i class="layui-icon layui-icon-refresh"></i>
-                                </button>
-                            </div>
-                            <div class="layui-col-sm2" style="margin-right:-25px">
-                                <div style="font-size:16px">比分详情：</div>
-                            </div>
-                            <div class="layui-col-sm8" style="margin-left:-40px">
-                                <div id="matchInfo" style="font-size:16px;color:red"></div>
-                            </div>
                         </div>
 
                     </div>
-
                 </div>
             </div>
 
@@ -107,7 +109,6 @@
 
         </div>
     </div>
-
 </div>
 
 <div th:replace="layout::footer"></div>
@@ -218,19 +219,15 @@
                 url: '/tournament/qryGroupInfoListByGroupId',
                 where: {tournamentId: tournamentId, groupId: i},
                 loading: true,
-                cellMinWidth: 60,
                 cols: [[
                     {
-                        field: 'groupRank', title: '排名', lazy: true, children: function (d) {
+                        field: 'groupRank', title: '排名', collapse: true, lazy: true, children: function (d) {
                             let groupMode = d.groupMode;
                             if (groupMode == "Points_race") {
                                 return [{
                                     title: "每轮赛果",
                                     url: '/tournament/qryPointsGroupResult',
                                     where: {tournamentId: tournamentId, groupId: i, entry: d.entry},
-                                    // data: function (d) {
-                                    //     return qryPointsGroupResult(tournamentId, i, d.entry)
-                                    // },
                                     page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
                                     loading: true,
                                     limit: 5,
@@ -255,17 +252,14 @@
                                     title: "每轮赛果",
                                     url: '/tournament/qryBattleGroupResult',
                                     where: {tournamentId: tournamentId, groupId: i, entry: d.entry},
-                                    // data: function (d) {
-                                    //     return qryBattleGroupResult(tournamentId, i, d.entry)
-                                    // },
                                     page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
                                     loading: true,
                                     limit: 5,
                                     limits: [5, 10, 15],
                                     cols: [[
-                                        {field: 'event', title: 'GW', align: 'center', width: 80},
+                                        {field: 'event', title: 'GW', align: 'center', width: 60},
                                         {field: 'homeEntryName', title: '主队', align: 'center'},
-                                        {field: 'score', title: '比分', align: 'center', width: 80},
+                                        {field: 'score', title: '比分', align: 'center', width: 60},
                                         {field: 'awayEntryName', title: '客队', align: 'center'}
                                     ]],
                                     filter: {
@@ -290,40 +284,7 @@
                     soulTable.render(this);
                 }
             });
-        }
 
-        function qryPointsGroupResult(tournamentId, groupId, entry) {
-            let data = [];
-            $.ajax({
-                url: "/tournament/qryPointsGroupResult",
-                type: "get",
-                async: false,
-                data: {tournamentId: tournamentId, groupId: groupId, entry: entry},
-                success: function (response) {
-                    data = Array.from(response.data);
-                },
-                error: function (error) {
-                    console.info(error.message);
-                }
-            });
-            return data;
-        }
-
-        function qryBattleGroupResult(tournamentId, groupId, entry) {
-            let data = [];
-            $.ajax({
-                url: "/tournament/qryBattleGroupResult",
-                type: "get",
-                async: false,
-                data: {tournamentId: tournamentId, groupId: groupId, entry: entry},
-                success: function (response) {
-                    data = Array.from(response.data);
-                },
-                error: function (error) {
-                    console.info(error.message);
-                }
-            });
-            return data;
         }
 
     });

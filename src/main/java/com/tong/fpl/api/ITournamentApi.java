@@ -29,14 +29,18 @@ public interface ITournamentApi {
 
     TournamentInfoData qryTournamentInfoById(int tournamentId);
 
-    List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
+	List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
 
-    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
-    List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
+	List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
-    TableData<TournamentPointsGroupEventResultData> qryPointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+	TableData<TournamentPointsGroupEventResultData> qryPointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-    TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+	TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+
+	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
+
+	List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
 
 }

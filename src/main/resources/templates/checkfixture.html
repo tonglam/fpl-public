@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>查看赛程-自定义赛事-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <div class="layui-input-inline" style="margin-top: 5px">
+                <button class="layui-btn layui-btn-primary layui-btn-sm" id="retrunButton" type="button">
+                    <i class="layui-icon layui-icon-return"></i>
+                </button>
+            </div>
+            <div class="layui-input-inline" style="margin-left: 10px">
+                <h1 style="font-size: 28px" th:text="${tournamentInfo?.getName()}+' - 赛程'"></h1>
+            </div>
+
+            <div style="margin-top: 30px"></div>
+
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend th:text="'小组赛 ('+${tournamentInfo?.getGroupModeName()}+')'"></legend>
+            </fieldset>
+
+            <div style="margin-top: 30px"></div>
+
+            <ul class="layui-timeline" style="font-family:Lucida Family,sans-serif">
+                <li class="layui-timeline-item" th:each="item,stat:${groupGwList}">
+                    <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+                    <div class="layui-timeline-content layui-text">
+                        <h2 class="layui-timeline-title" style="font-size: 18px"
+                            th:text="'GW'+${item}"></h2>
+                        <div class="layui-collapse" lay-filter="groupCollapse"
+                             th:each="groupFixture,stat:${groupFixtureList}">
+                            <div class="layui-colla-item">
+                                <h3 class="layui-colla-title" th:text="${groupFixture.groupName}+'组'"></h3>
+                                <div class="layui-colla-content">
+                                    <p style="font-size: 15px;"
+                                       th
+                                       th:each="eventFixture,eventStat:${groupFixture.getEventFixtureList()}"
+                                       th:value="${eventFixture.getShowMessage()}"><br><br>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend th:text="'淘汰赛 ('+${tournamentInfo?.getKnockoutModeName()}+')'"></legend>
+            </fieldset>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script>
+    layui.use(['element'], function () {
+        let $ = layui.jquery;
+
+        $("#retrunButton").on('click', function () {
+            window.location.replace("/tournament/result");
+        });
+
+    });
+
+</script>
+
+</html>
