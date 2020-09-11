@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.letletme.api;
+package com.tong.fpl.domain.letletme.live;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -14,6 +14,7 @@ public class ElementLiveData {
 
 	private int event;
 	private int element;
+	private String webName;
 	private int elementType;
 	private int position;
 	private int multiplier;

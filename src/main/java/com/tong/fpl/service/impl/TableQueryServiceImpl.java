@@ -15,6 +15,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
+import com.tong.fpl.domain.letletme.live.ElementLiveData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
@@ -336,6 +337,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		Page<TournamentBattleGroupEventResultData> pageResult = new Page<>(page, limit, battleGroupResultPage.getTotal());
 		pageResult.setRecords(list);
 		return new TableData<>(pageResult);
+	}
+
+	@Override
+	public TableData<ElementLiveData> qryEntryLivePoints(int entry) {
+		return null;
 	}
 
 	private String setBattleGroupEntryName(int entry) {

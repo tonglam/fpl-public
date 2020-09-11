@@ -2,9 +2,7 @@ package com.tong.fpl.controller;
 
 import com.tong.fpl.aop.annotation.TraceHttpCall;
 import com.tong.fpl.api.IHttpApi;
-import com.tong.fpl.api.ILiveCalcApi;
 import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.letletme.api.LiveCalaData;
 import com.tong.fpl.domain.letletme.entry.EntryEventData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -15,7 +13,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2020/6/23
@@ -27,7 +24,6 @@ import java.util.Map;
 public class HttpController {
 
 	private final IHttpApi httpApi;
-	private final ILiveCalcApi liveCalcApi;
 
 	@TraceHttpCall
 	@RequestMapping("/qryEntryResult")
@@ -41,21 +37,6 @@ public class HttpController {
 	@ResponseBody
 	public EntryEventData qryEntryEventResult(@RequestParam String season, @RequestParam int event, @RequestParam int entry) {
 		return this.httpApi.qryEntryEventResult(season, event, entry);
-	}
-
-	@TraceHttpCall
-	@RequestMapping("/qryLivePointsByEntry")
-	@ResponseBody
-	public LiveCalaData qryLivePointsByEntry(@RequestParam int event, @RequestParam int entry) {
-		return this.liveCalcApi.calcLivePointsByEntry(event, entry);
-	}
-
-	@TraceHttpCall
-	@RequestMapping("/qryLivePointsByElementList")
-	@ResponseBody
-	public LiveCalaData qryLivePointsByElementList(@RequestParam int event, @RequestParam Map<Integer, Integer> elementMap,
-	                                               @RequestParam int captain, @RequestParam int viceCaptain) {
-		return liveCalcApi.calcLivePointsByElementList(event, elementMap, captain, viceCaptain);
 	}
 
 	@TraceHttpCall

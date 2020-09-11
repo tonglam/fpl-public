@@ -76,6 +76,7 @@ public class TournamentController {
 		model.addAttribute("groupFixtureList", groupFixtureList);
 		List<TournamentKnockoutFixtureData> knockoutFixtureList = this.tournamentApi.qryKnockoutFixtureListById(id);
 		model.addAttribute("knockoutFixtureList", knockoutFixtureList);
+		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
 		return "checkfixture";
 	}
 

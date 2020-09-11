@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>实时得分-实时结果-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <h1 style="font-size: 28px">实时得分</h1>
+
+            <div style="margin-top: 20px"></div>
+
+            <table class="layui-table" id="livePointsTable" lay-filter="livePointsTable"></table>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:replace="layout::entryInputLayer"></script>
+
+<script th:inline="none">
+    layui.use(['table', 'soulTable'], function () {
+
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        table.render({
+            elem: '#livePointsTable',
+            url: '/live/qryEntryLivePoints',
+            loading: true,
+            cols: [[
+                {
+                    fixed: 'left', title: '', width: '5%', align: 'left', children: [
+                        {
+                            title: '详情',
+                            data: function (d) {
+                                // d 为当前行数据
+                                return [d];
+                            },
+                            cols: [[
+                                {field: 'groupMode', title: '模式', align: 'center'},
+                                {field: 'goalsScored', title: '进球', align: 'center'},
+                                {field: 'assists', title: '助攻', align: 'center'},
+                                {field: 'cleanSheets', title: '零封', align: 'center'},
+                                {field: 'goalsConceded', title: '丢球', align: 'center'},
+                                {field: 'ownGoals', title: '乌龙', align: 'center'},
+                                {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+                                {field: 'penaltiesMissed', title: '丢点', align: 'center'},
+                                {field: 'yellowCards', title: '黄牌', align: 'center'},
+                                {field: 'redCards', title: '红牌', align: 'center'},
+                                {field: 'saves', title: '扑救', align: 'center'},
+                                {field: 'bps', title: 'bps', align: 'center'}
+                            ]],
+                            done: function () {
+                                soulTable.render(this);
+                            }
+                        }
+                    ]
+                },
+                {field: 'pickAvtive', title: '激活', align: 'center'},
+                {field: 'isPlayed', title: '已出场', align: 'center'},
+                {field: 'webName', title: '球员', align: 'center', edit: 'text'},
+                {field: 'elementType', title: '位置', align: 'center'},
+                {field: 'isCaptain', title: '队长', align: 'center'},
+                {field: 'minutes', title: '上场时间', align: 'center'},
+                {field: 'minutes', title: '上场时间', align: 'center'},
+                {field: 'totalPoints', title: '分数', align: 'center'},
+                {field: 'bonus', title: 'bonus', align: 'center'}
+            ]],
+            initSort: {
+                field: 'createTime',
+                type: 'asc'
+            },
+            id: "livePointsTable",
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+    });
+
+</script>
+
+</html>
