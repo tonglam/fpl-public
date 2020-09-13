@@ -93,7 +93,6 @@ public class ReportServiceImpl implements IReportService {
 		});
 		// insert
 		this.entryCaptainStatService.saveBatch(entryCaptainStatList);
-		log.info("insert entry_captain_stat size is " + entryCaptainStatList.size() + "!");
 	}
 
 	private EntryPickData getRealCaptainPoints(List<EntryPickData> captainPickList) {

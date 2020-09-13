@@ -15,58 +15,58 @@ import java.util.stream.IntStream;
  */
 public class EventResultTest extends FplApplicationTests {
 
-	@Autowired
-	private IUpdateEventResultsService updateEventResultsService;
+    @Autowired
+    private IUpdateEventResultsService updateEventResultsService;
 
-	static IntStream intStreamProvider() {
-		return IntStream.range(1, 48);
-	}
+    static IntStream intStreamProvider() {
+        return IntStream.range(1, 48);
+    }
 
-	@ParameterizedTest
+    @ParameterizedTest
 //	@MethodSource("intStreamProvider")
-	@CsvSource({"47"})
-	void updateBaseInfoByEvent(int event) {
-		this.updateEventResultsService.updateBaseInfoByEvent(event);
-		System.out.println(1);
-	}
+    @CsvSource({"47"})
+    void updateBaseInfoByEvent(int event) {
+        this.updateEventResultsService.updateBaseInfoByEvent(event);
+        System.out.println(1);
+    }
 
-	@Test
-	void updateEntryInfo() {
-		this.updateEventResultsService.updateEntryInfo();
-		System.out.println(1);
-	}
+    @Test
+    void updateEntryInfo() {
+        this.updateEventResultsService.updateEntryInfo();
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@MethodSource("intStreamProvider")
-//	@CsvSource({"47, 1"})
-	void updateEventResult(int event) {
-		System.out.println("start event: " + event);
-		this.updateEventResultsService.updateTournamentEntryEventResult(event, 12);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@MethodSource("intStreamProvider")
-//	@CsvSource({"1"})
-	void updatePointsRaceGroupResult(int event) {
-		this.updateEventResultsService.updatePointsRaceGroupResult(event);
-		System.out.println("event: " + event);
-	}
-
-	@ParameterizedTest
+    @ParameterizedTest
 //	@MethodSource("intStreamProvider")
-	@CsvSource({"1"})
-	void updateBattleRaceGroupResult(int event) {
-		this.updateEventResultsService.updateBattleRaceGroupResult(event);
-		System.out.println("event: " + event);
-	}
+    @CsvSource({"1, 1"})
+    void updateEventResult(int event, int tournament) {
+        System.out.println("start event: " + event);
+        this.updateEventResultsService.updateTournamentEntryEventResult(event, tournament);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@MethodSource("intStreamProvider")
-	@ValueSource(ints = {45})
-	void updateKnockoutResult(int event) {
-		this.updateEventResultsService.updateKnockoutResult(event);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+//	@MethodSource("intStreamProvider")
+    @CsvSource({"1"})
+    void updatePointsRaceGroupResult(int event) {
+        this.updateEventResultsService.updatePointsRaceGroupResult(event);
+        System.out.println("event: " + event);
+    }
+
+    @ParameterizedTest
+//	@MethodSource("intStreamProvider")
+    @CsvSource({"1"})
+    void updateBattleRaceGroupResult(int event) {
+        this.updateEventResultsService.updateBattleRaceGroupResult(event);
+        System.out.println("event: " + event);
+    }
+
+    @ParameterizedTest
+    @MethodSource("intStreamProvider")
+    @ValueSource(ints = {45})
+    void updateKnockoutResult(int event) {
+        this.updateEventResultsService.updateKnockoutResult(event);
+        System.out.println(1);
+    }
 
 }
