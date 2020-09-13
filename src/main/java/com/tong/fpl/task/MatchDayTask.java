@@ -23,7 +23,7 @@ public class MatchDayTask {
     private final ITableQueryService tableQueryService;
     private final TournamentInfoService tournamentInfoService;
 
-    @Scheduled(cron = "0 0/1 20-23 * * *")
+    @Scheduled(cron = "0 0/5 20-23 * * *")
     public void insertEventLiveCache() {
         log.info("start insertEventLiveCache task, time:{}", LocalDateTime.now());
         int event = this.redisCacheSerive.getCurrentEvent();
