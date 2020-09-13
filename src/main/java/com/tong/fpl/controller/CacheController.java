@@ -139,6 +139,16 @@ public class CacheController {
         this.cacheApi.insertEventLive(event);
     }
 
+    @TraceHttpCall
+    @GetMapping("/deleteKeys")
+    @ResponseBody
+    public void deleteKeys(String token, @RequestParam String pattern) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.deleteKeys(pattern);
+    }
+
     private boolean checkToken(String token) {
         return !StringUtils.equals(token, acessToken);
     }

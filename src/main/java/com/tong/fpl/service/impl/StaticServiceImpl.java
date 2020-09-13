@@ -87,7 +87,7 @@ public class StaticServiceImpl implements IStaticSerive {
 		if (resResult.isPresent()) {
 			LeagueClassicRes leagueClassicRes = resResult.get();
 			if (!CollectionUtils.isEmpty(leagueClassicRes.getStandings().getResults())) {
-				leagueClassicRes.getNewEntries().getResults().forEach(o -> list.add(new EntryInfoEntity()
+				leagueClassicRes.getStandings().getResults().forEach(o -> list.add(new EntryInfoEntity()
 						.setEntry(o.getEntry())
 						.setEntryName(o.getEntryName())
 						.setPlayerName(o.getPlayerName()))

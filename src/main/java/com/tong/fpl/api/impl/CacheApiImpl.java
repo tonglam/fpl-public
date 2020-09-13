@@ -2,6 +2,7 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.ICacheApi;
 import com.tong.fpl.service.IRedisCacheSerive;
+import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,66 +16,71 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CacheApiImpl implements ICacheApi {
 
-	private final IRedisCacheSerive redisCacheSerive;
+    private final IRedisCacheSerive redisCacheSerive;
 
-	@Override
-	public void insertTeam() {
-		this.redisCacheSerive.insertTeam();
-	}
+    @Override
+    public void insertTeam() {
+        this.redisCacheSerive.insertTeam();
+    }
 
-	@Override
-	public void insertHisTeam(String season) {
-		this.redisCacheSerive.insertHisTeam(season);
-	}
+    @Override
+    public void insertHisTeam(String season) {
+        this.redisCacheSerive.insertHisTeam(season);
+    }
 
-	@Override
-	public void insertEvent() {
-		this.redisCacheSerive.insertEvent();
-	}
+    @Override
+    public void insertEvent() {
+        this.redisCacheSerive.insertEvent();
+    }
 
-	@Override
-	public void insertHisEvent(String season) {
-		this.redisCacheSerive.insertHisEvent(season);
-	}
+    @Override
+    public void insertHisEvent(String season) {
+        this.redisCacheSerive.insertHisEvent(season);
+    }
 
-	@Override
-	public void insertEventFixture() {
-		this.redisCacheSerive.insertEventFixture();
-	}
+    @Override
+    public void insertEventFixture() {
+        this.redisCacheSerive.insertEventFixture();
+    }
 
-	@Override
-	public void insertHisEventFixture(String season) {
-		this.redisCacheSerive.insertHisEventFixture(season);
-	}
+    @Override
+    public void insertHisEventFixture(String season) {
+        this.redisCacheSerive.insertHisEventFixture(season);
+    }
 
-	@Override
-	public void insertPlayer() {
-		this.redisCacheSerive.insertPlayer();
-	}
+    @Override
+    public void insertPlayer() {
+        this.redisCacheSerive.insertPlayer();
+    }
 
-	@Override
-	public void insertHisPlayer(String season) {
-		this.redisCacheSerive.insertHisPlayer(season);
-	}
+    @Override
+    public void insertHisPlayer(String season) {
+        this.redisCacheSerive.insertHisPlayer(season);
+    }
 
-	@Override
-	public void insertPlayerStat() {
-		this.redisCacheSerive.insertPlayerStat();
-	}
+    @Override
+    public void insertPlayerStat() {
+        this.redisCacheSerive.insertPlayerStat();
+    }
 
-	@Override
-	public void insertHisPlayerStat(String season) {
-		this.redisCacheSerive.insertHisPlayerStat(season);
-	}
+    @Override
+    public void insertHisPlayerStat(String season) {
+        this.redisCacheSerive.insertHisPlayerStat(season);
+    }
 
-	@Override
-	public void insertPlayerValue() {
-		this.redisCacheSerive.insertPlayerValue();
-	}
+    @Override
+    public void insertPlayerValue() {
+        this.redisCacheSerive.insertPlayerValue();
+    }
 
-	@Override
-	public void insertEventLive(int event) {
-		this.redisCacheSerive.insertEventLive(event);
-	}
+    @Override
+    public void insertEventLive(int event) {
+        this.redisCacheSerive.insertEventLive(event);
+    }
+
+    @Override
+    public void deleteKeys(String pattern) {
+        RedisUtils.removeCacheByKey(pattern + "*");
+    }
 
 }

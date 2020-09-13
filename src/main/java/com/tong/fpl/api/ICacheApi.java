@@ -29,4 +29,6 @@ public interface ICacheApi {
 
     void insertEventLive(int event);
 
+    void deleteKeys(String pattern);
+
 }

@@ -585,7 +585,7 @@ public class TournamentServiceImpl implements ITournamentService {
         this.tournamentKnockoutResultService.saveBatch(resultEntityList);
     }
 
-    @Cacheable(value = "countTournamentLeagueTeams")
+    @Cacheable(value = "qryCountTournamentLeagueTeams")
     @Override
     public int countTournamentLeagueTeams(String url) {
         return url.contains("/standings/c") ?
