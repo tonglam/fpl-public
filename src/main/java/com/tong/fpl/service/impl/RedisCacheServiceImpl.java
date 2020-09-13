@@ -177,7 +177,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
                 eventFixtureEntity.setKickoffTime(CommonUtils.getZoneDate(o.getKickoffTime()));
                 eventFixtureList.add(eventFixtureEntity);
             });
-            this.eventFixtureService.saveBatch(eventFixtureList);
+//            this.eventFixtureService.saveBatch(eventFixtureList);
             log.info("insert event_fixture size:{}!", eventFixtureList.size());
             // set cache by event
             this.setEventFixtureCacheBySingleEvent(cacheMap, CommonUtils.getCurrentSeason(), event, eventFixtureList);

@@ -20,7 +20,7 @@
 
             <div class="layui-tab" lay-allowClose="true" lay-filter="leagueTab">
                 <ul class="layui-tab-title">
-                    <li class="layui-this">选择小联赛</li>
+                    <li class="layui-this" id="base">选择小联赛</li>
                 </ul>
                 <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
@@ -100,6 +100,9 @@
 
         element.on('tab(leagueTab)', function () {
             let tournamentId = $(this).attr("lay-id");
+            if (tournamentId == null || tournamentId == 'base') {
+                return false;
+            }
             let loadIndex = layer.msg("计算中，请稍等");
             axios.get('/live/qryTournamentLivePoints', {
                 params: {
@@ -107,7 +110,6 @@
                 }
             })
                 .then(function (response) {
-                    layer.close(loadIndex);
                     table.render({
                         elem: '#liveLeagueTable',
                         data: response.data,
@@ -116,6 +118,7 @@
                         cellMinWidth: 120,
                         cols: [[
                             {title: '排名', type: 'numbers'},
+                            {field: 'entry', title: '队伍id', align: 'center'},
                             {field: 'entryName', title: '队伍名字', align: 'center', width: 200, filter: true},
                             {field: 'playerName', title: '玩家名字', align: 'center', width: 150, filter: true},
                             {
@@ -153,6 +156,7 @@
                         },
                         id: 'liveLeagueTable'
                     });
+                    layer.close(loadIndex);
                 })
                 .catch(function (error) {
                     console.info(error.message);

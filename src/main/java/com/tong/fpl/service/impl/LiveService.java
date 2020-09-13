@@ -199,11 +199,12 @@ public class LiveService implements ILiveService {
     private int setElementPlayStatus(boolean started, boolean finished) {
         if (finished) {
             return 2;
-        } else if (!started) {
-            return 1;
         } else {
-            return 0;
+            if (!started) {
+                return 1;
+            }
         }
+        return 0;
     }
 
     private List<ElementLiveData> getPickList(List<ElementLiveData> elementLiveDataList) {
