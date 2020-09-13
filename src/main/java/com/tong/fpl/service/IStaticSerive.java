@@ -11,13 +11,9 @@ import java.util.Optional;
  */
 public interface IStaticSerive {
 
-    void insertEventLive(int event);
-
     void insertAverageEventResult(int event, StaticRes staticRes);
 
     List<EntryInfoEntity> getEntryInfoListFromClassic(int classicId);
-
-    List<EntryInfoEntity> getLeaguesClassicByPage(int classicId, int page);
 
     List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId);
 
@@ -25,10 +21,10 @@ public interface IStaticSerive {
 
     Optional<UserPicksRes> getUserPicks(int event, int entry);
 
-	Optional<UserHistoryRes> getUserHistory(int entry);
+    Optional<UserHistoryRes> getUserHistory(int entry);
 
-	Optional<ElementSummaryRes> getElementSummary(int element);
+    Optional<ElementSummaryRes> getElementSummary(int element);
 
-	Optional<EntryRes> getEntry(int entry);
+    Optional<EntryRes> getEntry(int entry);
 
 }

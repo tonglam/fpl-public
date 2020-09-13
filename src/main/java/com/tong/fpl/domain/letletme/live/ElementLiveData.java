@@ -16,6 +16,7 @@ public class ElementLiveData {
 	private int element;
 	private String webName;
 	private int elementType;
+	private String elementTypeName;
 	private int position;
 	private int multiplier;
 	private boolean isCaptain;

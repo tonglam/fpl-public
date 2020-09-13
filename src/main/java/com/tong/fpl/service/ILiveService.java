@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Create by tong on 2020/7/13
  */
-public interface ILiveCalcService {
+public interface ILiveService {
 
 	/**
 	 * calculate entry live points
@@ -26,7 +26,5 @@ public interface ILiveCalcService {
 	 * @param viceCaptain viceCaptain
 	 */
 	LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain);
-
-	Map<Integer, Integer> calcEventCaptainStat(int event, int num);
 
 }

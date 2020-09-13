@@ -72,4 +72,9 @@ public class CacheApiImpl implements ICacheApi {
 		this.redisCacheSerive.insertPlayerValue();
 	}
 
+	@Override
+	public void insertEventLive(int event) {
+		this.redisCacheSerive.insertEventLive(event);
+	}
+
 }

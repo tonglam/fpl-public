@@ -3,7 +3,8 @@ package com.tong.fpl.service;
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
-import com.tong.fpl.domain.letletme.live.ElementLiveData;
+import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.TournamentLiveData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.*;
 
@@ -20,16 +21,18 @@ public interface ITableQueryService {
 
     TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
 
-	TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
+    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
 
-	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
-	TableData<PlayerInfoData> qryPlayerList(String season);
+    TableData<PlayerInfoData> qryPlayerList(String season);
 
-	TableData<TournamentPointsGroupEventResultData> qryPointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+    TableData<TournamentPointsGroupEventResultData> qryPointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+    TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	TableData<ElementLiveData> qryEntryLivePoints(int entry);
+    TableData<LiveCalaData> qryEntryLivePoints(int entry);
+
+    TableData<TournamentLiveData> qryTournamentLivePoints(int tournamentId);
 
 }

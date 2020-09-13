@@ -1,18 +1,16 @@
 package com.tong.fpl.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.tong.fpl.config.collector.PlayAtHomeCollector;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.domain.data.bootstrapStaic.Event;
-import com.tong.fpl.domain.data.eventLive.ElementStat;
 import com.tong.fpl.domain.data.response.*;
-import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.entity.EntryEventResultEntity;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IStaticSerive;
-import com.tong.fpl.service.db.*;
+import com.tong.fpl.service.db.EntryEventResultService;
+import com.tong.fpl.service.db.EventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Create by tong on 2020/1/19
@@ -34,41 +30,7 @@ public class StaticServiceImpl implements IStaticSerive {
 
 	private final IInterfaceService interfaceService;
 	private final EventService eventService;
-	private final PlayerService playerService;
 	private final EntryEventResultService entryEventResultService;
-	private final EventFixtureService eventFixtureService;
-	private final EventLiveService eventLiveService;
-
-	@Override
-	public void insertEventLive(int event) {
-		this.eventLiveService.remove(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getEvent, event));
-		Map<Integer, String> playAtHomeMap = this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda()
-				.eq(EventFixtureEntity::getEvent, event))
-				.stream()
-				.collect(new PlayAtHomeCollector());
-		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-				.stream()
-				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
-		List<EventLiveEntity> eventLiveList = Lists.newArrayList();
-		Optional<EventLiveRes> result = this.interfaceService.getEventLive(event);
-		result.ifPresent(eventLiveRes -> {
-			eventLiveRes.getElements().forEach(o -> {
-				int element = o.getId();
-				int teamId = playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0;
-				ElementStat elementStat = o.getStats();
-				EventLiveEntity eventLive = new EventLiveEntity();
-				BeanUtil.copyProperties(elementStat, eventLive, CopyOptions.create().ignoreNullValue());
-				eventLive.setElement(element);
-				eventLive.setElementType(playerMap.containsKey(element) ?
-						playerMap.get(element).getElementType() : 0);
-				eventLive.setEvent(event);
-				eventLive.setWasHome(playAtHomeMap.getOrDefault(teamId, null));
-				eventLiveList.add(eventLive);
-			});
-			this.eventLiveService.saveBatch(eventLiveList);
-			log.info("insert event_live size is " + eventLiveList.size() + "!");
-		});
-	}
 
 	@Override
 	public void insertAverageEventResult(int event, StaticRes staticRes) {
@@ -107,13 +69,6 @@ public class StaticServiceImpl implements IStaticSerive {
 	}
 
 	@Override
-	public List<EntryInfoEntity> getLeaguesClassicByPage(int classicId, int page) {
-		List<EntryInfoEntity> list = Lists.newArrayList();
-		this.getOnePageEntryListFromClassic(list, classicId, 1, false);
-		return list;
-	}
-
-	@Override
 	public List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId) {
 		List<EntryInfoEntity> list = Lists.newArrayList();
 		this.getOnePageEntryListFromH2h(list, h2hId, 1, true);
@@ -131,7 +86,7 @@ public class StaticServiceImpl implements IStaticSerive {
 		Optional<LeagueClassicRes> resResult = this.interfaceService.getLeaguesClassic(classicId, page);
 		if (resResult.isPresent()) {
 			LeagueClassicRes leagueClassicRes = resResult.get();
-			if (!CollectionUtils.isEmpty(leagueClassicRes.getNewEntries().getResults())) {
+			if (!CollectionUtils.isEmpty(leagueClassicRes.getStandings().getResults())) {
 				leagueClassicRes.getNewEntries().getResults().forEach(o -> list.add(new EntryInfoEntity()
 						.setEntry(o.getEntry())
 						.setEntryName(o.getEntryName())

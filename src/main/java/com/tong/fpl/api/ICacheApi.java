@@ -5,27 +5,28 @@ package com.tong.fpl.api;
  */
 public interface ICacheApi {
 
-	void insertTeam();
+    void insertTeam();
 
-	void insertHisTeam(String season);
+    void insertHisTeam(String season);
 
-	void insertEvent();
+    void insertEvent();
 
-	void insertHisEvent(String season);
+    void insertHisEvent(String season);
 
-	void insertEventFixture();
+    void insertEventFixture();
 
-	void insertHisEventFixture(String season);
+    void insertHisEventFixture(String season);
 
-	void insertPlayer();
+    void insertPlayer();
 
-	void insertHisPlayer(String season);
+    void insertHisPlayer(String season);
 
-	void insertPlayerStat();
+    void insertPlayerStat();
 
-	void insertHisPlayerStat(String season);
+    void insertHisPlayerStat(String season);
 
-	void insertPlayerValue();
+    void insertPlayerValue();
 
+    void insertEventLive(int event);
 
 }

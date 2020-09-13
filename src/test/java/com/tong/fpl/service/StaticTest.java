@@ -11,15 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class StaticTest extends FplApplicationTests {
 
 	@Autowired
-	private IStaticSerive staticService;
-	@Autowired
 	private IInterfaceService interfaceService;
-
-	@ParameterizedTest
-	@CsvSource({"46"})
-	void insertGwLive(int event) {
-		this.staticService.insertEventLive(event);
-	}
 
 	@ParameterizedTest
 	@CsvSource({"3697"})

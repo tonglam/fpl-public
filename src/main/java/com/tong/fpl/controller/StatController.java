@@ -25,9 +25,9 @@ public class StatController {
 
 	private final IStatApi statApi;
 
-	@RequestMapping(value = "/playerCompare")
-	public String playerCompareController() {
-		return "playerCompare";
+	@RequestMapping(value = "/compare")
+	public String compareController() {
+		return "compare";
 	}
 
 	@RequestMapping(value = "/captain")

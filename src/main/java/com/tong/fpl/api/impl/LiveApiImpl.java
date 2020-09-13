@@ -2,7 +2,8 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.ILiveApi;
 import com.tong.fpl.domain.letletme.global.TableData;
-import com.tong.fpl.domain.letletme.live.ElementLiveData;
+import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.TournamentLiveData;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +18,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveApiImpl implements ILiveApi {
 
-	private final ITableQueryService tableQueryService;
+    private final ITableQueryService tableQueryService;
 
-	@Override
-	public TableData<ElementLiveData> qryEntryLivePoints(int entry) {
-		return this.tableQueryService.qryEntryLivePoints(entry);
-	}
+    @Override
+    public TableData<LiveCalaData> qryEntryLivePoints(int entry) {
+        return this.tableQueryService.qryEntryLivePoints(entry);
+    }
+
+    @Override
+    public TableData<TournamentLiveData> qryTournamentLivePoints(int tournamentId) {
+        return this.tableQueryService.qryTournamentLivePoints(tournamentId);
+    }
 
 }

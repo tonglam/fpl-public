@@ -86,6 +86,18 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
+    @CsvSource({"1"})
+    void insertEventLive(int event) {
+        this.redisCacheSerive.insertEventLive(event);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1"})
+    void insertEventLiveCache(int event) {
+        this.redisCacheSerive.insertEventLiveCache(event);
+    }
+
+    @ParameterizedTest
     @CsvSource({"2021"})
     void getTeamNameMap(String season) {
         Map<Integer, String> map = this.redisCacheSerive.getTeamNameMap(season);

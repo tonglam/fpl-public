@@ -50,17 +50,16 @@
             elem: '#livePointsTable',
             url: '/live/qryEntryLivePoints',
             loading: true,
+            cellMinWidth: 80,
             cols: [[
                 {
-                    fixed: 'left', title: '', width: '5%', align: 'left', children: [
+                    fixed: 'left', align: 'center', children: [
                         {
                             title: '详情',
                             data: function (d) {
-                                // d 为当前行数据
                                 return [d];
                             },
                             cols: [[
-                                {field: 'groupMode', title: '模式', align: 'center'},
                                 {field: 'goalsScored', title: '进球', align: 'center'},
                                 {field: 'assists', title: '助攻', align: 'center'},
                                 {field: 'cleanSheets', title: '零封', align: 'center'},
@@ -81,16 +80,15 @@
                 },
                 {field: 'pickAvtive', title: '激活', align: 'center'},
                 {field: 'isPlayed', title: '已出场', align: 'center'},
-                {field: 'webName', title: '球员', align: 'center', edit: 'text'},
-                {field: 'elementType', title: '位置', align: 'center'},
+                {field: 'webName', title: '球员', align: 'center', width: 150},
+                {field: 'elementTypeName', title: '位置', align: 'center'},
                 {field: 'isCaptain', title: '队长', align: 'center'},
-                {field: 'minutes', title: '上场时间', align: 'center'},
-                {field: 'minutes', title: '上场时间', align: 'center'},
+                {field: 'minutes', title: '时间', align: 'center'},
                 {field: 'totalPoints', title: '分数', align: 'center'},
                 {field: 'bonus', title: 'bonus', align: 'center'}
             ]],
             initSort: {
-                field: 'createTime',
+                field: 'position',
                 type: 'asc'
             },
             id: "livePointsTable",

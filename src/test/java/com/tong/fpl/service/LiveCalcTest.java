@@ -18,7 +18,7 @@ import java.util.Map;
 public class LiveCalcTest extends FplApplicationTests {
 
 	@Autowired
-	private ILiveCalcService liveCalcService;
+	private ILiveService liveCalcService;
 	@Autowired
 	private PlayerService playerService;
 

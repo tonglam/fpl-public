@@ -4,11 +4,14 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
+import com.tong.fpl.config.collector.PlayAtHomeCollector;
 import com.tong.fpl.config.collector.PlayerValueCollector;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.ValueChangeType;
+import com.tong.fpl.domain.data.eventLive.ElementStat;
 import com.tong.fpl.domain.data.response.EventFixturesRes;
+import com.tong.fpl.domain.data.response.EventLiveRes;
 import com.tong.fpl.domain.data.response.StaticRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
@@ -46,6 +49,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
     private final TeamService teamNameService;
     private final EventService eventService;
     private final EventFixtureService eventFixtureService;
+    private final EventLiveService eventLiveService;
     private final PlayerService playerService;
     private final PlayerStatService playerStatService;
     private final PlayerValueService playerValueService;
@@ -407,6 +411,79 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
     }
 
     @Override
+    public void insertEventLive(int event) {
+        this.eventLiveService.remove(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event));
+        Map<Integer, String> playAtHomeMap = this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event)
+                .stream()
+                .collect(new PlayAtHomeCollector());
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        List<EventLiveEntity> eventLiveList = Lists.newArrayList();
+        Optional<EventLiveRes> result = this.interfaceService.getEventLive(event);
+        result.ifPresent(eventLiveRes ->
+                eventLiveRes.getElements().forEach(o -> {
+                    int element = o.getId();
+                    int teamId = playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0;
+                    ElementStat elementStat = o.getStats();
+                    EventLiveEntity eventLive = new EventLiveEntity();
+                    BeanUtil.copyProperties(elementStat, eventLive, CopyOptions.create().ignoreNullValue());
+                    eventLive.setElement(element);
+                    eventLive.setElementType(playerMap.containsKey(element) ?
+                            playerMap.get(element).getElementType() : 0);
+                    eventLive.setEvent(event);
+                    eventLive.setWasHome(playAtHomeMap.getOrDefault(teamId, null));
+                    eventLiveList.add(eventLive);
+                }));
+        this.eventLiveService.saveBatch(eventLiveList);
+        log.info("insert event_live size is " + eventLiveList.size() + "!");
+        // set cache
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+        Map<String, Object> valueMap = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", EventLiveEntity.class.getSimpleName(), event);
+        RedisUtils.removeCacheByKey(key);
+        eventLiveList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
+        cacheMap.put(key, valueMap);
+        RedisUtils.pipelineHashCache(cacheMap, 7, TimeUnit.DAYS);
+    }
+
+    @Override
+    public void insertEventLiveCache(int event) {
+        Map<Integer, String> playAtHomeMap = this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event)
+                .stream()
+                .collect(new PlayAtHomeCollector());
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        List<EventLiveEntity> eventLiveList = Lists.newArrayList();
+        Optional<EventLiveRes> result = this.interfaceService.getEventLive(event);
+        result.ifPresent(eventLiveRes ->
+                eventLiveRes.getElements().forEach(o -> {
+                    int element = o.getId();
+                    int teamId = playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0;
+                    ElementStat elementStat = o.getStats();
+                    EventLiveEntity eventLive = new EventLiveEntity();
+                    BeanUtil.copyProperties(elementStat, eventLive, CopyOptions.create().ignoreNullValue());
+                    eventLive.setElement(element);
+                    eventLive.setElementType(playerMap.containsKey(element) ?
+                            playerMap.get(element).getElementType() : 0);
+                    eventLive.setEvent(event);
+                    eventLive.setWasHome(playAtHomeMap.getOrDefault(teamId, null));
+                    eventLiveList.add(eventLive);
+                }));
+        log.info("event_live_cache size is " + eventLiveList.size() + "!");
+        // set cache
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+        Map<String, Object> valueMap = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", EventLiveEntity.class.getSimpleName(), event);
+        RedisUtils.removeCacheByKey(key);
+        eventLiveList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
+        cacheMap.put(key, valueMap);
+        RedisUtils.pipelineHashCache(cacheMap, 10, TimeUnit.HOURS);
+    }
+
+    @Override
     public int getCurrentEvent() {
         int event = 1;
         for (int i = 1; i < 39; i++) {
@@ -417,6 +494,19 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
             }
         }
         return event;
+    }
+
+    @Override
+    public int getNextEvent() {
+        int event = 1;
+        for (int i = 1; i < 39; i++) {
+            String deadline = this.getDeadlineByEvent(i);
+            if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+                event = i;
+                break;
+            }
+        }
+        return event + 1;
     }
 
     private String getChangeType(int nowCost, int lastCost) {
@@ -521,6 +611,14 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
         }
         set.forEach(o -> list.add((PlayerValueEntity) o));
         return list;
+    }
+
+    @Override
+    public Map<Integer, EventLiveEntity> getEventLiveByEvent(int event) {
+        Map<Integer, EventLiveEntity> map = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", EventLiveEntity.class.getSimpleName(), event);
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(Integer.valueOf(k.toString()), (EventLiveEntity) v));
+        return map;
     }
 
 }

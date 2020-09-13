@@ -13,20 +13,22 @@ import java.util.List;
  */
 public interface IHttpApi {
 
-	EntryEventData qryEntryResult(String season, int entry);
+    EntryEventData qryEntryResult(String season, int entry);
 
-	EntryEventData qryEntryEventResult(String season, int event, int entry);
+    EntryEventData qryEntryEventResult(String season, int event, int entry);
 
-	List<EventLiveEntity> qryEventLiveAll(String season, int element);
+    List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-	List<EventLiveEntity> qryEventLive(String season, int event, int element);
+    List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-	PlayerData qryPlayerData(PlayerQueryParam playerQueryParam) throws Exception;
+    PlayerData qryPlayerData(PlayerQueryParam playerQueryParam) throws Exception;
 
-	List<PlayerInfoData> qryAllPlayers(String season);
+    List<PlayerInfoData> qryAllPlayers(String season);
 
-	String qryDeadlineByEvent(int event);
+    String qryDeadlineByEvent(int event);
 
-	int getCurrentEvent();
+    int getCurrentEvent();
+
+    int getNextEvent();
 
 }

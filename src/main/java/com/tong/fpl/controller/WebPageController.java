@@ -22,9 +22,9 @@ public class WebPageController {
 
     @RequestMapping(value = {"", "/"})
     public String indexController(Model model) {
-        int currentEvent = this.httpApi.getCurrentEvent();
-        model.addAttribute("nextGw", currentEvent);
-        model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(currentEvent));
+        int nextEvent = this.httpApi.getCurrentEvent();
+        model.addAttribute("nextGw", nextEvent);
+        model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(nextEvent));
         return "index";
     }
 
@@ -35,7 +35,6 @@ public class WebPageController {
 
     @RequestMapping(value = "/test")
     public String testController(Model model) {
-        model.addAttribute("test", 222222);
         return "test";
     }
 

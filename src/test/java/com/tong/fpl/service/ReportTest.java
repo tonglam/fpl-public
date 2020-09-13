@@ -11,7 +11,7 @@ public class ReportTest extends FplApplicationTests {
 	private IReportService reportService;
 
 	@ParameterizedTest
-	@CsvSource({"1920, 1"})
+	@CsvSource({"2021, 1"})
 	void insertEntryCaptainStat(String season, int tournamentId) {
 		this.reportService.insertEntryCaptainStat(season, tournamentId);
 		System.out.println(1);

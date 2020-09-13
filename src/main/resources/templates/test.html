@@ -2,8 +2,9 @@
 
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="layout::header(~{::title},~{})">
+<head th:replace="layout::header(~{::title},~{::link})">
     <title>test-letletme</title>
+    <link rel="stylesheet" th:href="@{/css/test.css}"/>
 </head>
 
 <body>
@@ -18,16 +19,81 @@
 
             <div style="margin-top: 20px"></div>
 
-            <div class="layui-row layui-col-space30">
+            <div class="pitch">
+                <ol class="container" id="attack">
+                    <li>
+                        <span class="number">10</span>
+                        <span class="name">Werner</span>
+                    </li>
+                    <li>
+                        <span class="number">11</span>
+                        <span class="name">Mitrovic</span>
+                    </li>
+                </ol>
+                <ol class="container" id="midfield">
+                    <li>
+                        <span class="number">6</span>
+                        <span class="name">Son</span>
+                    </li>
+                    <li>
+                        <span class="number">7</span>
+                        <span class="name">Pulisic</span>
+                    </li>
+                    <li>
+                        <span class="number">8</span>
+                        <span class="name">Salah</span>
+                    </li>
+                    <li>
+                        <span class="number">9</span>
+                        <span class="name">Auba</span>
+                    </li>
+                </ol>
+                <ol class="container" id="defence">
+                    <li>
+                        <span class="number">2</span>
+                        <span class="name">Justin</span>
+                    </li>
+                    <li>
+                        <span class="number">3</span>
+                        <span class="name" title="Taaaaaaaaaaaaaaaaaaaaaaa">Taa</span>
+                    </li>
+                    <li>
+                        <span class="number">4</span>
+                        <span class="name">Egan</span>
+                    </li>
+                    <li>
+                        <span class="number">5</span>
+                        <span class="name">JWP</span>
+                    </li>
+                </ol>
+                <ul class="container" id="goal">
+                    <li>
+                        <span class="number" style="background-color: #006600;
+                        color: rgba(0, 102, 0, 1);">1</span>
+                        <span class="name">McCarthy</span>
+                    </li>
+                </ul>
+            </div>
 
-                <div class="layui-col-md6">
-                    <table class="layui-table" id="group1Table"></table>
-                </div>
-
-                <div class="layui-col-md6">
-                    <table class="layui-table" id="group2Table"></table>
-                </div>
-
+            <div class="bench">
+                <ul class="container" id="subs">
+                    <li id="subgoal">
+                        <span class="number" style="background-color: #006600; color: rgba(0, 102, 0, 1);">12</span>
+                        <span class="name">Button</span>
+                    </li>
+                    <li>
+                        <span class="number">13</span>
+                        <span class="name">Bissouma</span>
+                    </li>
+                    <li>
+                        <span class="number">14</span>
+                        <span class="name">Buur</span>
+                    </li>
+                    <li>
+                        <span class="number">15</span>
+                        <span class="name">Vassilev</span>
+                    </li>
+                </ul>
             </div>
 
         </div>
@@ -40,37 +106,51 @@
 
 <script th:replace="layout::baseScript"></script>
 
-<script th:inline="none">
-    layui.use(['table', 'soulTable'], function () {
-        let table = layui.table, soulTable = layui.soulTable;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.1/dragula.min.js"></script>
 
-        for (let i = 1; i < 3; i++) {
-            let id = "group" + i + "Table";
-            let elem = "#" + id;
-            table.render({
-                elem: elem,
-                method: 'get',
-                url: '/tournament/qryGroupInfoListByGroupId',
-                where: {tournamentId: 1, groupId: 1},
-                loading: true,
-                cellMinWidth: 60,
-                cols: [[
-                    {field: 'groupName', title: '组别', align: 'center'},
-                    {field: 'groupRank', title: '排名', align: 'center'},
-                    {field: 'entryName', title: '队名', align: 'center', width: 180},
-                    {field: 'win', title: '胜', align: 'center'},
-                    {field: 'draw', title: '平', align: 'center'},
-                    {field: 'lose', title: '负', align: 'center'},
-                    {field: 'groupPoints', title: '积分', align: 'center'},
-                ]],
-                id: id,
-                done: function () {
-                    soulTable.render(this);
-                }
-            });
+<script th:inline="none">
+
+    let drake = dragula({
+        containers: [
+            document.querySelector('#goal'), document.querySelector('#defence'), document.querySelector('#midfield'),
+            document.querySelector('#attack'),
+            document.querySelector('#subs')
+        ],
+        revertOnSpill: true,
+        mirrorContainer: document.body,
+        ignoreInputTextSelection: true
+    });
+
+    // validation
+    drake.on('drop', function (el, target, source, sibling) {
+
+        // max 11 players
+        if (target.id !== 'subs' && document.querySelectorAll('.pitch li').length > 11) {
+            drake.cancel();
+        }
+
+        // 1 goalkeeper
+        if (target.id === 'goal' && target.children.length > 1) {
+            drake.cancel();
+        }
+
+        // 5 defenders
+        if (target.id === 'defence' && target.children.length > 5) {
+            drake.cancel();
+        }
+
+        // 5 midfielders
+        if (target.id === 'midfield' && target.children.length > 5) {
+            drake.cancel();
+        }
+
+        // 4 attackers
+        if (target.id === 'attack' && target.children.length > 4) {
+            drake.cancel();
         }
 
     });
+
 </script>
 
 
