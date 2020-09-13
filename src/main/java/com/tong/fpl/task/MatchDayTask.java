@@ -24,7 +24,7 @@ public class MatchDayTask {
     private final ITableQueryService tableQueryService;
     private final TournamentInfoService tournamentInfoService;
 
-    @Scheduled(cron = "0 0/5 20-24 * * *")
+    @Scheduled(cron = "0 0/5 20-23 * * *")
     public void insertEventLiveCache() {
         log.info("start insertEventLiveCache task, time:{}", LocalDateTime.now());
         int event = this.redisCacheSerive.getCurrentEvent();
@@ -37,7 +37,7 @@ public class MatchDayTask {
         this.tableQueryService.qryTournamentLivePoints(2);
     }
 
-    @Scheduled(cron = "0 0/10 20-24 * * *")
+    @Scheduled(cron = "0 0/10 20-23 * * *")
     public void updateTournamentCache() {
         // league live
 //        int tournamentIds = this.tournamentInfoService.count();
