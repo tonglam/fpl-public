@@ -3,11 +3,11 @@ package com.tong.fpl.api.impl;
 import com.tong.fpl.api.ILiveApi;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
-import com.tong.fpl.domain.letletme.live.TournamentLiveData;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,8 +25,9 @@ public class LiveApiImpl implements ILiveApi {
         return this.tableQueryService.qryEntryLivePoints(entry);
     }
 
+    @Cacheable(value = "qryTournamentLivePoints", key = "#tournamentId")
     @Override
-    public TableData<TournamentLiveData> qryTournamentLivePoints(int tournamentId) {
+    public TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId) {
         return this.tableQueryService.qryTournamentLivePoints(tournamentId);
     }
 

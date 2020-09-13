@@ -158,7 +158,8 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
         List<EventFixtureEntity> fixtureList = Lists.newArrayList();
         Map<String, Set<Object>> cacheMap = Maps.newHashMap();
         // set cache by event
-        IntStream.range(1, 39).forEach(event -> fixtureList.addAll(this.insertEventFixtureByEvent(cacheMap, event)));
+        int currentEvent = this.getCurrentEvent();
+        IntStream.range(currentEvent, 39).forEach(event -> fixtureList.addAll(this.insertEventFixtureByEvent(cacheMap, event)));
         // set cache by team
         this.setEventFixtureCacheByTeam(cacheMap, CommonUtils.getCurrentSeason(), fixtureList);
         RedisUtils.pipelineSetCache(cacheMap, -1, null);

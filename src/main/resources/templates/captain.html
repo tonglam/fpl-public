@@ -126,7 +126,7 @@
             if (entry == null) {
                 return false;
             }
-            let tableId = "#" + entry + "Table";
+            let tableId = entry + "Table";
             axios.get('/stat/qryEntryCaptainList', {
                 params: {
                     season: '2021',
@@ -135,7 +135,7 @@
             })
                 .then(function (response) {
                     table.render({
-                        elem: tableId,
+                        elem: '#' + tableId,
                         data: response.data,
                         page: true,
                         limit: 15,
@@ -149,12 +149,12 @@
                         loading: true,
                         cellMinWidth: 100,
                         cols: [[
-                            {title: '排名', type: 'numbers', templet: '#indexTpl'},
+                            {title: '排名', type: 'numbers'},
                             {field: 'event', title: '比赛周', align: 'center', sort: true, filter: true},
                             {field: 'chip', title: '开卡', align: 'center', filter: true},
                             {field: 'webName', title: '队长', align: 'center', width: 150, filter: true},
                             {field: 'points', title: '原始分', align: 'center', sort: true, filter: true},
-                            {field: 'totalPoints', title: '总得分', align: 'center', sort: true, filter: true},
+                            {field: 'totalPoints', title: '总得分', align: 'center', sort: true, filter: true}
                         ]],
                         filter: {
                             items: ['data', 'condition'],
@@ -163,7 +163,8 @@
                         },
                         done: function () {
                             soulTable.render(this);
-                        }
+                        },
+                        id: tableId
                     });
                 })
                 .catch(function (error) {
@@ -178,10 +179,6 @@
         });
 
     });
-</script>
-
-<script id="nameTpl" type="text/html">
-    <a href="/tournament/result?id={{d.tournamentId}}" class="layui-table-link">{{d.name}}</a>
 </script>
 
 </html>

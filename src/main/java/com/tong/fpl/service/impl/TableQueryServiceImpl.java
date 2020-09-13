@@ -14,10 +14,8 @@ import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
-import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
-import com.tong.fpl.domain.letletme.live.TournamentLiveData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.ILiveService;
@@ -83,6 +81,16 @@ public class TableQueryServiceImpl implements ITableQueryService {
         List<TournamentInfoData> list = Lists.newArrayList();
         // get tournament info
         LambdaQueryWrapper<TournamentInfoEntity> queryWrapper = new QueryWrapper<TournamentInfoEntity>().lambda();
+        if (param.getEntry() > 0) {
+            List<Integer> tournamentIdList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+                    .eq(TournamentEntryEntity::getEntry, param.getEntry()))
+                    .stream()
+                    .map(TournamentEntryEntity::getTournamentId)
+                    .collect(Collectors.toList());
+            if (!CollectionUtils.isEmpty(tournamentIdList)) {
+                queryWrapper.in(TournamentInfoEntity::getId, tournamentIdList);
+            }
+        }
         if (StringUtils.isNotBlank(param.getName())) {
             queryWrapper.eq(TournamentInfoEntity::getName, param.getName());
         } else {
@@ -365,37 +373,23 @@ public class TableQueryServiceImpl implements ITableQueryService {
     }
 
     @Override
-    public TableData<TournamentLiveData> qryTournamentLivePoints(int tournamentId) {
-        List<TournamentLiveData> list = Lists.newArrayList();
+    public TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId) {
+        List<LiveCalaData> list = Lists.newArrayList();
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
                 .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
         entryList.forEach(entry -> {
-            TournamentLiveData tournamentLiveData = new TournamentLiveData();
-            tournamentLiveData.setTournamentId(tournamentId).setEntry(entry);
             // entry live points
-            TableData<LiveCalaData> tableData = this.qryEntryLivePoints(entry);
-            tournamentLiveData.setLiveList(tableData.getData());
-            list.add(tournamentLiveData);
+            int event = this.redisCacheSerive.getCurrentEvent();
+            LiveCalaData liveCalaData = this.liveService.calcLivePointsByEntry(event, entry);
+            list.add(liveCalaData);
         });
-        return new TableData<>(list);
-    }
-
-    private EntryPickData getRealCaptainPoints(List<EntryPickData> captainPickList) {
-        if (CollectionUtils.isEmpty(captainPickList)) {
-            return null;
-        }
-        EntryPickData captain = captainPickList.stream().filter(EntryPickData::isCaptain).findFirst().orElse(null);
-        EntryPickData viceCaptain = captainPickList.stream().filter(EntryPickData::isViceCaptain).findFirst().orElse(null);
-        if (captain == null || viceCaptain == null) {
-            return null;
-        }
-        if (captain.getPoints() == 0 && viceCaptain.getPoints() > 0) {
-            return viceCaptain;
-        }
-        return captain;
+        return new TableData<>(list
+                .stream()
+                .sorted(Comparator.comparing(LiveCalaData::getLiveNetPoints).reversed())
+                .collect(Collectors.toList()));
     }
 
 }

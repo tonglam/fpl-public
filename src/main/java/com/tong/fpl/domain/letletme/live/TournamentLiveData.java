@@ -13,7 +13,6 @@ import java.util.List;
 public class TournamentLiveData {
 
     private int tournamentId;
-    private int entry;
     private List<LiveCalaData> liveList;
 
 }

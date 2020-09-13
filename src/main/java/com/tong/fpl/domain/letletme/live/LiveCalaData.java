@@ -12,13 +12,15 @@ import java.util.List;
 @Accessors(chain = true)
 public class LiveCalaData {
 
-	private int event;
-	private int entry;
-	private List<ElementLiveData> pickList;
-	private String chip;
-	private int livePoints;
-	private int transferCost;
-	private int liveNetPoints;
-	private boolean eventFinished;
+    private int event;
+    private int entry;
+    private String entryName;
+    private String playerName;
+    private List<ElementLiveData> pickList;
+    private String chip;
+    private int livePoints;
+    private int transferCost;
+    private int liveNetPoints;
+    private boolean eventFinished;
 
 }

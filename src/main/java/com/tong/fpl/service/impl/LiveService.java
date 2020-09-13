@@ -10,12 +10,14 @@ import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.PositionRule;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.letletme.live.ElementLiveData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.service.ILiveService;
+import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.IStaticSerive;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ import java.util.stream.Stream;
 public class LiveService implements ILiveService {
 
     private final IRedisCacheSerive redisCacheSerive;
+    private final IQuerySerivce querySerivce;
     private final IStaticSerive staticService;
 
     @Override
@@ -49,6 +52,12 @@ public class LiveService implements ILiveService {
             List<ElementLiveData> elementLiveDataList = this.initElemetLiveData(event, userPicksRes.getPicks());
             // get active picks
             List<ElementLiveData> pickList = this.getPickList(elementLiveDataList);
+            // set active
+            for (int i = 0; i < 15; i++) {
+                if (i < 11) {
+                    pickList.get(i).setPickAvtive(true);
+                }
+            }
             // calc live points
             int livePoints = this.calcActivePoints(Chip.getChipFromValue(userPicksRes.getActiveChip()), pickList);
             liveCalaData
@@ -59,6 +68,11 @@ public class LiveService implements ILiveService {
                     .setLivePoints(livePoints)
                     .setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
                     .setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost());
+            // entry info
+            EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
+            if (entryInfoEntity != null) {
+                liveCalaData.setEntryName(entryInfoEntity.getEntryName()).setPlayerName(entryInfoEntity.getPlayerName());
+            }
         });
         return liveCalaData;
     }
@@ -69,6 +83,8 @@ public class LiveService implements ILiveService {
         // initialize element_live_data
         List<ElementLiveData> pickList = Lists.newArrayList();
         Map<Integer, EventLiveEntity> eventLiveMap = this.redisCacheSerive.getEventLiveByEvent(event);
+        Map<Integer, String> positionMap = Arrays.stream(Position.values())
+                .collect(Collectors.toMap(Position::getPosition, Position::name));
         elementMap.keySet().forEach(position -> {
             int element = elementMap.get(position);
             ElementLiveData elementLiveData = new ElementLiveData();
@@ -76,13 +92,32 @@ public class LiveService implements ILiveService {
             elementLiveData.setMultiplier(this.ifMultiplier(event, element));
             elementLiveData.setCaptain(element == captain);
             elementLiveData.setViceCaptain(element == viceCaptain);
+            // player info
+            PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElememt(element);
+            if (playerEntity != null) {
+                elementLiveData
+                        .setElementTypeName(positionMap.get(playerEntity.getElementType()))
+                        .setWebName(playerEntity.getWebName());
+                // event fixture
+                int teamId = playerEntity.getTeamId();
+                List<PlayerFixtureData> playerFixtureDataList = this.redisCacheSerive.getEventFixtureByTeamId(teamId);
+                if (!CollectionUtils.isEmpty(playerFixtureDataList)) {
+                    PlayerFixtureData PlayerFixtureData = playerFixtureDataList
+                            .stream()
+                            .filter(o -> o.getEvent() == event)
+                            .findFirst()
+                            .orElse(new PlayerFixtureData());
+                    elementLiveData.setGwStarted(PlayerFixtureData.isStarted());
+                    elementLiveData.setGwFinished(PlayerFixtureData.isFinished());
+                    elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
+                }
+            }
             // from event_live
             EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
             if (eventLiveEntity != null) {
                 BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
             }
-            elementLiveData.setGwStarted(this.isFixtureStarted(event, element));
-            elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
+            elementLiveData.setPlayStatus(this.setElementPlayStatus(elementLiveData.isGwStarted(), elementLiveData.isGwFinished()));
             pickList.add(elementLiveData);
         });
         // calc live points
@@ -119,48 +154,56 @@ public class LiveService implements ILiveService {
         Map<Integer, EventLiveEntity> eventLiveMap = this.redisCacheSerive.getEventLiveByEvent(event);
         Map<Integer, String> positionMap = Arrays.stream(Position.values())
                 .collect(Collectors.toMap(Position::getPosition, Position::name));
-
         picks.forEach(pick -> {
             int element = pick.getElement();
             // from user pick
             ElementLiveData elementLiveData = new ElementLiveData();
             elementLiveData.setEvent(event)
                     .setElement(element)
-                    .setWebName("")
                     .setElementType(pick.getPosition())
-                    .setElementTypeName("")
                     .setPosition(pick.getPosition())
                     .setMultiplier(pick.getMultiplier())
                     .setCaptain(pick.isCaptain())
                     .setViceCaptain(pick.isViceCaptain());
+            // player info
+            PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElememt(element);
+            if (playerEntity != null) {
+                elementLiveData
+                        .setElementTypeName(positionMap.get(playerEntity.getElementType()))
+                        .setWebName(playerEntity.getWebName());
+                // event fixture
+                int teamId = playerEntity.getTeamId();
+                List<PlayerFixtureData> playerFixtureDataList = this.redisCacheSerive.getEventFixtureByTeamId(teamId);
+                if (!CollectionUtils.isEmpty(playerFixtureDataList)) {
+                    PlayerFixtureData PlayerFixtureData = playerFixtureDataList
+                            .stream()
+                            .filter(o -> o.getEvent() == event)
+                            .findFirst()
+                            .orElse(new PlayerFixtureData());
+                    elementLiveData.setGwStarted(PlayerFixtureData.isStarted());
+                    elementLiveData.setGwFinished(PlayerFixtureData.isFinished());
+                }
+            }
             // from event_live
             EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
             if (eventLiveEntity != null) {
                 BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
+                elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
             }
-            elementLiveData.setGwStarted(this.isFixtureStarted(event, element));
-            elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
+            elementLiveData.setPlayStatus(this.setElementPlayStatus(elementLiveData.isGwStarted(), elementLiveData.isGwFinished()));
             elementLiveDataList.add(elementLiveData);
         });
         return elementLiveDataList;
     }
 
-    private boolean isFixtureStarted(int event, int element) {
-        PlayerEntity player = this.redisCacheSerive.getPlayerByElememt(element);
-        if (player == null) {
-            return false;
+    private int setElementPlayStatus(boolean started, boolean finished) {
+        if (finished) {
+            return 2;
+        } else if (!started) {
+            return 1;
+        } else {
+            return 0;
         }
-        int teamId = player.getTeamId();
-        List<PlayerFixtureData> playerFixtureDataList = this.redisCacheSerive.getEventFixtureByTeamId(teamId);
-        if (CollectionUtils.isEmpty(playerFixtureDataList)) {
-            return false;
-        }
-        return playerFixtureDataList
-                .stream()
-                .filter(o -> o.getEvent() == event)
-                .findFirst()
-                .orElse(new PlayerFixtureData())
-                .isStarted();
     }
 
     private List<ElementLiveData> getPickList(List<ElementLiveData> elementLiveDataList) {
