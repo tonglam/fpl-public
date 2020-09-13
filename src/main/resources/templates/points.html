@@ -26,7 +26,7 @@
                         <input lay-filter="refreshSwitch" lay-skin="switch" lay-text="开|关"
                                checked name="refreshSwitch" title="aaaa" type="checkbox">
                     </div>
-                    <div class="layui-form-mid layui-word-aux" style="margin-left: -120px">开启后每分钟自动刷新得分</div>
+                    <div class="layui-form-mid layui-word-aux" style="margin-left: -120px">开启后每5分钟自动刷新得分</div>
                 </div>
 
                 <div class="layui-form-item">
@@ -74,7 +74,7 @@
 
         $(document).ready(function () {
             initData();
-            setTimeout(refresh, 60000);
+            setTimeout(refresh, 300000);
         });
 
         $("#entryButton").on('click', function () {
@@ -83,7 +83,7 @@
 
         form.on('switch(refreshSwitch)', function () {
             if (this.checked) {
-                setTimeout(refresh, 60000);
+                setTimeout(refresh, 300000);
             }
         });
 
