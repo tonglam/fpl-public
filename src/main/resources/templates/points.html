@@ -14,7 +14,7 @@
     <div class="layui-main">
         <div class="site-content">
 
-            <h1 style="font-size: 28px" th:text="'实时得分-'+${time}"></h1>
+            <h1 id="headTitle" style="font-size: 28px"></h1>
 
             <div style="margin-top: 20px"></div>
 
@@ -88,7 +88,10 @@
         });
 
         function initData() {
-            let loadIndex = layer.load(2);
+            let loadIndex = layer.load(2, {time: false});
+
+            let now = new Date().toLocaleTimeString();
+            $("#headTitle").html("实时得分-" + now);
 
             let entry = 0;
             if (($("input[name=entryInput]").val() != "")) {

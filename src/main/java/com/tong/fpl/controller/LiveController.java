@@ -1,21 +1,17 @@
 package com.tong.fpl.controller;
 
 import com.tong.fpl.api.ILiveApi;
-import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Create by tong on 2020/6/23
@@ -28,8 +24,7 @@ public class LiveController {
     private final ILiveApi liveApi;
 
     @RequestMapping(value = "/points")
-    public String pointsController(Model model) {
-        model.addAttribute("time", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)));
+    public String pointsController() {
         return "points";
     }
 

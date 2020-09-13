@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
  * Create by tong on 2020/7/21
  */
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MatchDayTask {
 
