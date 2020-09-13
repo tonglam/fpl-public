@@ -33,81 +33,81 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportServiceImpl implements IReportService {
 
-	private final IQuerySerivce querySerivce;
-	private final IRedisCacheSerive redisCacheSerive;
-	private final EntryInfoService entryInfoService;
-	private final EntryEventResultService entryEventResultService;
-	private final EntryCaptainStatService entryCaptainStatService;
-	private final TournamentEntryService tournamentEntryService;
+    private final IQuerySerivce querySerivce;
+    private final IRedisCacheSerive redisCacheSerive;
+    private final EntryInfoService entryInfoService;
+    private final EntryEventResultService entryEventResultService;
+    private final EntryCaptainStatService entryCaptainStatService;
+    private final TournamentEntryService tournamentEntryService;
 
-	@Override
-	public void insertEntryCaptainStat(String season, int tournamentId) {
-		MybatisPlusConfig.season.set(season);
-		List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-				.eq(TournamentEntryEntity::getTournamentId, tournamentId))
-				.stream()
-				.map(TournamentEntryEntity::getEntry)
-				.collect(Collectors.toList());
-		entryList.forEach(entry -> this.initEntryEventCaptainStat(season, entry));
-		MybatisPlusConfig.season.remove();
+    @Override
+    public void insertEntryCaptainStat(String season, int tournamentId) {
+        this.entryCaptainStatService.remove(new QueryWrapper<EntryCaptainStatEntity>().eq("1", 1));
+        MybatisPlusConfig.season.set(season);
+        List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                .stream()
+                .map(TournamentEntryEntity::getEntry)
+                .collect(Collectors.toList());
+        List<EntryCaptainStatEntity> entryCaptainStatList = Lists.newArrayList();
+        entryList.forEach(entry -> this.initEntryEventCaptainStat(season, entry, entryCaptainStatList));
+        // insert
+        this.entryCaptainStatService.saveBatch(entryCaptainStatList);
+        MybatisPlusConfig.season.remove();
+    }
 
-	}
+    private void initEntryEventCaptainStat(String season, int entry, List<EntryCaptainStatEntity> entryCaptainStatList) {
+        // entry_info
+        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        if (entryInfoEntity == null) {
+            return;
+        }
+        // entry_event_result
+        List<EntryEventResultEntity> entryEventResultList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEntry, entry)
+                .gt(EntryEventResultEntity::getEventPoints, 0));
+        if (CollectionUtils.isEmpty(entryEventResultList)) {
+            return;
+        }
+        entryEventResultList.forEach(entryEventResult -> {
+            List<EntryPickData> captainPickList = this.querySerivce.qryPickListFromPicks(season, entryEventResult.getEventPicks())
+                    .stream()
+                    .filter(o -> o.isCaptain() || o.isViceCaptain())
+                    .collect(Collectors.toList());
+            EntryPickData captainPick = this.getRealCaptainPoints(captainPickList);
+            if (captainPick == null) {
+                return;
+            }
+            EntryCaptainStatEntity entryCaptainStatEntity = new EntryCaptainStatEntity();
+            entryCaptainStatEntity.setEntry(entry)
+                    .setEvent(entryEventResult.getEvent())
+                    .setEntryName(entryInfoEntity.getEntryName())
+                    .setPlayerName(entryInfoEntity.getPlayerName())
+                    .setOverallPoints(entryInfoEntity.getOverallPoints())
+                    .setOverallRank(entryInfoEntity.getOverallRank())
+                    .setChip(entryEventResult.getEventChip())
+                    .setElement(captainPick.getElement())
+                    .setWebName(this.redisCacheSerive.getPlayerByElememt(season, captainPick.getElement()).getWebName())
+                    .setPoints(captainPick.getPoints());
+            entryCaptainStatEntity.setTotalPoints(Chip.getChipFromValue(entryCaptainStatEntity.getChip()).equals(Chip.TC) ?
+                    3 * entryCaptainStatEntity.getPoints() : 2 * entryCaptainStatEntity.getPoints());
+            entryCaptainStatList.add(entryCaptainStatEntity);
+        });
+    }
 
-	private void initEntryEventCaptainStat(String season, int entry) {
-		List<EntryCaptainStatEntity> entryCaptainStatList = Lists.newArrayList();
-		// entry_info
-		EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
-		if (entryInfoEntity == null) {
-			return;
-		}
-		// entry_event_result
-		List<EntryEventResultEntity> entryEventResultList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-				.eq(EntryEventResultEntity::getEntry, entry)
-				.gt(EntryEventResultEntity::getEventPoints, 0));
-		if (CollectionUtils.isEmpty(entryEventResultList)) {
-			return;
-		}
-		entryEventResultList.forEach(entryEventResult -> {
-			List<EntryPickData> captainPickList = this.querySerivce.qryPickListFromPicks(season, entryEventResult.getEventPicks())
-					.stream()
-					.filter(o -> o.isCaptain() || o.isViceCaptain())
-					.collect(Collectors.toList());
-			EntryPickData captainPick = this.getRealCaptainPoints(captainPickList);
-			if (captainPick == null) {
-				return;
-			}
-			EntryCaptainStatEntity entryCaptainStatEntity = new EntryCaptainStatEntity();
-			entryCaptainStatEntity.setEntry(entry)
-					.setEvent(entryEventResult.getEvent())
-					.setEntryName(entryInfoEntity.getEntryName())
-					.setPlayerName(entryInfoEntity.getPlayerName())
-					.setOverallPoints(entryInfoEntity.getOverallPoints())
-					.setOverallRank(entryInfoEntity.getOverallRank())
-					.setChip(entryEventResult.getEventChip())
-					.setElement(captainPick.getElement())
-					.setWebName(this.redisCacheSerive.getPlayerByElememt(season, captainPick.getElement()).getWebName())
-					.setPoints(captainPick.getPoints());
-			entryCaptainStatEntity.setTotalPoints(Chip.getChipFromValue(entryCaptainStatEntity.getChip()).equals(Chip.TC) ?
-					3 * entryCaptainStatEntity.getPoints() : 2 * entryCaptainStatEntity.getPoints());
-			entryCaptainStatList.add(entryCaptainStatEntity);
-		});
-		// insert
-		this.entryCaptainStatService.saveBatch(entryCaptainStatList);
-	}
-
-	private EntryPickData getRealCaptainPoints(List<EntryPickData> captainPickList) {
-		if (CollectionUtils.isEmpty(captainPickList)) {
-			return null;
-		}
-		EntryPickData captain = captainPickList.stream().filter(EntryPickData::isCaptain).findFirst().orElse(null);
-		EntryPickData viceCaptain = captainPickList.stream().filter(EntryPickData::isViceCaptain).findFirst().orElse(null);
-		if (captain == null || viceCaptain == null) {
-			return null;
-		}
-		if (captain.getPoints() == 0 && viceCaptain.getPoints() > 0) {
-			return viceCaptain;
-		}
-		return captain;
-	}
+    private EntryPickData getRealCaptainPoints(List<EntryPickData> captainPickList) {
+        if (CollectionUtils.isEmpty(captainPickList)) {
+            return null;
+        }
+        EntryPickData captain = captainPickList.stream().filter(EntryPickData::isCaptain).findFirst().orElse(null);
+        EntryPickData viceCaptain = captainPickList.stream().filter(EntryPickData::isViceCaptain).findFirst().orElse(null);
+        if (captain == null || viceCaptain == null) {
+            return null;
+        }
+        if (captain.getPoints() == 0 && viceCaptain.getPoints() > 0) {
+            return viceCaptain;
+        }
+        return captain;
+    }
 
 }

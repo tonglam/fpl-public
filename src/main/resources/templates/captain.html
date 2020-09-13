@@ -111,9 +111,10 @@
                 return false;
             }
             // 增加标签页
+            let tableId = entry + "Table";
             element.tabAdd('entryTab', {
                 title: entryName,
-                content: '<table class="layui-table" id=tabTable lay-filter=tabTable></table>',
+                content: '<table class="layui-table" id=' + tableId + ' lay-filter=tabTable></table>',
                 id: entry
             });
             // 切换
@@ -125,6 +126,7 @@
             if (entry == null) {
                 return false;
             }
+            let tableId = "#" + entry + "Table";
             axios.get('/stat/qryEntryCaptainList', {
                 params: {
                     season: '2021',
@@ -133,7 +135,7 @@
             })
                 .then(function (response) {
                     table.render({
-                        elem: "#tabTable",
+                        elem: tableId,
                         data: response.data,
                         page: true,
                         limit: 15,
