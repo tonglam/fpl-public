@@ -22,7 +22,7 @@ public class WebPageController {
 
     @RequestMapping(value = {"", "/"})
     public String indexController(Model model) {
-        int nextEvent = this.httpApi.getCurrentEvent();
+        int nextEvent = this.httpApi.getNextEvent();
         model.addAttribute("nextGw", nextEvent);
         model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(nextEvent));
         return "index";
@@ -33,10 +33,10 @@ public class WebPageController {
         return "error";
     }
 
-    @RequestMapping(value = "/test")
-    public String testController(Model model) {
-        return "test";
-    }
+//    @RequestMapping(value = "/test")
+//    public String testController() {
+//        return "test";
+//    }
 
     @RequestMapping(value = "/saveEntry")
     @ResponseBody
