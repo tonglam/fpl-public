@@ -38,7 +38,7 @@ public class TournamentController {
     @RequestMapping(value = "/create")
     public String createController(Model model) {
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-        return "create";
+        return "tournament/create";
     }
 
     @RequestMapping(value = "/result")
@@ -48,7 +48,7 @@ public class TournamentController {
             model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfoData(entry));
             model.addAttribute("tournamentList", this.tournamentApi.qryEntryTournamentList(entry));
         }
-        return "result";
+        return "tournament/result";
     }
 
     @RequestMapping(value = "/checkresult")
@@ -63,7 +63,7 @@ public class TournamentController {
             model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfoData(entry));
         }
         model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-        return "checkresult";
+        return "tournament/checkresult";
     }
 
     @RequestMapping(value = "/checkfixture")
@@ -77,17 +77,17 @@ public class TournamentController {
         List<TournamentKnockoutFixtureData> knockoutFixtureList = this.tournamentApi.qryKnockoutFixtureListById(id);
         model.addAttribute("knockoutFixtureList", knockoutFixtureList);
         model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-        return "checkfixture";
+        return "tournament/checkfixture";
     }
 
     @RequestMapping(value = "/manage")
     public String manageController() {
-        return "manage";
+        return "tournament/manage";
     }
 
     @RequestMapping(value = "/rule")
     public String ruleController() {
-        return "rule";
+        return "tournament/rule";
     }
 
     @ResponseBody
@@ -116,7 +116,7 @@ public class TournamentController {
     @ResponseBody
     @RequestMapping(value = "/qryTournamenList")
     public TableData<TournamentInfoData> qryTournamenList(@RequestBody TournamentQueryParam param, HttpSession session) {
-        int entry = 0;
+        int entry;
         if (session.getAttribute("entry") != null) {
             entry = (int) session.getAttribute("entry");
             param.setEntry(entry);

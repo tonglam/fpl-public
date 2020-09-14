@@ -23,14 +23,14 @@ public class LiveController {
 
     private final ILiveApi liveApi;
 
-    @RequestMapping(value = "/points")
-    public String pointsController() {
-        return "points";
+    @RequestMapping(value = "/entry")
+    public String entryController() {
+        return "live/entry";
     }
 
     @RequestMapping(value = "/leaguerank")
     public String leaguerankController() {
-        return "leaguerank";
+        return "live/league";
     }
 
     @GetMapping("/qryEntryLivePoints")
@@ -40,6 +40,12 @@ public class LiveController {
             entry = (int) session.getAttribute("entry");
         }
         return this.liveApi.qryEntryLivePoints(entry);
+    }
+
+    @RequestMapping(value = "/saveLiveEntry")
+    @ResponseBody
+    public void saveLiveEntry(@RequestParam int entry, HttpSession session) {
+        session.setAttribute("liveEntry", entry);
     }
 
     @GetMapping("/qryTournamentLivePoints")

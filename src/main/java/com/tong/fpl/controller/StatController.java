@@ -27,14 +27,14 @@ public class StatController {
 
 	@RequestMapping(value = "/compare")
 	public String compareController() {
-		return "compare";
+		return "stat/compare";
 	}
 
 	@RequestMapping(value = "/captain")
 	public String captainController(Model model) {
 		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
 		model.addAttribute("tournamentName", "赛事：让让我吧");
-		return "captain";
+		return "stat/captain";
 	}
 
 	@GetMapping("/qryEntryInfoByTournament")

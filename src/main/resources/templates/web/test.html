@@ -122,7 +122,7 @@
     });
 
     // validation
-    drake.on('drop', function (el, target, source, sibling) {
+    drake.on('drop', function (el, target) {
 
         // max 11 players
         if (target.id !== 'subs' && document.querySelectorAll('.pitch li').length > 11) {

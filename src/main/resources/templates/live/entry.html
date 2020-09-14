@@ -94,8 +94,9 @@
             $("#headTitle").html("实时得分-" + now);
 
             let entry = 0;
-            if (($("input[name=entryInput]").val() != "")) {
-                entry = parseInt($("input[name=entryInput]").val());
+            let entryInputDom = $("input[name=entryInput]");
+            if ((entryInputDom.val() != "")) {
+                entry = parseInt(entryInputDom.val());
             }
             console.info(entry);
             axios.get('/live/qryEntryLivePoints', {

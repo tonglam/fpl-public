@@ -23,7 +23,7 @@ public class MyFplController {
 
 	@RequestMapping(value = "/pick")
 	public String pickController() {
-		return "pick";
+		return "myFpl/pick";
 	}
 
 	@GetMapping("/qryPlayerDataList")

@@ -25,18 +25,18 @@ public class WebPageController {
         int nextEvent = this.httpApi.getNextEvent();
         model.addAttribute("nextGw", nextEvent);
         model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(nextEvent));
-        return "index";
+        return "web/index";
     }
 
     @RequestMapping(value = "/404")
     public String errorController() {
-        return "error";
+        return "web/error";
     }
 
-//    @RequestMapping(value = "/test")
-//    public String testController() {
-//        return "test";
-//    }
+    @RequestMapping(value = "/test")
+    public String testController() {
+        return "web/test";
+    }
 
     @RequestMapping(value = "/saveEntry")
     @ResponseBody
