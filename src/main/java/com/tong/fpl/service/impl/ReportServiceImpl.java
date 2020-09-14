@@ -7,14 +7,11 @@ import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.domain.entity.EntryCaptainStatEntity;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
-import com.tong.fpl.domain.entity.TournamentEntryEntity;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.db.EntryCaptainStatService;
 import com.tong.fpl.service.db.EntryEventResultService;
-import com.tong.fpl.service.db.EntryInfoService;
-import com.tong.fpl.service.db.TournamentEntryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,20 +30,14 @@ import java.util.stream.Collectors;
 public class ReportServiceImpl implements IReportService {
 
     private final IQuerySerivce querySerivce;
-    private final EntryInfoService entryInfoService;
     private final EntryEventResultService entryEventResultService;
     private final EntryCaptainStatService entryCaptainStatService;
-    private final TournamentEntryService tournamentEntryService;
 
     @Override
     public void insertEntryCaptainStat(String season, int tournamentId) {
         this.entryCaptainStatService.remove(new QueryWrapper<EntryCaptainStatEntity>().eq("1", 1));
         MybatisPlusConfig.season.set(season);
-        List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
-                .stream()
-                .map(TournamentEntryEntity::getEntry)
-                .collect(Collectors.toList());
+        List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
         List<EntryCaptainStatEntity> entryCaptainStatList = Lists.newArrayList();
         entryList.forEach(entry -> this.initEntryEventCaptainStat(season, entry, entryCaptainStatList));
         // insert
@@ -56,7 +47,7 @@ public class ReportServiceImpl implements IReportService {
 
     private void initEntryEventCaptainStat(String season, int entry, List<EntryCaptainStatEntity> entryCaptainStatList) {
         // entry_info
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
             return;
         }

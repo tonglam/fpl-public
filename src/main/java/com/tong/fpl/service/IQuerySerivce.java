@@ -1,5 +1,6 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventData;
@@ -82,6 +83,8 @@ public interface IQuerySerivce {
 
 	Optional<UserPicksRes> getUserPicks(int event, int entry);
 
+	Optional<EntryRes> getEntry(int entry);
+
 	default Map<String, String> getTeamNameMap() {
 		return this.getTeamNameMap(CommonUtils.getCurrentSeason());
 	}
@@ -141,5 +144,7 @@ public interface IQuerySerivce {
 	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
 	Map<String, String> getPositionMap();
+
+	List<Integer> qryEntryListByTournament(int tournamentId);
 
 }

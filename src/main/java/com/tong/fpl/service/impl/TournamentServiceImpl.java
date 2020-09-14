@@ -9,6 +9,7 @@ import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
+import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.ITournamentService;
 import com.tong.fpl.service.db.*;
@@ -24,7 +25,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -36,6 +36,9 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentServiceImpl implements ITournamentService {
 
+    private final ApplicationContext context;
+    private final IStaticSerive staticSerive;
+    private final IQuerySerivce querySerivce;
     private final EntryInfoService entryInfoService;
     private final TournamentInfoService tournamentInfoService;
     private final TournamentEntryService tournamentEntryService;
@@ -43,8 +46,6 @@ public class TournamentServiceImpl implements ITournamentService {
     private final TournamentBattleGroupResultService tournamentGroupBattleService;
     private final TournamentKnockoutService tournamentKnockoutService;
     private final TournamentKnockoutResultService tournamentKnockoutResultService;
-    private final IStaticSerive staticSerive;
-    private final ApplicationContext context;
 
     @Override
     public String createNewTournament(TournamentCreateData tournamentCreateData) {
@@ -242,13 +243,7 @@ public class TournamentServiceImpl implements ITournamentService {
         }
         List<TournamentGroupEntity> tournamentGroupList = Lists.newArrayList();
         // get entryList from input classic league
-        List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId)
-                .gt(TournamentEntryEntity::getEntry, 0))
-                .stream()
-                .filter(o -> o.getEntry() > 0)
-                .map(TournamentEntryEntity::getEntry)
-                .collect(Collectors.toList());
+        List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
         // draw
         Multimap<Integer, Integer> teamInGroupMap = ArrayListMultimap.create();
         Multimap<Integer, Integer> groupIndexMap = ArrayListMultimap.create();
@@ -544,12 +539,7 @@ public class TournamentServiceImpl implements ITournamentService {
     private ArrayList<Integer> getKnockoutEntryList(int tournamentId, String groupMode, int groupNum, int groupQualifiers) {
         ArrayList<Integer> entryList = Lists.newArrayList();
         if (GroupMode.valueOf(groupMode) == GroupMode.No_group) {
-            List<Integer> entryInfoList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                    .eq(TournamentEntryEntity::getTournamentId, tournamentId)
-                    .orderByAsc(TournamentEntryEntity::getId))
-                    .stream()
-                    .map(TournamentEntryEntity::getEntry)
-                    .collect(Collectors.toList());
+            List<Integer> entryInfoList = this.querySerivce.qryEntryListByTournament(tournamentId);
             entryList.addAll(entryInfoList);
         } else {
             IntStream.range(1, groupNum + 1).forEach(i ->

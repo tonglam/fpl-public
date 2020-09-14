@@ -57,7 +57,7 @@
 
             let $ = layui.jquery, form = layui.form, layer = layui.layer, table = layui.table, soulTable = layui.soulTable;
 
-            let refreshTimeout = setTimeout(refresh, 30000);
+            let refreshTimeout = setTimeout(refresh, 300000);
 
             let entryInputDom = $("input[name=entryInput]");
 
@@ -76,12 +76,12 @@
 
             $("#entryButton").on('click', function () {
                 initData();
-                refreshTimeout = setTimeout(refresh, 30000);
+                refreshTimeout = setTimeout(refresh, 300000);
             });
 
             form.on('switch(refreshSwitch)', function () {
                 if (this.checked) {
-                    refreshTimeout = setTimeout(refresh, 30000);
+                    refreshTimeout = setTimeout(refresh, 300000);
                 } else {
                     clearTimeout(refreshTimeout);
                 }
@@ -89,8 +89,10 @@
 
             entryInputDom.on('keydown', function (event) {
                 if (event.keyCode == 13) {
-                    initData();
-                    return false;
+                    let init = initData();
+                    init.then(function () {
+                        return false;
+                    })
                 }
             });
 
@@ -133,6 +135,7 @@
                                 {field: 'entry', title: 'team_id', align: 'center'},
                                 {field: 'entryName', title: '队伍名字', align: 'center', width: 200},
                                 {field: 'playerName', title: '玩家名字', align: 'center', width: 150},
+                                {field: 'region', title: '地区', align: 'center', width: 150},
                                 {
                                     field: 'chip', title: '开卡', align: 'center', templet: function (d) {
                                         if (d.chip == null) {
@@ -222,7 +225,15 @@
                                         }
                                     }
                                 },
-                                {field: 'elementTypeName', title: '位置', align: 'center'},
+                                {
+                                    field: 'elementTypeName', title: '位置', align: 'center', templet: function (d) {
+                                        if (d.elementType == 1) {
+                                            return '<span style="background-color: #5FB878">' + d.elementTypeName + '</span>';
+                                        } else {
+                                            return d.elementTypeName;
+                                        }
+                                    }
+                                },
                                 {field: 'minutes', title: '时间', align: 'center'},
                                 {field: 'totalPoints', title: '分数', align: 'center', sort: true},
                                 {field: 'bonus', title: 'bonus', align: 'center'}

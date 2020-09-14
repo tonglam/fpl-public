@@ -41,7 +41,6 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
     private final EventLiveService eventLiveService;
     private final EntryEventResultService entryEventResultService;
     private final EntryInfoService entryInfoService;
-    private final TournamentEntryService tournamentEntryService;
     private final TournamentInfoService tournamentInfoService;
     private final TournamentGroupService tournamentGroupService;
     private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
@@ -87,7 +86,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
     @Override
     public void updateTournamentEntryEventResult(int event, int tournamentId) {
         // get entry_list
-        List<Integer> entryList = this.getEntryListByTournament(tournamentId);
+        List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
         // remove first
         this.entryEventResultService.remove(new QueryWrapper<EntryEventResultEntity>().lambda()
                 .eq(EntryEventResultEntity::getEvent, event)
@@ -133,7 +132,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
     @Override
     public void updatePointsRaceGroupResultByTournament(int event, int tournamentId) {
         // get entry_list by tournament
-        List<Integer> entryList = this.getEntryListByTournament(tournamentId);
+        List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
         // get event_result list
         Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
         if (CollectionUtils.isEmpty(eventResultMap)) {
@@ -201,7 +200,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
     @Override
     public void updateBattleRaceGroupResultByTournament(int event, int tournamentId) {
         // get entry_list by tournament
-        List<Integer> entryList = this.getEntryListByTournament(tournamentId);
+        List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
         // get event_result list
         Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
         if (CollectionUtils.isEmpty(eventResultMap)) {
@@ -348,7 +347,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
     @Override
     public void updateKnockoutResultByTournament(int event, int tournamentId) {
         // get entry_list by tournament
-        List<Integer> entryList = this.getEntryListByTournament(tournamentId);
+        List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
         // get event_result list
         Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
         if (CollectionUtils.isEmpty(eventResultMap)) {
@@ -367,14 +366,6 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
         }
         // update next round entry for tournament_knockout and tournament_knockout_result
         this.updateNextKnockout(tournamentId, nextKouckoutMap);
-    }
-
-    private List<Integer> getEntryListByTournament(int tournamentId) {
-        return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
-                .stream()
-                .map(TournamentEntryEntity::getEntry)
-                .collect(Collectors.toList());
     }
 
     private Map<Integer, EntryEventResultEntity> getEntryEventResultByEvent(int event, List<Integer> entryList) {

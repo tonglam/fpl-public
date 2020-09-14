@@ -16,6 +16,7 @@ public class LiveCalaData {
     private int entry;
     private String entryName;
     private String playerName;
+    private String region;
     private List<ElementLiveData> pickList;
     private String chip;
     private int livePoints;

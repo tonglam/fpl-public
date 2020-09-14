@@ -1,13 +1,11 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.utils.CommonUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Create by tong on 2020/8/23
@@ -44,11 +42,11 @@ public interface IRedisCacheSerive {
 
 	void insertEventLiveCache(int event);
 
+	void insertPosition();
+
 	int getCurrentEvent();
 
 	int getNextEvent();
-
-	Optional<UserPicksRes> getUserPicks(int event, int entry);
 
 	default Map<String, String> getTeamNameMap() {
 		return this.getTeamNameMap(CommonUtils.getCurrentSeason());
@@ -107,5 +105,7 @@ public interface IRedisCacheSerive {
 	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 
 	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
+
+	Map<String, String> getPositionMap();
 
 }

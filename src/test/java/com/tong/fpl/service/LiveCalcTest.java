@@ -10,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,43 +18,53 @@ import java.util.Map;
  */
 public class LiveCalcTest extends FplApplicationTests {
 
-	@Autowired
-	private ILiveService liveCalcService;
-	@Autowired
-	private PlayerService playerService;
+    @Autowired
+    private ILiveService liveCalcService;
+    @Autowired
+    private PlayerService playerService;
 
-	@ParameterizedTest
-	@CsvSource({"1, 71767"})
-	void calcLivePoints(int event, int entry) {
-		long start = System.currentTimeMillis();
-		LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
-		long end = System.currentTimeMillis();
-		System.out.println("escape: " + (end - start) + "ms!");
-		System.out.println("points: " + liveCalaData.getLivePoints());
-	}
+    @ParameterizedTest
+    @CsvSource({"1, 71767"})
+    void calcLivePoints(int event, int entry) {
+        long start = System.currentTimeMillis();
+        LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
+        long end = System.currentTimeMillis();
+        System.out.println("escape: " + (end - start) + "ms!");
+        System.out.println("points: " + liveCalaData.getLivePoints());
+    }
 
-	@ParameterizedTest
-	@CsvSource({"45"})
-	void calcLivePointsByElementList(int event) {
-		Map<Integer, Integer> map = Maps.newHashMap();
-		map.put(1, 93);
-		map.put(2, 122);
-		map.put(3, 433);
-		map.put(4, 141);
-		map.put(5, 389);
-		map.put(6, 214);
-		map.put(7, 431);
-		map.put(8, 191);
-		map.put(9, 618);
-		map.put(10, 234);
-		map.put(11, 211);
-		LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByElementList(event, map, 214, 191);
-		System.out.println("points: " + liveCalaData.getLivePoints());
-		liveCalaData.getPickList().forEach(o -> {
-			String webName = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
-					.eq(PlayerEntity::getElement, o.getElement())).getWebName();
-			System.out.println(webName);
-		});
-	}
+    @ParameterizedTest
+    @CsvSource({"45"})
+    void calcLivePointsByElementList(int event) {
+        Map<Integer, Integer> map = Maps.newHashMap();
+        map.put(1, 93);
+        map.put(2, 122);
+        map.put(3, 433);
+        map.put(4, 141);
+        map.put(5, 389);
+        map.put(6, 214);
+        map.put(7, 431);
+        map.put(8, 191);
+        map.put(9, 618);
+        map.put(10, 234);
+        map.put(11, 211);
+        LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByElementList(event, map, 214, 191);
+        System.out.println("points: " + liveCalaData.getLivePoints());
+        liveCalaData.getPickList().forEach(o -> {
+            String webName = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                    .eq(PlayerEntity::getElement, o.getElement())).getWebName();
+            System.out.println(webName);
+        });
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1, 2"})
+    void calcLivePointsByTournament(int event, int entry) {
+        long start = System.currentTimeMillis();
+        List<LiveCalaData> list = this.liveCalcService.calcLivePointsByTournament(event, entry);
+        long end = System.currentTimeMillis();
+        System.out.println("escape: " + ((end - start) / 1000) + "s!");
+        System.out.println(1);
+    }
 
 }
