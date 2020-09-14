@@ -119,11 +119,6 @@ public class StaticServiceImpl implements IStaticSerive {
 	}
 
 	@Override
-	public Optional<UserPicksRes> getUserPicks(int event, int entry) {
-		return this.interfaceService.getUserPicks(event, entry);
-	}
-
-	@Override
 	public Optional<UserHistoryRes> getUserHistory(int entry) {
 		return this.interfaceService.getUserHistory(entry);
 	}

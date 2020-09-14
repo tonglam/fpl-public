@@ -10,6 +10,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
+import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.IUpdateEventResultsService;
 import com.tong.fpl.service.db.*;
@@ -48,6 +49,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
     private final TournamentKnockoutService tournamentKnockoutService;
     private final TournamentKnockoutResultService tournamentKnockoutResultService;
     private final IStaticSerive staticSerive;
+    private final IQuerySerivce querySerivce;
 
     @Override
     public void updateBaseInfoByEvent(int event) {
@@ -97,7 +99,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
     }
 
     private void calcEntryEventPoints(int event, int entry, List<EntryEventResultEntity> eventResultList) {
-        Optional<UserPicksRes> userPickRes = this.staticSerive.getUserPicks(event, entry);
+        Optional<UserPicksRes> userPickRes = this.querySerivce.getUserPicks(event, entry);
         userPickRes.ifPresent(userPick -> {
             boolean finished = this.eventService.getById(event).isFinished();
             Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()

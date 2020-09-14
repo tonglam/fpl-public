@@ -9,7 +9,6 @@ import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerQueryParam;
 import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IRedisCacheSerive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +26,6 @@ import java.util.List;
 public class HttpApiImpl implements IHttpApi {
 
     private final IQuerySerivce querySerivce;
-    private final IRedisCacheSerive redisCacheSerive;
 
     @Override
     public EntryEventData qryEntryResult(String season, int entry) {
@@ -85,17 +83,17 @@ public class HttpApiImpl implements IHttpApi {
 
     @Override
     public String qryDeadlineByEvent(int event) {
-        return this.redisCacheSerive.getDeadlineByEvent(event);
+        return this.querySerivce.getDeadlineByEvent(event);
     }
 
     @Override
     public int getCurrentEvent() {
-        return this.redisCacheSerive.getCurrentEvent();
+        return this.querySerivce.getCurrentEvent();
     }
 
     @Override
     public int getNextEvent() {
-        return this.redisCacheSerive.getNextEvent();
+        return this.querySerivce.getNextEvent();
     }
 
 }

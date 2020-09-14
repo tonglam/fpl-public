@@ -21,37 +21,38 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveController {
 
-    private final ILiveApi liveApi;
+	private final ILiveApi liveApi;
 
-    @RequestMapping(value = "/entry")
-    public String entryController() {
-        return "live/entry";
-    }
+	@RequestMapping(value = "/entry")
+	public String entryController() {
+		return "live/entry";
+	}
 
-    @RequestMapping(value = "/leaguerank")
-    public String leaguerankController() {
-        return "live/league";
-    }
+	@RequestMapping(value = "/leaguerank")
+	public String leaguerankController() {
+		return "live/league";
+	}
 
-    @GetMapping("/qryEntryLivePoints")
-    @ResponseBody
-    public TableData<LiveCalaData> qryEntryLivePoints(@RequestParam int entry, HttpSession session) {
-        if (entry == 0 && session.getAttribute("entry") != null) {
-            entry = (int) session.getAttribute("entry");
-        }
-        return this.liveApi.qryEntryLivePoints(entry);
-    }
+	@RequestMapping(value = "/saveLiveEntry")
+	@ResponseBody
+	public void saveLiveEntry(@RequestParam int liveEntry, HttpSession session) {
+		session.setAttribute("liveEntry", liveEntry);
+	}
 
-    @RequestMapping(value = "/saveLiveEntry")
-    @ResponseBody
-    public void saveLiveEntry(@RequestParam int entry, HttpSession session) {
-        session.setAttribute("liveEntry", entry);
-    }
+	@GetMapping("/qryEntryLivePoints")
+	@ResponseBody
+	public TableData<LiveCalaData> qryEntryLivePoints(HttpSession session) {
+		int entry = 0;
+		if (session.getAttribute("liveEntry") != null) {
+			entry = (int) session.getAttribute("liveEntry");
+		}
+		return this.liveApi.qryEntryLivePoints(entry);
+	}
 
-    @GetMapping("/qryTournamentLivePoints")
-    @ResponseBody
-    public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
-        return this.liveApi.qryTournamentLivePoints(tournamentId);
-    }
+	@GetMapping("/qryTournamentLivePoints")
+	@ResponseBody
+	public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
+		return this.liveApi.qryTournamentLivePoints(tournamentId);
+	}
 
 }

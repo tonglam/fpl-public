@@ -1,5 +1,6 @@
 package com.tong.fpl.task;
 
+import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +18,14 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MatchDayTask {
 
-    private final IRedisCacheSerive redisCacheSerive;
+	private final IQuerySerivce querySerivce;
+	private final IRedisCacheSerive redisCacheSerive;
 
-    @Scheduled(cron = "0 0/5 0-4 * * *")
-    public void insertEventLiveCache() {
-        log.info("start insertEventLiveCache task, time:{}", LocalDateTime.now());
-        int event = this.redisCacheSerive.getCurrentEvent();
-        this.redisCacheSerive.insertEventLiveCache(event);
-    }
+	@Scheduled(cron = "0 0/5 0-4 * * *")
+	public void insertEventLiveCache() {
+		log.info("start insertEventLiveCache task, time:{}", LocalDateTime.now());
+		int event = this.querySerivce.getCurrentEvent();
+		this.redisCacheSerive.insertEventLiveCache(event);
+	}
 
 }

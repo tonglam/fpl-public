@@ -1,6 +1,9 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.data.response.*;
+import com.tong.fpl.domain.data.response.ElementSummaryRes;
+import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.StaticRes;
+import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 
 import java.util.List;
@@ -18,8 +21,6 @@ public interface IStaticSerive {
     List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId);
 
     List<EntryInfoEntity> getEntryInfoListFromH2hByPage(int h2hId, int page);
-
-    Optional<UserPicksRes> getUserPicks(int event, int entry);
 
     Optional<UserHistoryRes> getUserHistory(int entry);
 

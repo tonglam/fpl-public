@@ -103,7 +103,7 @@
             if (tournamentId == null || tournamentId == 'base') {
                 return false;
             }
-            let loadIndex = layer.msg("计算中，请稍等");
+            let loadIndex = layer.msg("计算中，请稍等", {time: false});
             axios.get('/live/qryTournamentLivePoints', {
                 params: {
                     tournamentId: tournamentId

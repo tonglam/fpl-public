@@ -18,8 +18,6 @@ import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IRedisCacheSerive;
-import com.tong.fpl.service.IStaticSerive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,15 +36,13 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveService implements ILiveService {
 
-    private final IRedisCacheSerive redisCacheSerive;
     private final IQuerySerivce querySerivce;
-    private final IStaticSerive staticService;
 
     @Override
     public LiveCalaData calcLivePointsByEntry(int event, int entry) {
         LiveCalaData liveCalaData = new LiveCalaData();
         // get user picks
-        Optional<UserPicksRes> userPicksResult = this.staticService.getUserPicks(event, entry);
+        Optional<UserPicksRes> userPicksResult = this.querySerivce.getUserPicks(event, entry);
         userPicksResult.ifPresent(userPicksRes -> {
             // initialize element_live_data
             List<ElementLiveData> elementLiveDataList = this.initElemetLiveData(event, userPicksRes.getPicks());
@@ -82,7 +78,7 @@ public class LiveService implements ILiveService {
         LiveCalaData liveCalaData = new LiveCalaData();
         // initialize element_live_data
         List<ElementLiveData> pickList = Lists.newArrayList();
-        Map<Integer, EventLiveEntity> eventLiveMap = this.redisCacheSerive.getEventLiveByEvent(event);
+        Map<Integer, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
         Map<Integer, String> positionMap = Arrays.stream(Position.values())
                 .collect(Collectors.toMap(Position::getPosition, Position::name));
         elementMap.keySet().forEach(position -> {
@@ -93,14 +89,14 @@ public class LiveService implements ILiveService {
             elementLiveData.setCaptain(element == captain);
             elementLiveData.setViceCaptain(element == viceCaptain);
             // player info
-            PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElememt(element);
+            PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
             if (playerEntity != null) {
                 elementLiveData
                         .setElementTypeName(positionMap.get(playerEntity.getElementType()))
                         .setWebName(playerEntity.getWebName());
                 // event fixture
                 int teamId = playerEntity.getTeamId();
-                List<PlayerFixtureData> playerFixtureDataList = this.redisCacheSerive.getEventFixtureByTeamId(teamId);
+                List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamId(teamId);
                 if (!CollectionUtils.isEmpty(playerFixtureDataList)) {
                     PlayerFixtureData PlayerFixtureData = playerFixtureDataList
                             .stream()
@@ -134,12 +130,12 @@ public class LiveService implements ILiveService {
     }
 
     private int ifMultiplier(int event, int element) {
-        PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElememt(element);
+        PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
         if (playerEntity == null) {
             return 0;
         }
         int teamId = playerEntity.getTeamId();
-        List<PlayerFixtureData> playerFixtureDataList = this.redisCacheSerive.getEventFixtureByTeamId(teamId);
+        List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamId(teamId);
         if (CollectionUtils.isEmpty(playerFixtureDataList)) {
             return 0;
         }
@@ -151,7 +147,7 @@ public class LiveService implements ILiveService {
 
     private List<ElementLiveData> initElemetLiveData(int event, List<Pick> picks) {
         List<ElementLiveData> elementLiveDataList = Lists.newArrayList();
-        Map<Integer, EventLiveEntity> eventLiveMap = this.redisCacheSerive.getEventLiveByEvent(event);
+        Map<Integer, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
         Map<Integer, String> positionMap = Arrays.stream(Position.values())
                 .collect(Collectors.toMap(Position::getPosition, Position::name));
         picks.forEach(pick -> {
@@ -166,14 +162,14 @@ public class LiveService implements ILiveService {
                     .setCaptain(pick.isCaptain())
                     .setViceCaptain(pick.isViceCaptain());
             // player info
-            PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElememt(element);
+            PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
             if (playerEntity != null) {
                 elementLiveData
                         .setElementTypeName(positionMap.get(playerEntity.getElementType()))
                         .setWebName(playerEntity.getWebName());
                 // event fixture
                 int teamId = playerEntity.getTeamId();
-                List<PlayerFixtureData> playerFixtureDataList = this.redisCacheSerive.getEventFixtureByTeamId(teamId);
+                List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamId(teamId);
                 if (!CollectionUtils.isEmpty(playerFixtureDataList)) {
                     PlayerFixtureData PlayerFixtureData = playerFixtureDataList
                             .stream()

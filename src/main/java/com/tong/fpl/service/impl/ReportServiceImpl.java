@@ -10,7 +10,6 @@ import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.TournamentEntryEntity;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.db.EntryCaptainStatService;
 import com.tong.fpl.service.db.EntryEventResultService;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
 public class ReportServiceImpl implements IReportService {
 
     private final IQuerySerivce querySerivce;
-    private final IRedisCacheSerive redisCacheSerive;
     private final EntryInfoService entryInfoService;
     private final EntryEventResultService entryEventResultService;
     private final EntryCaptainStatService entryCaptainStatService;
@@ -87,7 +85,7 @@ public class ReportServiceImpl implements IReportService {
                     .setOverallRank(entryInfoEntity.getOverallRank())
                     .setChip(entryEventResult.getEventChip())
                     .setElement(captainPick.getElement())
-                    .setWebName(this.redisCacheSerive.getPlayerByElememt(season, captainPick.getElement()).getWebName())
+                    .setWebName(this.querySerivce.getPlayerByElememt(season, captainPick.getElement()).getWebName())
                     .setPoints(captainPick.getPoints());
             entryCaptainStatEntity.setTotalPoints(Chip.getChipFromValue(entryCaptainStatEntity.getChip()).equals(Chip.TC) ?
                     3 * entryCaptainStatEntity.getPoints() : 2 * entryCaptainStatEntity.getPoints());

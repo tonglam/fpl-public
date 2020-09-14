@@ -20,7 +20,6 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -49,7 +48,6 @@ import java.util.stream.Collectors;
 public class TableQueryServiceImpl implements ITableQueryService {
 
     private final IQuerySerivce querySerivce;
-    private final IRedisCacheSerive redisCacheSerive;
     private final ILiveService liveService;
     private final PlayerService playerService;
     private final EntryInfoService entryInfoService;
@@ -130,7 +128,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         if (entry == 0) {
             return new TableData<>();
         }
-        int currentEvent = this.redisCacheSerive.getCurrentEvent();
+        int currentEvent = this.querySerivce.getCurrentEvent();
         // get tournament_list
         List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
                 .eq(TournamentEntryEntity::getEntry, entry))
@@ -367,7 +365,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 
     @Override
     public TableData<LiveCalaData> qryEntryLivePoints(int entry) {
-        int event = this.redisCacheSerive.getCurrentEvent();
+        int event = this.querySerivce.getCurrentEvent();
         LiveCalaData liveCalaData = this.liveService.calcLivePointsByEntry(event, entry);
         return new TableData<>(liveCalaData);
     }
@@ -382,7 +380,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .collect(Collectors.toList());
         entryList.forEach(entry -> {
             // entry live points
-            int event = this.redisCacheSerive.getCurrentEvent();
+            int event = this.querySerivce.getCurrentEvent();
             LiveCalaData liveCalaData = this.liveService.calcLivePointsByEntry(event, entry);
             list.add(liveCalaData);
         });
