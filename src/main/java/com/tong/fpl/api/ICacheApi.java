@@ -17,6 +17,8 @@ public interface ICacheApi {
 
     void insertHisEventFixture(String season);
 
+    void insertSingleEventFixture(int event);
+
     void insertPlayer();
 
     void insertHisPlayer(String season);

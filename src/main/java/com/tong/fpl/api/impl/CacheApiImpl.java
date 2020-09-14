@@ -49,6 +49,11 @@ public class CacheApiImpl implements ICacheApi {
     }
 
     @Override
+    public void insertSingleEventFixture(int event) {
+        this.redisCacheSerive.insertSingleEventFixture(event);
+    }
+
+    @Override
     public void insertPlayer() {
         this.redisCacheSerive.insertPlayer();
     }

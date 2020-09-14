@@ -22,17 +22,14 @@ public class LiveCalcTest extends FplApplicationTests {
 	@Autowired
 	private PlayerService playerService;
 
-
 	@ParameterizedTest
-	@CsvSource({"45, 3697"})
+	@CsvSource({"1, 71767"})
 	void calcLivePoints(int event, int entry) {
+		long start = System.currentTimeMillis();
 		LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
+		long end = System.currentTimeMillis();
+		System.out.println("escape: " + (end - start) + "ms!");
 		System.out.println("points: " + liveCalaData.getLivePoints());
-		liveCalaData.getPickList().forEach(o -> {
-			String webName = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
-					.eq(PlayerEntity::getElement, o.getElement())).getWebName();
-			System.out.println(webName);
-		});
 	}
 
 	@ParameterizedTest

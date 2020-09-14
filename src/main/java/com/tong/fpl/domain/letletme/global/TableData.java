@@ -24,7 +24,7 @@ public class TableData<T> implements Serializable {
 		this.code = 0;
 		this.msg = "success";
 		this.count = 0;
-		this.data = null;
+		this.data = Lists.newArrayList();
 	}
 
 	public TableData(T body) {

@@ -17,5 +17,4 @@ public class ReportTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
-
 }

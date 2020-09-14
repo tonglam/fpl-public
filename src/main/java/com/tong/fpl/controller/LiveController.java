@@ -28,8 +28,8 @@ public class LiveController {
 		return "live/entry";
 	}
 
-	@RequestMapping(value = "/leaguerank")
-	public String leaguerankController() {
+	@RequestMapping(value = "/league")
+	public String leagueController() {
 		return "live/league";
 	}
 
@@ -45,6 +45,11 @@ public class LiveController {
 		int entry = 0;
 		if (session.getAttribute("liveEntry") != null) {
 			entry = (int) session.getAttribute("liveEntry");
+		} else if (session.getAttribute("entry") != null) {
+			entry = (int) session.getAttribute("entry");
+		}
+		if (entry == 0) {
+			return new TableData<>();
 		}
 		return this.liveApi.qryEntryLivePoints(entry);
 	}

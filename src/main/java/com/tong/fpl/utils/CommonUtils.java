@@ -2,14 +2,11 @@ package com.tong.fpl.utils;
 
 import com.google.common.collect.Maps;
 import com.tong.fpl.constant.Constant;
-import com.tong.fpl.constant.enums.Position;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -48,10 +45,6 @@ public class CommonUtils {
 	public static String getCurrentSeason() {
 		return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
 				String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
-	}
-
-	public static Map<Integer, String> getPositonMap() {
-		return Arrays.stream(Position.values()).collect(Collectors.toMap(Position::getPosition, Enum::name));
 	}
 
 }

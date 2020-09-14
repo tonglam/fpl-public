@@ -14,88 +14,98 @@ import java.util.Optional;
  */
 public interface IRedisCacheSerive {
 
-    void insertTeam();
+	void insertTeam();
 
-    void insertHisTeam(String season);
+	void insertHisTeam(String season);
 
-    void insertEvent();
+	void insertEvent();
 
-    void insertHisEvent(String season);
+	void insertHisEvent(String season);
 
-    void insertEventFixture();
+	void insertEventFixture();
 
-    void insertHisEventFixture(String season);
+	void insertHisEventFixture(String season);
 
-    void insertPlayer();
+	void insertSingleEventFixture(int event);
 
-    void insertHisPlayer(String season);
+	void insertSingleEventFixtureCache(int event);
 
-    void insertPlayerStat();
+	void insertPlayer();
 
-    void insertHisPlayerStat(String season);
+	void insertHisPlayer(String season);
 
-    void insertPlayerValue();
+	void insertPlayerStat();
 
-    void insertEventLive(int event);
+	void insertHisPlayerStat(String season);
 
-    void insertEventLiveCache(int event);
+	void insertPlayerValue();
 
-    int getCurrentEvent();
+	void insertEventLive(int event);
 
-    int getNextEvent();
+	void insertEventLiveCache(int event);
 
-    Optional<UserPicksRes> getUserPicks(int event, int entry);
+	int getCurrentEvent();
 
-    default Map<Integer, String> getTeamNameMap() {
-        return this.getTeamNameMap(CommonUtils.getCurrentSeason());
-    }
+	int getNextEvent();
 
-    Map<Integer, String> getTeamNameMap(String season);
+	Optional<UserPicksRes> getUserPicks(int event, int entry);
 
-    default Map<Integer, String> getTeamShortNameMap() {
-        return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
-    }
+	default Map<String, String> getTeamNameMap() {
+		return this.getTeamNameMap(CommonUtils.getCurrentSeason());
+	}
 
-    Map<Integer, String> getTeamShortNameMap(String season);
+	Map<String, String> getTeamNameMap(String season);
 
-    default Map<Integer, String> getDeadlineMap() {
-        return this.getDeadlineMap(CommonUtils.getCurrentSeason());
-    }
+	default Map<String, String> getTeamShortNameMap() {
+		return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
+	}
 
-    Map<Integer, String> getDeadlineMap(String season);
+	Map<String, String> getTeamShortNameMap(String season);
 
-    default String getDeadlineByEvent(int event) {
-        return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
-    }
+	default Map<String, String> getDeadlineMap() {
+		return this.getDeadlineMap(CommonUtils.getCurrentSeason());
+	}
 
-    String getDeadlineByEvent(String season, int event);
+	Map<String, String> getDeadlineMap(String season);
 
-    default List<EventFixtureEntity> getEventFixtureByEvent(int event) {
-        return this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event);
-    }
+	default String getDeadlineByEvent(int event) {
+		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
+	}
 
-    List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
+	String getDeadlineByEvent(String season, int event);
 
-    default List<PlayerFixtureData> getEventFixtureByTeamId(int teamId) {
-        return this.getEventFixtureByTeamId(CommonUtils.getCurrentSeason(), teamId);
-    }
+	default List<EventFixtureEntity> getEventFixtureByEvent(int event) {
+		return this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event);
+	}
 
-    List<PlayerFixtureData> getEventFixtureByTeamId(String season, int teamId);
+	List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
 
-    default PlayerEntity getPlayerByElememt(int element) {
-        return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);
-    }
+	default Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(int teamId) {
+		return this.getEventFixtureByTeamId(CommonUtils.getCurrentSeason(), teamId);
+	}
 
-    PlayerEntity getPlayerByElememt(String season, int element);
+	Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
 
-    default PlayerStatEntity getPlayerStatByElement(int element) {
-        return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
-    }
+	default List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(int teamId, int event) {
+		return this.getEventFixtureByTeamIdAndEvent(CommonUtils.getCurrentSeason(), teamId, event);
+	}
 
-    PlayerStatEntity getPlayerStatByElement(String season, int element);
+	List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event);
 
-    List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
+	default PlayerEntity getPlayerByElememt(int element) {
+		return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);
+	}
 
-    Map<Integer, EventLiveEntity> getEventLiveByEvent(int event);
+	PlayerEntity getPlayerByElememt(String season, int element);
+
+	default PlayerStatEntity getPlayerStatByElement(int element) {
+		return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
+	}
+
+	PlayerStatEntity getPlayerStatByElement(String season, int element);
+
+	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
+
+	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
 }

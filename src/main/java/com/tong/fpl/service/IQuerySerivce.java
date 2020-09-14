@@ -22,21 +22,21 @@ import java.util.Optional;
  */
 public interface IQuerySerivce {
 
-    default Map<Integer, PlayerEntity> qryAllPlayerList() {
-        return this.qryAllPlayerList(CommonUtils.getCurrentSeason());
-    }
+	default Map<Integer, PlayerEntity> qryAllPlayerList() {
+		return this.qryAllPlayerList(CommonUtils.getCurrentSeason());
+	}
 
-    Map<Integer, PlayerEntity> qryAllPlayerList(String season);
+	Map<Integer, PlayerEntity> qryAllPlayerList(String season);
 
-    default Map<Integer, PlayerStatEntity> qryAllPlayerStatList() {
-        return this.qryAllPlayerStatList(CommonUtils.getCurrentSeason());
-    }
+	default Map<Integer, PlayerStatEntity> qryAllPlayerStatList() {
+		return this.qryAllPlayerStatList(CommonUtils.getCurrentSeason());
+	}
 
-    Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season);
+	Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season);
 
-    default int qryPlayerElementByCode(int code) {
-        return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
-    }
+	default int qryPlayerElementByCode(int code) {
+		return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
+	}
 
 	int qryPlayerElementByCode(String season, int code);
 
@@ -82,23 +82,23 @@ public interface IQuerySerivce {
 
 	Optional<UserPicksRes> getUserPicks(int event, int entry);
 
-	default Map<Integer, String> getTeamNameMap() {
+	default Map<String, String> getTeamNameMap() {
 		return this.getTeamNameMap(CommonUtils.getCurrentSeason());
 	}
 
-	Map<Integer, String> getTeamNameMap(String season);
+	Map<String, String> getTeamNameMap(String season);
 
-	default Map<Integer, String> getTeamShortNameMap() {
+	default Map<String, String> getTeamShortNameMap() {
 		return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
 	}
 
-	Map<Integer, String> getTeamShortNameMap(String season);
+	Map<String, String> getTeamShortNameMap(String season);
 
-	default Map<Integer, String> getDeadlineMap() {
+	default Map<String, String> getDeadlineMap() {
 		return this.getDeadlineMap(CommonUtils.getCurrentSeason());
 	}
 
-	Map<Integer, String> getDeadlineMap(String season);
+	Map<String, String> getDeadlineMap(String season);
 
 	default String getDeadlineByEvent(int event) {
 		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
@@ -112,11 +112,17 @@ public interface IQuerySerivce {
 
 	List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
 
-	default List<PlayerFixtureData> getEventFixtureByTeamId(int teamId) {
+	default Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(int teamId) {
 		return this.getEventFixtureByTeamId(CommonUtils.getCurrentSeason(), teamId);
 	}
 
-	List<PlayerFixtureData> getEventFixtureByTeamId(String season, int teamId);
+	Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
+
+	default List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(int teamId, int event) {
+		return this.getEventFixtureByTeamIdAndEvent(CommonUtils.getCurrentSeason(), teamId, event);
+	}
+
+	List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event);
 
 	default PlayerEntity getPlayerByElememt(int element) {
 		return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);
@@ -132,6 +138,8 @@ public interface IQuerySerivce {
 
 	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 
-	Map<Integer, EventLiveEntity> getEventLiveByEvent(int event);
+	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
+
+	Map<String, String> getPositionMap();
 
 }

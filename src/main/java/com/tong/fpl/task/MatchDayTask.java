@@ -21,11 +21,12 @@ public class MatchDayTask {
 	private final IQuerySerivce querySerivce;
 	private final IRedisCacheSerive redisCacheSerive;
 
-	@Scheduled(cron = "0 0/5 0-4 * * *")
+	@Scheduled(cron = "0 0/5 1-6 * * *")
 	public void insertEventLiveCache() {
 		log.info("start insertEventLiveCache task, time:{}", LocalDateTime.now());
 		int event = this.querySerivce.getCurrentEvent();
 		this.redisCacheSerive.insertEventLiveCache(event);
+		this.redisCacheSerive.insertSingleEventFixtureCache(event);
 	}
 
 }
