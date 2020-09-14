@@ -508,6 +508,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		}
 	}
 
+	@Cacheable(value = "getCurrentEvent")
 	@Override
 	public int getCurrentEvent() {
 		int event = 1;
@@ -521,6 +522,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return event;
 	}
 
+	@Cacheable(value = "getNextEvent")
 	@Override
 	public int getNextEvent() {
 		int event = 1;
