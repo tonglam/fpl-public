@@ -42,29 +42,33 @@ public class LiveService implements ILiveService {
 	public LiveCalaData calcLivePointsByEntry(int event, int entry) {
 		LiveCalaData liveCalaData = new LiveCalaData();
 		// get user picks
-		Optional<UserPicksRes> userPicksResult = this.querySerivce.getUserPicks(event, entry);
-		userPicksResult.ifPresent(userPicksRes -> {
-			// initialize element_live_data
-			List<ElementLiveData> elementLiveDataList = this.initElemetLiveData(event, userPicksRes.getPicks());
-			// get active picks
-			List<ElementLiveData> pickList = this.getPickList(elementLiveDataList);
-			// calc live points
-			int livePoints = this.calcActivePoints(Chip.getChipFromValue(userPicksRes.getActiveChip()), pickList);
-			liveCalaData
-					.setEntry(entry)
-					.setEvent(event)
-					.setPickList(pickList)
-					.setChip(userPicksRes.getActiveChip())
-					.setLivePoints(livePoints)
-					.setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
-					.setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost());
-			// entry info
-			EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
-			if (entryInfoEntity != null) {
-				liveCalaData.setEntryName(entryInfoEntity.getEntryName()).setPlayerName(entryInfoEntity.getPlayerName());
-			}
-		});
+		Optional<UserPicksRes> result = this.querySerivce.getUserPicks(event, entry);
+		if (result.isPresent()) {
+			liveCalaData = calcLiveSingleEntryPoints(event, entry, result.get());
+		}
+		// entry info
+		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
+		if (entryInfoEntity != null) {
+			liveCalaData.setEntryName(entryInfoEntity.getEntryName()).setPlayerName(entryInfoEntity.getPlayerName());
+		}
 		return liveCalaData;
+	}
+
+	private LiveCalaData calcLiveSingleEntryPoints(int event, int entry, UserPicksRes userPicksRes) {
+		// initialize element_live_data
+		List<ElementLiveData> elementLiveDataList = this.initElemetLiveData(event, userPicksRes.getPicks());
+		// get active picks
+		List<ElementLiveData> pickList = this.getPickList(elementLiveDataList);
+		// calc live points
+		int livePoints = this.calcActivePoints(Chip.getChipFromValue(userPicksRes.getActiveChip()), pickList);
+		return new LiveCalaData()
+				.setEntry(entry)
+				.setEvent(event)
+				.setPickList(pickList)
+				.setChip(userPicksRes.getActiveChip())
+				.setLivePoints(livePoints)
+				.setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
+				.setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost());
 	}
 
 	@Override
