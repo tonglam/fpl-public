@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.utils.CommonUtils;
 
@@ -27,6 +28,8 @@ public interface IRedisCacheSerive {
 	void insertSingleEventFixture(int event);
 
 	void insertSingleEventFixtureCache(int event);
+
+	void insertLiveFixtureCache();
 
 	void insertPlayer();
 
@@ -89,6 +92,8 @@ public interface IRedisCacheSerive {
 	}
 
 	List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event);
+
+	Map<Integer, LiveFixtureData> getEventLiveFixtureMap();
 
 	default PlayerEntity getPlayerByElememt(int element) {
 		return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);

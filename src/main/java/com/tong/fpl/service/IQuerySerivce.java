@@ -6,6 +6,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
+import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -126,6 +127,8 @@ public interface IQuerySerivce {
 	}
 
 	List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event);
+
+	Map<Integer, LiveFixtureData> getEventLiveFixtureMap();
 
 	default PlayerEntity getPlayerByElememt(int element) {
 		return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);

@@ -1,6 +1,9 @@
 package com.tong.fpl.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -9,7 +12,9 @@ import lombok.experimental.Accessors;
 @TableName(value = "player_stat")
 public class PlayerStatEntity {
 
-	@TableId(type = IdType.INPUT)
+	@TableId
+	private int id;
+	private int event;
 	private int element;
 	private int code;
 	private int matchPlayed;

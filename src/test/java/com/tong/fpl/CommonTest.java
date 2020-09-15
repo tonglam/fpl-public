@@ -3,9 +3,9 @@ package com.tong.fpl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.utils.JsonUtils;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -42,10 +42,9 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		List<String> list = Lists.newArrayList();
-		list.add("111");
-		list.add("222");
-		System.out.println(JsonUtils.obj2json(list));
+		String b = "2020-09-12 19:30:00".replace(" ", "T");
+		boolean a = LocalDateTime.now().isAfter(LocalDateTime.parse(b));
+		System.out.println(1);
 	}
 
 

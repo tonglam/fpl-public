@@ -188,7 +188,11 @@
                                         } else if (d.playStatus == 1) {
                                             return '<span style="color: black">未开始</span>';
                                         } else if (d.playStatus == 2) {
+                                            return '<span style="color: black">未结束</span>';
+                                        } else if (d.playStatus == 3) {
                                             return '<span style="color: blue">已结束</span>';
+                                        } else if (d.playStatus == 4) {
+                                            return '<span style="color: gray">无比赛</span>';
                                         }
                                     },
                                     children: [
@@ -243,6 +247,9 @@
                                 soulTable.render(this);
                                 let that = this.elem.next();
                                 res.data.forEach(function (d, index) {
+                                    if (d.multiplier == 0) {
+                                        setTableRowColor(that, index, "red");
+                                    }
                                     if (d.pickAvtive == false) {
                                         setTableRowColor(that, index, "#e2e2e2");
                                     } else {

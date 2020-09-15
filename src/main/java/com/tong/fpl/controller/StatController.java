@@ -25,6 +25,11 @@ public class StatController {
 
 	private final IStatApi statApi;
 
+	@RequestMapping(value = "/price")
+	public String priceController() {
+		return "stat/price";
+	}
+
 	@RequestMapping(value = "/compare")
 	public String compareController() {
 		return "stat/compare";
