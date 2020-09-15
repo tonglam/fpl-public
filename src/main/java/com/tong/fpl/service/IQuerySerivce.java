@@ -128,7 +128,7 @@ public interface IQuerySerivce {
 
 	List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event);
 
-	Map<Integer, LiveFixtureData> getEventLiveFixtureMap();
+	Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
 
 	default PlayerEntity getPlayerByElememt(int element) {
 		return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);

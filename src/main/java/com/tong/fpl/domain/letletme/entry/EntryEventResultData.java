@@ -12,15 +12,15 @@ import java.util.List;
 @Accessors(chain = true)
 public class EntryEventResultData {
 
-	private int entry;
-	private int event;
-	private int points;
-	private int transfers;
-	private int transfersCost;
-	private int netPoints;
-	private int benchPoints;
-	private int rank;
-	private String chip;
-	private List<EntryPickData> picks;
+    private int entry;
+    private int event;
+    private int transfers;
+    private int points;
+    private int transfersCost;
+    private int netPoints;
+    private int benchPoints;
+    private int rank;
+    private String chip;
+    private List<EntryPickData> picks;
 
 }

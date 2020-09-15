@@ -10,12 +10,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class LiveFixtureData {
 
-	private int teamId;
-	private String teamName;
-	private int againstId;
-	private String againstName;
-	private boolean wasHome;
-	private boolean started;
-	private boolean finished;
+    private int teamId;
+    private String teamName;
+    private String teamShortName;
+    private int againstId;
+    private String againstName;
+    private String againstShortName;
+    private boolean wasHome;
+    private boolean started;
+    private boolean finished;
 
 }

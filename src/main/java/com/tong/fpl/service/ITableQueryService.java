@@ -1,7 +1,9 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -33,5 +35,9 @@ public interface ITableQueryService {
     TableData<LiveCalaData> qryEntryLivePoints(int entry);
 
     TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId);
+
+    TableData<EntryEventResultData> qryEntryResultList(int entry);
+
+    TableData<EntryPickData> qryEntryEventResult(int event, int entry);
 
 }

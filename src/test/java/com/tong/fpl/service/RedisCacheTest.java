@@ -181,7 +181,7 @@ public class RedisCacheTest extends FplApplicationTests {
 
 	@Test
 	void getEventLiveFixture() {
-		Map<Integer, LiveFixtureData> map = this.redisCacheSerive.getEventLiveFixtureMap();
+		Map<String, Map<String, List<LiveFixtureData>>> map = this.redisCacheSerive.getEventLiveFixtureMap();
 		System.out.println(1);
 	}
 

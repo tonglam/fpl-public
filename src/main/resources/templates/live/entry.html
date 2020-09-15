@@ -89,10 +89,11 @@
 
             entryInputDom.on('keydown', function (event) {
                 if (event.keyCode == 13) {
-                    let init = initData();
-                    init.then(function () {
-                        return false;
-                    })
+                    return false;
+                    // let init = initData();
+                    // init.then(function () {
+                    //     return false;
+                    // })
                 }
             });
 

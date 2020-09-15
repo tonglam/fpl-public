@@ -27,93 +27,98 @@ import java.util.stream.Collector;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveFixtureCollector implements Collector<EventFixtureEntity, Map<Integer, List<LiveFixtureData>>, Table<Integer, MatchPlayStatus, List<LiveFixtureData>>> {
 
-	private final Map<String, String> teamNameMap;
+    private final Map<String, String> teamNameMap;
+    private final Map<String, String> teamShortNameMap;
 
-	@Override
-	public Supplier<Map<Integer, List<LiveFixtureData>>> supplier() {
-		return Maps::newHashMap;
-	}
+    @Override
+    public Supplier<Map<Integer, List<LiveFixtureData>>> supplier() {
+        return Maps::newHashMap;
+    }
 
-	@Override
-	public BiConsumer<Map<Integer, List<LiveFixtureData>>, EventFixtureEntity> accumulator() {
-		return (Map<Integer, List<LiveFixtureData>> map, EventFixtureEntity o) -> {
-			// home team
-			int teamH = o.getTeamH();
-			List<LiveFixtureData> homeFixtureList = Lists.newArrayList();
-			if (map.containsKey(teamH)) {
-				homeFixtureList = map.get(teamH);
-			}
-			homeFixtureList.add(new LiveFixtureData()
-					.setTeamId(o.getTeamH())
-					.setTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
-					.setAgainstId(o.getTeamA())
-					.setAgainstName(teamNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
-					.setWasHome(true)
-					.setStarted(o.isStarted())
-					.setFinished(o.isFinished())
-			);
-			map.put(teamH, homeFixtureList);
-			// away team
-			int teamA = o.getTeamA();
-			List<LiveFixtureData> awayFixtureList = Lists.newArrayList();
-			if (map.containsKey(teamA)) {
-				awayFixtureList = map.get(teamA);
-			}
-			awayFixtureList.add(new LiveFixtureData()
-					.setTeamId(o.getTeamA())
-					.setTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
-					.setAgainstId(o.getTeamH())
-					.setAgainstName(teamNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
-					.setWasHome(false)
-					.setStarted(o.isStarted())
-					.setFinished(o.isFinished())
-			);
-			map.put(teamH, awayFixtureList);
-		};
-	}
+    @Override
+    public BiConsumer<Map<Integer, List<LiveFixtureData>>, EventFixtureEntity> accumulator() {
+        return (Map<Integer, List<LiveFixtureData>> map, EventFixtureEntity o) -> {
+            // home team
+            int teamH = o.getTeamH();
+            List<LiveFixtureData> homeFixtureList = Lists.newArrayList();
+            if (map.containsKey(teamH)) {
+                homeFixtureList = map.get(teamH);
+            }
+            homeFixtureList.add(new LiveFixtureData()
+                    .setTeamId(o.getTeamH())
+                    .setTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
+                    .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
+                    .setAgainstId(o.getTeamA())
+                    .setAgainstName(teamNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
+                    .setAgainstShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
+                    .setWasHome(true)
+                    .setStarted(o.isStarted())
+                    .setFinished(o.isFinished())
+            );
+            map.put(teamH, homeFixtureList);
+            // away team
+            int teamA = o.getTeamA();
+            List<LiveFixtureData> awayFixtureList = Lists.newArrayList();
+            if (map.containsKey(teamA)) {
+                awayFixtureList = map.get(teamA);
+            }
+            awayFixtureList.add(new LiveFixtureData()
+                    .setTeamId(o.getTeamA())
+                    .setTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
+                    .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
+                    .setAgainstId(o.getTeamH())
+                    .setAgainstName(teamNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
+                    .setAgainstShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
+                    .setWasHome(false)
+                    .setStarted(o.isStarted())
+                    .setFinished(o.isFinished())
+            );
+            map.put(teamA, awayFixtureList);
+        };
+    }
 
-	@Override
-	public BinaryOperator<Map<Integer, List<LiveFixtureData>>> combiner() {
-		return (map1, map2) -> {
-			map1.putAll(map2);
-			return map1;
-		};
-	}
+    @Override
+    public BinaryOperator<Map<Integer, List<LiveFixtureData>>> combiner() {
+        return (map1, map2) -> {
+            map1.putAll(map2);
+            return map1;
+        };
+    }
 
-	@Override
-	public Function<Map<Integer, List<LiveFixtureData>>, Table<Integer, MatchPlayStatus, List<LiveFixtureData>>> finisher() {
-		return map -> {
-			Table<Integer, MatchPlayStatus, List<LiveFixtureData>> table = HashBasedTable.create();
-			map.keySet().forEach(teamId -> {
-				List<LiveFixtureData> fixtureList = map.get(teamId);
-				fixtureList.forEach(o -> {
-					MatchPlayStatus playStatus = this.getPlayStatus(o.isStarted(), o.isFinished());
-					List<LiveFixtureData> list = Lists.newArrayList();
-					if (table.contains(teamId, playStatus)) {
-						list = table.get(teamId, playStatus);
-					}
-					list.add(o);
-					table.put(teamId, playStatus, list);
-				});
-			});
-			return table;
-		};
-	}
+    @Override
+    public Function<Map<Integer, List<LiveFixtureData>>, Table<Integer, MatchPlayStatus, List<LiveFixtureData>>> finisher() {
+        return map -> {
+            Table<Integer, MatchPlayStatus, List<LiveFixtureData>> table = HashBasedTable.create();
+            map.keySet().forEach(teamId -> {
+                List<LiveFixtureData> fixtureList = map.get(teamId);
+                fixtureList.forEach(o -> {
+                    MatchPlayStatus playStatus = this.getPlayStatus(o.isStarted(), o.isFinished());
+                    List<LiveFixtureData> list = Lists.newArrayList();
+                    if (table.contains(teamId, playStatus)) {
+                        list = table.get(teamId, playStatus);
+                    }
+                    list.add(o);
+                    table.put(teamId, playStatus, list);
+                });
+            });
+            return table;
+        };
+    }
 
-	private MatchPlayStatus getPlayStatus(boolean started, boolean finished) {
-		if (finished) {
-			return MatchPlayStatus.Finished;
-		} else {
-			if (!started) {
-				return MatchPlayStatus.Not_Start;
-			}
-		}
-		return MatchPlayStatus.Playing;
-	}
+    private MatchPlayStatus getPlayStatus(boolean started, boolean finished) {
+        if (finished) {
+            return MatchPlayStatus.Finished;
+        } else {
+            if (!started) {
+                return MatchPlayStatus.Not_Start;
+            }
+        }
+        return MatchPlayStatus.Playing;
+    }
 
-	@Override
-	public Set<Characteristics> characteristics() {
-		return Collections.unmodifiableSet(EnumSet.of(Characteristics.UNORDERED));
-	}
+    @Override
+    public Set<Characteristics> characteristics() {
+        return Collections.unmodifiableSet(EnumSet.of(Characteristics.UNORDERED));
+    }
 
 }

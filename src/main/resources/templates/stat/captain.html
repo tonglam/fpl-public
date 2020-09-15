@@ -65,7 +65,6 @@
                 elem: '#captainTable',
                 method: 'get',
                 data: response.data,
-                where: {tournamentId: 1, season: '1920'},
                 page: true,
                 limit: 20,
                 limits: [20, 50, 100, 150],
@@ -114,7 +113,7 @@
             let tableId = entry + "Table";
             element.tabAdd('entryTab', {
                 title: entryName,
-                content: '<table class="layui-table" id=' + tableId + ' lay-filter=tabTable></table>',
+                content: '<table class="layui-table" id=' + tableId + ' lay-filter=' + tableId + '></table>',
                 id: entry
             });
             // 切换
