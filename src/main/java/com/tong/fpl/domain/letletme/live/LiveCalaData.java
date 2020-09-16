@@ -1,5 +1,6 @@
 package com.tong.fpl.domain.letletme.live;
 
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -17,7 +18,7 @@ public class LiveCalaData {
     private String entryName;
     private String playerName;
     private String region;
-    private List<ElementLiveData> pickList;
+    private List<ElementEventResultData> pickList;
     private String chip;
     private int livePoints;
     private int transferCost;

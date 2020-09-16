@@ -15,7 +15,7 @@ import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.letletme.live.ElementLiveData;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
@@ -68,12 +68,12 @@ public class LiveService implements ILiveService {
 
 	private LiveCalaData calcLiveSingleEntryPoints(int event, int entry, UserPicksRes userPicksRes, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
 		// initialize element_live_data, static part
-		List<ElementLiveData> elementLiveDataList = this.initEntryLiveStaticData(event, entry, userPicksRes.getPicks(),
+		List<ElementEventResultData> elementEventResultDataList = this.initEntryLiveStaticData(event, entry, userPicksRes.getPicks(),
 				playerInfoMap, positionMap, teamLiveFixtureMap);
 		// initialize element_live_data, event_live part
-		this.initEventLiveData(event, elementLiveDataList);
+		this.initEventLiveData(event, elementEventResultDataList);
 		// get active picks
-		List<ElementLiveData> pickList = this.getPickList(elementLiveDataList);
+		List<ElementEventResultData> pickList = this.getPickList(elementEventResultDataList);
 		// calc live points
 		int livePoints = this.calcActivePoints(Chip.getChipFromValue(userPicksRes.getActiveChip()), pickList);
 		return new LiveCalaData()
@@ -87,21 +87,21 @@ public class LiveService implements ILiveService {
 	}
 
 	@Cacheable(value = "initEntryLiveStaticData", key = "#entry", unless = "#result == null")
-	public List<ElementLiveData> initEntryLiveStaticData(int event, int entry, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
-		List<ElementLiveData> elementLiveDataList = Lists.newArrayList();
+	public List<ElementEventResultData> initEntryLiveStaticData(int event, int entry, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+		List<ElementEventResultData> elementEventResultDataList = Lists.newArrayList();
 		picks.forEach(pick -> {
-			ElementLiveData elementLiveData = this.initElementLiveStaticData(event, pick.getElement(), pick, playerInfoMap, positionMap, teamLiveFixtureMap);
-			elementLiveDataList.add(elementLiveData);
+			ElementEventResultData elementEventResultData = this.initElementLiveStaticData(event, pick.getElement(), pick, playerInfoMap, positionMap, teamLiveFixtureMap);
+			elementEventResultDataList.add(elementEventResultData);
 		});
-		return elementLiveDataList;
+		return elementEventResultDataList;
 	}
 
 	@Cacheable(value = "initElementLiveStaticData", key = "#element", unless = "#result == null")
-	public ElementLiveData initElementLiveStaticData(int event, int element, Pick pick,
-	                                                 Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+	public ElementEventResultData initElementLiveStaticData(int event, int element, Pick pick,
+															Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
 		// from user pick
-		ElementLiveData elementLiveData = new ElementLiveData();
-		elementLiveData
+		ElementEventResultData elementEventResultData = new ElementEventResultData();
+		elementEventResultData
 				.setEvent(event)
 				.setElement(element)
 				.setPosition(pick.getPosition())
@@ -116,19 +116,19 @@ public class LiveService implements ILiveService {
 			playerEntity = this.querySerivce.getPlayerByElememt(element);
 		}
 		if (playerEntity != null) {
-			elementLiveData
+			elementEventResultData
 					.setElementType(playerEntity.getElementType())
 					.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
 					.setWebName(playerEntity.getWebName());
 			// event fixture
 			int teamId = playerEntity.getTeamId();
-			elementLiveData.setTeamId(teamId);
-			this.setMatchPlayStatus(elementLiveData, teamLiveFixtureMap.get(String.valueOf(teamId)));
+			elementEventResultData.setTeamId(teamId);
+			this.setMatchPlayStatus(elementEventResultData, teamLiveFixtureMap.get(String.valueOf(teamId)));
 		}
-		return elementLiveData;
+		return elementEventResultData;
 	}
 
-	private void setMatchPlayStatus(ElementLiveData elementLiveData, Map<String, List<LiveFixtureData>> liveFixtureMap) {
+	private void setMatchPlayStatus(ElementEventResultData elementEventResultData, Map<String, List<LiveFixtureData>> liveFixtureMap) {
 		int playingSize = 0;
 		int notStartSize = 0;
 		int finishSize = 0;
@@ -138,53 +138,53 @@ public class LiveService implements ILiveService {
 			finishSize = liveFixtureMap.get(MatchPlayStatus.Finished.name()).size();
 		}
 		if (playingSize > 0) {
-			elementLiveData.setGwStarted(true).setGwFinished(false).setPlayStatus(MatchPlayStatus.Playing.getStatus());
+			elementEventResultData.setGwStarted(true).setGwFinished(false).setPlayStatus(MatchPlayStatus.Playing.getStatus());
 		} else {
 			if (notStartSize != 0) {
 				if (finishSize == 0) { // n,0,0
-					elementLiveData.setGwStarted(false).setGwFinished(false).setPlayStatus(MatchPlayStatus.Not_Start.getStatus());
+					elementEventResultData.setGwStarted(false).setGwFinished(false).setPlayStatus(MatchPlayStatus.Not_Start.getStatus());
 				} else { // n,0,n
-					elementLiveData.setGwStarted(true).setGwFinished(false).setPlayStatus(MatchPlayStatus.Event_Not_Finished.getStatus());
+					elementEventResultData.setGwStarted(true).setGwFinished(false).setPlayStatus(MatchPlayStatus.Event_Not_Finished.getStatus());
 				}
 			} else {
 				if (finishSize == 0) { // 0,0,0
-					elementLiveData.setGwStarted(false).setGwFinished(false).setPlayStatus(MatchPlayStatus.Blank.getStatus());
+					elementEventResultData.setGwStarted(false).setGwFinished(false).setPlayStatus(MatchPlayStatus.Blank.getStatus());
 				} else { // 0,0,n
-					elementLiveData.setGwStarted(true).setGwFinished(true).setPlayStatus(MatchPlayStatus.Finished.getStatus());
+					elementEventResultData.setGwStarted(true).setGwFinished(true).setPlayStatus(MatchPlayStatus.Finished.getStatus());
 				}
 			}
 		}
 
 	}
 
-	private void initEventLiveData(int event, List<ElementLiveData> elementLiveDataList) {
+	private void initEventLiveData(int event, List<ElementEventResultData> elementEventResultDataList) {
 		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
 		if (CollectionUtils.isEmpty(eventLiveMap)) {
 			return;
 		}
-		elementLiveDataList.forEach(elementLiveData -> {
-			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(elementLiveData.getElement()));
+		elementEventResultDataList.forEach(elementEventResultData -> {
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(elementEventResultData.getElement()));
 			if (eventLiveEntity != null) {
-				BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
-				elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
+				BeanUtil.copyProperties(eventLiveEntity, elementEventResultData, CopyOptions.create().ignoreNullValue());
+				elementEventResultData.setPlayed(elementEventResultData.getMinutes() > 0 || elementEventResultData.getYellowCards() > 0 || elementEventResultData.getRedCards() > 0);
 			}
 		});
 	}
 
-	private List<ElementLiveData> getPickList(List<ElementLiveData> elementLiveDataList) {
+	private List<ElementEventResultData> getPickList(List<ElementEventResultData> elementEventResultDataList) {
 		// element_type -> active -> start
-		Map<Integer, Table<Boolean, Boolean, List<ElementLiveData>>> map = elementLiveDataList.stream().collect(new ElementLiveCollector());
+		Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>> map = elementEventResultDataList.stream().collect(new ElementLiveCollector());
 		// gkp
-		List<ElementLiveData> gkps = this.createSteam(map.get(Position.GKP.getPosition()).get(true, true),
+		List<ElementEventResultData> gkps = this.createSteam(map.get(Position.GKP.getPosition()).get(true, true),
 				map.get(Position.GKP.getPosition()).get(true, false),
 				map.get(Position.GKP.getPosition()).get(false, true))
 				.flatMap(Collection::stream)
 				.limit(PositionRule.MIN_NUM_GKP.getNum())
 				.collect(Collectors.toList());
 		// active defs
-		List<ElementLiveData> defs = this.createSteam(map.get(Position.DEF.getPosition()).get(true, true))
+		List<ElementEventResultData> defs = this.createSteam(map.get(Position.DEF.getPosition()).get(true, true))
 				.flatMap(Collection::stream)
-				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.collect(Collectors.toList());
 		// def rule, at least 3
 		if (defs.size() < PositionRule.MIN_NUM_DEF.getNum()) {
@@ -193,13 +193,13 @@ public class LiveService implements ILiveService {
 					map.get(Position.DEF.getPosition()).get(false, true))
 					.flatMap(Collection::stream)
 					.limit(PositionRule.MIN_NUM_DEF.getNum())
-					.sorted(Comparator.comparing(ElementLiveData::getPosition))
+					.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 					.collect(Collectors.toList());
 		}
 		// active fwds
-		List<ElementLiveData> fwds = this.createSteam(map.get(Position.FWD.getPosition()).get(true, true))
+		List<ElementEventResultData> fwds = this.createSteam(map.get(Position.FWD.getPosition()).get(true, true))
 				.flatMap(Collection::stream)
-				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.collect(Collectors.toList());
 		// fwd rule, at least 1
 		if (fwds.size() < PositionRule.MIN_NUM_FWD.getNum()) {
@@ -212,36 +212,36 @@ public class LiveService implements ILiveService {
 		}
 		// mids
 		int maxMidNum = PositionRule.MIN_PLAYERS.getNum() - gkps.size() - defs.size() - fwds.size();
-		List<ElementLiveData> mids = this.createSteam(map.get(Position.MID.getPosition()).get(true, true),
+		List<ElementEventResultData> mids = this.createSteam(map.get(Position.MID.getPosition()).get(true, true),
 				map.get(Position.MID.getPosition()).get(true, false))
 				.flatMap(Collection::stream)
-				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.limit(maxMidNum)
 				.collect(Collectors.toList());
 		// active_list
-		List<ElementLiveData> activeList = this.createSteam(gkps, defs, fwds, mids)
+		List<ElementEventResultData> activeList = this.createSteam(gkps, defs, fwds, mids)
 				.flatMap(Collection::stream)
 				.collect(Collectors.toList());
-		List<ElementLiveData> standByList = this.createSteam(map.get(Position.DEF.getPosition()).get(false, true),
+		List<ElementEventResultData> standByList = this.createSteam(map.get(Position.DEF.getPosition()).get(false, true),
 				map.get(Position.MID.getPosition()).get(false, true),
 				map.get(Position.FWD.getPosition()).get(false, true))
 				.flatMap(Collection::stream)
 				.filter(o -> !activeList.contains(o))
-				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.limit(PositionRule.MIN_PLAYERS.getNum() - activeList.size())
 				.collect(Collectors.toList());
-		List<ElementLiveData> pickList = this.createSteam(activeList, standByList)
+		List<ElementEventResultData> pickList = this.createSteam(activeList, standByList)
 				.flatMap(Collection::stream)
-				.sorted(Comparator.comparing(ElementLiveData::getElementType).thenComparing(ElementLiveData::getPosition))
+				.sorted(Comparator.comparing(ElementEventResultData::getElementType).thenComparing(ElementEventResultData::getPosition))
 				.collect(Collectors.toList());
-		pickList.addAll(elementLiveDataList.stream()
+		pickList.addAll(elementEventResultDataList.stream()
 				.filter(o -> !activeList.contains(o))
-				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.collect(Collectors.toList()));
 		return pickList;
 	}
 
-	private int calcActivePoints(Chip chip, List<ElementLiveData> pickList) {
+	private int calcActivePoints(Chip chip, List<ElementEventResultData> pickList) {
 		int activeCaptain = this.getActiveCaptain(pickList);
 		if (activeCaptain == 0) {
 			return 0;
@@ -249,46 +249,46 @@ public class LiveService implements ILiveService {
 		switch (chip) {
 			case TC:
 				pickList.subList(0, 11).forEach(o -> o.setPickAvtive(true));
-				return pickList.subList(0, 11).stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
+				return pickList.subList(0, 11).stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementEventResultData::getTotalPoints).sum()
 						+ pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 3 * o.getTotalPoints()).sum();
 			case BB:
 				pickList.forEach(o -> o.setPickAvtive(true));
-				return pickList.stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
+				return pickList.stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementEventResultData::getTotalPoints).sum()
 						+ pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 2 * o.getTotalPoints()).sum();
 			// only 3c and bb change the calculate rule
 			case NONE:
 			case WC:
 			case FH:
 				pickList.subList(0, 11).forEach(o -> o.setPickAvtive(true));
-				return pickList.subList(0, 11).stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
+				return pickList.subList(0, 11).stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementEventResultData::getTotalPoints).sum()
 						+ pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 2 * o.getTotalPoints()).sum();
 			default:
 				return 0;
 		}
 	}
 
-	private int getActiveCaptain(List<ElementLiveData> pickList) {
+	private int getActiveCaptain(List<ElementEventResultData> pickList) {
 		// captain played
 		int activeCaptain = pickList.stream()
-				.filter(ElementLiveData::isCaptain)
+				.filter(ElementEventResultData::isCaptain)
 				.filter(o -> !o.isGwStarted() || o.isPlayed())
-				.map(ElementLiveData::getElement)
+				.map(ElementEventResultData::getElement)
 				.findFirst()
 				.orElse(0);
 		// vice captain played
 		if (activeCaptain == 0) {
 			activeCaptain = pickList.stream()
-					.filter(ElementLiveData::isViceCaptain)
+					.filter(ElementEventResultData::isViceCaptain)
 					.filter(o -> !o.isGwStarted() || o.isPlayed())
-					.map(ElementLiveData::getElement)
+					.map(ElementEventResultData::getElement)
 					.findFirst()
 					.orElse(0);
 		}
 		// none played
 		if (activeCaptain == 0) {
 			activeCaptain = pickList.stream()
-					.filter(ElementLiveData::isCaptain)
-					.map(ElementLiveData::getElement)
+					.filter(ElementEventResultData::isCaptain)
+					.map(ElementEventResultData::getElement)
 					.findFirst()
 					.orElse(0);
 		}
@@ -305,22 +305,22 @@ public class LiveService implements ILiveService {
 	@Override
 	public LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
 		LiveCalaData liveCalaData = new LiveCalaData();
-		List<ElementLiveData> pickList = Lists.newArrayList();
+		List<ElementEventResultData> pickList = Lists.newArrayList();
 		// prepare
 		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
 		Map<String, String> positionMap = this.querySerivce.getPositionMap();
 		// initialize element_live_data
 		elementMap.keySet().forEach(position -> {
 			int element = elementMap.get(position);
-			ElementLiveData elementLiveData = new ElementLiveData();
-			elementLiveData.setPosition(position);
-			elementLiveData.setMultiplier(this.ifMultiplier(event, element));
-			elementLiveData.setCaptain(element == captain);
-			elementLiveData.setViceCaptain(element == viceCaptain);
+			ElementEventResultData elementEventResultData = new ElementEventResultData();
+			elementEventResultData.setPosition(position);
+			elementEventResultData.setMultiplier(this.ifMultiplier(event, element));
+			elementEventResultData.setCaptain(element == captain);
+			elementEventResultData.setViceCaptain(element == viceCaptain);
 			// player info
 			PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
 			if (playerEntity != null) {
-				elementLiveData
+				elementEventResultData
 						.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
 						.setWebName(playerEntity.getWebName());
 				// event fixture
@@ -332,17 +332,17 @@ public class LiveService implements ILiveService {
 							.filter(o -> o.getEvent() == event)
 							.findFirst()
 							.orElse(new PlayerFixtureData());
-					elementLiveData.setGwStarted(PlayerFixtureData.isStarted());
-					elementLiveData.setGwFinished(PlayerFixtureData.isFinished());
-					elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
+					elementEventResultData.setGwStarted(PlayerFixtureData.isStarted());
+					elementEventResultData.setGwFinished(PlayerFixtureData.isFinished());
+					elementEventResultData.setPlayed(elementEventResultData.getMinutes() > 0 || elementEventResultData.getYellowCards() > 0 || elementEventResultData.getRedCards() > 0);
 				}
 			}
 			// from event_live
 			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(element));
 			if (eventLiveEntity != null) {
-				BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
+				BeanUtil.copyProperties(eventLiveEntity, elementEventResultData, CopyOptions.create().ignoreNullValue());
 			}
-			pickList.add(elementLiveData);
+			pickList.add(elementEventResultData);
 		});
 		// calc live points
 		int livePoints = this.calcActivePoints(Chip.NONE, pickList);

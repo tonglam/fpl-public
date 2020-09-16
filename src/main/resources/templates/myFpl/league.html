@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!DO CTYPE html>
 
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="layout::header(~{::title},~{})">
-    <title>联赛查看-我的fpl-letletme</title>
+    <title>查看联赛-我的fpl-letletme</title>
 </head>
 
 <body>
@@ -14,10 +14,41 @@
     <div class="layui-main">
         <div class="site-content">
 
-            <h1 style="font-size: 28px">联赛查看</h1>
+            <h1 style="font-size: 28px">查看联赛</h1>
+
+            <div class="layui-hide" id="currentGw" th:text="${currentGw}"></div>
 
             <div style="margin-top: 30px"></div>
 
+            <form class="layui-form">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="margin-left: -30px">联赛类型</label>
+                    <div class="layui-input-inline">
+                        <select lay-filter="leagueType" name="leagueType">
+                            <option value="Classic">Classic</option>
+                            <option value="H2h">H2h</option>
+                        </select>
+                    </div>
+                    <label class="layui-form-label" style="margin-left: -30px">联赛id</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="on" class="layui-input" name="leagueId" type="text">
+                    </div>
+                    <label class="layui-form-label" style="margin-left: -30px">查看时间</label>
+                    <div class="layui-input-inline">
+                        <select lay-filter="gwSelect" name="gwSelect">
+                            <option th:each="item,stat:${gwMap}" th:text="${stat.current.value}"
+                                    th:value="${stat.current.key}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline" style="margin-left: 20px">
+                        <button class="layui-btn" id="entryButton" type="button">开始</button>
+                    </div>
+                </div>
+
+            </form>
+
+            <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
 
         </div>
     </div>
@@ -28,5 +59,17 @@
 </body>
 
 <script th:replace="layout::baseScript"></script>
+
+<script>
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
+        let $ = layui.jquery, element = layui.element, table = layui.table,
+            soulTable = layui.soulTable;
+
+        let currentGw = $("#currentGw").html();
+        let optionValue = "dd[lay-value=" + currentGw + "]";
+        $("select[name=gwSelect]").siblings("div.layui-form-select").find("dl").find(optionValue).click();
+
+    });
+</script>
 
 </html>

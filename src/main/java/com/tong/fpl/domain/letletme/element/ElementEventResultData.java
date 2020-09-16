@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.letletme.live;
+package com.tong.fpl.domain.letletme.element;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 @Data
 @Accessors(chain = true)
-public class ElementLiveData {
+public class ElementEventResultData {
 
 	private int event;
 	private int element;
@@ -49,7 +49,7 @@ public class ElementLiveData {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ElementLiveData that = (ElementLiveData) o;
+		ElementEventResultData that = (ElementEventResultData) o;
 		return event == that.event &&
 				element == that.element;
 	}

@@ -3,6 +3,7 @@ package com.tong.fpl.api.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.tong.fpl.api.IMyFplApi;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -49,6 +50,11 @@ public class MyFplApiImpl implements IMyFplApi {
     @Override
     public TableData<EntryPickData> qryEntryEventResult(int event, int entry) {
         return this.tableQueryService.qryEntryEventResult(event, entry);
+    }
+
+    @Override
+    public TableData<ElementEventResultData> qryElementEventResult(int event, int element) {
+        return this.tableQueryService.qryElementEventResult(event, element);
     }
 
 }

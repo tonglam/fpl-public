@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -18,5 +19,7 @@ public interface IMyFplApi {
     TableData<EntryEventResultData> qryEntryResultList(int entry);
 
     TableData<EntryPickData> qryEntryEventResult(int event, int entry);
+
+    TableData<ElementEventResultData> qryElementEventResult(int event, int element);
 
 }
