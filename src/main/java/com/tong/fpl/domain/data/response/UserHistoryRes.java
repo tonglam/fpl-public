@@ -12,7 +12,9 @@ import java.util.List;
  */
 @Data
 public class UserHistoryRes {
-    private List<Current> current;
-    private List<Past> past;
-    private List<HistoryChips> chips;
+
+	private List<Current> current;
+	private List<Past> past;
+	private List<HistoryChips> chips;
+
 }

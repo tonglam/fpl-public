@@ -11,8 +11,10 @@ import lombok.Data;
  */
 @Data
 public class LeagueClassicRes {
-    private ClassicInfo league;
-    @JsonProperty("new_entries")
-    private ClassicNewEntries newEntries;
+
+	private ClassicInfo league;
+	@JsonProperty("new_entries")
+	private ClassicNewEntries newEntries;
 	private ClassicStandings standings;
+
 }

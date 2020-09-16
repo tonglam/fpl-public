@@ -12,5 +12,6 @@ public class League {
 
 	private List<Classic> classic;
 	private List<H2h> h2h;
-    private Cup cup;
+	private Cup cup;
+
 }

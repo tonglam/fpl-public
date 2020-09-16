@@ -8,8 +8,10 @@ import lombok.Data;
  */
 @Data
 public class Chips {
-    @JsonProperty("chip_name")
-    private String chipName;
-    @JsonProperty("num_played")
-    private int numPlayed;
+
+	@JsonProperty("chip_name")
+	private String chipName;
+	@JsonProperty("num_played")
+	private int numPlayed;
+
 }

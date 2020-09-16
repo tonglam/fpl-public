@@ -13,6 +13,7 @@ import java.util.List;
  */
 @Data
 public class UserPicksRes {
+
     @JsonProperty("active_chip")
     private String activeChip;
     @JsonProperty("automatic_subs")
@@ -20,4 +21,5 @@ public class UserPicksRes {
     @JsonProperty("entry_history")
     private EntryHistory entryHistory;
     private List<Pick> picks;
+
 }

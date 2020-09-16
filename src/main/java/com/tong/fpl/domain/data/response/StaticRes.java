@@ -11,17 +11,19 @@ import java.util.List;
  */
 @Data
 public class StaticRes {
-    private List<Event> events;
-    @JsonProperty("game_settings")
-    private GameSettings gameSettings;
-    private List<Phase> phases;
-    private List<Team> teams;
-    @JsonProperty("total_players")
-    private int totalPlayers;
+
+	private List<Event> events;
+	@JsonProperty("game_settings")
+	private GameSettings gameSettings;
+	private List<Phase> phases;
+	private List<Team> teams;
+	@JsonProperty("total_players")
+	private int totalPlayers;
 	@JsonProperty("elements")
 	private List<Player> elements;
 	@JsonProperty("element_stats")
 	private List<ElementStat> elementStats;
-    @JsonProperty("element_types")
-    private List<ElementType> elementTypes;
+	@JsonProperty("element_types")
+	private List<ElementType> elementTypes;
+
 }

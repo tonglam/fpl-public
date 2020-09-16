@@ -9,7 +9,9 @@ import java.util.List;
  */
 @Data
 public class Element {
-    private int id;
-    private ElementStat stats;
-    private List<ElementExplain> explain;
+
+	private int id;
+	private ElementStat stats;
+	private List<ElementExplain> explain;
+
 }

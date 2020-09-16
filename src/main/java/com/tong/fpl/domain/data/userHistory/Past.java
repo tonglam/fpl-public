@@ -13,5 +13,6 @@ public class Past {
 	private String seasonName;
 	@JsonProperty("total_points")
 	private int totalPoints;
-    private int rank;
+	private int rank;
+
 }

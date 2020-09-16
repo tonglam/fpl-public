@@ -10,8 +10,10 @@ import java.util.List;
  */
 @Data
 public class ClassicNewEntries {
-    @JsonProperty("has_next")
-    private boolean hasNext;
-    private int page;
-    private List<ClassicResult> results;
+
+	@JsonProperty("has_next")
+	private boolean hasNext;
+	private int page;
+	private List<ClassicResult> results;
+
 }

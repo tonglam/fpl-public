@@ -11,5 +11,6 @@ import java.util.List;
 public class Cup {
 
 	private List<Match> match;
-    private CupStatus status;
+	private CupStatus status;
+
 }

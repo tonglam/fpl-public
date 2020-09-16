@@ -7,6 +7,8 @@ import lombok.Data;
  */
 @Data
 public class ElementStat {
-    private String label;
-    private String name;
+
+	private String label;
+	private String name;
+
 }

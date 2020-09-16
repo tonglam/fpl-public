@@ -8,10 +8,12 @@ import lombok.Data;
  */
 @Data
 public class Phase {
-    private int id;
-    private String name;
-    @JsonProperty("start_event")
-    private int startEvent;
-    @JsonProperty("stop_event")
-    private int stopEvent;
+
+	private int id;
+	private String name;
+	@JsonProperty("start_event")
+	private int startEvent;
+	@JsonProperty("stop_event")
+	private int stopEvent;
+
 }

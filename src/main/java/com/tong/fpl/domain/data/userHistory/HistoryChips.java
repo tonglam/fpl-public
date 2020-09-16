@@ -7,7 +7,9 @@ import lombok.Data;
  */
 @Data
 public class HistoryChips {
-    private String name;
-    private String time;
+
+	private String name;
+	private String time;
 	private int event;
+
 }

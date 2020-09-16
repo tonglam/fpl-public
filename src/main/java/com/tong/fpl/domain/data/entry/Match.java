@@ -8,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class Match {
+
     private int id;
     @JsonProperty("entry_1_entry")
     private int entry1Entry;
@@ -47,4 +48,5 @@ public class Match {
     private int seedValue;
     private int event;
     private boolean tiebreak;
+
 }

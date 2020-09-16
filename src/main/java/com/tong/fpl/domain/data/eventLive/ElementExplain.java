@@ -9,6 +9,8 @@ import java.util.List;
  */
 @Data
 public class ElementExplain {
-    private int fixture;
-    private List<ExplainStat> stats;
+
+	private int fixture;
+	private List<ExplainStat> stats;
+
 }

@@ -8,21 +8,23 @@ import lombok.Data;
  */
 @Data
 public class Current {
-    private int event;
-    private int points;
-    @JsonProperty("total_points")
-    private int totalPoints;
-    private int rank;
-    @JsonProperty("rank_sort")
-    private int rankSort;
-    @JsonProperty("overall_rank")
-    private int overallRank;
-    private int bank;
-    private int value;
-    @JsonProperty("event_transfers")
-    private int eventTransfers;
-    @JsonProperty("event_transfers_cost")
-    private int eventTransfersCost;
-    @JsonProperty("points_on_bench")
-    private int pointsOnBench;
+
+	private int event;
+	private int points;
+	@JsonProperty("total_points")
+	private int totalPoints;
+	private int rank;
+	@JsonProperty("rank_sort")
+	private int rankSort;
+	@JsonProperty("overall_rank")
+	private int overallRank;
+	private int bank;
+	private int value;
+	@JsonProperty("event_transfers")
+	private int eventTransfers;
+	@JsonProperty("event_transfers_cost")
+	private int eventTransfersCost;
+	@JsonProperty("points_on_bench")
+	private int pointsOnBench;
+
 }

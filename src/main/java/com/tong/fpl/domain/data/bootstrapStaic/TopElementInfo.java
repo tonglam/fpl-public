@@ -7,6 +7,8 @@ import lombok.Data;
  */
 @Data
 public class TopElementInfo {
-    private int id;
-    private int points;
+
+	private int id;
+	private int points;
+
 }

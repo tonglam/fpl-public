@@ -7,7 +7,9 @@ import lombok.Data;
  */
 @Data
 public class ExplainStat {
-    private String identifier;
-    private int points;
-    private int value;
+
+	private String identifier;
+	private int points;
+	private int value;
+
 }

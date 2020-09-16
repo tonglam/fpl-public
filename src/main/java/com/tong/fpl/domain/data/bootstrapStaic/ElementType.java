@@ -15,11 +15,11 @@ public class ElementType {
 	@JsonProperty("plural_name")
 	private String pluralName;
 	@JsonProperty("plural_name_short")
-    private String pluralNameShort;
-    @JsonProperty("singular_name")
-    private String singularName;
-    @JsonProperty("singular_name_short")
-    private String singularNameShort;
+	private String pluralNameShort;
+	@JsonProperty("singular_name")
+	private String singularName;
+	@JsonProperty("singular_name_short")
+	private String singularNameShort;
 	@JsonProperty("squad_select")
 	private int squadSelect;
 	@JsonProperty("squad_min_play")

@@ -15,16 +15,16 @@ public class GameSettings {
 	private int leagueJoinPrivateMax;
 	@JsonProperty("league_join_public_max")
 	private int leagueJoinPublicMax;
-    @JsonProperty("league_max_size_public_classic")
-    private int leagueMaxSizePublicClassic;
-    @JsonProperty("league_max_size_public_h2h")
-    private int leagueMaxSizePublicH2h;
-    @JsonProperty("league_max_size_private_h2h")
-    private int leagueMaxSizePrivateH2h;
-    @JsonProperty("league_max_ko_rounds_private_h2h")
-    private int leagueMaxKoRoundsPrivateH2h;
-    @JsonProperty("league_prefix_public")
-    private String leaguePrefixPublic;
+	@JsonProperty("league_max_size_public_classic")
+	private int leagueMaxSizePublicClassic;
+	@JsonProperty("league_max_size_public_h2h")
+	private int leagueMaxSizePublicH2h;
+	@JsonProperty("league_max_size_private_h2h")
+	private int leagueMaxSizePrivateH2h;
+	@JsonProperty("league_max_ko_rounds_private_h2h")
+	private int leagueMaxKoRoundsPrivateH2h;
+	@JsonProperty("league_prefix_public")
+	private String leaguePrefixPublic;
 	@JsonProperty("league_points_h2h_win")
 	private int leaguePointsH2hWin;
 	@JsonProperty("league_points_h2h_lose")
@@ -47,21 +47,22 @@ public class GameSettings {
 	private int squadSquadsize;
 	@JsonProperty("squad_team_limit")
 	private int squadTeamLimit;
-    @JsonProperty("squad_total_spend")
-    private int squadTotalSpend;
-    @JsonProperty("ui_currency_multiplier")
-    private int uiCurrencyMultiplier;
+	@JsonProperty("squad_total_spend")
+	private int squadTotalSpend;
+	@JsonProperty("ui_currency_multiplier")
+	private int uiCurrencyMultiplier;
 	@JsonProperty("ui_use_special_shirts")
 	private boolean uiUseSpecialShirts;
 	@JsonProperty("ui_special_shirt_exclusions")
 	private List<String> uiSpecialShirtExclusions;
 	@JsonProperty("stats_form_days")
 	private int statsFormDays;
-    @JsonProperty("sys_vice_captain_enabled")
-    private boolean sysViceCaptainEnabled;
+	@JsonProperty("sys_vice_captain_enabled")
+	private boolean sysViceCaptainEnabled;
 	@JsonProperty("transfers_sell_on_fee")
 	private double transfersSellOnFee;
 	@JsonProperty("league_h2h_tiebreak_stats")
 	private List<String> leagueH2hTiebreakStats;
 	private String timezone;
+
 }
