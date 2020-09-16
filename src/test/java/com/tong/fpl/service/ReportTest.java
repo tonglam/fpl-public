@@ -11,9 +11,19 @@ public class ReportTest extends FplApplicationTests {
 	private IReportService reportService;
 
 	@ParameterizedTest
-	@CsvSource({"2021, 1"})
-	void insertEntryCaptainStat(String season, int tournamentId) {
-		this.reportService.insertEntryCaptainStat(season, tournamentId);
+	@CsvSource({"1"})
+	void insertEntryCaptainStat(int tournamentId) {
+		this.reportService.insertEntryCaptainStat(tournamentId);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"1, Classic, 65, 0"})
+	void insertLeagueResultStat(int event, String leagueType, int leagueId, int limit) {
+		long startTime = System.currentTimeMillis();
+		this.reportService.insertLeagueResultStat(event, leagueType, leagueId, limit);
+		long endTime = System.currentTimeMillis();
+		System.out.println("escape: " + (endTime - startTime) + "ms");
 		System.out.println(1);
 	}
 

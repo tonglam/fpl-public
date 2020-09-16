@@ -41,371 +41,375 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveService implements ILiveService {
 
-    private final IQuerySerivce querySerivce;
-    private final EntryInfoService entryInfoService;
+	private final IQuerySerivce querySerivce;
+	private final EntryInfoService entryInfoService;
 
-    @Override
-    public LiveCalaData calcLivePointsByEntry(int event, int entry) {
-        LiveCalaData liveCalaData = new LiveCalaData();
-        // get user picks
-        Optional<UserPicksRes> result = this.querySerivce.getUserPicks(event, entry);
-        if (result.isPresent()) {
-            liveCalaData = this.calcLiveSingleEntryPoints(event, entry, result.get(), Maps.newHashMap());
-        }
-        // entry info
-        EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
-        if (entryInfoEntity != null) {
-            liveCalaData
-                    .setEntryName(entryInfoEntity.getEntryName())
-                    .setPlayerName(entryInfoEntity.getPlayerName())
-                    .setRegion(entryInfoEntity.getRegion());
-        }
-        return liveCalaData;
-    }
+	@Override
+	public LiveCalaData calcLivePointsByEntry(int event, int entry) {
+		LiveCalaData liveCalaData = new LiveCalaData();
+		// prepare
+		Map<String, String> positionMap = this.querySerivce.getPositionMap();
+		Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.querySerivce.getEventLiveFixtureMap();
+		// get user picks
+		Optional<UserPicksRes> result = this.querySerivce.getUserPicks(event, entry);
+		if (result.isPresent()) {
+			liveCalaData = this.calcLiveSingleEntryPoints(event, entry, result.get(), Maps.newHashMap(), positionMap, teamLiveFixtureMap);
+		}
+		// entry info
+		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
+		if (entryInfoEntity != null) {
+			liveCalaData
+					.setEntryName(entryInfoEntity.getEntryName())
+					.setPlayerName(entryInfoEntity.getPlayerName())
+					.setRegion(entryInfoEntity.getRegion());
+		}
+		return liveCalaData;
+	}
 
-    private LiveCalaData calcLiveSingleEntryPoints(int event, int entry, UserPicksRes userPicksRes, Map<Integer, PlayerEntity> playerInfoMap) {
-        // initialize element_live_data, static part
-        Map<String, String> positionMap = this.querySerivce.getPositionMap();
-        Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.querySerivce.getEventLiveFixtureMap();
-        List<ElementLiveData> elementLiveDataList = this.initEntryLiveStaticData(event, entry, userPicksRes.getPicks(),
-                playerInfoMap, positionMap, teamLiveFixtureMap);
-        // initialize element_live_data, event_live part
-        this.initEventLiveData(event, elementLiveDataList);
-        // get active picks
-        List<ElementLiveData> pickList = this.getPickList(elementLiveDataList);
-        // calc live points
-        int livePoints = this.calcActivePoints(Chip.getChipFromValue(userPicksRes.getActiveChip()), pickList);
-        return new LiveCalaData()
-                .setEntry(entry)
-                .setEvent(event)
-                .setPickList(pickList)
-                .setChip(userPicksRes.getActiveChip())
-                .setLivePoints(livePoints)
-                .setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
-                .setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost());
-    }
+	private LiveCalaData calcLiveSingleEntryPoints(int event, int entry, UserPicksRes userPicksRes, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+		// initialize element_live_data, static part
+		List<ElementLiveData> elementLiveDataList = this.initEntryLiveStaticData(event, entry, userPicksRes.getPicks(),
+				playerInfoMap, positionMap, teamLiveFixtureMap);
+		// initialize element_live_data, event_live part
+		this.initEventLiveData(event, elementLiveDataList);
+		// get active picks
+		List<ElementLiveData> pickList = this.getPickList(elementLiveDataList);
+		// calc live points
+		int livePoints = this.calcActivePoints(Chip.getChipFromValue(userPicksRes.getActiveChip()), pickList);
+		return new LiveCalaData()
+				.setEntry(entry)
+				.setEvent(event)
+				.setPickList(pickList)
+				.setChip(userPicksRes.getActiveChip())
+				.setLivePoints(livePoints)
+				.setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
+				.setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost());
+	}
 
-    @Cacheable(value = "initEntryLiveStaticData", key = "#entry", unless = "#result == null")
-    public List<ElementLiveData> initEntryLiveStaticData(int event, int entry, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
-        List<ElementLiveData> elementLiveDataList = Lists.newArrayList();
-        picks.forEach(pick -> {
-            ElementLiveData elementLiveData = this.initElementLiveStaticData(event, pick.getElement(), pick, playerInfoMap, positionMap, teamLiveFixtureMap);
-            elementLiveDataList.add(elementLiveData);
-        });
-        return elementLiveDataList;
-    }
+	@Cacheable(value = "initEntryLiveStaticData", key = "#entry", unless = "#result == null")
+	public List<ElementLiveData> initEntryLiveStaticData(int event, int entry, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+		List<ElementLiveData> elementLiveDataList = Lists.newArrayList();
+		picks.forEach(pick -> {
+			ElementLiveData elementLiveData = this.initElementLiveStaticData(event, pick.getElement(), pick, playerInfoMap, positionMap, teamLiveFixtureMap);
+			elementLiveDataList.add(elementLiveData);
+		});
+		return elementLiveDataList;
+	}
 
-    @Cacheable(value = "initElementLiveStaticData", key = "#element", unless = "#result == null")
-    public ElementLiveData initElementLiveStaticData(int event, int element, Pick pick,
-                                                     Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
-        // from user pick
-        ElementLiveData elementLiveData = new ElementLiveData();
-        elementLiveData
-                .setEvent(event)
-                .setElement(element)
-                .setPosition(pick.getPosition())
-                .setMultiplier(pick.getMultiplier())
-                .setCaptain(pick.isCaptain())
-                .setViceCaptain(pick.isViceCaptain());
-        // player info
-        PlayerEntity playerEntity;
-        if (playerInfoMap.containsKey(element)) {
-            playerEntity = playerInfoMap.get(element);
-        } else {
-            playerEntity = this.querySerivce.getPlayerByElememt(element);
-        }
-        if (playerEntity != null) {
-            elementLiveData
-                    .setElementType(playerEntity.getElementType())
-                    .setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
-                    .setWebName(playerEntity.getWebName());
-            // event fixture
-            int teamId = playerEntity.getTeamId();
-            elementLiveData.setTeamId(teamId);
-            this.setMatchPlayStatus(elementLiveData, teamLiveFixtureMap.get(String.valueOf(teamId)));
-        }
-        return elementLiveData;
-    }
+	@Cacheable(value = "initElementLiveStaticData", key = "#element", unless = "#result == null")
+	public ElementLiveData initElementLiveStaticData(int event, int element, Pick pick,
+	                                                 Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+		// from user pick
+		ElementLiveData elementLiveData = new ElementLiveData();
+		elementLiveData
+				.setEvent(event)
+				.setElement(element)
+				.setPosition(pick.getPosition())
+				.setMultiplier(pick.getMultiplier())
+				.setCaptain(pick.isCaptain())
+				.setViceCaptain(pick.isViceCaptain());
+		// player info
+		PlayerEntity playerEntity;
+		if (playerInfoMap.containsKey(element)) {
+			playerEntity = playerInfoMap.get(element);
+		} else {
+			playerEntity = this.querySerivce.getPlayerByElememt(element);
+		}
+		if (playerEntity != null) {
+			elementLiveData
+					.setElementType(playerEntity.getElementType())
+					.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
+					.setWebName(playerEntity.getWebName());
+			// event fixture
+			int teamId = playerEntity.getTeamId();
+			elementLiveData.setTeamId(teamId);
+			this.setMatchPlayStatus(elementLiveData, teamLiveFixtureMap.get(String.valueOf(teamId)));
+		}
+		return elementLiveData;
+	}
 
-    private void setMatchPlayStatus(ElementLiveData elementLiveData, Map<String, List<LiveFixtureData>> liveFixtureMap) {
-        int playingSize = 0;
-        int notStartSize = 0;
-        int finishSize = 0;
-        if (!CollectionUtils.isEmpty(liveFixtureMap)) {
-            playingSize = liveFixtureMap.get(MatchPlayStatus.Playing.name()).size();
-            notStartSize = liveFixtureMap.get(MatchPlayStatus.Not_Start.name()).size();
-            finishSize = liveFixtureMap.get(MatchPlayStatus.Finished.name()).size();
-        }
-        if (playingSize > 0) {
-            elementLiveData.setGwStarted(true).setGwFinished(false).setPlayStatus(MatchPlayStatus.Playing.getStatus());
-        } else {
-            if (notStartSize != 0) {
-                if (finishSize == 0) { // n,0,0
-                    elementLiveData.setGwStarted(false).setGwFinished(false).setPlayStatus(MatchPlayStatus.Not_Start.getStatus());
-                } else { // n,0,n
-                    elementLiveData.setGwStarted(true).setGwFinished(false).setPlayStatus(MatchPlayStatus.Event_Not_Finished.getStatus());
-                }
-            } else {
-                if (finishSize == 0) { // 0,0,0
-                    elementLiveData.setGwStarted(false).setGwFinished(false).setPlayStatus(MatchPlayStatus.Blank.getStatus());
-                } else { // 0,0,n
-                    elementLiveData.setGwStarted(true).setGwFinished(true).setPlayStatus(MatchPlayStatus.Finished.getStatus());
-                }
-            }
-        }
+	private void setMatchPlayStatus(ElementLiveData elementLiveData, Map<String, List<LiveFixtureData>> liveFixtureMap) {
+		int playingSize = 0;
+		int notStartSize = 0;
+		int finishSize = 0;
+		if (!CollectionUtils.isEmpty(liveFixtureMap)) {
+			playingSize = liveFixtureMap.get(MatchPlayStatus.Playing.name()).size();
+			notStartSize = liveFixtureMap.get(MatchPlayStatus.Not_Start.name()).size();
+			finishSize = liveFixtureMap.get(MatchPlayStatus.Finished.name()).size();
+		}
+		if (playingSize > 0) {
+			elementLiveData.setGwStarted(true).setGwFinished(false).setPlayStatus(MatchPlayStatus.Playing.getStatus());
+		} else {
+			if (notStartSize != 0) {
+				if (finishSize == 0) { // n,0,0
+					elementLiveData.setGwStarted(false).setGwFinished(false).setPlayStatus(MatchPlayStatus.Not_Start.getStatus());
+				} else { // n,0,n
+					elementLiveData.setGwStarted(true).setGwFinished(false).setPlayStatus(MatchPlayStatus.Event_Not_Finished.getStatus());
+				}
+			} else {
+				if (finishSize == 0) { // 0,0,0
+					elementLiveData.setGwStarted(false).setGwFinished(false).setPlayStatus(MatchPlayStatus.Blank.getStatus());
+				} else { // 0,0,n
+					elementLiveData.setGwStarted(true).setGwFinished(true).setPlayStatus(MatchPlayStatus.Finished.getStatus());
+				}
+			}
+		}
 
-    }
+	}
 
-    private void initEventLiveData(int event, List<ElementLiveData> elementLiveDataList) {
-        Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
-        if (CollectionUtils.isEmpty(eventLiveMap)) {
-            return;
-        }
-        elementLiveDataList.forEach(elementLiveData -> {
-            EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(elementLiveData.getElement()));
-            if (eventLiveEntity != null) {
-                BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
-                elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
-            }
-        });
-    }
+	private void initEventLiveData(int event, List<ElementLiveData> elementLiveDataList) {
+		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
+		if (CollectionUtils.isEmpty(eventLiveMap)) {
+			return;
+		}
+		elementLiveDataList.forEach(elementLiveData -> {
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(elementLiveData.getElement()));
+			if (eventLiveEntity != null) {
+				BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
+				elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
+			}
+		});
+	}
 
-    private List<ElementLiveData> getPickList(List<ElementLiveData> elementLiveDataList) {
-        // element_type -> active -> start
-        Map<Integer, Table<Boolean, Boolean, List<ElementLiveData>>> map = elementLiveDataList.stream().collect(new ElementLiveCollector());
-        // gkp
-        List<ElementLiveData> gkps = this.createSteam(map.get(Position.GKP.getPosition()).get(true, true),
-                map.get(Position.GKP.getPosition()).get(true, false),
-                map.get(Position.GKP.getPosition()).get(false, true))
-                .flatMap(Collection::stream)
-                .limit(PositionRule.MIN_NUM_GKP.getNum())
-                .collect(Collectors.toList());
-        // active defs
-        List<ElementLiveData> defs = this.createSteam(map.get(Position.DEF.getPosition()).get(true, true))
-                .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(ElementLiveData::getPosition))
-                .collect(Collectors.toList());
-        // def rule, at least 3
-        if (defs.size() < PositionRule.MIN_NUM_DEF.getNum()) {
-            defs = this.createSteam(defs,
-                    map.get(Position.DEF.getPosition()).get(true, false),
-                    map.get(Position.DEF.getPosition()).get(false, true))
-                    .flatMap(Collection::stream)
-                    .limit(PositionRule.MIN_NUM_DEF.getNum())
-                    .sorted(Comparator.comparing(ElementLiveData::getPosition))
-                    .collect(Collectors.toList());
-        }
-        // active fwds
-        List<ElementLiveData> fwds = this.createSteam(map.get(Position.FWD.getPosition()).get(true, true))
-                .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(ElementLiveData::getPosition))
-                .collect(Collectors.toList());
-        // fwd rule, at least 1
-        if (fwds.size() < PositionRule.MIN_NUM_FWD.getNum()) {
-            fwds = this.createSteam(fwds,
-                    map.get(Position.FWD.getPosition()).get(true, false),
-                    map.get(Position.FWD.getPosition()).get(false, true))
-                    .flatMap(Collection::stream)
-                    .limit(PositionRule.MIN_NUM_FWD.getNum())
-                    .collect(Collectors.toList());
-        }
-        // mids
-        int maxMidNum = PositionRule.MIN_PLAYERS.getNum() - gkps.size() - defs.size() - fwds.size();
-        List<ElementLiveData> mids = this.createSteam(map.get(Position.MID.getPosition()).get(true, true),
-                map.get(Position.MID.getPosition()).get(true, false))
-                .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(ElementLiveData::getPosition))
-                .limit(maxMidNum)
-                .collect(Collectors.toList());
-        // active_list
-        List<ElementLiveData> activeList = this.createSteam(gkps, defs, fwds, mids)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-        List<ElementLiveData> standByList = this.createSteam(map.get(Position.DEF.getPosition()).get(false, true),
-                map.get(Position.MID.getPosition()).get(false, true),
-                map.get(Position.FWD.getPosition()).get(false, true))
-                .flatMap(Collection::stream)
-                .filter(o -> !activeList.contains(o))
-                .sorted(Comparator.comparing(ElementLiveData::getPosition))
-                .limit(PositionRule.MIN_PLAYERS.getNum() - activeList.size())
-                .collect(Collectors.toList());
-        List<ElementLiveData> pickList = this.createSteam(activeList, standByList)
-                .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(ElementLiveData::getElementType).thenComparing(ElementLiveData::getPosition))
-                .collect(Collectors.toList());
-        pickList.addAll(elementLiveDataList.stream()
-                .filter(o -> !activeList.contains(o))
-                .sorted(Comparator.comparing(ElementLiveData::getPosition))
-                .collect(Collectors.toList()));
-        return pickList;
-    }
+	private List<ElementLiveData> getPickList(List<ElementLiveData> elementLiveDataList) {
+		// element_type -> active -> start
+		Map<Integer, Table<Boolean, Boolean, List<ElementLiveData>>> map = elementLiveDataList.stream().collect(new ElementLiveCollector());
+		// gkp
+		List<ElementLiveData> gkps = this.createSteam(map.get(Position.GKP.getPosition()).get(true, true),
+				map.get(Position.GKP.getPosition()).get(true, false),
+				map.get(Position.GKP.getPosition()).get(false, true))
+				.flatMap(Collection::stream)
+				.limit(PositionRule.MIN_NUM_GKP.getNum())
+				.collect(Collectors.toList());
+		// active defs
+		List<ElementLiveData> defs = this.createSteam(map.get(Position.DEF.getPosition()).get(true, true))
+				.flatMap(Collection::stream)
+				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.collect(Collectors.toList());
+		// def rule, at least 3
+		if (defs.size() < PositionRule.MIN_NUM_DEF.getNum()) {
+			defs = this.createSteam(defs,
+					map.get(Position.DEF.getPosition()).get(true, false),
+					map.get(Position.DEF.getPosition()).get(false, true))
+					.flatMap(Collection::stream)
+					.limit(PositionRule.MIN_NUM_DEF.getNum())
+					.sorted(Comparator.comparing(ElementLiveData::getPosition))
+					.collect(Collectors.toList());
+		}
+		// active fwds
+		List<ElementLiveData> fwds = this.createSteam(map.get(Position.FWD.getPosition()).get(true, true))
+				.flatMap(Collection::stream)
+				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.collect(Collectors.toList());
+		// fwd rule, at least 1
+		if (fwds.size() < PositionRule.MIN_NUM_FWD.getNum()) {
+			fwds = this.createSteam(fwds,
+					map.get(Position.FWD.getPosition()).get(true, false),
+					map.get(Position.FWD.getPosition()).get(false, true))
+					.flatMap(Collection::stream)
+					.limit(PositionRule.MIN_NUM_FWD.getNum())
+					.collect(Collectors.toList());
+		}
+		// mids
+		int maxMidNum = PositionRule.MIN_PLAYERS.getNum() - gkps.size() - defs.size() - fwds.size();
+		List<ElementLiveData> mids = this.createSteam(map.get(Position.MID.getPosition()).get(true, true),
+				map.get(Position.MID.getPosition()).get(true, false))
+				.flatMap(Collection::stream)
+				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.limit(maxMidNum)
+				.collect(Collectors.toList());
+		// active_list
+		List<ElementLiveData> activeList = this.createSteam(gkps, defs, fwds, mids)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
+		List<ElementLiveData> standByList = this.createSteam(map.get(Position.DEF.getPosition()).get(false, true),
+				map.get(Position.MID.getPosition()).get(false, true),
+				map.get(Position.FWD.getPosition()).get(false, true))
+				.flatMap(Collection::stream)
+				.filter(o -> !activeList.contains(o))
+				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.limit(PositionRule.MIN_PLAYERS.getNum() - activeList.size())
+				.collect(Collectors.toList());
+		List<ElementLiveData> pickList = this.createSteam(activeList, standByList)
+				.flatMap(Collection::stream)
+				.sorted(Comparator.comparing(ElementLiveData::getElementType).thenComparing(ElementLiveData::getPosition))
+				.collect(Collectors.toList());
+		pickList.addAll(elementLiveDataList.stream()
+				.filter(o -> !activeList.contains(o))
+				.sorted(Comparator.comparing(ElementLiveData::getPosition))
+				.collect(Collectors.toList()));
+		return pickList;
+	}
 
-    private int calcActivePoints(Chip chip, List<ElementLiveData> pickList) {
-        int activeCaptain = this.getActiveCaptain(pickList);
-        if (activeCaptain == 0) {
-            return 0;
-        }
-        switch (chip) {
-            case TC:
-                pickList.subList(0, 11).forEach(o -> o.setPickAvtive(true));
-                return pickList.subList(0, 11).stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
-                        + pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 3 * o.getTotalPoints()).sum();
-            case BB:
-                pickList.forEach(o -> o.setPickAvtive(true));
-                return pickList.stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
-                        + pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 2 * o.getTotalPoints()).sum();
-            // only 3c and bb change the calculate rule
-            case NONE:
-            case WC:
-            case FH:
-                pickList.subList(0, 11).forEach(o -> o.setPickAvtive(true));
-                return pickList.subList(0, 11).stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
-                        + pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 2 * o.getTotalPoints()).sum();
-            default:
-                return 0;
-        }
-    }
+	private int calcActivePoints(Chip chip, List<ElementLiveData> pickList) {
+		int activeCaptain = this.getActiveCaptain(pickList);
+		if (activeCaptain == 0) {
+			return 0;
+		}
+		switch (chip) {
+			case TC:
+				pickList.subList(0, 11).forEach(o -> o.setPickAvtive(true));
+				return pickList.subList(0, 11).stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
+						+ pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 3 * o.getTotalPoints()).sum();
+			case BB:
+				pickList.forEach(o -> o.setPickAvtive(true));
+				return pickList.stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
+						+ pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 2 * o.getTotalPoints()).sum();
+			// only 3c and bb change the calculate rule
+			case NONE:
+			case WC:
+			case FH:
+				pickList.subList(0, 11).forEach(o -> o.setPickAvtive(true));
+				return pickList.subList(0, 11).stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementLiveData::getTotalPoints).sum()
+						+ pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 2 * o.getTotalPoints()).sum();
+			default:
+				return 0;
+		}
+	}
 
-    private int getActiveCaptain(List<ElementLiveData> pickList) {
-        // captain played
-        int activeCaptain = pickList.stream()
-                .filter(ElementLiveData::isCaptain)
-                .filter(o -> !o.isGwStarted() || o.isPlayed())
-                .map(ElementLiveData::getElement)
-                .findFirst()
-                .orElse(0);
-        // vice captain played
-        if (activeCaptain == 0) {
-            activeCaptain = pickList.stream()
-                    .filter(ElementLiveData::isViceCaptain)
-                    .filter(o -> !o.isGwStarted() || o.isPlayed())
-                    .map(ElementLiveData::getElement)
-                    .findFirst()
-                    .orElse(0);
-        }
-        // none played
-        if (activeCaptain == 0) {
-            activeCaptain = pickList.stream()
-                    .filter(ElementLiveData::isCaptain)
-                    .map(ElementLiveData::getElement)
-                    .findFirst()
-                    .orElse(0);
-        }
-        return activeCaptain;
-    }
+	private int getActiveCaptain(List<ElementLiveData> pickList) {
+		// captain played
+		int activeCaptain = pickList.stream()
+				.filter(ElementLiveData::isCaptain)
+				.filter(o -> !o.isGwStarted() || o.isPlayed())
+				.map(ElementLiveData::getElement)
+				.findFirst()
+				.orElse(0);
+		// vice captain played
+		if (activeCaptain == 0) {
+			activeCaptain = pickList.stream()
+					.filter(ElementLiveData::isViceCaptain)
+					.filter(o -> !o.isGwStarted() || o.isPlayed())
+					.map(ElementLiveData::getElement)
+					.findFirst()
+					.orElse(0);
+		}
+		// none played
+		if (activeCaptain == 0) {
+			activeCaptain = pickList.stream()
+					.filter(ElementLiveData::isCaptain)
+					.map(ElementLiveData::getElement)
+					.findFirst()
+					.orElse(0);
+		}
+		return activeCaptain;
+	}
 
-    @SafeVarargs
-    private final <T> Stream<T> createSteam(T... values) {
-        Stream.Builder<T> builder = Stream.builder();
-        Arrays.asList(values).forEach(builder::add);
-        return builder.build();
-    }
+	@SafeVarargs
+	private final <T> Stream<T> createSteam(T... values) {
+		Stream.Builder<T> builder = Stream.builder();
+		Arrays.asList(values).forEach(builder::add);
+		return builder.build();
+	}
 
-    @Override
-    public LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
-        LiveCalaData liveCalaData = new LiveCalaData();
-        // initialize element_live_data
-        List<ElementLiveData> pickList = Lists.newArrayList();
-        Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
-        Map<String, String> positionMap = this.querySerivce.getPositionMap();
-        elementMap.keySet().forEach(position -> {
-            int element = elementMap.get(position);
-            ElementLiveData elementLiveData = new ElementLiveData();
-            elementLiveData.setPosition(position);
-            elementLiveData.setMultiplier(this.ifMultiplier(event, element));
-            elementLiveData.setCaptain(element == captain);
-            elementLiveData.setViceCaptain(element == viceCaptain);
-            // player info
-            PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
-            if (playerEntity != null) {
-                elementLiveData
-                        .setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
-                        .setWebName(playerEntity.getWebName());
-                // event fixture
-                int teamId = playerEntity.getTeamId();
-                List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamIdAndEvent(teamId, event);
-                if (!CollectionUtils.isEmpty(playerFixtureDataList)) {
-                    PlayerFixtureData PlayerFixtureData = playerFixtureDataList
-                            .stream()
-                            .filter(o -> o.getEvent() == event)
-                            .findFirst()
-                            .orElse(new PlayerFixtureData());
-                    elementLiveData.setGwStarted(PlayerFixtureData.isStarted());
-                    elementLiveData.setGwFinished(PlayerFixtureData.isFinished());
-                    elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
-                }
-            }
-            // from event_live
-            EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(element));
-            if (eventLiveEntity != null) {
-                BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
-            }
-            pickList.add(elementLiveData);
-        });
-        // calc live points
-        int livePoints = this.calcActivePoints(Chip.NONE, pickList);
-        liveCalaData
-                .setEntry(0)
-                .setEvent(event)
-                .setPickList(pickList)
-                .setChip(Chip.NONE.getValue())
-                .setLivePoints(livePoints)
-                .setTransferCost(0)
-                .setLiveNetPoints(livePoints);
-        return liveCalaData;
-    }
+	@Override
+	public LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
+		LiveCalaData liveCalaData = new LiveCalaData();
+		List<ElementLiveData> pickList = Lists.newArrayList();
+		// prepare
+		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
+		Map<String, String> positionMap = this.querySerivce.getPositionMap();
+		// initialize element_live_data
+		elementMap.keySet().forEach(position -> {
+			int element = elementMap.get(position);
+			ElementLiveData elementLiveData = new ElementLiveData();
+			elementLiveData.setPosition(position);
+			elementLiveData.setMultiplier(this.ifMultiplier(event, element));
+			elementLiveData.setCaptain(element == captain);
+			elementLiveData.setViceCaptain(element == viceCaptain);
+			// player info
+			PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
+			if (playerEntity != null) {
+				elementLiveData
+						.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
+						.setWebName(playerEntity.getWebName());
+				// event fixture
+				int teamId = playerEntity.getTeamId();
+				List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamIdAndEvent(teamId, event);
+				if (!CollectionUtils.isEmpty(playerFixtureDataList)) {
+					PlayerFixtureData PlayerFixtureData = playerFixtureDataList
+							.stream()
+							.filter(o -> o.getEvent() == event)
+							.findFirst()
+							.orElse(new PlayerFixtureData());
+					elementLiveData.setGwStarted(PlayerFixtureData.isStarted());
+					elementLiveData.setGwFinished(PlayerFixtureData.isFinished());
+					elementLiveData.setPlayed(elementLiveData.getMinutes() > 0 || elementLiveData.getYellowCards() > 0 || elementLiveData.getRedCards() > 0);
+				}
+			}
+			// from event_live
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(element));
+			if (eventLiveEntity != null) {
+				BeanUtil.copyProperties(eventLiveEntity, elementLiveData, CopyOptions.create().ignoreNullValue());
+			}
+			pickList.add(elementLiveData);
+		});
+		// calc live points
+		int livePoints = this.calcActivePoints(Chip.NONE, pickList);
+		liveCalaData
+				.setEntry(0)
+				.setEvent(event)
+				.setPickList(pickList)
+				.setChip(Chip.NONE.getValue())
+				.setLivePoints(livePoints)
+				.setTransferCost(0)
+				.setLiveNetPoints(livePoints);
+		return liveCalaData;
+	}
 
-    private int ifMultiplier(int event, int element) {
-        PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
-        if (playerEntity == null) {
-            return 0;
-        }
-        int teamId = playerEntity.getTeamId();
-        List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamIdAndEvent(teamId, event);
-        if (CollectionUtils.isEmpty(playerFixtureDataList)) {
-            return 0;
-        }
-        return (int) playerFixtureDataList
-                .stream()
-                .filter(o -> o.getEvent() == event)
-                .count();
-    }
+	private int ifMultiplier(int event, int element) {
+		PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
+		if (playerEntity == null) {
+			return 0;
+		}
+		int teamId = playerEntity.getTeamId();
+		List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamIdAndEvent(teamId, event);
+		if (CollectionUtils.isEmpty(playerFixtureDataList)) {
+			return 0;
+		}
+		return (int) playerFixtureDataList
+				.stream()
+				.filter(o -> o.getEvent() == event)
+				.count();
+	}
 
-    @Cacheable(value = "qryCalcLivePointsByTournament", key = "#event+'::'+#tournamentId", unless = "#result == null")
-    @Override
-    public List<LiveCalaData> calcLivePointsByTournament(int event, int tournamentId) {
-        List<LiveCalaData> liveCalaList = Lists.newArrayList();
-        // get entry list
-        List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
-        entryList.forEach(entry -> {
-            // get user picks list
-            Optional<UserPicksRes> result = this.querySerivce.getUserPicks(event, entry);
-            // calc live points
-            result.ifPresent(userPicksRes -> {
-                LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, userPicksRes, Maps.newHashMap());
-                if (liveCalaData != null) {
-                    liveCalaList.add(liveCalaData);
-                }
-            });
-        });
-        // entry info
-        List<LiveCalaData> list = liveCalaList
-                .stream()
-                .sorted(Comparator.comparing(LiveCalaData::getLivePoints).reversed())
-                .collect(Collectors.toList());
-        Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list()
-                .stream()
-                .collect(Collectors.toMap(EntryInfoEntity::getEntry, v -> v));
-        list.forEach(liveCalaData -> {
-            EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(liveCalaData.getEntry(), null);
-            if (entryInfoEntity != null) {
-                liveCalaData
-                        .setEntryName(entryInfoEntity.getEntryName())
-                        .setPlayerName(entryInfoEntity.getPlayerName())
-                        .setRegion(entryInfoEntity.getRegion());
-            }
-        });
-        return list;
-    }
+	@Cacheable(value = "qryCalcLivePointsByTournament", key = "#event+'::'+#tournamentId", unless = "#result == null")
+	@Override
+	public List<LiveCalaData> calcLivePointsByTournament(int event, int tournamentId) {
+		List<LiveCalaData> liveCalaList = Lists.newArrayList();
+		Map<String, String> positionMap = this.querySerivce.getPositionMap();
+		Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.querySerivce.getEventLiveFixtureMap();
+		// get entry list
+		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		entryList.forEach(entry -> {
+			// get user picks list
+			Optional<UserPicksRes> result = this.querySerivce.getUserPicks(event, entry);
+			// calc live points
+			result.ifPresent(userPicksRes -> {
+				LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, userPicksRes, Maps.newHashMap(), positionMap, teamLiveFixtureMap);
+				if (liveCalaData != null) {
+					liveCalaList.add(liveCalaData);
+				}
+			});
+		});
+		// entry info
+		List<LiveCalaData> list = liveCalaList
+				.stream()
+				.sorted(Comparator.comparing(LiveCalaData::getLivePoints).reversed())
+				.collect(Collectors.toList());
+		Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list()
+				.stream()
+				.collect(Collectors.toMap(EntryInfoEntity::getEntry, v -> v));
+		list.forEach(liveCalaData -> {
+			EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(liveCalaData.getEntry(), null);
+			if (entryInfoEntity != null) {
+				liveCalaData
+						.setEntryName(entryInfoEntity.getEntryName())
+						.setPlayerName(entryInfoEntity.getPlayerName())
+						.setRegion(entryInfoEntity.getRegion());
+			}
+		});
+		return list;
+	}
 
 }

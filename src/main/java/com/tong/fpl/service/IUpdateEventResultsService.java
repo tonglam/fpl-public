@@ -6,14 +6,6 @@ package com.tong.fpl.service;
 public interface IUpdateEventResultsService {
 
 	/**
-	 * update basic informations which could be changed by every gw
-	 * run after gw deadline passed
-	 *
-	 * @param event event
-	 */
-	void updateBaseInfoByEvent(int event);
-
-	/**
 	 * update all entry_info
 	 */
 	void updateEntryInfo();

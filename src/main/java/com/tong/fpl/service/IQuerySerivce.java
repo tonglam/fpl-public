@@ -64,6 +64,10 @@ public interface IQuerySerivce {
 
 	List<PlayerInfoData> qryAllPlayers(String season);
 
+	default List<EntryPickData> qryPickListFromPicks(String picks) {
+		return this.qryPickListFromPicks(CommonUtils.getCurrentSeason(), picks);
+	}
+
 	List<EntryPickData> qryPickListFromPicks(String season, String picks);
 
 	EntryInfoEntity qryEntryInfo(int entry);

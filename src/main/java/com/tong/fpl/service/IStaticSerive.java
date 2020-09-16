@@ -1,7 +1,8 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.data.response.*;
-import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.league.LeagueData;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +14,13 @@ public interface IStaticSerive {
 
     void insertAverageEventResult(int event, StaticRes staticRes);
 
-    List<EntryInfoEntity> getEntryInfoListFromClassic(int classicId);
+    List<EntryInfoData> getEntryInfoListFromClassic(int classicId);
 
-    List<EntryInfoEntity> getEntryInfoListFromH2h(int h2hId);
+    List<EntryInfoData> getEntryInfoListFromH2h(int h2hId);
 
-    List<EntryInfoEntity> getEntryInfoListFromH2hByPage(int h2hId, int page);
+    LeagueData getEntryInfoListFromClassicByLimit(int classicId, int limit);
+
+    LeagueData getEntryInfoListFromH2hByLimit(int h2hId, int limit);
 
     Optional<UserHistoryRes> getUserHistory(int entry);
 

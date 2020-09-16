@@ -5,6 +5,8 @@ package com.tong.fpl.service;
  */
 public interface IReportService {
 
-	void insertEntryCaptainStat(String season, int tournamentId);
+	void insertEntryCaptainStat(int tournamentId);
+
+	void insertLeagueResultStat(int event, String leagueType, int leagueId, int limit);
 
 }

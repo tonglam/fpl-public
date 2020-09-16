@@ -1,24 +1,39 @@
 package com.tong.fpl.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.domain.entity.EntryCaptainStatEntity;
-import com.tong.fpl.domain.entity.EntryEventResultEntity;
-import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.constant.enums.LeagueType;
+import com.tong.fpl.domain.data.response.UserPicksRes;
+import com.tong.fpl.domain.data.userpick.Pick;
+import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
+import com.tong.fpl.domain.letletme.league.LeagueData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IReportService;
+import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.db.EntryCaptainStatService;
 import com.tong.fpl.service.db.EntryEventResultService;
+import com.tong.fpl.service.db.EventLiveService;
+import com.tong.fpl.service.db.LeagueResultStatService;
+import com.tong.fpl.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -29,74 +44,164 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportServiceImpl implements IReportService {
 
-    private final IQuerySerivce querySerivce;
-    private final EntryEventResultService entryEventResultService;
-    private final EntryCaptainStatService entryCaptainStatService;
+	private final IQuerySerivce querySerivce;
+	private final IStaticSerive staticSerive;
+	private final EventLiveService eventLiveService;
+	private final EntryEventResultService entryEventResultService;
+	private final EntryCaptainStatService entryCaptainStatService;
+	private final LeagueResultStatService leagueResultStatService;
 
-    @Override
-    public void insertEntryCaptainStat(String season, int tournamentId) {
-        this.entryCaptainStatService.remove(new QueryWrapper<EntryCaptainStatEntity>().eq("1", 1));
-        MybatisPlusConfig.season.set(season);
-        List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
-        List<EntryCaptainStatEntity> entryCaptainStatList = Lists.newArrayList();
-        entryList.forEach(entry -> this.initEntryEventCaptainStat(season, entry, entryCaptainStatList));
-        // insert
-        this.entryCaptainStatService.saveBatch(entryCaptainStatList);
-        MybatisPlusConfig.season.remove();
-    }
+	@Override
+	public void insertEntryCaptainStat(int tournamentId) {
+		this.entryCaptainStatService.remove(new QueryWrapper<EntryCaptainStatEntity>().eq("1", 1));
+		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		List<EntryCaptainStatEntity> entryCaptainStatList = Lists.newArrayList();
+		entryList.forEach(entry -> this.initEntryEventCaptainStat(entry, entryCaptainStatList));
+		// insert
+		this.entryCaptainStatService.saveBatch(entryCaptainStatList);
+	}
 
-    private void initEntryEventCaptainStat(String season, int entry, List<EntryCaptainStatEntity> entryCaptainStatList) {
-        // entry_info
-        EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
-            return;
-        }
-        // entry_event_result
-        List<EntryEventResultEntity> entryEventResultList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEntry, entry)
-                .gt(EntryEventResultEntity::getEventPoints, 0));
-        if (CollectionUtils.isEmpty(entryEventResultList)) {
-            return;
-        }
-        entryEventResultList.forEach(entryEventResult -> {
-            List<EntryPickData> captainPickList = this.querySerivce.qryPickListFromPicks(season, entryEventResult.getEventPicks())
-                    .stream()
-                    .filter(o -> o.isCaptain() || o.isViceCaptain())
-                    .collect(Collectors.toList());
-            EntryPickData captainPick = this.getRealCaptainPoints(captainPickList);
-            if (captainPick == null) {
-                return;
-            }
-            EntryCaptainStatEntity entryCaptainStatEntity = new EntryCaptainStatEntity();
-            entryCaptainStatEntity.setEntry(entry)
-                    .setEvent(entryEventResult.getEvent())
-                    .setEntryName(entryInfoEntity.getEntryName())
-                    .setPlayerName(entryInfoEntity.getPlayerName())
-                    .setOverallPoints(entryInfoEntity.getOverallPoints())
-                    .setOverallRank(entryInfoEntity.getOverallRank())
-                    .setChip(entryEventResult.getEventChip())
-                    .setElement(captainPick.getElement())
-                    .setWebName(this.querySerivce.getPlayerByElememt(season, captainPick.getElement()).getWebName())
-                    .setPoints(captainPick.getPoints());
-            entryCaptainStatEntity.setTotalPoints(Chip.getChipFromValue(entryCaptainStatEntity.getChip()).equals(Chip.TC) ?
-                    3 * entryCaptainStatEntity.getPoints() : 2 * entryCaptainStatEntity.getPoints());
-            entryCaptainStatList.add(entryCaptainStatEntity);
-        });
-    }
+	private void initEntryEventCaptainStat(int entry, List<EntryCaptainStatEntity> entryCaptainStatList) {
+		// entry_info
+		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
+		if (entryInfoEntity == null) {
+			return;
+		}
+		// entry_event_result
+		List<EntryEventResultEntity> entryEventResultList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, entry)
+				.gt(EntryEventResultEntity::getEventPoints, 0));
+		if (CollectionUtils.isEmpty(entryEventResultList)) {
+			return;
+		}
+		entryEventResultList.forEach(entryEventResult -> {
+			List<EntryPickData> captainPickList = this.querySerivce.qryPickListFromPicks(entryEventResult.getEventPicks())
+					.stream()
+					.filter(o -> o.isCaptain() || o.isViceCaptain())
+					.collect(Collectors.toList());
+			EntryPickData captainPick = this.getRealCaptainPoints(captainPickList);
+			if (captainPick == null) {
+				return;
+			}
+			EntryCaptainStatEntity entryCaptainStatEntity = new EntryCaptainStatEntity();
+			entryCaptainStatEntity.setEntry(entry)
+					.setEvent(entryEventResult.getEvent())
+					.setEntryName(entryInfoEntity.getEntryName())
+					.setPlayerName(entryInfoEntity.getPlayerName())
+					.setOverallPoints(entryInfoEntity.getOverallPoints())
+					.setOverallRank(entryInfoEntity.getOverallRank())
+					.setChip(entryEventResult.getEventChip())
+					.setElement(captainPick.getElement())
+					.setWebName(this.querySerivce.getPlayerByElememt(captainPick.getElement()).getWebName())
+					.setPoints(captainPick.getPoints());
+			entryCaptainStatEntity.setTotalPoints(Chip.getChipFromValue(entryCaptainStatEntity.getChip()).equals(Chip.TC) ?
+					3 * entryCaptainStatEntity.getPoints() : 2 * entryCaptainStatEntity.getPoints());
+			entryCaptainStatList.add(entryCaptainStatEntity);
+		});
+	}
 
-    private EntryPickData getRealCaptainPoints(List<EntryPickData> captainPickList) {
-        if (CollectionUtils.isEmpty(captainPickList)) {
-            return null;
-        }
-        EntryPickData captain = captainPickList.stream().filter(EntryPickData::isCaptain).findFirst().orElse(null);
-        EntryPickData viceCaptain = captainPickList.stream().filter(EntryPickData::isViceCaptain).findFirst().orElse(null);
-        if (captain == null || viceCaptain == null) {
-            return null;
-        }
-        if (captain.getPoints() == 0 && viceCaptain.getPoints() > 0) {
-            return viceCaptain;
-        }
-        return captain;
-    }
+	private EntryPickData getRealCaptainPoints(List<EntryPickData> captainPickList) {
+		if (CollectionUtils.isEmpty(captainPickList)) {
+			return null;
+		}
+		EntryPickData captain = captainPickList.stream().filter(EntryPickData::isCaptain).findFirst().orElse(null);
+		EntryPickData viceCaptain = captainPickList.stream().filter(EntryPickData::isViceCaptain).findFirst().orElse(null);
+		if (captain == null || viceCaptain == null) {
+			return null;
+		}
+		if (captain.getPoints() == 0 && viceCaptain.getPoints() > 0) {
+			return viceCaptain;
+		}
+		return captain;
+	}
+
+	@Override
+	public void insertLeagueResultStat(int event, String leagueType, int leagueId, int limit) {
+		// get league Entry
+		LeagueData leagueData = new LeagueData();
+		if (LeagueType.valueOf(leagueType).equals(LeagueType.Classic)) {
+			leagueData = this.staticSerive.getEntryInfoListFromClassicByLimit(leagueId, limit);
+		} else if (LeagueType.valueOf(leagueType).equals(LeagueType.H2h)) {
+			leagueData = this.staticSerive.getEntryInfoListFromH2hByLimit(leagueId, limit);
+		}
+		String leagueName = leagueData.getName();
+		// prepare
+		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+		// init league result stat
+		List<EntryInfoData> entryInfoDataList = leagueData.getEntryInfoList();
+		log.info("entryInfoDataList size:{}", entryInfoDataList.size());
+		// async
+		Executor executor = Executors.newFixedThreadPool(50, r -> {
+					Thread thread = new Thread(r);
+					thread.setDaemon(true);
+					return thread;
+				}
+		);
+		List<CompletableFuture<LeagueResultStatEntity>> future = entryInfoDataList.stream()
+				.map(o -> CompletableFuture.supplyAsync(() -> this.initEntryResultStat(event, o, elementPointsMap), executor))
+				.collect(Collectors.toList());
+		List<LeagueResultStatEntity> leagueResultStatList = future
+				.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
+		log.info("leagueResultStatList size:{}", leagueResultStatList.size());
+		// league info
+		leagueResultStatList.forEach(o -> o.setLeagueId(leagueId).setLeagueType(leagueType).setLeagueName(leagueName));
+		// save
+		this.leagueResultStatService.saveBatch(leagueResultStatList);
+		log.info("insert league_result_stat size:{}!", leagueResultStatList.size());
+	}
+
+	private LeagueResultStatEntity initEntryResultStat(int event, EntryInfoData entryInfoData, Map<Integer, Integer> elementPointsMap) {
+		LeagueResultStatEntity leagueResultStatEntity = new LeagueResultStatEntity();
+		// entry info
+		BeanUtil.copyProperties(entryInfoData, leagueResultStatEntity, CopyOptions.create().ignoreNullValue());
+		// entry event result
+		int entry = entryInfoData.getEntry();
+		Optional<UserPicksRes> result = this.staticSerive.getUserPicks(event, entry);
+		result.ifPresent(userPick ->
+				leagueResultStatEntity.setEntry(entry)
+						.setEvent(event)
+						.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
+						.setOverallRank(userPick.getEntryHistory().getOverallRank())
+						.setBank(userPick.getEntryHistory().getBank())
+						.setTeamValue(userPick.getEntryHistory().getValue())
+						.setEventPoints(userPick.getEntryHistory().getPoints())
+						.setEventTransfers(userPick.getEntryHistory().getEventTransfers())
+						.setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
+						.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
+						.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
+						.setEventRank(userPick.getEntryHistory().getRank())
+						.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
+						.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap)));
+		// event captain
+		List<EntryPickData> captainPickList = this.querySerivce.qryPickListFromPicks(leagueResultStatEntity.getEventPicks())
+				.stream()
+				.filter(o -> o.isCaptain() || o.isViceCaptain())
+				.collect(Collectors.toList());
+		EntryPickData captainPick = this.getRealCaptainPoints(captainPickList);
+		if (captainPick != null) {
+			leagueResultStatEntity
+					.setEventCaptain(captainPick.getWebName())
+					.setEventCaptainPoints(captainPick.getPoints());
+		}
+		return leagueResultStatEntity;
+	}
+
+	private String setUserPicks(List<Pick> picks, @NotEmpty Map<Integer, Integer> elementPointsMap) {
+		List<EntryPickData> pickList = Lists.newArrayList();
+		picks.forEach(o -> pickList.add(new EntryPickData()
+				.setElement(o.getElement())
+				.setPosition(o.getPosition())
+				.setMultiplier(o.getMultiplier())
+				.setCaptain(o.isCaptain())
+				.setViceCaptain(o.isViceCaptain())
+				.setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
+		));
+		return JsonUtils.obj2json(pickList);
+	}
 
 }

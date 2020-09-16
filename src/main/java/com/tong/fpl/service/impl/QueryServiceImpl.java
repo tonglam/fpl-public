@@ -60,609 +60,609 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class QueryServiceImpl implements IQuerySerivce {
 
-    private final IRedisCacheSerive redisCacheSerive;
-    private final IStaticSerive staticSerive;
-    private final PlayerService playerService;
-    private final PlayerStatService playerStatService;
-    private final EntryInfoService entryInfoService;
-    private final EventLiveService eventLiveService;
-    private final EntryEventResultService entryEventResultService;
-    private final TournamentInfoService tournamentInfoService;
-    private final TournamentEntryService tournamentEntryService;
-    private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
-    private final TournamentKnockoutService tournamentKnockoutService;
-    private final TournamentKnockoutResultService tournamentKnockoutResultService;
+	private final IRedisCacheSerive redisCacheSerive;
+	private final IStaticSerive staticSerive;
+	private final PlayerService playerService;
+	private final PlayerStatService playerStatService;
+	private final EntryInfoService entryInfoService;
+	private final EventLiveService eventLiveService;
+	private final EntryEventResultService entryEventResultService;
+	private final TournamentInfoService tournamentInfoService;
+	private final TournamentEntryService tournamentEntryService;
+	private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
+	private final TournamentKnockoutService tournamentKnockoutService;
+	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 
-    @Override
-    public Map<Integer, PlayerEntity> qryAllPlayerList(String season) {
-        MybatisPlusConfig.season.set(season);
-        List<PlayerEntity> list = this.playerService.list();
-        MybatisPlusConfig.season.remove();
-        return list.stream().collect(Collectors.toMap(PlayerEntity::getElement, v -> v));
-    }
+	@Override
+	public Map<Integer, PlayerEntity> qryAllPlayerList(String season) {
+		MybatisPlusConfig.season.set(season);
+		List<PlayerEntity> list = this.playerService.list();
+		MybatisPlusConfig.season.remove();
+		return list.stream().collect(Collectors.toMap(PlayerEntity::getElement, v -> v));
+	}
 
-    @Override
-    public Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season) {
-        MybatisPlusConfig.season.set(season);
-        List<PlayerStatEntity> list = this.playerStatService.list();
-        MybatisPlusConfig.season.remove();
-        return list.stream().collect(Collectors.toMap(PlayerStatEntity::getElement, v -> v));
-    }
+	@Override
+	public Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season) {
+		MybatisPlusConfig.season.set(season);
+		List<PlayerStatEntity> list = this.playerStatService.list();
+		MybatisPlusConfig.season.remove();
+		return list.stream().collect(Collectors.toMap(PlayerStatEntity::getElement, v -> v));
+	}
 
-    @Cacheable(value = "qryPlayerElementByCode", key = "#season+'::'+#code", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public int qryPlayerElementByCode(String season, int code) {
-        MybatisPlusConfig.season.set(season);
-        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda().eq(PlayerEntity::getCode, code));
-        MybatisPlusConfig.season.remove();
-        return playerEntity == null ? 0 : playerEntity.getElement();
-    }
+	@Cacheable(value = "qryPlayerElementByCode", key = "#season+'::'+#code", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public int qryPlayerElementByCode(String season, int code) {
+		MybatisPlusConfig.season.set(season);
+		PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda().eq(PlayerEntity::getCode, code));
+		MybatisPlusConfig.season.remove();
+		return playerEntity == null ? 0 : playerEntity.getElement();
+	}
 
-    @Cacheable(value = "qryPlayerElementByWebName", key = "#season+'::'+#webName", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public int qryPlayerElementByWebName(String season, String webName) throws Exception {
-        MybatisPlusConfig.season.set(season);
-        List<PlayerEntity> playerList = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda().eq(PlayerEntity::getWebName, webName));
-        MybatisPlusConfig.season.remove();
-        if (CollectionUtils.isEmpty(playerList)) {
-            return 0;
-        } else if (playerList.size() > 1) {
-            throw new Exception("webname不止一个球员，请用element或code查询!");
-        }
-        return playerList.get(0) == null ? 0 : playerList.get(0).getElement();
-    }
+	@Cacheable(value = "qryPlayerElementByWebName", key = "#season+'::'+#webName", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public int qryPlayerElementByWebName(String season, String webName) throws Exception {
+		MybatisPlusConfig.season.set(season);
+		List<PlayerEntity> playerList = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda().eq(PlayerEntity::getWebName, webName));
+		MybatisPlusConfig.season.remove();
+		if (CollectionUtils.isEmpty(playerList)) {
+			return 0;
+		} else if (playerList.size() > 1) {
+			throw new Exception("webname不止一个球员，请用element或code查询!");
+		}
+		return playerList.get(0) == null ? 0 : playerList.get(0).getElement();
+	}
 
-    @Cacheable(value = "qryEntryInfoData", key = "#season+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public EntryEventData qryEntryInfoData(String season, int entry) {
-        EntryEventData entryEventData = new EntryEventData();
-        MybatisPlusConfig.season.set(season);
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda().
-                eq(EntryInfoEntity::getEntry, entry));
-        MybatisPlusConfig.season.remove();
-        if (entryInfoEntity == null) {
-            return entryEventData;
-        }
-        BeanUtil.copyProperties(entryInfoEntity, entryEventData, CopyOptions.create().ignoreNullValue());
-        return entryEventData;
-    }
+	@Cacheable(value = "qryEntryInfoData", key = "#season+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public EntryEventData qryEntryInfoData(String season, int entry) {
+		EntryEventData entryEventData = new EntryEventData();
+		MybatisPlusConfig.season.set(season);
+		EntryInfoEntity entryInfoEntity = this.entryInfoService.getOne(new QueryWrapper<EntryInfoEntity>().lambda().
+				eq(EntryInfoEntity::getEntry, entry));
+		MybatisPlusConfig.season.remove();
+		if (entryInfoEntity == null) {
+			return entryEventData;
+		}
+		BeanUtil.copyProperties(entryInfoEntity, entryEventData, CopyOptions.create().ignoreNullValue());
+		return entryEventData;
+	}
 
-    @Cacheable(value = "qryEntryResult", key = "#season+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public List<EntryEventResultData> qryEntryResult(String season, int entry) {
-        List<EntryEventResultData> list = Lists.newArrayList();
-        if (StringUtils.equals(season, "1920")) {
-            IntStream.range(1, 48).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
-        } else {
-            IntStream.range(1, 39).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
-        }
-        return list;
-    }
+	@Cacheable(value = "qryEntryResult", key = "#season+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public List<EntryEventResultData> qryEntryResult(String season, int entry) {
+		List<EntryEventResultData> list = Lists.newArrayList();
+		if (StringUtils.equals(season, "1920")) {
+			IntStream.range(1, 48).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
+		} else {
+			IntStream.range(1, 39).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
+		}
+		return list;
+	}
 
-    @Cacheable(value = "qryEntryEventResult", key = "#season+'::'+#event+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public EntryEventResultData qryEntryEventResult(String season, int event, int entry) {
-        return this.setEntryEventResult(season, event, entry);
-    }
+	@Cacheable(value = "qryEntryEventResult", key = "#season+'::'+#event+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public EntryEventResultData qryEntryEventResult(String season, int event, int entry) {
+		return this.setEntryEventResult(season, event, entry);
+	}
 
-    private EntryEventResultData setEntryEventResult(String season, int event, int entry) {
-        EntryEventResultData entryEventResultData = new EntryEventResultData();
-        MybatisPlusConfig.season.set(season);
-        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, entry));
-        MybatisPlusConfig.season.remove();
-        if (entryEventResultEntity == null) {
-            return entryEventResultData;
-        }
-        entryEventResultData
-                .setEntry(entry)
-                .setEvent(event)
-                .setPoints(entryEventResultEntity.getEventPoints())
-                .setTransfers(entryEventResultEntity.getEventTransfers())
-                .setTransfersCost(entryEventResultEntity.getEventTransfersCost())
-                .setNetPoints(entryEventResultEntity.getEventNetPoints())
-                .setBenchPoints(entryEventResultEntity.getEventBenchPoints())
-                .setRank(entryEventResultEntity.getEventRank())
-                .setChip(entryEventResultEntity.getEventChip())
-                .setPicks(this.qryPickListFromPicks(season, entryEventResultEntity.getEventPicks()));
-        return entryEventResultData;
-    }
+	private EntryEventResultData setEntryEventResult(String season, int event, int entry) {
+		EntryEventResultData entryEventResultData = new EntryEventResultData();
+		MybatisPlusConfig.season.set(season);
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, entry));
+		MybatisPlusConfig.season.remove();
+		if (entryEventResultEntity == null) {
+			return entryEventResultData;
+		}
+		entryEventResultData
+				.setEntry(entry)
+				.setEvent(event)
+				.setPoints(entryEventResultEntity.getEventPoints())
+				.setTransfers(entryEventResultEntity.getEventTransfers())
+				.setTransfersCost(entryEventResultEntity.getEventTransfersCost())
+				.setNetPoints(entryEventResultEntity.getEventNetPoints())
+				.setBenchPoints(entryEventResultEntity.getEventBenchPoints())
+				.setRank(entryEventResultEntity.getEventRank())
+				.setChip(entryEventResultEntity.getEventChip())
+				.setPicks(this.qryPickListFromPicks(entryEventResultEntity.getEventPicks()));
+		return entryEventResultData;
+	}
 
-    @Cacheable(value = "qryEventLiveAll", key = "#season+'::'+#element", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
-        MybatisPlusConfig.season.set(season);
-        List<EventLiveEntity> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getElement, element));
-        MybatisPlusConfig.season.remove();
-        return list;
-    }
+	@Cacheable(value = "qryEventLiveAll", key = "#season+'::'+#element", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
+		MybatisPlusConfig.season.set(season);
+		List<EventLiveEntity> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getElement, element));
+		MybatisPlusConfig.season.remove();
+		return list;
+	}
 
-    @Cacheable(value = "qryEventLive", key = "#season+'::'+#event+'::'+#element", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public List<EventLiveEntity> qryEventLive(String season, int event, int element) {
-        MybatisPlusConfig.season.set(season);
-        List<EventLiveEntity> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event).eq(EventLiveEntity::getElement, element));
-        MybatisPlusConfig.season.remove();
-        return list;
-    }
+	@Cacheable(value = "qryEventLive", key = "#season+'::'+#event+'::'+#element", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public List<EventLiveEntity> qryEventLive(String season, int event, int element) {
+		MybatisPlusConfig.season.set(season);
+		List<EventLiveEntity> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event).eq(EventLiveEntity::getElement, element));
+		MybatisPlusConfig.season.remove();
+		return list;
+	}
 
-    @Cacheable(value = "qryPlayerData", key = "#element", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public PlayerData qryPlayerData(int element) {
-        PlayerEntity playerEntity = this.getPlayerByElememt(element);
-        if (playerEntity == null) {
-            return null;
-        }
-        PlayerData playerData = new PlayerData();
-        // info
-        playerData.setInfoData(this.initPlayerInfo(CommonUtils.getCurrentSeason(), playerEntity));
-        // fixture, next 5 gw
-        playerData.setFixtureDataList(this.setPlayerFixture(playerEntity.getTeamId()));
-        // current season data
-        playerData.setCurrentSeason(this.setSeasonData(CommonUtils.getCurrentSeason(), playerEntity.getCode()));
-        // history season data（use code as unique index）
-        playerData.setHistorySeasonList(this.setHistorySeasonData(playerEntity.getCode()));
-        return playerData;
-    }
+	@Cacheable(value = "qryPlayerData", key = "#element", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public PlayerData qryPlayerData(int element) {
+		PlayerEntity playerEntity = this.getPlayerByElememt(element);
+		if (playerEntity == null) {
+			return null;
+		}
+		PlayerData playerData = new PlayerData();
+		// info
+		playerData.setInfoData(this.initPlayerInfo(CommonUtils.getCurrentSeason(), playerEntity));
+		// fixture, next 5 gw
+		playerData.setFixtureDataList(this.setPlayerFixture(playerEntity.getTeamId()));
+		// current season data
+		playerData.setCurrentSeason(this.setSeasonData(CommonUtils.getCurrentSeason(), playerEntity.getCode()));
+		// history season data（use code as unique index）
+		playerData.setHistorySeasonList(this.setHistorySeasonData(playerEntity.getCode()));
+		return playerData;
+	}
 
-    @Cacheable(value = "initPlayerInfo", key = "#playerEntity.element", condition = "#playerEntity.element gt 0", unless = "#result == null")
-    @Override
-    public PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity) {
-        Map<String, String> teamNameMap = this.getTeamNameMap(season);
-        Map<String, String> positionMap = this.getPositionMap();
-        return new PlayerInfoData()
-                .setElement(playerEntity.getElement())
-                .setCode(playerEntity.getCode())
-                .setWebName(playerEntity.getWebName())
-                .setElementType(playerEntity.getElementType())
-                .setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
-                .setTeamId(playerEntity.getTeamId())
-                .setTeamName(teamNameMap.get(String.valueOf(playerEntity.getTeamId())))
-                .setPrice(NumberUtil.div(playerEntity.getPrice(), 10, 2));
-    }
+	@Cacheable(value = "initPlayerInfo", key = "#playerEntity.element", condition = "#playerEntity.element gt 0", unless = "#result == null")
+	@Override
+	public PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity) {
+		Map<String, String> teamNameMap = this.getTeamNameMap(season);
+		Map<String, String> positionMap = this.getPositionMap();
+		return new PlayerInfoData()
+				.setElement(playerEntity.getElement())
+				.setCode(playerEntity.getCode())
+				.setWebName(playerEntity.getWebName())
+				.setElementType(playerEntity.getElementType())
+				.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
+				.setTeamId(playerEntity.getTeamId())
+				.setTeamName(teamNameMap.get(String.valueOf(playerEntity.getTeamId())))
+				.setPrice(NumberUtil.div(playerEntity.getPrice(), 10, 2));
+	}
 
-    private List<PlayerFixtureData> setPlayerFixture(int teamId) {
-        List<PlayerFixtureData> playerFixtureList = Lists.newArrayList();
-        int currentEvent = this.getCurrentEvent();
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
-        Map<String, List<PlayerFixtureData>> teamFixtureMap = this.getEventFixtureByTeamId(teamId);
-        List<PlayerFixtureData> teamFixtureList = Lists.newArrayList();
-        IntStream.range(currentEvent - 1, currentEvent + 4).forEach(event -> teamFixtureList.addAll(teamFixtureMap.get(String.valueOf(event))));
-        teamFixtureList.forEach(o -> {
-                    o.setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())));
-                    o.setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())));
-                    playerFixtureList.add(o);
-                }
-        );
-        return playerFixtureList;
-    }
+	private List<PlayerFixtureData> setPlayerFixture(int teamId) {
+		List<PlayerFixtureData> playerFixtureList = Lists.newArrayList();
+		int currentEvent = this.getCurrentEvent();
+		Map<String, String> teamNameMap = this.getTeamNameMap();
+		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+		Map<String, List<PlayerFixtureData>> teamFixtureMap = this.getEventFixtureByTeamId(teamId);
+		List<PlayerFixtureData> teamFixtureList = Lists.newArrayList();
+		IntStream.range(currentEvent - 1, currentEvent + 4).forEach(event -> teamFixtureList.addAll(teamFixtureMap.get(String.valueOf(event))));
+		teamFixtureList.forEach(o -> {
+					o.setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())));
+					o.setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())));
+					playerFixtureList.add(o);
+				}
+		);
+		return playerFixtureList;
+	}
 
-    private PlayerDetailData setSeasonData(String season, int code) {
-        int element = this.qryPlayerElementByCode(season, code);
-        PlayerDetailData playerDetailData = new PlayerDetailData().setSeason(season);
-        PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(season, element);
-        if (playerStatEntity == null) {
-            return playerDetailData;
-        }
-        BeanUtil.copyProperties(playerStatEntity, playerDetailData, CopyOptions.create().ignoreNullValue());
-        return playerDetailData;
-    }
+	private PlayerDetailData setSeasonData(String season, int code) {
+		int element = this.qryPlayerElementByCode(season, code);
+		PlayerDetailData playerDetailData = new PlayerDetailData().setSeason(season);
+		PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(season, element);
+		if (playerStatEntity == null) {
+			return playerDetailData;
+		}
+		BeanUtil.copyProperties(playerStatEntity, playerDetailData, CopyOptions.create().ignoreNullValue());
+		return playerDetailData;
+	}
 
-    private List<PlayerDetailData> setHistorySeasonData(int code) {
-        List<PlayerDetailData> historySeasonList = Lists.newArrayList();
-        Arrays.stream(HistorySeason.values()).forEach(o ->
-                historySeasonList.add(this.setSeasonData(o.getSeason(), code)));
-        return historySeasonList;
-    }
+	private List<PlayerDetailData> setHistorySeasonData(int code) {
+		List<PlayerDetailData> historySeasonList = Lists.newArrayList();
+		Arrays.stream(HistorySeason.values()).forEach(o ->
+				historySeasonList.add(this.setSeasonData(o.getSeason(), code)));
+		return historySeasonList;
+	}
 
-    @Cacheable(value = "qryAllPlayers", key = "#season", cacheManager = "apiCacheManager", unless = "#result == null")
-    @Override
-    public List<PlayerInfoData> qryAllPlayers(String season) {
-        List<PlayerInfoData> list = Lists.newArrayList();
-        this.qryAllPlayerList(season).values()
-                .forEach(o -> list.add(initPlayerInfo(season, o)));
-        return list;
-    }
+	@Cacheable(value = "qryAllPlayers", key = "#season", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public List<PlayerInfoData> qryAllPlayers(String season) {
+		List<PlayerInfoData> list = Lists.newArrayList();
+		this.qryAllPlayerList(season).values()
+				.forEach(o -> list.add(initPlayerInfo(season, o)));
+		return list;
+	}
 
-    @Override
-    public List<EntryPickData> qryPickListFromPicks(String season, @NotNull String picks) {
-        List<EntryPickData> pickList = JsonUtils.json2Collection(picks, List.class, EntryPickData.class);
-        if (CollectionUtils.isEmpty(pickList)) {
-            return Lists.newArrayList();
-        }
-        Map<String, String> positonMap = this.getPositionMap();
-        pickList.forEach(pick -> {
-            PlayerEntity playerEntity = this.getPlayerByElememt(season, pick.getElement());
-            if (playerEntity != null) {
-                pick.setElementTypeName(positonMap.get(String.valueOf(playerEntity.getElementType())))
-                        .setWebName(playerEntity.getWebName());
-            }
-        });
-        return pickList;
-    }
+	@Override
+	public List<EntryPickData> qryPickListFromPicks(String season, @NotNull String picks) {
+		List<EntryPickData> pickList = JsonUtils.json2Collection(picks, List.class, EntryPickData.class);
+		if (CollectionUtils.isEmpty(pickList)) {
+			return Lists.newArrayList();
+		}
+		Map<String, String> positonMap = this.getPositionMap();
+		pickList.forEach(pick -> {
+			PlayerEntity playerEntity = this.getPlayerByElememt(season, pick.getElement());
+			if (playerEntity != null) {
+				pick.setElementTypeName(positonMap.get(String.valueOf(playerEntity.getElementType())))
+						.setWebName(playerEntity.getWebName());
+			}
+		});
+		return pickList;
+	}
 
-    @Cacheable(value = "qryEntryInfo", key = "#entry", unless = "#result == null")
-    @Override
-    public EntryInfoEntity qryEntryInfo(int entry) {
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
-        if (entryInfoEntity != null) {
-            return entryInfoEntity;
-        }
-        Optional<EntryRes> result = this.getEntry(entry);
-        if (result.isPresent()) {
-            EntryRes entryRes = result.get();
-            return new EntryInfoEntity()
-                    .setEntry(entryRes.getId())
-                    .setEntryName(entryRes.getName())
-                    .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
-                    .setRegion(entryRes.getPlayerRegionName())
-                    .setStartedEvent(entryRes.getStartedEvent())
-                    .setOverallPoints(entryRes.getSummaryOverallPoints())
-                    .setOverallRank(entryRes.getSummaryOverallRank())
-                    .setBank(entryRes.getLastDeadlineBank())
-                    .setTeamValue(entryRes.getLastDeadlineValue())
-                    .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
-        }
-        return new EntryInfoEntity();
-    }
+	@Cacheable(value = "qryEntryInfo", key = "#entry", unless = "#result == null")
+	@Override
+	public EntryInfoEntity qryEntryInfo(int entry) {
+		EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+		if (entryInfoEntity != null) {
+			return entryInfoEntity;
+		}
+		Optional<EntryRes> result = this.getEntry(entry);
+		if (result.isPresent()) {
+			EntryRes entryRes = result.get();
+			return new EntryInfoEntity()
+					.setEntry(entryRes.getId())
+					.setEntryName(entryRes.getName())
+					.setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+					.setRegion(entryRes.getPlayerRegionName())
+					.setStartedEvent(entryRes.getStartedEvent())
+					.setOverallPoints(entryRes.getSummaryOverallPoints())
+					.setOverallRank(entryRes.getSummaryOverallRank())
+					.setBank(entryRes.getLastDeadlineBank())
+					.setTeamValue(entryRes.getLastDeadlineValue())
+					.setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+		}
+		return new EntryInfoEntity();
+	}
 
-    @Cacheable(value = "qryTournamentInfoById", key = "#tournamentId", unless = "#result == null")
-    @Override
-    public TournamentInfoEntity qryTournamentInfoById(int tournamentId) {
-        return this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-                .eq(TournamentInfoEntity::getId, tournamentId)
-                .eq(TournamentInfoEntity::getState, 1));
-    }
+	@Cacheable(value = "qryTournamentInfoById", key = "#tournamentId", unless = "#result == null")
+	@Override
+	public TournamentInfoEntity qryTournamentInfoById(int tournamentId) {
+		return this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+				.eq(TournamentInfoEntity::getId, tournamentId)
+				.eq(TournamentInfoEntity::getState, 1));
+	}
 
-    @Cacheable(value = "qryKnockoutListByTournamentId", key = "#tournamentId", unless = "#result == null")
-    @Override
-    public List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId) {
-        return this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId));
-    }
+	@Cacheable(value = "qryKnockoutListByTournamentId", key = "#tournamentId", unless = "#result == null")
+	@Override
+	public List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId) {
+		return this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId));
+	}
 
-    @Cacheable(value = "qryKnockoutResultByTournament", key = "#tournamentId", unless = "#result == null")
-    @Override
-    public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
-        List<TournamentKnockoutResultData> knockoutResultDataList = Lists.newArrayList();
-        // knockout
-        Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutEntity::getRound, 1))
-                .stream()
-                .collect(Collectors.toMap(TournamentKnockoutEntity::getMatchId, v -> v));
-        if (CollectionUtils.isEmpty(knockoutMap)) {
-            return knockoutResultDataList;
-        }
-        // knouckout_result, every match_id return a knockoutResultData
-        knockoutMap.keySet().forEach(matchId -> {
-            List<TournamentKnockoutResultEntity> knockoutResultList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                    .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                    .eq(TournamentKnockoutResultEntity::getMatchId, matchId));
-            // knockoutResultData
-            TournamentKnockoutResultData knockoutResultData = new TournamentKnockoutResultData();
-            TournamentKnockoutResultEntity o = knockoutResultList.get(0);
-            knockoutResultData
-                    .setTournamentId(tournamentId)
-                    .setRound(knockoutMap.get(o.getMatchId()).getRound())
-                    .setEvent(o.getEvent())
-                    .setPlayAgainstId(o.getPlayAginstId())
-                    .setMatchId(o.getMatchId())
-                    .setHomeEntry(o.getHomeEntry())
-                    .setAwayEntry(o.getAwayEntry())
-                    .setHomeEntryName(this.getKnockoutResultEntryName(o.getHomeEntry()))
-                    .setAwayEntryName(this.getKnockoutResultEntryName(o.getAwayEntry()))
-                    .setHomeEntryNetPoint(this.calcKnockoutResultDataNetPoint(knockoutResultList, "home"))
-                    .setAwayEntryNetPoint(this.calcKnockoutResultDataNetPoint(knockoutResultList, "away"))
-                    .setHomeEntryRank(o.getHomeEntryRank())
-                    .setAwayEntryRank(o.getAwayEntryRank())
-                    .setMatchWinner(o.getMatchWinner());
-            // match informantion
-            Map<Integer, String> entryNameMap = ImmutableMap.of(knockoutResultData.getHomeEntry(), knockoutResultData.getHomeEntryName(),
-                    knockoutResultData.getAwayEntry(), knockoutResultData.getAwayEntryName());
-            knockoutResultData.setMatchInfo(this.setRoundMatchInformation(knockoutResultList, entryNameMap));
-            knockoutResultDataList.add(knockoutResultData);
-        });
-        return knockoutResultDataList;
-    }
+	@Cacheable(value = "qryKnockoutResultByTournament", key = "#tournamentId", unless = "#result == null")
+	@Override
+	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
+		List<TournamentKnockoutResultData> knockoutResultDataList = Lists.newArrayList();
+		// knockout
+		Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+				.eq(TournamentKnockoutEntity::getRound, 1))
+				.stream()
+				.collect(Collectors.toMap(TournamentKnockoutEntity::getMatchId, v -> v));
+		if (CollectionUtils.isEmpty(knockoutMap)) {
+			return knockoutResultDataList;
+		}
+		// knouckout_result, every match_id return a knockoutResultData
+		knockoutMap.keySet().forEach(matchId -> {
+			List<TournamentKnockoutResultEntity> knockoutResultList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
+					.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+					.eq(TournamentKnockoutResultEntity::getMatchId, matchId));
+			// knockoutResultData
+			TournamentKnockoutResultData knockoutResultData = new TournamentKnockoutResultData();
+			TournamentKnockoutResultEntity o = knockoutResultList.get(0);
+			knockoutResultData
+					.setTournamentId(tournamentId)
+					.setRound(knockoutMap.get(o.getMatchId()).getRound())
+					.setEvent(o.getEvent())
+					.setPlayAgainstId(o.getPlayAginstId())
+					.setMatchId(o.getMatchId())
+					.setHomeEntry(o.getHomeEntry())
+					.setAwayEntry(o.getAwayEntry())
+					.setHomeEntryName(this.getKnockoutResultEntryName(o.getHomeEntry()))
+					.setAwayEntryName(this.getKnockoutResultEntryName(o.getAwayEntry()))
+					.setHomeEntryNetPoint(this.calcKnockoutResultDataNetPoint(knockoutResultList, "home"))
+					.setAwayEntryNetPoint(this.calcKnockoutResultDataNetPoint(knockoutResultList, "away"))
+					.setHomeEntryRank(o.getHomeEntryRank())
+					.setAwayEntryRank(o.getAwayEntryRank())
+					.setMatchWinner(o.getMatchWinner());
+			// match informantion
+			Map<Integer, String> entryNameMap = ImmutableMap.of(knockoutResultData.getHomeEntry(), knockoutResultData.getHomeEntryName(),
+					knockoutResultData.getAwayEntry(), knockoutResultData.getAwayEntryName());
+			knockoutResultData.setMatchInfo(this.setRoundMatchInformation(knockoutResultList, entryNameMap));
+			knockoutResultDataList.add(knockoutResultData);
+		});
+		return knockoutResultDataList;
+	}
 
-    private String getKnockoutResultEntryName(int entry) {
-        if (entry < 0) {
-            return "BYE";
-        }
-        EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
-            return "";
-        }
-        return entryInfoEntity.getEntryName();
-    }
+	private String getKnockoutResultEntryName(int entry) {
+		if (entry < 0) {
+			return "BYE";
+		}
+		EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
+		if (entryInfoEntity == null) {
+			return "";
+		}
+		return entryInfoEntity.getEntryName();
+	}
 
-    private int calcKnockoutResultDataNetPoint(List<TournamentKnockoutResultEntity> knockoutResultList, String type) {
-        if (StringUtils.equals(type, "home")) {
-            return knockoutResultList.stream().mapToInt(TournamentKnockoutResultEntity::getHomeEntryNetPoints).sum();
-        } else if (StringUtils.equals(type, "away")) {
-            return knockoutResultList.stream().mapToInt(TournamentKnockoutResultEntity::getAwayEntryNetPoints).sum();
-        }
-        return 0;
-    }
+	private int calcKnockoutResultDataNetPoint(List<TournamentKnockoutResultEntity> knockoutResultList, String type) {
+		if (StringUtils.equals(type, "home")) {
+			return knockoutResultList.stream().mapToInt(TournamentKnockoutResultEntity::getHomeEntryNetPoints).sum();
+		} else if (StringUtils.equals(type, "away")) {
+			return knockoutResultList.stream().mapToInt(TournamentKnockoutResultEntity::getAwayEntryNetPoints).sum();
+		}
+		return 0;
+	}
 
-    private String setRoundMatchInformation(List<TournamentKnockoutResultEntity> knockoutResultList, Map<Integer, String> entryNameMap) {
-        StringBuilder builder = new StringBuilder();
-        knockoutResultList.forEach(o ->
-                builder.append("GW").append(o.getEvent()).append(": ")
-                        .append(entryNameMap.get(o.getHomeEntry()))
-                        .append("（").append(o.getHomeEntryNetPoints()).append("）")
-                        .append("- ")
-                        .append(entryNameMap.get(o.getAwayEntry()))
-                        .append("（").append(o.getAwayEntryNetPoints()).append("）")
-        );
-        return builder.toString();
-    }
+	private String setRoundMatchInformation(List<TournamentKnockoutResultEntity> knockoutResultList, Map<Integer, String> entryNameMap) {
+		StringBuilder builder = new StringBuilder();
+		knockoutResultList.forEach(o ->
+				builder.append("GW").append(o.getEvent()).append(": ")
+						.append(entryNameMap.get(o.getHomeEntry()))
+						.append("（").append(o.getHomeEntryNetPoints()).append("）")
+						.append("- ")
+						.append(entryNameMap.get(o.getAwayEntry()))
+						.append("（").append(o.getAwayEntryNetPoints()).append("）")
+		);
+		return builder.toString();
+	}
 
-    @Cacheable(value = "qryGroupFixtureListById", key = "#tournamentId", unless = "#result == null")
-    @Override
-    public List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId) {
-        List<TournamentGroupFixtureData> list = Lists.newArrayList();
-        TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-                .eq(TournamentInfoEntity::getId, tournamentId)
-                .eq(TournamentInfoEntity::getState, 1));
-        if (tournamentInfoEntity == null) {
-            return list;
-        }
-        if (!StringUtils.equals(tournamentInfoEntity.getGroupMode(), GroupMode.Battle_race.name())) {
-            return list;
-        }
-        int currentGw = this.getCurrentEvent();
-        List<TournamentBattleGroupResultEntity> battleGroupResultEntityList = this.tournamentBattleGroupResultService.list(new QueryWrapper<TournamentBattleGroupResultEntity>().lambda()
-                .eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
-                .orderByAsc(TournamentBattleGroupResultEntity::getEvent)
-                .orderByAsc(TournamentBattleGroupResultEntity::getGroupId));
-        // entryInfo map
-        List<Integer> entryList = battleGroupResultEntityList
-                .stream()
-                .map(TournamentBattleGroupResultEntity::getHomeEntry)
-                .collect(Collectors.toList());
-        entryList.addAll(battleGroupResultEntityList
-                .stream()
-                .map(TournamentBattleGroupResultEntity::getAwayEntry)
-                .collect(Collectors.toList()));
-        Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
-                .in(EntryInfoEntity::getEntry, entryList))
-                .stream()
-                .collect(Collectors.toMap(EntryInfoEntity::getEntry, o -> o));
-        // return list
-        list = battleGroupResultEntityList
-                .stream()
-                .collect(new BattleGroupResultCollector());
-        list.forEach(o -> {
-            o.setTournamentId(tournamentId);
-            o.getGroupEventFixtureList()
-                    .forEach(i -> i.getEventEntryFixtureList()
-                            .forEach(tournamentGroupFixtureData ->
-                                    tournamentGroupFixtureData.setShowMessage(this.setBattleFixtureMsg(currentGw, o.getEvent(), entryInfoMap,
-                                            tournamentGroupFixtureData.getHomeEntry(), tournamentGroupFixtureData.getAwayEntry(),
-                                            tournamentGroupFixtureData.getHomeEntryPoints(), tournamentGroupFixtureData.getAwayEntryPoints()))
-                            ));
-        });
-        return list;
-    }
+	@Cacheable(value = "qryGroupFixtureListById", key = "#tournamentId", unless = "#result == null")
+	@Override
+	public List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId) {
+		List<TournamentGroupFixtureData> list = Lists.newArrayList();
+		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+				.eq(TournamentInfoEntity::getId, tournamentId)
+				.eq(TournamentInfoEntity::getState, 1));
+		if (tournamentInfoEntity == null) {
+			return list;
+		}
+		if (!StringUtils.equals(tournamentInfoEntity.getGroupMode(), GroupMode.Battle_race.name())) {
+			return list;
+		}
+		int currentGw = this.getCurrentEvent();
+		List<TournamentBattleGroupResultEntity> battleGroupResultEntityList = this.tournamentBattleGroupResultService.list(new QueryWrapper<TournamentBattleGroupResultEntity>().lambda()
+				.eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
+				.orderByAsc(TournamentBattleGroupResultEntity::getEvent)
+				.orderByAsc(TournamentBattleGroupResultEntity::getGroupId));
+		// entryInfo map
+		List<Integer> entryList = battleGroupResultEntityList
+				.stream()
+				.map(TournamentBattleGroupResultEntity::getHomeEntry)
+				.collect(Collectors.toList());
+		entryList.addAll(battleGroupResultEntityList
+				.stream()
+				.map(TournamentBattleGroupResultEntity::getAwayEntry)
+				.collect(Collectors.toList()));
+		Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+				.in(EntryInfoEntity::getEntry, entryList))
+				.stream()
+				.collect(Collectors.toMap(EntryInfoEntity::getEntry, o -> o));
+		// return list
+		list = battleGroupResultEntityList
+				.stream()
+				.collect(new BattleGroupResultCollector());
+		list.forEach(o -> {
+			o.setTournamentId(tournamentId);
+			o.getGroupEventFixtureList()
+					.forEach(i -> i.getEventEntryFixtureList()
+							.forEach(tournamentGroupFixtureData ->
+									tournamentGroupFixtureData.setShowMessage(this.setBattleFixtureMsg(currentGw, o.getEvent(), entryInfoMap,
+											tournamentGroupFixtureData.getHomeEntry(), tournamentGroupFixtureData.getAwayEntry(),
+											tournamentGroupFixtureData.getHomeEntryPoints(), tournamentGroupFixtureData.getAwayEntryPoints()))
+							));
+		});
+		return list;
+	}
 
-    @Cacheable(value = "qryKnockoutFixtureListById", key = "#tournamentId", unless = "#result == null")
-    @Override
-    public List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId) {
-        List<TournamentKnockoutFixtureData> list = Lists.newArrayList();
-        int currentGw = this.getCurrentEvent();
-        List<TournamentKnockoutResultEntity> knockoutResultEntityList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .orderByAsc(TournamentKnockoutResultEntity::getEvent)
-                .orderByAsc(TournamentKnockoutResultEntity::getMatchId));
-        // entryInfo map
-        List<Integer> entryList = knockoutResultEntityList
-                .stream()
-                .map(TournamentKnockoutResultEntity::getHomeEntry)
-                .collect(Collectors.toList());
-        entryList.addAll(knockoutResultEntityList
-                .stream()
-                .map(TournamentKnockoutResultEntity::getAwayEntry)
-                .collect(Collectors.toList()));
-        Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
-                .in(EntryInfoEntity::getEntry, entryList))
-                .stream()
-                .collect(Collectors.toMap(EntryInfoEntity::getEntry, o -> o));
-        // return list
-        List<TournamentKnockoutFixtureData> knockoutFixtureList = knockoutResultEntityList
-                .stream()
-                .collect(new KnockoutResultCollector());
-        knockoutFixtureList
-                .stream()
-                .filter(o -> o.getEvent() <= currentGw)
-                .forEach(o -> {
-                    o.setTournamentId(tournamentId);
-                    o.getKnockoutEventFixtureList()
-                            .forEach(i -> i.setShowMessage(this.setBattleFixtureMsg(currentGw, o.getEvent(), entryInfoMap,
-                                    i.getHomeEntry(), i.getAwayEntry(), i.getHomeEntryPoints(), i.getAwayEntryPoints()))
-                            );
-                    list.add(o);
-                });
-        return list;
-    }
+	@Cacheable(value = "qryKnockoutFixtureListById", key = "#tournamentId", unless = "#result == null")
+	@Override
+	public List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId) {
+		List<TournamentKnockoutFixtureData> list = Lists.newArrayList();
+		int currentGw = this.getCurrentEvent();
+		List<TournamentKnockoutResultEntity> knockoutResultEntityList = this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
+				.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+				.orderByAsc(TournamentKnockoutResultEntity::getEvent)
+				.orderByAsc(TournamentKnockoutResultEntity::getMatchId));
+		// entryInfo map
+		List<Integer> entryList = knockoutResultEntityList
+				.stream()
+				.map(TournamentKnockoutResultEntity::getHomeEntry)
+				.collect(Collectors.toList());
+		entryList.addAll(knockoutResultEntityList
+				.stream()
+				.map(TournamentKnockoutResultEntity::getAwayEntry)
+				.collect(Collectors.toList()));
+		Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+				.in(EntryInfoEntity::getEntry, entryList))
+				.stream()
+				.collect(Collectors.toMap(EntryInfoEntity::getEntry, o -> o));
+		// return list
+		List<TournamentKnockoutFixtureData> knockoutFixtureList = knockoutResultEntityList
+				.stream()
+				.collect(new KnockoutResultCollector());
+		knockoutFixtureList
+				.stream()
+				.filter(o -> o.getEvent() <= currentGw)
+				.forEach(o -> {
+					o.setTournamentId(tournamentId);
+					o.getKnockoutEventFixtureList()
+							.forEach(i -> i.setShowMessage(this.setBattleFixtureMsg(currentGw, o.getEvent(), entryInfoMap,
+									i.getHomeEntry(), i.getAwayEntry(), i.getHomeEntryPoints(), i.getAwayEntryPoints()))
+							);
+					list.add(o);
+				});
+		return list;
+	}
 
-    private String setBattleFixtureMsg(int currentGw, int event, Map<Integer, EntryInfoEntity> entryInfoMap,
-                                       int homeEntry, int awayEntry, int homeEntryPoints, int awayEntryPoints) {
-        // home
-        String homeMsg = this.setBattleEntryMsg(entryInfoMap, homeEntry);
-        // away
-        String awayMsg = this.setBattleEntryMsg(entryInfoMap, awayEntry);
-        // points
-        String pointsMsg = this.setBattlePointsMsg(currentGw, event, homeEntryPoints, awayEntryPoints);
-        return homeMsg + " " + pointsMsg + " " + awayMsg;
-    }
+	private String setBattleFixtureMsg(int currentGw, int event, Map<Integer, EntryInfoEntity> entryInfoMap,
+	                                   int homeEntry, int awayEntry, int homeEntryPoints, int awayEntryPoints) {
+		// home
+		String homeMsg = this.setBattleEntryMsg(entryInfoMap, homeEntry);
+		// away
+		String awayMsg = this.setBattleEntryMsg(entryInfoMap, awayEntry);
+		// points
+		String pointsMsg = this.setBattlePointsMsg(currentGw, event, homeEntryPoints, awayEntryPoints);
+		return homeMsg + " " + pointsMsg + " " + awayMsg;
+	}
 
-    private String setBattleEntryMsg(Map<Integer, EntryInfoEntity> entryInfoMap, int entry) {
-        String entryName = "";
-        String playerName = "";
-        if (entry < 0) {
-            entryName = "平均分";
-            playerName = "";
-        } else if (entry == 0) {
-            entryName = "轮空";
-            playerName = "";
-        } else {
-            EntryInfoEntity entryInfoEntity = entryInfoMap.get(entry);
-            if (entryInfoEntity != null) {
-                entryName = entryInfoEntity.getEntryName();
-                playerName = entryInfoEntity.getPlayerName();
-            }
-        }
-        StringBuilder builder = new StringBuilder();
-        builder.append(" ");
-        if (StringUtils.isNotEmpty(entryName)) {
-            builder.append(entryName);
-        } else {
-            builder.append("TBD");
-        }
-        if (StringUtils.isNotEmpty(playerName)) {
-            builder.append(" (").append(playerName).append(") ");
-        }
-        return builder.toString();
-    }
+	private String setBattleEntryMsg(Map<Integer, EntryInfoEntity> entryInfoMap, int entry) {
+		String entryName = "";
+		String playerName = "";
+		if (entry < 0) {
+			entryName = "平均分";
+			playerName = "";
+		} else if (entry == 0) {
+			entryName = "轮空";
+			playerName = "";
+		} else {
+			EntryInfoEntity entryInfoEntity = entryInfoMap.get(entry);
+			if (entryInfoEntity != null) {
+				entryName = entryInfoEntity.getEntryName();
+				playerName = entryInfoEntity.getPlayerName();
+			}
+		}
+		StringBuilder builder = new StringBuilder();
+		builder.append(" ");
+		if (StringUtils.isNotEmpty(entryName)) {
+			builder.append(entryName);
+		} else {
+			builder.append("TBD");
+		}
+		if (StringUtils.isNotEmpty(playerName)) {
+			builder.append(" (").append(playerName).append(") ");
+		}
+		return builder.toString();
+	}
 
-    private String setBattlePointsMsg(int currentGw, int event, int homeEntryPoints, int awayEntryPoints) {
-        if (event >= currentGw) {
-            return " vs ";
-        } else {
-            return homeEntryPoints + "-" + awayEntryPoints;
-        }
-    }
+	private String setBattlePointsMsg(int currentGw, int event, int homeEntryPoints, int awayEntryPoints) {
+		if (event >= currentGw) {
+			return " vs ";
+		} else {
+			return homeEntryPoints + "-" + awayEntryPoints;
+		}
+	}
 
-    @Cacheable(value = "getCurrentEvent")
-    @Override
-    public int getCurrentEvent() {
-        int event = 1;
-        for (int i = 1; i < 39; i++) {
-            String deadline = this.getDeadlineByEvent(i);
-            if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
-                event = i;
-                break;
-            }
-        }
-        return event;
-    }
+	@Cacheable(value = "getCurrentEvent")
+	@Override
+	public int getCurrentEvent() {
+		int event = 1;
+		for (int i = 1; i < 39; i++) {
+			String deadline = this.getDeadlineByEvent(i);
+			if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+				event = i;
+				break;
+			}
+		}
+		return event;
+	}
 
-    @Cacheable(value = "getNextEvent")
-    @Override
-    public int getNextEvent() {
-        int event = 1;
-        for (int i = 1; i < 39; i++) {
-            String deadline = this.getDeadlineByEvent(i);
-            if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
-                event = i;
-                break;
-            }
-        }
-        return event + 1;
-    }
+	@Cacheable(value = "getNextEvent")
+	@Override
+	public int getNextEvent() {
+		int event = 1;
+		for (int i = 1; i < 39; i++) {
+			String deadline = this.getDeadlineByEvent(i);
+			if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+				event = i;
+				break;
+			}
+		}
+		return event + 1;
+	}
 
-    @Cacheable(value = "getUserPicks", key = "#event+'::'+#entry", unless = "#result == null")
-    @Override
-    public Optional<UserPicksRes> getUserPicks(int event, int entry) {
-        return this.staticSerive.getUserPicks(event, entry);
-    }
+	@Cacheable(value = "getUserPicks", key = "#event+'::'+#entry", unless = "#result == null")
+	@Override
+	public Optional<UserPicksRes> getUserPicks(int event, int entry) {
+		return this.staticSerive.getUserPicks(event, entry);
+	}
 
-    @Cacheable(value = "getEntry", key = "#entry", unless = "#result == null")
-    @Override
-    public Optional<EntryRes> getEntry(int entry) {
-        return this.staticSerive.getEntry(entry);
-    }
+	@Cacheable(value = "getEntry", key = "#entry", unless = "#result == null")
+	@Override
+	public Optional<EntryRes> getEntry(int entry) {
+		return this.staticSerive.getEntry(entry);
+	}
 
-    @Cacheable(value = "getTeamNameMap", key = "#season", unless = "#result == null")
-    @Override
-    public Map<String, String> getTeamNameMap(String season) {
-        return this.redisCacheSerive.getTeamNameMap(season);
-    }
+	@Cacheable(value = "getTeamNameMap", key = "#season", unless = "#result == null")
+	@Override
+	public Map<String, String> getTeamNameMap(String season) {
+		return this.redisCacheSerive.getTeamNameMap(season);
+	}
 
-    @Cacheable(value = "getTeamShortNameMap", key = "#season", unless = "#result == null")
-    @Override
-    public Map<String, String> getTeamShortNameMap(String season) {
-        return this.redisCacheSerive.getTeamShortNameMap(season);
-    }
+	@Cacheable(value = "getTeamShortNameMap", key = "#season", unless = "#result == null")
+	@Override
+	public Map<String, String> getTeamShortNameMap(String season) {
+		return this.redisCacheSerive.getTeamShortNameMap(season);
+	}
 
-    @Cacheable(value = "getDeadlineMap", key = "#season", unless = "#result == null")
-    @Override
-    public Map<String, String> getDeadlineMap(String season) {
-        return this.redisCacheSerive.getDeadlineMap(season);
-    }
+	@Cacheable(value = "getDeadlineMap", key = "#season", unless = "#result == null")
+	@Override
+	public Map<String, String> getDeadlineMap(String season) {
+		return this.redisCacheSerive.getDeadlineMap(season);
+	}
 
-    @Cacheable(value = "getDeadlineByEvent", key = "#season+'::'+#event", unless = "#result == null")
-    @Override
-    public String getDeadlineByEvent(String season, int event) {
-        return this.redisCacheSerive.getDeadlineByEvent(season, event);
-    }
+	@Cacheable(value = "getDeadlineByEvent", key = "#season+'::'+#event", unless = "#result == null")
+	@Override
+	public String getDeadlineByEvent(String season, int event) {
+		return this.redisCacheSerive.getDeadlineByEvent(season, event);
+	}
 
-    @Cacheable(value = "getEventFixtureByEvent", key = "#season+'::'+#event", unless = "#result == null")
-    @Override
-    public List<EventFixtureEntity> getEventFixtureByEvent(String season, int event) {
-        return this.redisCacheSerive.getEventFixtureByEvent(season, event);
-    }
+	@Cacheable(value = "getEventFixtureByEvent", key = "#season+'::'+#event", unless = "#result == null")
+	@Override
+	public List<EventFixtureEntity> getEventFixtureByEvent(String season, int event) {
+		return this.redisCacheSerive.getEventFixtureByEvent(season, event);
+	}
 
-    @Cacheable(value = "getEventFixtureByTeamId", key = "#season+'::'+#teamId", unless = "#result == null")
-    @Override
-    public Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId) {
-        return this.redisCacheSerive.getEventFixtureByTeamId(season, teamId);
-    }
+	@Cacheable(value = "getEventFixtureByTeamId", key = "#season+'::'+#teamId", unless = "#result == null")
+	@Override
+	public Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId) {
+		return this.redisCacheSerive.getEventFixtureByTeamId(season, teamId);
+	}
 
-    @Cacheable(value = "getEventFixtureByTeamIdAndEvent", key = "#season+'::'+#teamId+'::'+#event", unless = "#result == null")
-    @Override
-    public List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event) {
-        return this.redisCacheSerive.getEventFixtureByTeamIdAndEvent(season, teamId, event);
-    }
+	@Cacheable(value = "getEventFixtureByTeamIdAndEvent", key = "#season+'::'+#teamId+'::'+#event", unless = "#result == null")
+	@Override
+	public List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event) {
+		return this.redisCacheSerive.getEventFixtureByTeamIdAndEvent(season, teamId, event);
+	}
 
-    @Cacheable(value = "getEventLiveFixtureMap")
-    @Override
-    public Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap() {
-        return this.redisCacheSerive.getEventLiveFixtureMap();
-    }
+	@Cacheable(value = "getEventLiveFixtureMap")
+	@Override
+	public Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap() {
+		return this.redisCacheSerive.getEventLiveFixtureMap();
+	}
 
-    @Cacheable(value = "getPlayerByElememt", key = "#season+'::'+#element", unless = "#result == null")
-    @Override
-    public PlayerEntity getPlayerByElememt(String season, int element) {
-        return this.redisCacheSerive.getPlayerByElememt(season, element);
-    }
+	@Cacheable(value = "getPlayerByElememt", key = "#season+'::'+#element", unless = "#result == null")
+	@Override
+	public PlayerEntity getPlayerByElememt(String season, int element) {
+		return this.redisCacheSerive.getPlayerByElememt(season, element);
+	}
 
-    @Cacheable(value = "getPlayerStatByElement", key = "#season+'::'+#element", unless = "#result == null")
-    @Override
-    public PlayerStatEntity getPlayerStatByElement(String season, int element) {
-        return this.redisCacheSerive.getPlayerStatByElement(season, element);
-    }
+	@Cacheable(value = "getPlayerStatByElement", key = "#season+'::'+#element", unless = "#result == null")
+	@Override
+	public PlayerStatEntity getPlayerStatByElement(String season, int element) {
+		return this.redisCacheSerive.getPlayerStatByElement(season, element);
+	}
 
-    @Cacheable(value = "getPlayerValueByChangeDay", key = "#changeDay", unless = "#result == null")
-    @Override
-    public List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay) {
-        return this.redisCacheSerive.getPlayerValueByChangeDay(changeDay);
-    }
+	@Cacheable(value = "getPlayerValueByChangeDay", key = "#changeDay", unless = "#result == null")
+	@Override
+	public List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay) {
+		return this.redisCacheSerive.getPlayerValueByChangeDay(changeDay);
+	}
 
-    @Cacheable(value = "getEventLiveByEvent", key = "#event", unless = "#result == null")
-    @Override
-    public Map<String, EventLiveEntity> getEventLiveByEvent(int event) {
-        return this.redisCacheSerive.getEventLiveByEvent(event);
-    }
+	@Cacheable(value = "getEventLiveByEvent", key = "#event", unless = "#result == null")
+	@Override
+	public Map<String, EventLiveEntity> getEventLiveByEvent(int event) {
+		return this.redisCacheSerive.getEventLiveByEvent(event);
+	}
 
-    @Cacheable(value = "getPositionMap")
-    @Override
-    public Map<String, String> getPositionMap() {
-        return this.redisCacheSerive.getPositionMap();
-    }
+	@Cacheable(value = "getPositionMap")
+	@Override
+	public Map<String, String> getPositionMap() {
+		return this.redisCacheSerive.getPositionMap();
+	}
 
-    @Cacheable(value = "qryEntryListByTournament", key = "#tournamentId", unless = "#result == null")
-    @Override
-    public List<Integer> qryEntryListByTournament(int tournamentId) {
-        return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
-                .stream()
-                .map(TournamentEntryEntity::getEntry)
-                .collect(Collectors.toList());
-    }
+	@Cacheable(value = "qryEntryListByTournament", key = "#tournamentId", unless = "#result == null")
+	@Override
+	public List<Integer> qryEntryListByTournament(int tournamentId) {
+		return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+				.eq(TournamentEntryEntity::getTournamentId, tournamentId))
+				.stream()
+				.map(TournamentEntryEntity::getEntry)
+				.collect(Collectors.toList());
+	}
 
 }
