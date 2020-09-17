@@ -100,7 +100,7 @@ public class LiveService implements ILiveService {
 		List<CompletableFuture<ElementEventResultData>> future = picks.stream()
 				.map(o ->
 						CompletableFuture.supplyAsync(() ->
-								this.initElementLiveStaticData(event, o.getElement(), o, playerInfoMap, positionMap, teamLiveFixtureMap), executor))
+								this.qryElementLiveStaticData(event, o.getElement(), o, playerInfoMap, positionMap, teamLiveFixtureMap), executor))
 				.collect(Collectors.toList());
 		return future
 				.stream()
@@ -108,7 +108,7 @@ public class LiveService implements ILiveService {
 				.collect(Collectors.toList());
 	}
 
-	public ElementEventResultData initElementLiveStaticData(int event, int element, Pick pick, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+	public ElementEventResultData qryElementLiveStaticData(int event, int element, Pick pick, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
 		// from user pick
 		ElementEventResultData elementEventResultData = new ElementEventResultData();
 		elementEventResultData
