@@ -65,4 +65,23 @@ public class RESTfulTest {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"/live/qryEntryLivePoints"})
+    void qryEntryLivePoints(String url) throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        MvcResult mvcResult = this.mockResult(url, params);
+        String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"/live/qryTournamentLivePoints, 2"})
+    void qryTournamentLivePoints(String url, String tournamentId) throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("tournamentId", tournamentId);
+        MvcResult mvcResult = this.mockResult(url, params);
+        String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        System.out.println(1);
+    }
+
 }

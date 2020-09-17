@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.domain.data.response.UserPicksRes;
@@ -15,10 +16,7 @@ import com.tong.fpl.domain.letletme.league.LeagueData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.IStaticSerive;
-import com.tong.fpl.service.db.EntryCaptainStatService;
-import com.tong.fpl.service.db.EntryEventResultService;
-import com.tong.fpl.service.db.EventLiveService;
-import com.tong.fpl.service.db.LeagueResultStatService;
+import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +47,7 @@ public class ReportServiceImpl implements IReportService {
 	private final EntryEventResultService entryEventResultService;
 	private final EntryCaptainStatService entryCaptainStatService;
 	private final LeagueResultStatService leagueResultStatService;
+	private final TeamSelectStatService teamSelectStatService;
 
 	@Override
 	public void insertEntryCaptainStat(int tournamentId) {
@@ -118,12 +116,7 @@ public class ReportServiceImpl implements IReportService {
 	@Override
 	public void insertLeagueResultStat(int event, String leagueType, int leagueId, int limit) {
 		// get league Entry
-		LeagueData leagueData = new LeagueData();
-		if (LeagueType.valueOf(leagueType).equals(LeagueType.Classic)) {
-			leagueData = this.staticSerive.getEntryInfoListFromClassicByLimit(leagueId, limit);
-		} else if (LeagueType.valueOf(leagueType).equals(LeagueType.H2h)) {
-			leagueData = this.staticSerive.getEntryInfoListFromH2hByLimit(leagueId, limit);
-		}
+		LeagueData leagueData = this.getLeagueDataByTypeAndId(leagueType, leagueId, limit);
 		String leagueName = leagueData.getName();
 		// prepare
 		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
@@ -134,14 +127,8 @@ public class ReportServiceImpl implements IReportService {
 		List<EntryInfoData> entryInfoDataList = leagueData.getEntryInfoList();
 		log.info("entryInfoDataList size:{}", entryInfoDataList.size());
 		// async
-		Executor executor = Executors.newFixedThreadPool(50, r -> {
-					Thread thread = new Thread(r);
-					thread.setDaemon(true);
-					return thread;
-				}
-		);
 		List<CompletableFuture<LeagueResultStatEntity>> future = entryInfoDataList.stream()
-				.map(o -> CompletableFuture.supplyAsync(() -> this.initEntryResultStat(event, o, elementPointsMap), executor))
+				.map(o -> CompletableFuture.supplyAsync(() -> this.initEntryResultStat(event, o, elementPointsMap), new ForkJoinPool(10)))
 				.collect(Collectors.toList());
 		List<LeagueResultStatEntity> leagueResultStatList = future
 				.stream()
@@ -153,6 +140,16 @@ public class ReportServiceImpl implements IReportService {
 		// save
 		this.leagueResultStatService.saveBatch(leagueResultStatList);
 		log.info("insert league_result_stat size:{}!", leagueResultStatList.size());
+	}
+
+	private LeagueData getLeagueDataByTypeAndId(String leagueType, int leagueId, int limit) {
+		LeagueData leagueData = new LeagueData();
+		if (LeagueType.valueOf(leagueType).equals(LeagueType.Classic)) {
+			leagueData = this.staticSerive.getEntryInfoListFromClassicByLimit(leagueId, limit);
+		} else if (LeagueType.valueOf(leagueType).equals(LeagueType.H2h)) {
+			leagueData = this.staticSerive.getEntryInfoListFromH2hByLimit(leagueId, limit);
+		}
+		return leagueData;
 	}
 
 	private LeagueResultStatEntity initEntryResultStat(int event, EntryInfoData entryInfoData, Map<Integer, Integer> elementPointsMap) {
@@ -202,6 +199,93 @@ public class ReportServiceImpl implements IReportService {
 				.setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
 		));
 		return JsonUtils.obj2json(pickList);
+	}
+
+	@Override
+	public void inertTeamSelectStat(int event, String leagueType, int leagueId, int limit) {
+		// get league Entry
+		LeagueData leagueData = this.getLeagueDataByTypeAndId(leagueType, leagueId, limit);
+		// init league result stat
+		List<EntryInfoData> entryInfoDataList = leagueData.getEntryInfoList();
+		// get user picks
+		List<CompletableFuture<TeamSelectStatEntity>> future = entryInfoDataList.stream()
+				.map(o ->
+						CompletableFuture.supplyAsync(() ->
+								this.initEntryTeamSelectStat(event, o.getEntry(), leagueData.getName()), new ForkJoinPool(50)))
+				.collect(Collectors.toList());
+		List<TeamSelectStatEntity> teamSelectStatList = future
+				.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
+		// save
+		this.teamSelectStatService.saveBatch(teamSelectStatList);
+		log.info("insert team_select_stat size:{}!", teamSelectStatList.size());
+	}
+
+	private TeamSelectStatEntity initEntryTeamSelectStat(int event, int entry, String leagueName) {
+		UserPicksRes userPicksRes = this.querySerivce.getUserPicks(event, entry);
+		if (userPicksRes == null) {
+			return new TeamSelectStatEntity();
+		}
+		List<Pick> picks = userPicksRes.getPicks();
+		TeamSelectStatEntity teamSelectStatEntity = new TeamSelectStatEntity();
+		teamSelectStatEntity.setLeagueName(leagueName)
+				.setEvent(event)
+				.setEntry(entry)
+				.setChip(userPicksRes.getActiveChip() == null ? "n/a" : userPicksRes.getActiveChip())
+				.setPosition1(picks.get(0).getElement())
+				.setPosition2(picks.get(1).getElement())
+				.setPosition3(picks.get(2).getElement())
+				.setPosition4(picks.get(3).getElement())
+				.setPosition5(picks.get(4).getElement())
+				.setPosition6(picks.get(5).getElement())
+				.setPosition7(picks.get(6).getElement())
+				.setPosition8(picks.get(7).getElement())
+				.setPosition9(picks.get(8).getElement())
+				.setPosition10(picks.get(9).getElement())
+				.setPosition11(picks.get(10).getElement())
+				.setPosition12(picks.get(11).getElement())
+				.setPosition13(picks.get(12).getElement())
+				.setPosition14(picks.get(13).getElement())
+				.setPosition15(picks.get(14).getElement());
+		teamSelectStatEntity.setCaptain(picks
+				.stream()
+				.filter(Pick::isCaptain)
+				.map(Pick::getElement)
+				.findFirst()
+				.orElse(0)
+		);
+		teamSelectStatEntity.setViceCaptain(picks
+				.stream()
+				.filter(Pick::isViceCaptain)
+				.map(Pick::getElement)
+				.findFirst()
+				.orElse(0)
+		);
+		return teamSelectStatEntity;
+	}
+
+	@Override
+	public Map<String, String> getTopSelectedMap(String leagueName, int event, boolean budge) {
+		List<TeamSelectStatEntity> list = this.teamSelectStatService.list(new QueryWrapper<TeamSelectStatEntity>().lambda()
+				.eq(TeamSelectStatEntity::getLeagueName, leagueName)
+				.eq(TeamSelectStatEntity::getEvent, event));
+		if (CollectionUtils.isEmpty(list)) {
+			return Maps.newHashMap();
+		}
+		if (budge) {
+			return this.getTopSelectedMapWithBudge(list);
+		} else {
+			return this.getTopSelectedMapWithoutBudge(list);
+		}
+	}
+
+	private Map<String, String> getTopSelectedMapWithBudge(List<TeamSelectStatEntity> list) {
+		return null;
+	}
+
+	private Map<String, String> getTopSelectedMapWithoutBudge(List<TeamSelectStatEntity> list) {
+		return null;
 	}
 
 }

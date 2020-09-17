@@ -18,21 +18,18 @@ import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.db.EntryInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,12 +48,11 @@ public class LiveService implements ILiveService {
 	public LiveCalaData calcLivePointsByEntry(int event, int entry) {
 		// prepare
 		Map<String, String> positionMap = this.querySerivce.getPositionMap();
+		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
 		Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.querySerivce.getEventLiveFixtureMap();
-		if (CollectionUtils.isEmpty(teamLiveFixtureMap)) {
-			log.error("calcLivePoints event:{}, entry:{}, teamLiveFixtureMap empty!", event, entry);
-		}
-		// get user picks
-		LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, Maps.newHashMap(), positionMap, teamLiveFixtureMap);
+		// calc entry points
+		LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, Maps.newHashMap(), positionMap,
+				teamLiveFixtureMap, eventLiveMap, new ForkJoinPool(4));
 		// entry info
 		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
 		if (entryInfoEntity != null) {
@@ -68,13 +64,84 @@ public class LiveService implements ILiveService {
 		return liveCalaData;
 	}
 
-	private LiveCalaData calcLiveSingleEntryPoints(int event, int entry, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+	@Override
+	public List<LiveCalaData> calcLivePointsByTournament(int event, int tournamentId) {
+		// prepare
+		Map<String, String> positionMap = this.querySerivce.getPositionMap();
+		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
+		Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.querySerivce.getEventLiveFixtureMap();
+		// get entry list
+		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		// calc live entry points
+		ForkJoinPool forkJoinPool = new ForkJoinPool(10);
+		List<CompletableFuture<LiveCalaData>> future = entryList.stream()
+				.map(o -> CompletableFuture.supplyAsync(() -> this.calcLiveSingleEntryPoints(event, o, Maps.newHashMap(), positionMap,
+						teamLiveFixtureMap, eventLiveMap, forkJoinPool), forkJoinPool))
+				.collect(Collectors.toList());
+		List<LiveCalaData> liveCalaList = future
+				.stream()
+				.map(CompletableFuture::join)
+				.sorted(Comparator.comparing(LiveCalaData::getLivePoints).reversed())
+				.collect(Collectors.toList());
+		// entry info
+		Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list()
+				.stream()
+				.collect(Collectors.toMap(EntryInfoEntity::getEntry, v -> v));
+		liveCalaList.forEach(liveCalaData -> {
+			EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(liveCalaData.getEntry(), null);
+			if (entryInfoEntity != null) {
+				liveCalaData
+						.setEntryName(entryInfoEntity.getEntryName())
+						.setPlayerName(entryInfoEntity.getPlayerName())
+						.setRegion(entryInfoEntity.getRegion());
+			}
+		});
+		return liveCalaList;
+	}
+
+	@Override
+	public LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, String chip, int captain, int viceCaptain) {
+		// prepare
+		Map<String, String> positionMap = this.querySerivce.getPositionMap();
+		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
+		Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.querySerivce.getEventLiveFixtureMap();
+		// init user pick from elementMap
+		List<Pick> picks = Lists.newArrayList();
+		elementMap.forEach((position, element) ->
+				picks.add(new Pick()
+						.setElement(element)
+						.setPosition(position)
+						.setCaptain(element == captain)
+						.setViceCaptain(element == viceCaptain)
+				)
+		);
+		// initialize element_live_data, static part
+		List<ElementEventResultData> elementEventResultDataList = this.qryEntryLiveStaticData(event, picks, Maps.newHashMap(), positionMap,
+				teamLiveFixtureMap, new ForkJoinPool(4));
+		// initialize element_live_data, event_live part
+		this.initEventLiveData(elementEventResultDataList, eventLiveMap);
+		// get active picks
+		List<ElementEventResultData> pickList = this.getPickList(elementEventResultDataList);
+		// calc live points
+		int livePoints = this.calcActivePoints(Chip.getChipFromValue(chip), pickList);
+		return new LiveCalaData()
+				.setEntry(0)
+				.setEvent(event)
+				.setPickList(pickList)
+				.setChip(chip)
+				.setLivePoints(livePoints)
+				.setTransferCost(0)
+				.setLiveNetPoints(livePoints);
+	}
+
+	private LiveCalaData calcLiveSingleEntryPoints(int event, int entry, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap,
+	                                               Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap, Map<String, EventLiveEntity> eventLiveMap, ForkJoinPool forkJoinPool) {
 		// get user pick
 		UserPicksRes userPicksRes = this.querySerivce.getUserPicks(event, entry);
 		// initialize element_live_data, static part
-		List<ElementEventResultData> elementEventResultDataList = this.qryEntryLiveStaticData(event, userPicksRes.getPicks(), playerInfoMap, positionMap, teamLiveFixtureMap);
+		List<ElementEventResultData> elementEventResultDataList = this.qryEntryLiveStaticData(event, userPicksRes.getPicks(), playerInfoMap, positionMap, teamLiveFixtureMap, forkJoinPool);
 		// initialize element_live_data, event_live part
-		this.initEventLiveData(event, elementEventResultDataList);
+		this.initEventLiveData(elementEventResultDataList, eventLiveMap);
 		// get active picks
 		List<ElementEventResultData> pickList = this.getPickList(elementEventResultDataList);
 		// calc live points
@@ -89,18 +156,12 @@ public class LiveService implements ILiveService {
 				.setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost());
 	}
 
-	public List<ElementEventResultData> qryEntryLiveStaticData(int event, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
-		// async
-		Executor executor = Executors.newFixedThreadPool(15, r -> {
-					Thread thread = new Thread(r);
-					thread.setDaemon(true);
-					return thread;
-				}
-		);
+	public List<ElementEventResultData> qryEntryLiveStaticData(int event, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap,
+	                                                           Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap, ForkJoinPool forkJoinPool) {
 		List<CompletableFuture<ElementEventResultData>> future = picks.stream()
 				.map(o ->
 						CompletableFuture.supplyAsync(() ->
-								this.qryElementLiveStaticData(event, o.getElement(), o, playerInfoMap, positionMap, teamLiveFixtureMap), executor))
+								this.qryElementLiveStaticData(event, o.getElement(), o, playerInfoMap, positionMap, teamLiveFixtureMap), forkJoinPool))
 				.collect(Collectors.toList());
 		return future
 				.stream()
@@ -108,7 +169,8 @@ public class LiveService implements ILiveService {
 				.collect(Collectors.toList());
 	}
 
-	public ElementEventResultData qryElementLiveStaticData(int event, int element, Pick pick, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+	public ElementEventResultData qryElementLiveStaticData(int event, int element, Pick pick, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap,
+	                                                       Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
 		// from user pick
 		ElementEventResultData elementEventResultData = new ElementEventResultData();
 		elementEventResultData
@@ -164,11 +226,9 @@ public class LiveService implements ILiveService {
 				}
 			}
 		}
-
 	}
 
-	private void initEventLiveData(int event, List<ElementEventResultData> elementEventResultDataList) {
-		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
+	private void initEventLiveData(List<ElementEventResultData> elementEventResultDataList, Map<String, EventLiveEntity> eventLiveMap) {
 		if (CollectionUtils.isEmpty(eventLiveMap)) {
 			return;
 		}
@@ -310,112 +370,6 @@ public class LiveService implements ILiveService {
 		Stream.Builder<T> builder = Stream.builder();
 		Arrays.asList(values).forEach(builder::add);
 		return builder.build();
-	}
-
-	@Override
-	public LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain) {
-		LiveCalaData liveCalaData = new LiveCalaData();
-		List<ElementEventResultData> pickList = Lists.newArrayList();
-		// prepare
-		Map<String, EventLiveEntity> eventLiveMap = this.querySerivce.getEventLiveByEvent(event);
-		Map<String, String> positionMap = this.querySerivce.getPositionMap();
-		// initialize element_live_data
-		elementMap.keySet().forEach(position -> {
-			int element = elementMap.get(position);
-			ElementEventResultData elementEventResultData = new ElementEventResultData();
-			elementEventResultData.setPosition(position);
-			elementEventResultData.setMultiplier(this.ifMultiplier(event, element));
-			elementEventResultData.setCaptain(element == captain);
-			elementEventResultData.setViceCaptain(element == viceCaptain);
-			// player info
-			PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
-			if (playerEntity != null) {
-				elementEventResultData
-						.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
-						.setWebName(playerEntity.getWebName());
-				// event fixture
-				int teamId = playerEntity.getTeamId();
-				List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamIdAndEvent(teamId, event);
-				if (!CollectionUtils.isEmpty(playerFixtureDataList)) {
-					PlayerFixtureData PlayerFixtureData = playerFixtureDataList
-							.stream()
-							.filter(o -> o.getEvent() == event)
-							.findFirst()
-							.orElse(new PlayerFixtureData());
-					elementEventResultData.setGwStarted(PlayerFixtureData.isStarted());
-					elementEventResultData.setGwFinished(PlayerFixtureData.isFinished());
-					elementEventResultData.setPlayed(elementEventResultData.getMinutes() > 0 || elementEventResultData.getYellowCards() > 0 || elementEventResultData.getRedCards() > 0);
-				}
-			}
-			// from event_live
-			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(element));
-			if (eventLiveEntity != null) {
-				BeanUtil.copyProperties(eventLiveEntity, elementEventResultData, CopyOptions.create().ignoreNullValue());
-			}
-			pickList.add(elementEventResultData);
-		});
-		// calc live points
-		int livePoints = this.calcActivePoints(Chip.NONE, pickList);
-		liveCalaData
-				.setEntry(0)
-				.setEvent(event)
-				.setPickList(pickList)
-				.setChip(Chip.NONE.getValue())
-				.setLivePoints(livePoints)
-				.setTransferCost(0)
-				.setLiveNetPoints(livePoints);
-		return liveCalaData;
-	}
-
-	private int ifMultiplier(int event, int element) {
-		PlayerEntity playerEntity = this.querySerivce.getPlayerByElememt(element);
-		if (playerEntity == null) {
-			return 0;
-		}
-		int teamId = playerEntity.getTeamId();
-		List<PlayerFixtureData> playerFixtureDataList = this.querySerivce.getEventFixtureByTeamIdAndEvent(teamId, event);
-		if (CollectionUtils.isEmpty(playerFixtureDataList)) {
-			return 0;
-		}
-		return (int) playerFixtureDataList
-				.stream()
-				.filter(o -> o.getEvent() == event)
-				.count();
-	}
-
-	@Cacheable(value = "qryCalcLivePointsByTournament", key = "#event+'::'+#tournamentId", unless = "#result == null")
-	@Override
-	public List<LiveCalaData> calcLivePointsByTournament(int event, int tournamentId) {
-		List<LiveCalaData> liveCalaList = Lists.newArrayList();
-		Map<String, String> positionMap = this.querySerivce.getPositionMap();
-		Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.querySerivce.getEventLiveFixtureMap();
-		// get entry list
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
-		entryList.forEach(entry -> {
-			// calc live points
-			LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, Maps.newHashMap(), positionMap, teamLiveFixtureMap);
-			if (liveCalaData != null) {
-				liveCalaList.add(liveCalaData);
-			}
-		});
-		// entry info
-		List<LiveCalaData> list = liveCalaList
-				.stream()
-				.sorted(Comparator.comparing(LiveCalaData::getLivePoints).reversed())
-				.collect(Collectors.toList());
-		Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list()
-				.stream()
-				.collect(Collectors.toMap(EntryInfoEntity::getEntry, v -> v));
-		list.forEach(liveCalaData -> {
-			EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(liveCalaData.getEntry(), null);
-			if (entryInfoEntity != null) {
-				liveCalaData
-						.setEntryName(entryInfoEntity.getEntryName())
-						.setPlayerName(entryInfoEntity.getPlayerName())
-						.setRegion(entryInfoEntity.getRegion());
-			}
-		});
-		return list;
 	}
 
 }

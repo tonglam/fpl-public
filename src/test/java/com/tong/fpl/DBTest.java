@@ -11,6 +11,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.db.*;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -28,11 +29,7 @@ public class DBTest extends FplApplicationTests {
 	@Autowired
 	private EntryInfoService entryInfoService;
 	@Autowired
-	private TournamentKnockoutResultService tournamentKnockoutResultService;
-	@Autowired
 	private PlayerService playerService;
-	@Autowired
-	private PlayerStatService playerStatService;
 	@Autowired
 	private TournamentEntryService tournamentEntryService;
 	@Autowired
@@ -41,6 +38,8 @@ public class DBTest extends FplApplicationTests {
 	private IQuerySerivce querySerivce;
 	@Autowired
 	private TournamentKnockoutService tournamentKnockoutService;
+	@Autowired
+	private TeamSelectStatService teamSelectStatService;
 
 	@Test
 	void test() {
@@ -121,6 +120,34 @@ public class DBTest extends FplApplicationTests {
 				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
 				.ge(TournamentKnockoutEntity::getStartGw, event)
 				.le(TournamentKnockoutEntity::getEndGw, event));
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource("集合吧！FPL2021让让群小联赛, 1")
+	void teamSelect(String leagueName, int event) {
+		List<Integer> elementList = Lists.newArrayList();
+		this.teamSelectStatService.list(new QueryWrapper<TeamSelectStatEntity>().lambda()
+				.eq(TeamSelectStatEntity::getLeagueName, leagueName)
+				.eq(TeamSelectStatEntity::getEvent, event))
+				.forEach(o -> {
+					elementList.add(o.getPosition1());
+					elementList.add(o.getPosition2());
+					elementList.add(o.getPosition3());
+					elementList.add(o.getPosition4());
+					elementList.add(o.getPosition5());
+					elementList.add(o.getPosition6());
+					elementList.add(o.getPosition7());
+					elementList.add(o.getPosition8());
+					elementList.add(o.getPosition9());
+					elementList.add(o.getPosition10());
+					elementList.add(o.getPosition11());
+					elementList.add(o.getPosition12());
+					elementList.add(o.getPosition13());
+					elementList.add(o.getPosition14());
+					elementList.add(o.getPosition15());
+				});
+		elementList.stream().collect(Collectors.groupingBy(Integer::intValue));
 		System.out.println(1);
 	}
 

@@ -19,14 +19,15 @@ public interface ILiveService {
 	LiveCalaData calcLivePointsByEntry(int event, int entry);
 
 	/**
-	 * calculate entry live points(do not has entry id)
+	 * calculate entry live points(do not has entry)
 	 *
 	 * @param event       event
-	 * @param elementMap  elementMap
+	 * @param elementMap  elementMap(key->position, value->element)
+	 * @param chip        chip
 	 * @param captain     captain
 	 * @param viceCaptain viceCaptain
 	 */
-	LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, int captain, int viceCaptain);
+	LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, String chip, int captain, int viceCaptain);
 
 	/**
 	 * calculate entry live points in the tournament

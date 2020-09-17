@@ -69,6 +69,18 @@ public class RedisConfig extends CachingConfigurerSupport {
 				.cacheDefaults(cacheConfig).build();
 	}
 
+	@Bean("liveCacheManager")
+	public CacheManager liveCacheManager(LettuceConnectionFactory factory) {
+		RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+				.entryTtl(Duration.ofMinutes(10))
+				.disableCachingNullValues()
+				.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(keySerializer()))
+				.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer((valueSerializer())));
+		return RedisCacheManager
+				.builder(RedisCacheWriter.nonLockingRedisCacheWriter(factory))
+				.cacheDefaults(cacheConfig).build();
+	}
+
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<String, Object> template = new RedisTemplate<>();
