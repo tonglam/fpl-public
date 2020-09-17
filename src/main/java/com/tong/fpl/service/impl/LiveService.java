@@ -30,6 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,15 +49,14 @@ public class LiveService implements ILiveService {
 
 	@Override
 	public LiveCalaData calcLivePointsByEntry(int event, int entry) {
-		LiveCalaData liveCalaData = new LiveCalaData();
 		// prepare
 		Map<String, String> positionMap = this.querySerivce.getPositionMap();
 		Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.querySerivce.getEventLiveFixtureMap();
-		// get user picks
-		Optional<UserPicksRes> result = this.querySerivce.getUserPicks(event, entry);
-		if (result.isPresent()) {
-			liveCalaData = this.calcLiveSingleEntryPoints(event, entry, result.get(), Maps.newHashMap(), positionMap, teamLiveFixtureMap);
+		if (CollectionUtils.isEmpty(teamLiveFixtureMap)) {
+			log.error("calcLivePoints event:{}, entry:{}, teamLiveFixtureMap empty!", event, entry);
 		}
+		// get user picks
+		LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, Maps.newHashMap(), positionMap, teamLiveFixtureMap);
 		// entry info
 		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
 		if (entryInfoEntity != null) {
@@ -66,10 +68,11 @@ public class LiveService implements ILiveService {
 		return liveCalaData;
 	}
 
-	private LiveCalaData calcLiveSingleEntryPoints(int event, int entry, UserPicksRes userPicksRes, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+	private LiveCalaData calcLiveSingleEntryPoints(int event, int entry, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+		// get user pick
+		UserPicksRes userPicksRes = this.querySerivce.getUserPicks(event, entry);
 		// initialize element_live_data, static part
-		List<ElementEventResultData> elementEventResultDataList = this.initEntryLiveStaticData(event, entry, userPicksRes.getPicks(),
-				playerInfoMap, positionMap, teamLiveFixtureMap);
+		List<ElementEventResultData> elementEventResultDataList = this.qryEntryLiveStaticData(event, userPicksRes.getPicks(), playerInfoMap, positionMap, teamLiveFixtureMap);
 		// initialize element_live_data, event_live part
 		this.initEventLiveData(event, elementEventResultDataList);
 		// get active picks
@@ -86,19 +89,26 @@ public class LiveService implements ILiveService {
 				.setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost());
 	}
 
-	@Cacheable(value = "initEntryLiveStaticData", key = "#entry", unless = "#result == null")
-	public List<ElementEventResultData> initEntryLiveStaticData(int event, int entry, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
-		List<ElementEventResultData> elementEventResultDataList = Lists.newArrayList();
-		picks.forEach(pick -> {
-			ElementEventResultData elementEventResultData = this.initElementLiveStaticData(event, pick.getElement(), pick, playerInfoMap, positionMap, teamLiveFixtureMap);
-			elementEventResultDataList.add(elementEventResultData);
-		});
-		return elementEventResultDataList;
+	public List<ElementEventResultData> qryEntryLiveStaticData(int event, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+		// async
+		Executor executor = Executors.newFixedThreadPool(15, r -> {
+					Thread thread = new Thread(r);
+					thread.setDaemon(true);
+					return thread;
+				}
+		);
+		List<CompletableFuture<ElementEventResultData>> future = picks.stream()
+				.map(o ->
+						CompletableFuture.supplyAsync(() ->
+								this.initElementLiveStaticData(event, o.getElement(), o, playerInfoMap, positionMap, teamLiveFixtureMap), executor))
+				.collect(Collectors.toList());
+		return future
+				.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
 	}
 
-	@Cacheable(value = "initElementLiveStaticData", key = "#element", unless = "#result == null")
-	public ElementEventResultData initElementLiveStaticData(int event, int element, Pick pick,
-															Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+	public ElementEventResultData initElementLiveStaticData(int event, int element, Pick pick, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap, Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
 		// from user pick
 		ElementEventResultData elementEventResultData = new ElementEventResultData();
 		elementEventResultData
@@ -382,15 +392,11 @@ public class LiveService implements ILiveService {
 		// get entry list
 		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
 		entryList.forEach(entry -> {
-			// get user picks list
-			Optional<UserPicksRes> result = this.querySerivce.getUserPicks(event, entry);
 			// calc live points
-			result.ifPresent(userPicksRes -> {
-				LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, userPicksRes, Maps.newHashMap(), positionMap, teamLiveFixtureMap);
-				if (liveCalaData != null) {
-					liveCalaList.add(liveCalaData);
-				}
-			});
+			LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, Maps.newHashMap(), positionMap, teamLiveFixtureMap);
+			if (liveCalaData != null) {
+				liveCalaList.add(liveCalaData);
+			}
 		});
 		// entry info
 		List<LiveCalaData> list = liveCalaList

@@ -17,7 +17,6 @@ import com.tong.fpl.utils.CommonUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Create by tong on 2020/7/31
@@ -86,9 +85,9 @@ public interface IQuerySerivce {
 
 	int getNextEvent();
 
-	Optional<UserPicksRes> getUserPicks(int event, int entry);
+	UserPicksRes getUserPicks(int event, int entry);
 
-	Optional<EntryRes> getEntry(int entry);
+	EntryRes getEntry(int entry);
 
 	default Map<String, String> getTeamNameMap() {
 		return this.getTeamNameMap(CommonUtils.getCurrentSeason());

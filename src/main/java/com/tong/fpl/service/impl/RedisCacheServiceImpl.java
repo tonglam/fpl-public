@@ -553,7 +553,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
         RedisUtils.removeCacheByKey(key);
         eventLiveList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
-        RedisUtils.pipelineHashCache(cacheMap, 1, TimeUnit.DAYS);
+	    RedisUtils.pipelineHashCache(cacheMap, 7, TimeUnit.DAYS);
     }
 
     @Override

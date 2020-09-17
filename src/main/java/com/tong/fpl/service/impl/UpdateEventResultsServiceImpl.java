@@ -95,18 +95,17 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 		if (entry <= 0) {
 			return;
 		}
-		Optional<UserPicksRes> userPickRes = this.querySerivce.getUserPicks(event, entry);
-		userPickRes.ifPresent(userPick -> {
-			boolean finished = this.eventService.getById(event).isFinished();
-			Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-					.eq(EventLiveEntity::getEvent, event))
-					.stream()
-					.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
-			eventResultList.add(new EntryEventResultEntity()
-					.setEntry(entry)
-					.setEvent(event)
-					.setEventPoints(userPick.getEntryHistory().getPoints())
-					.setEventTransfers(userPick.getEntryHistory().getEventTransfers())
+		UserPicksRes userPick = this.querySerivce.getUserPicks(event, entry);
+		boolean finished = this.eventService.getById(event).isFinished();
+		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+		eventResultList.add(new EntryEventResultEntity()
+				.setEntry(entry)
+				.setEvent(event)
+				.setEventPoints(userPick.getEntryHistory().getPoints())
+				.setEventTransfers(userPick.getEntryHistory().getEventTransfers())
 					.setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
 					.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
 					.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
@@ -116,7 +115,6 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 					.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap))
 					.setEventFinished(finished)
 			);
-		});
 	}
 
 	@Override

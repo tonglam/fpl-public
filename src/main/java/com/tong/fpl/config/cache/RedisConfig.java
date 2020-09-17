@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.interceptor.KeyGenerator;
@@ -37,7 +36,7 @@ public class RedisConfig extends CachingConfigurerSupport {
 	public KeyGenerator keyGenerator() {
 		return (target, method, params) -> {
 			StringBuilder sb = new StringBuilder();
-			sb.append(StringUtils.joinWith("::", target.getClass().getSimpleName(), method.getName()));
+			sb.append(target.getClass().getSimpleName());
 			for (Object obj : params) {
 				sb.append("::").append(obj.toString());
 			}
