@@ -43,4 +43,8 @@ public interface ITableQueryService {
 
     TableData<ElementEventResultData> qryElementEventResult(int event, int element);
 
+    TableData<TournamentInfoData> qryEntryPointsGroupTournamentList(int entry);
+
+    TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event);
+
 }

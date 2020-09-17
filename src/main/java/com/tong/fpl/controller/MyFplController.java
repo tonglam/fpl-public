@@ -7,6 +7,8 @@ import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
+import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +45,15 @@ public class MyFplController {
     }
 
     @RequestMapping(value = "/league")
-    public String leagueController(Model model) {
+    public String leagueController(Model model, HttpSession session) {
+        int entry = 0;
+        if (session.getAttribute("entry") != null) {
+            entry = (int) session.getAttribute("entry");
+        }
+        TableData<TournamentInfoData> tournamentInfoData = this.myFplApi.qryEntryPointsGroupTournamentList(entry);
+        if (tournamentInfoData != null) {
+            model.addAttribute("tournamentList", tournamentInfoData.getData());
+        }
         model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
         return "myFpl/league";
@@ -82,6 +92,12 @@ public class MyFplController {
     @ResponseBody
     public TableData<PlayerInfoData> qryPlayerDataList(@RequestParam long page, @RequestParam long limit) {
         return this.myFplApi.qryPlayerDataList(page, limit);
+    }
+
+    @GetMapping("/qryTournamentResultList")
+    @ResponseBody
+    public TableData<TournamentGroupData> qryTournamentResultList(@RequestParam int tournamentId, @RequestParam int event) {
+        return this.myFplApi.qryTournamentResultList(tournamentId, event);
     }
 
     private int getQryEntry(HttpSession session) {

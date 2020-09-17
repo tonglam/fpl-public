@@ -28,5 +28,6 @@ public class TournamentGroupData {
     private int overallRank;
     private int startGw;
     private int endGw;
+    private TournamentPointsGroupEventResultData pointsGroupEventResult;
 
 }

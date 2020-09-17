@@ -9,6 +9,8 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
+import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +57,16 @@ public class MyFplApiImpl implements IMyFplApi {
     @Override
     public TableData<ElementEventResultData> qryElementEventResult(int event, int element) {
         return this.tableQueryService.qryElementEventResult(event, element);
+    }
+
+    @Override
+    public TableData<TournamentInfoData> qryEntryPointsGroupTournamentList(int entry) {
+        return this.tableQueryService.qryEntryPointsGroupTournamentList(entry);
+    }
+
+    @Override
+    public TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event) {
+        return this.tableQueryService.qryTournamentResultList(tournamentId, event);
     }
 
 }

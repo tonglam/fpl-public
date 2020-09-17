@@ -428,7 +428,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return new TableData<>(list);
     }
 
-    //    @Cacheable(value = "qryElementEventResult", key = "#event+'::'+#element", unless = "#result==null")
+    @Cacheable(value = "qryElementEventResult", key = "#event+'::'+#element", unless = "#result==null")
     @Override
     public TableData<ElementEventResultData> qryElementEventResult(int event, int element) {
         EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
@@ -438,6 +438,81 @@ public class TableQueryServiceImpl implements ITableQueryService {
             return new TableData<>();
         }
         return new TableData<>(BeanUtil.copyProperties(eventLiveEntity, ElementEventResultData.class));
+    }
+
+    @Cacheable(value = "qryEntryPointsGroupTournamentList", key = "#entry", unless = "#result==null")
+    @Override
+    public TableData<TournamentInfoData> qryEntryPointsGroupTournamentList(int entry) {
+        if (entry <= 0) {
+            return new TableData<>();
+        }
+        // get tournament_list
+        List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+                .eq(TournamentEntryEntity::getEntry, entry))
+                .stream()
+                .map(TournamentEntryEntity::getTournamentId)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(tournamentList)) {
+            return new TableData<>();
+        }
+        List<TournamentInfoData> list = Lists.newArrayList();
+        this.tournamentInfoService.list(new QueryWrapper<TournamentInfoEntity>().lambda()
+                .in(TournamentInfoEntity::getId, tournamentList)
+                .eq(TournamentInfoEntity::getGroupMode, GroupMode.Points_race.name())
+                .eq(TournamentInfoEntity::getGroupNum, 1)
+                .eq(TournamentInfoEntity::getState, 1))
+                .forEach(o -> list.add(new TournamentInfoData()
+                        .setId(o.getId())
+                        .setName(o.getName())
+                ));
+        return new TableData<>(list);
+    }
+
+    @Cacheable(value = "qryTournamentResultList", key = "#tournamentId+'::'+#event", unless = "#result==null")
+    @Override
+    public TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event) {
+        List<TournamentGroupData> list = Lists.newArrayList();
+        Map<Integer, TournamentPointsGroupResultEntity> pointsGroupResultMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
+                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                .eq(TournamentPointsGroupResultEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(TournamentPointsGroupResultEntity::getEntry, v -> v));
+        this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .orderByAsc(TournamentGroupEntity::getGroupRank))
+                .forEach(o -> {
+                    // tournament group
+                    TournamentGroupData tournamentGroupData = new TournamentGroupData();
+                    tournamentGroupData
+                            .setGroupId(o.getGroupId())
+                            .setGroupRank(o.getGroupRank())
+                            .setEntry(o.getEntry())
+                            .setOverallPoints(o.getOverallPoints())
+                            .setOverallRank(o.getOverallRank());
+                    // entry info
+                    EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(o.getEntry());
+                    if (entryInfoEntity != null) {
+                        tournamentGroupData
+                                .setEntryName(entryInfoEntity.getEntryName())
+                                .setPlayerName(entryInfoEntity.getPlayerName());
+                    }
+                    // tournament group result
+                    TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity = pointsGroupResultMap.getOrDefault(o.getEntry(), new TournamentPointsGroupResultEntity());
+                    if (tournamentPointsGroupResultEntity != null) {
+                        tournamentGroupData.setPointsGroupEventResult(new TournamentPointsGroupEventResultData()
+                                .setGroupId(tournamentPointsGroupResultEntity.getGroupId())
+                                .setEvent(tournamentPointsGroupResultEntity.getEvent())
+                                .setEntry(tournamentPointsGroupResultEntity.getEntry())
+                                .setGroupRank(tournamentPointsGroupResultEntity.getEventGroupRank())
+                                .setPoints(tournamentPointsGroupResultEntity.getEventPoints())
+                                .setCost(tournamentPointsGroupResultEntity.getEventCost())
+                                .setNetPoints(tournamentPointsGroupResultEntity.getEventNetPoints())
+                                .setRank(tournamentPointsGroupResultEntity.getEventRank())
+                        );
+                    }
+                    list.add(tournamentGroupData);
+                });
+        return new TableData<>(list);
     }
 
 }
