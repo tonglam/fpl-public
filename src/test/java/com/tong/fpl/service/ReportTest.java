@@ -5,6 +5,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.LinkedHashMap;
+
 public class ReportTest extends FplApplicationTests {
 
 	@Autowired
@@ -31,6 +33,13 @@ public class ReportTest extends FplApplicationTests {
 	@CsvSource({"1, Classic, 314, 10000"})
 	void inertTeamSelectStat(int event, String leagueType, int leagueId, int limit) {
 		this.reportService.inertTeamSelectStat(event, leagueType, leagueId, limit);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"这破游戏⚽️让让群姐妹联赛大乱斗, 1, false"})
+	void getTopSelectedMap(String leagueName, int event, boolean budge) {
+		LinkedHashMap<String, String> map = this.reportService.getTopSelectedMap(leagueName, event, budge);
 		System.out.println(1);
 	}
 

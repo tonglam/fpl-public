@@ -2,6 +2,7 @@ package com.tong.fpl.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -266,26 +268,58 @@ public class ReportServiceImpl implements IReportService {
 	}
 
 	@Override
-	public Map<String, String> getTopSelectedMap(String leagueName, int event, boolean budge) {
-		List<TeamSelectStatEntity> list = this.teamSelectStatService.list(new QueryWrapper<TeamSelectStatEntity>().lambda()
+	public LinkedHashMap<String, String> getTopSelectedMap(String leagueName, int event, boolean budge) {
+		// team select
+		List<TeamSelectStatEntity> teamSelectList = this.teamSelectStatService.list(new QueryWrapper<TeamSelectStatEntity>().lambda()
 				.eq(TeamSelectStatEntity::getLeagueName, leagueName)
 				.eq(TeamSelectStatEntity::getEvent, event));
-		if (CollectionUtils.isEmpty(list)) {
-			return Maps.newHashMap();
+		int teamSize = teamSelectList.size();
+		// collect
+		List<Integer> elementList = Lists.newArrayList();
+		teamSelectList.forEach(o -> {
+			elementList.add(o.getPosition1());
+			elementList.add(o.getPosition2());
+			elementList.add(o.getPosition3());
+			elementList.add(o.getPosition4());
+			elementList.add(o.getPosition5());
+			elementList.add(o.getPosition6());
+			elementList.add(o.getPosition7());
+			elementList.add(o.getPosition8());
+			elementList.add(o.getPosition9());
+			elementList.add(o.getPosition10());
+			elementList.add(o.getPosition11());
+			elementList.add(o.getPosition12());
+			elementList.add(o.getPosition13());
+			elementList.add(o.getPosition14());
+			elementList.add(o.getPosition15());
+		});
+		if (CollectionUtils.isEmpty(elementList)) {
+			return Maps.newLinkedHashMap();
 		}
 		if (budge) {
-			return this.getTopSelectedMapWithBudge(list);
+			return this.getTopSelectedMapWithBudge(elementList, teamSize);
 		} else {
-			return this.getTopSelectedMapWithoutBudge(list);
+			return this.getTopSelectedMapWithoutBudge(elementList, teamSize);
 		}
 	}
 
-	private Map<String, String> getTopSelectedMapWithBudge(List<TeamSelectStatEntity> list) {
+	private LinkedHashMap<String, String> getTopSelectedMapWithBudge(List<Integer> elementList, int teamSize) {
 		return null;
 	}
 
-	private Map<String, String> getTopSelectedMapWithoutBudge(List<TeamSelectStatEntity> list) {
-		return null;
+	private LinkedHashMap<String, String> getTopSelectedMapWithoutBudge(List<Integer> elementList, int teamSize) {
+		LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
+		Map<Integer, Long> groupingMap = elementList
+				.stream()
+				.collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
+		Map<Integer, Integer> result = groupingMap.entrySet()
+				.stream()
+				.sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+				.limit(20)
+				.collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
+		result.forEach((k, v) ->
+				map.put(this.querySerivce.qryPlayerInfo(k).getWebName(), NumberUtil.decimalFormat("#.##%", NumberUtil.div(v.intValue(), teamSize))));
+		return map;
 	}
 
 }

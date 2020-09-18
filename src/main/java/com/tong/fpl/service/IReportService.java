@@ -1,6 +1,6 @@
 package com.tong.fpl.service;
 
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  * Create by tong on 2020/9/2
@@ -13,6 +13,6 @@ public interface IReportService {
 
 	void inertTeamSelectStat(int event, String leagueType, int leagueId, int limit);
 
-	Map<String, String> getTopSelectedMap(String leagueName, int event, boolean budge);
+	LinkedHashMap<String, String> getTopSelectedMap(String leagueName, int event, boolean budge);
 
 }

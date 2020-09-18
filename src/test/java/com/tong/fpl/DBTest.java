@@ -1,5 +1,6 @@
 package com.tong.fpl;
 
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.HashBasedTable;
@@ -17,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -124,7 +126,7 @@ public class DBTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource("集合吧！FPL2021让让群小联赛, 1")
+	@CsvSource("这破游戏⚽️让让群姐妹联赛大乱斗, 1")
 	void teamSelect(String leagueName, int event) {
 		List<Integer> elementList = Lists.newArrayList();
 		this.teamSelectStatService.list(new QueryWrapper<TeamSelectStatEntity>().lambda()
@@ -147,7 +149,16 @@ public class DBTest extends FplApplicationTests {
 					elementList.add(o.getPosition14());
 					elementList.add(o.getPosition15());
 				});
-		elementList.stream().collect(Collectors.groupingBy(Integer::intValue));
+		Map<Integer, Long> map = elementList
+				.stream()
+				.collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
+		Map<Integer, Integer> result = map.entrySet()
+				.stream()
+				.sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+				.limit(20)
+				.collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
+		result.forEach((k, v) ->
+				System.out.println(this.playerService.getById(k).getWebName() + ": " + NumberUtil.div(v.intValue(), 113, 2) * 100 + "%"));
 		System.out.println(1);
 	}
 

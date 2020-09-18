@@ -153,4 +153,6 @@ public interface IQuerySerivce {
 
 	List<Integer> qryEntryListByTournament(int tournamentId);
 
+	PlayerEntity qryPlayerInfo(int element);
+
 }

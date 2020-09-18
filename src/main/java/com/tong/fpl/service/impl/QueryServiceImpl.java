@@ -660,4 +660,10 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.collect(Collectors.toList());
 	}
 
+	@Cacheable(value = "qryPlayerInfo", key = "#element", unless = "#result==null")
+	@Override
+	public PlayerEntity qryPlayerInfo(int element) {
+		return this.playerService.getById(element);
+	}
+
 }
