@@ -133,7 +133,7 @@ public class ReportServiceImpl implements IReportService {
         log.info("entryInfoDataList size:{}", entryInfoDataList.size());
         // async
         List<CompletableFuture<LeagueResultStatEntity>> future = entryInfoDataList.stream()
-                .map(o -> CompletableFuture.supplyAsync(() -> this.initEntryResultStat(event, o, elementPointsMap), new ForkJoinPool(10)))
+                .map(o -> CompletableFuture.supplyAsync(() -> this.initEntryResultStat(event, o, elementPointsMap), new ForkJoinPool(4)))
                 .collect(Collectors.toList());
         List<LeagueResultStatEntity> leagueResultStatList = future
                 .stream()

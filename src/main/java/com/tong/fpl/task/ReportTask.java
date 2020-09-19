@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -14,23 +15,20 @@ import java.util.Map;
  * Create by tong on 2020/9/16
  */
 @Slf4j
-//@Component
+@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
     private final IReportService reportService;
     private final IQuerySerivce querySerivce;
 
-    @Scheduled(cron = "0 0 19 * * *")
+    @Scheduled(cron = "0 45 19 * * *")
     public void insertLeagueResultStat() {
         log.info("start insertLeagueResultStat task");
         int event = this.querySerivce.getCurrentEvent();
         Map<Integer, Integer> map = Maps.newHashMap();
-        map.put(4089, 0);
         map.put(314, 10000);
         map.put(65, 0);
-        map.put(3571, 0);
-        map.put(11316, 0);
         map.keySet().forEach(leagueId -> {
             log.info("start insert:{}", leagueId);
             try {

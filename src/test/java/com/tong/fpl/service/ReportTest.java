@@ -19,7 +19,7 @@ public class ReportTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1, Classic, 65, 0"})
+    @CsvSource({"2, Classic, 3571, 0"})
     void insertLeagueResultStat(int event, String leagueType, int leagueId, int limit) {
         long startTime = System.currentTimeMillis();
         this.reportService.insertLeagueResultStat(event, leagueType, leagueId, limit);
@@ -29,7 +29,7 @@ public class ReportTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1, Classic, 314, 10000"})
+    @CsvSource({"2, Classic, 65, 0"})
     void inertTeamSelectStat(int event, String leagueType, int leagueId, int limit) {
         this.reportService.inertTeamSelectStat(event, leagueType, leagueId, limit);
         System.out.println(1);
