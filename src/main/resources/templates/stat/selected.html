@@ -48,12 +48,20 @@
             </form>
 
             <div style="margin-top: 50px"></div>
-            <h2 class="layui-hide" id="captainSelected">最多队长选择</h2>
-            <table class="layui-table" id="captainSelectTable" lay-filter="captainSelectTable"></table>
 
-            <div style="margin-top: 20px"></div>
-            <h2 class="layui-hide" id="viceCaptainSelected">最多副队长选择</h2>
-            <table class="layui-table" id="viceCaptainSelectTable" lay-filter="viceCaptainSelectTable"></table>
+            <div class="layui-row layui-col-space30">
+
+                <div class="layui-col-md6">
+                    <h2 class="layui-hide" id="captainSelected">最多队长选择</h2>
+                    <table class="layui-table" id="captainSelectTable" lay-filter="captainSelectTable"></table>
+                </div>
+
+                <div class="layui-col-md6">
+                    <h2 class="layui-hide" id="viceCaptainSelected">最多副队长选择</h2>
+                    <table class="layui-table" id="viceCaptainSelectTable" lay-filter="viceCaptainSelectTable"></table>
+                </div>
+
+            </div>
 
             <!--            <div style="margin-top: 20px"></div>-->
             <!--            <h2 class="layui-hide" id="transferIn">最多转入</h2>-->
@@ -127,10 +135,10 @@
                     table.render({
                         elem: '#captainSelectTable',
                         data: captainData,
-                        cellMinWidth: 50,
+                        cellMinWidth: 80,
                         cols: [[
-                            {title: '排名', type: 'numbers'},
-                            {field: 'webName', title: '球员', align: 'center'},
+                            {title: '排名', type: 'numbers', width: 50},
+                            {field: 'webName', title: '球员', align: 'center', width: 150},
                             {field: 'percent', title: '比例', align: 'center'}
                         ]],
                         id: 'captainSelectTable',
@@ -152,10 +160,10 @@
                     table.render({
                         elem: '#viceCaptainSelectTable',
                         data: viceCaptainData,
-                        cellMinWidth: 50,
+                        cellMinWidth: 80,
                         cols: [[
-                            {title: '排名', type: 'numbers'},
-                            {field: 'webName', title: '球员', align: 'center'},
+                            {title: '排名', type: 'numbers', width: 50},
+                            {field: 'webName', title: '球员', align: 'center', width: 150},
                             {field: 'percent', title: '比例', align: 'center'}
                         ]],
                         id: 'viceCaptainSelectTable',
@@ -265,7 +273,20 @@
                         cellMinWidth: 50,
                         cols: [[
                             {title: '排名', type: 'numbers'},
-                            {field: 'elementType', title: '位置', align: 'center'},
+                            {
+                                field: 'elementType', title: '位置', align: 'center', templet: function (d) {
+                                    switch (d.elementType) {
+                                        case "1":
+                                            return 'GKP';
+                                        case "2":
+                                            return 'DEF';
+                                        case "3":
+                                            return 'MID';
+                                        case "4":
+                                            return 'FWD';
+                                    }
+                                }
+                            },
                             {field: 'webName', title: '球员', align: 'center'},
                             {field: 'percent', title: '比例', align: 'center'}
                         ]],
