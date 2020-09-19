@@ -1,10 +1,14 @@
 package com.tong.fpl.task;
 
+import com.google.common.collect.Maps;
+import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+
+import java.util.Map;
 
 /**
  * Create by tong on 2020/9/16
@@ -14,17 +18,29 @@ import org.springframework.scheduling.annotation.Scheduled;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
-	private final IReportService reportService;
+    private final IReportService reportService;
+    private final IQuerySerivce querySerivce;
 
-	@Scheduled(cron = "0 27 19 * * *")
-	public void insertLeagueResultStat() {
-		log.info("start insertLeagueResultStat task");
-		try {
-			this.reportService.insertLeagueResultStat(1, "Classic", 314, 10000);
-		} catch (Exception e) {
-			log.error("insertLeagueResultStat task error:{}", e.getMessage());
-			this.insertLeagueResultStat();
-		}
-	}
+    @Scheduled(cron = "0 0 19 * * *")
+    public void insertLeagueResultStat() {
+        log.info("start insertLeagueResultStat task");
+        int event = this.querySerivce.getCurrentEvent();
+        Map<Integer, Integer> map = Maps.newHashMap();
+        map.put(4089, 0);
+        map.put(314, 10000);
+        map.put(65, 0);
+        map.put(3571, 0);
+        map.put(11316, 0);
+        map.keySet().forEach(leagueId -> {
+            log.info("start insert:{}", leagueId);
+            try {
+                this.reportService.inertTeamSelectStat(event, "Classic", leagueId, map.get(leagueId));
+                log.info("end insert:{}", leagueId);
+            } catch (Exception e) {
+                log.error("insert:{}, error:{}", leagueId, e.getMessage());
+                this.insertLeagueResultStat();
+            }
+        });
+    }
 
 }
