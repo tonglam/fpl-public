@@ -11,14 +11,14 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class LeagueData {
+public class LeagueInfoData {
 
-	List<EntryInfoData> entryInfoList;
-	private int id;
-	private String type;
-	private String name;
-	private String created;
-	private int adminEntry;
-	private int startEvent;
+    List<EntryInfoData> entryInfoList;
+    private int id;
+    private String type;
+    private String name;
+    private String created;
+    private int adminEntry;
+    private int startEvent;
 
 }

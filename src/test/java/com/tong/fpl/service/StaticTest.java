@@ -2,7 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
-import com.tong.fpl.domain.letletme.league.LeagueData;
+import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class StaticTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"3571, 50"})
 	void getEntryInfoListFromClassicByLimit(int classicId, int limit) {
-		LeagueData leagueData = this.staticSerive.getEntryInfoListFromClassicByLimit(classicId, limit);
+		LeagueInfoData leagueInfoData = this.staticSerive.getEntryInfoListFromClassicByLimit(classicId, limit);
 		System.out.println(1);
 	}
 

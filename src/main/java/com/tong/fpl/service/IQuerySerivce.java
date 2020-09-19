@@ -145,14 +145,16 @@ public interface IQuerySerivce {
 
 	PlayerStatEntity getPlayerStatByElement(String season, int element);
 
-	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
+    List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 
-	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
+    Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
-	Map<String, String> getPositionMap();
+    Map<String, String> getPositionMap();
 
-	List<Integer> qryEntryListByTournament(int tournamentId);
+    List<Integer> qryEntryListByTournament(int tournamentId);
 
-	PlayerEntity qryPlayerInfo(int element);
+    PlayerEntity qryPlayerInfo(int element);
+
+    List<String> qryTeamSelectStatList();
 
 }

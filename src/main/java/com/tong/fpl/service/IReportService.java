@@ -1,6 +1,6 @@
 package com.tong.fpl.service;
 
-import java.util.LinkedHashMap;
+import com.tong.fpl.domain.letletme.league.LeagueStatData;
 
 /**
  * Create by tong on 2020/9/2
@@ -13,6 +13,6 @@ public interface IReportService {
 
 	void inertTeamSelectStat(int event, String leagueType, int leagueId, int limit);
 
-	LinkedHashMap<String, String> getTopSelectedMap(String leagueName, int event, boolean budge);
+	LeagueStatData getLeagueStatData(String leagueName, int event);
 
 }

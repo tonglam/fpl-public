@@ -2,7 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
-import com.tong.fpl.domain.letletme.league.LeagueData;
+import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,9 +18,9 @@ public interface IStaticSerive {
 
     List<EntryInfoData> getEntryInfoListFromH2h(int h2hId);
 
-    LeagueData getEntryInfoListFromClassicByLimit(int classicId, int limit);
+    LeagueInfoData getEntryInfoListFromClassicByLimit(int classicId, int limit);
 
-    LeagueData getEntryInfoListFromH2hByLimit(int h2hId, int limit);
+    LeagueInfoData getEntryInfoListFromH2hByLimit(int h2hId, int limit);
 
     Optional<UserHistoryRes> getUserHistory(int entry);
 

@@ -18,11 +18,13 @@ import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.TableData;
+import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -52,6 +54,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 
     private final IQuerySerivce querySerivce;
     private final ILiveService liveService;
+    private final IReportService reportService;
     private final PlayerService playerService;
     private final EventLiveService eventLiveService;
     private final EntryInfoService entryInfoService;
@@ -513,6 +516,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     list.add(tournamentGroupData);
                 });
         return new TableData<>(list);
+    }
+
+    @Override
+    public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
+        LeagueStatData leagueStatData = this.reportService.getLeagueStatData(leagueName, event);
+        if (leagueStatData == null) {
+            return new TableData<>();
+        }
+        return new TableData<>(leagueStatData);
     }
 
 }

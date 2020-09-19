@@ -6,6 +6,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.TableData;
+import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.*;
@@ -46,5 +47,7 @@ public interface ITableQueryService {
     TableData<TournamentInfoData> qryEntryPointsGroupTournamentList(int entry);
 
     TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event);
+
+    TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
 
 }
