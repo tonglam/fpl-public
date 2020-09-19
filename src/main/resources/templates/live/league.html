@@ -89,20 +89,15 @@
                 return false;
             }
             // 增加标签页
+            let tableId = 'live' + tournamentId + 'Table';
             element.tabAdd('leagueTab', {
                 title: name,
-                content: '<table class="layui-table" id="liveLeagueTable" lay-filter="liveLeagueTable"></table>',
+                content: '<table class="layui-table" id="' + tableId + '" lay-filter="liveLeagueTable"></table>',
                 id: tournamentId
             });
             // 切换
             element.tabChange('leagueTab', tournamentId);
-        });
-
-        element.on('tab(leagueTab)', function () {
-            let tournamentId = $(this).attr("lay-id");
-            if (tournamentId == null || tournamentId == 'base') {
-                return false;
-            }
+            // 渲染
             let loadIndex = layer.msg("计算中，请稍等", {time: false});
             axios.get('/live/qryTournamentLivePoints', {
                 params: {
@@ -111,7 +106,7 @@
             })
                 .then(function (response) {
                     table.render({
-                        elem: '#liveLeagueTable',
+                        elem: '#' + tableId,
                         data: response.data,
                         limit: 200,
                         loading: true,
@@ -154,7 +149,7 @@
                         done: function () {
                             soulTable.render(this);
                         },
-                        id: 'liveLeagueTable'
+                        id: tableId
                     });
                     layer.close(loadIndex);
                 })
@@ -162,6 +157,7 @@
                     console.info(error.message);
                     layer.close(loadIndex);
                 });
+
         });
 
     });
