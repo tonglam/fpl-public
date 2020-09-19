@@ -641,7 +641,6 @@ public class QueryServiceImpl implements IQuerySerivce {
         return this.redisCacheSerive.getPlayerValueByChangeDay(changeDay);
     }
 
-    @Cacheable(value = "getEventLiveByEvent", key = "#event", unless = "#result == null")
     @Override
     public Map<String, EventLiveEntity> getEventLiveByEvent(int event) {
         return this.redisCacheSerive.getEventLiveByEvent(event);
