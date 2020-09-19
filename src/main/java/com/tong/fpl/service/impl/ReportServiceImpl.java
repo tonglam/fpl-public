@@ -216,7 +216,7 @@ public class ReportServiceImpl implements IReportService {
         List<CompletableFuture<TeamSelectStatEntity>> future = entryInfoDataList.stream()
                 .map(o ->
                         CompletableFuture.supplyAsync(() ->
-                                this.initEntryTeamSelectStat(event, o.getEntry(), leagueInfoData.getName()), new ForkJoinPool(50)))
+                                this.initEntryTeamSelectStat(event, o.getEntry(), leagueInfoData.getName())))
                 .collect(Collectors.toList());
         List<TeamSelectStatEntity> teamSelectStatList = future
                 .stream()

@@ -553,7 +553,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
         RedisUtils.removeCacheByKey(key);
         eventLiveList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
-	    RedisUtils.pipelineHashCache(cacheMap, 7, TimeUnit.DAYS);
+        RedisUtils.pipelineHashCache(cacheMap, 7, TimeUnit.DAYS);
     }
 
     @Override
@@ -609,6 +609,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
             String deadline = this.getDeadlineByEvent(i);
             if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
                 event = i;
+            } else {
                 break;
             }
         }
@@ -622,6 +623,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
             String deadline = this.getDeadlineByEvent(i);
             if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
                 event = i;
+            } else {
                 break;
             }
         }
