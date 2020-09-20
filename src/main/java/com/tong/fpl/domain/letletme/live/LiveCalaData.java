@@ -29,6 +29,8 @@ public class LiveCalaData {
     private int livePoints;
     private int transferCost;
     private int liveNetPoints;
+    private long played;
+    private long toPlay;
     private boolean eventFinished;
 
 }

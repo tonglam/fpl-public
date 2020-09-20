@@ -98,7 +98,7 @@
             // 切换
             element.tabChange('leagueTab', tournamentId);
             // 渲染
-            let loadIndex = layer.msg("计算中，请稍等", {time: false});
+            let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
             axios.get('/live/qryTournamentLivePoints', {
                 params: {
                     tournamentId: tournamentId

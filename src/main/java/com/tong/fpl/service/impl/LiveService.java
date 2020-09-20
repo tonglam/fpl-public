@@ -135,6 +135,9 @@ public class LiveService implements ILiveService {
                                                    Map<String, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap, Map<String, EventLiveEntity> eventLiveMap, ForkJoinPool forkJoinPool) {
         // get user pick
         UserPicksRes userPicksRes = this.querySerivce.getUserPicks(event, entry);
+        if (CollectionUtils.isEmpty(userPicksRes.getPicks())) {
+            return new LiveCalaData();
+        }
         // initialize element_live_data, static part
         List<ElementEventResultData> elementEventResultDataList = this.qryEntryLiveStaticData(event, userPicksRes.getPicks(), playerInfoMap, positionMap, teamLiveFixtureMap, forkJoinPool);
         // initialize element_live_data, event_live part
@@ -155,7 +158,15 @@ public class LiveService implements ILiveService {
                 .setChip(userPicksRes.getActiveChip())
                 .setLivePoints(livePoints)
                 .setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
-                .setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost());
+                .setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost())
+                .setToPlay(pickList
+                        .stream()
+                        .filter(o -> o.isPickAvtive() && !o.isPlayed())
+                        .count())
+                .setPlayed(pickList
+                        .stream()
+                        .filter(o -> o.isPickAvtive() && o.isPlayed())
+                        .count());
     }
 
     public List<ElementEventResultData> qryEntryLiveStaticData(int event, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<String, String> positionMap,
@@ -193,6 +204,7 @@ public class LiveService implements ILiveService {
             elementEventResultData
                     .setElementType(playerEntity.getElementType())
                     .setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
+                    .setPrice(playerEntity.getPrice())
                     .setWebName(playerEntity.getWebName());
             // event fixture
             int teamId = playerEntity.getTeamId();

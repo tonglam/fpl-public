@@ -97,7 +97,7 @@
                                     title: 'team',
                                     icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                                     align: 'center',
-                                    width: 100,
+                                    width: 120,
                                     children: [
                                         {
                                             title: '',
@@ -182,6 +182,8 @@
                                     align: 'center',
                                     width: 100
                                 },
+                                {field: 'played', title: '已上场', align: 'center'},
+                                {field: 'toPlay', title: '未上场', align: 'center'},
                                 {
                                     field: 'eventFinished',
                                     title: 'GW已结束',
@@ -285,6 +287,11 @@
                                             ];
                                         }
                                     },
+                                },
+                                {
+                                    field: 'price', title: '身价', align: 'center', templet(d) {
+                                        return parseInt(d.price) / 10 + 'm';
+                                    }
                                 },
                                 {
                                     field: 'elementTypeName', title: '位置', align: 'center', templet: function (d) {

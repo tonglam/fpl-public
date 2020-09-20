@@ -15,6 +15,7 @@ public class ElementEventResultData {
 	private int event;
 	private int element;
 	private String webName;
+	private int price;
 	private int elementType;
 	private String elementTypeName;
 	private int teamId;
