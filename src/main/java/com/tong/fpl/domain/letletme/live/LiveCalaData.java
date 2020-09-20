@@ -18,6 +18,12 @@ public class LiveCalaData {
     private String entryName;
     private String playerName;
     private String region;
+    private int startedEvent;
+    private int overallPoints;
+    private int overallRank;
+    private int bank;
+    private int teamValue;
+    private int totalTransfers;
     private List<ElementEventResultData> pickList;
     private String chip;
     private int livePoints;

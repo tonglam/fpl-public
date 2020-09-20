@@ -19,8 +19,10 @@ public class ElementEventResultData {
 	private String elementTypeName;
 	private int teamId;
 	private String teamName;
-	private int againstTeamId;
-	private String againstTeamName;
+	private String teamShortName;
+	private int againstId;
+	private String againstName;
+	private String againstShortName;
 	private int position;
 	private int multiplier;
 	private boolean isCaptain;
@@ -29,6 +31,8 @@ public class ElementEventResultData {
 	private boolean isGwFinished;
 	private boolean isPlayed;
 	private int playStatus;
+	private String wasHome;
+	private String score;
 	private int minutes;
 	private int goalsScored;
 	private int assists;

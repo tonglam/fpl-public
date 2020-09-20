@@ -182,7 +182,7 @@ public class UpdateEventResultsServiceImpl implements IUpdateEventResultsService
 		});
 		// update
 		this.tournamentGroupService.updateBatchById(updateGroupList);
-		this.tournamentPointsGroupResultService.saveOrUpdateBatch(updateGroupPointsResultList);
+		this.tournamentPointsGroupResultService.updateBatchById(updateGroupPointsResultList);
 	}
 
 	@Override

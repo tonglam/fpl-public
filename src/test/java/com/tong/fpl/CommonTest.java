@@ -46,8 +46,9 @@ public class CommonTest extends FplApplicationTests {
 
     @Test
     void test() {
-        int event = this.querySerivce.getCurrentEvent();
-        System.out.println(event);
+        int a = 1971182;
+        System.out.println();
+        System.out.println(1);
 
     }
 

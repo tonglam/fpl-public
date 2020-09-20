@@ -21,43 +21,47 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveController {
 
-	private final ILiveApi liveApi;
+    private final ILiveApi liveApi;
 
-	@RequestMapping(value = "/entry")
-	public String entryController() {
-		return "live/entry";
-	}
+    @RequestMapping(value = "/entry")
+    public String entryController() {
+        return "live/entry";
+    }
 
-	@RequestMapping(value = "/league")
-	public String leagueController() {
-		return "live/league";
-	}
+    @RequestMapping(value = "/league")
+    public String leagueController() {
+        return "live/league";
+    }
 
-	@RequestMapping(value = "/saveLiveEntry")
-	@ResponseBody
-	public void saveLiveEntry(@RequestParam int liveEntry, HttpSession session) {
-		session.setAttribute("liveEntry", liveEntry);
-	}
+    @RequestMapping(value = "/saveLiveEntry")
+    @ResponseBody
+    public void saveLiveEntry(@RequestParam int liveEntry, HttpSession session) {
+        session.setAttribute("liveEntry", liveEntry);
+    }
 
-	@GetMapping("/qryEntryLivePoints")
-	@ResponseBody
-	public TableData<LiveCalaData> qryEntryLivePoints(HttpSession session) {
-		int entry = 0;
-		if (session.getAttribute("liveEntry") != null) {
-			entry = (int) session.getAttribute("liveEntry");
-		} else if (session.getAttribute("entry") != null) {
-			entry = (int) session.getAttribute("entry");
-		}
-		if (entry == 0) {
-			return new TableData<>();
-		}
-		return this.liveApi.qryEntryLivePoints(entry);
-	}
+    @GetMapping("/qryEntryLivePoints")
+    @ResponseBody
+    public TableData<LiveCalaData> qryEntryLivePoints(HttpSession session) {
+        int entry = this.getLiveEntry(session);
+        if (entry == 0) {
+            return new TableData<>(new LiveCalaData());
+        }
+        return this.liveApi.qryEntryLivePoints(entry);
+    }
 
-	@GetMapping("/qryTournamentLivePoints")
-	@ResponseBody
-	public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
-		return this.liveApi.qryTournamentLivePoints(tournamentId);
-	}
+    private int getLiveEntry(HttpSession session) {
+        if (session.getAttribute("liveEntry") != null) {
+            return (int) session.getAttribute("liveEntry");
+        } else if (session.getAttribute("entry") != null) {
+            return (int) session.getAttribute("entry");
+        }
+        return 0;
+    }
+
+    @GetMapping("/qryTournamentLivePoints")
+    @ResponseBody
+    public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
+        return this.liveApi.qryTournamentLivePoints(tournamentId);
+    }
 
 }

@@ -10,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MatchPlayStatus {
 
-	Playing(0), Not_Start(1), Finished(2), Event_Not_Finished(3), Blank(4);
+    Playing(0), Finished(1), Not_Start(2), Event_Not_Finished(3), Blank(4);
 
-	private final int status;
+    private final int status;
 }
