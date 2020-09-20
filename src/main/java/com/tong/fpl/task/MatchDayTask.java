@@ -27,6 +27,7 @@ public class MatchDayTask {
         int event = this.querySerivce.getCurrentEvent();
         this.redisCacheSerive.insertEventLiveCache(event);
         this.redisCacheSerive.insertSingleEventFixtureCache(event);
+        this.redisCacheSerive.insertLiveFixtureCache();
     }
 
 }
