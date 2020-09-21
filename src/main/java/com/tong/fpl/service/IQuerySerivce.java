@@ -23,18 +23,6 @@ import java.util.Map;
  */
 public interface IQuerySerivce {
 
-	default Map<Integer, PlayerEntity> qryAllPlayerList() {
-		return this.qryAllPlayerList(CommonUtils.getCurrentSeason());
-	}
-
-	Map<Integer, PlayerEntity> qryAllPlayerList(String season);
-
-	default Map<Integer, PlayerStatEntity> qryAllPlayerStatList() {
-		return this.qryAllPlayerStatList(CommonUtils.getCurrentSeason());
-	}
-
-	Map<Integer, PlayerStatEntity> qryAllPlayerStatList(String season);
-
 	default int qryPlayerElementByCode(int code) {
 		return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
 	}
@@ -101,17 +89,15 @@ public interface IQuerySerivce {
 
 	Map<String, String> getTeamShortNameMap(String season);
 
-	default Map<String, String> getDeadlineMap() {
-		return this.getDeadlineMap(CommonUtils.getCurrentSeason());
-	}
-
-	Map<String, String> getDeadlineMap(String season);
-
 	default String getDeadlineByEvent(int event) {
 		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
 	}
 
 	String getDeadlineByEvent(String season, int event);
+
+	List<String> getMatchDayByEvent(int event);
+
+	boolean isMatchDay(int event);
 
 	default List<EventFixtureEntity> getEventFixtureByEvent(int event) {
 		return this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event);
@@ -124,12 +110,6 @@ public interface IQuerySerivce {
 	}
 
 	Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
-
-	default List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(int teamId, int event) {
-		return this.getEventFixtureByTeamIdAndEvent(CommonUtils.getCurrentSeason(), teamId, event);
-	}
-
-	List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event);
 
 	Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
 
@@ -145,16 +125,16 @@ public interface IQuerySerivce {
 
 	PlayerStatEntity getPlayerStatByElement(String season, int element);
 
-    List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
+	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 
-    Map<String, EventLiveEntity> getEventLiveByEvent(int event);
+	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
-    Map<String, String> getPositionMap();
+	Map<String, String> getPositionMap();
 
-    List<Integer> qryEntryListByTournament(int tournamentId);
+	List<Integer> qryEntryListByTournament(int tournamentId);
 
-    PlayerEntity qryPlayerInfo(int element);
+	List<String> qryTeamSelectStatList();
 
-    List<String> qryTeamSelectStatList();
+	Map<String, Map<String, Integer>> getLiveBonusCacheMap();
 
 }

@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 /**
  * Create by tong on 2020/7/21
  */
@@ -18,16 +16,30 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MatchDayTask {
 
-    private final IQuerySerivce querySerivce;
-    private final IRedisCacheSerive redisCacheSerive;
+	private final IQuerySerivce querySerivce;
+	private final IRedisCacheSerive redisCacheSerive;
 
-    @Scheduled(cron = "0 0/5 0-6,19-23 * * *")
-    public void insertEventLiveCache() {
-        log.info("start insertEventLiveCache task, time:{}", LocalDateTime.now());
-        int event = this.querySerivce.getCurrentEvent();
-        this.redisCacheSerive.insertEventLiveCache(event);
-        this.redisCacheSerive.insertSingleEventFixtureCache(event);
-        this.redisCacheSerive.insertLiveFixtureCache();
-    }
+	@Scheduled(cron = "0 0/5 0-6,19-23 * * *")
+	public void insertEventLiveCache() {
+		int event = this.querySerivce.getCurrentEvent();
+		if (!this.querySerivce.isMatchDay(event)) {
+			return;
+		}
+		log.info("start true insertEventLiveCache task");
+		this.redisCacheSerive.insertEventLiveCache(event);
+		this.redisCacheSerive.insertLiveBonusCache();
+		this.redisCacheSerive.insertSingleEventFixtureCache(event);
+		this.redisCacheSerive.insertLiveFixtureCache();
+	}
+
+	@Scheduled(cron = "0 0 9 * * *")
+	public void insertEventLive() {
+		int event = this.querySerivce.getCurrentEvent();
+		if (!this.querySerivce.isMatchDay(event)) {
+			return;
+		}
+		log.info("start true insertEventLive task");
+		this.redisCacheSerive.insertEventLive(event);
+	}
 
 }

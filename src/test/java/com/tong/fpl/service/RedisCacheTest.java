@@ -116,6 +116,12 @@ public class RedisCacheTest extends FplApplicationTests {
 	}
 
 	@Test
+	void inserLiveBonusCache() {
+		this.redisCacheSerive.insertLiveBonusCache();
+		System.out.println(1);
+	}
+
+	@Test
 	void insertPosition() {
 		this.redisCacheSerive.insertPosition();
 	}
@@ -205,6 +211,12 @@ public class RedisCacheTest extends FplApplicationTests {
 	@Test
 	void getPositionMap() {
 		Map<String, String> map = this.redisCacheSerive.getPositionMap();
+		System.out.println(1);
+	}
+
+	@Test
+	void getLiveBonusCacheMap() {
+		Map<String, Map<String, Integer>> map = this.redisCacheSerive.getLiveBonusCacheMap();
 		System.out.println(1);
 	}
 

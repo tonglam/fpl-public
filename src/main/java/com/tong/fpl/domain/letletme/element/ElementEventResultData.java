@@ -24,6 +24,8 @@ public class ElementEventResultData {
 	private int againstId;
 	private String againstName;
 	private String againstShortName;
+	private String wasHome;
+	private String score;
 	private int position;
 	private int multiplier;
 	private boolean isCaptain;
@@ -32,8 +34,6 @@ public class ElementEventResultData {
 	private boolean isGwFinished;
 	private boolean isPlayed;
 	private int playStatus;
-	private String wasHome;
-	private String score;
 	private int minutes;
 	private int goalsScored;
 	private int assists;

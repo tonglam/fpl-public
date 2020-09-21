@@ -3,10 +3,10 @@ package com.tong.fpl.log;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Create by tong on 2020/5/8
+ * Create by tong on 2020/9/21
  */
 @Slf4j
-public class ControllerLog {
+public class TaskLog {
 
 	public static void info(String message) {
 		log.info(message);

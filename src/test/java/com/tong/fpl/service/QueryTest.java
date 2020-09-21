@@ -89,4 +89,18 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"1"})
+	void getMatchDayByEvent(int event) {
+		List<String> list = this.querySerivce.getMatchDayByEvent(event);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"2"})
+	void isMatchDay(int event) {
+		boolean a = this.querySerivce.isMatchDay(event);
+		System.out.println(1);
+	}
+
 }

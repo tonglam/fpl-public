@@ -1,6 +1,7 @@
 package com.tong.fpl.task;
 
 import com.tong.fpl.service.IRedisCacheSerive;
+import com.tong.fpl.service.IUpdateEventResultsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,19 +16,30 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DailyTask {
 
-    private final IRedisCacheSerive redisCacheSerive;
+	private final IRedisCacheSerive redisCacheSerive;
+	private final IUpdateEventResultsService updateEventResultsService;
 
-    @Scheduled(cron = "0 30 9 * * *")
-    public void refreshPlayerValue() {
-        try {
-            this.redisCacheSerive.insertPlayer();
-            this.redisCacheSerive.insertPlayerStat();
-            this.redisCacheSerive.insertPlayerValue();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            this.refreshPlayerValue();
-        }
-    }
+	@Scheduled(cron = "0 30 9 * * *")
+	public void refreshPlayerValue() {
+		try {
+			this.redisCacheSerive.insertPlayer();
+			this.redisCacheSerive.insertPlayerStat();
+			this.redisCacheSerive.insertPlayerValue();
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			this.refreshPlayerValue();
+		}
+	}
+
+	@Scheduled(cron = "0 35 9 * * *")
+	public void updateEntryInfo() {
+		try {
+			this.updateEventResultsService.updateEntryInfo();
+		} catch (Exception e) {
+			log.error(e.getMessage());
+			this.refreshPlayerValue();
+		}
+	}
 
 }
 

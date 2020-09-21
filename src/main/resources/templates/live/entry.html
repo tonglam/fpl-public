@@ -30,8 +30,8 @@
                     </div>
                     <label class="layui-form-label">自动刷新</label>
                     <div class="layui-input-inline">
-                        <input checked lay-filter="refreshSwitch" lay-skin="switch"
-                               lay-text="开|关" name="refreshSwitch" title="aaaa" type="checkbox">
+                        <input checked lay-filter="refreshSwitch" lay-skin="switch" lay-text="开|关" name="refreshSwitch"
+                               type="checkbox">
                     </div>
                     <div class="layui-form-mid layui-word-aux" style="margin-left: -120px">开启后每5分钟自动刷新</div>
                 </div>
@@ -60,6 +60,7 @@
             let refreshTimeout = setTimeout(refresh, 300000);
 
             let entryInputDom = $("input[name=entryInput]");
+            let entryButtonDom = $("#entryButton");
 
             soulTable.config({
                 drag: false,
@@ -72,6 +73,7 @@
 
             $(document).ready(function () {
                 let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+                entryButtonDom.attr("disabled", "disabled");
 
                 let now = new Date().toLocaleTimeString();
                 $("#headTitle").html("实时得分-" + now);
@@ -79,6 +81,7 @@
                 axios.get('/live/qryEntryLivePoints')
                     .then(function (response) {
                         layer.close(loadIndex);
+                        entryButtonDom.removeAttr("disabled");
 
                         let liveEntryData = [];
                         if (response.data[0].entry != 0) {
@@ -304,15 +307,7 @@
                                 },
                                 {field: 'teamShortName', title: '球队', align: 'center'},
                                 {field: 'againstShortName', title: '对手', align: 'center'},
-                                {
-                                    field: 'wasHome', title: '主场', align: 'center', templet: function (d) {
-                                        if (d.wasHome == '1') {
-                                            return '是';
-                                        } else if (d.wasHome == '0') {
-                                            return '否';
-                                        }
-                                    }
-                                },
+                                {field: 'wasHome', title: '主场', align: 'center'},
                                 {field: 'score', title: '比分', align: 'center'},
                                 {field: 'minutes', title: '时间', align: 'center'},
                                 {field: 'totalPoints', title: '分数', align: 'center'},
@@ -339,9 +334,6 @@
                                 soulTable.render(this);
                                 let that = this.elem.next();
                                 res.data.forEach(function (d, index) {
-                                    if (d.multiplier == 0) {
-                                        setTableRowColor(that, index, "red");
-                                    }
                                     if (d.pickAvtive == false) {
                                         setTableRowColor(that, index, "#e2e2e2");
                                     } else {
@@ -356,7 +348,7 @@
                     });
             });
 
-            $("#entryButton").on('click', function () {
+            entryButtonDom.on('click', function () {
                 // 保存查询的entry
                 let liveEntry = 0;
                 let entryInput = entryInputDom.val();
@@ -383,6 +375,7 @@
 
         function reloadTable() {
             let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+            entryButtonDom.attr("disabled", "disabled");
 
             let now = new Date().toLocaleTimeString();
             $("#headTitle").html("实时得分-" + now);
@@ -390,6 +383,7 @@
             axios.get('/live/qryEntryLivePoints')
                 .then(function (response) {
                     layer.close(loadIndex);
+                    $("#entryButton").removeAttr("disabled");
 
                     table.reload('liveEntryTable', {
                         data: response.data
@@ -411,7 +405,7 @@
             }
         });
 
-        entryInputDom.on('keydown', function (event) {
+            entryInputDom.on('keydown', function (event) {
                 if (event.keyCode == 13) {
                     return false;
                 }

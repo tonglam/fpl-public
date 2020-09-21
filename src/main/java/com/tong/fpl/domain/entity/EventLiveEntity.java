@@ -18,9 +18,9 @@ public class EventLiveEntity {
 	private int element;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY)
 	private int elementType;
+	private int teamId;
 	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private int event;
-	private String wasHome;
 	private int minutes;
 	private int goalsScored;
 	private int assists;

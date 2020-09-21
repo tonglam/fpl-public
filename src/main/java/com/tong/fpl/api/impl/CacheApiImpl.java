@@ -24,28 +24,13 @@ public class CacheApiImpl implements ICacheApi {
     }
 
     @Override
-    public void insertHisTeam(String season) {
-        this.redisCacheSerive.insertHisTeam(season);
-    }
-
-    @Override
     public void insertEvent() {
         this.redisCacheSerive.insertEvent();
     }
 
     @Override
-    public void insertHisEvent(String season) {
-        this.redisCacheSerive.insertHisEvent(season);
-    }
-
-    @Override
     public void insertEventFixture() {
         this.redisCacheSerive.insertEventFixture();
-    }
-
-    @Override
-    public void insertHisEventFixture(String season) {
-        this.redisCacheSerive.insertHisEventFixture(season);
     }
 
     @Override
@@ -59,18 +44,8 @@ public class CacheApiImpl implements ICacheApi {
     }
 
     @Override
-    public void insertHisPlayer(String season) {
-        this.redisCacheSerive.insertHisPlayer(season);
-    }
-
-    @Override
     public void insertPlayerStat() {
         this.redisCacheSerive.insertPlayerStat();
-    }
-
-    @Override
-    public void insertHisPlayerStat(String season) {
-        this.redisCacheSerive.insertHisPlayerStat(season);
     }
 
     @Override

@@ -61,9 +61,23 @@ public class DBTest extends FplApplicationTests {
 
 	@Test
 	void dynamic() {
+		List<EntryPickData> pickList = Lists.newArrayList();
 		MybatisPlusConfig.season.set("1920");
-		List<EntryInfoEntity> entryInfoEntity = this.entryInfoService.list();
-		System.out.println(1);
+		List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, 130889)
+				.gt(EntryEventResultEntity::getEventPoints, 0));
+		entryEventResultEntityList.forEach(o ->
+				pickList.addAll(this.querySerivce.qryPickListFromPicks("1920", o.getEventPicks())));
+		Map<String, Long> groupingMap = pickList
+				.stream()
+				.collect(Collectors.groupingBy(EntryPickData::getWebName, Collectors.counting()));
+		Map<String, Integer> result = groupingMap.entrySet()
+				.stream()
+				.sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+				.limit(10)
+				.collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
+		result.forEach((k, v) -> System.out.println(k + " , 次数: " + v));
+//		System.out.println(1);
 	}
 
 	@Test

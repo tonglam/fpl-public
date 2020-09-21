@@ -7,25 +7,15 @@ public interface ICacheApi {
 
     void insertTeam();
 
-    void insertHisTeam(String season);
-
     void insertEvent();
 
-    void insertHisEvent(String season);
-
     void insertEventFixture();
-
-    void insertHisEventFixture(String season);
 
     void insertSingleEventFixture(int event);
 
     void insertPlayer();
 
-    void insertHisPlayer(String season);
-
     void insertPlayerStat();
-
-    void insertHisPlayerStat(String season);
 
     void insertPlayerValue();
 

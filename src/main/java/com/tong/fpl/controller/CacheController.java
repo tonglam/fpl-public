@@ -30,16 +30,6 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertHisTeam")
-	@ResponseBody
-	public void insertHisTeam(@RequestParam String token, @RequestParam String season) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertHisTeam(season);
-	}
-
-	@TraceHttpCall
 	@GetMapping("/insertEvent")
 	@ResponseBody
 	public void insertEvent(@RequestParam String token) {
@@ -50,16 +40,6 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertHisEvent")
-	@ResponseBody
-	public void insertHisEvent(@RequestParam String token, @RequestParam String season) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertHisEvent(season);
-	}
-
-	@TraceHttpCall
 	@GetMapping("/insertEventFixture")
 	@ResponseBody
 	public void insertEventFixture(@RequestParam String token) {
@@ -67,16 +47,6 @@ public class CacheController {
 			return;
 		}
 		this.cacheApi.insertEventFixture();
-	}
-
-	@TraceHttpCall
-	@GetMapping("/insertHisEventFixture")
-	@ResponseBody
-	public void insertHisEventFixture(@RequestParam String token, @RequestParam String season) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertHisEventFixture(season);
 	}
 
 	@TraceHttpCall
@@ -100,16 +70,6 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertHisPlayer")
-	@ResponseBody
-	public void insertHisPlayer(@RequestParam String token, @RequestParam String season) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertHisPlayer(season);
-	}
-
-	@TraceHttpCall
 	@GetMapping("/insertPlayerStat")
 	@ResponseBody
 	public void insertPlayerStat(@RequestParam String token) {
@@ -117,16 +77,6 @@ public class CacheController {
 			return;
 		}
 		this.cacheApi.insertPlayerStat();
-	}
-
-	@TraceHttpCall
-	@GetMapping("/insertHisPlayerStat")
-	@ResponseBody
-	public void insertHisPlayerStat(@RequestParam String token, @RequestParam String season) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertHisPlayerStat(season);
 	}
 
 	@TraceHttpCall
@@ -162,6 +112,5 @@ public class CacheController {
 	private boolean checkToken(String token) {
 		return !StringUtils.equals(token, acessToken);
 	}
-
 
 }

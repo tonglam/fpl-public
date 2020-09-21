@@ -7,6 +7,7 @@ import com.tong.fpl.service.IQuerySerivce;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -46,10 +47,9 @@ public class CommonTest extends FplApplicationTests {
 
     @Test
     void test() {
-        int a = 1971182;
-        System.out.println();
+        LocalDate date = LocalDate.now();
+        System.out.println(date.toString());
         System.out.println(1);
-
     }
 
 
