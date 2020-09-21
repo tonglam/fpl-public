@@ -3,7 +3,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="layout::header(~{::title},~{})">
-    <title>实时得分-实时结果-letletme</title>
+    <title>得分-实时结果-letletme</title>
 </head>
 
 <body>
@@ -76,7 +76,7 @@
                 entryButtonDom.attr("disabled", "disabled");
 
                 let now = new Date().toLocaleTimeString();
-                $("#headTitle").html("实时得分-" + now);
+                $("#headTitle").html("实时得分-刷新时间：" + now);
 
                 axios.get('/live/qryEntryLivePoints')
                     .then(function (response) {
@@ -159,17 +159,8 @@
                                         }
                                     ]
                                 },
-                                {field: 'entryName', title: '队伍名字', align: 'center', width: 200},
-                                {field: 'playerName', title: '玩家名字', align: 'center', width: 200},
-                                {
-                                    field: 'chip', title: '开卡', align: 'center', templet: function (d) {
-                                        if (d.chip == null) {
-                                            return "无";
-                                        } else {
-                                            return d.chip;
-                                        }
-                                    }
-                                },
+                                {field: 'entryName', title: '队伍名字', align: 'center', width: 150},
+                                {field: 'playerName', title: '玩家名字', align: 'center', width: 150},
                                 {
                                     field: 'livePoints',
                                     title: '实时得分',
@@ -187,6 +178,22 @@
                                 },
                                 {field: 'played', title: '已上场', align: 'center'},
                                 {field: 'toPlay', title: '未上场', align: 'center'},
+                                {
+                                    field: 'liveTotalPoints',
+                                    title: '实时总分',
+                                    style: 'background-color: #5FB878; color: #fff;',
+                                    align: 'center',
+                                    width: 100
+                                },
+                                {
+                                    field: 'chip', title: '开卡', align: 'center', templet: function (d) {
+                                        if (d.chip == null) {
+                                            return "无";
+                                        } else {
+                                            return d.chip;
+                                        }
+                                    }
+                                },
                                 {
                                     field: 'eventFinished',
                                     title: 'GW已结束',
@@ -297,7 +304,11 @@
                                     }
                                 },
                                 {
-                                    field: 'elementTypeName', title: '位置', align: 'center', templet: function (d) {
+                                    field: 'elementTypeName',
+                                    title: '位置',
+                                    align: 'center',
+                                    filter: true,
+                                    templet: function (d) {
                                         if (d.elementType == 1) {
                                             return '<span style="background-color: #5FB878">' + d.elementTypeName + '</span>';
                                         } else {
@@ -305,16 +316,26 @@
                                         }
                                     }
                                 },
-                                {field: 'teamShortName', title: '球队', align: 'center'},
+                                {field: 'teamShortName', title: '球队', align: 'center', filter: true},
                                 {field: 'againstShortName', title: '对手', align: 'center'},
-                                {field: 'wasHome', title: '主场', align: 'center'},
+                                {field: 'wasHome', title: '主场', align: 'center', filter: true},
                                 {field: 'score', title: '比分', align: 'center'},
-                                {field: 'minutes', title: '时间', align: 'center'},
-                                {field: 'totalPoints', title: '分数', align: 'center'},
-                                {field: 'bps', title: 'bps', align: 'center'},
-                                {field: 'bonus', title: 'bonus', align: 'center'},
+                                {field: 'minutes', title: '时间', align: 'center', filter: true},
                                 {
-                                    field: 'playStatus', title: '状态', align: 'center', templet: function (d) {
+                                    field: 'totalPoints',
+                                    title: '分数',
+                                    align: 'center',
+                                    filter: true,
+                                    style: 'background-color: #5FB878; color: #fff;'
+                                },
+                                {field: 'bps', title: 'bps', align: 'center', filter: true},
+                                {field: 'bonus', title: 'bonus', align: 'center', width: 90, filter: true},
+                                {
+                                    field: 'playStatus',
+                                    title: '状态',
+                                    align: 'center',
+                                    filter: true,
+                                    templet: function (d) {
                                         if (d.playStatus == 0) {
                                             return '比赛中';
                                         } else if (d.playStatus == 1) {
@@ -330,6 +351,10 @@
                                 }
                             ]],
                             id: "liveElementTable",
+                            filter: {
+                                items: ['data'],
+                                bottom: false
+                            },
                             done: function (res) {
                                 soulTable.render(this);
                                 let that = this.elem.next();
@@ -338,7 +363,7 @@
                                         setTableRowColor(that, index, "#e2e2e2");
                                     } else {
                                         if (d.playStatus == 0) {
-                                            setTableRowColor(that, index, "#5FB878");
+                                            setTableRowColor(that, index, "#FFB800");
                                         }
                                     }
                                 });
@@ -405,14 +430,15 @@
             }
         });
 
-            entryInputDom.on('keydown', function (event) {
-                if (event.keyCode == 13) {
-                    return false;
-                }
-            });
+        entryInputDom.on('keydown', function (event) {
+            if (event.keyCode == 13) {
+                entryButtonDom.trigger('click');
+                return false;
+            }
+        });
 
-            function setTableRowColor(elem, index, color) {
-                elem.find(".layui-table-box tbody tr[data-index='" + index + "']").css("background-color", color);
+        function setTableRowColor(elem, index, color) {
+            elem.find(".layui-table-box tbody tr[data-index='" + index + "']").css("background-color", color);
             }
 
             function refresh() {

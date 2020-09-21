@@ -42,10 +42,11 @@
 <script th:replace="layout::entryInputLayer"></script>
 
 <script th:inline="none">
-    layui.use(['element', 'form', 'table', 'layer', 'soulTable'], function () {
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
 
-        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable,
-            layer = layui.layer;
+        let $ = layui.jquery, element = layui.element, layer = layui.layer, table = layui.table,
+            soulTable = layui.soulTable
+        ;
 
         soulTable.config({
             drag: false,
@@ -64,7 +65,13 @@
             loading: true,
             cellMinWidth: 80,
             cols: [[
-                {field: 'name', title: '名字', align: 'center', width: 250, templet: '#nameTpl'},
+                {
+                    field: 'name',
+                    title: '名字',
+                    align: 'center',
+                    width: 250,
+                    templet: '<div><a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a></div>'
+                },
                 {field: 'creator', title: '创建者', align: 'center', edit: 'text', width: 150},
                 {field: 'season', title: '赛季', align: 'center'},
                 {field: 'leagueType', title: '类型', align: 'center'},
@@ -92,7 +99,7 @@
             let tableId = 'live' + tournamentId + 'Table';
             element.tabAdd('leagueTab', {
                 title: name,
-                content: '<table class="layui-table" id="' + tableId + '" lay-filter="liveLeagueTable"></table>',
+                content: '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
                 id: tournamentId
             });
             // 切换
@@ -110,40 +117,52 @@
                         data: response.data,
                         limit: 200,
                         loading: true,
+                        toolbar: '#toolbar',
+                        defaultToolbar: [{title: '筛选重置', layEvent: 'clearFilter', icon: 'layui-icon-refresh-3'}],
                         cellMinWidth: 120,
                         cols: [[
                             {title: '排名', type: 'numbers'},
-                            {field: 'entry', title: '队伍id', align: 'center'},
-                            {field: 'entryName', title: '队伍名字', align: 'center', width: 200, filter: true},
-                            {field: 'playerName', title: '玩家名字', align: 'center', width: 150, filter: true},
                             {
-                                field: 'chip', title: '开卡', align: 'center', templet: function (d) {
+                                field: 'entry',
+                                title: '队伍id',
+                                align: 'center',
+                                templet: '<div><a href="javascript:void(0);" class="layui-table-link">{{d.entry}}</a></div>'
+                            },
+                            {field: 'entryName', title: '队伍名字', align: 'center', width: 180, filter: true},
+                            {field: 'playerName', title: '玩家名字', align: 'center', width: 180, filter: true},
+                            {
+                                field: 'liveTotalPoints',
+                                title: '实时总分',
+                                style: 'background-color: #5FB878; color: #fff;',
+                                align: 'center',
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'livePoints', title: '实时得分', style: 'background-color: #5FB878; color: #fff;',
+                                align: 'center', sort: true, filter: true
+                            },
+                            {field: 'transferCost', title: '转会扣分', align: 'center', filter: true},
+                            {
+                                field: 'liveNetPoints',
+                                title: '实时净得分',
+                                style: 'background-color: #5FB878; color: #fff;',
+                                align: 'center',
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'chip', title: '开卡', align: 'center', filter: true, templet: function (d) {
                                     if (d.chip == null) {
                                         return "无";
                                     } else {
                                         return d.chip;
                                     }
                                 }
-                            },
-                            {field: 'livePoints', title: '实时得分', align: 'center', sort: true, filter: true},
-                            {field: 'transferCost', title: '转会扣分', align: 'center'},
-                            {field: 'liveNetPoints', title: '实时净得分', align: 'center', sort: true, filter: true},
-                            {
-                                field: 'eventFinished',
-                                title: 'GW已结束',
-                                align: 'center',
-                                width: 120,
-                                templet: function (d) {
-                                    if (d.eventFinished == true) {
-                                        return "是";
-                                    } else {
-                                        return "否";
-                                    }
-                                }
                             }
                         ]],
                         filter: {
-                            items: ['condition'],
+                            items: ['data', 'condition'],
                             bottom: false
                         },
                         done: function () {
@@ -158,13 +177,15 @@
                     layer.close(loadIndex);
                 });
 
+            table.on('toolbar(' + tableId + ')', function (obj) {
+                if (obj.event === 'clearFilter') {
+                    soulTable.clearFilter(tableId);
+                }
+            });
+
         });
 
     });
-</script>
-
-<script id="nameTpl" type="text/html">
-    <a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a>
 </script>
 
 </html>

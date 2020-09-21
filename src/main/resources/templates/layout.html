@@ -53,7 +53,8 @@
                 <a href="javascript:void(0)">实时结果</a>
                 <dl class="layui-nav-child">
                     <dd><a href="/live/entry">实时得分</a></dd>
-                    <dd><a href="/live/league">小联赛实时排名</a></dd>
+                    <dd><a href="/live/match">实时赛果</a></dd>
+                    <dd><a href="/live/league">小联赛排名</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item">
@@ -116,6 +117,7 @@
                 shade: 0.8,
                 shadeClose: true,
                 success: function (layero) {
+                    layer.setTop(layero);
                     // 回车
                     this.enterConfirm = function (event) {
                         if (event.keyCode === 13) {
@@ -228,6 +230,22 @@
                     shade: 0.8,
                     success: function (layero) {
                         layer.setTop(layero);
+                        // 回车
+                        this.enterConfirm = function (event) {
+                            if (event.keyCode === 13) {
+                                $(".layui-layer-btn0").click();
+                                return false;
+                            }
+                        };
+                        // esc
+                        this.escQuit = function (event) {
+                            if (event.keyCode === 0x1B) {
+                                layer.close(index);
+                                return false;
+                            }
+                        }
+                        $(document).on('keyup', this.enterConfirm);
+                        $(document).on('keyup', this.escQuit);
                         // 确认按钮
                         $(".layui-layer-btn0").on("click", function () {
                             // 校验
@@ -253,6 +271,10 @@
                                     console.info(error.message);
                                 });
                         })
+                    },
+                    end: function () {
+                        $(document).off('keydown', this.enterConfirm);
+                        $(document).off('keydown', this.escQuit);
                     }
                 });
             }

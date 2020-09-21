@@ -28,6 +28,11 @@ public class LiveController {
         return "live/entry";
     }
 
+    @RequestMapping(value = "/match")
+    public String matchController() {
+        return "live/match";
+    }
+
     @RequestMapping(value = "/league")
     public String leagueController() {
         return "live/league";
