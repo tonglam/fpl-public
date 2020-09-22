@@ -27,7 +27,7 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 0/5 0-6,19-23 * * *")
 	public void insertEventLiveCache() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		if (!this.querySerivce.isMatchDayTime(event)) {
 			return;
 		}
 		TaskLog.info("start true insertEventLiveCache task");

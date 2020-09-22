@@ -14,6 +14,8 @@ import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.utils.CommonUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -83,9 +85,13 @@ public interface IQuerySerivce {
 
 	String getDeadlineByEvent(String season, int event);
 
-	List<String> getMatchDayByEvent(int event);
+	List<LocalDate> getMatchDayByEvent(int event);
+
+	List<LocalDateTime> getMatchDayTimeByEvent(int event);
 
 	boolean isMatchDay(int event);
+
+	boolean isMatchDayTime(int event);
 
 	boolean isLastMatchDayByEvent(int event);
 

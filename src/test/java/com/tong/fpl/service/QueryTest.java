@@ -13,6 +13,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -92,7 +94,14 @@ public class QueryTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"1"})
 	void getMatchDayByEvent(int event) {
-		List<String> list = this.querySerivce.getMatchDayByEvent(event);
+		List<LocalDate> list = this.querySerivce.getMatchDayByEvent(event);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"2"})
+	void getMatchDayTimeByEvent(int event) {
+		List<LocalDateTime> list = this.querySerivce.getMatchDayTimeByEvent(event);
 		System.out.println(1);
 	}
 
@@ -100,6 +109,13 @@ public class QueryTest extends FplApplicationTests {
 	@CsvSource({"2"})
 	void isMatchDay(int event) {
 		boolean a = this.querySerivce.isMatchDay(event);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"2"})
+	void isMatchDayTime(int event) {
+		boolean a = this.querySerivce.isMatchDayTime(event);
 		System.out.println(1);
 	}
 

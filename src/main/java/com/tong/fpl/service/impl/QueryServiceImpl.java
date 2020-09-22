@@ -45,7 +45,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -271,33 +270,69 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return this.redisCacheSerive.getDeadlineByEvent(season, event);
 	}
 
-	@Cacheable(value = "getMatchDayByEvent", key = "#event", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Cacheable(value = "getMatchDayByEvent", key = "#event", unless = "#result == null")
 	@Override
-	public List<String> getMatchDayByEvent(int event) {
-		List<String> matchDayList = Lists.newArrayList();
+	public List<LocalDate> getMatchDayByEvent(int event) {
+		List<LocalDate> matchDayList = Lists.newArrayList();
 		this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event).forEach(eventFixtureEntity -> {
 					String matchDay = StringUtils.substringBefore(eventFixtureEntity.getKickoffTime(), " ");
-					if (!matchDayList.contains(matchDay)) {
-						matchDayList.add(matchDay);
+					LocalDate date = LocalDate.parse(matchDay);
+					if (!matchDayList.contains(date)) {
+						matchDayList.add(date);
 					}
 				}
 		);
-		return matchDayList;
+		return matchDayList
+				.stream()
+				.sorted(LocalDate::compareTo)
+				.collect(Collectors.toList());
+	}
+
+	@Cacheable(value = "getMatchDayTimeByEvent", key = "#event", unless = "#result == null")
+	@Override
+	public List<LocalDateTime> getMatchDayTimeByEvent(int event) {
+		List<LocalDateTime> matchDayTimeList = Lists.newArrayList();
+		this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event).forEach(eventFixtureEntity -> {
+					String kickoffTime = eventFixtureEntity.getKickoffTime().replace(" ", "T");
+					LocalDateTime dateTime = LocalDateTime.parse(kickoffTime);
+					if (!matchDayTimeList.contains(dateTime)) {
+						matchDayTimeList.add(dateTime);
+					}
+				}
+		);
+		return matchDayTimeList
+				.stream()
+				.sorted(LocalDateTime::compareTo)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public boolean isMatchDay(int event) {
-		List<String> matchDayList = this.getMatchDayByEvent(event);
-		return matchDayList.contains(LocalDate.now().toString());
+		List<LocalDate> matchDayList = this.getMatchDayByEvent(event);
+		return matchDayList.contains(LocalDate.now());
+	}
+
+	@Override
+	public boolean isMatchDayTime(int event) {
+		List<LocalDateTime> matchDayTimeList = this.getMatchDayTimeByEvent(event);
+		LocalDateTime start = matchDayTimeList.stream().min(LocalDateTime::compareTo).orElse(null);
+		LocalDateTime last = matchDayTimeList.stream().max(LocalDateTime::compareTo).orElse(null);
+		if (start == null) {
+			return false;
+		}
+		return LocalDateTime.now().isAfter(start) && LocalDateTime.now().isBefore(last);
 	}
 
 	@Override
 	public boolean isLastMatchDayByEvent(int event) {
-		String eventLastDay = this.getMatchDayByEvent(event)
+		LocalDate eventLastDay = this.getMatchDayByEvent(event)
 				.stream()
-				.max(Comparator.comparing(String::valueOf))
-				.orElse("");
-		return StringUtils.equals(LocalDate.now().toString(), eventLastDay);
+				.max(LocalDate::compareTo)
+				.orElse(null);
+		if (eventLastDay == null) {
+			return false;
+		}
+		return eventLastDay.isEqual(LocalDate.now());
 	}
 
 	/**
