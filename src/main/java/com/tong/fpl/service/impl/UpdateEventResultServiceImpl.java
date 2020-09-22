@@ -99,6 +99,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			return new EntryEventResultEntity();
 		}
 		UserPicksRes userPick = this.querySerivce.getUserPicks(event, entry);
+		if (userPick == null) {
+			return new EntryEventResultEntity();
+		}
 		boolean finished = this.eventService.getById(event).isFinished();
 		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
 				.eq(EventLiveEntity::getEvent, event))

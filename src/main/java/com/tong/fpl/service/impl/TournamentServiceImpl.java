@@ -198,9 +198,10 @@ public class TournamentServiceImpl implements ITournamentService {
 		} else if (LeagueType.valueOf(leagueType) == LeagueType.H2h) {
 			entryInfoList = this.staticSerive.getEntryInfoListFromH2h(leagueId);
 		}
-		entryInfoList.forEach(entryInfoEntity -> {
+		entryInfoList.parallelStream().forEach(entryInfoEntity -> {
 			Optional<EntryRes> entryRes = this.staticSerive.getEntry(entryInfoEntity.getEntry());
 			entryRes.ifPresent(o -> entryInfoEntityList.add(new EntryInfoEntity()
+							.setEntry(entryInfoEntity.getEntry())
 							.setEntryName(o.getName())
 							.setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
 							.setRegion(o.getPlayerRegionName())
