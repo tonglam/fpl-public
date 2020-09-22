@@ -30,7 +30,6 @@ public class EntryEventResultEntity {
 	private int overallRank;
 	private String eventChip;
 	private String eventPicks;
-	private boolean eventFinished;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 

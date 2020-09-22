@@ -227,7 +227,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return this.staticSerive.getEntry(entry).orElse(null);
 	}
 
-	@Cacheable(value = "getUserPicks", key = "#event+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
+//	@Cacheable(value = "getUserPicks", key = "#event+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
 	@Override
 	public UserPicksRes getUserPicks(int event, int entry) {
 		return this.staticSerive.getUserPicks(event, entry).orElse(null);

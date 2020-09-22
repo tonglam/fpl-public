@@ -14,7 +14,6 @@ import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.db.EntryEventResultService;
-import com.tong.fpl.service.db.EventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,46 +31,44 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StaticServiceImpl implements IStaticSerive {
 
-	private final IInterfaceService interfaceService;
-	private final EventService eventService;
-	private final EntryEventResultService entryEventResultService;
+    private final IInterfaceService interfaceService;
+    private final EntryEventResultService entryEventResultService;
 
-	@Override
-	public void insertAverageEventResult(int event, StaticRes staticRes) {
-		int averageScore = staticRes.getEvents().stream()
-				.filter(o -> o.getId() == event)
-				.map(Event::getAverageEntryScore)
-				.findFirst()
-				.orElse(0);
-		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-				.eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, -1));
-		if (entryEventResultEntity != null) {
-			entryEventResultEntity.setEventPoints(averageScore).setEventNetPoints(averageScore);
-		} else {
-			entryEventResultEntity = new EntryEventResultEntity()
-					.setEntry(-1)
-					.setEvent(event)
-					.setEventPoints(averageScore)
-					.setEventTransfers(0)
-					.setEventTransfersCost(0)
-					.setEventNetPoints(averageScore)
-					.setEventBenchPoints(0)
-					.setEventRank(0)
-					.setOverallRank(0)
-					.setEventChip(Chip.NONE.getValue())
-					.setEventPicks("")
-					.setEventFinished(this.eventService.getById(event).isFinished());
-		}
-		this.entryEventResultService.saveOrUpdate(entryEventResultEntity);
-	}
+    @Override
+    public void insertAverageEventResult(int event, StaticRes staticRes) {
+        int averageScore = staticRes.getEvents().stream()
+                .filter(o -> o.getId() == event)
+                .map(Event::getAverageEntryScore)
+                .findFirst()
+                .orElse(0);
+        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, -1));
+        if (entryEventResultEntity != null) {
+            entryEventResultEntity.setEventPoints(averageScore).setEventNetPoints(averageScore);
+        } else {
+            entryEventResultEntity = new EntryEventResultEntity()
+                    .setEntry(-1)
+                    .setEvent(event)
+                    .setEventPoints(averageScore)
+                    .setEventTransfers(0)
+                    .setEventTransfersCost(0)
+                    .setEventNetPoints(averageScore)
+                    .setEventBenchPoints(0)
+                    .setEventRank(0)
+                    .setOverallRank(0)
+                    .setEventChip(Chip.NONE.getValue())
+                    .setEventPicks("");
+        }
+        this.entryEventResultService.saveOrUpdate(entryEventResultEntity);
+    }
 
-	@Override
-	public List<EntryInfoData> getEntryInfoListFromClassic(int classicId) {
+    @Override
+    public List<EntryInfoData> getEntryInfoListFromClassic(int classicId) {
         return this.getOnePageEntryListFromClassic(new LeagueInfoData(), classicId, 1, 0).getEntryInfoList();
     }
 
-	@Override
-	public List<EntryInfoData> getEntryInfoListFromH2h(int h2hId) {
+    @Override
+    public List<EntryInfoData> getEntryInfoListFromH2h(int h2hId) {
         return this.getOnePageEntryListFromH2h(new LeagueInfoData(), h2hId, 1, 0).getEntryInfoList();
     }
 
@@ -102,7 +99,7 @@ public class StaticServiceImpl implements IStaticSerive {
                         .setAdminEntry(classicInfo.getAdminEntry())
                         .setStartEvent(classicInfo.getStartEvent());
             }
-			if (!CollectionUtils.isEmpty(leagueClassicRes.getStandings().getResults())) {
+            if (!CollectionUtils.isEmpty(leagueClassicRes.getStandings().getResults())) {
                 List<EntryInfoData> list = Lists.newArrayList();
                 leagueClassicRes.getStandings().getResults().forEach(o ->
                         list.add(new EntryInfoData()
@@ -146,7 +143,7 @@ public class StaticServiceImpl implements IStaticSerive {
                         .setStartEvent(h2hInfo.getStartEvent())
                         .setEntryInfoList(Lists.newArrayList());
             }
-			if (!CollectionUtils.isEmpty(leagueH2hRes.getStandings().getResults())) {
+            if (!CollectionUtils.isEmpty(leagueH2hRes.getStandings().getResults())) {
                 List<EntryInfoData> list = Lists.newArrayList();
                 leagueH2hRes.getStandings().getResults().forEach(o ->
                         list.add(new EntryInfoData()
@@ -174,24 +171,24 @@ public class StaticServiceImpl implements IStaticSerive {
         return leagueInfoData;
     }
 
-	@Override
-	public Optional<UserHistoryRes> getUserHistory(int entry) {
-		return this.interfaceService.getUserHistory(entry);
-	}
+    @Override
+    public Optional<UserHistoryRes> getUserHistory(int entry) {
+        return this.interfaceService.getUserHistory(entry);
+    }
 
-	@Override
-	public Optional<ElementSummaryRes> getElementSummary(int element) {
-		return this.interfaceService.getElementSummary(element);
-	}
+    @Override
+    public Optional<ElementSummaryRes> getElementSummary(int element) {
+        return this.interfaceService.getElementSummary(element);
+    }
 
-	@Override
-	public Optional<EntryRes> getEntry(int entry) {
-		return this.interfaceService.getEntry(entry);
-	}
+    @Override
+    public Optional<EntryRes> getEntry(int entry) {
+        return this.interfaceService.getEntry(entry);
+    }
 
-	@Override
-	public Optional<UserPicksRes> getUserPicks(int event, int entry) {
-		return this.interfaceService.getUserPicks(event, entry);
-	}
+    @Override
+    public Optional<UserPicksRes> getUserPicks(int event, int entry) {
+        return this.interfaceService.getUserPicks(event, entry);
+    }
 
 }
