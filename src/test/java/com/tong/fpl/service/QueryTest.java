@@ -103,4 +103,11 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@Test
+	void isLastMatchDayByEvent() {
+		int event = this.querySerivce.getCurrentEvent();
+		boolean a = this.querySerivce.isLastMatchDayByEvent(event);
+		System.out.println(1);
+	}
+
 }

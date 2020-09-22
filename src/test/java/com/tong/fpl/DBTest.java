@@ -33,6 +33,8 @@ public class DBTest extends FplApplicationTests {
 	@Autowired
 	private PlayerService playerService;
 	@Autowired
+	private PlayerValueService playerValueService;
+	@Autowired
 	private TournamentEntryService tournamentEntryService;
 	@Autowired
 	private EntryEventResultService entryEventResultService;

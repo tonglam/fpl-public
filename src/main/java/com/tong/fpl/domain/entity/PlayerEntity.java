@@ -13,6 +13,7 @@ public class PlayerEntity {
 	private int element;
 	private int code;
 	private int price;
+	private int startPrice;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private int elementType;
 	private String firstName;

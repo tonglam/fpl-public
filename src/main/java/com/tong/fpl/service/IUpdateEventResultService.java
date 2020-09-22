@@ -1,0 +1,18 @@
+package com.tong.fpl.service;
+
+/**
+ * Create by tong on 2020/6/29
+ */
+public interface IUpdateEventResultService {
+
+	void updateEntryInfo();
+
+	void updateTournamentResult(int event, int tournamentId);
+
+	void updatePointsRaceGroupResult(int event, int tournamentId);
+
+	void updateBattleRaceGroupResult(int event, int tournamentId);
+
+	void updateKnockoutResult(int event, int tournamentId);
+
+}

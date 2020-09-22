@@ -31,7 +31,7 @@ public class TaskLogAspect {
 			throwable.printStackTrace();
 		}
 		long timeTaken = System.currentTimeMillis() - startTime;
-		TaskLog.info("run task:" + point.getSignature() + ", run time:" + LocalDateTime.now() + ", escaped:" + timeTaken);
+		TaskLog.info("run task:{}, run time:{}, escaped:{}", point.getSignature(), LocalDateTime.now(), timeTaken);
 		return object;
 	}
 

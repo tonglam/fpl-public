@@ -12,8 +12,17 @@ public class TaskLog {
 		log.info(message);
 	}
 
+	public static void info(String format, Object... arguments) {
+		log.info(format, arguments);
+	}
+
 	public static void error(String message) {
 		log.error(message);
 	}
+
+	public static void error(String format, Object... arguments) {
+		log.error(format, arguments);
+	}
+
 
 }
