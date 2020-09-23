@@ -6,6 +6,7 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,11 @@ public class StatApiImpl implements IStatApi {
     @Override
     public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
         return this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
+    }
+
+    @Override
+    public TableData<PlayerValueData> qryPriceChangeList() {
+        return this.tableQueryService.qryPriceChangeList();
     }
 
 }

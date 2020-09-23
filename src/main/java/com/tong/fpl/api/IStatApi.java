@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerValueData;
 
 import java.util.List;
 
@@ -22,5 +23,7 @@ public interface IStatApi {
     List<String> qryTeamSelectStatList();
 
     TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+
+    TableData<PlayerValueData> qryPriceChangeList();
 
 }

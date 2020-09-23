@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,12 @@ public class StatController {
         model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
         return "stat/selected";
+    }
+
+    @GetMapping("/qryPriceChangeList")
+    @ResponseBody
+    public TableData<PlayerValueData> qryPriceChangeList() {
+        return this.statApi.qryPriceChangeList();
     }
 
     @GetMapping("/qryEntryInfoByTournament")
