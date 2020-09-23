@@ -55,8 +55,8 @@ public class LiveFixtureCollector implements Collector<EventFixtureEntity, Map<I
                     .setAgainstTeamScore(o.getTeamAScore())
                     .setScore(o.getTeamHScore() + "-" + o.getTeamAScore())
                     .setWasHome(true)
-                    .setStarted(o.isStarted())
-                    .setFinished(o.isFinishedProvisional())
+                    .setStarted(o.getStarted())
+                    .setFinished(o.getFinishedProvisional())
             );
             map.put(teamH, homeFixtureList);
             // away team
@@ -76,8 +76,8 @@ public class LiveFixtureCollector implements Collector<EventFixtureEntity, Map<I
                     .setAgainstTeamScore(o.getTeamHScore())
                     .setScore(o.getTeamAScore() + "-" + o.getTeamHScore())
                     .setWasHome(false)
-                    .setStarted(o.isStarted())
-                    .setFinished(o.isFinished())
+                    .setStarted(o.getStarted())
+                    .setFinished(o.getFinished())
             );
             map.put(teamA, awayFixtureList);
         };

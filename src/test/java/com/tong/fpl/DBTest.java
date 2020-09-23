@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
+import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.service.IQuerySerivce;
@@ -175,6 +176,21 @@ public class DBTest extends FplApplicationTests {
 				.collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
 		result.forEach((k, v) ->
 				System.out.println(this.playerService.getById(k).getWebName() + ": " + NumberUtil.div(v.intValue(), 113, 2) * 100 + "%"));
+		System.out.println(1);
+	}
+
+	@Test
+	void addPlayerStartPrice() {
+		Map<Integer, Integer> startPriceMap = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+				.eq(PlayerValueEntity::getChangeType, ValueChangeType.Start.name()))
+				.stream()
+				.collect(Collectors.toMap(PlayerValueEntity::getElement, PlayerValueEntity::getValue));
+		List<PlayerEntity> list = this.playerService.list();
+		list.forEach(o -> {
+			int startPrice = startPriceMap.getOrDefault(o.getElement(), 0);
+			o.setStartPrice(startPrice);
+		});
+		this.playerService.updateBatchById(list);
 		System.out.println(1);
 	}
 

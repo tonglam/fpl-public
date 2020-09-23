@@ -13,16 +13,16 @@ import lombok.experimental.Accessors;
 public class EntryInfoEntity {
 
 	@TableId(type = IdType.INPUT)
-	private int entry;
+	private Integer entry;
 	private String entryName;
 	private String playerName;
 	private String region;
-	private int startedEvent;
-	private int overallPoints;
-	private int overallRank;
-	private int bank;
-	private int teamValue;
-	private int totalTransfers;
+	private Integer startedEvent;
+	private Integer overallPoints;
+	private Integer overallRank;
+	private Integer bank;
+	private Integer teamValue;
+	private Integer totalTransfers;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;
 	@TableField(fill = FieldFill.UPDATE)

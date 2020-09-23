@@ -103,13 +103,13 @@ public class TournamentApiImpl implements ITournamentApi {
 	}
 
 	@Override
-	public TableData<TournamentPointsGroupEventResultData> qryPointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
-		return this.tableQueryService.qryPointsGroupResult(tournamentId, groupId, entry, page, limit);
+	public TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
+		return this.tableQueryService.qryPagePointsGroupResult(tournamentId, groupId, entry, page, limit);
 	}
 
 	@Override
-	public TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
-		return this.tableQueryService.qryBattleGroupResult(tournamentId, groupId, entry, page, limit);
+	public TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
+		return this.tableQueryService.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
 	}
 
 	@Override

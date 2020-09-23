@@ -12,40 +12,40 @@ import lombok.experimental.Accessors;
 @TableName(value = "tournament_info")
 public class TournamentInfoEntity {
 
-    @TableId
-    private int id;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private String name;
-    private String creator;
-    private int adminerEntry;
-    private String season;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private String leagueType;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private int leagueId;
-    private int totalTeam;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private String groupMode;
-    private int groupPlayAgainstNum;
-    private int teamPerGroup;
-    private int groupStartGw;
-    private int groupEndGw;
-    private int groupRounds;
-    private int groupQualifiers;
-    private boolean groupFillAverage;
-    private int groupNum;
-    private int knockoutTeam;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private String knockoutMode;
-    private int knockoutPlayAgainstNum;
-    private int knockoutStartGw;
-    private int knockoutEndGw;
-    private int knockoutRounds;
-    private int knockoutEvents;
-    private int state;
-    @TableField(fill = FieldFill.INSERT)
-    private String createTime;
-    @TableField(fill = FieldFill.UPDATE)
-    private String updateTime;
+	@TableId
+	private Integer id;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String name;
+	private String creator;
+	private Integer adminerEntry;
+	private String season;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String leagueType;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer leagueId;
+	private Integer totalTeam;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String groupMode;
+	private Integer groupPlayAgainstNum;
+	private Integer teamPerGroup;
+	private Integer groupStartGw;
+	private Integer groupEndGw;
+	private Integer groupRounds;
+	private Integer groupQualifiers;
+	private Boolean groupFillAverage;
+	private Integer groupNum;
+	private Integer knockoutTeam;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private String knockoutMode;
+	private Integer knockoutPlayAgainstNum;
+	private Integer knockoutStartGw;
+	private Integer knockoutEndGw;
+	private Integer knockoutRounds;
+	private Integer knockoutEvents;
+	private Integer state;
+	@TableField(fill = FieldFill.INSERT)
+	private String createTime;
+	@TableField(fill = FieldFill.UPDATE)
+	private String updateTime;
 
 }

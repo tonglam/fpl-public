@@ -13,27 +13,27 @@ import lombok.experimental.Accessors;
 public class EventLiveEntity {
 
 	@TableId
-	private int id;
+	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int element;
+	private Integer element;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY)
-	private int elementType;
-	private int teamId;
+	private Integer elementType;
+	private Integer teamId;
 	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int event;
-	private int minutes;
-	private int goalsScored;
-	private int assists;
-	private int cleanSheets;
-	private int goalsConceded;
-	private int ownGoals;
-	private int penaltiesSaved;
-	private int penaltiesMissed;
-	private int yellowCards;
-	private int redCards;
-	private int saves;
-	private int bonus;
-	private int bps;
-	private int totalPoints;
+	private Integer event;
+	private Integer minutes;
+	private Integer goalsScored;
+	private Integer assists;
+	private Integer cleanSheets;
+	private Integer goalsConceded;
+	private Integer ownGoals;
+	private Integer penaltiesSaved;
+	private Integer penaltiesMissed;
+	private Integer yellowCards;
+	private Integer redCards;
+	private Integer saves;
+	private Integer bonus;
+	private Integer bps;
+	private Integer totalPoints;
 
 }

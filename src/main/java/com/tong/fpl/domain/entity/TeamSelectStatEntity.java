@@ -16,31 +16,31 @@ import lombok.experimental.Accessors;
 public class TeamSelectStatEntity {
 
 	@TableField
-	private int id;
+	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private String leagueName;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int event;
+	private Integer event;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int entry;
+	private Integer entry;
 	private String chip;
-	private int position1;
-	private int position2;
-	private int position3;
-	private int position4;
-	private int position5;
-	private int position6;
-	private int position7;
-	private int position8;
-	private int position9;
-	private int position10;
-	private int position11;
-	private int position12;
-	private int position13;
-	private int position14;
-	private int position15;
-	private int captain;
-	private int viceCaptain;
+	private Integer position1;
+	private Integer position2;
+	private Integer position3;
+	private Integer position4;
+	private Integer position5;
+	private Integer position6;
+	private Integer position7;
+	private Integer position8;
+	private Integer position9;
+	private Integer position10;
+	private Integer position11;
+	private Integer position12;
+	private Integer position13;
+	private Integer position14;
+	private Integer position15;
+	private Integer captain;
+	private Integer viceCaptain;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 

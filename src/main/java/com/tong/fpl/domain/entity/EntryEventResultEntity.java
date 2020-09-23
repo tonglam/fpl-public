@@ -16,18 +16,18 @@ import lombok.experimental.Accessors;
 public class EntryEventResultEntity {
 
 	@TableField
-	private int id;
+	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int entry;
+	private Integer entry;
 	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int event;
-	private int eventPoints;
-	private int eventTransfers;
-	private int eventTransfersCost;
-	private int eventNetPoints;
-	private int eventBenchPoints;
-	private int eventRank;
-	private int overallRank;
+	private Integer event;
+	private Integer eventPoints;
+	private Integer eventTransfers;
+	private Integer eventTransfersCost;
+	private Integer eventNetPoints;
+	private Integer eventBenchPoints;
+	private Integer eventRank;
+	private Integer overallRank;
 	private String eventChip;
 	private String eventPicks;
 	@TableField(fill = FieldFill.INSERT_UPDATE)

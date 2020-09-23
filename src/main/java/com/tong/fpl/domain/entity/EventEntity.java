@@ -10,21 +10,21 @@ import lombok.experimental.Accessors;
 public class EventEntity {
 
 	@TableId(type = IdType.INPUT)
-	private int id;
+	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private String name;
 	private String deadlineTime;
-	private int averageEntryScore;
+	private Integer averageEntryScore;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private boolean finished;
-	private int highestScore;
-	private int highestScoringEntry;
-	private boolean isPrevious;
-	private boolean isCurrent;
-	private boolean isNext;
-	private int mostSelected;
-	private int mostTransferredIn;
-	private int mostCaptained;
-	private int mostViceCaptained;
+	private Boolean finished;
+	private Integer highestScore;
+	private Integer highestScoringEntry;
+	private Boolean isPrevious;
+	private Boolean isCurrent;
+	private Boolean isNext;
+	private Integer mostSelected;
+	private Integer mostTransferredIn;
+	private Integer mostCaptained;
+	private Integer mostViceCaptained;
 
 }

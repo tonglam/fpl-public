@@ -128,7 +128,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
 				.setTeamId(playerEntity.getTeamId())
 				.setTeamName(teamNameMap.get(String.valueOf(playerEntity.getTeamId())))
-				.setPrice(NumberUtil.div(playerEntity.getPrice(), 10, 2));
+				.setPrice(NumberUtil.div(playerEntity.getPrice().intValue(), 10, 2));
 	}
 
 	private List<PlayerFixtureData> setPlayerFixture(int teamId) {

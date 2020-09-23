@@ -167,9 +167,9 @@ public class TournamentServiceImpl implements ITournamentService {
         String groupMode = tournamentInfo.getGroupMode();
         int groupNum = tournamentInfo.getGroupNum();
         // save entry_info
-        this.saveTournamentEntryInfo(tournamentId, tournamentInfo.getLeagueType(), tournamentInfo.getLeagueId(), tournamentInfo.isGroupFillAverage());
+        this.saveTournamentEntryInfo(tournamentId, tournamentInfo.getLeagueType(), tournamentInfo.getLeagueId(), tournamentInfo.getGroupFillAverage());
         // draw groups
-        this.drawGroups(tournamentId, groupMode, tournamentInfo.getTeamPerGroup(), tournamentInfo.isGroupFillAverage(), groupNum,
+        this.drawGroups(tournamentId, groupMode, tournamentInfo.getTeamPerGroup(), tournamentInfo.getGroupFillAverage(), groupNum,
                 tournamentInfo.getGroupStartGw(), tournamentInfo.getGroupEndGw());
         // draw group battle
         this.drawGroupBattle(tournamentId, groupMode, tournamentInfo.getGroupPlayAgainstNum(), tournamentInfo.getTeamPerGroup(),

@@ -16,29 +16,29 @@ import lombok.experimental.Accessors;
 public class LeagueResultStatEntity {
 
 	@TableField
-	private int id;
+	private Integer id;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int leagueId;
+	private Integer leagueId;
 	private String leagueType;
 	private String leagueName;
-	private int entry;
+	private Integer entry;
 	private String entryName;
 	private String playerName;
-	private int overallPoints;
-	private int overallRank;
-	private int bank;
-	private int teamValue;
+	private Integer overallPoints;
+	private Integer overallRank;
+	private Integer bank;
+	private Integer teamValue;
 	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int event;
-	private int eventPoints;
-	private int eventTransfers;
-	private int eventTransfersCost;
-	private int eventNetPoints;
-	private int eventBenchPoints;
-	private int eventRank;
+	private Integer event;
+	private Integer eventPoints;
+	private Integer eventTransfers;
+	private Integer eventTransfersCost;
+	private Integer eventNetPoints;
+	private Integer eventBenchPoints;
+	private Integer eventRank;
 	private String eventChip;
 	private String eventCaptain;
-	private int eventCaptainPoints;
+	private Integer eventCaptainPoints;
 	private String eventPicks;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;

@@ -161,13 +161,13 @@ public class TournamentController {
     @ResponseBody
     @RequestMapping(value = "/qryPointsGroupResult")
     public TableData<TournamentPointsGroupEventResultData> qryPointsGroupEventResult(@RequestParam int tournamentId, @RequestParam int groupId, @RequestParam int entry, int page, int limit) {
-        return this.tournamentApi.qryPointsGroupResult(tournamentId, groupId, entry, page, limit);
+        return this.tournamentApi.qryPagePointsGroupResult(tournamentId, groupId, entry, page, limit);
     }
 
     @ResponseBody
     @RequestMapping(value = "/qryBattleGroupResult")
     public TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(@RequestParam int tournamentId, @RequestParam int groupId, @RequestParam int entry, int page, int limit) {
-        return this.tournamentApi.qryBattleGroupResult(tournamentId, groupId, entry, page, limit);
+	    return this.tournamentApi.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
     }
 
 }

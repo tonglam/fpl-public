@@ -10,16 +10,16 @@ import lombok.experimental.Accessors;
 public class PlayerEntity {
 
 	@TableId(type = IdType.INPUT)
-	private int element;
-	private int code;
-	private int price;
-	private int startPrice;
+	private Integer element;
+	private Integer code;
+	private Integer price;
+	private Integer startPrice;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private int elementType;
+	private Integer elementType;
 	private String firstName;
 	private String secondName;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private String webName;
-	private int teamId;
+	private Integer teamId;
 
 }

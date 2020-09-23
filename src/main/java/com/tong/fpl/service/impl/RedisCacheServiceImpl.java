@@ -219,8 +219,8 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 						.setAgainstTeamId(o.getTeamA())
 						.setDifficulty(o.getTeamHDifficulty())
 						.setKickoffTime(o.getKickoffTime())
-						.setStarted(o.isStarted())
-						.setFinished(o.isFinished())
+						.setStarted(o.getStarted())
+						.setFinished(o.getFinished())
 						.setWasHome(true)
 						.setScore(o.getTeamHScore() + "-" + o.getTeamAScore())
 				));
@@ -233,8 +233,8 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 						.setAgainstTeamId(o.getTeamH())
 						.setDifficulty(o.getTeamADifficulty())
 						.setKickoffTime(o.getKickoffTime())
-						.setStarted(o.isStarted())
-						.setFinished(o.isFinished())
+						.setStarted(o.getStarted())
+						.setFinished(o.getFinished())
 						.setWasHome(false)
 						.setScore(o.getTeamAScore() + "-" + o.getTeamHScore())
 				));
@@ -446,7 +446,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 		IntStream.range(1, 21).forEach(teamId -> {
 			// match_played
 			int matchPlayed = this.eventFixtureService.count(new QueryWrapper<EventFixtureEntity>().lambda()
-					.eq(EventFixtureEntity::isFinished, 1)
+					.eq(EventFixtureEntity::getFinished, 1)
 					.and(a -> a.eq(EventFixtureEntity::getTeamH, teamId)
 							.or(i -> i.eq(EventFixtureEntity::getTeamA, teamId)))
 			);
@@ -654,8 +654,8 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 		EventLiveEntity first = sortList.get(0);
 		EventLiveEntity second = sortList.get(1);
 		EventLiveEntity third = sortList.get(2);
-		if (first.getBps() == second.getBps()) {
-			if (second.getBps() == third.getBps()) {
+		if (first.getBps().equals(second.getBps())) {
+			if (second.getBps().equals(third.getBps())) {
 				this.setbonusMap(teamId, first, 3, bonusMap);
 				this.setbonusMap(teamId, second, 3, bonusMap);
 				this.setbonusMap(teamId, third, 3, bonusMap);
@@ -665,7 +665,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 				this.setbonusMap(teamId, third, 1, bonusMap);
 			}
 		} else {
-			if (second.getBps() == third.getBps()) {
+			if (second.getBps().equals(third.getBps())) {
 				this.setbonusMap(teamId, first, 3, bonusMap);
 				this.setbonusMap(teamId, second, 2, bonusMap);
 				this.setbonusMap(teamId, third, 2, bonusMap);

@@ -12,24 +12,24 @@ import lombok.experimental.Accessors;
 @TableName(value = "tournament_battle_group_result")
 public class TournamentBattleGroupResultEntity {
 
-    @TableId
-    private int id;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private int tournamentId;
-    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private int groupId;
-    @TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private int event;
-    private int homeIndex;
-	private int homeEntry;
-	private int homeEntryNetPoints;
-	private int homeEntryRank;
-	private int homeEntryMatchPoints;
-	private int awayIndex;
-	private int awayEntry;
-	private int awayEntryNetPoints;
-	private int awayEntryRank;
-	private int awayEntryMatchPoints;
+	@TableId
+	private Integer id;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer tournamentId;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer groupId;
+	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer event;
+	private Integer homeIndex;
+	private Integer homeEntry;
+	private Integer homeEntryNetPoints;
+	private Integer homeEntryRank;
+	private Integer homeEntryMatchPoints;
+	private Integer awayIndex;
+	private Integer awayEntry;
+	private Integer awayEntryNetPoints;
+	private Integer awayEntryRank;
+	private Integer awayEntryMatchPoints;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 
