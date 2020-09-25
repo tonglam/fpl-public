@@ -816,11 +816,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return current == 1;
 	}
 
-
 	@Override
 	public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry) {
 		return new TableData<>();
 	}
-
 
 }

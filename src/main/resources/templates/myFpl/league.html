@@ -78,7 +78,6 @@
         let event = $("#currentGw").html();
         let optionValue = "dd[lay-value=" + event + "]";
         $("select[name=gwSelect]").siblings("div.layui-form-select").find("dl").find(optionValue).click();
-        // $("#checkButton").click();
 
         $("#checkButton").on('click', function () {
             let loadIndex = layer.load(2);
