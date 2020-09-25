@@ -9,6 +9,7 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.tournament.*;
 
 /**
@@ -22,6 +23,8 @@ public interface ITableQueryService {
 	TableData<PlayerInfoData> qryPlayerList(String season);
 
 	TableData<PlayerInfoData> qryPagePlayerDataList(long page, long limit);
+
+	TableData<PlayerValueData> qryPriceChangeList();
 
 	/**
 	 * @apiNote entry
@@ -68,6 +71,5 @@ public interface ITableQueryService {
 
 	//待重构
 	TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
-
 
 }

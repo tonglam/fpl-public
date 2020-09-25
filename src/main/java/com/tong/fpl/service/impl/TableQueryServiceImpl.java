@@ -49,18 +49,19 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TableQueryServiceImpl implements ITableQueryService {
 
-	private final IQuerySerivce querySerivce;
-	private final ILiveService liveService;
-	private final PlayerService playerService;
-	private final EventLiveService eventLiveService;
-	private final EntryInfoService entryInfoService;
-	private final EntryEventResultService entryEventResultService;
-	private final TournamentInfoService tournamentInfoService;
-	private final TournamentEntryService tournamentEntryService;
-	private final TournamentGroupService tournamentGroupService;
-	private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
-	private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
-	private final TeamSelectStatService teamSelectStatService;
+    private final IQuerySerivce querySerivce;
+    private final ILiveService liveService;
+    private final PlayerService playerService;
+    private final PlayerValueService playerValueService;
+    private final EventLiveService eventLiveService;
+    private final EntryInfoService entryInfoService;
+    private final EntryEventResultService entryEventResultService;
+    private final TournamentInfoService tournamentInfoService;
+    private final TournamentEntryService tournamentEntryService;
+    private final TournamentGroupService tournamentGroupService;
+    private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
+    private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
+    private final TeamSelectStatService teamSelectStatService;
 
 	/**
 	 * @apiNote player
@@ -85,14 +86,45 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(pageResult);
 	}
 
-	/**
-	 * @apiNote entry
-	 */
-	// TODO: 2020/9/23
-	@Override
-	public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId) {
-		return new TableData<>();
-	}
+    @Cacheable(value = "qryPriceChangeList")
+    public TableData<PlayerValueData> qryPriceChangeList() {
+        // prepare
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<Integer, String> teamNameMap = Maps.newHashMap();
+        this.querySerivce.getTeamNameMap().forEach((k, v) -> teamNameMap.put(Integer.valueOf(k), v));
+        Map<Integer, String> teamShortNameMap = Maps.newHashMap();
+        this.querySerivce.getTeamShortNameMap().forEach((k, v) -> teamShortNameMap.put(Integer.valueOf(k), v));
+        Map<Integer, String> positionMap = Maps.newHashMap();
+        this.querySerivce.getPositionMap().forEach((k, v) -> positionMap.put(Integer.valueOf(k), v));
+        // player value
+        List<PlayerValueData> list = Lists.newArrayList();
+        this.playerValueService.list().forEach(o -> {
+            PlayerValueData playerValueData = new PlayerValueData();
+            BeanUtil.copyProperties(o, playerValueData, CopyOptions.create().ignoreNullValue());
+            PlayerEntity playerEntity = playerMap.get(o.getElement());
+            if (playerEntity != null) {
+                int teamId = playerEntity.getTeamId();
+                playerValueData
+                        .setWebName(playerEntity.getWebName())
+                        .setTeamName(teamNameMap.getOrDefault(teamId, ""))
+                        .setTeamShortName(teamShortNameMap.getOrDefault(teamId, ""))
+                        .setElementTypeName(positionMap.getOrDefault(o.getElementType(), ""));
+            }
+            list.add(playerValueData);
+        });
+        return new TableData<>(list);
+    }
+
+    /**
+     * @apiNote entry
+     */
+    // TODO: 2020/9/23
+    @Override
+    public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId) {
+        return new TableData<>();
+    }
 
 	/**
 	 * @apiNote tournament
@@ -816,9 +848,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return current == 1;
 	}
 
+
 	@Override
 	public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry) {
 		return new TableData<>();
 	}
+
 
 }
