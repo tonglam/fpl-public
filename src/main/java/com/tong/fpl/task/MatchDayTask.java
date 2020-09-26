@@ -11,11 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 /**
  * Create by tong on 2020/7/21
  */
-//@Component
+@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MatchDayTask {
 
