@@ -340,16 +340,16 @@ public class LiveService implements ILiveService {
             if (eventLiveEntity != null) {
                 BeanUtil.copyProperties(eventLiveEntity, elementEventResultData, CopyOptions.create().ignoreNullValue());
                 elementEventResultData.setPlayed(elementEventResultData.getMinutes() > 0 || elementEventResultData.getYellowCards() > 0 || elementEventResultData.getRedCards() > 0);
-                this.setEventLiveBonusData(eventLiveEntity, liveBonusTable);
+                this.setEventLiveBonusData(elementEventResultData, liveBonusTable);
             }
         });
     }
 
-    private void setEventLiveBonusData(EventLiveEntity eventLiveEntity, Table<Integer, Integer, Integer> liveBonusTable) {
-        int teamId = eventLiveEntity.getTeamId();
-        int element = eventLiveEntity.getElement();
+    private void setEventLiveBonusData(ElementEventResultData elementEventResultData, Table<Integer, Integer, Integer> liveBonusTable) {
+        int teamId = elementEventResultData.getTeamId();
+        int element = elementEventResultData.getElement();
         if (liveBonusTable.contains(teamId, element)) {
-            eventLiveEntity.setBonus(liveBonusTable.get(teamId, element));
+            elementEventResultData.setBonus(liveBonusTable.get(teamId, element));
         }
     }
 

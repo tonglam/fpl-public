@@ -450,7 +450,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         Map<Integer, String> positionMap = this.getPositionMap();
         Map<Integer, Integer> liveBonusMap = this.getLiveBonusMap(teamId);
         // live fixture
-        int event = 2;
+        int event = this.querySerivce.getCurrentEvent();
         this.querySerivce.getEventLiveByEvent(event).values().forEach(o -> {
             if (o.getTeamId() != teamId || o.getMinutes() <= 0) {
                 return;
