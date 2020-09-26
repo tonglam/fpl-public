@@ -468,7 +468,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     .setGoalsConceded(o.getGoalsConceded())
                     .setOwnGoals(o.getOwnGoals())
                     .setPenaltiesSaved(o.getPenaltiesSaved())
-                    .setBps(o.getAssists())
+                    .setBps(o.getBps())
                     .setBonus(liveBonusMap.getOrDefault(o.getElement(), 0))
                     .setTotalPoints(o.getTotalPoints());
             elementEventResultData
@@ -477,7 +477,8 @@ public class TableQueryServiceImpl implements ITableQueryService {
         });
         return new TableData<>(list
                 .stream()
-                .sorted(Comparator.comparing(ElementEventResultData::getTotalPoints).reversed())
+                .sorted(Comparator.comparing(ElementEventResultData::getTotalPoints)
+                        .thenComparing(ElementEventResultData::getBps).reversed())
                 .collect(Collectors.toList()));
     }
 
@@ -495,20 +496,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
 
     private Map<Integer, Integer> getLiveBonusMap(int teamId) {
         Map<Integer, Integer> map = Maps.newHashMap();
-        this.querySerivce.getLiveBonusCacheMap().forEach((k, v) -> {
-            if (!StringUtils.equals(k, String.valueOf(teamId))) {
+        this.querySerivce.getLiveBonusCacheMap().forEach((team, list) -> {
+            if (!StringUtils.equals(team, String.valueOf(teamId))) {
                 return;
             }
-            int element = v.keySet()
-                    .stream()
-                    .mapToInt(Integer::parseInt)
-                    .findFirst()
-                    .orElse(0);
-            int bonus = v.values()
-                    .stream()
-                    .findFirst()
-                    .orElse(0);
-            map.put(element, bonus);
+            list.forEach((element, bonus) -> map.put(Integer.valueOf(element), bonus));
         });
         return map;
     }

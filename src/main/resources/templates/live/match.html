@@ -23,13 +23,16 @@
                     <legend th:text="${match.homeTeamName}+' '+${match.homeScore}+'-'+${match.awayScore}+' '+${match.awayTeamName}"></legend>
                 </fieldset>
                 <table class="layui-table"
-                       th:attr="lay-data='{url:\'/live/qryLiveFixturePlayerList?teamId='+${match.homeTeamId}+'\', id:\'team'+${match.homeTeamId}+'Table\'}',
+                       th:attr="lay-data='{url:\'/live/qryLiveFixturePlayerList?teamId='+${match.homeTeamId}+'\', '+
+                       'id:\'team'+${match.homeTeamId}+'Table\'}',
                        lay-filter='team'+${match.homeTeamId}+'Table'">
                     <thead>
                     <tr>
                         <th lay-data="{field:'webName', align: 'center', width:150}">姓名</th>
-                        <th lay-data="{field:'totalPoints', align: 'center'}">分数</th>
-                        <th lay-data="{field:'bonus', align: 'center', width:100 ,sort:true}">bonus</th>
+                        <th lay-data="{field:'totalPoints', align: 'center', style: 'background-color: #5FB878; color: #fff;'}">
+                            分数
+                        </th>
+                        <th lay-data="{field:'bonus', align: 'center', width:70}">bonus</th>
                         <th lay-data="{field:'bps', align: 'center'}">bps</th>
                         <th lay-data="{field:'goalsScored', align: 'center'}">进球</th>
                         <th lay-data="{field:'assists', align: 'center'}">助攻</th>
@@ -45,13 +48,16 @@
                     </thead>
                 </table>
                 <table class="layui-table"
-                       th:attr="lay-data='{url:\'/live/qryLiveFixturePlayerList?teamId='+${match.awayTeamId}+'\', id:\'team'+${match.awayTeamId}+'Table\'}',
+                       th:attr="lay-data='{url:\'/live/qryLiveFixturePlayerList?teamId='+${match.awayTeamId}+'\', '+
+                       'id:\'team'+${match.awayTeamId}+'Table\'}',
                        lay-filter='team'+${match.awayTeamId}+'Table'">
                     <thead>
                     <tr>
                         <th lay-data="{field:'webName', align: 'center', width:150}">姓名</th>
-                        <th lay-data="{field:'totlPoints', align: 'center'}">分数</th>
-                        <th lay-data="{field:'bonus', align: 'center', width:100 ,sort:true}">bonus</th>
+                        <th lay-data="{field:'totalPoints', align: 'center', style: 'background-color: #5FB878; color: #fff;'}">
+                            分数
+                        </th>
+                        <th lay-data="{field:'bonus', align: 'center', width:70}">bonus</th>
                         <th lay-data="{field:'bps', align: 'center'}">bps</th>
                         <th lay-data="{field:'goalsScored', align: 'center'}">进球</th>
                         <th lay-data="{field:'assists', align: 'center'}">助攻</th>
