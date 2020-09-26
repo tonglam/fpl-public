@@ -468,6 +468,10 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     .setGoalsConceded(o.getGoalsConceded())
                     .setOwnGoals(o.getOwnGoals())
                     .setPenaltiesSaved(o.getPenaltiesSaved())
+                    .setPenaltiesMissed(o.getPenaltiesMissed())
+                    .setYellowCards(o.getYellowCards())
+                    .setRedCards(o.getRedCards())
+                    .setSaves(o.getSaves())
                     .setBps(o.getBps())
                     .setBonus(liveBonusMap.getOrDefault(o.getElement(), 0))
                     .setTotalPoints(o.getTotalPoints());
