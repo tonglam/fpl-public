@@ -32,24 +32,24 @@ public class StatController {
     private final IStatApi statApi;
     private final IHttpApi httpApi;
 
-    @RequestMapping(value = "/price")
+    @GetMapping(value = "/price")
     public String priceController() {
         return "stat/price";
     }
 
-    @RequestMapping(value = "/compare")
+    @GetMapping(value = "/compare")
     public String compareController() {
         return "stat/compare";
     }
 
-    @RequestMapping(value = "/captain")
+    @GetMapping(value = "/captain")
     public String captainController(Model model) {
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
         model.addAttribute("tournamentName", "赛事：让让我吧");
         return "stat/captain";
     }
 
-    @RequestMapping(value = "/selected")
+    @GetMapping(value = "/selected")
     public String selectedController(Model model) {
         List<String> leagueList = this.statApi.qryTeamSelectStatList();
         if (!CollectionUtils.isEmpty(leagueList)) {
@@ -60,19 +60,19 @@ public class StatController {
         return "stat/selected";
     }
 
-    @GetMapping("/qryPriceChangeList")
+    @RequestMapping("/qryPriceChangeList")
     @ResponseBody
     public TableData<PlayerValueData> qryPriceChangeList() {
         return this.statApi.qryPriceChangeList();
     }
 
-    @GetMapping("/qryEntryInfoByTournament")
+    @RequestMapping("/qryEntryInfoByTournament")
     @ResponseBody
     public TableData<EntryInfoData> qryEntryInfoByTournament(@RequestParam String season, @RequestParam int tournamentId) {
         return this.statApi.qryEntryInfoByTournament(season, tournamentId);
     }
 
-    @GetMapping("/qryEntryCaptainList")
+    @RequestMapping("/qryEntryCaptainList")
     @ResponseBody
     public TableData<EntryEventCaptainData> qryEntryCaptainList(@RequestParam String season, @RequestParam int entry) {
         return this.statApi.qryEntryCaptainList(season, entry);

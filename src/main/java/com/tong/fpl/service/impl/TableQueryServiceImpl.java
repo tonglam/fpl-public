@@ -442,6 +442,77 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return new TableData<>(liveCalaList);
     }
 
+    @Override
+    public TableData<ElementEventResultData> qryLiveFixturePlayerList(int teamId) {
+        List<ElementEventResultData> list = Lists.newArrayList();
+        // prepare
+        Map<Integer, String> playerMap = this.getPlayerMap();
+        Map<Integer, String> positionMap = this.getPositionMap();
+        Map<Integer, Integer> liveBonusMap = this.getLiveBonusMap(teamId);
+        // live fixture
+        int event = 2;
+        this.querySerivce.getEventLiveByEvent(event).values().forEach(o -> {
+            if (o.getTeamId() != teamId || o.getMinutes() <= 0) {
+                return;
+            }
+            ElementEventResultData elementEventResultData = new ElementEventResultData();
+            elementEventResultData
+                    .setEvent(o.getEvent())
+                    .setElement(o.getElement())
+                    .setWebName(playerMap.getOrDefault(o.getElement(), ""))
+                    .setElementType(o.getElementType())
+                    .setElementTypeName(positionMap.getOrDefault(o.getElementType(), ""))
+                    .setMinutes(o.getMinutes())
+                    .setGoalsScored(o.getGoalsScored())
+                    .setAssists(o.getAssists())
+                    .setGoalsConceded(o.getGoalsConceded())
+                    .setOwnGoals(o.getOwnGoals())
+                    .setPenaltiesSaved(o.getPenaltiesSaved())
+                    .setBps(o.getAssists())
+                    .setBonus(liveBonusMap.getOrDefault(o.getElement(), 0))
+                    .setTotalPoints(o.getTotalPoints());
+            elementEventResultData
+                    .setTotalPoints(elementEventResultData.getTotalPoints() + elementEventResultData.getBonus());
+            list.add(elementEventResultData);
+        });
+        return new TableData<>(list
+                .stream()
+                .sorted(Comparator.comparing(ElementEventResultData::getTotalPoints).reversed())
+                .collect(Collectors.toList()));
+    }
+
+    private Map<Integer, String> getPlayerMap() {
+        return this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+    }
+
+    private Map<Integer, String> getPositionMap() {
+        Map<Integer, String> map = Maps.newHashMap();
+        this.querySerivce.getPositionMap().forEach((k, v) -> map.put(Integer.valueOf(k), v));
+        return map;
+    }
+
+    private Map<Integer, Integer> getLiveBonusMap(int teamId) {
+        Map<Integer, Integer> map = Maps.newHashMap();
+        this.querySerivce.getLiveBonusCacheMap().forEach((k, v) -> {
+            if (!StringUtils.equals(k, String.valueOf(teamId))) {
+                return;
+            }
+            int element = v.keySet()
+                    .stream()
+                    .mapToInt(Integer::parseInt)
+                    .findFirst()
+                    .orElse(0);
+            int bonus = v.values()
+                    .stream()
+                    .findFirst()
+                    .orElse(0);
+            map.put(element, bonus);
+        });
+        return map;
+    }
+
     /**
      * @apiNote entry_result
      */

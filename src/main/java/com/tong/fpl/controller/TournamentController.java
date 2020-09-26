@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.Pattern;
@@ -35,13 +32,13 @@ public class TournamentController {
     private final ITournamentApi tournamentApi;
     private final IHttpApi httpApi;
 
-    @RequestMapping(value = "/create")
+    @GetMapping(value = "/create")
     public String createController(Model model) {
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
         return "tournament/create";
     }
 
-    @RequestMapping(value = "/result")
+    @GetMapping(value = "/result")
     public String resultController(Model model, HttpSession session) {
         if (session.getAttribute("entry") != null) {
             int entry = (int) session.getAttribute("entry");
@@ -51,7 +48,7 @@ public class TournamentController {
         return "tournament/result";
     }
 
-    @RequestMapping(value = "/checkresult")
+    @GetMapping(value = "/checkresult")
     public String checkresultController(@RequestParam int id, Model model, HttpSession session) {
         TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
         if (tournamentInfoData != null) {
@@ -66,7 +63,7 @@ public class TournamentController {
         return "tournament/checkresult";
     }
 
-    @RequestMapping(value = "/checkfixture")
+    @GetMapping(value = "/checkfixture")
     public String checkfixtureController(@RequestParam int id, Model model) {
         TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
         if (tournamentInfoData != null) {
@@ -80,12 +77,12 @@ public class TournamentController {
         return "tournament/checkfixture";
     }
 
-    @RequestMapping(value = "/manage")
+    @GetMapping(value = "/manage")
     public String manageController() {
         return "tournament/manage";
     }
 
-    @RequestMapping(value = "/rule")
+    @GetMapping(value = "/rule")
     public String ruleController() {
         return "tournament/rule";
     }

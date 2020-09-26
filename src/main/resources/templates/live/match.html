@@ -18,6 +18,56 @@
 
             <div style="margin-top: 50px"></div>
 
+            <div th:each="match,stat:${matchList}">
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend th:text="${match.homeTeamName}+' '+${match.homeScore}+'-'+${match.awayScore}+' '+${match.awayTeamName}"></legend>
+                </fieldset>
+                <table class="layui-table"
+                       th:attr="lay-data='{url:\'/live/qryLiveFixturePlayerList?teamId='+${match.homeTeamId}+'\', id:\'team'+${match.homeTeamId}+'Table\'}',
+                       lay-filter='team'+${match.homeTeamId}+'Table'">
+                    <thead>
+                    <tr>
+                        <th lay-data="{field:'webName', align: 'center', width:150}">姓名</th>
+                        <th lay-data="{field:'totalPoints', align: 'center'}">分数</th>
+                        <th lay-data="{field:'bonus', align: 'center', width:100 ,sort:true}">bonus</th>
+                        <th lay-data="{field:'bps', align: 'center'}">bps</th>
+                        <th lay-data="{field:'goalsScored', align: 'center'}">进球</th>
+                        <th lay-data="{field:'assists', align: 'center'}">助攻</th>
+                        <th lay-data="{field:'cleanSheets', align: 'center'}">零封</th>
+                        <th lay-data="{field:'goalsConceded', align: 'center'}">丢球</th>
+                        <th lay-data="{field:'ownGoals', align: 'center'}">乌龙</th>
+                        <th lay-data="{field:'yellowCards', align: 'center'}">黄牌</th>
+                        <th lay-data="{field:'redCards', align: 'center'}">红牌</th>
+                        <th lay-data="{field:'penaltiesSaved', align: 'center'}">扑点</th>
+                        <th lay-data="{field:'penaltiesMissed', align: 'center'}">丢点</th>
+                        <th lay-data="{field:'saves', align: 'center'}">扑救</th>
+                    </tr>
+                    </thead>
+                </table>
+                <table class="layui-table"
+                       th:attr="lay-data='{url:\'/live/qryLiveFixturePlayerList?teamId='+${match.awayTeamId}+'\', id:\'team'+${match.awayTeamId}+'Table\'}',
+                       lay-filter='team'+${match.awayTeamId}+'Table'">
+                    <thead>
+                    <tr>
+                        <th lay-data="{field:'webName', align: 'center', width:150}">姓名</th>
+                        <th lay-data="{field:'totlPoints', align: 'center'}">分数</th>
+                        <th lay-data="{field:'bonus', align: 'center', width:100 ,sort:true}">bonus</th>
+                        <th lay-data="{field:'bps', align: 'center'}">bps</th>
+                        <th lay-data="{field:'goalsScored', align: 'center'}">进球</th>
+                        <th lay-data="{field:'assists', align: 'center'}">助攻</th>
+                        <th lay-data="{field:'cleanSheets', align: 'center'}">零封</th>
+                        <th lay-data="{field:'goalsConceded', align: 'center'}">丢球</th>
+                        <th lay-data="{field:'ownGoals', align: 'center'}">乌龙</th>
+                        <th lay-data="{field:'yellowCards', align: 'center'}">黄牌</th>
+                        <th lay-data="{field:'redCards', align: 'center'}">红牌</th>
+                        <th lay-data="{field:'penaltiesSaved', align: 'center'}">扑点</th>
+                        <th lay-data="{field:'penaltiesMissed', align: 'center'}">丢点</th>
+                        <th lay-data="{field:'saves', align: 'center'}">扑救</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+
         </div>
     </div>
 </div>
@@ -29,11 +79,8 @@
 <script th:replace="layout::baseScript"></script>
 
 <script th:inline="none">
-    layui.use(['form', 'layer', 'table', 'soulTable'], function () {
-
-
+    layui.use(['table'], function () {
     });
-
 </script>
 
 </html>

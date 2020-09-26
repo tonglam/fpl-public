@@ -32,19 +32,19 @@ public class MyFplController {
     private final IMyFplApi myFplApi;
     private final IHttpApi httpApi;
 
-    @RequestMapping(value = "/pick")
+    @GetMapping(value = "/pick")
     public String pickController() {
         return "myFpl/pick";
     }
 
-    @RequestMapping(value = "/entry")
+    @GetMapping(value = "/entry")
     public String entryController(Model model, HttpSession session) {
         int entry = this.getQryEntry(session);
         model.addAttribute("entryInfo", this.myFplApi.qryEntryInfo(entry));
         return "myFpl/entry";
     }
 
-    @RequestMapping(value = "/league")
+    @GetMapping(value = "/league")
     public String leagueController(Model model, HttpSession session) {
         int entry = 0;
         if (session.getAttribute("entry") != null) {
@@ -59,7 +59,7 @@ public class MyFplController {
         return "myFpl/league";
     }
 
-    @GetMapping("/qryEntryResultList")
+    @RequestMapping("/qryEntryResultList")
     @ResponseBody
     public TableData<EntryEventResultData> qryEntryResultList(HttpSession session) {
         int entry = this.getQryEntry(session);
@@ -69,14 +69,14 @@ public class MyFplController {
         return this.myFplApi.qryEntryResultList(entry);
     }
 
-    @GetMapping("/qryEntryEventResult")
+    @RequestMapping("/qryEntryEventResult")
     @ResponseBody
     public TableData<EntryPickData> qryEntryEventResult(@RequestParam int event, HttpSession session) {
         int entry = this.getQryEntry(session);
         return this.myFplApi.qryEntryEventResult(event, entry);
     }
 
-    @GetMapping("/qryElementEventResult")
+    @RequestMapping("/qryElementEventResult")
     @ResponseBody
     public TableData<ElementEventResultData> qryElementEventResult(@RequestParam int event, @RequestParam int element) {
         return this.myFplApi.qryElementEventResult(event, element);
@@ -88,13 +88,13 @@ public class MyFplController {
         session.setAttribute("myFplEntry", myFplEntry);
     }
 
-    @GetMapping("/qryPlayerDataList")
+    @RequestMapping("/qryPlayerDataList")
     @ResponseBody
     public TableData<PlayerInfoData> qryPlayerDataList(@RequestParam long page, @RequestParam long limit) {
         return this.myFplApi.qryPlayerDataList(page, limit);
     }
 
-    @GetMapping("/qryTournamentResultList")
+    @RequestMapping("/qryTournamentResultList")
     @ResponseBody
     public TableData<TournamentGroupData> qryTournamentResultList(@RequestParam int tournamentId, @RequestParam int event) {
         return this.myFplApi.qryTournamentResultList(tournamentId, event);

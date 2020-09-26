@@ -763,14 +763,6 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 	}
 
 	@Override
-	public Map<String, String> getDeadlineMap(String season) {
-		Map<String, String> map = Maps.newHashMap();
-		String key = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), season);
-		this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(k.toString(), v.toString()));
-		return map;
-	}
-
-	@Override
 	public String getDeadlineByEvent(String season, int event) {
 		String key = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), season);
 		return (String) this.redisTemplate.opsForHash().get(key, String.valueOf(event));
@@ -794,12 +786,6 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 		String key = StringUtils.joinWith("::", EventFixtureEntity.class.getSimpleName(), season, "teamId", teamId);
 		this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(String.valueOf(k), (List<PlayerFixtureData>) v));
 		return map;
-	}
-
-	@Override
-	public List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event) {
-		String key = StringUtils.joinWith("::", EventFixtureEntity.class.getSimpleName(), season, "teamId", teamId);
-		return (List<PlayerFixtureData>) this.redisTemplate.opsForHash().get(key, String.valueOf(event));
 	}
 
 	@Override

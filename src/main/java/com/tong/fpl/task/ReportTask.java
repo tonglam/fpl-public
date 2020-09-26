@@ -42,7 +42,7 @@ public class ReportTask {
 	@Scheduled(cron = "0 0 8 * * *")
 	public void insertLeagueResultStat() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDayByEvent(event)) {
+		if (!this.querySerivce.isLastMatchDay(event)) {
 			return;
 		}
 		TaskLog.info("start true insertLeagueResultStat task");

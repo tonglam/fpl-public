@@ -6,6 +6,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
+import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -24,158 +25,160 @@ import java.util.Map;
  */
 public interface IQuerySerivce {
 
-	/**
-	 * @apiNote player
-	 */
-	default int qryPlayerElementByCode(int code) {
-		return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
-	}
+    /**
+     * @apiNote player
+     */
+    default int qryPlayerElementByCode(int code) {
+        return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
+    }
 
-	int qryPlayerElementByCode(String season, int code);
+    int qryPlayerElementByCode(String season, int code);
 
-	default int qryPlayerElementByWebName(String webName) throws Exception {
-		return this.qryPlayerElementByWebName(CommonUtils.getCurrentSeason(), webName);
-	}
+    default int qryPlayerElementByWebName(String webName) throws Exception {
+        return this.qryPlayerElementByWebName(CommonUtils.getCurrentSeason(), webName);
+    }
 
-	int qryPlayerElementByWebName(String season, String webName) throws Exception;
+    int qryPlayerElementByWebName(String season, String webName) throws Exception;
 
-	PlayerData qryPlayerData(int element);
+    PlayerData qryPlayerData(int element);
 
-	PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity);
+    PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity);
 
-	List<PlayerInfoData> qryAllPlayers(String season);
+    List<PlayerInfoData> qryAllPlayers(String season);
 
-	default PlayerEntity getPlayerByElememt(int element) {
-		return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);
-	}
+    default PlayerEntity getPlayerByElememt(int element) {
+        return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);
+    }
 
-	PlayerEntity getPlayerByElememt(String season, int element);
+    PlayerEntity getPlayerByElememt(String season, int element);
 
-	default PlayerStatEntity getPlayerStatByElement(int element) {
-		return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
-	}
+    default PlayerStatEntity getPlayerStatByElement(int element) {
+        return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
+    }
 
-	PlayerStatEntity getPlayerStatByElement(String season, int element);
+    PlayerStatEntity getPlayerStatByElement(String season, int element);
 
-	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
+    List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 
-	/**
-	 * @apiNote entry
-	 */
-	default EntryInfoEntity qryEntryInfo(int entry) {
-		return this.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
-	}
+    /**
+     * @apiNote entry
+     */
+    default EntryInfoEntity qryEntryInfo(int entry) {
+        return this.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
+    }
 
-	EntryInfoEntity qryEntryInfo(String season, int entry);
+    EntryInfoEntity qryEntryInfo(String season, int entry);
 
-	EntryRes getEntry(int entry);
+    EntryRes getEntry(int entry);
 
-	UserPicksRes getUserPicks(int event, int entry);
+    UserPicksRes getUserPicks(int event, int entry);
 
-	/**
-	 * @apiNote event
-	 */
-	int getCurrentEvent();
+    /**
+     * @apiNote event
+     */
+    int getCurrentEvent();
 
-	int getNextEvent();
+    int getNextEvent();
 
-	default String getDeadlineByEvent(int event) {
-		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
-	}
+    default String getDeadlineByEvent(int event) {
+        return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
+    }
 
-	String getDeadlineByEvent(String season, int event);
+    String getDeadlineByEvent(String season, int event);
 
-	List<LocalDate> getMatchDayByEvent(int event);
+    List<LocalDate> getMatchDayByEvent(int event);
 
-	List<LocalDateTime> getMatchDayTimeByEvent(int event);
+    List<LocalDateTime> getMatchDayTimeByEvent(int event);
 
-	boolean isMatchDay(int event);
+    boolean isMatchDay(int event);
 
-	boolean isMatchDayTime(int event);
+    boolean isMatchDayTime(int event);
 
-	boolean isLastMatchDayByEvent(int event);
+    boolean isLastMatchDay(int event);
 
-	/**
-	 * @apiNote team
-	 */
-	default Map<String, String> getTeamNameMap() {
-		return this.getTeamNameMap(CommonUtils.getCurrentSeason());
-	}
+    /**
+     * @apiNote team
+     */
+    default Map<String, String> getTeamNameMap() {
+        return this.getTeamNameMap(CommonUtils.getCurrentSeason());
+    }
 
-	Map<String, String> getTeamNameMap(String season);
+    Map<String, String> getTeamNameMap(String season);
 
-	default Map<String, String> getTeamShortNameMap() {
-		return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
-	}
+    default Map<String, String> getTeamShortNameMap() {
+        return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
+    }
 
-	Map<String, String> getTeamShortNameMap(String season);
+    Map<String, String> getTeamShortNameMap(String season);
 
-	Map<String, String> getPositionMap();
+    Map<String, String> getPositionMap();
 
-	/**
-	 * @apiNote fixture
-	 */
-	default List<EventFixtureEntity> getEventFixtureByEvent(int event) {
-		return this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event);
-	}
+    /**
+     * @apiNote fixture
+     */
+    default List<EventFixtureEntity> getEventFixtureByEvent(int event) {
+        return this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event);
+    }
 
-	List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
+    List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
 
-	default Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(int teamId) {
-		return this.getEventFixtureByTeamId(CommonUtils.getCurrentSeason(), teamId);
-	}
+    default Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(int teamId) {
+        return this.getEventFixtureByTeamId(CommonUtils.getCurrentSeason(), teamId);
+    }
 
-	Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
+    Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
 
-	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
+    List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
 
-	List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
+    List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
 
-	/**
-	 * @apiNote event_live
-	 */
-	List<EventLiveEntity> qryEventLiveAll(String season, int element);
+    /**
+     * @apiNote event_live
+     */
+    List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-	List<EventLiveEntity> qryEventLive(String season, int event, int element);
+    List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
-	default List<EntryPickData> qryPickListFromPicks(String picks) {
-		return this.qryPickListFromPicks(CommonUtils.getCurrentSeason(), picks);
-	}
+    default List<EntryPickData> qryPickListFromPicks(String picks) {
+        return this.qryPickListFromPicks(CommonUtils.getCurrentSeason(), picks);
+    }
 
-	List<EntryPickData> qryPickListFromPicks(String season, String picks);
+    List<EntryPickData> qryPickListFromPicks(String season, String picks);
 
-	/**
-	 * @apiNote event_result
-	 */
-	List<EntryEventResultData> qryEntryResult(String season, int entry);
+    /**
+     * @apiNote event_result
+     */
+    List<EntryEventResultData> qryEntryResult(String season, int entry);
 
-	EntryEventResultData qryEntryEventResult(String season, int event, int entry);
+    EntryEventResultData qryEntryEventResult(String season, int event, int entry);
 
-	/**
-	 * @apiNote tournament
-	 */
-	List<TournamentInfoEntity> qryAllTournamentList();
+    /**
+     * @apiNote tournament
+     */
+    List<TournamentInfoEntity> qryAllTournamentList();
 
-	TournamentInfoEntity qryTournamentInfoById(int tournamentId);
+    TournamentInfoEntity qryTournamentInfoById(int tournamentId);
 
-	List<Integer> qryEntryListByTournament(int tournamentId);
+    List<Integer> qryEntryListByTournament(int tournamentId);
 
-	List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId);
+    List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId);
 
-	List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
+    List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
-	/**
-	 * @apiNote report
-	 */
-	List<String> qryTeamSelectStatList();
+    /**
+     * @apiNote report
+     */
+    List<String> qryTeamSelectStatList();
 
-	/**
-	 * @apiNote live, cannot be cached
-	 */
-	Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
+    /**
+     * @apiNote live, cannot be cached
+     */
+    Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
 
-	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
+    Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
-	Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+    Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+
+    List<LiveMatchData> qryLiveMatchList();
 
 }
