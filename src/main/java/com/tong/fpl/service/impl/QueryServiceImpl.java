@@ -734,7 +734,7 @@ public class QueryServiceImpl implements IQuerySerivce {
         Map<String, Map<String, List<LiveFixtureData>>> eventLiveFixtureMap = this.redisCacheSerive.getEventLiveFixtureMap();
         eventLiveFixtureMap.keySet().forEach(teamId ->
                 eventLiveFixtureMap.get(teamId).forEach((status, fixtureList) -> {
-                    if (!StringUtils.equals(status, MatchPlayStatus.Playing.name())) {
+                    if (StringUtils.equals(status, MatchPlayStatus.Not_Start.name())) {
                         return;
                     }
                     fixtureList.forEach(o -> {
