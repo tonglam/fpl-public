@@ -32,7 +32,7 @@
                         <th lay-data="{field:'totalPoints', align: 'center', style: 'background-color: #5FB878; color: #fff;'}">
                             分数
                         </th>
-                        <th lay-data="{field:'bonus', align: 'center', width:70}">bonus</th>
+                        <th lay-data="{field:'bonus', align: 'center', width:70, templet:'#bonusTpl'}">bonus</th>
                         <th lay-data="{field:'bps', align: 'center'}">bps</th>
                         <th lay-data="{field:'goalsScored', align: 'center'}">进球</th>
                         <th lay-data="{field:'assists', align: 'center'}">助攻</th>
@@ -57,7 +57,7 @@
                         <th lay-data="{field:'totalPoints', align: 'center', style: 'background-color: #5FB878; color: #fff;'}">
                             分数
                         </th>
-                        <th lay-data="{field:'bonus', align: 'center', width:70}">bonus</th>
+                        <th lay-data="{field:'bonus', align: 'center', width:70, templet:'#bonusTpl'}">bonus</th>
                         <th lay-data="{field:'bps', align: 'center'}">bps</th>
                         <th lay-data="{field:'goalsScored', align: 'center'}">进球</th>
                         <th lay-data="{field:'assists', align: 'center'}">助攻</th>
@@ -83,6 +83,14 @@
 </body>
 
 <script th:replace="layout::baseScript"></script>
+
+<script id="bonusTpl" type="text/html">
+    {{# if(d.bonus > 0){ }}
+    <div style="background-color: #FFB800; color:#fff;" class="layui-table-cell">{{d.bonus}}</div>
+    {{#  } else { }}
+    <div class="layui-table-cell">{{d.bonus}}</div>
+    {{#  } }}
+</script>
 
 <script th:inline="none">
     layui.use(['table'], function () {

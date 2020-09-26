@@ -756,7 +756,7 @@ public class QueryServiceImpl implements IQuerySerivce {
                 }));
         return list
                 .stream()
-                .sorted(Comparator.comparing(LiveMatchData::getKickoffTime))
+                .sorted(Comparator.comparing(LiveMatchData::getKickoffTime).reversed())
                 .collect(Collectors.toList());
     }
 
