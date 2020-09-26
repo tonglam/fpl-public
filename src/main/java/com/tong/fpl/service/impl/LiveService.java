@@ -350,6 +350,7 @@ public class LiveService implements ILiveService {
         int element = elementEventResultData.getElement();
         if (liveBonusTable.contains(teamId, element)) {
             elementEventResultData.setBonus(liveBonusTable.get(teamId, element));
+            elementEventResultData.setTotalPoints(elementEventResultData.getTotalPoints() + elementEventResultData.getBonus());
         }
     }
 
