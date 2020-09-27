@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,7 +21,7 @@ public class WebPageController {
 
     private final IHttpApi httpApi;
 
-    @RequestMapping(value = {"", "/"})
+    @GetMapping(value = {"", "/"})
     public String indexController(Model model) {
         int nextEvent = this.httpApi.getNextEvent();
         model.addAttribute("nextGw", nextEvent);
@@ -28,12 +29,12 @@ public class WebPageController {
         return "web/index";
     }
 
-    @RequestMapping(value = "/404")
+    @GetMapping(value = "/404")
     public String errorController() {
         return "web/error";
     }
 
-    @RequestMapping(value = "/test")
+    @GetMapping(value = "/test")
     public String testController() {
         return "web/test";
     }

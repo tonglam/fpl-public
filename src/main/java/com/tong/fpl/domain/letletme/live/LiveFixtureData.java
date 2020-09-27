@@ -18,6 +18,7 @@ public class LiveFixtureData {
     private String againstName;
     private String againstShortName;
     private int againstTeamScore;
+    private String kickoffTime;
     private String score;
     private boolean wasHome;
     private boolean started;

@@ -17,59 +17,61 @@ import com.tong.fpl.domain.letletme.tournament.*;
  */
 public interface ITableQueryService {
 
-	/**
-	 * @apiNote player
-	 */
-	TableData<PlayerInfoData> qryPlayerList(String season);
+    /**
+     * @apiNote player
+     */
+    TableData<PlayerInfoData> qryPlayerList(String season);
 
-	TableData<PlayerInfoData> qryPagePlayerDataList(long page, long limit);
+    TableData<PlayerInfoData> qryPagePlayerDataList(long page, long limit);
 
-	TableData<PlayerValueData> qryPriceChangeList();
+    TableData<PlayerValueData> qryPriceChangeList();
 
-	/**
-	 * @apiNote entry
-	 */
-	TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
+    /**
+     * @apiNote entry
+     */
+    TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
 
-	/**
-	 * @apiNote tournament
-	 */
-	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+    /**
+     * @apiNote tournament
+     */
+    TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-	TableData<TournamentEntryData> qryEntryTournamentList(int entry);
+    TableData<TournamentEntryData> qryEntryTournamentList(int entry);
 
-	TableData<TournamentInfoData> qryEntryPointsGroupTournamentList(int entry);
+    TableData<TournamentInfoData> qryEntryPointsGroupTournamentList(int entry);
 
-	TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event);
+    TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event);
 
-	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
-	TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+    TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+    TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	/**
-	 * @apiNote live
-	 */
-	TableData<LiveCalaData> qryEntryLivePoints(int entry);
+    /**
+     * @apiNote live
+     */
+    TableData<LiveCalaData> qryEntryLivePoints(int entry);
 
-	TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId);
+    TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId);
 
-	/**
-	 * @apiNote entry_result
-	 */
-	TableData<EntryPickData> qryEntryEventResult(int event, int entry);
+    TableData<ElementEventResultData> qryLiveFixturePlayerList(int teamId);
 
-	TableData<EntryEventResultData> qryEntryResultList(int entry);
+    /**
+     * @apiNote entry_result
+     */
+    TableData<EntryPickData> qryEntryEventResult(int event, int entry);
 
-	TableData<ElementEventResultData> qryElementEventResult(int event, int element);
+    TableData<EntryEventResultData> qryEntryResultList(int entry);
 
-	/**
-	 * @apiNote report
-	 */
-	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+    TableData<ElementEventResultData> qryElementEventResult(int event, int element);
 
-	//待重构
-	TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
+    /**
+     * @apiNote report
+     */
+    TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+
+    //待重构
+    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
 
 }

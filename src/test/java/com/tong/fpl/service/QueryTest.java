@@ -113,7 +113,7 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2"})
+	@CsvSource({"3"})
 	void isMatchDayTime(int event) {
 		boolean a = this.querySerivce.isMatchDayTime(event);
 		System.out.println(1);
@@ -122,7 +122,7 @@ public class QueryTest extends FplApplicationTests {
 	@Test
 	void isLastMatchDayByEvent() {
 		int event = this.querySerivce.getCurrentEvent();
-		boolean a = this.querySerivce.isLastMatchDayByEvent(event);
+		boolean a = this.querySerivce.isLastMatchDay(event);
 		System.out.println(1);
 	}
 

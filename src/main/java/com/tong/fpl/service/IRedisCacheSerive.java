@@ -65,12 +65,6 @@ public interface IRedisCacheSerive {
 
 	Map<String, String> getTeamShortNameMap(String season);
 
-	default Map<String, String> getDeadlineMap() {
-		return this.getDeadlineMap(CommonUtils.getCurrentSeason());
-	}
-
-	Map<String, String> getDeadlineMap(String season);
-
 	default String getDeadlineByEvent(int event) {
 		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
 	}
@@ -88,12 +82,6 @@ public interface IRedisCacheSerive {
 	}
 
 	Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
-
-	default List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(int teamId, int event) {
-		return this.getEventFixtureByTeamIdAndEvent(CommonUtils.getCurrentSeason(), teamId, event);
-	}
-
-	List<PlayerFixtureData> getEventFixtureByTeamIdAndEvent(String season, int teamId, int event);
 
 	Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
 

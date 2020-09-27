@@ -52,6 +52,11 @@
 
 <script th:replace="layout::baseScript"></script>
 
+<script id="nameTpl" type="text/html">
+    <a href="https://fantasy.premierleague.com/entry/{{d.entry}}/event/{{d.event}}" target="_blank"
+       title="查看官网分数" class="layui-table-link">{{d.entryName}}</a>
+</script>
+
 <script th:inline="none">
     layui.use(['form', 'layer', 'table', 'soulTable'], function () {
 
@@ -76,7 +81,7 @@
                 entryButtonDom.attr("disabled", "disabled");
 
                 let now = new Date().toLocaleTimeString();
-                $("#headTitle").html("实时得分-刷新时间：" + now);
+                $("#headTitle").html("实时得分-刷新时间" + now);
 
                 axios.get('/live/qryEntryLivePoints')
                     .then(function (response) {
@@ -159,7 +164,12 @@
                                         }
                                     ]
                                 },
-                                {field: 'entryName', title: '队伍名字', align: 'center', width: 150},
+                                {
+                                    field: 'event', title: '时间', align: 'center', templet(d) {
+                                        return 'GW' + d.event;
+                                    }
+                                },
+                                {field: 'entryName', title: '队伍名字', align: 'center', width: 150, templet: "#nameTpl"},
                                 {field: 'playerName', title: '玩家名字', align: 'center', width: 150},
                                 {
                                     field: 'livePoints',
@@ -186,24 +196,11 @@
                                     width: 100
                                 },
                                 {
-                                    field: 'chip', title: '开卡', align: 'center', templet: function (d) {
+                                    field: 'chip', title: '开卡', align: 'center', width: 100, templet: function (d) {
                                         if (d.chip == null) {
                                             return "无";
                                         } else {
                                             return d.chip;
-                                        }
-                                    }
-                                },
-                                {
-                                    field: 'eventFinished',
-                                    title: 'GW已结束',
-                                    align: 'center',
-                                    width: 100,
-                                    templet: function (d) {
-                                        if (d.eventFinished == true) {
-                                            return '是';
-                                        } else {
-                                            return '否';
                                         }
                                     }
                                 }
@@ -398,51 +395,51 @@
                 }
             });
 
-        function reloadTable() {
-            let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
-            entryButtonDom.attr("disabled", "disabled");
+            function reloadTable() {
+                let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+                entryButtonDom.attr("disabled", "disabled");
 
-            let now = new Date().toLocaleTimeString();
-            $("#headTitle").html("实时得分-" + now);
+                let now = new Date().toLocaleTimeString();
+                $("#headTitle").html("实时得分-" + now);
 
-            axios.get('/live/qryEntryLivePoints')
-                .then(function (response) {
-                    layer.close(loadIndex);
-                    $("#entryButton").removeAttr("disabled");
+                axios.get('/live/qryEntryLivePoints')
+                    .then(function (response) {
+                        layer.close(loadIndex);
+                        $("#entryButton").removeAttr("disabled");
 
-                    table.reload('liveEntryTable', {
-                        data: response.data
-                    });
+                        table.reload('liveEntryTable', {
+                            data: response.data
+                        });
 
-                    table.reload('liveElementTable', {
-                        data: response.data[0].pickList
-                    });
+                        table.reload('liveElementTable', {
+                            data: response.data[0].pickList
+                        });
 
-                })
+                    })
 
-        }
-
-        form.on('switch(refreshSwitch)', function () {
-            if (this.checked) {
-                refreshTimeout = setTimeout(refresh, 300000);
-            } else {
-                clearTimeout(refreshTimeout);
             }
-        });
 
-        entryInputDom.on('keydown', function (event) {
-            if (event.keyCode == 13) {
-                entryButtonDom.trigger('click');
-                return false;
-            }
-        });
+            form.on('switch(refreshSwitch)', function () {
+                if (this.checked) {
+                    refreshTimeout = setTimeout(refresh, 300000);
+                } else {
+                    clearTimeout(refreshTimeout);
+                }
+            });
 
-        function setTableRowColor(elem, index, color) {
-            elem.find(".layui-table-box tbody tr[data-index='" + index + "']").css("background-color", color);
+            entryInputDom.on('keydown', function (event) {
+                if (event.keyCode == 13) {
+                    entryButtonDom.trigger('click');
+                    return false;
+                }
+            });
+
+            function setTableRowColor(elem, index, color) {
+                elem.find(".layui-table-box tbody tr[data-index='" + index + "']").css("background-color", color);
             }
 
             function refresh() {
-                window.location.reload();
+                window.location.replace("/live/entry");
             }
 
         }

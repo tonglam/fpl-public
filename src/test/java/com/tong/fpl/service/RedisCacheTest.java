@@ -3,7 +3,6 @@ package com.tong.fpl.service;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.RedisUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,13 +59,13 @@ public class RedisCacheTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1"})
+	@CsvSource({"3"})
 	void insertCurrentEventFixture(int event) {
 		this.redisCacheSerive.insertSingleEventFixture(event);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1"})
+	@CsvSource({"3"})
 	void insertCurrentEventFixtureCache(int event) {
 		this.redisCacheSerive.insertSingleEventFixtureCache(event);
 	}
@@ -104,13 +103,13 @@ public class RedisCacheTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2"})
+	@CsvSource({"3"})
 	void insertEventLive(int event) {
 		this.redisCacheSerive.insertEventLive(event);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2"})
+	@CsvSource({"3"})
 	void insertEventLiveCache(int event) {
 		this.redisCacheSerive.insertEventLiveCache(event);
 	}
@@ -141,13 +140,6 @@ public class RedisCacheTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2021"})
-	void getDeadlineMap(String season) {
-		Map<String, String> map = this.redisCacheSerive.getDeadlineMap(season);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
 	@CsvSource({"2021, 1"})
 	void getDeadlineByEvent(String season, int event) {
 		String a = this.redisCacheSerive.getDeadlineByEvent(season, event);
@@ -168,20 +160,6 @@ public class RedisCacheTest extends FplApplicationTests {
 	@CsvSource({"2021, 15"})
 	void getEventFixtureByEvent(String season, int event) {
 		List<EventFixtureEntity> list = this.redisCacheSerive.getEventFixtureByEvent(season, event);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@CsvSource({"1920, 1"})
-	void getEventFixtureByTeam(String season, int teamId) {
-		Map<String, List<PlayerFixtureData>> map = this.redisCacheSerive.getEventFixtureByTeamId(season, teamId);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@CsvSource({"2021, 1, 1"})
-	void getEventFixtureByTeamAndEvent(String season, int teamId, int event) {
-		List<PlayerFixtureData> list = this.redisCacheSerive.getEventFixtureByTeamIdAndEvent(season, teamId, event);
 		System.out.println(1);
 	}
 

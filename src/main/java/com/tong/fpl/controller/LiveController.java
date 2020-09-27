@@ -1,11 +1,14 @@
 package com.tong.fpl.controller;
 
+import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.ILiveApi;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,21 +24,30 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveController {
 
+    private final IHttpApi httpApi;
     private final ILiveApi liveApi;
 
-    @RequestMapping(value = "/entry")
+    @GetMapping(value = "/entry")
     public String entryController() {
         return "live/entry";
     }
 
-    @RequestMapping(value = "/match")
-    public String matchController() {
-        return "live/match";
+    @GetMapping(value = "/liveEntry")
+    public String liveEntryController(int liveEntry, HttpSession session) {
+        session.setAttribute("liveEntry", liveEntry);
+        return "forward:/live/entry";
     }
 
-    @RequestMapping(value = "/league")
-    public String leagueController() {
+    @GetMapping(value = "/league")
+    public String leagueController(Model model) {
+        model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
         return "live/league";
+    }
+
+    @GetMapping(value = "/match")
+    public String matchController(Model model) {
+        model.addAttribute("matchList", this.liveApi.qryLiveMatchList());
+        return "live/match";
     }
 
     @RequestMapping(value = "/saveLiveEntry")
@@ -44,7 +56,7 @@ public class LiveController {
         session.setAttribute("liveEntry", liveEntry);
     }
 
-    @GetMapping("/qryEntryLivePoints")
+    @RequestMapping("/qryEntryLivePoints")
     @ResponseBody
     public TableData<LiveCalaData> qryEntryLivePoints(HttpSession session) {
         int entry = this.getLiveEntry(session);
@@ -63,10 +75,16 @@ public class LiveController {
         return 0;
     }
 
-    @GetMapping("/qryTournamentLivePoints")
+    @RequestMapping("/qryTournamentLivePoints")
     @ResponseBody
     public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
         return this.liveApi.qryTournamentLivePoints(tournamentId);
+    }
+
+    @RequestMapping("/qryLiveFixturePlayerList")
+    @ResponseBody
+    public TableData<ElementEventResultData> qryLiveFixturePlayerList(@RequestParam int teamId) {
+        return this.liveApi.qryLiveFixturePlayerList(teamId);
     }
 
 }

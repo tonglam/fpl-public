@@ -60,7 +60,7 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 0 7 * * *")
 	public void updateTournamentResult() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDayByEvent(event)) {
+		if (!this.querySerivce.isLastMatchDay(event)) {
 			return;
 		}
 		this.querySerivce.qryAllTournamentList()
@@ -83,7 +83,7 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 5 7 * * *")
 	public void updatePointsRaceGroupResult() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDayByEvent(event)) {
+		if (!this.querySerivce.isLastMatchDay(event)) {
 			return;
 		}
 		this.querySerivce.qryAllTournamentList()
@@ -108,7 +108,7 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 10 7 * * *")
 	public void updateBattleRaceGroupResult() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDayByEvent(event)) {
+		if (!this.querySerivce.isLastMatchDay(event)) {
 			return;
 		}
 		this.querySerivce.qryAllTournamentList()
@@ -133,7 +133,7 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 15 7 * * *")
 	public void updateKnockoutResult() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDayByEvent(event)) {
+		if (!this.querySerivce.isLastMatchDay(event)) {
 			return;
 		}
 		this.querySerivce.qryAllTournamentList()

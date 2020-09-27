@@ -7,14 +7,13 @@ import com.tong.fpl.service.IReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
 /**
  * Create by tong on 2020/9/16
  */
-@Component
+//@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
@@ -42,7 +41,7 @@ public class ReportTask {
 	@Scheduled(cron = "0 0 8 * * *")
 	public void insertLeagueResultStat() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDayByEvent(event)) {
+		if (!this.querySerivce.isLastMatchDay(event)) {
 			return;
 		}
 		TaskLog.info("start true insertLeagueResultStat task");

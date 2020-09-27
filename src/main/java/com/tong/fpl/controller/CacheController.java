@@ -6,7 +6,10 @@ import com.tong.fpl.api.ICacheApi;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Create by tong on 2020/8/24
@@ -20,7 +23,7 @@ public class CacheController {
 	private final ICacheApi cacheApi;
 
 	@TraceHttpCall
-	@GetMapping("/insertTeam")
+	@RequestMapping("/insertTeam")
 	@ResponseBody
 	public void insertTeam(@RequestParam String token) {
 		if (this.checkToken(token)) {
@@ -30,7 +33,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertEvent")
+	@RequestMapping("/insertEvent")
 	@ResponseBody
 	public void insertEvent(@RequestParam String token) {
 		if (this.checkToken(token)) {
@@ -40,7 +43,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertEventFixture")
+	@RequestMapping("/insertEventFixture")
 	@ResponseBody
 	public void insertEventFixture(@RequestParam String token) {
 		if (this.checkToken(token)) {
@@ -50,7 +53,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertSingleEventFixture")
+	@RequestMapping("/insertSingleEventFixture")
 	@ResponseBody
 	public void insertSingleEventFixture(@RequestParam String token, @RequestParam int event) {
 		if (this.checkToken(token)) {
@@ -60,7 +63,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertPlayer")
+	@RequestMapping("/insertPlayer")
 	@ResponseBody
 	public void insertPlayer(@RequestParam String token) {
 		if (this.checkToken(token)) {
@@ -70,7 +73,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertPlayerStat")
+	@RequestMapping("/insertPlayerStat")
 	@ResponseBody
 	public void insertPlayerStat(@RequestParam String token) {
 		if (this.checkToken(token)) {
@@ -80,7 +83,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertplayerValue")
+	@RequestMapping("/insertplayerValue")
 	@ResponseBody
 	public void insertPlayerValue(@RequestParam String token) {
 		if (this.checkToken(token)) {
@@ -90,7 +93,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/insertEventLive")
+	@RequestMapping("/insertEventLive")
 	@ResponseBody
 	public void insertEventLive(@RequestParam String token, @RequestParam int event) {
 		if (this.checkToken(token)) {
@@ -100,7 +103,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@GetMapping("/deleteKeys")
+	@RequestMapping("/deleteKeys")
 	@ResponseBody
 	public void deleteKeys(@RequestParam String token, @RequestParam String pattern) {
 		if (this.checkToken(token)) {

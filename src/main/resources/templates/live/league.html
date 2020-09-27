@@ -14,7 +14,7 @@
     <div class="layui-main">
         <div class="site-content">
 
-            <h1 style="font-size: 28px">小联赛排名</h1>
+            <h1 style="font-size: 28px" th:text="'小联赛排名-GW'+${currentGw}"></h1>
 
             <div style="margin-top: 20px"></div>
 
@@ -40,6 +40,11 @@
 <script th:replace="layout::baseScript"></script>
 
 <script th:replace="layout::entryInputLayer"></script>
+
+<script id="entryTpl" type="text/html">
+    <div><a href="/live/liveEntry?liveEntry={{d.entry}}" target="_blank" title="查看球员实时得分" class="layui-table-link">{{d.entry}}</a>
+    </div>
+</script>
 
 <script th:inline="none">
     layui.use(['element', 'table', 'layer', 'soulTable'], function () {
@@ -125,7 +130,7 @@
                                 field: 'entry',
                                 title: '队伍id',
                                 align: 'center',
-                                templet: '<div><a href="javascript:void(0);" class="layui-table-link">{{d.entry}}</a></div>'
+                                templet: '#entryTpl'
                             },
                             {field: 'entryName', title: '队伍名字', align: 'center', width: 180, filter: true},
                             {field: 'playerName', title: '玩家名字', align: 'center', width: 180, filter: true},
