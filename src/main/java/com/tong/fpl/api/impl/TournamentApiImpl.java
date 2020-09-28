@@ -25,101 +25,111 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentApiImpl implements ITournamentApi {
 
-	private final ITournamentService tournamentService;
-	private final IQuerySerivce querySerivce;
-	private final ITableQueryService tableQueryService;
+    private final ITournamentService tournamentService;
+    private final IQuerySerivce querySerivce;
+    private final ITableQueryService tableQueryService;
 
-	@Override
-	public String createNewTournament(TournamentCreateData tournamentCreateData) {
-		return this.tournamentService.createNewTournament(tournamentCreateData);
-	}
+    @Override
+    public String createNewTournament(TournamentCreateData tournamentCreateData) {
+        return this.tournamentService.createNewTournament(tournamentCreateData);
+    }
 
-	@Override
-	public TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param) {
-		return this.tableQueryService.qryTournamenList(param);
-	}
+    @Override
+    public String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData) {
+        return this.tournamentService.createNewZjTournament(zjTournamentCreateData);
+    }
 
-	@Override
-	public int countTournamentLeagueTeams(String url) {
-		return this.tournamentService.countTournamentLeagueTeams(url);
-	}
+    @Override
+    public TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param) {
+        return this.tableQueryService.qryTournamenList(param);
+    }
 
-	@Override
-	public boolean checkTournamentName(String name) {
-		return this.tournamentService.checkTournamentName(name);
-	}
+    @Override
+    public int countTournamentLeagueTeams(String url) {
+        return this.tournamentService.countTournamentLeagueTeams(url);
+    }
 
-	@Override
-	public String updateTournament(TournamentCreateData tournamentCreateData) {
-		return this.tournamentService.updateTournament(tournamentCreateData);
-	}
+    @Override
+    public boolean checkTournamentName(String name) {
+        return this.tournamentService.checkTournamentName(name);
+    }
 
-	@Override
-	public String deleteTournamentByName(String name) {
-		return this.tournamentService.deleteTournamentByName(name);
-	}
+    @Override
+    public String updateTournament(TournamentCreateData tournamentCreateData) {
+        return this.tournamentService.updateTournament(tournamentCreateData);
+    }
 
-	@Override
-	public TableData<TournamentEntryData> qryEntryTournamentList(int entry) {
-		return this.tableQueryService.qryEntryTournamentList(entry);
-	}
+    @Override
+    public String deleteTournamentByName(String name) {
+        return this.tournamentService.deleteTournamentByName(name);
+    }
 
-	@Override
-	public EntryInfoData qryEntryInfoData(int entry) {
-		return BeanUtil.copyProperties(this.querySerivce.qryEntryInfo(entry), EntryInfoData.class);
-	}
+    @Override
+    public TableData<TournamentEntryData> qryEntryTournamentList(int entry) {
+        return this.tableQueryService.qryEntryTournamentList(entry);
+    }
 
-	@Override
-	public TournamentInfoData qryTournamentInfoById(int tournamentId) {
-		TournamentInfoData tournamentInfoData = new TournamentInfoData();
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
-		if (tournamentInfoEntity == null) {
-			return tournamentInfoData;
-		}
-		BeanUtil.copyProperties(tournamentInfoEntity, tournamentInfoData);
-		tournamentInfoData
-				.setGroupModeName(GroupMode.valueOf(tournamentInfoData.getGroupMode()).getModeName())
-				.setKnockoutModeName(KnockoutMode.valueOf(tournamentInfoData.getKnockoutMode()).getModeName())
-				.setShowNum((int) Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
-		return tournamentInfoData;
-	}
+    @Override
+    public EntryInfoData qryEntryInfoData(int entry) {
+        return BeanUtil.copyProperties(this.querySerivce.qryEntryInfo(entry), EntryInfoData.class);
+    }
 
-	@Override
-	public List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId) {
-		List<TournamentKnockoutData> list = Lists.newArrayList();
-		this.querySerivce.qryKnockoutListByTournamentId(tournamentId).forEach(o ->
-				list.add(BeanUtil.copyProperties(o, TournamentKnockoutData.class)));
-		return list;
-	}
+    @Override
+    public TournamentInfoData qryTournamentInfoById(int tournamentId) {
+        TournamentInfoData tournamentInfoData = new TournamentInfoData();
+        TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+        if (tournamentInfoEntity == null) {
+            return tournamentInfoData;
+        }
+        BeanUtil.copyProperties(tournamentInfoEntity, tournamentInfoData);
+        tournamentInfoData
+                .setGroupModeName(GroupMode.valueOf(tournamentInfoData.getGroupMode()).getModeName())
+                .setKnockoutModeName(KnockoutMode.valueOf(tournamentInfoData.getKnockoutMode()).getModeName())
+                .setShowNum((int) Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
+        return tournamentInfoData;
+    }
 
-	@Override
-	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
-		return this.tableQueryService.qryGroupInfoListByGroupId(tournamentId, groupId);
-	}
+    @Override
+    public List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId) {
+        List<TournamentKnockoutData> list = Lists.newArrayList();
+        this.querySerivce.qryKnockoutListByTournamentId(tournamentId).forEach(o ->
+                list.add(BeanUtil.copyProperties(o, TournamentKnockoutData.class)));
+        return list;
+    }
 
-	@Override
-	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
-		return this.querySerivce.qryKnockoutResultByTournament(tournamentId);
-	}
+    @Override
+    public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
+        return this.tableQueryService.qryGroupInfoListByGroupId(tournamentId, groupId);
+    }
 
-	@Override
-	public TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
-		return this.tableQueryService.qryPagePointsGroupResult(tournamentId, groupId, entry, page, limit);
-	}
+    @Override
+    public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
+        return this.querySerivce.qryKnockoutResultByTournament(tournamentId);
+    }
 
-	@Override
-	public TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
-		return this.tableQueryService.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
-	}
+    @Override
+    public TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
+        return this.tableQueryService.qryPagePointsGroupResult(tournamentId, groupId, entry, page, limit);
+    }
 
-	@Override
-	public List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId) {
-		return this.querySerivce.qryGroupFixtureListById(tournamentId);
-	}
+    @Override
+    public TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
+        return this.tableQueryService.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
+    }
 
-	@Override
-	public List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId) {
-		return this.querySerivce.qryKnockoutFixtureListById(tournamentId);
-	}
+    @Override
+    public List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId) {
+        return this.querySerivce.qryGroupFixtureListById(tournamentId);
+    }
+
+    @Override
+    public List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId) {
+        return this.querySerivce.qryKnockoutFixtureListById(tournamentId);
+    }
+
+    @Override
+    public EntryInfoData qryEntryInfo(int entry) {
+        return BeanUtil.copyProperties(this.querySerivce.qryEntryInfo(entry), EntryInfoData.class);
+    }
 
 }

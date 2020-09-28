@@ -12,215 +12,351 @@
 
 <div class="layui-fluid">
     <div class="layui-main">
-        <div class="site-content" style="width: 900px">
+        <div class="site-content" style="min-width: 900px">
 
             <h1 style="font-size: 28px">创建自定义赛事</h1>
 
             <div style="margin-top: 30px"></div>
 
-            <form class="layui-form" lay-filter="tournamentForm">
+            <div class="layui-tab layui-tab-brief" lay-filter="typeTab">
+                <ul class="layui-tab-title">
+                    <!--                    <li class="layui-this" id="normal">普通赛事</li>-->
+                    <li class="layui-this" id="zhejiang">浙江联赛</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <!--                    <div class="layui-tab-item layui-show">-->
 
-                <!-- 基本设定 -->
-                <div class="layui-hide" id="baseConfig">
+                    <!--                        <form class="layui-form" lay-filter="tournamentForm">-->
 
-                    <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
-                        <legend><a name="compatibility">赛事信息</a></legend>
-                    </fieldset>
+                    <!--                            &lt;!&ndash; 基本设定 &ndash;&gt;-->
+                    <!--                            <div class="layui-hide" id="baseConfig">-->
 
-                    <div class="layui-form-item" id="url">
-                        <label class="layui-form-label label-required">官方联赛</label>
-                        <div class="layui-input-inline" style="width: 50%">
-                            <input autocomplete="on" class="layui-input" lay-reqtext="url不能为空" lay-verify="required"
-                                   name="url" placeholder="https://fantasy.premierleague.com/leagues/***/standings/*"
-                                   type="text">
-                        </div>
-                        <div class="layui-form-mid layui-word-aux" id="totalTeam"></div>
+                    <!--                                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">-->
+                    <!--                                    <legend><a>赛事信息</a></legend>-->
+                    <!--                                </fieldset>-->
+
+                    <!--                                <div class="layui-form-item" id="url">-->
+                    <!--                                    <label class="layui-form-label label-required">官方联赛</label>-->
+                    <!--                                    <div class="layui-input-inline" style="width: 50%">-->
+                    <!--                                        <input autocomplete="on" class="layui-input" lay-reqtext="url不能为空" lay-verify="required"-->
+                    <!--                                               name="url" placeholder="https://fantasy.premierleague.com/leagues/***/standings/*"-->
+                    <!--                                               type="text">-->
+                    <!--                                    </div>-->
+                    <!--                                    <div class="layui-form-mid layui-word-aux" id="totalTeam"></div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-form-item" id="tournamentName">-->
+                    <!--                                    <label class="layui-form-label label-required">赛事名称</label>-->
+                    <!--                                    <div class="layui-input-inline" style="width: 30%">-->
+                    <!--                                        <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空"-->
+                    <!--                                               lay-verify="required"-->
+                    <!--                                               name="tournamentName" type="text">-->
+                    <!--                                    </div>-->
+                    <!--                                    <i class="layui-hide layui-icon layui-icon-ok" id="nameTipsIcon" style="color:black"></i>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-form-item" id="adminer">-->
+                    <!--                                    <label class="layui-form-label label-required">管理员id</label>-->
+                    <!--                                    <div class="layui-input-inline">-->
+                    <!--                                        <input class="layui-input" lay-reqtext="管理员id不能为空" lay-verify="required" name="adminerEntry"-->
+                    <!--                                               th:placeholder="${session.entry}? ${session.entry} : '请输入管理员id'"-->
+                    <!--                                               type="number">-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-form-item" id="creator">-->
+                    <!--                                    <label class="layui-form-label label-required">创建人</label>-->
+                    <!--                                    <div class="layui-input-inline">-->
+                    <!--                                        <input autocomplete="on" class="layui-input" lay-reqtext="赛事创建人不能为空"-->
+                    <!--                                               lay-verify="required" name="creator" type="text">-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+
+                    <!--                            </div>-->
+
+                    <!--                            &lt;!&ndash; 小组赛设定 &ndash;&gt;-->
+                    <!--                            <div class="layui-hide" id="groupConfig">-->
+
+                    <!--                                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">-->
+                    <!--                                    <legend><a>小组赛设定</a></legend>-->
+                    <!--                                </fieldset>-->
+
+                    <!--                                <div class="layui-form-item" id="groupMode">-->
+                    <!--                                    <div class="layui-inline">-->
+                    <!--                                        <label class="layui-form-label label-required">小组赛模式</label>-->
+                    <!--                                        <div class="layui-input-block">-->
+                    <!--                                            <select class="layui-select" lay-filter="groupMode" lay-reqtext="请选择小组赛模式"-->
+                    <!--                                                    lay-verify="required"-->
+                    <!--                                                    name="groupMode">-->
+                    <!--                                                <option value=""></option>-->
+                    <!--                                                <option value="0">无小组赛</option>-->
+                    <!--                                                <option value="1">积分赛</option>-->
+                    <!--                                                <option value="2">对阵赛</option>-->
+                    <!--                                            </select>-->
+                    <!--                                        </div>-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-hide layui-form-item" id="groupGw">-->
+                    <!--                                    <div class="layui-inline" id="groupStartGw">-->
+                    <!--                                        <label class="layui-form-label label-required">开始时间</label>-->
+                    <!--                                        <div class="layui-input-block">-->
+                    <!--                                            <select class="layui-select" lay-filter="groupStartGw" lay-search=""-->
+                    <!--                                                    lay-verify="required"-->
+                    <!--                                                    name="groupStartGw">-->
+                    <!--                                                <option th:each="item,stat:${gwMap}" th:text="${stat.current.value}"-->
+                    <!--                                                        th:value="${stat.current.key}"></option>-->
+                    <!--                                            </select>-->
+                    <!--                                        </div>-->
+                    <!--                                    </div>-->
+                    <!--                                    <div class="layui-inline" id="groupEndGw">-->
+                    <!--                                        <label class="layui-form-label label-required">结束时间</label>-->
+                    <!--                                        <div class="layui-input-block">-->
+                    <!--                                            <select class="layui-select" lay-filter="groupEndGw" lay-search="" lay-verify="required"-->
+                    <!--                                                    name="groupEndGw">-->
+                    <!--                                                <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"-->
+                    <!--                                                        th:value="${userStat.current.key}"></option>-->
+                    <!--                                            </select>-->
+                    <!--                                        </div>-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-hide layui-form-item" id="groupTeamsPerGroup">-->
+                    <!--                                    <label class="layui-form-label label-required">每组队伍</label>-->
+                    <!--                                    <div class="layui-input-inline">-->
+                    <!--                                        <input class="layui-input" lay-verify="required" name="groupTeamsPerGroup" type="number">-->
+                    <!--                                    </div>-->
+                    <!--                                    <div class="layui-form-mid layui-word-aux" id="groupNum"></div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-hide layui-form-item" id="groupFillAverage">-->
+                    <!--                                    <div class="layui-row">-->
+                    <!--                                        <div class="layui-col-sm1" style="margin-right: 35px">-->
+                    <!--                                            <label class="layui-form-label">平均分</label>-->
+                    <!--                                        </div>-->
+                    <!--                                        <div class="layui-col-sm2" style="margin-right: 48px">-->
+                    <!--                                            <input class="layui-input" lay-skin="switch" lay-text="是|否" name="groupFillAverage"-->
+                    <!--                                                   lay-filter="groupFillAverage" type="checkbox" value=1>-->
+                    <!--                                        </div>-->
+                    <!--                                        <div class="layui-col-sm6">-->
+                    <!--                                            <div class="layui-form-mid layui-word-aux" id="fillAverageTips"></div>-->
+                    <!--                                        </div>-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-hide layui-form-item" id="groupQualifiers">-->
+                    <!--                                    <label class="layui-form-label label-required">出线数量</label>-->
+                    <!--                                    <div class="layui-input-inline">-->
+                    <!--                                        <input class="layui-input" name="groupQualifiers" type="number">-->
+                    <!--                                    </div>-->
+                    <!--                                    <div class="layui-form-mid layui-word-aux">每个小组出线的队伍数量</div>-->
+                    <!--                                </div>-->
+
+                    <!--                            </div>-->
+
+                    <!--                            &lt;!&ndash; 淘汰赛设定 &ndash;&gt;-->
+                    <!--                            <div class="layui-hide" id="knockoutConfig">-->
+
+                    <!--                                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">-->
+                    <!--                                    <legend><a>淘汰赛设定</a></legend>-->
+                    <!--                                </fieldset>-->
+
+                    <!--                                <div class="layui-form-item" id="knockoutMode">-->
+                    <!--                                    <div class="layui-inline">-->
+                    <!--                                        <label class="layui-form-label label-required">淘汰赛模式</label>-->
+                    <!--                                        <div class="layui-input-block">-->
+                    <!--                                            <select class="layui-select" lay-filter="knockoutMode" lay-reqtext="请选择淘汰赛模式"-->
+                    <!--                                                    lay-verify="required"-->
+                    <!--                                                    name="knockoutMode">-->
+                    <!--                                                <option value=""></option>-->
+                    <!--                                                <option value="0">无淘汰赛</option>-->
+                    <!--                                                <option value="1">单循环</option>-->
+                    <!--                                                <option value="2">主客场</option>-->
+                    <!--                                            </select>-->
+                    <!--                                        </div>-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-hide layui-form-item" id="knockoutRounds">-->
+                    <!--                                    <label class="layui-form-label">轮次</label>-->
+                    <!--                                    <div class="layui-input-inline">-->
+                    <!--                                        <input class="layui-input" name="knockoutRounds" readonly>-->
+                    <!--                                    </div>-->
+                    <!--                                    <div class="layui-form-mid layui-word-aux" id="knockoutTeams"></div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-hide layui-form-item" id="knockoutEvents">-->
+                    <!--                                    <label class="layui-form-label">比赛周数</label>-->
+                    <!--                                    <div class="layui-input-inline">-->
+                    <!--                                        <input class="layui-input" name="knockoutEvents" readonly>-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+
+                    <!--                                <div class="layui-form-item" id="knockoutGw">-->
+                    <!--                                    <div class="layui-inline layui-hide" id="knockoutStartGwSelect">-->
+                    <!--                                        <label class="layui-form-label label-required">开始时间</label>-->
+                    <!--                                        <div class="layui-input-block">-->
+                    <!--                                            <select class="layui-select" lay-filter="knockoutStartGwSelect" lay-search=""-->
+                    <!--                                                    name="knockoutStartGwSelect">-->
+                    <!--                                                <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"-->
+                    <!--                                                        th:value="${userStat.current.key}"></option>-->
+                    <!--                                            </select>-->
+                    <!--                                        </div>-->
+                    <!--                                    </div>-->
+                    <!--                                    <div class="layui-inline layui-hide" id="knockoutStartGw">-->
+                    <!--                                        <label class="layui-form-label">开始时间</label>-->
+                    <!--                                        <div class="layui-input-inline">-->
+                    <!--                                            <input class="layui-input" name="knockoutStartGw" readonly>-->
+                    <!--                                        </div>-->
+                    <!--                                    </div>-->
+                    <!--                                    <div class="layui-inline layui-hide" id="knockoutEndGw">-->
+                    <!--                                        <label class="layui-form-label">结束时间</label>-->
+                    <!--                                        <div class="layui-input-inline">-->
+                    <!--                                            <input class="layui-input" name="knockoutEndGw" readonly>-->
+                    <!--                                        </div>-->
+                    <!--                                    </div>-->
+                    <!--                                </div>-->
+
+                    <!--                            </div>-->
+
+                    <!--                            &lt;!&ndash; 提交 &ndash;&gt;-->
+                    <!--                            <div class="layui-hide layui-form-item" id="createButton">-->
+                    <!--                                <div class="layui-input-block">-->
+                    <!--                                    <button class="layui-btn" id="submitButton" lay-filter="createTournament"-->
+                    <!--                                            lay-submit="createTournament" type="submit">创建赛事-->
+                    <!--                                    </button>-->
+                    <!--                                </div>-->
+                    <!--                            </div>-->
+
+                    <!--                        </form>-->
+
+                    <!--                    </div>-->
+                    <div class="layui-tab-item layui-show">
+
+                        <form class="layui-form" lay-filter="zjTournamentForm">
+
+                            <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                                <legend><a>赛事信息</a></legend>
+                            </fieldset>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label label-required">赛事名称</label>
+                                <div class="layui-input-inline" style="width: 30%">
+                                    <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空"
+                                           lay-verify="required"
+                                           name="zjTournamentName" type="text">
+                                </div>
+                                <i class="layui-hide layui-icon layui-icon-ok" id="zjNameTipsIcon"
+                                   style="color:black"></i>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label label-required">管理员id</label>
+                                <div class="layui-input-inline">
+                                    <input class="layui-input" lay-reqtext="管理员id不能为空" lay-verify="required"
+                                           name="zjAdminerEntry"
+                                           th:placeholder="${session.entry}? ${session.entry} : '请输入管理员id'"
+                                           type="number">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label label-required">创建人</label>
+                                <div class="layui-input-inline">
+                                    <input autocomplete="on" class="layui-input" lay-reqtext="赛事创建人不能为空"
+                                           lay-verify="required" name="zjCreator" type="text">
+                                </div>
+                            </div>
+
+                            <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                                <legend><a title="点击单元格，输入team_id">分组</a></legend>
+                            </fieldset>
+
+                            <div class="layui-hide" id="zjGroupNum" th:text="${zjGroupNum}"></div>
+                            <div class="layui-hide" id="zjTeamPerGroup" th:text="${zjTeamPerGroup}"></div>
+
+                            <div class="layui-row layui-col-space30"
+                                 th:each="index:${#numbers.sequence(1,(zjGroupNum/2))}">
+
+                                <div class="layui-col-md6">
+                                    <div style="font-size: 18px" th:text="'第'+((${index}*2)-1)+'组'"></div>
+                                    <table class="layui-table"
+                                           th:attr="lay-filter='zjGroup'+((${index}*2)-1)+'Table',id='zjGroup'+((${index}*2)-1)+'Table'">
+                                        <thead>
+                                        <tr>
+                                            <th lay-data="{field:'index', align:'center', width:60, style:'background-color: #2F4056; color: #fff;'}">
+                                                排位
+                                            </th>
+                                            <th lay-data="{field:'entry', align:'center', width:100, style:'background-color: #5FB878; color: #fff;', edit:true}">
+                                                team_id
+                                            </th>
+                                            <th lay-data="{field:'entryName', align:'center', width:200}">队伍名称</th>
+                                            <th lay-data="{field:'playerName', align:'center', width:200}">球员名称</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>队长</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr th:each="index:${#numbers.sequence(1,zjTeamPerGroup)}">
+                                            <td th:text="${index}"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="layui-col-md6">
+                                    <div style="font-size: 18px" th:text="'第'+${index}*2+'组'"></div>
+                                    <table class="layui-table"
+                                           th:attr="lay-filter='zjGroup'+${index}*2+'Table',id='zjGroup'+${index}*2+'Table'">
+                                        <thead>
+                                        <tr>
+                                            <th lay-data="{field:'index', align:'center', width:60, style:'background-color: #2F4056; color: #fff;'}">
+                                                排位
+                                            </th>
+                                            <th lay-data="{field:'entry', align:'center', width:100, style:'background-color: #5FB878; color: #fff;', edit:true}">
+                                                team_id
+                                            </th>
+                                            <th lay-data="{field:'entryName', align:'center', width:200}">队伍名称</th>
+                                            <th lay-data="{field:'playerName', align:'center', width:200}">球员名称</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td>队长</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr th:each="index:${#numbers.sequence(1,zjTeamPerGroup)}">
+                                            <td th:text="${index}"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
+
+                            <div style="margin-top: 30px"></div>
+
+                            <button class="layui-btn" id="submitZjButton" lay-filter="createZjTournament"
+                                    lay-submit="createZjTournament" type="button">创建赛事
+                            </button>
+
+                        </form>
+
                     </div>
-
-                    <div class="layui-form-item" id="tournamentName">
-                        <label class="layui-form-label label-required">赛事名称</label>
-                        <div class="layui-input-inline" style="width: 30%">
-                            <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空"
-                                   lay-verify="required"
-                                   name="tournamentName" type="text">
-                        </div>
-                        <i class="layui-hide layui-icon layui-icon-ok" id="nameTipsIcon" style="color:black"></i>
-                    </div>
-
-                    <div class="layui-form-item" id="adminer">
-                        <label class="layui-form-label label-required">管理员id</label>
-                        <div class="layui-input-inline">
-                            <input class="layui-input" lay-reqtext="管理员id不能为空" lay-verify="required" name="adminerEntry"
-                                   th:placeholder="${session.entry}? ${session.entry} : '请输入管理员id'"
-                                   type="number">
-                        </div>
-                    </div>
-
-                    <div class="layui-form-item" id="creator">
-                        <label class="layui-form-label label-required">创建人</label>
-                        <div class="layui-input-inline">
-                            <input autocomplete="on" class="layui-input" lay-reqtext="赛事创建人不能为空"
-                                   lay-verify="required" name="creator" type="text">
-                        </div>
-                    </div>
-
                 </div>
-
-                <!-- 小组赛设定 -->
-                <div class="layui-hide" id="groupConfig">
-
-                    <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
-                        <legend><a name="compatibility">小组赛设定</a></legend>
-                    </fieldset>
-
-                    <div class="layui-form-item" id="groupMode">
-                        <div class="layui-inline">
-                            <label class="layui-form-label label-required">小组赛模式</label>
-                            <div class="layui-input-block">
-                                <select class="layui-select" lay-filter="groupMode" lay-reqtext="请选择小组赛模式"
-                                        lay-verify="required"
-                                        name="groupMode">
-                                    <option value=""></option>
-                                    <option value="0">无小组赛</option>
-                                    <option value="1">积分赛</option>
-                                    <option value="2">对阵赛</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="layui-hide layui-form-item" id="groupGw">
-                        <div class="layui-inline" id="groupStartGw">
-                            <label class="layui-form-label label-required">开始时间</label>
-                            <div class="layui-input-block">
-                                <select class="layui-select" lay-filter="groupStartGw" lay-search=""
-                                        lay-verify="required"
-                                        name="groupStartGw">
-                                    <option th:each="item,stat:${gwMap}" th:text="${stat.current.value}"
-                                            th:value="${stat.current.key}"></option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="layui-inline" id="groupEndGw">
-                            <label class="layui-form-label label-required">结束时间</label>
-                            <div class="layui-input-block">
-                                <select class="layui-select" lay-filter="groupEndGw" lay-search="" lay-verify="required"
-                                        name="groupEndGw">
-                                    <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
-                                            th:value="${userStat.current.key}"></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="layui-hide layui-form-item" id="groupTeamsPerGroup">
-                        <label class="layui-form-label label-required">每组队伍</label>
-                        <div class="layui-input-inline">
-                            <input class="layui-input" lay-verify="required" name="groupTeamsPerGroup" type="number">
-                        </div>
-                        <div class="layui-form-mid layui-word-aux" id="groupNum"></div>
-                    </div>
-
-                    <div class="layui-hide layui-form-item" id="groupFillAverage">
-                        <div class="layui-row">
-                            <div class="layui-col-sm1" style="margin-right: 35px">
-                                <label class="layui-form-label">平均分</label>
-                            </div>
-                            <div class="layui-col-sm2" style="margin-right: 48px">
-                                <input class="layui-input" lay-skin="switch" lay-text="是|否" name="groupFillAverage"
-                                       lay-filter="groupFillAverage" type="checkbox" value=1>
-                            </div>
-                            <div class="layui-col-sm6">
-                                <div class="layui-form-mid layui-word-aux" id="fillAverageTips"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="layui-hide layui-form-item" id="groupQualifiers">
-                        <label class="layui-form-label label-required">出线数量</label>
-                        <div class="layui-input-inline">
-                            <input class="layui-input" name="groupQualifiers" type="number">
-                        </div>
-                        <div class="layui-form-mid layui-word-aux">每个小组出线的队伍数量</div>
-                    </div>
-
-                </div>
-
-                <!-- 淘汰赛设定 -->
-                <div class="layui-hide" id="knockoutConfig">
-
-                    <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
-                        <legend><a name="compatibility">淘汰赛设定</a></legend>
-                    </fieldset>
-
-                    <div class="layui-form-item" id="knockoutMode">
-                        <div class="layui-inline">
-                            <label class="layui-form-label label-required">淘汰赛模式</label>
-                            <div class="layui-input-block">
-                                <select class="layui-select" lay-filter="knockoutMode" lay-reqtext="请选择淘汰赛模式"
-                                        lay-verify="required"
-                                        name="knockoutMode">
-                                    <option value=""></option>
-                                    <option value="0">无淘汰赛</option>
-                                    <option value="1">单循环</option>
-                                    <option value="2">主客场</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="layui-hide layui-form-item" id="knockoutRounds">
-                        <label class="layui-form-label">轮次</label>
-                        <div class="layui-input-inline">
-                            <input class="layui-input" name="knockoutRounds" readonly>
-                        </div>
-                        <div class="layui-form-mid layui-word-aux" id="knockoutTeams"></div>
-                    </div>
-
-                    <div class="layui-hide layui-form-item" id="knockoutEvents">
-                        <label class="layui-form-label">比赛周数</label>
-                        <div class="layui-input-inline">
-                            <input class="layui-input" name="knockoutEvents" readonly>
-                        </div>
-                    </div>
-
-                    <div class="layui-form-item" id="knockoutGw">
-                        <div class="layui-inline layui-hide" id="knockoutStartGwSelect">
-                            <label class="layui-form-label label-required">开始时间</label>
-                            <div class="layui-input-block">
-                                <select class="layui-select" lay-filter="knockoutStartGwSelect" lay-search=""
-                                        name="knockoutStartGwSelect">
-                                    <option th:each="item,userStat:${gwMap}" th:text="${userStat.current.value}"
-                                            th:value="${userStat.current.key}"></option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="layui-inline layui-hide" id="knockoutStartGw">
-                            <label class="layui-form-label">开始时间</label>
-                            <div class="layui-input-inline">
-                                <input class="layui-input" name="knockoutStartGw" readonly>
-                            </div>
-                        </div>
-                        <div class="layui-inline layui-hide" id="knockoutEndGw">
-                            <label class="layui-form-label">结束时间</label>
-                            <div class="layui-input-inline">
-                                <input class="layui-input" name="knockoutEndGw" readonly>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- 提交 -->
-                <div class="layui-hide layui-form-item" id="createButton">
-                    <div class="layui-input-block">
-                        <button class="layui-btn" id="submitButton" lay-filter="createTournament"
-                                lay-submit="createTournament" type="submit">创建赛事
-                        </button>
-                    </div>
-                </div>
-
-            </form>
+            </div>
 
         </div>
     </div>
@@ -235,8 +371,8 @@
 <script th:replace="layout::baseScript"></script>
 
 <script>
-    layui.use(['form', 'element', 'layer', 'util'], function () {
-        let $ = layui.jquery, form = layui.form, layer = layui.layer, util = layui.util;
+    layui.use(['form', 'table', 'layer', 'util'], function () {
+        let $ = layui.jquery, form = layui.form, table = layui.table, layer = layui.layer, util = layui.util;
 
         $(document).ready(function () {
             $("#rule").addClass("layui-hide");
@@ -247,21 +383,21 @@
          *
          * @author 2020.08.15
          */
-        layer.ready(function () {
-            $("#baseConfig").removeClass("layui-hide");
-            layer.open({
-                type: 1,
-                title: false,
-                closeBtn: true,
-                time: 2500,
-                area: '400px;',
-                shade: 0.8,
-                shadeClose: true,
-                moveType: 1,
-                content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
-                    '输入官方联赛url来开始创建你的自定义联赛吧！' + '<br><br>' + 'ps：*为标单必填项' + '</div>'
-            })
-        });
+        // layer.ready(function () {
+        //     $("#baseConfig").removeClass("layui-hide");
+        //     layer.open({
+        //         type: 1,
+        //         title: false,
+        //         closeBtn: true,
+        //         time: 2500,
+        //         area: '400px;',
+        //         shade: 0.8,
+        //         shadeClose: true,
+        //         moveType: 1,
+        //         content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
+        //             '输入官方联赛url来开始创建你的自定义联赛吧！' + '<br><br>' + 'ps：*为标单必填项' + '</div>'
+        //     })
+        // });
 
         /**
          * 底部固定块
@@ -287,6 +423,8 @@
                 }
             }
         });
+
+        // 普通联赛
 
         /**
          * 监听url输入框：失去焦点
@@ -897,6 +1035,90 @@
                 return false;
             });
             $(this).removeAttr("disabled");
+            return false;
+        });
+
+        // 浙江联赛
+
+        $("input[name=zjTournamentName]").on('focusout', function () {
+            let nameTipsIconDiv = $("#zjNameTipsIcon");
+            // 校验赛事名称
+            let name = $(this).val();
+            if (name == '') {
+                nameTipsIconDiv.addClass("layui-hide");
+                return false;
+            }
+            // 查询是否重复
+            axios.get('/tournament/checkTournamentName', {
+                params: {
+                    name: name
+                }
+            })
+                .then(function (response) {
+                    if (response == "true") {
+                        nameTipsIconDiv.removeClass("layui-hide");
+                    } else if (response == "false") {
+                        layer.msg("赛事名称已存在，请更换", {time: 1500});
+                        nameTipsIconDiv.addClass("layui-hide");
+                        this.val('');
+                    }
+                })
+                .catch(function (error) {
+                    console.info(error.message);
+                    layer.msg("赛事名称查询错误，请重试", {time: 1500});
+                    this.val('');
+                });
+        });
+
+        let zjGroupNum = parseInt($("#zjGroupNum").text());
+        for (let i = 1; i < zjGroupNum + 1; i++) {
+            let tableId = 'zjGroup' + i + 'Table';
+            table.init(tableId, {});
+            table.on('edit(' + tableId + ')', function (obj) {
+                let entry = obj.data.entry;
+                if (!new RegExp("^[1-9]\\d*$").test(entry)) {
+                    layer.msg('team_id需为正整数', {time: 1000});
+                    $(this).val('');
+                    return false;
+                }
+                axios.get('/tournament/qryEntryInfo?entry=' + entry)
+                    .then(function (response) {
+                        obj.update({
+                            entryName: response.entryName,
+                            playerName: response.playerName
+                        });
+                    })
+                    .catch(function (error) {
+                        console.info(error.message);
+                    });
+            });
+        }
+
+        form.on('submit(createZjTournament)', function (data) {
+            let groupList = [];
+            for (let i = 1; i < zjGroupNum + 1; i++) {
+                let zjTournamentGroupData = {};
+                let groupEntryList = [];
+                let tableId = 'zjGroup' + i + 'Table';
+                $.each(table.cache[tableId], function (index, item) {
+                    let entry = item.entry;
+                    if (entry == '' || entry <= 0) {
+                        layer.msg('小组还有坑位没分配，不能创建', {time: 1000});
+                        return false;
+                    }
+                    groupEntryList.push(entry);
+                });
+                zjTournamentGroupData.groupId = i;
+                zjTournamentGroupData.groupEntryList = groupEntryList;
+                groupList.push(zjTournamentGroupData);
+            }
+            let zjTournamentCreateData = {};
+            zjTournamentCreateData.name = $("input[name=zjTournamentName]").val();
+            zjTournamentCreateData.adminerEntry = parseInt($("input[name=zjAdminerEntry]").val());
+            zjTournamentCreateData.creator = $("input[name=zjCreator]").val();
+            zjTournamentCreateData.groupList = groupList;
+            // 提交
+            console.info(zjTournamentCreateData);
             return false;
         });
 

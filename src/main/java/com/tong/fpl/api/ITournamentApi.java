@@ -13,6 +13,8 @@ public interface ITournamentApi {
 
     String createNewTournament(TournamentCreateData tournamentCreateData);
 
+    String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
+
     TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
     int countTournamentLeagueTeams(String url);
@@ -33,14 +35,17 @@ public interface ITournamentApi {
 
 	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
-	List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
+    List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
-	TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+    TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+    TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
+    List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
 
-	List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
+    List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
+
+    EntryInfoData qryEntryInfo(int entry);
+
 
 }

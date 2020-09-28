@@ -5,6 +5,7 @@ import com.tong.fpl.api.ITournamentApi;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -35,6 +36,8 @@ public class TournamentController {
     @GetMapping(value = "/create")
     public String createController(Model model) {
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+        model.addAttribute("zjGroupNum", 4);
+        model.addAttribute("zjTeamPerGroup", 4);
         return "tournament/create";
     }
 
@@ -99,6 +102,12 @@ public class TournamentController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/createNewZjTournament")
+    public String createNewZjTournament(@RequestBody ZjTournamentCreateData zjTournamentCreateData) {
+        return this.tournamentApi.createNewZjTournament(zjTournamentCreateData);
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/countTournamentLeagueTeams")
     public int countTournamentLeagueTeams(@RequestParam @Pattern(regexp = "^https://fantasy.premierleague.com/leagues/.*/standings/[c|h]$") String url) {
         return this.tournamentApi.countTournamentLeagueTeams(url);
@@ -108,6 +117,12 @@ public class TournamentController {
     @RequestMapping(value = "/checkTournamentName")
     public boolean checkTournamentName(@RequestParam String name) {
         return this.tournamentApi.checkTournamentName(name);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/qryEntryInfo")
+    public EntryInfoData qryEntryInfo(@RequestParam int entry) {
+        return this.tournamentApi.qryEntryInfo(entry);
     }
 
     @ResponseBody
@@ -164,7 +179,7 @@ public class TournamentController {
     @ResponseBody
     @RequestMapping(value = "/qryBattleGroupResult")
     public TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(@RequestParam int tournamentId, @RequestParam int groupId, @RequestParam int entry, int page, int limit) {
-	    return this.tournamentApi.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
+        return this.tournamentApi.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
     }
 
 }

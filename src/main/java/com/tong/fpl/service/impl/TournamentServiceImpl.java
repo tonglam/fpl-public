@@ -10,6 +10,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
+import com.tong.fpl.domain.letletme.tournament.ZjTournamentCreateData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.ITournamentService;
@@ -539,6 +540,11 @@ public class TournamentServiceImpl implements ITournamentService {
         // create knockout result
         this.createKnockoutResult(knockoutEntityList, knockoutPlayAgainstNum);
         log.info("draw knockouts success!");
+    }
+
+    @Override
+    public String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData) {
+        return null;
     }
 
     private ArrayList<Integer> getKnockoutEntryList(int tournamentId, String groupMode, int groupNum, int groupQualifiers) {

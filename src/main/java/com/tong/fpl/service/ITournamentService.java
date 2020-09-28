@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
+import com.tong.fpl.domain.letletme.tournament.ZjTournamentCreateData;
 
 /**
  * Create by tong on 2020/6/24
@@ -40,6 +41,8 @@ public interface ITournamentService {
     void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
                        String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam,
                        int knockoutStartGw, int knockoutRounds);
+
+    String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
 
     int countTournamentLeagueTeams(String url);
 
