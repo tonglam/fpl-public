@@ -146,7 +146,7 @@
                                 field: 'livePoints', title: '实时得分', style: 'background-color: #5FB878; color: #fff;',
                                 align: 'center', sort: true, filter: true
                             },
-                            {field: 'transferCost', title: '转会扣分', align: 'center', filter: true},
+                            {field: 'transferCost', title: '转会扣分', align: 'center', sort: true, filter: true},
                             {
                                 field: 'liveNetPoints',
                                 title: '实时净得分',
@@ -166,7 +166,7 @@
                             }
                         ]],
                         filter: {
-                            items: ['data', 'condition'],
+                            items: ['data'],
                             bottom: false
                         },
                         done: function () {

@@ -18,7 +18,7 @@ public class DailyTask {
 	private final IRedisCacheSerive redisCacheSerive;
 	private final IUpdateEventResultService updateEventResultsService;
 
-	@Scheduled(cron = "0 30 9 * * *")
+	@Scheduled(cron = "0 35 9 * * *")
 	public void refreshPlayerValue() {
 		try {
 			this.redisCacheSerive.insertPlayer();

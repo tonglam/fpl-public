@@ -123,10 +123,10 @@
                                                         return 'GW' + d.startedEvent;
                                                     }
                                                 },
-                                                {field: 'overallPoints', title: '总得分', align: 'center'},
+                                                {field: 'lastOverallPoints', title: '上周总得分', align: 'center'},
                                                 {
-                                                    field: 'overallRank',
-                                                    title: '总排名',
+                                                    field: 'lastOverallRank',
+                                                    title: '上周总排名',
                                                     align: 'center',
                                                     templet: function (d) {
                                                         if (d.overallRank < 1000) {
@@ -139,7 +139,10 @@
                                                     }
                                                 },
                                                 {
-                                                    field: 'bank', title: '余额', align: 'center', templet: function (d) {
+                                                    field: 'bank',
+                                                    title: '上周余额',
+                                                    align: 'center',
+                                                    templet: function (d) {
                                                         if (d.bank > 0) {
                                                             return parseInt(d.bank) / 10 + 'm';
                                                         } else {
@@ -148,15 +151,13 @@
                                                     }
                                                 },
                                                 {
-                                                    field: 'teamValue',
-                                                    title: '阵容身价',
+                                                    field: 'lastTeamValue',
+                                                    title: '上周阵容身价',
                                                     align: 'center',
-                                                    width: 100,
                                                     templet: function (d) {
                                                         return parseInt(d.teamValue) / 10 + 'm';
                                                     }
-                                                },
-                                                {field: 'totalTransfers', title: '转会总数', align: 'center'}
+                                                }
                                             ]],
                                             done: function () {
                                                 soulTable.render(this);
@@ -169,8 +170,8 @@
                                         return 'GW' + d.event;
                                     }
                                 },
-                                {field: 'entryName', title: '队伍名字', align: 'center', width: 150, templet: "#nameTpl"},
-                                {field: 'playerName', title: '玩家名字', align: 'center', width: 150},
+                                {field: 'entryName', title: '队伍名字', align: 'center', width: 200, templet: "#nameTpl"},
+                                {field: 'playerName', title: '玩家名字', align: 'center', width: 180},
                                 {
                                     field: 'livePoints',
                                     title: '实时得分',

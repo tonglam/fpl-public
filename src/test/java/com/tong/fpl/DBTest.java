@@ -3,9 +3,7 @@ package com.tong.fpl;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
+import com.google.common.collect.*;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.ValueChangeType;
@@ -19,6 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +28,6 @@ import java.util.stream.Collectors;
  */
 public class DBTest extends FplApplicationTests {
 
-	@Autowired
-	private EntryInfoService entryInfoService;
 	@Autowired
 	private PlayerService playerService;
 	@Autowired
@@ -191,6 +188,19 @@ public class DBTest extends FplApplicationTests {
 			o.setStartPrice(startPrice);
 		});
 		this.playerService.updateBatchById(list);
+		System.out.println(1);
+	}
+
+	@Test
+	void getPlayerCurrentPrice() {
+		Multimap<Integer, PlayerValueEntity> playerValueMap = HashMultimap.create();
+		this.playerValueService.list().forEach(o -> playerValueMap.put(o.getElement(), o));
+		int a = playerValueMap.get(202)
+				.stream()
+				.sorted(Comparator.comparing(PlayerValueEntity::getUpdateTime))
+				.map(PlayerValueEntity::getValue)
+				.max(Integer::compareTo)
+				.orElse(0);
 		System.out.println(1);
 	}
 

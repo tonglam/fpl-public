@@ -23,6 +23,9 @@ public class EntryInfoEntity {
 	private Integer bank;
 	private Integer teamValue;
 	private Integer totalTransfers;
+	private Integer lastOverallPoints;
+	private Integer lastOverallRank;
+	private Integer lastTeamValue;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;
 	@TableField(fill = FieldFill.UPDATE)

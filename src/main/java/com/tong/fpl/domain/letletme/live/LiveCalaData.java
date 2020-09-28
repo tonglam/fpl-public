@@ -13,24 +13,27 @@ import java.util.List;
 @Accessors(chain = true)
 public class LiveCalaData {
 
-    private int event;
-    private int entry;
-    private String entryName;
-    private String playerName;
-    private String region;
-    private int startedEvent;
-    private int overallPoints;
-    private int overallRank;
-    private int bank;
-    private int teamValue;
-    private int totalTransfers;
-    private List<ElementEventResultData> pickList;
-    private String chip;
-    private int livePoints;
-    private int transferCost;
-    private int liveNetPoints;
-    private int liveTotalPoints;
-    private long played;
-    private long toPlay;
+	private int event;
+	private int entry;
+	private String entryName;
+	private String playerName;
+	private String region;
+	private int startedEvent;
+	private int overallPoints;
+	private int overallRank;
+	private int bank;
+	private int teamValue;
+	private int totalTransfers;
+	private int lastOverallPoints;
+	private int lastOverallRank;
+	private int lastTeamValue;
+	private List<ElementEventResultData> pickList;
+	private String chip;
+	private int livePoints;
+	private int transferCost;
+	private int liveNetPoints;
+	private int liveTotalPoints;
+	private long played;
+	private long toPlay;
 
 }

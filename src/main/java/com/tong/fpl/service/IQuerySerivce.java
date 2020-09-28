@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
@@ -64,27 +65,31 @@ public interface IQuerySerivce {
      * @apiNote entry
      */
     default EntryInfoEntity qryEntryInfo(int entry) {
-        return this.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
+	    return this.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
     }
 
-    EntryInfoEntity qryEntryInfo(String season, int entry);
+	EntryInfoEntity qryEntryInfo(String season, int entry);
 
-    EntryRes getEntry(int entry);
+	EntryRes getEntry(int entry);
 
-    UserPicksRes getUserPicks(int event, int entry);
+	UserPicksRes getUserPicks(int event, int entry);
 
-    /**
-     * @apiNote event
-     */
-    int getCurrentEvent();
+	UserHistoryRes getUserHistory(int entry);
 
-    int getNextEvent();
+	/**
+	 * @apiNote event
+	 */
+	int getLastEvent();
 
-    default String getDeadlineByEvent(int event) {
-        return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
-    }
+	int getCurrentEvent();
 
-    String getDeadlineByEvent(String season, int event);
+	int getNextEvent();
+
+	default String getDeadlineByEvent(int event) {
+		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
+	}
+
+	String getDeadlineByEvent(String season, int event);
 
     List<LocalDate> getMatchDayByEvent(int event);
 

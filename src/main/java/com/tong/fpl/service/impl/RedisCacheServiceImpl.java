@@ -356,6 +356,9 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 	public void insertPlayer() {
 		Optional<StaticRes> result = this.interfaceService.getBootstrapStaic();
 		result.ifPresent(staticRes -> {
+			// prepare
+			Multimap<Integer, PlayerValueEntity> playerValueMap = HashMultimap.create();
+			this.playerValueService.list().forEach(o -> playerValueMap.put(o.getElement(), o));
 			// insert table
 			this.playerService.remove(new QueryWrapper<PlayerEntity>().eq("1", 1));
 			List<PlayerEntity> playerList = Lists.newArrayList();
@@ -363,7 +366,8 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 					playerList.add(new PlayerEntity()
 							.setElement(o.getId())
 							.setCode(o.getCode())
-							.setPrice(this.getPlayerCurrentPrice(o.getId()))
+							.setPrice(this.getPlayerCurrentPrice(playerValueMap.get(o.getId())))
+							.setStartPrice(this.getPlayerStartPrice(playerValueMap.get(o.getId())))
 							.setElementType(o.getElementType())
 							.setFirstName(o.getFirstName())
 							.setSecondName(o.getSecondName())
@@ -383,15 +387,22 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 		});
 	}
 
-	private int getPlayerCurrentPrice(int element) {
-		List<PlayerValueEntity> playerValueEntityList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>()
-				.lambda()
-				.eq(PlayerValueEntity::getElement, element)
-				.orderByDesc(PlayerValueEntity::getUpdateTime));
-		if (CollectionUtils.isEmpty(playerValueEntityList)) {
-			return 0;
-		}
-		return playerValueEntityList.get(0).getValue();
+	private int getPlayerCurrentPrice(Collection<PlayerValueEntity> playerValues) {
+		return playerValues
+				.stream()
+				.sorted(Comparator.comparing(PlayerValueEntity::getUpdateTime))
+				.map(PlayerValueEntity::getValue)
+				.max(Integer::compareTo)
+				.orElse(0);
+	}
+
+	private int getPlayerStartPrice(Collection<PlayerValueEntity> playerValues) {
+		return playerValues
+				.stream()
+				.sorted(Comparator.comparing(PlayerValueEntity::getUpdateTime))
+				.map(PlayerValueEntity::getValue)
+				.min(Integer::compareTo)
+				.orElse(0);
 	}
 
 	@Override
@@ -737,6 +748,9 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 			// update table
 			PlayerEntity playerEntity = this.playerService.getById(o.getElement());
 			playerEntity.setPrice(o.getValue());
+			if (playerEntity.getStartPrice() == 0) {
+				playerEntity.setStartPrice(o.getValue());
+			}
 			updatePlayerList.add(playerEntity);
 			// set cache
 			String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
