@@ -44,6 +44,8 @@ public interface ITournamentService {
 
     String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
 
+    void createNewZjTournamentBackground(ZjTournamentCreateData zjTournamentCreateData);
+
     int countTournamentLeagueTeams(String url);
 
     boolean checkTournamentName(String name);
@@ -57,5 +59,6 @@ public interface ITournamentService {
     String deleteTournamentByName(String name);
 
     void updateTournamentEntry(int tournamentId);
+
 
 }

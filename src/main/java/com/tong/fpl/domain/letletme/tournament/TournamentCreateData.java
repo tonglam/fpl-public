@@ -3,14 +3,13 @@ package com.tong.fpl.domain.letletme.tournament;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 
 /**
  * Create by tong on 2020/6/23
  */
-@Validated
+
 @Data
 @Accessors(chain = true)
 public class TournamentCreateData {
