@@ -284,23 +284,18 @@
                                            th:attr="lay-filter='zjGroup'+((${index}*2)-1)+'Table',id='zjGroup'+((${index}*2)-1)+'Table'">
                                         <thead>
                                         <tr>
-                                            <th lay-data="{field:'index', align:'center', width:60, style:'background-color: #2F4056; color: #fff;'}">
-                                                排位
-                                            </th>
+                                            <th lay-data="{field:'index', align:'center', width:40, style:'background-color: #2F4056; color: #fff;'}"></th>
                                             <th lay-data="{field:'entry', align:'center', width:100, style:'background-color: #5FB878; color: #fff;', edit:true}">
                                                 team_id
                                             </th>
-                                            <th lay-data="{field:'entryName', align:'center', width:200}">队伍名称</th>
-                                            <th lay-data="{field:'playerName', align:'center', width:200}">球员名称</th>
+                                            <th lay-data="{field:'entryName', align:'center', width:150}">队伍名称</th>
+                                            <th lay-data="{field:'playerName', align:'center', width:150}">球员名称</th>
+                                            <th lay-data="{field:'', align:'center', width:80 , templet: '#switchTpl', unresize: true}">
+                                                队长
+                                            </th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr>
-                                            <td>队长</td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
                                         <tr th:each="index:${#numbers.sequence(1,zjTeamPerGroup)}">
                                             <td th:text="${index}"></td>
                                             <td></td>
@@ -317,23 +312,18 @@
                                            th:attr="lay-filter='zjGroup'+${index}*2+'Table',id='zjGroup'+${index}*2+'Table'">
                                         <thead>
                                         <tr>
-                                            <th lay-data="{field:'index', align:'center', width:60, style:'background-color: #2F4056; color: #fff;'}">
-                                                排位
-                                            </th>
+                                            <th lay-data="{field:'index', align:'center', width:40, style:'background-color: #2F4056; color: #fff;'}"></th>
                                             <th lay-data="{field:'entry', align:'center', width:100, style:'background-color: #5FB878; color: #fff;', edit:true}">
                                                 team_id
                                             </th>
-                                            <th lay-data="{field:'entryName', align:'center', width:200}">队伍名称</th>
-                                            <th lay-data="{field:'playerName', align:'center', width:200}">球员名称</th>
+                                            <th lay-data="{field:'entryName', align:'center', width:150}">队伍名称</th>
+                                            <th lay-data="{field:'playerName', align:'center', width:150}">球员名称</th>
+                                            <th lay-data="{field:'', align:'center', templet: '#switchTpl', unresize: true}">
+                                                队长
+                                            </th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr>
-                                            <td>队长</td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
                                         <tr th:each="index:${#numbers.sequence(1,zjTeamPerGroup)}">
                                             <td th:text="${index}"></td>
                                             <td></td>
@@ -369,6 +359,10 @@
 </body>
 
 <script th:replace="layout::baseScript"></script>
+
+<script id="switchTpl" type="text/html">
+    <input type="checkbox" name="captain" value="1" lay-skin="switch" lay-text="是|否" lay-filter="captain">
+</script>
 
 <script>
     layui.use(['form', 'table', 'layer', 'util'], function () {
