@@ -311,7 +311,7 @@
                                                 team_id
                                             </th>
                                             <th lay-data="{field:'entryName', align:'center', width:150}">队伍名称</th>
-                                            <th lay-data="{field:'playerName', align:'center', width:150}">球员名称</th>
+                                            <th lay-data="{field:'playerName', align:'center', width:130}">球员名称</th>
                                             <th lay-data="{field:'', align:'center', width:80 , templet: '#switchTpl', unresize: true}">
                                                 队长
                                             </th>
@@ -387,8 +387,9 @@
 </script>
 
 <script>
-    layui.use(['form', 'table', 'layer', 'util'], function () {
-        let $ = layui.jquery, form = layui.form, table = layui.table, layer = layui.layer, util = layui.util;
+    layui.use(['form', 'layer', 'table', 'soulTable', 'util'], function () {
+        let $ = layui.jquery, form = layui.form, layer = layui.layer, table = layui.table, soulTable = layui.soulTable,
+            util = layui.util;
 
         $(document).ready(function () {
             $("#rule").addClass("layui-hide");
@@ -1089,7 +1090,11 @@
         let zjGroupNum = parseInt($("#zjGroupNum").text());
         for (let i = 1; i < zjGroupNum + 1; i++) {
             let tableId = 'zjGroup' + i + 'Table';
-            table.init(tableId, {});
+            table.init(tableId, {
+                done: function () {
+                    soulTable.render(this);
+                }
+            });
             table.on('edit(' + tableId + ')', function (obj) {
                 let entry = obj.data.entry;
                 if (!new RegExp("^[1-9]\\d*$").test(entry)) {
