@@ -21,8 +21,8 @@
             <div class="layui-tab layui-tab-brief" lay-filter="typeTab">
 
                 <ul class="layui-tab-title">
-                    <li class="layui-this" id="normal">普通赛事</li>
-                    <li id="zhejiang">浙江联赛</li>
+                    <li class="layui-this" lay-id="normal">普通赛事</li>
+                    <li lay-id="zhejiang">浙江联赛</li>
                 </ul>
 
                 <div class="layui-tab-content">
@@ -469,13 +469,21 @@
            ? 'checked' : '' }}>
 </script>
 
-<script>
-    layui.use(['form', 'layer', 'table', 'soulTable', 'util'], function () {
-        let $ = layui.jquery, form = layui.form, layer = layui.layer, table = layui.table, soulTable = layui.soulTable,
-            util = layui.util;
+<script th:inline="javascript">
+    layui.use(['element', 'form', 'layer', 'table', 'soulTable', 'util'], function () {
+        let $ = layui.jquery, element = layui.element, form = layui.form, layer = layui.layer, table = layui.table,
+            soulTable = layui.soulTable, util = layui.util;
 
         $(document).ready(function () {
             $("#rule").addClass("layui-hide");
+            // 切换tab
+            let tabId = [[${tabId}]];
+            element.tabChange('typeTab', tabId);
+        });
+
+        element.on('tab(typeTab)', function () {
+            let tabId = $(this).attr("lay-id");
+            axios.get('/tournament/saveTabId?tabId=' + tabId);
         });
 
         /**
@@ -1486,7 +1494,8 @@
             return false;
         });
 
-    });
+    })
+    ;
 </script>
 
 <script>

@@ -47,6 +47,11 @@ public class TournamentController {
             zjTeamPerGroup = (int) session.getAttribute("zjTeamPerGroup");
         }
         model.addAttribute("zjTeamPerGroup", zjTeamPerGroup);
+        String tabId = "normal";
+        if (session.getAttribute("tabId") != null) {
+            tabId = (String) session.getAttribute("tabId");
+        }
+        model.addAttribute("tabId", tabId);
         return "tournament/create";
     }
 
@@ -104,6 +109,12 @@ public class TournamentController {
     @GetMapping(value = "/rule")
     public String ruleController() {
         return "tournament/rule";
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/saveTabId")
+    public void saveTabId(@RequestParam String tabId, HttpSession session) {
+        session.setAttribute("tabId", tabId);
     }
 
     @ResponseBody
