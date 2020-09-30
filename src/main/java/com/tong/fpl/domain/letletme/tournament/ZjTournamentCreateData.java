@@ -20,12 +20,15 @@ public class ZjTournamentCreateData {
     private int adminerEntry;
     private String creator;
     private int totalTeam;
-    private String pointsGroupStartGw;
-    private String pointsGroupEndGw;
-    private String battleGroupStartGw;
-    private String battleGroupEndGw;
-    private String pkStartGw;
-    private String pkEndGw;
+    private int pointsRound;
+    private int pointsStartGw;
+    private int pointsEndGw;
+    private int battleRound;
+    private int battleStartGw;
+    private int battleEndGw;
+    private int pkRound;
+    private int pkStartGw;
+    private int pkEndGw;
     private List<ZjTournamentGroupData> groupDataList;
 
 }

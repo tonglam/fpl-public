@@ -113,8 +113,8 @@ public class TournamentServiceImpl implements ITournamentService {
             case Battle_race: {
                 tournamentInfoEntity.setTeamPerGroup(tournamentCreateData.getTeamsPerGroup());
                 tournamentInfoEntity.setGroupNum(tournamentCreateData.getGroupNum());
-                tournamentInfoEntity.setGroupStartGw(CommonUtils.getRealGw(tournamentCreateData.getGroupStartGw()));
-                tournamentInfoEntity.setGroupEndGw(CommonUtils.getRealGw(tournamentCreateData.getGroupEndGw()));
+                tournamentInfoEntity.setGroupStartGw(tournamentCreateData.getGroupStartGw());
+                tournamentInfoEntity.setGroupEndGw(tournamentCreateData.getGroupEndGw());
                 tournamentInfoEntity.setGroupRounds(tournamentInfoEntity.getGroupEndGw() - tournamentInfoEntity.getGroupStartGw() + 1);
                 tournamentInfoEntity.setGroupFillAverage(tournamentCreateData.isGroupFillAverage());
                 tournamentInfoEntity.setGroupPlayAgainstNum(this.setGroupPlayAgainstNumByMode(groupMode, tournamentInfoEntity.getGroupRounds(), tournamentInfoEntity.getTeamPerGroup()));
@@ -149,8 +149,8 @@ public class TournamentServiceImpl implements ITournamentService {
                 tournamentInfoEntity.setKnockoutTeam(tournamentCreateData.getKnockoutTeam());
                 tournamentInfoEntity.setKnockoutRounds(tournamentCreateData.getKnockoutRounds());
                 tournamentInfoEntity.setKnockoutEvents(tournamentCreateData.getKnockoutEvents());
-                tournamentInfoEntity.setKnockoutStartGw(CommonUtils.getRealGw(tournamentCreateData.getKnockoutStartGw()));
-                tournamentInfoEntity.setKnockoutEndGw(CommonUtils.getRealGw(tournamentCreateData.getKnockoutEndGw()));
+                tournamentInfoEntity.setKnockoutStartGw(tournamentCreateData.getKnockoutStartGw());
+                tournamentInfoEntity.setKnockoutEndGw(tournamentCreateData.getKnockoutEndGw());
                 break;
             }
             default:
@@ -632,8 +632,8 @@ public class TournamentServiceImpl implements ITournamentService {
                         .setGroupId(groupId)
                         .setGroupIndex(i)
                         .setEntry(entry)
-                        .setStartGw(CommonUtils.getRealGw(zjTournamentCreateData.getPointsGroupStartGw()))
-                        .setEndGw(CommonUtils.getRealGw(zjTournamentCreateData.getBattleGroupEndGw()))
+                        .setStartGw(zjTournamentCreateData.getPointsStartGw())
+                        .setEndGw(zjTournamentCreateData.getBattleEndGw())
                         .setGroupPoints(0)
                         .setGroupRank(0)
                         .setPlay(0)
@@ -645,7 +645,7 @@ public class TournamentServiceImpl implements ITournamentService {
                         .setOverallRank(0)
                 );
                 // points_group_result
-                IntStream.range(CommonUtils.getRealGw(zjTournamentCreateData.getPointsGroupStartGw()), CommonUtils.getRealGw(zjTournamentCreateData.getPointsGroupEndGw()) + 1).forEach(event ->
+                IntStream.range(zjTournamentCreateData.getPointsStartGw(), zjTournamentCreateData.getPointsEndGw() + 1).forEach(event ->
                         tournamentPointsGroupResultEntityList.add(new TournamentPointsGroupResultEntity()
                                 .setTournamentId(tournamentId)
                                 .setGroupId(groupId)

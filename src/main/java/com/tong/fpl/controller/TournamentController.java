@@ -34,11 +34,27 @@ public class TournamentController {
     private final IHttpApi httpApi;
 
     @GetMapping(value = "/create")
-    public String createController(Model model) {
+    public String createController(Model model, HttpSession session) {
         model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-        model.addAttribute("zjGroupNum", 4);
-        model.addAttribute("zjTeamPerGroup", 4);
+        int zjGroupNum = 4;
+        if (session.getAttribute("zjGroupNum") != null) {
+            zjGroupNum = (int) session.getAttribute("zjGroupNum");
+        }
+        model.addAttribute("zjGroupNum", zjGroupNum);
+        model.addAttribute("showNum", Math.ceil(zjGroupNum * 1.0 / 2));
+        int zjTeamPerGroup = 4;
+        if (session.getAttribute("zjTeamPerGroup") != null) {
+            zjTeamPerGroup = (int) session.getAttribute("zjTeamPerGroup");
+        }
+        model.addAttribute("zjTeamPerGroup", zjTeamPerGroup);
         return "tournament/create";
+    }
+
+    @GetMapping(value = "/create/reload")
+    public String createController(@RequestParam int zjGroupNum, @RequestParam int zjTeamPerGroup, HttpSession session) {
+        session.setAttribute("zjGroupNum", zjGroupNum);
+        session.setAttribute("zjTeamPerGroup", zjTeamPerGroup);
+        return "redirect:/tournament/create";
     }
 
     @GetMapping(value = "/result")

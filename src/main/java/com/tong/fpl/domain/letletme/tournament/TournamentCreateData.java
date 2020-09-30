@@ -27,8 +27,8 @@ public class TournamentCreateData {
     // group params
     @NotBlank
     private String groupMode;
-    private String groupStartGw;
-    private String groupEndGw;
+    private int groupStartGw;
+    private int groupEndGw;
     private int teamsPerGroup;
     private int groupNum;
     private int groupQualifiers;
@@ -38,8 +38,8 @@ public class TournamentCreateData {
     private String knockoutMode;
     private int knockoutTeam;
     private int knockoutRounds;
-	private int knockoutEvents;
-	private String knockoutStartGw;
-    private String knockoutEndGw;
+    private int knockoutEvents;
+    private int knockoutStartGw;
+    private int knockoutEndGw;
 
 }

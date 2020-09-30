@@ -36,32 +36,32 @@ public class TournamentTest extends FplApplicationTests {
 		switch (tournamnetMode) {
 			case "FA cup": {
 				tournamentCreateData.setGroupMode(GroupMode.No_group.name()).setKnockoutMode(KnockoutMode.Single_round.name());
-				tournamentCreateData.setKnockoutStartGw("39");
+				tournamentCreateData.setKnockoutStartGw(39);
 				break;
 			}
 			case "FA cup home-away": {
 				tournamentCreateData.setGroupMode(GroupMode.No_group.name()).setKnockoutMode(KnockoutMode.Home_away.name());
-				tournamentCreateData.setKnockoutStartGw("39");
+				tournamentCreateData.setKnockoutStartGw(39);
 				break;
 			}
 			case "classic": {
 				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.No_knockout.name());
-				tournamentCreateData.setTeamsPerGroup(0).setGroupStartGw("1").setGroupEndGw("47").setGroupQualifiers(1000);
+				tournamentCreateData.setTeamsPerGroup(0).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(1000);
 				break;
 			}
 			case "h2h": {
 				tournamentCreateData.setGroupMode(GroupMode.Battle_race.name()).setKnockoutMode(KnockoutMode.No_knockout.name());
-				tournamentCreateData.setTeamsPerGroup(0).setGroupStartGw("1").setGroupEndGw("47").setGroupQualifiers(0);
+				tournamentCreateData.setTeamsPerGroup(0).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(0);
 				break;
 			}
 			case "points world cup": {
 				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.Single_round.name());
-				tournamentCreateData.setTeamsPerGroup(7).setGroupStartGw("1").setGroupEndGw("47").setGroupQualifiers(4);
+				tournamentCreateData.setTeamsPerGroup(7).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(4);
 				break;
 			}
 			case "points world cup home-away": {
 				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.Home_away.name());
-				tournamentCreateData.setTeamsPerGroup(7).setGroupStartGw("1").setGroupEndGw("47").setGroupQualifiers(4);
+				tournamentCreateData.setTeamsPerGroup(7).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(4);
 				break;
 			}
 			case "world cup": {
