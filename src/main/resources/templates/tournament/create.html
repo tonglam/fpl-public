@@ -268,6 +268,14 @@
                                 </div>
                             </div>
 
+                            <div class="layui-form-item">
+                                <label class="layui-form-label label-required">积分赛轮次</label>
+                                <div class="layui-input-inline">
+                                    <input autocomplete="off" class="layui-input" lay-reqtext="积分赛轮次不能为空"
+                                           lay-verify="required" name="zjPointsRound" type="number">
+                                </div>
+                            </div>
+
                             <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
                                 <legend><a title="点击单元格，输入team_id">分组</a></legend>
                             </fieldset>
@@ -1089,7 +1097,8 @@
         }
 
         form.on('submit(createZjTournament)', function (data) {
-            let groupList = [];
+            let formData = data.field;
+            let groupDataList = [];
             for (let i = 1; i < zjGroupNum + 1; i++) {
                 let zjTournamentGroupData = {};
                 let groupEntryList = [];
@@ -1104,13 +1113,13 @@
                 });
                 zjTournamentGroupData.groupId = i;
                 zjTournamentGroupData.groupEntryList = groupEntryList;
-                groupList.push(zjTournamentGroupData);
+                groupDataList.push(zjTournamentGroupData);
             }
             let zjTournamentCreateData = {};
-            zjTournamentCreateData.name = $("input[name=zjTournamentName]").val();
-            zjTournamentCreateData.adminerEntry = parseInt($("input[name=zjAdminerEntry]").val());
-            zjTournamentCreateData.creator = $("input[name=zjCreator]").val();
-            zjTournamentCreateData.groupList = groupList;
+            zjTournamentCreateData.tournamentName = formData.tournamentName;
+            zjTournamentCreateData.adminerEntry = formData.adminerEntry;
+            zjTournamentCreateData.creator = formData.creator;
+            zjTournamentCreateData.groupDataList = groupDataList;
             // 提交
             console.info(zjTournamentCreateData);
             return false;

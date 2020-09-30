@@ -12,30 +12,27 @@ import lombok.experimental.Accessors;
 @TableName(value = "tournament_info")
 public class TournamentInfoEntity {
 
-	@TableId
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private String name;
-	private String creator;
-	private Integer adminerEntry;
-	private String season;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private String leagueType;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer leagueId;
-	private Integer totalTeam;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private String groupMode;
-	private Integer groupPlayAgainstNum;
-	private Integer teamPerGroup;
-	private Integer groupStartGw;
-	private Integer groupEndGw;
-	private Integer groupRounds;
-	private Integer groupQualifiers;
-	private Boolean groupFillAverage;
-	private Integer groupNum;
-	private Integer knockoutTeam;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    @TableId
+    private Integer id;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private String name;
+    private String creator;
+    private Integer adminerEntry;
+    private String season;
+    private String leagueType;
+    private Integer leagueId;
+    private Integer totalTeam;
+    private String tournamentMode;
+    private String groupMode;
+    private Integer groupPlayAgainstNum;
+    private Integer teamPerGroup;
+    private Integer groupStartGw;
+    private Integer groupEndGw;
+    private Integer groupRounds;
+    private Integer groupQualifiers;
+    private Boolean groupFillAverage;
+    private Integer groupNum;
+    private Integer knockoutTeam;
 	private String knockoutMode;
 	private Integer knockoutPlayAgainstNum;
 	private Integer knockoutStartGw;
