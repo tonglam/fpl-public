@@ -399,21 +399,21 @@
          *
          * @author 2020.08.15
          */
-        // layer.ready(function () {
-        //     $("#baseConfig").removeClass("layui-hide");
-        //     layer.open({
-        //         type: 1,
-        //         title: false,
-        //         closeBtn: true,
-        //         time: 2500,
-        //         area: '400px;',
-        //         shade: 0.8,
-        //         shadeClose: true,
-        //         moveType: 1,
-        //         content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
-        //             '输入官方联赛url来开始创建你的自定义联赛吧！' + '<br><br>' + 'ps：*为标单必填项' + '</div>'
-        //     })
-        // });
+        layer.ready(function () {
+            $("#baseConfig").removeClass("layui-hide");
+            layer.open({
+                type: 1,
+                title: false,
+                closeBtn: true,
+                time: 2500,
+                area: '400px;',
+                shade: 0.8,
+                shadeClose: true,
+                moveType: 1,
+                content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
+                    '输入官方联赛url来开始创建你的自定义联赛吧！' + '<br><br>' + 'ps：*为标单必填项' + '</div>'
+            })
+        });
 
         /**
          * 底部固定块
