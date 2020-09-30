@@ -110,8 +110,9 @@
                                             <select class="layui-select" lay-filter="groupStartGw" lay-search=""
                                                     lay-verify="required"
                                                     name="groupStartGw">
-                                                <option th:each="item,stat:${gwMap}" th:text="${stat.current.value}"
-                                                        th:value="${stat.current.key}"></option>
+                                                <option th:each="item,userStat:${gwMap}"
+                                                        th:text="${userStat.current.value}"
+                                                        th:value="${userStat.current.key}"></option>
                                             </select>
                                         </div>
                                     </div>
