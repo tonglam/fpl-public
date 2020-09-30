@@ -749,7 +749,13 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 			PlayerEntity playerEntity = this.playerService.getById(o.getElement());
 			playerEntity.setPrice(o.getValue());
 			if (playerEntity.getStartPrice() == 0) {
-				playerEntity.setStartPrice(o.getValue());
+				// start price
+				PlayerValueEntity playerValueEntity = this.playerValueService.getOne(new QueryWrapper<PlayerValueEntity>().lambda()
+						.eq(PlayerValueEntity::getElement, o.getElement())
+						.eq(PlayerValueEntity::getChangeType, ValueChangeType.Start.name()));
+				if (playerValueEntity != null) {
+					playerEntity.setStartPrice(playerValueEntity.getValue());
+				}
 			}
 			updatePlayerList.add(playerEntity);
 			// set cache
