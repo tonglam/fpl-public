@@ -1523,7 +1523,7 @@
                 axios.post('/tournament/createNewZjTournament', zjTournamentCreateData)
                     .then(function (response) {
                         layer.msg(response, {icon: 6, time: 1500}, function () {
-                            window.location.replace("/tournament/create");
+                            // window.location.replace("/tournament/create");
                         });
                     })
                     .catch(function (error) {

@@ -30,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -555,13 +556,16 @@ public class TournamentServiceImpl implements ITournamentService {
                 .setLeagueId(0)
                 .setTotalTeam(zjTournamentCreateData.getTotalTeam())
                 .setTournamentMode(TournamentMode.Normal.name())
-                .setGroupMode(GroupMode.No_group.name())
+                .setGroupMode(GroupMode.Custom.name())
                 .setTeamPerGroup(zjTournamentCreateData.getTeamPerGroup())
                 .setGroupNum(zjTournamentCreateData.getGroupNum())
                 .setGroupStartGw(zjTournamentCreateData.getPointsStartGw())
                 .setGroupEndGw(zjTournamentCreateData.getBattleEndGw())
                 .setGroupFillAverage(false)
-                .setKnockoutMode(KnockoutMode.No_knockout.name())
+                .setGroupRounds(0)
+                .setGroupPlayAgainstNum(0)
+                .setGroupQualifiers(0)
+                .setKnockoutMode(KnockoutMode.PK.name())
                 .setKnockoutTeam(zjTournamentCreateData.getTotalTeam())
                 .setKnockoutRounds(zjTournamentCreateData.getPkRound())
                 .setKnockoutEvents(zjTournamentCreateData.getPkRound())
@@ -592,10 +596,16 @@ public class TournamentServiceImpl implements ITournamentService {
         List<Integer> entryList = Lists.newArrayList();
         groupDataList.forEach(o -> entryList.addAll(o.getGroupEntryList()));
         // entry_info
-        List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
+        List<EntryInfoEntity> insertEntryInfoEntityList = Lists.newArrayList();
+        List<EntryInfoEntity> updateEntryInfoEntityList = Lists.newArrayList();
+        Map<Integer, EntryInfoEntity> entryInfoEntityMap = this.entryInfoService.list()
+                .stream()
+                .collect(Collectors.toMap(EntryInfoEntity::getEntry, o -> o));
         entryList.parallelStream().forEach(entry -> {
             Optional<EntryRes> entryRes = this.staticSerive.getEntry(entry);
-            entryRes.ifPresent(o -> entryInfoEntityList.add(new EntryInfoEntity()
+            entryRes.ifPresent(o -> {
+                if (!entryInfoEntityMap.containsKey(entry)) {
+                    insertEntryInfoEntityList.add(new EntryInfoEntity()
                             .setEntry(entry)
                             .setEntryName(o.getName())
                             .setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
@@ -606,10 +616,25 @@ public class TournamentServiceImpl implements ITournamentService {
                             .setBank(o.getLastDeadlineBank())
                             .setTeamValue(o.getLastDeadlineValue())
                             .setTotalTransfers(o.getLastDeadlineTotalTransfers())
-                    )
-            );
+                    );
+                } else {
+                    updateEntryInfoEntityList.add(new EntryInfoEntity()
+                            .setEntry(entry)
+                            .setEntryName(o.getName())
+                            .setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
+                            .setRegion(o.getPlayerRegionName())
+                            .setStartedEvent(o.getStartedEvent())
+                            .setOverallPoints(o.getSummaryOverallPoints())
+                            .setOverallRank(o.getSummaryOverallRank())
+                            .setBank(o.getLastDeadlineBank())
+                            .setTeamValue(o.getLastDeadlineValue())
+                            .setTotalTransfers(o.getLastDeadlineTotalTransfers())
+                    );
+                }
+            });
         });
-        this.entryInfoService.saveBatch(entryInfoEntityList);
+        this.entryInfoService.saveBatch(insertEntryInfoEntityList);
+        this.entryInfoService.updateBatchById(updateEntryInfoEntityList);
         // tournament_entry
         List<TournamentEntryEntity> tournamentEntryEntityList = Lists.newArrayList();
         entryList.forEach(entry ->
@@ -633,7 +658,7 @@ public class TournamentServiceImpl implements ITournamentService {
             );
             List<Integer> groupEntryList = o.getGroupEntryList();
             for (int i = 1; i < groupEntryList.size() + 1; i++) {
-                int entry = groupEntryList.get(i);
+                int entry = groupEntryList.get(i - 1);
                 // group
                 tournamentGroupEntityList.add(new TournamentGroupEntity()
                         .setTournamentId(tournamentId)
