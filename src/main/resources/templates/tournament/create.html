@@ -386,8 +386,9 @@
                                            th:attr="lay-filter='zjGroup'+((${index}*2)-1)+'Table',id='zjGroup'+((${index}*2)-1)+'Table'">
                                         <thead>
                                         <tr>
+                                            <th lay-data="{field:'groupIndex', hide:true}"></th>
                                             <th lay-data="{field:'index', align:'center', width:40, style:'background-color: #2F4056; color: #fff;'}"></th>
-                                            <th lay-data="{field:'', align:'center', templet: '#captainTpl', unresize: true}">
+                                            <th lay-data="{field:'captainEntry', align:'center', templet: '#captainTpl', unresize: true}">
                                                 队长
                                             </th>
                                             <th lay-data="{field:'entry', align:'center', width:100, style:'background-color: #5FB878; color: #fff;', edit:true}">
@@ -398,8 +399,9 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr th:each="index:${#numbers.sequence(1,zjTeamPerGroup)}">
-                                            <td th:text="${index}"></td>
+                                        <tr th:each="teamIndex:${#numbers.sequence(1,zjTeamPerGroup)}">
+                                            <td th:text="((${index}*2)-1)"></td>
+                                            <td th:text="${teamIndex}"></td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
@@ -414,8 +416,9 @@
                                            th:attr="lay-filter='zjGroup'+${index}*2+'Table',id='zjGroup'+${index}*2+'Table'">
                                         <thead>
                                         <tr>
+                                            <th lay-data="{field:'groupIndex', hide:true}"></th>
                                             <th lay-data="{field:'index', align:'center', width:40, style:'background-color: #2F4056; color: #fff;'}"></th>
-                                            <th lay-data="{field:'', align:'center', templet: '#captainTpl', unresize: true}">
+                                            <th lay-data="{field:'captainEntry', align:'center', templet: '#captainTpl', unresize: true}">
                                                 队长
                                             </th>
                                             <th lay-data="{field:'entry', align:'center', width:100, style:'background-color: #5FB878; color: #fff;', edit:true}">
@@ -426,8 +429,9 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr th:each="index:${#numbers.sequence(1,zjTeamPerGroup)}">
-                                            <td th:text="${index}"></td>
+                                        <tr th:each="teamIndex:${#numbers.sequence(1,zjTeamPerGroup)}">
+                                            <td th:text="${index}*2"></td>
+                                            <td th:text="${teamIndex}"></td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
@@ -465,8 +469,9 @@
 <script th:replace="layout::baseScript"></script>
 
 <script id="captainTpl" type="text/html">
-    <input type="radio" name="captain" value="{{d.index}}" title="" lay-filter="captain" {{ d.index== 1
-           ? 'checked' : '' }}>
+    <input type="radio" name="{{d.groupIndex}}captain" value="{{d.index}}" title=""
+           lay-filter="{{d.groupIndex}}captain{{d.index}}Radio"
+           {{ d.index== 1 ? 'checked' : '' }}>
 </script>
 
 <script th:inline="javascript">
@@ -1184,6 +1189,8 @@
          * @author tong 2020.09.30
          */
         let zjGroupNum = parseInt($("input[name=zjGroupNum]").val());
+        let zjTeamPerGroup = parseInt($("input[name=zjTeamPerGroup]").val());
+
         for (let i = 1; i < zjGroupNum + 1; i++) {
             // 回填组名
             let groupName = getCapitalLetterFromNum(i) + "组";
@@ -1199,27 +1206,56 @@
             });
             // 监听编辑
             table.on('edit(' + tableId + ')', function (obj) {
+                let index = parseInt(obj.data.index) - 1;
                 let entry = obj.data.entry;
+                let captainEntry = obj.data.captainEntry;
                 if (!new RegExp("^[1-9]\\d*$").test(entry)) {
                     layer.msg('team_id需为正整数', {time: 1000});
                     $(this).val('');
                     return false;
                 }
+                let radioName = i + 'captain';
+                let captainIndex = $('input[name=' + radioName + ']:checked').val();
+                let tableData = table.cache[tableId];
+                if (captainEntry == '' && obj.data.index == captainIndex) {
+                    tableData[captainIndex - 1]["captainEntry"] = entry;
+                    obj.update({
+                        captainEntry: entry
+                    });
+                    form.render('radio');
+                }
                 axios.get('/tournament/qryEntryInfo?entry=' + entry)
                     .then(function (response) {
+                        let entryName = response.entryName;
+                        let playerName = response.playerName;
+                        tableData[index]["entryName"] = entryName;
+                        tableData[index]["playerName"] = playerName;
                         obj.update({
-                            entryName: response.entryName,
-                            playerName: response.playerName
+                            entryName: entryName,
+                            playerName: playerName
                         });
                     })
                     .catch(function (error) {
                         console.info(error.message);
                     });
+                console.info(tableData);
             });
-            // 监听开关
-            form.on('switch(captainSwitch)', function (obj) {
-                layer.tips(this.value + ' ' + this.name + '：' + obj.elem.checked, obj.othis);
-            });
+            // 监听队长单选框
+            for (let j = 1; j < zjTeamPerGroup + 1; j++) {
+                let radio = 'radio(' + i + 'captain' + j + 'Radio)';
+                form.on(radio, function (obj) {
+                    let index = parseInt(obj.value) - 1;
+                    let tableData = table.cache[tableId];
+                    for (let k = 0; k < zjTeamPerGroup; k++) {
+                        if (index === k) {
+                            tableData[k]["captainEntry"] = tableData[k].entry;
+                        } else {
+                            tableData[k]["captainEntry"] = "";
+                        }
+                    }
+                    console.info(tableData);
+                });
+            }
         }
 
         /**
@@ -1439,6 +1475,7 @@
             let groupDataList = [];
             for (let i = 1; i < zjGroupNum + 1; i++) {
                 let zjTournamentGroupData = {};
+                let captainEntry = 0;
                 let groupEntryList = [];
                 let tableId = 'zjGroup' + i + 'Table';
                 $.each(table.cache[tableId], function (index, item) {
@@ -1448,9 +1485,16 @@
                         commit = false;
                         return false;
                     }
+                    if (item.captainEntry != '') {
+                        captainEntry = item.captainEntry;
+                    }
                     groupEntryList.push(entry);
                 });
+                if (commit == false) {
+                    return false;
+                }
                 zjTournamentGroupData.groupId = i;
+                zjTournamentGroupData.captainEntry = captainEntry;
                 zjTournamentGroupData.groupEntryList = groupEntryList;
                 groupDataList.push(zjTournamentGroupData);
             }
@@ -1476,16 +1520,16 @@
             $(this).attr("disabled", "");
             // 提交到接口
             layer.confirm("确认创建？", {closeBtn: 0, title: ""}, function () {
-                // axios.post('/tournament/createNewZjTournament', zjTournamentCreateData)
-                //     .then(function (response) {
-                //         layer.msg(response, {icon: 6, time: 1500}, function () {
-                //             window.location.replace("/tournament/create");
-                //         });
-                //     })
-                //     .catch(function (error) {
-                //         console.info(error.message);
-                //         layer.msg("创建失败，请重新尝试！", {icon: 2, time: 1500});
-                //     });
+                axios.post('/tournament/createNewZjTournament', zjTournamentCreateData)
+                    .then(function (response) {
+                        layer.msg(response, {icon: 6, time: 1500}, function () {
+                            window.location.replace("/tournament/create");
+                        });
+                    })
+                    .catch(function (error) {
+                        console.info(error.message);
+                        layer.msg("创建失败，请重新尝试！", {icon: 2, time: 1500});
+                    });
             }, function (index) {
                 layer.close(index);
                 return false;
@@ -1494,8 +1538,7 @@
             return false;
         });
 
-    })
-    ;
+    });
 </script>
 
 <script>

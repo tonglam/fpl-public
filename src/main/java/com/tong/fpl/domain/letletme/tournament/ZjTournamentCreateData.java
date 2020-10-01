@@ -17,9 +17,11 @@ public class ZjTournamentCreateData {
 
     @NotBlank
     private String tournamentName;
+    private int groupNum;
+    private int teamPerGroup;
+    private int totalTeam;
     private int adminerEntry;
     private String creator;
-    private int totalTeam;
     private int pointsRound;
     private int pointsStartGw;
     private int pointsEndGw;

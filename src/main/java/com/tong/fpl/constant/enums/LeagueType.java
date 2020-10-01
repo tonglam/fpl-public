@@ -9,5 +9,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum LeagueType {
-	Classic, H2h
+    Classic, H2h, Custom
 }

@@ -52,6 +52,7 @@ public class TournamentServiceImpl implements ITournamentService {
     private final TournamentBattleGroupResultService tournamentGroupBattleService;
     private final TournamentKnockoutService tournamentKnockoutService;
     private final TournamentKnockoutResultService tournamentKnockoutResultService;
+    private final ZjTournamentCaptainService zjTournamentCaptainService;
 
     @Override
     public String createNewTournament(TournamentCreateData tournamentCreateData) {
@@ -550,23 +551,23 @@ public class TournamentServiceImpl implements ITournamentService {
                 .setCreator(zjTournamentCreateData.getCreator())
                 .setAdminerEntry(zjTournamentCreateData.getAdminerEntry())
                 .setSeason(CommonUtils.getCurrentSeason())
-                .setLeagueType("")
+                .setLeagueType(LeagueType.Custom.name())
                 .setLeagueId(0)
                 .setTotalTeam(zjTournamentCreateData.getTotalTeam())
                 .setTournamentMode(TournamentMode.Normal.name())
                 .setGroupMode(GroupMode.No_group.name())
-                .setTeamPerGroup(0)
-                .setGroupNum(0)
-                .setGroupStartGw(-1)
-                .setGroupEndGw(-1)
+                .setTeamPerGroup(zjTournamentCreateData.getTeamPerGroup())
+                .setGroupNum(zjTournamentCreateData.getGroupNum())
+                .setGroupStartGw(zjTournamentCreateData.getPointsStartGw())
+                .setGroupEndGw(zjTournamentCreateData.getBattleEndGw())
                 .setGroupFillAverage(false)
                 .setKnockoutMode(KnockoutMode.No_knockout.name())
-                .setKnockoutTeam(0)
-                .setKnockoutRounds(0)
-                .setKnockoutEvents(0)
-                .setKnockoutPlayAgainstNum(0)
-                .setKnockoutStartGw(-1)
-                .setKnockoutEndGw(-1)
+                .setKnockoutTeam(zjTournamentCreateData.getTotalTeam())
+                .setKnockoutRounds(zjTournamentCreateData.getPkRound())
+                .setKnockoutEvents(zjTournamentCreateData.getPkRound())
+                .setKnockoutPlayAgainstNum(1)
+                .setKnockoutStartGw(zjTournamentCreateData.getPkStartGw())
+                .setKnockoutEndGw(zjTournamentCreateData.getPkEndGw())
                 .setState(1);
         // save
         this.tournamentInfoService.save(tournamentInfoEntity);
@@ -619,10 +620,17 @@ public class TournamentServiceImpl implements ITournamentService {
                 ));
         this.tournamentEntryService.saveBatch(tournamentEntryEntityList);
         // group phase
+        List<ZjTournamentCaptainEntity> zjTournamentCaptainEntityList = Lists.newArrayList();
         List<TournamentGroupEntity> tournamentGroupEntityList = Lists.newArrayList();
         List<TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityList = Lists.newArrayList();
         groupDataList.forEach(o -> {
             int groupId = o.getGroupId();
+            // group captain
+            zjTournamentCaptainEntityList.add(new ZjTournamentCaptainEntity()
+                    .setTournamentId(tournamentId)
+                    .setGroupId(groupId)
+                    .setCaptainEntry(o.getCaptainEntry())
+            );
             List<Integer> groupEntryList = o.getGroupEntryList();
             for (int i = 1; i < groupEntryList.size() + 1; i++) {
                 int entry = groupEntryList.get(i);
@@ -659,6 +667,7 @@ public class TournamentServiceImpl implements ITournamentService {
                         ));
             }
         });
+        this.zjTournamentCaptainService.saveBatch(zjTournamentCaptainEntityList);
         this.tournamentGroupService.saveBatch(tournamentGroupEntityList);
         this.tournamentPointsGroupResultService.saveBatch(tournamentPointsGroupResultEntityList);
     }
