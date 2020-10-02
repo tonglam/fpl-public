@@ -121,7 +121,6 @@
 
 <script th:replace="layout::baseScript"></script>
 
-<!-- 淘汰赛插件 -->
 <script th:inline="none">
 
     function initBracket() {
@@ -188,7 +187,6 @@
 
 </script>
 
-<!-- 表格 -->
 <script th:inline="none">
     layui.use(['table', 'soulTable'], function () {
         let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
@@ -239,10 +237,6 @@
                                         {field: 'netPoints', title: '净得分', align: 'center'},
                                         {field: 'rank', title: '排名', align: 'center'},
                                     ]],
-                                    filter: {
-                                        items: ['condition'],
-                                        bottom: false
-                                    },
                                     done: function () {
                                         soulTable.render(this);
                                     }
@@ -262,10 +256,6 @@
                                         {field: 'score', title: '比分', align: 'center', width: 60},
                                         {field: 'awayEntryName', title: '客队', align: 'center'}
                                     ]],
-                                    filter: {
-                                        items: ['condition'],
-                                        bottom: false
-                                    },
                                     done: function () {
                                         soulTable.render(this);
                                     }

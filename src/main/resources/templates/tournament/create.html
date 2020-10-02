@@ -133,10 +133,10 @@
                                     </div>
                                 </div>
 
-                                <div class="layui-hide layui-form-item" id="groupTeamsPerGroup">
+                                <div class="layui-hide layui-form-item" id="groupTeamPerGroup">
                                     <label class="layui-form-label label-required">每组队伍</label>
                                     <div class="layui-input-inline">
-                                        <input class="layui-input" lay-verify="required" name="groupTeamsPerGroup"
+                                        <input class="layui-input" lay-verify="required" name="groupTeamPerGroup"
                                                type="number">
                                     </div>
                                     <div class="layui-form-mid layui-word-aux" id="groupNum"></div>
@@ -265,8 +265,7 @@
                                 <label class="layui-form-label label-required">赛事名称</label>
                                 <div class="layui-input-inline" style="width: 30%">
                                     <input autocomplete="on" class="layui-input" lay-reqtext="赛事名称不能为空"
-                                           lay-verify="required"
-                                           name="zjTournamentName" type="text">
+                                           lay-verify="required" name="zjTournamentName" type="text">
                                 </div>
                                 <i class="layui-hide layui-icon layui-icon-ok" id="zjNameTipsIcon"
                                    style="color:black"></i>
@@ -508,7 +507,7 @@
                 shadeClose: true,
                 moveType: 1,
                 content: '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
-                    '输入官方联赛url来开始创建你的自定义联赛吧！' + '<br><br>' + 'ps：*为标单必填项' + '</div>'
+                    '开始创建你的自定义联赛吧！' + '<br><br>' + 'ps：*为标单必填项' + '</div>'
             })
         });
 
@@ -656,7 +655,7 @@
             let knockoutModeDom = $("select[name=knockoutMode]");
             let groupFillAverageDom = $("input[name=groupFillAverage]");
             let fillAverageTipsDom = $("#fillAverageTips");
-            let groupTeamsPerGroupDom = $("input[name=groupTeamsPerGroup]");
+            let groupTeamPerGroupDom = $("input[name=groupTeamPerGroup]");
             // val
             let groupMode = data.value;
             let knockoutMode = knockoutModeDom.val();
@@ -684,7 +683,7 @@
                     groupFillAverageDom.removeAttr("disabled");
                     fillAverageTipsDom.text("");
                     // 触发小组队伍数量事件
-                    groupTeamsPerGroupDom.trigger('focusout');
+                    groupTeamPerGroupDom.trigger('focusout');
                     break;
                 }
                 case "2": { // 对阵赛
@@ -696,7 +695,7 @@
                     groupFillAverageDom.attr("disabled", "");
                     fillAverageTipsDom.text("");
                     // 触发小组队伍数量事件
-                    groupTeamsPerGroupDom.trigger('focusout');
+                    groupTeamPerGroupDom.trigger('focusout');
                     break;
                 }
                 default: { // 请选择
@@ -756,7 +755,7 @@
         });
 
         /**
-         * groupTeamsPerGroup -> (knockMode = "1" || "2")knockoutTeams
+         * groupTeamPerGroup -> (knockMode = "1" || "2")knockoutTeams
          * 监听每组队伍数量输入框:失去焦点
          * 1.校验每组队伍数量
          * 2.校验是否允许切换加入平均分开关
@@ -765,40 +764,40 @@
          *
          * @author tong 2020.08.13
          */
-        $("input[name=groupTeamsPerGroup]").on('focusout', function () {
+        $("input[name=groupTeamPerGroup]").on('focusout', function () {
             let groupNumDom = $("#groupNum");
             let groupFillAverageDom = $("input[name=groupFillAverage]");
             // 校验每组队伍数量
-            let groupTeamsPerGroup = $(this).val();
-            if (groupTeamsPerGroup == '') {
-                clearGroupTeamsPerGroup();
+            let groupTeamPerGroup = $(this).val();
+            if (groupTeamPerGroup == '') {
+                clearGroupTeamPerGroup();
                 return false;
             }
             // 需为正整数
-            if (parseInt(groupTeamsPerGroup) <= 0) {
+            if (parseInt(groupTeamPerGroup) <= 0) {
                 layer.msg("需为正整数", {time: 1500});
-                clearGroupTeamsPerGroup();
+                clearGroupTeamPerGroup();
                 return false;
             }
             // 校验联赛队伍数量
             let totalTeam = getValueFromStr($("#totalTeam").html());
-            if (parseInt(groupTeamsPerGroup) > parseInt(totalTeam)) {
+            if (parseInt(groupTeamPerGroup) > parseInt(totalTeam)) {
                 layer.msg("不能大于联赛队伍总数：" + totalTeam, {time: 1500});
-                clearGroupTeamsPerGroup();
+                clearGroupTeamPerGroup();
                 return false;
             }
             // 校验每组出线队伍数量
             let groupQualifiers = $("input[name=groupQualifiers]").val();
-            if (parseInt(groupQualifiers) > parseInt(groupTeamsPerGroup)) {
-                layer.msg("不能大于每组队伍数量：" + groupTeamsPerGroup, {time: 1500});
-                clearGroupTeamsPerGroup();
+            if (parseInt(groupQualifiers) > parseInt(groupTeamPerGroup)) {
+                layer.msg("不能大于每组队伍数量：" + groupTeamPerGroup, {time: 1500});
+                clearGroupTeamPerGroup();
                 return false;
             }
             // 校验是否允许切换加入平均分开关
             let groupMode = $("select[name=groupMode]").val();
             switch (groupMode) {
                 case "1": {
-                    if (totalTeam % groupTeamsPerGroup == 0) {
+                    if (totalTeam % groupTeamPerGroup == 0) {
                         groupFillAverageDom.attr("disabled", "");
                         groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
                         groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
@@ -811,7 +810,7 @@
                 }
                 case "2": {
                     groupFillAverageDom.attr("disabled", "");
-                    if (groupTeamsPerGroup % 2 == 0) {
+                    if (groupTeamPerGroup % 2 == 0) {
                         groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
                         groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
                         $("#fillAverageTips").text("每个小组队伍数量为偶数，无需加入平均分");
@@ -827,7 +826,7 @@
                 }
             }
             // 计算小组数量
-            let groupNum = Math.ceil(parseInt(totalTeam) / parseInt(groupTeamsPerGroup));
+            let groupNum = Math.ceil(parseInt(totalTeam) / parseInt(groupTeamPerGroup));
             groupNumDom.html("小组数量：" + groupNum);
             // 触发淘汰赛队伍事件
             $("input[name=knockoutRounds]").trigger('focusout');
@@ -870,9 +869,9 @@
             // 触发淘汰赛队伍数量事件
             knockoutRoundsDom.trigger('focusout');
             // 校验每组队伍数量
-            let groupTeamsPerGroup = $("input[name=groupTeamsPerGroup]").val();
-            if (groupTeamsPerGroup == '' || parseInt(groupQualifiers) > parseInt(groupTeamsPerGroup)) {
-                layer.msg("每组出线数量不能大于每组队伍数量：" + groupTeamsPerGroup, {time: 1500});
+            let groupTeamPerGroup = $("input[name=groupTeamPerGroup]").val();
+            if (groupTeamPerGroup == '' || parseInt(groupQualifiers) > parseInt(groupTeamPerGroup)) {
+                layer.msg("每组出线数量不能大于每组队伍数量：" + groupTeamPerGroup, {time: 1500});
                 $(this).val('');
                 knockoutRoundsDom.trigger('focusout');
                 return false;
@@ -1116,7 +1115,7 @@
             tournamentCreateData.leagueId = formData.leagueId;
             tournamentCreateData.totalTeam = getValueFromStr($("#totalTeam").html());
             tournamentCreateData.groupMode = formData.groupMode;
-            tournamentCreateData.teamsPerGroup = formData.groupTeamsPerGroup;
+            tournamentCreateData.teamPerGroup = formData.groupTeamPerGroup;
             tournamentCreateData.groupNum = getValueFromStr($("#groupNum").html());
             $("input[name=groupFillAverage]").siblings("div.layui-form-switch").children("em").text() == "是" ?
                 tournamentCreateData.groupFillAverage = true : tournamentCreateData.groupFillAverage = false;
@@ -1274,6 +1273,11 @@
             }
             if (zjGroupNumValue <= 1) {
                 layer.msg('分组数量必须大于1！', {time: 1000});
+                $(this).val(zjOldGroupNum);
+                return false;
+            }
+            if (zjGroupNumValue % 2 != 0) {
+                layer.msg('分组数量必须为偶数！', {time: 1000});
                 $(this).val(zjOldGroupNum);
                 return false;
             }
@@ -1503,6 +1507,8 @@
             }
             let zjTournamentCreateData = {};
             zjTournamentCreateData.tournamentName = formData.zjTournamentName;
+            zjTournamentCreateData.groupNum = formData.zjGroupNum;
+            zjTournamentCreateData.teaPerGroup = formData.zjTeamPerGroup;
             zjTournamentCreateData.adminerEntry = formData.zjAdminerEntry;
             zjTournamentCreateData.creator = formData.zjCreator;
             zjTournamentCreateData.totalTeam = parseInt($("#zjGroupNum").text()) * parseInt($("#zjTeamPerGroup").text());
@@ -1571,7 +1577,7 @@
     function hideGroupConfig() {
         let $ = layui.jquery;
         $("#groupGw").addClass("layui-hide");
-        $("#groupTeamsPerGroup").addClass("layui-hide");
+        $("#groupTeamPerGroup").addClass("layui-hide");
         $("#groupFillAverage").addClass("layui-hide");
         $("#groupQualifiers").addClass("layui-hide");
 
@@ -1579,7 +1585,7 @@
 
     function removeGroupRequired() {
         let $ = layui.jquery;
-        $("input[name=groupTeamsPerGroup]").removeAttr("lay-verify");
+        $("input[name=groupTeamPerGroup]").removeAttr("lay-verify");
         $("select[name=groupStartGw]").removeAttr("lay-verify");
         $("select[name=groupEndGw]").removeAttr("lay-verify");
     }
@@ -1587,7 +1593,7 @@
     function showGroupConfig(groupMode) {
         let $ = layui.jquery;
         $("#groupGw").removeClass("layui-hide");
-        $("#groupTeamsPerGroup").removeClass("layui-hide");
+        $("#groupTeamPerGroup").removeClass("layui-hide");
         if (groupMode == "1" || groupMode == "2") {
             $("#groupFillAverage").removeClass("layui-hide");
         } else {
@@ -1597,7 +1603,7 @@
 
     function addGroupRequired() {
         let $ = layui.jquery;
-        $("input[name=groupTeamsPerGroup]").attr("lay-verify", "required");
+        $("input[name=groupTeamPerGroup]").attr("lay-verify", "required");
         $("select[name=groupStartGw]").attr("lay-verify", "required");
         $("select[name=groupEndGw]").attr("lay-verify", "required");
     }
@@ -1616,7 +1622,7 @@
         let $ = layui.jquery;
         $("select[name=groupStartGw]").val('0');
         $("select[name=groupEndGw]").val('0');
-        $("input[name=groupTeamsPerGroup]").val('');
+        $("input[name=groupTeamPerGroup]").val('');
         $("input[name=groupQualifiers]").val('');
     }
 
@@ -1654,9 +1660,9 @@
         $("input[name=knockoutEndGw]").val('');
     }
 
-    function clearGroupTeamsPerGroup() {
+    function clearGroupTeamPerGroup() {
         let $ = layui.jquery;
-        $("input[name=groupTeamsPerGroup]").val('');
+        $("input[name=groupTeamPerGroup]").val('');
         $("#groupNum").html("");
         $("input[name=knockoutRounds]").trigger('focusout');
     }

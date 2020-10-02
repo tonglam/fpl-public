@@ -27,13 +27,13 @@ public interface ITournamentApi {
 
     TableData<TournamentEntryData> qryEntryTournamentList(int entry);
 
-	EntryInfoData qryEntryInfoData(int entry);
+    EntryInfoData qryEntryInfoData(int entry);
 
-	TournamentInfoData qryTournamentInfoById(int tournamentId);
+    TournamentInfoData qryTournamentInfoById(int tournamentId);
 
-	List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
+    List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
 
-	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
     List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
@@ -47,5 +47,6 @@ public interface ITournamentApi {
 
     EntryInfoData qryEntryInfo(int entry);
 
+    TableData<ZjTournamentEntryResultData> qryZjTournamentResultById(int tournamentId);
 
 }

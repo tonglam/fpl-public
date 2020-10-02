@@ -17,6 +17,7 @@ public class TournamentEntryData {
     private String season;
     private String leagueType;
     private int leagueId;
+    private String tournamentMode;
     private String groupMode;
     private String knockoutMode;
 	private String stadge;

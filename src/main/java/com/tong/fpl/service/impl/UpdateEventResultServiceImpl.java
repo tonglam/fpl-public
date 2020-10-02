@@ -230,7 +230,8 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		Table<Integer, Integer, Integer> battleResultTable = HashBasedTable.create(); // groupId-> entry-> matchPoints
 		this.tournamentBattleGroupResultService.list(new QueryWrapper<TournamentBattleGroupResultEntity>()
 				.lambda()
-				.eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId).eq(TournamentBattleGroupResultEntity::getEvent, event))
+				.eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
+				.eq(TournamentBattleGroupResultEntity::getEvent, event))
 				.forEach(groupBattleResult -> {
 					int homeEntry = groupBattleResult.getHomeEntry();
 					int awayEntry = groupBattleResult.getAwayEntry();

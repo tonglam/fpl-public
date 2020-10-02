@@ -20,13 +20,12 @@ public class TournamentInfoData {
 	private int leagueId;
 	private String groupMode;
 	private String groupModeName;
-	private String teamPerGroup;
+	private int teamPerGroup;
 	private String groupStartGw;
 	private String groupEndGw;
 	private int groupQualifiers;
 	private String groupFillAverage;
 	private int groupNum;
-	private int showNum;
 	private String knockoutMode;
 	private String knockoutModeName;
 	private String knockoutStartGw;

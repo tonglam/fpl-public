@@ -41,7 +41,7 @@ public class TournamentController {
             zjGroupNum = (int) session.getAttribute("zjGroupNum");
         }
         model.addAttribute("zjGroupNum", zjGroupNum);
-        model.addAttribute("showNum", Math.ceil(zjGroupNum * 1.0 / 2));
+        model.addAttribute("showNum", (int) Math.ceil(zjGroupNum * 1.0 / 2));
         int zjTeamPerGroup = 4;
         if (session.getAttribute("zjTeamPerGroup") != null) {
             zjTeamPerGroup = (int) session.getAttribute("zjTeamPerGroup");
@@ -77,7 +77,7 @@ public class TournamentController {
         TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
         if (tournamentInfoData != null) {
             model.addAttribute("tournamentInfo", tournamentInfoData);
-            model.addAttribute("showNum", Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
+            model.addAttribute("showNum", (int) Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
         }
         if (session.getAttribute("entry") != null) {
             int entry = (int) session.getAttribute("entry");
@@ -99,6 +99,19 @@ public class TournamentController {
         model.addAttribute("knockoutFixtureList", knockoutFixtureList);
         model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
         return "tournament/checkfixture";
+    }
+
+    @GetMapping(value = "/checkZjResult")
+    public String checkZjResultController(@RequestParam int id, Model model) {
+        TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
+        if (tournamentInfoData != null) {
+            model.addAttribute("tournamentInfo", tournamentInfoData);
+            model.addAttribute("pointsShowNum", Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
+            model.addAttribute("battleShowNum", Math.ceil(tournamentInfoData.getTotalTeam() * 1.0 / 2));
+        }
+        List<TournamentKnockoutResultData> knockoutResultList = this.tournamentApi.qryKnockoutResultByTournament(id);
+        model.addAttribute("knockoutResultList", knockoutResultList);
+        return "tournament/checkZjResult";
     }
 
     @GetMapping(value = "/manage")
@@ -207,6 +220,12 @@ public class TournamentController {
     @RequestMapping(value = "/qryBattleGroupResult")
     public TableData<TournamentBattleGroupEventResultData> qryBattleGroupResult(@RequestParam int tournamentId, @RequestParam int groupId, @RequestParam int entry, int page, int limit) {
         return this.tournamentApi.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/qryZjTournamentResultById")
+    public TableData<ZjTournamentEntryResultData> qryZjTournamentResultById(@RequestParam int tournamentId) {
+        return this.tournamentApi.qryZjTournamentResultById(tournamentId);
     }
 
 }

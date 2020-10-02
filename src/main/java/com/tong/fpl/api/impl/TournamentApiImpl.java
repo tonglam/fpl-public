@@ -84,8 +84,7 @@ public class TournamentApiImpl implements ITournamentApi {
         BeanUtil.copyProperties(tournamentInfoEntity, tournamentInfoData);
         tournamentInfoData
                 .setGroupModeName(GroupMode.valueOf(tournamentInfoData.getGroupMode()).getModeName())
-                .setKnockoutModeName(KnockoutMode.valueOf(tournamentInfoData.getKnockoutMode()).getModeName())
-                .setShowNum((int) Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
+                .setKnockoutModeName(KnockoutMode.valueOf(tournamentInfoData.getKnockoutMode()).getModeName());
         return tournamentInfoData;
     }
 
@@ -130,6 +129,11 @@ public class TournamentApiImpl implements ITournamentApi {
     @Override
     public EntryInfoData qryEntryInfo(int entry) {
         return BeanUtil.copyProperties(this.querySerivce.qryEntryInfo(entry), EntryInfoData.class);
+    }
+
+    @Override
+    public TableData<ZjTournamentEntryResultData> qryZjTournamentResultById(int tournamentId) {
+        return this.tableQueryService.qryZjTournamentResultById(tournamentId);
     }
 
 }
