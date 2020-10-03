@@ -22,12 +22,12 @@ public class ZjTournamentCreateData {
     private int totalTeam;
     private int adminerEntry;
     private String creator;
-    private int pointsRound;
-    private int pointsStartGw;
-    private int pointsEndGw;
-    private int battleRound;
-    private int battleStartGw;
-    private int battleEndGw;
+    private int phaseOneRound;
+    private int phaseOneStartGw;
+    private int phaseOneEndGw;
+    private int phaseTwoRound;
+    private int phaseTwoStartGw;
+    private int phaseTwoEndGw;
     private int pkRound;
     private int pkStartGw;
     private int pkEndGw;

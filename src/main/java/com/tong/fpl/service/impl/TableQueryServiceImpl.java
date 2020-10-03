@@ -440,6 +440,19 @@ public class TableQueryServiceImpl implements ITableQueryService {
         if (tournamentInfoEntity == null) {
             return new TableData<>();
         }
+        int groupNum = tournamentInfoEntity.getGroupNum();
+        int teamPerGroup = tournamentInfoEntity.getTeamPerGroup();
+        // group_name
+        List<String> groupNameList = this.tournamentGroupService.getBaseMapper().getZjGroupNameList(tournamentId);
+        // group_entry
+        List<Integer> phaseOneGroupList = Lists.newArrayList();
+        IntStream.range(1, groupNum + 1).forEach(phaseOneGroupList::add);
+        Map<Integer, Integer> groupEntryMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .in(TournamentGroupEntity::getGroupId, phaseOneGroupList))
+                .stream()
+                .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getGroupId));
+
         // tournament_entry
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
                 .eq(TournamentEntryEntity::getTournamentId, tournamentId))
@@ -449,78 +462,88 @@ public class TableQueryServiceImpl implements ITableQueryService {
         if (CollectionUtils.isEmpty(entryList)) {
             return new TableData<>();
         }
+        // phase one
+
+        // phase two
+
+        // pk
+
+        // calc
+
+        // return
+
         List<ZjTournamentEntryResultData> list = Lists.newArrayList();
         int event = this.querySerivce.getCurrentEvent();
-        entryList.forEach(entry -> list.add(this.qryZjTournamentEntryResult(tournamentId, event, entry)));
+//        entryList.forEach(entry -> list.add(this.qryZjTournamentEntryResult(tournamentId, event, entry)));
         return new TableData<>(list);
     }
 
-    private ZjTournamentEntryResultData qryZjTournamentEntryResult(int tournamentId, int event, Integer entry) {
-        ZjTournamentEntryResultData zjTournamentEntryResultData = new ZjTournamentEntryResultData();
-        // entry_info
-        EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
-            return zjTournamentEntryResultData;
-        }
-        zjTournamentEntryResultData
-                .setTournamentId(tournamentId)
-                .setEntry(entry)
-                .setEntryName(entryInfoEntity.getEntryName())
-                .setPlayerName(entryInfoEntity.getPlayerName())
-                .setEvent(event);
-        // entry_event_result
-        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .eq(EntryEventResultEntity::getEntry, entry));
-        if (entryEventResultEntity == null) {
-            return zjTournamentEntryResultData;
-        }
-        zjTournamentEntryResultData
-                .setEventPoints(entryEventResultEntity.getEventPoints())
-                .setEventCost(entryEventResultEntity.getEventTransfersCost())
-                .setEventNetPoints(entryEventResultEntity.getEventNetPoints())
-                .setEventChip(entryEventResultEntity.getEventChip());
-        // group_result
-        List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .eq(TournamentGroupEntity::getEntry, entry)
-                .orderByAsc(TournamentGroupEntity::getCreateTime));
-        if (CollectionUtils.isEmpty(tournamentGroupEntityList)) {
-            return zjTournamentEntryResultData;
-        }
-        zjTournamentEntryResultData
-                .setPointsGroupPoints(this.getGroupPoints(tournamentGroupEntityList.get(0).getGroupRank()))
-                .setBattleGroupPoints(this.getGroupPoints(tournamentGroupEntityList.get(1).getGroupRank()));
-        // pk_result
-        TournamentKnockoutResultEntity tournamentKnockoutResultEntity = this.tournamentKnockoutResultService.getOne(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutResultEntity::getEvent, event)
-                .and(a -> a.eq(TournamentKnockoutResultEntity::getHomeEntry, entry)
-                        .or(i -> i.eq(TournamentKnockoutResultEntity::getAwayEntry, entry))));
-        if (tournamentKnockoutResultEntity != null) {
-            zjTournamentEntryResultData.setPkPoints(entry.equals(tournamentKnockoutResultEntity.getMatchWinner()) ? 7 : 5);
-        }
-        // tournament_points
-        zjTournamentEntryResultData.setTournamentPoints(zjTournamentEntryResultData.getPointsGroupPoints() +
-                zjTournamentEntryResultData.getBattleGroupPoints() +
-                zjTournamentEntryResultData.getPkPoints());
-        return zjTournamentEntryResultData;
-    }
-
-    private int getGroupPoints(int groupRank) {
-        switch (groupRank) {
-            case 1:
-                return 5;
-            case 2:
-                return 3;
-            case 3:
-                return 2;
-            case 4:
-                return 1;
-            default:
-                return 0;
-        }
-    }
+//    private ZjTournamentEntryResultData qryZjTournamentEntryResult(int tournamentId, int event, Integer entry) {
+//        ZjTournamentEntryResultData zjTournamentEntryResultData = new ZjTournamentEntryResultData();
+//        // entry_info
+//        EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
+//        if (entryInfoEntity == null) {
+//            return zjTournamentEntryResultData;
+//        }
+//        zjTournamentEntryResultData
+//                .setTournamentId(tournamentId)
+//                .setEntry(entry)
+//                .setEntryName(entryInfoEntity.getEntryName())
+//                .setPlayerName(entryInfoEntity.getPlayerName())
+//                .setEvent(event);
+//        // entry_event_result
+//        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+//                .eq(EntryEventResultEntity::getEvent, event)
+//                .eq(EntryEventResultEntity::getEntry, entry));
+//        if (entryEventResultEntity == null) {
+//            return zjTournamentEntryResultData;
+//        }
+//        zjTournamentEntryResultData
+//                .setEventPoints(entryEventResultEntity.getEventPoints())
+//                .setEventCost(entryEventResultEntity.getEventTransfersCost())
+//                .setEventNetPoints(entryEventResultEntity.getEventNetPoints())
+//                .setEventChip(entryEventResultEntity.getEventChip());
+//        // group_result
+//        List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+//                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+//                .eq(TournamentGroupEntity::getEntry, entry)
+//                .orderByAsc(TournamentGroupEntity::getCreateTime));
+//        if (CollectionUtils.isEmpty(tournamentGroupEntityList)) {
+//            return zjTournamentEntryResultData;
+//        }
+//        zjTournamentEntryResultData
+//                .setPointsGroupPoints(this.getGroupPoints(tournamentGroupEntityList.get(0).getGroupRank()))
+//                .setBattleGroupPoints(this.getGroupPoints(tournamentGroupEntityList.get(1).getGroupRank()));
+//        // pk_result
+//        TournamentKnockoutResultEntity tournamentKnockoutResultEntity = this.tournamentKnockoutResultService.getOne(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
+//                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+//                .eq(TournamentKnockoutResultEntity::getEvent, event)
+//                .and(a -> a.eq(TournamentKnockoutResultEntity::getHomeEntry, entry)
+//                        .or(i -> i.eq(TournamentKnockoutResultEntity::getAwayEntry, entry))));
+//        if (tournamentKnockoutResultEntity != null) {
+//            zjTournamentEntryResultData.setPkPoints(entry.equals(tournamentKnockoutResultEntity.getMatchWinner()) ? 7 : 5);
+//        }
+//        // tournament_points
+//        zjTournamentEntryResultData.setTournamentPoints(zjTournamentEntryResultData.getPointsGroupPoints() +
+//                zjTournamentEntryResultData.getBattleGroupPoints() +
+//                zjTournamentEntryResultData.getPkPoints());
+//        return zjTournamentEntryResultData;
+//    }
+//
+//    private int getGroupPoints(int groupRank) {
+//        switch (groupRank) {
+//            case 1:
+//                return 5;
+//            case 2:
+//                return 3;
+//            case 3:
+//                return 2;
+//            case 4:
+//                return 1;
+//            default:
+//                return 0;
+//        }
+//    }
 
     /**
      * @apiNote live

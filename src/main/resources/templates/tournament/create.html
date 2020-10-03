@@ -309,16 +309,16 @@
                             </fieldset>
 
                             <div class="layui-form-item">
-                                <label class="layui-form-label label-required">积分赛轮次</label>
+                                <label class="layui-form-label label-required">一阶段轮次</label>
                                 <div class="layui-input-inline">
-                                    <input autocomplete="off" class="layui-input" lay-reqtext="积分赛轮次不能为空"
-                                           lay-verify="required" name="zjPointsRound" type="number">
+                                    <input autocomplete="off" class="layui-input" lay-reqtext="一阶段小组内轮次轮次不能为空"
+                                           lay-verify="required" name="zjPhaseOneRound" type="number">
                                 </div>
                                 <div class="layui-inline">
                                     <label class="layui-form-label label-required">开始时间</label>
                                     <div class="layui-input-block">
-                                        <select class="layui-select" lay-filter="zjPointsStartGw" lay-search=""
-                                                name="zjPointsStartGw">
+                                        <select class="layui-select" lay-filter="zjPhaseOneStartGw" lay-search=""
+                                                name="zjPhaseOneStartGw">
                                             <option th:each="item,userStat:${gwMap}"
                                                     th:text="${userStat.current.value}"
                                                     th:value="${userStat.current.key}"></option>
@@ -328,27 +328,27 @@
                                 <div class="layui-inline" style="margin-left: 10px">
                                     <label class="layui-form-label">结束时间</label>
                                     <div class="layui-input-inline">
-                                        <input class="layui-input" name="zjPointsEndGw" readonly>
+                                        <input class="layui-input" name="zjPhaseOneEndGw" readonly>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="layui-form-item">
-                                <label class="layui-form-label label-required">对阵赛轮次</label>
+                                <label class="layui-form-label label-required">二阶段轮次</label>
                                 <div class="layui-input-inline">
-                                    <input autocomplete="off" class="layui-input" lay-reqtext="对阵赛轮次不能为空"
-                                           lay-verify="required" name="zjBattleRound" type="number">
+                                    <input autocomplete="off" class="layui-input" lay-reqtext="二阶段小组轮次不能为空"
+                                           lay-verify="required" name="zjPhaseTwoRound" type="number">
                                 </div>
                                 <div class="layui-inline">
                                     <label class="layui-form-label">开始时间</label>
                                     <div class="layui-input-inline">
-                                        <input class="layui-input" name="zjBattleStartGw" readonly>
+                                        <input class="layui-input" name="zjPhaseTwoStartGw" readonly>
                                     </div>
                                 </div>
                                 <div class="layui-inline">
                                     <label class="layui-form-label">结束时间</label>
                                     <div class="layui-input-inline">
-                                        <input class="layui-input" name="zjBattleEndGw" readonly>
+                                        <input class="layui-input" name="zjPhaseTwoEndGw" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -380,7 +380,11 @@
                             <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,showNum)}">
 
                                 <div class="layui-col-md6 layui-hide" th:attr="id='zjGroup'+((${index}*2)-1)">
-                                    <div style="font-size: 18px" th:attr="id='zjGroup'+((${index}*2)-1)+'Name'"></div>
+                                    <label class="layui-form-label" style="margin-left: -60px">组名</label>
+                                    <div class="layui-input-inline">
+                                        <input autocomplete="on" class="layui-input" placeholder="请输入小组名字"
+                                               th:attr="name='zjGroup'+((${index}*2)-1)+'Name'" type="text">
+                                    </div>
                                     <table class="layui-table"
                                            th:attr="lay-filter='zjGroup'+((${index}*2)-1)+'Table',id='zjGroup'+((${index}*2)-1)+'Table'">
                                         <thead>
@@ -410,7 +414,11 @@
                                 </div>
 
                                 <div class="layui-col-md6 layui-hide" th:attr="id='zjGroup'+${index}*2">
-                                    <div style="font-size: 18px" th:attr="id='zjGroup'+${index}*2+'Name'"></div>
+                                    <label class="layui-form-label" style="margin-left: -60px">组名</label>
+                                    <div class="layui-input-inline">
+                                        <input autocomplete="on" class="layui-input" placeholder="请输入小组名字"
+                                               th:attr="name='zjGroup'+${index}*2+'Name'" type="text">
+                                    </div>
                                     <table class="layui-table"
                                            th:attr="lay-filter='zjGroup'+${index}*2+'Table',id='zjGroup'+${index}*2+'Table'">
                                         <thead>
@@ -1191,9 +1199,6 @@
         let zjTeamPerGroup = parseInt($("input[name=zjTeamPerGroup]").val());
 
         for (let i = 1; i < zjGroupNum + 1; i++) {
-            // 回填组名
-            let groupName = getCapitalLetterFromNum(i) + "组";
-            $("#zjGroup" + i + "Name").text(groupName);
             // 展示
             $("#zjGroup" + i).removeClass("layui-hide");
             // 渲染
@@ -1321,9 +1326,9 @@
          *
          * @author tong 2020.09.30
          */
-        $("input[name=zjPointsRound]").on('focusout', function () {
-            let zjPointsStartGwDom = $("select[name=zjPointsStartGw]");
-            zjPointsStartGwDom.siblings("div.layui-form-select").find("dl").find("dd[lay-value='" + zjPointsStartGwDom.val() + "']").click();
+        $("input[name=zjPhaseOneRound]").on('focusout', function () {
+            let zjPhaseOneStartGwDom = $("select[name=zjPhaseOneStartGw]");
+            zjPhaseOneStartGwDom.siblings("div.layui-form-select").find("dl").find("dd[lay-value='" + zjPhaseOneStartGwDom.val() + "']").click();
         });
 
         /**
@@ -1331,8 +1336,8 @@
          *
          * @author tong 2020.09.30
          */
-        form.on('select(zjPointsStartGw)', function () {
-            $("input[name=zjPointsEndGw]").trigger('focusout');
+        form.on('select(zjPhaseOneStartGw)', function () {
+            $("input[name=zjPhaseOneEndGw]").trigger('focusout');
         });
 
         /**
@@ -1340,24 +1345,24 @@
          *
          * @author tong 2020.09.30
          */
-        $("input[name=zjPointsEndGw]").on('focusout', function () {
-            let zjBattleRoundDom = $("input[name=zjBattleRound]");
-            let zjPointsRound = $("input[name=zjPointsRound]").val();
-            let zjPointsStartGw = $("select[name=zjPointsStartGw]").val();
-            if (zjPointsRound == '' || zjPointsStartGw == '') {
+        $("input[name=zjPhaseOneEndGw]").on('focusout', function () {
+            let zjPhaseTwoRoundDom = $("input[name=zjPhaseTwoRound]");
+            let zjPhaseOneRound = $("input[name=zjPhaseOneRound]").val();
+            let zjPhaseOneStartGw = $("select[name=zjPhaseOneStartGw]").val();
+            if (zjPhaseOneRound == '' || zjPhaseOneStartGw == '') {
                 $(this).val('');
                 return false;
             }
             // 计算积分赛结束时间
-            let zjPointsEndGwValue = parseInt(zjPointsRound) + parseInt(zjPointsStartGw) - 1;
-            if (zjPointsEndGwValue > 38) {
+            let zjPhaseOneEndGwValue = parseInt(zjPhaseOneRound) + parseInt(zjPhaseOneStartGw) - 1;
+            if (zjPhaseOneEndGwValue > 38) {
                 layer.msg("积分赛打不完啦", {time: 1500});
                 clearZjTournamentTime();
-                zjBattleRoundDom.trigger('focusout');
+                zjPhaseTwoRoundDom.trigger('focusout');
                 return false;
             }
-            $(this).val(setGwStr(zjPointsEndGwValue));
-            zjBattleRoundDom.trigger('focusout');
+            $(this).val(setGwStr(zjPhaseOneEndGwValue));
+            zjPhaseTwoRoundDom.trigger('focusout');
         });
 
         /**
@@ -1365,8 +1370,8 @@
          *
          * @author tong 2020.09.30
          */
-        $("input[name=zjBattleRound]").on('focusout', function () {
-            $("input[name=zjBattleStartGw]").trigger('focusout');
+        $("input[name=zjPhaseTwoRound]").on('focusout', function () {
+            $("input[name=zjPhaseTwoStartGw]").trigger('focusout');
         });
 
         /**
@@ -1374,22 +1379,22 @@
          *
          * @author tong 2020.09.30
          */
-        $("input[name=zjBattleStartGw]").on('focusout', function () {
-            let zjBattleEndGwDom = $("input[name=zjBattleEndGw]");
-            let zjPointsEndGw = $("input[name=zjPointsEndGw]").val();
-            if (zjPointsEndGw == '') {
+        $("input[name=zjPhaseTwoStartGw]").on('focusout', function () {
+            let zjPhaseTwoEndGwDom = $("input[name=zjPhaseTwoEndGw]");
+            let zjPhaseOneEndGw = $("input[name=zjPhaseOneEndGw]").val();
+            if (zjPhaseOneEndGw == '') {
                 $(this).val('');
                 return false;
             }
-            let zjBattleStartGw = getGwValue(zjPointsEndGw) + 1;
-            if (zjBattleStartGw > 38) {
+            let zjPhaseTwoStartGw = getGwValue(zjPhaseOneEndGw) + 1;
+            if (zjPhaseTwoStartGw > 38) {
                 layer.msg("对阵赛打不完啦", {time: 1500});
                 clearZjTournamentTime();
-                zjBattleEndGwDom.trigger('focusout');
+                zjPhaseTwoEndGwDom.trigger('focusout');
                 return false;
             }
-            $(this).val(setGwStr(zjBattleStartGw));
-            zjBattleEndGwDom.trigger('focusout');
+            $(this).val(setGwStr(zjPhaseTwoStartGw));
+            zjPhaseTwoEndGwDom.trigger('focusout');
         });
 
         /**
@@ -1397,22 +1402,22 @@
          *
          * @author tong 2020.09.30
          */
-        $("input[name=zjBattleEndGw]").on('focusout', function () {
+        $("input[name=zjPhaseTwoEndGw]").on('focusout', function () {
             let zjPkRoundDom = $("input[name=zjPkRound]");
-            let zjBattleRound = $("input[name=zjBattleRound]").val();
-            let zjBattleStartGw = $("input[name=zjBattleStartGw]").val();
-            if (zjBattleRound == '' || zjBattleStartGw == '') {
+            let zjPhaseTwoRound = $("input[name=zjPhaseTwoRound]").val();
+            let zjPhaseTwoStartGw = $("input[name=zjPhaseTwoStartGw]").val();
+            if (zjPhaseTwoRound == '' || zjPhaseTwoStartGw == '') {
                 $(this).val('');
                 return false;
             }
-            let zjBattleEndGwValue = parseInt(zjBattleRound) + getGwValue(zjBattleStartGw) - 1;
-            if (zjBattleEndGwValue > 38) {
+            let zjPhaseTwoEndGwValue = parseInt(zjPhaseTwoRound) + getGwValue(zjPhaseTwoStartGw) - 1;
+            if (zjPhaseTwoEndGwValue > 38) {
                 layer.msg("对阵赛打不完啦", {time: 1500});
                 clearZjTournamentTime();
                 zjPkRoundDom.trigger('focusout');
                 return false;
             }
-            $(this).val(setGwStr(zjBattleEndGwValue));
+            $(this).val(setGwStr(zjPhaseTwoEndGwValue));
             zjPkRoundDom.trigger('focusout');
         });
 
@@ -1432,11 +1437,11 @@
          */
         $("input[name=zjPkStartGw]").on('focusout', function () {
             let zjPkEndGwDom = $("input[name=zjPkEndGw]");
-            let zjBattleEndGw = $("input[name=zjBattleEndGw]").val();
-            if (zjBattleEndGw == '') {
+            let zjPhaseTwoEndGw = $("input[name=zjPhaseTwoEndGw]").val();
+            if (zjPhaseTwoEndGw == '') {
                 return false;
             }
-            let zjPkStartGw = getGwValue(zjBattleEndGw) + 1;
+            let zjPkStartGw = getGwValue(zjPhaseTwoEndGw) + 1;
             if (zjPkStartGw > 38) {
                 layer.msg("PK赛打不完啦", {time: 1500});
                 clearZjTournamentTime();
@@ -1480,6 +1485,8 @@
             for (let i = 1; i < zjGroupNum + 1; i++) {
                 let zjTournamentGroupData = {};
                 let captainEntry = 0;
+                let groupNameInput = "input[name=zjGroup" + i + "Name]";
+                let groupName = $(groupNameInput).val();
                 let groupEntryList = [];
                 let tableId = 'zjGroup' + i + 'Table';
                 $.each(table.cache[tableId], function (index, item) {
@@ -1498,6 +1505,7 @@
                     return false;
                 }
                 zjTournamentGroupData.groupId = i;
+                zjTournamentGroupData.groupName = groupName;
                 zjTournamentGroupData.captainEntry = captainEntry;
                 zjTournamentGroupData.groupEntryList = groupEntryList;
                 groupDataList.push(zjTournamentGroupData);
@@ -1508,16 +1516,16 @@
             let zjTournamentCreateData = {};
             zjTournamentCreateData.tournamentName = formData.zjTournamentName;
             zjTournamentCreateData.groupNum = formData.zjGroupNum;
-            zjTournamentCreateData.teaPerGroup = formData.zjTeamPerGroup;
+            zjTournamentCreateData.teamPerGroup = formData.zjTeamPerGroup;
             zjTournamentCreateData.adminerEntry = formData.zjAdminerEntry;
             zjTournamentCreateData.creator = formData.zjCreator;
             zjTournamentCreateData.totalTeam = parseInt($("#zjGroupNum").text()) * parseInt($("#zjTeamPerGroup").text());
-            zjTournamentCreateData.pointsRound = formData.zjPointsRound;
-            zjTournamentCreateData.pointsStartGw = getGwValue(formData.zjPointsStartGw);
-            zjTournamentCreateData.pointsEndGw = getGwValue(formData.zjPointsEndGw);
-            zjTournamentCreateData.battleRound = formData.zjBattleRound;
-            zjTournamentCreateData.battleStartGw = getGwValue(formData.zjBattleStartGw);
-            zjTournamentCreateData.battleEndGw = getGwValue(formData.zjBattleEndGw);
+            zjTournamentCreateData.phaseOneRound = formData.zjPhaseOneRound;
+            zjTournamentCreateData.phaseOneStartGw = getGwValue(formData.zjPhaseOneStartGw);
+            zjTournamentCreateData.phaseOneEndGw = getGwValue(formData.zjPhaseOneStartGw);
+            zjTournamentCreateData.phaseTwoRound = formData.zjPhaseTwoRound;
+            zjTournamentCreateData.phaseTwoStartGw = getGwValue(formData.zjPhaseTwoStartGw);
+            zjTournamentCreateData.phaseTwoEndGw = getGwValue(formData.zjPhaseTwoEndGw);
             zjTournamentCreateData.pkRound = formData.zjPkRound;
             zjTournamentCreateData.pkStartGw = getGwValue(formData.zjPkStartGw);
             zjTournamentCreateData.pkEndGw = getGwValue(formData.zjPkEndGw);
@@ -1673,14 +1681,14 @@
 
     function clearZjTournamentTime() {
         let $ = layui.jquery;
-        // points_round
-        $("input[name=zjPointsRound]").val('');
-        $("select[name=zjPointsStartGw]").val('0');
-        $("input[name=zjPointsEndGw]").val('');
-        // battle_round
-        $("input[name=zjBattleRound]").val('');
-        $("input[name=zjBattleStartGw]").val('');
-        $("input[name=zjBattleEndGw]").val('');
+        // phase_one
+        $("input[name=zjPhaseOneRound]").val('');
+        $("select[name=zjPhaseOneStartGw]").val('0');
+        $("input[name=zjPhaseOneEndGw]").val('');
+        // phase_two
+        $("input[name=zjPhaseTwoRound]").val('');
+        $("input[name=zjPhaseTwoStartGw]").val('');
+        $("input[name=zjPhaseTwoEndGw]").val('');
         // pk
         $("input[name=zjPkRound]").val('');
         $("input[name=zjPkStartGw]").val('');

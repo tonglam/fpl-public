@@ -268,6 +268,7 @@ public class TournamentServiceImpl implements ITournamentService {
                 TournamentGroupEntity tournamentGroupEntity = new TournamentGroupEntity()
                         .setTournamentId(tournamentId)
                         .setGroupId(groupId)
+                        .setGroupName("")
                         .setGroupIndex(this.drawGroupIndex(random, groupId, teamsPerGroup, groupIndexMap))
                         .setEntry(entry)
                         .setStartGw(groupStartGw)
@@ -294,6 +295,7 @@ public class TournamentServiceImpl implements ITournamentService {
             tournamentGroupList.add(new TournamentGroupEntity()
                     .setTournamentId(tournamentId)
                     .setGroupId(groupId)
+                    .setGroupName("")
                     .setGroupIndex(this.drawGroupIndex(random, groupId, teamsPerGroup, groupIndexMap))
                     .setEntry(entryList.get(i))
                     .setStartGw(groupStartGw)
@@ -559,8 +561,8 @@ public class TournamentServiceImpl implements ITournamentService {
                 .setGroupMode(GroupMode.Custom.name())
                 .setTeamPerGroup(zjTournamentCreateData.getTeamPerGroup())
                 .setGroupNum(zjTournamentCreateData.getGroupNum())
-                .setGroupStartGw(zjTournamentCreateData.getPointsStartGw())
-                .setGroupEndGw(zjTournamentCreateData.getBattleEndGw())
+                .setGroupStartGw(zjTournamentCreateData.getPhaseOneStartGw())
+                .setGroupEndGw(zjTournamentCreateData.getPhaseTwoEndGw())
                 .setGroupFillAverage(false)
                 .setGroupRounds(0)
                 .setGroupPlayAgainstNum(0)
@@ -587,10 +589,10 @@ public class TournamentServiceImpl implements ITournamentService {
         if (CollectionUtils.isEmpty(groupDataList)) {
             return;
         }
-        int pointsGroupStartGw = zjTournamentCreateData.getPointsStartGw();
-        int pointsGroupEndGw = zjTournamentCreateData.getPointsEndGw();
-        int battleGroupStartGw = zjTournamentCreateData.getBattleStartGw();
-        int battleGroupEndGw = zjTournamentCreateData.getBattleEndGw();
+        int phaseOneStartGw = zjTournamentCreateData.getPhaseOneStartGw();
+        int phaseOneEndGw = zjTournamentCreateData.getPhaseOneEndGw();
+        int phaseTwoStartGw = zjTournamentCreateData.getPhaseTwoStartGw();
+        int phaseTwoEndGw = zjTournamentCreateData.getPhaseTwoEndGw();
         int groupNum = groupDataList.size();
         int teamPerGroup = groupDataList.get(0).getGroupEntryList().size();
         // tournament_info
@@ -659,23 +661,24 @@ public class TournamentServiceImpl implements ITournamentService {
         List<TournamentGroupEntity> tournamentGroupList = Lists.newArrayList();
         List<TournamentPointsGroupResultEntity> tournamentPointsGroupResultList = Lists.newArrayList();
         groupDataList.forEach(o -> {
-            int pointsGroupId = o.getGroupId();
+            int phaseOneGroupId = o.getGroupId();
             // group captain
             zjTournamentCaptainList.add(new ZjTournamentCaptainEntity()
                     .setTournamentId(tournamentId)
-                    .setGroupId(pointsGroupId)
+                    .setGroupId(phaseOneGroupId)
                     .setCaptainEntry(o.getCaptainEntry())
             );
             for (int i = 1; i < teamPerGroup + 1; i++) {
-                int pointsEntry = o.getGroupEntryList().get(i - 1);
-                // points_group
+                int phaseOneEntry = o.getGroupEntryList().get(i - 1);
+                // phase one points_group
                 tournamentGroupList.add(new TournamentGroupEntity()
                         .setTournamentId(tournamentId)
-                        .setGroupId(pointsGroupId)
+                        .setGroupId(phaseOneGroupId)
+                        .setGroupName(o.getGroupName())
                         .setGroupIndex(i)
-                        .setEntry(pointsEntry)
-                        .setStartGw(pointsGroupStartGw)
-                        .setEndGw(pointsGroupEndGw)
+                        .setEntry(phaseOneEntry)
+                        .setStartGw(phaseOneStartGw)
+                        .setEndGw(phaseOneEndGw)
                         .setGroupPoints(0)
                         .setGroupRank(0)
                         .setPlay(0)
@@ -686,29 +689,30 @@ public class TournamentServiceImpl implements ITournamentService {
                         .setOverallPoints(0)
                         .setOverallRank(0)
                 );
-                // points_group_result
-                IntStream.range(pointsGroupStartGw, pointsGroupEndGw + 1).forEach(event ->
+                // phase one points_group_result
+                IntStream.range(phaseOneStartGw, phaseOneEndGw + 1).forEach(event ->
                         tournamentPointsGroupResultList.add(new TournamentPointsGroupResultEntity()
                                 .setTournamentId(tournamentId)
-                                .setGroupId(pointsGroupId)
+                                .setGroupId(phaseOneGroupId)
                                 .setEvent(event)
-                                .setEntry(pointsEntry)
+                                .setEntry(phaseOneEntry)
                                 .setEventGroupRank(0)
                                 .setEventPoints(0)
                                 .setEventCost(0)
                                 .setEventNetPoints(0)
                                 .setEventRank(0)
                         ));
-                // battle_group
-                int battleGroupId = groupNum + i;
-                int battleEntry = -1 * (10 * pointsGroupId + i);
+                // phase two points_group
+                int phaseTwoGroupId = groupNum + i;
+                int phaseTwoEntry = -1 * (10 * phaseOneGroupId + i);
                 tournamentGroupList.add(new TournamentGroupEntity()
                         .setTournamentId(tournamentId)
-                        .setGroupId(battleGroupId)
-                        .setGroupIndex(pointsGroupId)
-                        .setEntry(battleEntry)
-                        .setStartGw(battleGroupStartGw)
-                        .setEndGw(battleGroupEndGw)
+                        .setGroupId(phaseTwoGroupId)
+                        .setGroupName("")
+                        .setGroupIndex(phaseOneGroupId)
+                        .setEntry(phaseTwoEntry)
+                        .setStartGw(phaseTwoStartGw)
+                        .setEndGw(phaseTwoEndGw)
                         .setGroupPoints(0)
                         .setGroupRank(0)
                         .setPlay(0)
@@ -719,6 +723,19 @@ public class TournamentServiceImpl implements ITournamentService {
                         .setOverallPoints(0)
                         .setOverallRank(0)
                 );
+                // phase two points_group_result
+                IntStream.range(phaseTwoStartGw, phaseTwoEndGw + 1).forEach(event ->
+                        tournamentPointsGroupResultList.add(new TournamentPointsGroupResultEntity()
+                                .setTournamentId(tournamentId)
+                                .setGroupId(phaseTwoGroupId)
+                                .setEvent(event)
+                                .setEntry(phaseTwoEntry)
+                                .setEventGroupRank(0)
+                                .setEventPoints(0)
+                                .setEventCost(0)
+                                .setEventNetPoints(0)
+                                .setEventRank(0)
+                        ));
             }
         });
         this.zjTournamentCaptainService.saveBatch(zjTournamentCaptainList);
@@ -726,17 +743,7 @@ public class TournamentServiceImpl implements ITournamentService {
         this.tournamentGroupService.saveBatch(tournamentGroupList);
         log.info("save tournament:{} group success!", tournamentId);
         this.tournamentPointsGroupResultService.saveBatch(tournamentPointsGroupResultList);
-        log.info("save tournament:{} points group success!", tournamentInfo);
-        // draw group battle
-        int battleGroupRound = battleGroupEndGw - battleGroupStartGw + 1;
-        Multimap<Integer, String> abstractBattleMap = this.drawAbstractBattle(teamPerGroup, 1, battleGroupRound);
-        // draw single group
-        List<TournamentBattleGroupResultEntity> groupBattleResultList = Lists.newArrayList();
-        IntStream.range(groupNum + 1, groupNum + teamPerGroup + 1).forEach(groupId ->
-                this.drawSingleGroupBattle(tournamentId, groupId, abstractBattleMap, groupBattleResultList));
-        // save
-        this.tournamentBattleGroupResultService.saveBatch(groupBattleResultList);
-        log.info("save tournament:{} group battle success!", tournamentId);
+        log.info("save tournament:{} points group result success!", tournamentInfo);
         // pk, one round knockout
         List<TournamentKnockoutEntity> tournamentKnockoutList = Lists.newArrayList();
         List<Integer> pkList = Lists.newArrayList();

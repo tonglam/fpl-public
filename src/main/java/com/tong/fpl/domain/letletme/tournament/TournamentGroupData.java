@@ -13,6 +13,7 @@ public class TournamentGroupData {
     private int tournamentId;
     private String groupMode;
     private int groupId;
+    private String groupName;
     private int groupIndex;
     private int entry;
     private String entryName;

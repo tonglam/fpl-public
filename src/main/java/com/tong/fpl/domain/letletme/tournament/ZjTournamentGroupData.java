@@ -13,6 +13,7 @@ import java.util.List;
 public class ZjTournamentGroupData {
 
     private int groupId;
+    private String groupName;
     private int captainEntry;
     private List<Integer> groupEntryList;
 

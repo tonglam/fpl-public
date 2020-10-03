@@ -45,37 +45,39 @@
                     <div class="layui-tab-item">
 
                         <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
-                            <legend><a>积分赛</a></legend>
+                            <legend><a>第一阶段</a></legend>
                         </fieldset>
 
                         <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,pointsShowNum)}">
 
-                            <div class="layui-col-md6 layui-hide" th:attr="id='pointsGroup'+((${index}*2)-1)">
-                                <div th:attr="id='pointsGroup'+((${index}*2)-1)+'Name'"></div>
-                                <table class="layui-table" th:attr="id='pointsGroup'+((${index}*2)-1)+'Table'"></table>
+                            <div class="layui-col-md6 layui-hide" th:attr="id='phaseOneGroup'+((${index}*2)-1)">
+                                <div th:attr="id='phaseOneGroup'+((${index}*2)-1)+'Name'"></div>
+                                <table class="layui-table"
+                                       th:attr="id='phaseOneGroup'+((${index}*2)-1)+'Table'"></table>
                             </div>
 
-                            <div class="layui-col-md6 layui-hide" th:attr="id='pointsGroup'+${index}*2">
-                                <div th:attr="id='pointsGroup'+${index}*2+'Name'"></div>
-                                <table class="layui-table" th:attr="id='pointsGroup'+${index}*2+'Table'"></table>
+                            <div class="layui-col-md6 layui-hide" th:attr="id='phaseOneGroup'+${index}*2">
+                                <div th:attr="id='phaseOneGroup'+${index}*2+'Name'"></div>
+                                <table class="layui-table" th:attr="id='phaseOneGroup'+${index}*2+'Table'"></table>
                             </div>
 
                         </div>
 
                         <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
-                            <legend><a>对阵赛</a></legend>
+                            <legend><a>第二阶段</a></legend>
                         </fieldset>
 
                         <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,battleShowNum)}">
 
-                            <div class="layui-col-md6 layui-hide" th:attr="id='battleGroup'+((${index}*2)-1)">
-                                <div th:attr="id='battleGroup'+((${index}*2)-1)+'Name'"></div>
-                                <table class="layui-table" th:attr="id='battleGroup'+((${index}*2)-1)+'Table'"></table>
+                            <div class="layui-col-md6 layui-hide" th:attr="id='phaseTwoGroup'+((${index}*2)-1)">
+                                <div th:attr="id='phaseTwoGroup'+((${index}*2)-1)+'Name'"></div>
+                                <table class="layui-table"
+                                       th:attr="id='phaseTwoGroup'+((${index}*2)-1)+'Table'"></table>
                             </div>
 
-                            <div class="layui-col-md6 layui-hide" th:attr="id='battleGroup'+${index}*2">
-                                <div th:attr="id='battleGroup'+${index}*2+'Name'"></div>
-                                <table class="layui-table" th:attr="id='battleGroup'+${index}*2+'Table'"></table>
+                            <div class="layui-col-md6 layui-hide" th:attr="id='phaseTwoGroup'+${index}*2">
+                                <div th:attr="id='phaseTwoGroup'+${index}*2+'Name'"></div>
+                                <table class="layui-table" th:attr="id='phaseTwoGroup'+${index}*2+'Table'"></table>
                             </div>
 
                         </div>
@@ -136,24 +138,17 @@
             url: '/tournament/qryZjTournamentResultById',
             where: {tournamentId: tournamentId},
             loading: true,
-            cellMinWidth: 60,
+            cellMinWidth: 80,
             cols: [[
-                {title: '排名', type: 'numbers'},
-                {
-                    field: 'entry',
-                    title: '队伍id',
-                    align: 'center',
-                    templet: '#entryTpl'
-                },
-                {field: 'entryName', title: '队伍名称', align: 'center', width: 160},
-                {field: 'playerName', title: '玩家名称', align: 'center', width: 140},
-                {field: 'event', title: 'GW', align: 'center'},
-                {field: 'eventpoints', title: '周得分', align: 'center', sort: true, filter: true},
-                {field: 'eventChip', title: '开卡', align: 'center', filter: true},
-                {field: 'pointsGroupPoints', title: '积分赛积分', align: 'center', sort: true, filter: true},
-                {field: 'battleGroupPoints', title: '对阵赛积分', align: 'center', sort: true, filter: true},
-                {field: 'pkPoints', title: 'PK赛积分', align: 'center', sort: true, filter: true},
-                {field: 'tournamentPoints', title: '总积分', align: 'center', sort: true, filter: true}
+                {title: '', type: 'numbers', width: 40},
+                {field: 'event', title: 'GW', align: 'center', width: 60},
+                {field: 'stage', title: '阶段', align: 'center'},
+                {field: 'groupName', title: '小组', align: 'center'},
+                {field: 'groupPoints', title: '小组总分', align: 'center', width: 120},
+                {field: 'pointsGroupPoints', title: '积分赛', align: 'center'},
+                {field: 'battleGroupPoints', title: '对阵赛', align: 'center'},
+                {field: 'pkPoints', title: 'PK赛', align: 'center'},
+                {field: 'tournamentPoints', title: '总积分', align: 'center'}
             ]],
             id: 'zjTournamentTable',
             done: function () {
@@ -161,88 +156,106 @@
             }
         });
 
-        <!-- 积分赛 -->
+        <!-- 第一阶段 -->
         for (let i = 1; i < groupNum + 1; i++) {
-            // 回填组名
-            let groupName = getCapitalLetterFromNum(i) + "组";
-            $("#pointsGroup" + i + "Name").text(groupName);
             // 展示
-            $("#pointsGroup" + i).removeClass("layui-hide");
-            // 渲染
-            let id = "pointsGroup" + i + "Table";
-            let elem = "#" + id;
-            table.render({
-                elem: elem,
-                url: '/tournament/qryGroupInfoListByGroupId',
-                where: {tournamentId: tournamentId, groupId: i},
-                loading: true,
-                cellMinWidth: 60,
-                cols: [[
-                    {
-                        fixed: 'left',
-                        field: 'groupRank',
-                        title: '',
-                        align: 'center',
-                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
-                        collapse: true,
-                        children: function (d) {
-                            return [{
-                                title: "每轮赛果",
-                                url: '/tournament/qryPointsGroupResult',
-                                where: {tournamentId: tournamentId, groupId: i, entry: d.entry},
-                                page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
-                                loading: true,
-                                limit: 5,
-                                limits: [5, 10, 15],
-                                cols: [[
-                                    {field: 'event', title: 'GW', align: 'center'},
-                                    {field: 'points', title: '得分', align: 'center'},
-                                    {field: 'cost', title: '扣分', align: 'center'},
-                                    {field: 'netPoints', title: '净得分', align: 'center'},
-                                    {field: 'rank', title: '排名', align: 'center'}
-                                ]],
-                                done: function () {
-                                    soulTable.render(this);
-                                }
-                            }]
-                        }
-                    },
-                    {field: 'entryName', title: '队伍名称', align: 'center', width: 160},
-                    {field: 'playerName', title: '玩家名称', align: 'center', width: 140},
-                    {field: 'play', title: '比赛', align: 'center'},
-                    {field: 'groupPoints', title: '得分', align: 'center'},
-                    {
-                        field: '', title: '积分', align: 'center', templet: function (d) {
-                            if (d.rank == '1') {
-                                return '5';
-                            } else if (d.rank == '2') {
-                                return '3';
-                            } else if (d.rank == '3') {
-                                return '2';
-                            } else if (d.rank == '4') {
-                                return '1';
-                            } else {
-                                return '0';
-                            }
-                        }
-                    }
-                ]],
-                id: id,
-                done: function () {
-                    soulTable.render(this);
+            $("#phaseOneGroup" + i).removeClass("layui-hide");
+            // 获取数据
+            axios.get('/tournament/qryGroupInfoListByGroupId', {
+                params: {
+                    tournamentId: tournamentId,
+                    groupId: i
                 }
-            });
+            })
+                .then(function (response) {
+                    let data = response.data;
+                    // 回填组名
+                    let groupName = data[0].groupName;
+                    $("#phaseOneGroup" + i + "Name").text(groupName);
+                    // 渲染
+                    let id = "phaseOneGroup" + i + "Table";
+                    let elem = "#" + id;
+                    table.render({
+                        elem: elem,
+                        data: data,
+                        loading: true,
+                        cellMinWidth: 60,
+                        totalRow: true,
+                        cols: [[
+                            {
+                                fixed: 'left',
+                                field: 'groupRank',
+                                title: '',
+                                align: 'center',
+                                icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                                collapse: true,
+                                children: function (d) {
+                                    return [{
+                                        title: "每轮赛果",
+                                        url: '/tournament/qryPointsGroupResult',
+                                        where: {tournamentId: tournamentId, groupId: i, entry: d.entry},
+                                        page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
+                                        loading: true,
+                                        limit: 5,
+                                        limits: [5, 10, 15],
+                                        cols: [[
+                                            {field: 'event', title: 'GW', align: 'center'},
+                                            {field: 'points', title: '得分', align: 'center'},
+                                            {field: 'cost', title: '扣分', align: 'center'},
+                                            {field: 'netPoints', title: '净得分', align: 'center'}
+                                        ]],
+                                        done: function () {
+                                            soulTable.render(this);
+                                        }
+                                    }]
+                                }
+                            },
+                            {
+                                field: 'entryName',
+                                title: '队伍名称',
+                                align: 'center',
+                                width: 150,
+                                totalRowText: '小组总分'
+                            },
+                            {field: 'playerName', title: '玩家名称', align: 'center', width: 150},
+                            {field: 'play', title: '比赛', align: 'center'},
+                            {field: 'groupPoints', title: '得分', align: 'center', totalRow: true},
+                            {
+                                field: '', title: '积分', align: 'center', templet: function (d) {
+                                    if (d.rank == '1') {
+                                        return '5';
+                                    } else if (d.rank == '2') {
+                                        return '3';
+                                    } else if (d.rank == '3') {
+                                        return '2';
+                                    } else if (d.rank == '4') {
+                                        return '1';
+                                    } else {
+                                        return '0';
+                                    }
+                                }
+                            }
+                        ]],
+                        id: id,
+                        done: function () {
+                            soulTable.render(this);
+                        }
+                    });
+                })
+                .catch(function (error) {
+                    console.log(error.message);
+                });
         }
 
-        <!-- 对阵赛 -->
+        <!-- 第二阶段 -->
         for (let j = 1; j < teamPerGroup + 1; j++) {
             // 回填组名
             let groupName = getCapitalLetterFromNum(j) + "组";
-            $("#battleGroup" + j + "Name").text(groupName);
+            $("#phaseTwoGroup" + j + "Name").text(groupName);
             // 展示
-            $("#battleGroup" + j).removeClass("layui-hide");
+            $("#phaseTwoGroup" + j).removeClass("layui-hide");
             // 渲染
-            let id = "battleGroup" + j + "Table";
+            let id = "phaseTwoGroup" + j + "Table";
             let elem = "#" + id;
             table.render({
                 elem: elem,
@@ -261,17 +274,17 @@
                         children: function (d) {
                             return [{
                                 title: "每轮赛果",
-                                url: '/tournament/qryBattleGroupResult',
+                                url: '/tournament/qryPointsGroupResult',
                                 where: {tournamentId: tournamentId, groupId: j, entry: d.entry},
                                 page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
                                 loading: true,
                                 limit: 5,
                                 limits: [5, 10, 15],
                                 cols: [[
-                                    {field: 'event', title: 'GW', align: 'center', width: 60},
-                                    {field: 'homeEntryName', title: '主队', align: 'center'},
-                                    {field: 'score', title: '比分', align: 'center', width: 60},
-                                    {field: 'awayEntryName', title: '客队', align: 'center'}
+                                    {field: 'event', title: 'GW', align: 'center'},
+                                    {field: 'points', title: '得分', align: 'center'},
+                                    {field: 'cost', title: '扣分', align: 'center'},
+                                    {field: 'netPoints', title: '净得分', align: 'center'}
                                 ]],
                                 done: function () {
                                     soulTable.render(this);
@@ -280,34 +293,33 @@
                         }
                     },
                     {
-                        field: 'entryName', title: '队伍名称', align: 'center', width: 120, templet: function (d) {
+                        field: 'entryName', title: '队伍名称', align: 'center', width: 150, templet: function (d) {
                             if (d.entry <= 0) {
                                 let entry = -1 * d.entry;
                                 let group = Math.round(entry / 10);
                                 let index = entry - group * 10;
-                                return '积分赛' + getCapitalLetterFromNum(group) + '组第' + index;
+                                return getCapitalLetterFromNum(group) + '组' + index + '号位';
                             } else {
                                 return d.entryName;
                             }
                         }
                     },
                     {
-                        field: 'playerName', title: '玩家名称', align: 'center', width: 120, templet: function (d) {
+                        field: 'playerName', title: '玩家名称', align: 'center', width: 150, templet: function (d) {
                             if (d.entry <= 0) {
                                 let entry = -1 * d.entry;
                                 let group = Math.round(entry / 10);
                                 let index = entry - group * 10;
-                                return '积分赛' + getCapitalLetterFromNum(group) + '组第' + index;
+                                return getCapitalLetterFromNum(group) + '组' + index + '号位';
                             } else {
                                 return d.playerName;
                             }
                         }
                     },
                     {field: 'play', title: '比赛', align: 'center'},
-                    {field: 'win', title: '赢', align: 'center'},
-                    {field: 'lose', title: '输', align: 'center'},
+                    {field: 'groupPoints', title: '得分', align: 'center'},
                     {
-                        field: 'groupPoints', title: '积分', align: 'center', width: 60, templet: function (d) {
+                        field: '', title: '积分', align: 'center', templet: function (d) {
                             if (d.rank == '1') {
                                 return '5';
                             } else if (d.rank == '2') {
