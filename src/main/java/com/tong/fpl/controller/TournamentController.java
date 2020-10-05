@@ -224,7 +224,7 @@ public class TournamentController {
 
     @ResponseBody
     @RequestMapping(value = "/qryZjTournamentResultById")
-    public TableData<ZjTournamentEntryResultData> qryZjTournamentResultById(@RequestParam int tournamentId) {
+    public TableData<ZjTournamentResultData> qryZjTournamentResultById(@RequestParam int tournamentId) {
         return this.tournamentApi.qryZjTournamentResultById(tournamentId);
     }
 

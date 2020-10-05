@@ -6,10 +6,7 @@ import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Table;
+import com.google.common.collect.*;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
@@ -64,6 +61,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
     private final TournamentGroupService tournamentGroupService;
     private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
     private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
+    private final TournamentKnockoutService tournamentKnockoutService;
     private final TournamentKnockoutResultService tournamentKnockoutResultService;
     private final TeamSelectStatService teamSelectStatService;
 
@@ -436,119 +434,186 @@ public class TableQueryServiceImpl implements ITableQueryService {
     }
 
     @Override
-    public TableData<ZjTournamentEntryResultData> qryZjTournamentResultById(int tournamentId) {
+    public TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId) {
         // tournament_info
         TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
         if (tournamentInfoEntity == null) {
             return new TableData<>();
         }
-        int groupNum = tournamentInfoEntity.getGroupNum();
-        int teamPerGroup = tournamentInfoEntity.getTeamPerGroup();
-        // group_name
-        List<String> groupNameList = this.tournamentGroupService.getBaseMapper().getZjGroupNameList(tournamentId);
-        // group_entry
-        List<Integer> phaseOneGroupList = Lists.newArrayList();
-        IntStream.range(1, groupNum + 1).forEach(phaseOneGroupList::add);
-        Map<Integer, Integer> groupEntryMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .in(TournamentGroupEntity::getGroupId, phaseOneGroupList))
-                .stream()
-                .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getGroupId));
-        // entry_result
-        Table<Integer, Integer, Integer> entryResultTable = HashBasedTable.create();
-
-
         // tournament_entry
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
                 .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(entryList)) {
-            return new TableData<>();
-        }
-        // phase one
-
-        // phase two
-
-        // pk
-
-        // calc
-
+        // phase one result
+        int groupNum = tournamentInfoEntity.getGroupNum();
+        List<Integer> phaseOneGroupList = Lists.newArrayList();
+        IntStream.range(1, groupNum + 1).forEach(phaseOneGroupList::add);
+        List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .gt(TournamentGroupEntity::getEntry, 0)
+                .in(TournamentGroupEntity::getGroupId, phaseOneGroupList));
+        Map<Integer, Integer> phaseOneResultMap = tournamentGroupEntityList
+                .stream()
+                .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getTotalPoints));
+        // phase two result
+        int teamPerGroup = tournamentInfoEntity.getTeamPerGroup();
+        List<Integer> phaseTwoGroupList = Lists.newArrayList();
+        IntStream.range(groupNum + 1, groupNum + teamPerGroup + 1).forEach(phaseTwoGroupList::add);
+        Map<Integer, Integer> phaseTwoResultMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .gt(TournamentGroupEntity::getEntry, 0)
+                .in(TournamentGroupEntity::getGroupId, phaseTwoGroupList))
+                .stream()
+                .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getTotalPoints));
+        // pk result
+        Map<Integer, Integer> pkResultMap = this.getEntryPkResultMap(tournamentId);
+        // entry_result
+        Table<Integer, Integer, Integer> entryResultTable = HashBasedTable.create(); // entry -> phase -> points
+        entryList.forEach(entry -> {
+            entryResultTable.put(entry, 1, phaseOneResultMap.getOrDefault(entry, 0));
+            entryResultTable.put(entry, 2, phaseTwoResultMap.getOrDefault(entry, 0));
+            entryResultTable.put(entry, 3, pkResultMap.getOrDefault(entry, 0));
+        });
+        // group name
+        Map<Integer, String> groupNameMap = Maps.newHashMap();
+        tournamentGroupEntityList.forEach(o -> {
+            if (!groupNameMap.containsKey(o.getGroupId())) {
+                groupNameMap.put(o.getGroupId(), o.getGroupName());
+            }
+        });
         // return
-
-        List<ZjTournamentEntryResultData> list = Lists.newArrayList();
+        List<ZjTournamentResultData> list = Lists.newArrayList();
         int event = this.querySerivce.getCurrentEvent();
-//        entryList.forEach(entry -> list.add(this.qryZjTournamentEntryResult(tournamentId, event, entry)));
+        IntStream.range(1, groupNum + 1).forEach(groupId -> {
+            Multimap<Integer, Integer> groupEntryMap = HashMultimap.create();
+            tournamentGroupEntityList.forEach(o -> groupEntryMap.put(o.getGroupId(), o.getEntry()));
+            list.add(new ZjTournamentResultData()
+                    .setTournamentId(tournamentId)
+                    .setEvent(event)
+                    .setGroupId(groupId)
+                    .setGroupName(groupNameMap.getOrDefault(groupId, ""))
+                    .setPhaseOneTotalPoints(this.sumGroupPhaseOneTotalPoints(groupEntryMap.get(groupId), entryResultTable.column(1)))
+                    .setPhaseTwoTotalPoints(this.sumGroupPhaseTwoTotalPoints(groupEntryMap.get(groupId), entryResultTable.column(2)))
+                    .setPkTotalPoints(this.sumGroupPkTotalPoints(groupEntryMap.get(groupId), entryResultTable.column(3)))
+            );
+        });
+        // group points
+        Map<String, Integer> phaseOneGroupPointsMap = this.sortPhaseOneGroupPoints(list);
+        Map<String, Integer> phaseTwoGroupPointsMap = this.sortPhaseTwoGroupPoints(list);
+        Map<String, Integer> pkPointsMap = this.sortPkGroupPoints(list);
+        // step
+        int stage = 0;
+        if (!CollectionUtils.isEmpty(phaseTwoGroupPointsMap)) {
+            stage = 1;
+        } else if (!CollectionUtils.isEmpty(pkPointsMap)) {
+            stage = 2;
+        }
+        int step = stage;
+        list.forEach(o -> {
+            o.setStep(step)
+                    .setPhaseOneGroupPoints(phaseOneGroupPointsMap.getOrDefault(o.getGroupName(), 0))
+                    .setPhaseTwoGroupPoints(phaseTwoGroupPointsMap.getOrDefault(o.getGroupName(), 0))
+                    .setPkPoints(pkPointsMap.getOrDefault(o.getGroupName(), 0));
+            o.setTournamentTotalPoints(o.getPhaseOneTotalPoints() + o.getPhaseTwoTotalPoints() + o.getPkTotalPoints())
+                    .setTournamentPoints(o.getPhaseOneGroupPoints() + o.getPhaseTwoGroupPoints() + o.getPkPoints());
+        });
         return new TableData<>(list);
     }
 
-//    private ZjTournamentEntryResultData qryZjTournamentEntryResult(int tournamentId, int event, Integer entry) {
-//        ZjTournamentEntryResultData zjTournamentEntryResultData = new ZjTournamentEntryResultData();
-//        // entry_info
-//        EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
-//        if (entryInfoEntity == null) {
-//            return zjTournamentEntryResultData;
-//        }
-//        zjTournamentEntryResultData
-//                .setTournamentId(tournamentId)
-//                .setEntry(entry)
-//                .setEntryName(entryInfoEntity.getEntryName())
-//                .setPlayerName(entryInfoEntity.getPlayerName())
-//                .setEvent(event);
-//        // entry_event_result
-//        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-//                .eq(EntryEventResultEntity::getEvent, event)
-//                .eq(EntryEventResultEntity::getEntry, entry));
-//        if (entryEventResultEntity == null) {
-//            return zjTournamentEntryResultData;
-//        }
-//        zjTournamentEntryResultData
-//                .setEventPoints(entryEventResultEntity.getEventPoints())
-//                .setEventCost(entryEventResultEntity.getEventTransfersCost())
-//                .setEventNetPoints(entryEventResultEntity.getEventNetPoints())
-//                .setEventChip(entryEventResultEntity.getEventChip());
-//        // group_result
-//        List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-//                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-//                .eq(TournamentGroupEntity::getEntry, entry)
-//                .orderByAsc(TournamentGroupEntity::getCreateTime));
-//        if (CollectionUtils.isEmpty(tournamentGroupEntityList)) {
-//            return zjTournamentEntryResultData;
-//        }
-//        zjTournamentEntryResultData
-//                .setPointsGroupPoints(this.getGroupPoints(tournamentGroupEntityList.get(0).getGroupRank()))
-//                .setBattleGroupPoints(this.getGroupPoints(tournamentGroupEntityList.get(1).getGroupRank()));
-//        // pk_result
-//        TournamentKnockoutResultEntity tournamentKnockoutResultEntity = this.tournamentKnockoutResultService.getOne(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-//                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-//                .eq(TournamentKnockoutResultEntity::getEvent, event)
-//                .and(a -> a.eq(TournamentKnockoutResultEntity::getHomeEntry, entry)
-//                        .or(i -> i.eq(TournamentKnockoutResultEntity::getAwayEntry, entry))));
-//        if (tournamentKnockoutResultEntity != null) {
-//            zjTournamentEntryResultData.setPkPoints(entry.equals(tournamentKnockoutResultEntity.getMatchWinner()) ? 7 : 5);
-//        }
-//        // tournament_points
-//        zjTournamentEntryResultData.setTournamentPoints(zjTournamentEntryResultData.getPointsGroupPoints() +
-//                zjTournamentEntryResultData.getBattleGroupPoints() +
-//                zjTournamentEntryResultData.getPkPoints());
-//        return zjTournamentEntryResultData;
-//    }
-//
-//    private int getGroupPoints(int groupRank) {
-//        switch (groupRank) {
-//            case 1:
-//                return 5;
-//            case 2:
-//                return 3;
-//            case 3:
-//                return 2;
-//            case 4:
-//                return 1;
-//            default:
-//                return 0;
-//        }
-//    }
+    private Map<Integer, Integer> getEntryPkResultMap(int tournamentId) {
+        Map<Integer, Integer> map = Maps.newHashMap();
+        List<TournamentKnockoutEntity> tournamentKnockoutEntityList = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                .eq(TournamentKnockoutEntity::getRound, 1)
+                .gt(TournamentKnockoutEntity::getRoundWinner, 0));
+        tournamentKnockoutEntityList.forEach(o -> {
+            if (o.getHomeEntry().equals(o.getRoundWinner())) {
+                map.put(o.getHomeEntry(), 1);
+                map.put(o.getAwayEntry(), 0);
+            } else if (o.getAwayEntry().equals(o.getRoundWinner())) {
+                map.put(o.getHomeEntry(), 0);
+                map.put(o.getAwayEntry(), 1);
+            }
+        });
+        return map;
+    }
+
+    private int sumGroupPhaseOneTotalPoints(Collection<Integer> groupEntryList, Map<Integer, Integer> phaseOneEntryResultMap) {
+        return groupEntryList
+                .stream()
+                .mapToInt(o -> phaseOneEntryResultMap.getOrDefault(o, 0))
+                .sum();
+    }
+
+    private int sumGroupPhaseTwoTotalPoints(Collection<Integer> groupEntryList, Map<Integer, Integer> phaseTwoEntryResultMap) {
+        return groupEntryList
+                .stream()
+                .mapToInt(o -> phaseTwoEntryResultMap.getOrDefault(o, 0))
+                .sum();
+    }
+
+    private int sumGroupPkTotalPoints(Collection<Integer> groupEntryList, Map<Integer, Integer> pkEntryResultMap) {
+        return groupEntryList
+                .stream()
+                .mapToInt(o -> pkEntryResultMap.getOrDefault(o, 0))
+                .sum();
+    }
+
+    private Map<String, Integer> sortPhaseOneGroupPoints(List<ZjTournamentResultData> list) {
+        Map<String, Integer> map = Maps.newHashMap();
+        List<String> sortedGroupNmaeList = list
+                .stream()
+                .filter(o -> o.getPhaseOneTotalPoints() > 0)
+                .sorted(Comparator.comparing(ZjTournamentResultData::getPhaseOneTotalPoints).reversed())
+                .map(ZjTournamentResultData::getGroupName)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(sortedGroupNmaeList)) {
+            return map;
+        }
+        map.put(sortedGroupNmaeList.get(0), 5);
+        map.put(sortedGroupNmaeList.get(1), 3);
+        map.put(sortedGroupNmaeList.get(2), 2);
+        map.put(sortedGroupNmaeList.get(3), 1);
+        return map;
+    }
+
+    private Map<String, Integer> sortPhaseTwoGroupPoints(List<ZjTournamentResultData> list) {
+        Map<String, Integer> map = Maps.newHashMap();
+        List<String> sortedGroupNmaeList = list
+                .stream()
+                .filter(o -> o.getPhaseTwoTotalPoints() > 0)
+                .sorted(Comparator.comparing(ZjTournamentResultData::getPhaseTwoTotalPoints).reversed())
+                .map(ZjTournamentResultData::getGroupName)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(sortedGroupNmaeList)) {
+            return map;
+        }
+        map.put(sortedGroupNmaeList.get(0), 5);
+        map.put(sortedGroupNmaeList.get(1), 3);
+        map.put(sortedGroupNmaeList.get(2), 2);
+        map.put(sortedGroupNmaeList.get(3), 1);
+        return map;
+    }
+
+    private Map<String, Integer> sortPkGroupPoints(List<ZjTournamentResultData> list) {
+        Map<String, Integer> map = Maps.newHashMap();
+        List<String> sortedGroupNmaeList = list
+                .stream()
+                .filter(o -> o.getPkTotalPoints() > 0)
+                .sorted(Comparator.comparing(ZjTournamentResultData::getPkTotalPoints).reversed())
+                .map(ZjTournamentResultData::getGroupName)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(sortedGroupNmaeList)) {
+            return map;
+        }
+        map.put(sortedGroupNmaeList.get(0), 5);
+        map.put(sortedGroupNmaeList.get(1), 3);
+        map.put(sortedGroupNmaeList.get(2), 2);
+        map.put(sortedGroupNmaeList.get(3), 1);
+        return map;
+    }
 
     /**
      * @apiNote live

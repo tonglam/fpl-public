@@ -132,7 +132,7 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
-    public TableData<ZjTournamentEntryResultData> qryZjTournamentResultById(int tournamentId) {
+    public TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId) {
         return this.tableQueryService.qryZjTournamentResultById(tournamentId);
     }
 

@@ -4,8 +4,7 @@
 
 <head th:replace="layout::header(~{::title},~{::link})">
     <title>浙江联赛赛果-自定义赛事-letletme</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-bracket/0.11.1/jquery.bracket.min.css" rel="stylesheet"
-          type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/steps.css}"/>
 </head>
 
 <body>
@@ -26,6 +25,8 @@
             </div>
 
             <div style="margin-top: 30px"></div>
+
+            <div id="stage"></div>
 
             <div class="layui-tab layui-tab-brief" lay-filter="typeTab">
 
@@ -109,6 +110,8 @@
 
 </body>
 
+<script th:src="@{/js/steps.js}"></script>
+
 <script th:replace="layout::baseScript"></script>
 
 <script id="entryTpl" type="text/html">
@@ -117,6 +120,7 @@
 </script>
 
 <script th:inline="none">
+
     layui.use(['table', 'soulTable'], function () {
         let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
 
@@ -133,28 +137,50 @@
             teamPerGroup = parseInt($("#teamPerGroup").text());
 
         <!-- 积分榜 -->
-        table.render({
-            elem: '#zjTournamentTable',
-            url: '/tournament/qryZjTournamentResultById',
-            where: {tournamentId: tournamentId},
-            loading: true,
-            cellMinWidth: 80,
-            cols: [[
-                {title: '', type: 'numbers', width: 40},
-                {field: 'event', title: 'GW', align: 'center', width: 60},
-                {field: 'stage', title: '阶段', align: 'center'},
-                {field: 'groupName', title: '小组', align: 'center'},
-                {field: 'groupPoints', title: '小组总分', align: 'center', width: 120},
-                {field: 'pointsGroupPoints', title: '积分赛', align: 'center'},
-                {field: 'battleGroupPoints', title: '对阵赛', align: 'center'},
-                {field: 'pkPoints', title: 'PK赛', align: 'center'},
-                {field: 'tournamentPoints', title: '总积分', align: 'center'}
-            ]],
-            id: 'zjTournamentTable',
-            done: function () {
-                soulTable.render(this);
-            }
-        });
+        axios.get('/tournament/qryZjTournamentResultById?tournamentId=' + tournamentId)
+            .then(function (response) {
+                let data = response.data;
+                // 步骤条
+                steps({
+                    el: '#stage',
+                    data: [
+                        {title: '一阶段积分赛', description: ''},
+                        {title: '二阶段积分赛', description: ''},
+                        {title: 'PK赛', description: ''}
+                    ],
+                    center: true,
+                    space: 300,
+                    iconType: "bullets",
+                    active: data[0].step
+                });
+                // 渲染表格
+                table.render({
+                    elem: '#zjTournamentTable',
+                    data: data,
+                    loading: true,
+                    cellMinWidth: 100,
+                    cols: [[
+                        {title: '', type: 'numbers', width: 40},
+                        {field: 'groupName', title: '小组', align: 'center', width: 150},
+                        {field: 'phaseOneGroupPoints', title: '一阶段积分', align: 'center'},
+                        {field: 'phaseTwoGroupPoints', title: '二阶段积分', align: 'center'},
+                        {field: 'pkPoints', title: 'PK赛积分', align: 'center'},
+                        {field: 'tournamentTotalPoints', title: '小组总分', align: 'center', width: 120},
+                        {field: 'tournamentPoints', title: '总积分', align: 'center'}
+                    ]],
+                    id: 'zjTournamentTable',
+                    initSort: {
+                        field: 'tournamentPoints',
+                        type: 'desc'
+                    },
+                    done: function () {
+                        soulTable.render(this);
+                    }
+                });
+            })
+            .catch(function (error) {
+                console.log(error.message);
+            });
 
         <!-- 第一阶段 -->
         for (let i = 1; i < groupNum + 1; i++) {
@@ -205,13 +231,6 @@
                                             {field: 'netPoints', title: '净得分', align: 'center'}
                                         ]],
                                         done: function () {
-                                            let divArr = $(".layui-table-total div.layui-table-cell");
-                                            $.each(divArr, function (index, item) {
-                                                let _div = $(item);
-                                                let content = _div.html();
-                                                content = content.replace(".00", "");
-                                                _div.html(content);
-                                            });
                                             soulTable.render(this);
                                         }
                                     }]

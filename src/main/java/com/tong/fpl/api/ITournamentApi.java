@@ -47,6 +47,6 @@ public interface ITournamentApi {
 
     EntryInfoData qryEntryInfo(int entry);
 
-    TableData<ZjTournamentEntryResultData> qryZjTournamentResultById(int tournamentId);
+    TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
 
 }
