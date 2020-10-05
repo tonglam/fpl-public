@@ -30,8 +30,8 @@ public class TournamentGroupEntity {
     private Integer win;
     private Integer draw;
     private Integer lose;
+    private Integer totalPoints;
     private Boolean qualified;
-    private Integer overallPoints;
     private Integer overallRank;
     @TableField(fill = FieldFill.INSERT)
     private String createTime;

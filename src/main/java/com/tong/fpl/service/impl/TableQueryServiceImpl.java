@@ -6,8 +6,10 @@ import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
@@ -296,7 +298,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                             .setGroupId(o.getGroupId())
                             .setGroupRank(o.getGroupRank())
                             .setEntry(o.getEntry())
-                            .setOverallPoints(o.getOverallPoints())
+                            .setTotalPoints(o.getTotalPoints())
                             .setOverallRank(o.getOverallRank());
                     // entry info
                     EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(o.getEntry());
@@ -452,6 +454,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .in(TournamentGroupEntity::getGroupId, phaseOneGroupList))
                 .stream()
                 .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getGroupId));
+        // entry_result
+        Table<Integer, Integer, Integer> entryResultTable = HashBasedTable.create();
+
 
         // tournament_entry
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()

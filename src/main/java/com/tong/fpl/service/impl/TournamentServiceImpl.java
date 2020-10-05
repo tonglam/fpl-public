@@ -279,8 +279,8 @@ public class TournamentServiceImpl implements ITournamentService {
                         .setWin(0)
                         .setDraw(0)
                         .setLose(0)
+                        .setTotalPoints(0)
                         .setQualified(false)
-                        .setOverallPoints(0)
                         .setOverallRank(0);
                 if (groupFillAverage) {
                     tournamentGroupList.add(tournamentGroupEntity);
@@ -306,8 +306,8 @@ public class TournamentServiceImpl implements ITournamentService {
                     .setWin(0)
                     .setDraw(0)
                     .setLose(0)
+                    .setTotalPoints(0)
                     .setQualified(false)
-                    .setOverallPoints(0)
                     .setOverallRank(0)
             );
         });
@@ -685,8 +685,8 @@ public class TournamentServiceImpl implements ITournamentService {
                         .setWin(0)
                         .setDraw(0)
                         .setLose(0)
+                        .setTotalPoints(0)
                         .setQualified(false)
-                        .setOverallPoints(0)
                         .setOverallRank(0)
                 );
                 // phase one points_group_result
@@ -719,8 +719,8 @@ public class TournamentServiceImpl implements ITournamentService {
                         .setWin(0)
                         .setDraw(0)
                         .setLose(0)
+                        .setTotalPoints(0)
                         .setQualified(false)
-                        .setOverallPoints(0)
                         .setOverallRank(0)
                 );
                 // phase two points_group_result

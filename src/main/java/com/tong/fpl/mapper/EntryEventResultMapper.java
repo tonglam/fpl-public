@@ -9,10 +9,13 @@ import org.apache.ibatis.annotations.Select;
  */
 public interface EntryEventResultMapper extends BaseMapper<EntryEventResultEntity> {
 
-	@Select("SELECT IFNULL(SUM(event_net_points), 0) FROM entry_event_result WHERE entry = #{entry} And `event` <= #{event} ")
-	int sumEventNetPoint(int event, int entry);
+    @Select("SELECT IFNULL(SUM(event_points), 0) FROM entry_event_result WHERE entry = #{entry} And `event` between #{startGw} and #{endGw} ")
+    int sumEventPoints(int startGw, int endGw, int entry);
 
-	@Select("SELECT IFNULL(SUM(event_net_points), 0) FROM entry_event_result WHERE entry = #{entry} ")
-	int sumEntryNetPoint(int entry);
+    @Select("SELECT IFNULL(SUM(event_net_points), 0) FROM entry_event_result WHERE entry = #{entry} And `event` <= #{event} ")
+    int sumEventNetPoints(int event, int entry);
+
+    @Select("SELECT IFNULL(SUM(event_net_points), 0) FROM entry_event_result WHERE entry = #{entry} ")
+    int sumEntryNetPoints(int entry);
 
 }
