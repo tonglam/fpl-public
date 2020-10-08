@@ -51,16 +51,15 @@
                 </div>
 
                 <button class="layui-btn" id="searchButton" type="button">搜索</button>
+
             </div>
 
+            <div style="padding-top: 15px"></div>
+
+            <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
+
         </div>
-
-        <div style="padding-top: 15px"></div>
-
-        <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
-
     </div>
-</div>
 </div>
 
 <div th:replace="layout::footer"></div>
@@ -140,7 +139,6 @@
                             {
                                 title: '淘汰赛',
                                 data: function (d) {
-                                    // d 为当前行数据
                                     return [d];
                                 },
                                 page: false,
