@@ -3,10 +3,13 @@ package com.tong.fpl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import com.tong.fpl.constant.Constant;
 import com.tong.fpl.service.IQuerySerivce;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -46,9 +49,8 @@ public class CommonTest extends FplApplicationTests {
 
     @Test
     void test() {
-        int event = this.querySerivce.getCurrentEvent();
-        boolean a = this.querySerivce.isMatchDayTime(event);
-        System.out.println(1);
+        String a = "2020-10-10 20:00:00";
+        System.out.println(LocalDateTime.now().isBefore(LocalDateTime.parse(a, DateTimeFormatter.ofPattern(Constant.DATETIME))));
     }
 
 

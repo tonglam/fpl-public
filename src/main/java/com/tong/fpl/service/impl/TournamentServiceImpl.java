@@ -2,6 +2,7 @@ package com.tong.fpl.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
+import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
@@ -30,6 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -889,8 +892,19 @@ public class TournamentServiceImpl implements ITournamentService {
     }
 
     @Override
-    public String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList) {
+    public String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry) {
+        // 校验deadline
+        ZjTournamentCaptainEntity zjTournamentCaptainEntity = this.zjTournamentCaptainService.getOne(new QueryWrapper<ZjTournamentCaptainEntity>().lambda()
+                .eq(ZjTournamentCaptainEntity::getTournamentId, groupDataList.get(0).getTournamentId())
+                .eq(ZjTournamentCaptainEntity::getCaptainEntry, captainEntry));
+        if (zjTournamentCaptainEntity == null) {
+            return "无队长数据";
+        }
+        if (LocalDateTime.now().isAfter(LocalDateTime.parse(zjTournamentCaptainEntity.getPhaseTwoDeadline(), DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+            return "死线已过，提交不了！";
+        }
         groupDataList.forEach(o -> {
+            // 更新
             TournamentGroupEntity tournamentGroupEntity = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
                     .eq(TournamentGroupEntity::getTournamentId, o.getTournamentId())
                     .eq(TournamentGroupEntity::getGroupId, o.getGroupId())

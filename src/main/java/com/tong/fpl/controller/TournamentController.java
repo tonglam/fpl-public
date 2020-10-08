@@ -227,11 +227,12 @@ public class TournamentController {
 
     @ResponseBody
     @RequestMapping(value = "/updatePhaseTwoGroupData")
-    public String updatePhaseTwoGroupData(@RequestBody List<TournamentGroupData> groupDataList) {
+    public String updatePhaseTwoGroupData(@RequestBody List<TournamentGroupData> groupDataList, HttpSession session) {
         if (CollectionUtils.isEmpty(groupDataList)) {
             return "分配列表不能为空!";
         }
-        return this.tournamentApi.updatePhaseTwoGroupData(groupDataList);
+        int captainEntry = (int) session.getAttribute("entry");
+        return this.tournamentApi.updatePhaseTwoGroupData(groupDataList, captainEntry);
     }
 
     @ResponseBody

@@ -535,11 +535,11 @@
                 $.each(tableData, function (index, item) {
                     if (tableData[index]["groupName"] == currentGroupName) {
                         // 校验
-                        // if (item.entry <= 0) {
-                        //     commitCheck = false;
-                        //     layer.msg("还有队员未分配！", {icon: 2, time: 1000});
-                        //     return false;
-                        // }
+                        if (item.entry <= 0) {
+                            commitCheck = false;
+                            layer.msg("还有队员未分配！", {icon: 2, time: 1000});
+                            return false;
+                        }
                         // 拼装
                         tournamentGroupData.tournamentId = tournamentId;
                         tournamentGroupData.groupId = groupNum + i;

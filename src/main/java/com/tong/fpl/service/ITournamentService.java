@@ -63,6 +63,6 @@ public interface ITournamentService {
 
     void updateTournamentEntry(int tournamentId);
 
-    String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList);
+    String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
 }

@@ -62,6 +62,6 @@ public interface ITournamentApi {
 
     List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
 
-    String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList);
+    String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
 }
