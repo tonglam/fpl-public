@@ -377,7 +377,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .eq(TournamentGroupEntity::getEntry, entry)
                 .gt(TournamentGroupEntity::getGroupId, groupNum));
         if (tournamentGroupEntity == null) {
-            return new TournamentGroupData();
+            return new TournamentGroupData()
+                    .setTournamentId(tournamentId)
+                    .setEntry(-1)
+                    .setDrawPhaseTwo(false)
+                    .setDiscloseList(discloseList);
         }
         TournamentGroupData tournamentGroupData = new TournamentGroupData();
         BeanUtil.copyProperties(tournamentGroupEntity, tournamentGroupData, CopyOptions.create().ignoreNullValue());
@@ -412,7 +416,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
             BeanUtil.copyProperties(o, tournamentGroupData);
             int entry = o.getEntry();
             if (entry > 0) {
-                o.setDrwaPhaseTwo(true);
+                o.setDrawPhaseTwo(true);
                 String currentGroupName = groupNameMap.getOrDefault(currentGroupId, "");
                 String entryGroupName = groupEntryNameMap.getOrDefault(entry, "");
                 if ((StringUtils.isEmpty(currentGroupName) || StringUtils.isEmpty(entryGroupName) || !StringUtils.equals(entryGroupName, currentGroupName)) &&
@@ -420,7 +424,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     o.setEntry(-1);
                 }
             } else {
-                o.setDrwaPhaseTwo(false);
+                o.setDrawPhaseTwo(false);
             }
             o.setDiscloseList(discloseList);
             list.add(o);

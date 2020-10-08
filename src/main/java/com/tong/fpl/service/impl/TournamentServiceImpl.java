@@ -654,7 +654,7 @@ public class TournamentServiceImpl implements ITournamentService {
         entryList.forEach(entry ->
                 tournamentEntryList.add(new TournamentEntryEntity()
                         .setTournamentId(tournamentId)
-                        .setLeagueId(-1)
+                        .setLeagueId(0)
                         .setEntry(entry)
                 ));
         this.tournamentEntryService.saveBatch(tournamentEntryList);

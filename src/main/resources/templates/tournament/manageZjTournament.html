@@ -320,6 +320,10 @@
                     }
                 })
                     .then(function (response) {
+                        if (response.entry <= 0) {
+                            layer.msg("此队员还未被分组，请暴揍他们队长！", {icon: 2, time: 1500});
+                            return false;
+                        }
                         let discloseList = response.discloseList;
                         if (discloseList.length > 0 && discloseList[0] != entry) {
                             layer.msg("揭过牌了，不要贪心！", {icon: 2, time: 1500});
@@ -419,6 +423,7 @@
                                 tableData[index]["entry"] = entry;
                                 tableData[index]["entryName"] = entryName;
                                 tableData[index]["playerName"] = playerName;
+                                tableData[index]["drawPhaseTwo"] = true;
                                 table.reload(tableId, {data: tableData});
                             }
                         });
@@ -428,6 +433,7 @@
                                 tableData[index]["entry"] = -1;
                                 tableData[index]["entryName"] = entryName;
                                 tableData[index]["playerName"] = playerName;
+                                tableData[index]["drawPhaseTwo"] = false;
                                 table.reload(tableId, {data: tableData});
                             }
                         });
@@ -496,7 +502,7 @@
                             },
                             {
                                 title: '已分组', align: 'center', templet: function (d) {
-                                    if (d.drwaPhaseTwo) {
+                                    if (d.drawPhaseTwo) {
                                         return '是';
                                     } else {
                                         return '否';

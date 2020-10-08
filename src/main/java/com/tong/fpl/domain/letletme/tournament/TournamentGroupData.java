@@ -32,7 +32,7 @@ public class TournamentGroupData {
     private int overallRank;
     private int startGw;
     private int endGw;
-    private boolean drwaPhaseTwo;
+    private boolean drawPhaseTwo;
     private List<Integer> discloseList;
     private TournamentPointsGroupEventResultData pointsGroupEventResult;
 
