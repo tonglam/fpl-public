@@ -3,7 +3,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="layout::header(~{::title},~{::link})">
-    <title>浙江联赛赛果-自定义赛事-letletme</title>
+    <title>赛果-浙江联赛-letletme</title>
     <link rel="stylesheet" th:href="@{/css/steps.css}"/>
 </head>
 
@@ -49,7 +49,8 @@
                             <legend><a>第一阶段</a></legend>
                         </fieldset>
 
-                        <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,pointsShowNum)}">
+                        <div class="layui-row layui-col-space30"
+                             th:each="index:${#numbers.sequence(1,phaseOneShowNum)}">
 
                             <div class="layui-col-md6 layui-hide" th:attr="id='phaseOneGroup'+((${index}*2)-1)">
                                 <div th:attr="id='phaseOneGroup'+((${index}*2)-1)+'Name'"></div>
@@ -68,7 +69,8 @@
                             <legend><a>第二阶段</a></legend>
                         </fieldset>
 
-                        <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,battleShowNum)}">
+                        <div class="layui-row layui-col-space30"
+                             th:each="index:${#numbers.sequence(1,phaseTwoShowNum)}">
 
                             <div class="layui-col-md6 layui-hide" th:attr="id='phaseTwoGroup'+((${index}*2)-1)">
                                 <div th:attr="id='phaseTwoGroup'+((${index}*2)-1)+'Name'"></div>
@@ -82,6 +84,7 @@
                             </div>
 
                         </div>
+
                         <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
                             <legend><a>PK赛</a></legend>
                         </fieldset>
@@ -306,10 +309,7 @@
                     {
                         field: 'entryName', title: '队伍名称', align: 'center', width: 150, templet: function (d) {
                             if (d.entry <= 0) {
-                                let entry = -1 * d.entry;
-                                let group = Math.round(entry / 10);
-                                let index = entry - group * 10;
-                                return getCapitalLetterFromNum(group) + '组' + index + '号位';
+                                return d.groupName;
                             } else {
                                 return d.entryName;
                             }
@@ -318,10 +318,7 @@
                     {
                         field: 'playerName', title: '玩家名称', align: 'center', width: 150, templet: function (d) {
                             if (d.entry <= 0) {
-                                let entry = -1 * d.entry;
-                                let group = Math.round(entry / 10);
-                                let index = entry - group * 10;
-                                return getCapitalLetterFromNum(group) + '组' + index + '号位';
+                                return d.groupName;
                             } else {
                                 return d.playerName;
                             }

@@ -3,6 +3,8 @@ package com.tong.fpl.domain.letletme.tournament;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * Create by tong on 2020/9/3
  */
@@ -30,6 +32,8 @@ public class TournamentGroupData {
     private int overallRank;
     private int startGw;
     private int endGw;
+    private boolean drwaPhaseTwo;
+    private List<Integer> discloseList;
     private TournamentPointsGroupEventResultData pointsGroupEventResult;
 
 }

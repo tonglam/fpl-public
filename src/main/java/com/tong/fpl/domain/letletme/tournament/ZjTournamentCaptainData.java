@@ -3,19 +3,16 @@ package com.tong.fpl.domain.letletme.tournament;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.List;
-
 /**
- * Create by tong on 2020/9/29
+ * Create by tong on 2020/10/6
  */
 @Data
 @Accessors(chain = true)
-public class ZjTournamentGroupData {
+public class ZjTournamentCaptainData {
 
+    private int tournamentId;
     private int groupId;
-    private String groupName;
     private int captainEntry;
     private String phaseTwoDeadline;
-    private List<Integer> groupEntryList;
 
 }

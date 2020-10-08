@@ -5,6 +5,7 @@ import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
@@ -14,6 +15,7 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
+import com.tong.fpl.domain.letletme.tournament.ZjTournamentCaptainData;
 import com.tong.fpl.utils.CommonUtils;
 
 import java.time.LocalDate;
@@ -65,31 +67,31 @@ public interface IQuerySerivce {
      * @apiNote entry
      */
     default EntryInfoEntity qryEntryInfo(int entry) {
-	    return this.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
+        return this.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
     }
 
-	EntryInfoEntity qryEntryInfo(String season, int entry);
+    EntryInfoEntity qryEntryInfo(String season, int entry);
 
-	EntryRes getEntry(int entry);
+    EntryRes getEntry(int entry);
 
-	UserPicksRes getUserPicks(int event, int entry);
+    UserPicksRes getUserPicks(int event, int entry);
 
-	UserHistoryRes getUserHistory(int entry);
+    UserHistoryRes getUserHistory(int entry);
 
-	/**
-	 * @apiNote event
-	 */
-	int getLastEvent();
+    /**
+     * @apiNote event
+     */
+    int getLastEvent();
 
-	int getCurrentEvent();
+    int getCurrentEvent();
 
-	int getNextEvent();
+    int getNextEvent();
 
-	default String getDeadlineByEvent(int event) {
-		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
-	}
+    default String getDeadlineByEvent(int event) {
+        return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
+    }
 
-	String getDeadlineByEvent(String season, int event);
+    String getDeadlineByEvent(String season, int event);
 
     List<LocalDate> getMatchDayByEvent(int event);
 
@@ -169,6 +171,16 @@ public interface IQuerySerivce {
     List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId);
 
     List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
+
+    List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
+
+    Map<Integer, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum);
+
+    int qryTournamentRankByGroupId(int tournamentId, int groupNum, int currentGroupId);
+
+    List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId);
+
+    Map<Integer, String> qryZjTournamentGroupEntryMap(int tournamentId, int groupNum);
 
     /**
      * @apiNote report

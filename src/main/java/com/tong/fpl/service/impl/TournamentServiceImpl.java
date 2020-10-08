@@ -12,6 +12,7 @@ import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.event.CreateZjTournamentEventData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.ZjTournamentCreateData;
 import com.tong.fpl.domain.letletme.tournament.ZjTournamentGroupData;
 import com.tong.fpl.service.IQuerySerivce;
@@ -489,7 +490,7 @@ public class TournamentServiceImpl implements ITournamentService {
             return;
         }
         // get knockout entry
-        ArrayList<Integer> entryList = this.getKnockoutEntryList(tournamentId, groupMode, groupNum, groupQualifiers);
+        List<Integer> entryList = this.getKnockoutEntryList(tournamentId, groupMode, groupNum, groupQualifiers);
         if (CollectionUtils.isEmpty(entryList)) {
             log.error("draw knockouts no entry!");
             return;
@@ -583,8 +584,7 @@ public class TournamentServiceImpl implements ITournamentService {
     }
 
     @Override
-    public void
-    createNewZjTournamentBackground(ZjTournamentCreateData zjTournamentCreateData) {
+    public void createNewZjTournamentBackground(ZjTournamentCreateData zjTournamentCreateData) {
         List<ZjTournamentGroupData> groupDataList = zjTournamentCreateData.getGroupDataList();
         if (CollectionUtils.isEmpty(groupDataList)) {
             return;
@@ -667,6 +667,7 @@ public class TournamentServiceImpl implements ITournamentService {
                     .setTournamentId(tournamentId)
                     .setGroupId(phaseOneGroupId)
                     .setCaptainEntry(o.getCaptainEntry())
+                    .setPhaseTwoDeadline(o.getPhaseTwoDeadline())
             );
             for (int i = 1; i < teamPerGroup + 1; i++) {
                 int phaseOneEntry = o.getGroupEntryList().get(i - 1);
@@ -708,7 +709,7 @@ public class TournamentServiceImpl implements ITournamentService {
                 tournamentGroupList.add(new TournamentGroupEntity()
                         .setTournamentId(tournamentId)
                         .setGroupId(phaseTwoGroupId)
-                        .setGroupName("")
+                        .setGroupName(o.getGroupName() + "组" + i + "号")
                         .setGroupIndex(phaseOneGroupId)
                         .setEntry(phaseTwoEntry)
                         .setStartGw(phaseTwoStartGw)
@@ -771,8 +772,8 @@ public class TournamentServiceImpl implements ITournamentService {
         log.info("save tournament:{} knockout success!", tournamentId);
     }
 
-    private ArrayList<Integer> getKnockoutEntryList(int tournamentId, String groupMode, int groupNum, int groupQualifiers) {
-        ArrayList<Integer> entryList = Lists.newArrayList();
+    private List<Integer> getKnockoutEntryList(int tournamentId, String groupMode, int groupNum, int groupQualifiers) {
+        List<Integer> entryList = Lists.newArrayList();
         if (GroupMode.valueOf(groupMode) == GroupMode.No_group) {
             List<Integer> entryInfoList = this.querySerivce.qryEntryListByTournament(tournamentId);
             entryList.addAll(entryInfoList);
@@ -885,6 +886,22 @@ public class TournamentServiceImpl implements ITournamentService {
             return;
         }
 
+    }
+
+    @Override
+    public String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList) {
+        groupDataList.forEach(o -> {
+            TournamentGroupEntity tournamentGroupEntity = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
+                    .eq(TournamentGroupEntity::getTournamentId, o.getTournamentId())
+                    .eq(TournamentGroupEntity::getGroupId, o.getGroupId())
+                    .eq(TournamentGroupEntity::getGroupName, o.getGroupName()));
+            if (tournamentGroupEntity == null) {
+                return;
+            }
+            tournamentGroupEntity.setEntry(o.getEntry());
+            this.tournamentGroupService.updateById(tournamentGroupEntity);
+        });
+        return "分配小组成功!";
     }
 
 }

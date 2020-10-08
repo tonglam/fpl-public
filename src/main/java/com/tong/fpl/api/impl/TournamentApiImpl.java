@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2020/6/24
@@ -102,6 +103,31 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
+    public int qryTournamentRankByGroupId(int tournamentId, int groupNum, int currentGroupId) {
+        return this.querySerivce.qryTournamentRankByGroupId(tournamentId, groupNum, currentGroupId);
+    }
+
+    @Override
+    public List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId) {
+        return this.querySerivce.qryGroupEntryInfoList(tournamentId, groupId);
+    }
+
+    @Override
+    public Map<Integer, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum) {
+        return this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum);
+    }
+
+    @Override
+    public TournamentGroupData qryDiscloseGroupData(int tournamentId, int groupNum, int entry, int currentGroupId) {
+        return this.tableQueryService.qryDiscloseGroupData(tournamentId, groupNum, entry, currentGroupId);
+    }
+
+    @Override
+    public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int groupNum, int currentGroupId, int groupId) {
+        return this.tableQueryService.qrySeeableGroupInfoListByGroupId(tournamentId, groupNum, currentGroupId, groupId);
+    }
+
+    @Override
     public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
         return this.querySerivce.qryKnockoutResultByTournament(tournamentId);
     }
@@ -134,6 +160,16 @@ public class TournamentApiImpl implements ITournamentApi {
     @Override
     public TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId) {
         return this.tableQueryService.qryZjTournamentResultById(tournamentId);
+    }
+
+    @Override
+    public List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId) {
+        return this.querySerivce.qryZjTournamentCaptain(tournamentId);
+    }
+
+    @Override
+    public String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList) {
+        return this.tournamentService.updatePhaseTwoGroupData(groupDataList);
     }
 
 }

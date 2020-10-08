@@ -24,6 +24,7 @@ import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -50,6 +51,7 @@ import java.util.stream.IntStream;
 public class TableQueryServiceImpl implements ITableQueryService {
 
     private final IQuerySerivce querySerivce;
+    private final IRedisCacheSerive redisCacheSerive;
     private final ILiveService liveService;
     private final PlayerService playerService;
     private final PlayerValueService playerValueService;
@@ -62,7 +64,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
     private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
     private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
     private final TournamentKnockoutService tournamentKnockoutService;
-    private final TournamentKnockoutResultService tournamentKnockoutResultService;
     private final TeamSelectStatService teamSelectStatService;
 
     /**
@@ -359,6 +360,71 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     }
                     list.add(tournamentGroupData);
                 });
+        return new TableData<>(list);
+    }
+
+    // do not cache here
+    @Override
+    public TournamentGroupData qryDiscloseGroupData(int tournamentId, int groupNum, int entry, int currentGroupId) {
+        // check num
+        List<Integer> discloseList = this.redisCacheSerive.getDiscloseList(tournamentId, currentGroupId);
+        int discloseNum = discloseList.size();
+        if (discloseNum > 0 && discloseList.get(0) != entry) {
+            return new TournamentGroupData().setDiscloseList(discloseList);
+        }
+        TournamentGroupEntity tournamentGroupEntity = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .eq(TournamentGroupEntity::getEntry, entry)
+                .gt(TournamentGroupEntity::getGroupId, groupNum));
+        if (tournamentGroupEntity == null) {
+            return new TournamentGroupData();
+        }
+        TournamentGroupData tournamentGroupData = new TournamentGroupData();
+        BeanUtil.copyProperties(tournamentGroupEntity, tournamentGroupData, CopyOptions.create().ignoreNullValue());
+        // entry_info
+        EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
+        if (entryInfoEntity != null) {
+            tournamentGroupData
+                    .setEntryName(entryInfoEntity.getEntryName())
+                    .setPlayerName(entryInfoEntity.getPlayerName());
+        }
+        // disclose list
+        this.redisCacheSerive.insertDiscloseCache(tournamentId, currentGroupId, entry);
+        if (!discloseList.contains(entry)) {
+            discloseList.add(entry);
+        }
+        tournamentGroupData.setDiscloseList(discloseList);
+        return tournamentGroupData;
+    }
+
+    @Override
+    public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int groupNum, int currentGroupId, int groupId) {
+        // group name
+        Map<Integer, String> groupNameMap = this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum);
+        // group entry name
+        Map<Integer, String> groupEntryNameMap = this.querySerivce.qryZjTournamentGroupEntryMap(tournamentId, groupNum);
+        // disclose entry list
+        List<Integer> discloseList = this.redisCacheSerive.getDiscloseList(tournamentId, currentGroupId);
+        // phase two tournament_group
+        List<TournamentGroupData> list = Lists.newArrayList();
+        this.qryGroupInfoListByGroupId(tournamentId, groupId).getData().forEach(o -> {
+            TournamentGroupData tournamentGroupData = new TournamentGroupData();
+            BeanUtil.copyProperties(o, tournamentGroupData);
+            int entry = o.getEntry();
+            if (entry > 0) {
+                o.setDrwaPhaseTwo(true);
+                String currentGroupName = groupNameMap.getOrDefault(currentGroupId, "");
+                String entryGroupName = groupEntryNameMap.getOrDefault(entry, "");
+                if ((StringUtils.isEmpty(currentGroupName) || StringUtils.isEmpty(entryGroupName) || !StringUtils.equals(entryGroupName, currentGroupName)) &&
+                        !discloseList.contains(entry)) {
+                    o.setEntry(-1);
+                }
+            } else {
+                o.setDrwaPhaseTwo(false);
+            }
+            o.setDiscloseList(discloseList);
+            list.add(o);
+        });
         return new TableData<>(list);
     }
 

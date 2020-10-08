@@ -50,19 +50,17 @@
                     </div>
                 </div>
 
-                <div class="layui-inline">
-                    <button class="layui-btn" id="searchButton" lay-submit="searchTournament" type="submit">搜索
-                    </button>
-                </div>
-
+                <button class="layui-btn" id="searchButton" type="button">搜索</button>
             </div>
 
-            <div style="padding-top: 15px"></div>
-
-            <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
-
         </div>
+
+        <div style="padding-top: 15px"></div>
+
+        <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
+
     </div>
+</div>
 </div>
 
 <div th:replace="layout::footer"></div>
@@ -72,9 +70,14 @@
 <script th:replace="layout::baseScript"></script>
 
 <script id="barDemo" type="text/html">
-    <a class="layui-btn layui-btn-xs" lay-event="edit">更换管理员</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">管理员</a>
+    {{#  if(d.tournamentMode == 'Zj'){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="draw">抽签</a>
+    {{#  } }}
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
+
+<div th:replace="layout::entryInputLayer"></div>
 
 <script th:inline="none">
     layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
@@ -161,7 +164,7 @@
                     {field: 'leagueType', title: '类型', align: 'center', width: '8%'},
                     {field: 'leagueId', title: '官方联赛id', align: 'center', width: '10%'},
                     {field: 'totalTeam', title: '队伍总数', align: 'center', width: '8%'},
-                    {field: 'createTime', title: '创建时间', align: 'center', width: '15%'},
+                    {field: 'createTime', title: '创建时间', align: 'center', width: '12%'},
                     {fixed: 'right', title: '操作', toolbar: '#barDemo', align: 'center'}
                 ]],
                 initSort: {
@@ -263,7 +266,10 @@
                                 });
                         });
                     });
+                } else if (obj.event === 'draw') {
+                    window.location.replace('/tournament/manageZjTournament?id=' + data.id);
                 }
+
             });
 
         });

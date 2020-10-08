@@ -334,6 +334,14 @@
                             </div>
 
                             <div class="layui-form-item">
+                                <label class="layui-form-label label-required">分组死线</label>
+                                <div class="layui-input-inline">
+                                    <input autocomplete="off" class="layui-input" name="phaseTwoDeadline"
+                                           placeholder="二阶段分组死线" type="text">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
                                 <label class="layui-form-label label-required">二阶段轮次</label>
                                 <div class="layui-input-inline">
                                     <input autocomplete="off" class="layui-input" lay-reqtext="二阶段小组轮次不能为空"
@@ -380,9 +388,10 @@
                             <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,showNum)}">
 
                                 <div class="layui-col-md6 layui-hide" th:attr="id='zjGroup'+((${index}*2)-1)">
-                                    <label class="layui-form-label" style="margin-left: -60px">组名</label>
+                                    <label class="layui-form-label label-required" style="margin-left: -60px">组名</label>
                                     <div class="layui-input-inline">
-                                        <input autocomplete="on" class="layui-input" placeholder="请输入小组名字"
+                                        <input autocomplete="on" class="layui-input"
+                                               lay-reqtext="小组名字不能为空" lay-verify="required" placeholder="请输入小组名字"
                                                th:attr="name='zjGroup'+((${index}*2)-1)+'Name'" type="text">
                                     </div>
                                     <table class="layui-table"
@@ -414,9 +423,10 @@
                                 </div>
 
                                 <div class="layui-col-md6 layui-hide" th:attr="id='zjGroup'+${index}*2">
-                                    <label class="layui-form-label" style="margin-left: -60px">组名</label>
+                                    <label class="layui-form-label label-required" style="margin-left: -60px">组名</label>
                                     <div class="layui-input-inline">
-                                        <input autocomplete="on" class="layui-input" placeholder="请输入小组名字"
+                                        <input autocomplete="on" class="layui-input"
+                                               lay-reqtext="小组名字不能为空" lay-verify="required" placeholder="请输入小组名字"
                                                th:attr="name='zjGroup'+${index}*2+'Name'" type="text">
                                     </div>
                                     <table class="layui-table"
@@ -482,9 +492,14 @@
 </script>
 
 <script th:inline="javascript">
-    layui.use(['element', 'form', 'layer', 'table', 'soulTable', 'util'], function () {
+    layui.use(['element', 'form', 'layer', 'table', 'soulTable', 'util', 'laydate'], function () {
         let $ = layui.jquery, element = layui.element, form = layui.form, layer = layui.layer, table = layui.table,
-            soulTable = layui.soulTable, util = layui.util;
+            soulTable = layui.soulTable, util = layui.util, laydate = layui.laydate;
+
+        laydate.render({
+            elem: 'input[name=phaseTwoDeadline]',
+            type: 'datetime'
+        });
 
         $(document).ready(function () {
             $("#rule").addClass("layui-hide");
@@ -1487,6 +1502,7 @@
                 let captainEntry = 0;
                 let groupNameInput = "input[name=zjGroup" + i + "Name]";
                 let groupName = $(groupNameInput).val();
+                let phaseTwoDeadline = $("input[name=phaseTwoDeadline]").val();
                 let groupEntryList = [];
                 let tableId = 'zjGroup' + i + 'Table';
                 $.each(table.cache[tableId], function (index, item) {
@@ -1507,6 +1523,7 @@
                 zjTournamentGroupData.groupId = i;
                 zjTournamentGroupData.groupName = groupName;
                 zjTournamentGroupData.captainEntry = captainEntry;
+                zjTournamentGroupData.phaseTwoDeadline = phaseTwoDeadline;
                 zjTournamentGroupData.groupEntryList = groupEntryList;
                 groupDataList.push(zjTournamentGroupData);
             }
@@ -1537,7 +1554,7 @@
                 axios.post('/tournament/createNewZjTournament', zjTournamentCreateData)
                     .then(function (response) {
                         layer.msg(response, {icon: 6, time: 1500}, function () {
-                            // window.location.replace("/tournament/create");
+                            window.location.replace("/tournament/create");
                         });
                     })
                     .catch(function (error) {

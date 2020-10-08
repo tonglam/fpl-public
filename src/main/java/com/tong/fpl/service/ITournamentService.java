@@ -1,7 +1,10 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.ZjTournamentCreateData;
+
+import java.util.List;
 
 /**
  * Create by tong on 2020/6/24
@@ -60,5 +63,6 @@ public interface ITournamentService {
 
     void updateTournamentEntry(int tournamentId);
 
+    String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList);
 
 }

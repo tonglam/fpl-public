@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -106,8 +107,8 @@ public class TournamentController {
         TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
         if (tournamentInfoData != null) {
             model.addAttribute("tournamentInfo", tournamentInfoData);
-            model.addAttribute("pointsShowNum", Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
-            model.addAttribute("battleShowNum", Math.ceil(tournamentInfoData.getTotalTeam() * 1.0 / 2));
+            model.addAttribute("phaseOneShowNum", Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
+            model.addAttribute("phaseTwoShowNum", Math.ceil(tournamentInfoData.getTotalTeam() * 1.0 / 2));
         }
         List<TournamentKnockoutResultData> knockoutResultList = this.tournamentApi.qryKnockoutResultByTournament(id);
         model.addAttribute("knockoutResultList", knockoutResultList);
@@ -117,6 +118,18 @@ public class TournamentController {
     @GetMapping(value = "/manage")
     public String manageController() {
         return "tournament/manage";
+    }
+
+    @GetMapping(value = "/manageZjTournament")
+    public String manageZjTournamentController(@RequestParam int id, Model model) {
+        model.addAttribute("captainDataList", this.tournamentApi.qryZjTournamentCaptain(id));
+        TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
+        if (tournamentInfoData != null) {
+            model.addAttribute("tournamentInfo", tournamentInfoData);
+            model.addAttribute("phaseTwoShowNum", Math.ceil(tournamentInfoData.getTeamPerGroup() * 1.0 / 2));
+            model.addAttribute("groupNameMap", this.tournamentApi.qryZjTournamentGroupNameMap(id, tournamentInfoData.getGroupNum()));
+        }
+        return "tournament/manageZjTournament";
     }
 
     @GetMapping(value = "/rule")
@@ -186,6 +199,39 @@ public class TournamentController {
     @RequestMapping(value = "/deleteTournamentByName")
     public String deleteTournamentByName(@RequestParam String name) {
         return this.tournamentApi.deleteTournamentByName(name);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/qryTournamentRankByGroupId")
+    public int qryTournamentRankByGroupId(@RequestParam int tournamentId, @RequestParam int groupNum, @RequestParam int currentGroupId) {
+        return this.tournamentApi.qryTournamentRankByGroupId(tournamentId, groupNum, currentGroupId);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/qryGroupEntryInfoList")
+    public List<EntryInfoData> qryGroupEntryInfoList(@RequestParam int tournamentId, @RequestParam int groupId) {
+        return this.tournamentApi.qryGroupEntryInfoList(tournamentId, groupId);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/qryDiscloseGroupData")
+    public TournamentGroupData qryDiscloseGroupData(@RequestParam int tournamentId, @RequestParam int groupNum, @RequestParam int entry, @RequestParam int currentGroupId) {
+        return this.tournamentApi.qryDiscloseGroupData(tournamentId, groupNum, entry, currentGroupId);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/qrySeeableGroupInfoListByGroupId")
+    public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int groupNum, @RequestParam int currentGroupId, @RequestParam int groupId) {
+        return this.tournamentApi.qrySeeableGroupInfoListByGroupId(tournamentId, groupNum, currentGroupId, groupId);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/updatePhaseTwoGroupData")
+    public String updatePhaseTwoGroupData(@RequestBody List<TournamentGroupData> groupDataList) {
+        if (CollectionUtils.isEmpty(groupDataList)) {
+            return "分配列表不能为空!";
+        }
+        return this.tournamentApi.updatePhaseTwoGroupData(groupDataList);
     }
 
     @ResponseBody

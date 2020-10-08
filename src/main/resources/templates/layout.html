@@ -217,6 +217,10 @@
         return String.fromCharCode(num + 64);
     }
 
+    function setTableRowColor(elem, index, color) {
+        elem.find(".layui-table-box tbody tr[data-index='" + index + "']").css("background-color", color);
+    }
+
 </script>
 
 <script th:fragment="entryInputLayer">

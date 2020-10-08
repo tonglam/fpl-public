@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2020/6/24
@@ -33,7 +34,17 @@ public interface ITournamentApi {
 
     List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
 
+    Map<Integer, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum);
+
     TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+
+    TournamentGroupData qryDiscloseGroupData(int tournamentId, int groupNum, int entry, int currentGroupId);
+
+    int qryTournamentRankByGroupId(int tournamentId, int groupNum, int currentGroupId);
+
+    List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId);
+
+    TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int groupNum, int currentGroupId, int groupId);
 
     List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
@@ -48,5 +59,9 @@ public interface ITournamentApi {
     EntryInfoData qryEntryInfo(int entry);
 
     TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
+
+    List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
+
+    String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList);
 
 }

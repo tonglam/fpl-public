@@ -22,6 +22,7 @@ import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
+import com.tong.fpl.utils.JsonUtils;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -708,6 +709,19 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
     }
 
     @Override
+    public void insertDiscloseCache(int tournamentId, int captainGroupId, int entry) {
+        String key = StringUtils.joinWith("::", "DiscloseList", tournamentId, captainGroupId);
+        RedisUtils.removeCacheByKey(key);
+        Map<String, Object> cacheMap = Maps.newHashMap();
+        List<Integer> list = this.getDiscloseList(tournamentId, captainGroupId);
+        if (!list.contains(entry)) {
+            list.add(entry);
+        }
+        cacheMap.put(key, JsonUtils.obj2json(list));
+        RedisUtils.pipelineValueCache(cacheMap, -1, null);
+    }
+
+    @Override
     public int getCurrentEvent() {
         int event = 1;
         for (int i = 1; i < 39; i++) {
@@ -869,6 +883,15 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
         this.redisTemplate.opsForHash().entries(key).forEach((k, v) ->
                 map.put(String.valueOf(k), (Map<String, Integer>) v));
         return map;
+    }
+
+    @Override
+    public List<Integer> getDiscloseList(int tournamentId, int captainGroupId) {
+        String key = StringUtils.joinWith("::", "DiscloseList", tournamentId, captainGroupId);
+        if (Objects.equals(this.redisTemplate.hasKey(key), false)) {
+            return Lists.newArrayList();
+        }
+        return JsonUtils.json2Collection((String) this.redisTemplate.opsForValue().get(key), List.class, Integer.class);
     }
 
 }
