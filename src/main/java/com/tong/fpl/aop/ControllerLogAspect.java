@@ -40,7 +40,7 @@ public class ControllerLogAspect {
 			HttpSession session = request.getSession();
 			String entry = "未选择";
 			if (session.getAttribute("entry") != null) {
-				entry = (String) session.getAttribute("entry");
+				entry = String.valueOf(session.getAttribute("entry"));
 			}
 			MDC.put("entry", entry);
 			// params
