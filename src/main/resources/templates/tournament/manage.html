@@ -192,7 +192,7 @@
                     tournamentCreateData.tournamentName = name;
                     tournamentCreateData.creator = creator;
                     tournamentCreateData.adminerEntry = adminerEntry;
-                    axios.post('/tournament/updateTournament', tournamentCreateData)
+                    axios.post('/tournament/updateTournamentInfo', tournamentCreateData)
                         .then(function (response) {
                             layer.msg(response, {icon: 6, time: 1500});
                             obj.update(field);
@@ -251,7 +251,7 @@
                             tournamentCreateData.tournamentName = name;
                             tournamentCreateData.creator = creator;
                             tournamentCreateData.adminerEntry = value;
-                            axios.post('/tournament/updateTournament', tournamentCreateData)
+                            axios.post('/tournament/updateTournamentInfo', tournamentCreateData)
                                 .then(function (response) {
                                     layer.msg(response, {icon: 6, time: 1500});
                                     obj.update({

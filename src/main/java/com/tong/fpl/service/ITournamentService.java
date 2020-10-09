@@ -28,22 +28,12 @@ public interface ITournamentService {
      * new tournament async methods
      * 1.save entry
      * 2.draw groups
-     * 3.draw group battles
-     * 4.drow knockouts
-     * 5.create knockout result records
+     * 3.draw points group result
+     * 4.draw battle group result
+     * 5.drow knockouts
+     * 6.create knockout result records
      */
     void createNewTournamentBackground(String tournamentName);
-
-    void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, boolean groupFillAverage);
-
-    void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage, int groupNum,
-                    int groupStartGw, int groupEndGw);
-
-    void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam, int groupNum, int groupStartGw, int groupEndGw);
-
-    void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
-                       String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam,
-                       int knockoutStartGw, int knockoutRounds);
 
     String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
 
@@ -51,18 +41,25 @@ public interface ITournamentService {
 
     int countTournamentLeagueTeams(String url);
 
-    boolean checkTournamentName(String name);
+	boolean checkTournamentName(String name);
 
-    /**
-     * update tournament info
-     * editable: creator, adminir_entry
-     */
-    String updateTournament(TournamentCreateData tournamentCreateData);
+	/**
+	 * update tournament info
+	 * editable: creator, adminir_entry
+	 */
+	String updateTournamentInfo(TournamentCreateData tournamentCreateData);
 
-    String deleteTournamentByName(String name);
+	String deleteTournamentByName(String name);
 
-    void updateTournamentEntry(int tournamentId);
+	/**
+	 * exist tournament add new entry
+	 * only use for normal tournamet which group mode is points race and no knoutkout
+	 * 1.save new entry_info
+	 * 2.save new tournament group and tournament_group_result
+	 * 3.update tournament points group result
+	 */
+	String addTournamentNewEntry(int tournamentId);
 
-    String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
+	String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
 }

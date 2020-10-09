@@ -22,7 +22,7 @@ public interface ITournamentApi {
 
     boolean checkTournamentName(String name);
 
-    String updateTournament(TournamentCreateData tournamentCreateData);
+    String updateTournamentInfo(TournamentCreateData tournamentCreateData);
 
     String deleteTournamentByName(String name);
 
@@ -62,6 +62,6 @@ public interface ITournamentApi {
 
     List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
 
-    String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
+	String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
 }

@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class TournamentTest extends FplApplicationTests {
 
-    @Autowired
-    private ITournamentService tournamentManagementService;
+	@Autowired
+	private ITournamentService tournamentService;
 
 	@Test
 	void createNewTournament() {
@@ -25,7 +25,7 @@ public class TournamentTest extends FplApplicationTests {
 			tournamentCreateData.setCreator("tong");
 			tournamentCreateData.setTournamentName("points-china");
 			this.configCreateData("classic", tournamentCreateData);
-			String result = this.tournamentManagementService.createNewTournament(tournamentCreateData);
+			String result = this.tournamentService.createNewTournament(tournamentCreateData);
 			System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -46,22 +46,22 @@ public class TournamentTest extends FplApplicationTests {
 			}
 			case "classic": {
 				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.No_knockout.name());
-				tournamentCreateData.setTeamsPerGroup(0).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(1000);
+				tournamentCreateData.setTeamPerGroup(0).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(1000);
 				break;
 			}
 			case "h2h": {
 				tournamentCreateData.setGroupMode(GroupMode.Battle_race.name()).setKnockoutMode(KnockoutMode.No_knockout.name());
-				tournamentCreateData.setTeamsPerGroup(0).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(0);
+				tournamentCreateData.setTeamPerGroup(0).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(0);
 				break;
 			}
 			case "points world cup": {
 				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.Single_round.name());
-				tournamentCreateData.setTeamsPerGroup(7).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(4);
+				tournamentCreateData.setTeamPerGroup(7).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(4);
 				break;
 			}
 			case "points world cup home-away": {
 				tournamentCreateData.setGroupMode(GroupMode.Points_race.name()).setKnockoutMode(KnockoutMode.Home_away.name());
-				tournamentCreateData.setTeamsPerGroup(7).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(4);
+				tournamentCreateData.setTeamPerGroup(7).setGroupStartGw(1).setGroupEndGw(47).setGroupQualifiers(4);
 				break;
 			}
 			case "world cup": {
@@ -79,41 +79,14 @@ public class TournamentTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"letletme3"})
 	void createNewTournamentBackground(String name) {
-		this.tournamentManagementService.createNewTournamentBackground(name);
+		this.tournamentService.createNewTournamentBackground(name);
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1, Classic, 710"})
-	void saveEntryInfo(int tournamentId, String leagueType, int leagueId) {
-		this.tournamentManagementService.saveTournamentEntryInfo(tournamentId, leagueType, leagueId, false);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@CsvSource({"2, Points_race, 107, false, 1, 1, 47"})
-	void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage,
-	                int groupNum, int groupStartGw, int groupEndGw) {
-		this.tournamentManagementService.drawGroups(tournamentId, groupMode, teamsPerGroup, groupFillAverage,
-				groupNum, groupStartGw, groupEndGw);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@CsvSource({"1, No_group, 2, 64, 16, 1, 38"})
-	void drawGroupBattle(int tournamentId, String groupMode, int playAgainstNum, int knockoutTeam,
-	                     int groupNum, int groupStartGw, int groupEndGw) {
-		this.tournamentManagementService.drawGroupBattle(tournamentId, groupMode, playAgainstNum, knockoutTeam,
-				groupNum, groupStartGw, groupEndGw);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@CsvSource({"1, No_group, 16, Single_round, 2, 1, 107, 39, 7"})
-	void drawKnockouts(int tournamentId, String groupMode, int groupNum, int groupQualifiers,
-	                   String knockoutMode, int knockoutPlayAgainstNum, int knockoutTeam, int knockoutStartGw, int knockoutRounds) {
-		this.tournamentManagementService.drawKnockouts(tournamentId, groupMode, groupNum, groupQualifiers,
-				knockoutMode, knockoutPlayAgainstNum, knockoutTeam, knockoutStartGw, knockoutRounds);
+	@CsvSource({"2"})
+	void addTournamentNewEntry(int tournamentId) {
+		this.tournamentService.addTournamentNewEntry(tournamentId);
 		System.out.println(1);
 	}
 

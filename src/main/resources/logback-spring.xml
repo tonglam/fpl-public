@@ -24,7 +24,7 @@
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%X{ip} %d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+            <pattern>%X{ip} %X{entry} %d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -34,7 +34,7 @@
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%X{ip} %d{HH:mm:ss.SSS} %X{uuid} [url:%X{url}] %-5level - %msg%n</pattern>
+            <pattern>%X{ip} %d{HH:mm:ss.SSS} [url:%X{url}] %-5level - %msg%n</pattern>
         </encoder>
     </appender>
 

@@ -12,12 +12,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class EntryEventResultService extends ServiceImpl<EntryEventResultMapper, EntryEventResultEntity> implements IService<EntryEventResultEntity> {
 
-    public int sumEventPoints(int startGw, int endGw, int entry) {
-        return this.baseMapper.sumEventPoints(startGw, endGw, entry);
-    }
+	public int sumEventPoints(int current, int startGw, int endGw, int entry) {
+		if (current < startGw) {
+			return 0;
+		} else if (current > endGw) {
+			current = endGw;
+		}
+		return this.baseMapper.sumEventPoints(startGw, current, entry);
+	}
 
-    public int sumEventNetPoints(int startGw, int endGw, int entry) {
-        return this.baseMapper.sumEventNetPoints(startGw, endGw, entry);
-    }
+	public int sumEventNetPoints(int current, int startGw, int endGw, int entry) {
+		if (current < startGw) {
+			return 0;
+		} else if (current > endGw) {
+			current = endGw;
+		}
+		return this.baseMapper.sumEventNetPoints(startGw, current, entry);
+	}
 
 }

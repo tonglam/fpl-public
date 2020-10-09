@@ -56,8 +56,8 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
-    public String updateTournament(TournamentCreateData tournamentCreateData) {
-        return this.tournamentService.updateTournament(tournamentCreateData);
+    public String updateTournamentInfo(TournamentCreateData tournamentCreateData) {
+	    return this.tournamentService.updateTournamentInfo(tournamentCreateData);
     }
 
     @Override
@@ -167,9 +167,9 @@ public class TournamentApiImpl implements ITournamentApi {
         return this.querySerivce.qryZjTournamentCaptain(tournamentId);
     }
 
-    @Override
-    public String updatePhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry) {
-        return this.tournamentService.updatePhaseTwoGroupData(groupDataList, captainEntry);
-    }
+	@Override
+	public String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry) {
+		return this.tournamentService.updateZjTournamentPhaseTwoGroupData(groupDataList, captainEntry);
+	}
 
 }

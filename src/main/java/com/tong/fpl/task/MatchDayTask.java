@@ -72,7 +72,7 @@ public class MatchDayTask {
 	private void updateSingleTournamentResult(int event, int tournamentId) {
 		try {
 			TaskLog.info("start update tournament result, event:{}, tournament:{}", event, tournamentId);
-			this.updateEventResultsService.updateTournamentResult(event, tournamentId);
+			this.updateEventResultsService.updateTournamentEntryEventResult(event, tournamentId);
 			TaskLog.info("end update tournament result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -573,7 +573,7 @@
             $(this).attr("disabled", "");
             // 提交到接口
             layer.confirm("确认提交第二阶段分组？", {closeBtn: 0, title: ""}, function () {
-                axios.post('/tournament/updatePhaseTwoGroupData', groupDataList)
+                axios.post('/tournament/updateZjTournamentPhaseTwoGroupData', groupDataList)
                     .then(function (response) {
                         layer.msg(response, {icon: 6, time: 1500}, function () {
                             window.location.reload();

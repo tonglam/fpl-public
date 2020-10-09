@@ -21,9 +21,9 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"4, 3"})
+	@CsvSource({"4, 2"})
 	void updateTournamentEntryEventResult(int event, int tournament) {
-		this.updateEventResultsService.updateTournamentResult(event, tournament);
+		this.updateEventResultsService.updateTournamentEntryEventResult(event, tournament);
 		System.out.println(1);
 	}
 
@@ -31,14 +31,14 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	@CsvSource({"4, 3"})
 	void updatePointsRaceGroupResult(int event, int tournamentId) {
 		this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
-		System.out.println("event: " + event);
+		System.out.println(1);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1, 1"})
+	@CsvSource({"4, 5"})
 	void updateBattleRaceGroupResult(int event, int tournamentId) {
 		this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
-		System.out.println("event: " + event);
+		System.out.println(1);
 	}
 
 	@ParameterizedTest
@@ -49,10 +49,10 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"4, 11"})
+	@CsvSource({"4, 4"})
 	void updateZjPhaseOneResult(int event, int tournamentId) {
 		this.updateEventResultsService.updateZjPhaseOneResult(event, tournamentId);
-		System.out.println("event: " + event);
+		System.out.println(1);
 	}
 
 }
