@@ -19,13 +19,17 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
+import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.tournament.*;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
+import com.tong.fpl.domain.letletme.tournament.ZjTournamentCaptainData;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.IStaticSerive;
@@ -627,7 +631,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 
     //    @Cacheable(value = "qryKnockoutBracketResultByTournament", key = "#tournamentId", unless = "#result == null")
     @Override
-    public TournamentKnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId) {
+    public KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId) {
         // round -> tournament_knockout_result_data list
         LinkedHashMap<Integer, List<TournamentKnockoutResultData>> knockoutResultRoundDataMap = Maps.newLinkedHashMap();
         this.qryKnockoutResultByTournament(tournamentId).forEach(o -> {
@@ -640,12 +644,12 @@ public class QueryServiceImpl implements IQuerySerivce {
             knockoutResultRoundDataMap.put(round, list);
         });
         if (CollectionUtils.isEmpty(knockoutResultRoundDataMap)) {
-            return new TournamentKnockoutBracketData();
+            return new KnockoutBracketData();
         }
         // return
         List<List<TournamentKnockoutResultData>> results = Lists.newArrayList();
         knockoutResultRoundDataMap.keySet().forEach(round -> results.add(knockoutResultRoundDataMap.get(round)));
-        return new TournamentKnockoutBracketData()
+        return new KnockoutBracketData()
                 .setTeams(knockoutResultRoundDataMap.get(1))
                 .setResults(results);
     }

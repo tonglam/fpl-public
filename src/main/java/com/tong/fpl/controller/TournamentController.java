@@ -6,6 +6,7 @@ import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -253,7 +254,7 @@ public class TournamentController {
 
     @ResponseBody
     @RequestMapping(value = "/qryKnockoutBracketResultByTournament")
-    public TournamentKnockoutBracketData qryKnockoutBracketResultByTournament(@RequestParam int tournamentId) {
+    public KnockoutBracketData qryKnockoutBracketResultByTournament(@RequestParam int tournamentId) {
         return this.tournamentApi.qryKnockoutBracketResultByTournament(tournamentId);
     }
 

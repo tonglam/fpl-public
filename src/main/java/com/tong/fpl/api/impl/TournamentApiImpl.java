@@ -7,6 +7,7 @@ import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
@@ -128,7 +129,7 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
-    public TournamentKnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId) {
+    public KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId) {
         return this.querySerivce.qryKnockoutBracketResultByTournament(tournamentId);
     }
 

@@ -1,5 +1,6 @@
-package com.tong.fpl.domain.letletme.tournament;
+package com.tong.fpl.domain.letletme.global;
 
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -10,7 +11,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class TournamentKnockoutBracketData {
+public class KnockoutBracketData {
 
     List<TournamentKnockoutResultData> teams;
     List<List<TournamentKnockoutResultData>> results;

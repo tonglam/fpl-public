@@ -1,6 +1,7 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 
@@ -46,7 +47,7 @@ public interface ITournamentApi {
 
     TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int groupNum, int currentGroupId, int groupId);
 
-    TournamentKnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
+    KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
 
     List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
