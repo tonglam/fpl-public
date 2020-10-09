@@ -73,6 +73,20 @@ public class TournamentController {
         return "tournament/result";
     }
 
+    @GetMapping(value = "/checkfixture")
+    public String checkfixtureController(@RequestParam int id, Model model) {
+        TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
+        if (tournamentInfoData != null) {
+            model.addAttribute("tournamentInfo", tournamentInfoData);
+        }
+        List<TournamentGroupFixtureData> groupFixtureList = this.tournamentApi.qryGroupFixtureListById(id);
+        model.addAttribute("groupFixtureList", groupFixtureList);
+        List<TournamentKnockoutFixtureData> knockoutFixtureList = this.tournamentApi.qryKnockoutFixtureListById(id);
+        model.addAttribute("knockoutFixtureList", knockoutFixtureList);
+        model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+        return "tournament/checkfixture";
+    }
+
     @GetMapping(value = "/checkresult")
     public String checkresultController(@RequestParam int id, Model model, HttpSession session) {
         TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
@@ -86,20 +100,6 @@ public class TournamentController {
         }
         model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
         return "tournament/checkresult";
-    }
-
-    @GetMapping(value = "/checkfixture")
-    public String checkfixtureController(@RequestParam int id, Model model) {
-        TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
-        if (tournamentInfoData != null) {
-            model.addAttribute("tournamentInfo", tournamentInfoData);
-        }
-        List<TournamentGroupFixtureData> groupFixtureList = this.tournamentApi.qryGroupFixtureListById(id);
-        model.addAttribute("groupFixtureList", groupFixtureList);
-        List<TournamentKnockoutFixtureData> knockoutFixtureList = this.tournamentApi.qryKnockoutFixtureListById(id);
-        model.addAttribute("knockoutFixtureList", knockoutFixtureList);
-        model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-        return "tournament/checkfixture";
     }
 
     @GetMapping(value = "/checkZjResult")
@@ -252,9 +252,9 @@ public class TournamentController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/qryKnockoutResultByTournament")
-    public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(@RequestParam int tournamentId) {
-        return this.tournamentApi.qryKnockoutResultByTournament(tournamentId);
+    @RequestMapping(value = "/qryKnockoutBracketResultByTournament")
+    public TournamentKnockoutBracketData qryKnockoutBracketResultByTournament(@RequestParam int tournamentId) {
+        return this.tournamentApi.qryKnockoutBracketResultByTournament(tournamentId);
     }
 
     @ResponseBody

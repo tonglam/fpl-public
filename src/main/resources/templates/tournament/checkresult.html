@@ -125,14 +125,14 @@
 
     function initBracket() {
         let tournamentId = getUrlParam('id');
-        axios.get('/tournament/qryKnockoutResultByTournament?tournamentId=' + tournamentId)
+        axios.get('/tournament/qryKnockoutBracketResultByTournament?tournamentId=' + tournamentId)
             .then(function (response) {
-                if (response.length == 0) {
+                if (response.results.length == 0) {
                     layer.msg("当前比赛周无淘汰赛数据", {time: 1500});
                     return false;
                 }
                 $("#config").removeClass("layui-hide");
-                let bracketData = parseBracketData(response);
+                let bracketData = parseBracketData(response.teams, response.results);
                 $('#bracket').bracket({
                     teamWidth: 150,
                     scoreWidth: 30,
@@ -149,11 +149,9 @@
             });
     }
 
-    function parseBracketData(data) {
+    function parseBracketData(teamsData, resultsData) {
         let teams = [];
-        let results = [];
-        let bracketData = {teams, results};
-        $.each(data, function (index, item) {
+        $.each(teamsData, function (index, item) {
             let team = [];
             if (item.homeEntry < 0) {
                 team.push(null);
@@ -166,13 +164,20 @@
                 team.push(item.awayEntryName);
             }
             teams.push(team);
-            let rusult = [];
-            rusult.push(item.homeEntryNetPoint);
-            rusult.push(item.awayEntryNetPoint);
-            rusult.push(item.matchInfo);
-            results.push(rusult);
         });
-        return bracketData;
+        let results = [];
+        $.each(resultsData, function (index, roundResultsData) {
+            let roundResult = [];
+            $.each(roundResultsData, function (index, item) {
+                let rusult = [];
+                rusult.push(item.homeEntryNetPoint);
+                rusult.push(item.awayEntryNetPoint);
+                rusult.push(item.matchInfo);
+                roundResult.push(rusult);
+            })
+            results.push(roundResult);
+        });
+        return {teams, results};
     }
 
     function onclick(data) {

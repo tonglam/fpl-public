@@ -25,10 +25,7 @@ import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
-import com.tong.fpl.domain.letletme.tournament.ZjTournamentCaptainData;
+import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.IStaticSerive;
@@ -48,10 +45,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -488,9 +482,6 @@ public class QueryServiceImpl implements IQuerySerivce {
         if (entry < 0) {
             entryName = "平均分";
             playerName = "";
-        } else if (entry == 0) {
-            entryName = "轮空";
-            playerName = "";
         } else {
             EntryInfoEntity entryInfoEntity = entryInfoMap.get(entry);
             if (entryInfoEntity != null) {
@@ -634,14 +625,38 @@ public class QueryServiceImpl implements IQuerySerivce {
                 .eq(TournamentKnockoutEntity::getTournamentId, tournamentId));
     }
 
-    @Cacheable(value = "qryKnockoutResultByTournament", key = "#tournamentId", unless = "#result == null")
+    //    @Cacheable(value = "qryKnockoutBracketResultByTournament", key = "#tournamentId", unless = "#result == null")
+    @Override
+    public TournamentKnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId) {
+        // round -> tournament_knockout_result_data list
+        LinkedHashMap<Integer, List<TournamentKnockoutResultData>> knockoutResultRoundDataMap = Maps.newLinkedHashMap();
+        this.qryKnockoutResultByTournament(tournamentId).forEach(o -> {
+            int round = o.getRound();
+            List<TournamentKnockoutResultData> list = Lists.newArrayList();
+            if (knockoutResultRoundDataMap.containsKey(round)) {
+                list = knockoutResultRoundDataMap.get(round);
+            }
+            list.add(o);
+            knockoutResultRoundDataMap.put(round, list);
+        });
+        if (CollectionUtils.isEmpty(knockoutResultRoundDataMap)) {
+            return new TournamentKnockoutBracketData();
+        }
+        // return
+        List<List<TournamentKnockoutResultData>> results = Lists.newArrayList();
+        knockoutResultRoundDataMap.keySet().forEach(round -> results.add(knockoutResultRoundDataMap.get(round)));
+        return new TournamentKnockoutBracketData()
+                .setTeams(knockoutResultRoundDataMap.get(1))
+                .setResults(results);
+    }
+
+    //    @Cacheable(value = "qryKnockoutResultByTournament", key = "#tournamentId", unless = "#result == null")
     @Override
     public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
         List<TournamentKnockoutResultData> knockoutResultDataList = Lists.newArrayList();
         // knockout
         Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutEntity::getRound, 1))
+                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId))
                 .stream()
                 .collect(Collectors.toMap(TournamentKnockoutEntity::getMatchId, v -> v));
         if (CollectionUtils.isEmpty(knockoutMap)) {

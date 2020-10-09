@@ -12,10 +12,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
-import com.tong.fpl.domain.letletme.tournament.ZjTournamentCaptainData;
+import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
 
 import java.time.LocalDate;
@@ -169,6 +166,8 @@ public interface IQuerySerivce {
     List<Integer> qryEntryListByTournament(int tournamentId);
 
     List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId);
+
+    TournamentKnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
 
     List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
