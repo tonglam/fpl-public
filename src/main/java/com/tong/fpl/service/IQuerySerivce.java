@@ -177,7 +177,7 @@ public interface IQuerySerivce {
 
     List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
 
-    Map<Integer, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum);
+    Map<String, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum);
 
     int qryTournamentRankByGroupId(int tournamentId, int groupNum, int currentGroupId);
 

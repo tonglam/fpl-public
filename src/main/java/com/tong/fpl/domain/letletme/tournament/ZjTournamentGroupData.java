@@ -16,6 +16,7 @@ public class ZjTournamentGroupData {
     private String groupName;
     private int captainEntry;
     private String phaseTwoDeadline;
+    private String pkDeadline;
     private List<Integer> groupEntryList;
 
 }

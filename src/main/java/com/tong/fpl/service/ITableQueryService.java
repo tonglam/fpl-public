@@ -42,7 +42,7 @@ public interface ITableQueryService {
 
     TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event);
 
-    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId, int groupNum);
 
     TournamentGroupData qryDiscloseGroupData(int tournamentId, int groupNum, int entry, int currentGroupId);
 

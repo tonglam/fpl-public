@@ -744,14 +744,14 @@ public class QueryServiceImpl implements IQuerySerivce {
 
     @Cacheable(value = "qryZjTournamentGroupNameMap", key = "#tournamentId+'::'+#groupNum")
     @Override
-    public Map<Integer, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum) {
+    public Map<String, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum) {
         List<Integer> groupList = Lists.newArrayList();
         IntStream.range(1, groupNum + 1).forEach(groupList::add);
-        Map<Integer, String> groupNameMap = Maps.newHashMap();
+        Map<String, String> groupNameMap = Maps.newHashMap();
         this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
                 .eq(TournamentGroupEntity::getTournamentId, tournamentId)
                 .in(TournamentGroupEntity::getGroupId, groupList))
-                .forEach(o -> groupNameMap.put(o.getGroupId(), o.getGroupName()));
+                .forEach(o -> groupNameMap.put(String.valueOf(o.getGroupId()), o.getGroupName()));
         return groupNameMap;
     }
 

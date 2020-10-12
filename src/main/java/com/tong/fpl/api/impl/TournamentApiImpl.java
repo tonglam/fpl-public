@@ -99,8 +99,8 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
-    public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
-        return this.tableQueryService.qryGroupInfoListByGroupId(tournamentId, groupId);
+    public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId, int groupNum) {
+        return this.tableQueryService.qryGroupInfoListByGroupId(tournamentId, groupId, groupNum);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
-    public Map<Integer, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum) {
+    public Map<String, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum) {
         return this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum);
     }
 

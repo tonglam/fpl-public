@@ -248,8 +248,8 @@ public class TournamentController {
 
     @ResponseBody
     @RequestMapping(value = "/qryGroupInfoListByGroupId")
-    public TableData<TournamentGroupData> qryGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int groupId) {
-        return this.tournamentApi.qryGroupInfoListByGroupId(tournamentId, groupId);
+    public TableData<TournamentGroupData> qryGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int groupId, @RequestParam int groupNum) {
+        return this.tournamentApi.qryGroupInfoListByGroupId(tournamentId, groupId, groupNum);
     }
 
     @ResponseBody
