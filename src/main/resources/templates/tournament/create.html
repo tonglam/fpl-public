@@ -334,14 +334,6 @@
                             </div>
 
                             <div class="layui-form-item">
-                                <label class="layui-form-label label-required">分组死线</label>
-                                <div class="layui-input-inline">
-                                    <input autocomplete="off" class="layui-input" name="phaseTwoDeadline"
-                                           placeholder="二阶段分组死线" type="text">
-                                </div>
-                            </div>
-
-                            <div class="layui-form-item">
                                 <label class="layui-form-label label-required">二阶段轮次</label>
                                 <div class="layui-input-inline">
                                     <input autocomplete="off" class="layui-input" lay-reqtext="二阶段小组轮次不能为空"
@@ -378,6 +370,19 @@
                                     <div class="layui-input-inline">
                                         <input class="layui-input" name="zjPkEndGw" readonly>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label label-required">分组死线</label>
+                                <div class="layui-input-inline">
+                                    <input autocomplete="off" class="layui-input" name="phaseTwoDeadline"
+                                           placeholder="二阶段分组死线" type="text">
+                                </div>
+                                <label class="layui-form-label label-required">PK死线</label>
+                                <div class="layui-input-inline">
+                                    <input autocomplete="off" class="layui-input" name="pkDeadline"
+                                           placeholder="PK阶段分组死线" type="text">
                                 </div>
                             </div>
 
@@ -1500,7 +1505,6 @@
                 let captainEntry = 0;
                 let groupNameInput = "input[name=zjGroup" + i + "Name]";
                 let groupName = $(groupNameInput).val();
-                let phaseTwoDeadline = $("input[name=phaseTwoDeadline]").val();
                 let groupEntryList = [];
                 let tableId = 'zjGroup' + i + 'Table';
                 $.each(table.cache[tableId], function (index, item) {
@@ -1521,7 +1525,8 @@
                 zjTournamentGroupData.groupId = i;
                 zjTournamentGroupData.groupName = groupName;
                 zjTournamentGroupData.captainEntry = captainEntry;
-                zjTournamentGroupData.phaseTwoDeadline = phaseTwoDeadline;
+                zjTournamentGroupData.phaseTwoDeadline = $("input[name=phaseTwoDeadline]").val();
+                zjTournamentGroupData.pkDeadline = $("input[name=pkDeadline]").val();
                 zjTournamentGroupData.groupEntryList = groupEntryList;
                 groupDataList.push(zjTournamentGroupData);
             }

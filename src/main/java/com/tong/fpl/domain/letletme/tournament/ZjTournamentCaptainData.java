@@ -14,5 +14,6 @@ public class ZjTournamentCaptainData {
     private int groupId;
     private int captainEntry;
     private String phaseTwoDeadline;
+    private String pkDeadline;
 
 }

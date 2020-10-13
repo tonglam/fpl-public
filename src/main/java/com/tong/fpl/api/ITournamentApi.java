@@ -35,9 +35,9 @@ public interface ITournamentApi {
 
     List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
 
-    Map<Integer, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum);
+    Map<String, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum);
 
-    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId, int groupNum);
 
     TournamentGroupData qryDiscloseGroupData(int tournamentId, int groupNum, int entry, int currentGroupId);
 
@@ -65,6 +65,6 @@ public interface ITournamentApi {
 
     List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
 
-	String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
+    String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
 }

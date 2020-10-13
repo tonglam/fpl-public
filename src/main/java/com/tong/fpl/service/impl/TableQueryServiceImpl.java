@@ -325,41 +325,43 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return new TableData<>(list);
     }
 
-    @Cacheable(value = "qryGroupInfoListByGroupId", key = "#tournamentId+'::'+#groupId")
-    @Override
-    public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
-        List<TournamentGroupData> list = Lists.newArrayList();
-        this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .eq(TournamentGroupEntity::getGroupId, groupId)
-                .orderByAsc(TournamentGroupEntity::getGroupRank)
-                .orderByAsc(TournamentGroupEntity::getGroupIndex))
-                .forEach(o -> {
-                    TournamentGroupData tournamentGroupData = new TournamentGroupData();
-                    BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
-                    TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-                            .eq(TournamentInfoEntity::getId, tournamentId)
-                            .eq(TournamentInfoEntity::getState, 1));
-                    if (tournamentInfoEntity != null) {
-                        tournamentGroupData.setGroupMode(tournamentInfoEntity.getGroupMode());
-                    }
+//    @Cacheable(value = "qryGroupInfoListByGroupId", key = "#tournamentId+'::'+#groupId+'::'+#groupNum")
+@Override
+public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId, int groupNum) {
+    List<TournamentGroupData> list = Lists.newArrayList();
+    this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+            .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+            .eq(TournamentGroupEntity::getGroupId, groupId)
+            .orderByAsc(TournamentGroupEntity::getGroupRank)
+            .orderByAsc(TournamentGroupEntity::getGroupIndex))
+            .forEach(o -> {
+                TournamentGroupData tournamentGroupData = new TournamentGroupData();
+                BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
+                TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+                        .eq(TournamentInfoEntity::getId, tournamentId)
+                        .eq(TournamentInfoEntity::getState, 1));
+                if (tournamentInfoEntity != null) {
+                    tournamentGroupData.setGroupMode(tournamentInfoEntity.getGroupMode());
+                }
+                tournamentGroupData
+                        .setStartGw(o.getStartGw())
+                        .setEndGw(o.getEndGw());
+                if (o.getEntry() < 0) {
                     tournamentGroupData
-                            .setStartGw(o.getStartGw())
-                            .setEndGw(o.getEndGw());
-                    if (o.getEntry() < 0) {
+                            .setEntryName("平均分")
+                            .setPlayerName("平均分");
+                } else {
+                    EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(o.getEntry());
+                    if (entryInfoEntity != null) {
                         tournamentGroupData
-                                .setEntryName("平均分")
-                                .setPlayerName("平均分");
-                    } else {
-                        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(o.getEntry());
-                        if (entryInfoEntity != null) {
-                            tournamentGroupData
-                                    .setEntryName(entryInfoEntity.getEntryName())
-                                    .setPlayerName(entryInfoEntity.getPlayerName());
-                        }
+                                .setEntryName(entryInfoEntity.getEntryName())
+                                .setPlayerName(entryInfoEntity.getPlayerName());
                     }
-                    list.add(tournamentGroupData);
-                });
+                }
+                // group name
+                tournamentGroupData.setTournamentGroupNameMap(this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum));
+                list.add(tournamentGroupData);
+            });
         return new TableData<>(list);
     }
 
@@ -404,20 +406,20 @@ public class TableQueryServiceImpl implements ITableQueryService {
     @Override
     public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int groupNum, int currentGroupId, int groupId) {
         // group name
-        Map<Integer, String> groupNameMap = this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum);
+        Map<String, String> groupNameMap = this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum);
         // group entry name
         Map<Integer, String> groupEntryNameMap = this.querySerivce.qryZjTournamentGroupEntryMap(tournamentId, groupNum);
         // disclose entry list
         List<Integer> discloseList = this.redisCacheSerive.getDiscloseList(tournamentId, currentGroupId);
         // phase two tournament_group
         List<TournamentGroupData> list = Lists.newArrayList();
-        this.qryGroupInfoListByGroupId(tournamentId, groupId).getData().forEach(o -> {
+        this.qryGroupInfoListByGroupId(tournamentId, groupId, groupNum).getData().forEach(o -> {
             TournamentGroupData tournamentGroupData = new TournamentGroupData();
             BeanUtil.copyProperties(o, tournamentGroupData);
             int entry = o.getEntry();
             if (entry > 0) {
                 o.setDrawPhaseTwo(true);
-                String currentGroupName = groupNameMap.getOrDefault(currentGroupId, "");
+                String currentGroupName = groupNameMap.getOrDefault(String.valueOf(currentGroupId), "");
                 String entryGroupName = groupEntryNameMap.getOrDefault(entry, "");
                 if ((StringUtils.isEmpty(currentGroupName) || StringUtils.isEmpty(entryGroupName) || !StringUtils.equals(entryGroupName, currentGroupName)) &&
                         !discloseList.contains(entry)) {

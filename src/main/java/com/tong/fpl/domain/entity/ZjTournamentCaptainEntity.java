@@ -19,6 +19,7 @@ public class ZjTournamentCaptainEntity {
     private int groupId;
     private int captainEntry;
     private String phaseTwoDeadline;
+    private String pkDeadline;
     @TableField(fill = FieldFill.INSERT)
     private String createTime;
 

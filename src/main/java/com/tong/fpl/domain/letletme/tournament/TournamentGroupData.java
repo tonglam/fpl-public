@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2020/9/3
@@ -34,6 +35,7 @@ public class TournamentGroupData {
     private int endGw;
     private boolean drawPhaseTwo;
     private List<Integer> discloseList;
+    private Map<String, String> tournamentGroupNameMap;
     private TournamentPointsGroupEventResultData pointsGroupEventResult;
 
 }
