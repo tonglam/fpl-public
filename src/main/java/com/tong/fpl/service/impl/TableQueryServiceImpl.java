@@ -325,43 +325,108 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return new TableData<>(list);
     }
 
-//    @Cacheable(value = "qryGroupInfoListByGroupId", key = "#tournamentId+'::'+#groupId+'::'+#groupNum")
-@Override
-public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId, int groupNum) {
-    List<TournamentGroupData> list = Lists.newArrayList();
-    this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-            .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-            .eq(TournamentGroupEntity::getGroupId, groupId)
-            .orderByAsc(TournamentGroupEntity::getGroupRank)
-            .orderByAsc(TournamentGroupEntity::getGroupIndex))
-            .forEach(o -> {
-                TournamentGroupData tournamentGroupData = new TournamentGroupData();
-                BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
-                TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-                        .eq(TournamentInfoEntity::getId, tournamentId)
-                        .eq(TournamentInfoEntity::getState, 1));
-                if (tournamentInfoEntity != null) {
-                    tournamentGroupData.setGroupMode(tournamentInfoEntity.getGroupMode());
-                }
-                tournamentGroupData
-                        .setStartGw(o.getStartGw())
-                        .setEndGw(o.getEndGw());
-                if (o.getEntry() < 0) {
-                    tournamentGroupData
-                            .setEntryName("平均分")
-                            .setPlayerName("平均分");
-                } else {
-                    EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(o.getEntry());
-                    if (entryInfoEntity != null) {
+    @Override
+    public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId, int groupNum) {
+        List<TournamentGroupData> list = Lists.newArrayList();
+        this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .eq(TournamentGroupEntity::getGroupId, groupId)
+                .orderByAsc(TournamentGroupEntity::getGroupRank)
+                .orderByAsc(TournamentGroupEntity::getGroupIndex))
+                .forEach(o -> {
+                    int entry = o.getEntry();
+                    TournamentGroupData tournamentGroupData = new TournamentGroupData();
+                    BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
+                    TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+                            .eq(TournamentInfoEntity::getId, tournamentId)
+                            .eq(TournamentInfoEntity::getState, 1));
+                    if (tournamentInfoEntity != null) {
                         tournamentGroupData
-                                .setEntryName(entryInfoEntity.getEntryName())
-                                .setPlayerName(entryInfoEntity.getPlayerName());
+                                .setGroupMode(tournamentInfoEntity.getGroupMode());
                     }
-                }
-                // group name
-                tournamentGroupData.setTournamentGroupNameMap(this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum));
-                list.add(tournamentGroupData);
-            });
+                    tournamentGroupData
+                            .setStartGw(o.getStartGw())
+                            .setEndGw(o.getEndGw());
+                    if (entry < 0) {
+                        tournamentGroupData
+                                .setEntryName("平均分")
+                                .setPlayerName("平均分");
+                    } else {
+                        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+                        if (entryInfoEntity != null) {
+                            tournamentGroupData
+                                    .setEntryName(entryInfoEntity.getEntryName())
+                                    .setPlayerName(entryInfoEntity.getPlayerName());
+                        }
+                    }
+                    // group name
+                    tournamentGroupData
+                            .setTournamentGroupNameMap(this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum));
+                    // pk entry
+                    TournamentKnockoutEntity tournamentKnockoutEntity = this.tournamentKnockoutService.getOne(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+                            .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                            .eq(TournamentKnockoutEntity::getRound, 1)
+                            .eq(TournamentKnockoutEntity::getHomeEntry, entry));
+                    if (tournamentKnockoutEntity != null) {
+                        int pkEntry = tournamentKnockoutEntity.getAwayEntry();
+                        if (pkEntry > 0) {
+                            tournamentGroupData
+                                    .setPkDraw(true)
+                                    .setPkEntry(pkEntry);
+                            // pk entry group
+                            TournamentGroupEntity tournamentGroupEntity = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
+                                    .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                                    .le(TournamentGroupEntity::getGroupId, groupNum)
+                                    .eq(TournamentGroupEntity::getEntry, pkEntry));
+                            if (tournamentGroupEntity != null) {
+                                tournamentGroupData.setPkGroupName(tournamentGroupEntity.getGroupName());
+                            }
+                            // pk entry_info
+                            EntryInfoEntity pkEntryInfo = this.querySerivce.qryEntryInfo(pkEntry);
+                            if (pkEntryInfo != null) {
+                                tournamentGroupData
+                                        .setPkEntryName(pkEntryInfo.getEntryName())
+                                        .setPkPlayerName(pkEntryInfo.getPlayerName());
+                            }
+                        }
+                    } else {
+                        tournamentKnockoutEntity = this.tournamentKnockoutService.getOne(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+                                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                                .eq(TournamentKnockoutEntity::getRound, 1)
+                                .eq(TournamentKnockoutEntity::getAwayEntry, entry));
+                        if (tournamentKnockoutEntity != null) {
+                            int pkEntry = tournamentKnockoutEntity.getHomeEntry();
+                            if (pkEntry > 0) {
+                                tournamentGroupData
+                                        .setPkDraw(true)
+                                        .setPkEntry(pkEntry);
+                                // pk entry group
+                                TournamentGroupEntity tournamentGroupEntity = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
+                                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                                        .le(TournamentGroupEntity::getGroupId, groupNum)
+                                        .eq(TournamentGroupEntity::getEntry, pkEntry));
+                                if (tournamentGroupEntity != null) {
+                                    tournamentGroupData.setPkGroupName(tournamentGroupEntity.getGroupName());
+                                }
+                                // pk entry_info
+                                EntryInfoEntity pkEntryInfo = this.querySerivce.qryEntryInfo(pkEntry);
+                                if (pkEntryInfo != null) {
+                                    tournamentGroupData
+                                            .setPkEntryName(pkEntryInfo.getEntryName())
+                                            .setPkPlayerName(pkEntryInfo.getPlayerName());
+                                }
+                            }
+                        } else {
+                            tournamentGroupData
+                                    .setPkDraw(false)
+                                    .setPkEntry(0)
+                                    .setPkGroupName("")
+                                    .setPkEntryName("")
+                                    .setPkPlayerName("");
+                        }
+                    }
+                    list.add(tournamentGroupData);
+                });
         return new TableData<>(list);
     }
 

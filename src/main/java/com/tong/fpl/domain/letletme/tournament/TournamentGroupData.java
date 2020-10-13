@@ -36,6 +36,11 @@ public class TournamentGroupData {
     private boolean drawPhaseTwo;
     private List<Integer> discloseList;
     private Map<String, String> tournamentGroupNameMap;
+    private boolean pkDraw;
+    private int pkEntry;
+    private String pkGroupName;
+    private String pkEntryName;
+    private String pkPlayerName;
     private TournamentPointsGroupEventResultData pointsGroupEventResult;
 
 }

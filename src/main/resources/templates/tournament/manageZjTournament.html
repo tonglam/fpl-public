@@ -283,6 +283,10 @@
 
 </script>
 
+<script id="barTpl" type="text/html">
+    <a class="layui-btn layui-btn-xs" lay-event="draw">分配</a>
+</script>
+
 <script th:inline="none">
     layui.use(['form', 'table', 'soulTable'], function () {
 
@@ -403,6 +407,7 @@
         });
 
         <!-- 当前小组 -->
+        let currentGroupTable, pkGroupTable;
         axios.get('/tournament/qryGroupInfoListByGroupId', {
             params: {
                 tournamentId: tournamentId,
@@ -418,7 +423,7 @@
                 $("#pkGroupName").text('当前小组 - ' + data[0].groupName + '组');
 
                 // 第二阶段页表格
-                table.render({
+                currentGroupTable = table.render({
                     elem: '#currentGroupTable',
                     data: data,
                     loading: true,
@@ -444,7 +449,7 @@
                 });
 
                 // pk页表格
-                table.render({
+                pkGroupTable = table.render({
                     elem: '#pkGroupTable',
                     data: data,
                     cellMinWidth: 60,
@@ -454,28 +459,53 @@
                             {field: 'groupRank', title: '排名', align: 'center', rowspan: 2},
                             {field: 'entryName', title: '队伍名称', align: 'center', width: 200, rowspan: 2},
                             {field: 'playerName', title: '玩家名称', align: 'center', width: 200, rowspan: 2},
-                            {field: '', title: '选择对手', align: 'center', width: 200, colspan: 3}
+                            {title: '选择对手', align: 'center', width: 200, colspan: 3},
+                            {fixed: 'right', title: '操作', align: 'center', rowspan: 2, toolbar: '#barTpl'}
                         ],
                         [{
-                            field: '', title: '小组', align: 'center', width: 140, templet: function (d) {
-                                let select = "<select name='pkGroupName' lay-filter='pkGroupName' lay-search=''>";
-                                select += "<option value=''></option>";
-                                $.each(d.tournamentGroupNameMap, function (index, item) {
-                                    select += "'<option value='" + index + "'>" + item + "</option>";
-                                })
-                                select += "</select>";
-                                return select;
-                            }
-                        },
-                            {
-                                field: '', title: '队伍名称', align: 'center', width: 200, templet: function () {
-                                    let select = "<select name='pkEntryName' lay-filter='pkEntryName'>";
+                            field: 'pkGroupName', title: '小组', align: 'center', width: 140, templet: function (d) {
+                                if (d.pkDraw) {
+                                    return d.pkGroupName;
+                                } else {
+                                    let select = "<select name='pkGroup" + d.groupRank + "Name' lay-filter='pkGroup" + d.groupRank + "Name' lay-search=''>";
                                     select += "<option value=''></option>";
+                                    $.each(d.tournamentGroupNameMap, function (index, item) {
+                                        select += "'<option value='" + index + "'>" + item + "</option>";
+                                    })
                                     select += "</select>";
                                     return select;
                                 }
+                            }
+                        },
+                            {
+                                field: 'pkEntryName',
+                                title: '队伍名称',
+                                align: 'center',
+                                width: 200,
+                                templet: function (d) {
+                                    if (d.pkDraw) {
+                                        return d.pkEntryName;
+                                    } else {
+                                        let select = "<select name='pkEntry" + d.groupRank + "Name' lay-filter='pkEntry" + d.groupRank + "Name' lay-search=''>";
+                                        select += "<option value=''></option>";
+                                        select += "</select>";
+                                        return select;
+                                    }
+                                }
                             },
-                            {field: 'pkPlayerName', title: '玩家名称', align: 'center', width: 200}
+                            {
+                                field: 'pkPlayerName',
+                                title: '玩家名称',
+                                align: 'center',
+                                width: 200,
+                                templet: function (d) {
+                                    if (d.pkDraw) {
+                                        return d.pkPlayerName;
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                         ]],
                     id: 'pkGroupTable'
                 });
@@ -485,40 +515,48 @@
                 console.log(error.message);
             });
 
-        form.on('select(pkGroupName)', function (data) {
-            let pkEntryNameDom = $("select[name=pkEntryName]");
-            axios.get('/tournament/qryGroupEntryInfoList', {
-                params: {
-                    tournamentId: tournamentId,
-                    groupId: data.value
-                }
-            })
-                .then(function (response) {
-                    pkEntryNameDom.html("");
-                    pkEntryNameDom.append("<option value=''></option>")
-                    $.each(response, function (index, item) {
-                        let optionStr = "<option value='" + item.entry + "'>" + item.entryName + "</option>";
-                        pkEntryNameDom.append(optionStr);
-                    })
-                    form.render('select');
-                })
-                .catch(function (error) {
-                    console.log(error.message);
-                });
-        });
+        table.on('row(pkGroupTable)', function (obj) {
+            let groupRank = obj.data.groupRank;
 
-        form.on('select(pkEntryName)', function (data) {
-            let entry = data.value;
-            if (entry == "") {
-                return false;
-            }
-            axios.get('/tournament/qryEntryInfo?entry=' + entry)
-                .then(function (response) {
-                    console.info(response.playerName);
+            form.on('select(pkGroup' + groupRank + 'Name)', function (data) {
+                let pkEntryNameDom = $("select[name=pkEntry" + groupRank + "Name]");
+                axios.get('/tournament/qryGroupEntryInfoList', {
+                    params: {
+                        tournamentId: tournamentId,
+                        groupId: data.value
+                    }
                 })
-                .catch(function (error) {
-                    console.log(error.message);
-                });
+                    .then(function (response) {
+                        pkEntryNameDom.html("");
+                        pkEntryNameDom.append("<option value=''></option>")
+                        $.each(response, function (index, item) {
+                            let optionStr = "<option value='" + item.entry + "'>" + item.entryName + "</option>";
+                            pkEntryNameDom.append(optionStr);
+                        })
+                        form.render('select');
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                    });
+            });
+
+            form.on('select(pkEntry' + groupRank + 'Name)', function (data) {
+                let entry = data.value;
+                if (entry == "") {
+                    return false;
+                }
+                axios.get('/tournament/qryEntryInfo?entry=' + entry)
+                    .then(function (response) {
+                        obj.update({
+                            pkDraw: true,
+                            pkPlayerName: response.playerName
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                    });
+            });
+
         });
 
         <!-- 监听分组选择 -->
