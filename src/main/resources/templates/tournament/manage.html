@@ -115,9 +115,16 @@
                     createTime: createTime
                 },
                 loading: true,
+                cellMinWidth: 60,
                 cols: [[
                     {
-                        fixed: 'left', title: '', width: '5%', align: 'left', children: [
+                        fixed: 'left',
+                        field: 'name',
+                        title: '名字',
+                        align: 'center',
+                        width: 200,
+                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                        children: [
                             {
                                 title: '小组赛',
                                 data: function (d) {
@@ -156,14 +163,13 @@
                             }
                         ]
                     },
-                    {field: 'name', title: '名字', align: 'center', width: '22%'},
-                    {field: 'creator', title: '创建者', align: 'center', edit: 'text', width: '10%'},
-                    {field: 'season', title: '赛季', align: 'center', width: '7%'},
-                    {field: 'leagueType', title: '类型', align: 'center', width: '8%'},
-                    {field: 'leagueId', title: '官方联赛id', align: 'center', width: '10%'},
-                    {field: 'totalTeam', title: '队伍总数', align: 'center', width: '8%'},
-                    {field: 'createTime', title: '创建时间', align: 'center', width: '12%'},
-                    {fixed: 'right', title: '操作', toolbar: '#barDemo', align: 'center'}
+                    {field: 'creator', title: '创建者', align: 'center'},
+                    {field: 'season', title: '赛季', align: 'center'},
+                    {field: 'leagueType', title: '类型', align: 'center'},
+                    {field: 'leagueId', title: '官方联赛id', align: 'center'},
+                    {field: 'totalTeam', title: '队伍总数', align: 'center'},
+                    {field: 'createTime', title: '创建时间', align: 'center'},
+                    {fixed: 'right', title: '操作', toolbar: '#barDemo', align: 'center', width: 180}
                 ]],
                 initSort: {
                     field: 'createTime',

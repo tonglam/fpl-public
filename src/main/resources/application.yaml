@@ -20,10 +20,10 @@ spring:
     username: tong
     password: Tonglam14
     hikari:
-      minimum-idle: 5
+      minimum-idle: 1
       maximum-pool-size: 15
       auto-commit: true
-      max-lifetime: 1800000
+      max-lifetime: 1200000
       connection-test-query: SELECT 1
       connection-timeout: 30000
       idle-timeout: 180000
