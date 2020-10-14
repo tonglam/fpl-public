@@ -178,4 +178,9 @@ public class TournamentApiImpl implements ITournamentApi {
         return this.tournamentService.updateZjTournamentPhaseTwoGroupData(groupDataList, captainEntry);
     }
 
+    @Override
+    public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int groupId, int captainEntry) {
+        return this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, groupId, captainEntry);
+    }
+
 }

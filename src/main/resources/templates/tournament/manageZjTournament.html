@@ -34,13 +34,13 @@
             <div class="layui-tab layui-tab-brief" lay-filter="phaseTab">
 
                 <ul class="layui-tab-title">
-                    <li class="layui-this" lay-id="phaseTwo">第二阶段</li>
-                    <li class="" lay-id="pk">PK阶段</li>
+                    <li class="" lay-id="phaseTwo">第二阶段</li>
+                    <li class="layui-this" lay-id="pk">PK阶段</li>
                 </ul>
 
                 <div class="layui-tab-content">
 
-                    <div class="layui-tab-item layui-show">
+                    <div class="layui-tab-item">
 
                         <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
                             <legend><a id="phaseTwoCommitDeadline">提交死线</a></legend>
@@ -283,6 +283,10 @@
 
 </script>
 
+<script id="barTpl" type="text/html">
+    <a class="layui-btn layui-btn-xs" lay-event="draw">分配</a>
+</script>
+
 <script th:inline="none">
     layui.use(['form', 'table', 'soulTable'], function () {
 
@@ -422,18 +426,18 @@
                     elem: '#currentGroupTable',
                     data: data,
                     loading: true,
-                    width: 645,
+                    width: 610,
                     cols: [[
-                        {field: 'groupRank', title: '排名', align: 'center'},
+                        {field: 'groupRank', title: '排名', align: 'center', width: 60},
                         {field: 'entryName', title: '队伍名称', align: 'center', width: 200},
                         {field: 'playerName', title: '玩家名称', align: 'center', width: 200},
-                        {field: 'groupPoints', title: '得分', align: 'center'},
+                        {field: 'groupPoints', title: '得分', align: 'center', width: 60},
                         {
-                            field: '', title: '分配到', align: 'center', width: 120, templet: function () {
+                            field: '', title: '分配到', align: 'center', templet: function () {
                                 let select = "<select name='phaseTwoGroupSelect' lay-filter='phaseTwoGroupSelect'>";
                                 select += "<option value=''></option>";
                                 for (let i = 1; i < teamPerGroup + 1; i++) {
-                                    select += "<option value='" + i + "'>" + getCapitalLetterFromNum(i) + "组</option>";
+                                    select += "'<option value='" + i + "'>" + getCapitalLetterFromNum(i) + "组</option>";
                                 }
                                 select += "</select>";
                                 return select;
@@ -454,28 +458,69 @@
                             {field: 'groupRank', title: '排名', align: 'center', rowspan: 2},
                             {field: 'entryName', title: '队伍名称', align: 'center', width: 200, rowspan: 2},
                             {field: 'playerName', title: '玩家名称', align: 'center', width: 200, rowspan: 2},
-                            {field: '', title: '选择对手', align: 'center', width: 200, colspan: 3}
+                            {
+                                field: 'playerName',
+                                title: '已分配',
+                                align: 'center',
+                                width: 80,
+                                rowspan: 2,
+                                templet: function (d) {
+                                    if (d.pkDraw) {
+                                        return "是";
+                                    } else {
+                                        return "否";
+                                    }
+                                }
+                            },
+                            {title: '选择对手', align: 'center', width: 200, colspan: 3},
+                            {fixed: 'right', title: '操作', align: 'center', rowspan: 2, toolbar: '#barTpl'}
                         ],
                         [{
-                            field: '', title: '小组', align: 'center', width: 140, templet: function (d) {
-                                let select = "<select name='pkGroupName' lay-filter='pkGroupName' lay-search=''>";
-                                select += "<option value=''></option>";
-                                $.each(d.tournamentGroupNameMap, function (index, item) {
-                                    select += "'<option value='" + index + "'>" + item + "</option>";
-                                })
-                                select += "</select>";
-                                return select;
-                            }
-                        },
-                            {
-                                field: '', title: '队伍名称', align: 'center', width: 200, templet: function () {
-                                    let select = "<select name='pkEntryName' lay-filter='pkEntryName'>";
+                            field: 'pkGroupName', title: '小组', align: 'center', width: 140, templet: function (d) {
+                                if (d.pkDraw) {
+                                    return d.pkGroupName;
+                                } else {
+                                    let select = "<select name='pkGroup" + d.groupRank + "Name' lay-filter='pkGroup" + d.groupRank + "Name' lay-search=''>";
                                     select += "<option value=''></option>";
+                                    $.each(d.tournamentGroupNameMap, function (index, item) {
+                                        if (d.groupName != item) {
+                                            select += "'<option value='" + index + "'>" + item + "</option>";
+                                        }
+                                    })
                                     select += "</select>";
                                     return select;
                                 }
+                            }
+                        },
+                            {
+                                field: 'pkEntryName',
+                                title: '队伍名称',
+                                align: 'center',
+                                width: 200,
+                                templet: function (d) {
+                                    if (d.pkDraw) {
+                                        return d.pkEntryName;
+                                    } else {
+                                        let select = "<select name='pkEntry" + d.groupRank + "Name' lay-filter='pkEntry" + d.groupRank + "Name' lay-search=''>";
+                                        select += "<option value=''></option>";
+                                        select += "</select>";
+                                        return select;
+                                    }
+                                }
                             },
-                            {field: 'pkPlayerName', title: '玩家名称', align: 'center', width: 200}
+                            {
+                                field: 'pkPlayerName',
+                                title: '玩家名称',
+                                align: 'center',
+                                width: 200,
+                                templet: function (d) {
+                                    if (d.pkDraw) {
+                                        return d.pkPlayerName;
+                                    } else {
+                                        return "";
+                                    }
+                                }
+                            }
                         ]],
                     id: 'pkGroupTable'
                 });
@@ -485,36 +530,68 @@
                 console.log(error.message);
             });
 
-        form.on('select(pkGroupName)', function (data) {
-            let pkEntryNameDom = $("select[name=pkEntryName]");
-            axios.get('/tournament/qryGroupEntryInfoList', {
+        <!-- 监听pk对手选择 -->
+        table.on('row(pkGroupTable)', function (obj) {
+            let groupRank = obj.data.groupRank;
+
+            form.on('select(pkGroup' + groupRank + 'Name)', function (data) {
+                let pkEntryNameDom = $("select[name=pkEntry" + groupRank + "Name]");
+                axios.get('/tournament/qryGroupEntryInfoList', {
+                    params: {
+                        tournamentId: tournamentId,
+                        groupId: data.value
+                    }
+                })
+                    .then(function (response) {
+                        pkEntryNameDom.html("");
+                        pkEntryNameDom.append("<option value=''></option>")
+                        $.each(response, function (index, item) {
+                            let optionStr = "<option value='" + item.entry + "'>" + item.entryName + "</option>";
+                            pkEntryNameDom.append(optionStr);
+                        })
+                        form.render('select');
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                    });
+            });
+
+            form.on('select(pkEntry' + groupRank + 'Name)', function (data) {
+                let entry = data.value;
+                if (entry == "") {
+                    return false;
+                }
+                axios.get('/tournament/qryEntryInfo?entry=' + entry)
+                    .then(function (response) {
+                        obj.update({
+                            pkDraw: true,
+                            pkPlayerName: response.playerName
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                    });
+            });
+
+        });
+
+        <!-- 更新pk分组 -->
+        table.on('tool(pkGroupTable)', function (obj) {
+            let data = obj.data;
+            if (data.pkDraw) {
+                layer.msg("此队员已经被分配过了！", {time: 1500});
+                return false;
+            }
+            axios.get('/tournament/updateZjTournamentPkData', {
                 params: {
                     tournamentId: tournamentId,
-                    groupId: data.value
+                    entry: data.entry,
+                    pkEntry: data.pkEntry,
+                    groupId: data.groupId
                 }
             })
                 .then(function (response) {
-                    pkEntryNameDom.html("");
-                    pkEntryNameDom.append("<option value=''></option>")
-                    $.each(response, function (index, item) {
-                        let optionStr = "<option value='" + item.entry + "'>" + item.entryName + "</option>";
-                        pkEntryNameDom.append(optionStr);
-                    })
-                    form.render('select');
-                })
-                .catch(function (error) {
-                    console.log(error.message);
-                });
-        });
-
-        form.on('select(pkEntryName)', function (data) {
-            let entry = data.value;
-            if (entry == "") {
-                return false;
-            }
-            axios.get('/tournament/qryEntryInfo?entry=' + entry)
-                .then(function (response) {
-                    console.info(response.playerName);
+                    layer.msg(response, {time: 1500});
                 })
                 .catch(function (error) {
                     console.log(error.message);
@@ -658,7 +735,7 @@
                 });
         }
 
-        <!-- 保存分组 -->
+        <!-- 更新二阶段分组 -->
         $("#updatePhaseTwoGroup").on('click', function () {
             let currentGroupName = $("#currentGroupName").text();
             let groupDataList = [], commitCheck = true;

@@ -1113,4 +1113,20 @@ public class TournamentServiceImpl implements ITournamentService {
         return "分配小组成功!";
     }
 
+    @Override
+    public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int groupId, int captainEntry) {
+        // 校验deadline
+        ZjTournamentCaptainEntity zjTournamentCaptainEntity = this.zjTournamentCaptainService.getOne(new QueryWrapper<ZjTournamentCaptainEntity>().lambda()
+                .eq(ZjTournamentCaptainEntity::getTournamentId, tournamentId)
+                .eq(ZjTournamentCaptainEntity::getCaptainEntry, captainEntry));
+        if (zjTournamentCaptainEntity == null) {
+            return "无队长数据";
+        }
+        if (LocalDateTime.now().isAfter(LocalDateTime.parse(zjTournamentCaptainEntity.getPkDeadline(), DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+            return "死线已过，提交不了！";
+        }
+        // 提交顺序
+        return "分配PK对阵成功!";
+    }
+
 }

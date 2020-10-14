@@ -341,8 +341,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                             .eq(TournamentInfoEntity::getId, tournamentId)
                             .eq(TournamentInfoEntity::getState, 1));
                     if (tournamentInfoEntity != null) {
-                        tournamentGroupData
-                                .setGroupMode(tournamentInfoEntity.getGroupMode());
+                        tournamentGroupData.setGroupMode(tournamentInfoEntity.getGroupMode());
                     }
                     tournamentGroupData
                             .setStartGw(o.getStartGw())
@@ -360,8 +359,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                         }
                     }
                     // group name
-                    tournamentGroupData
-                            .setTournamentGroupNameMap(this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum));
+                    tournamentGroupData.setTournamentGroupNameMap(this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum));
                     // pk entry
                     TournamentKnockoutEntity tournamentKnockoutEntity = this.tournamentKnockoutService.getOne(new QueryWrapper<TournamentKnockoutEntity>().lambda()
                             .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
@@ -478,24 +476,29 @@ public class TableQueryServiceImpl implements ITableQueryService {
         List<Integer> discloseList = this.redisCacheSerive.getDiscloseList(tournamentId, currentGroupId);
         // phase two tournament_group
         List<TournamentGroupData> list = Lists.newArrayList();
-        this.qryGroupInfoListByGroupId(tournamentId, groupId, groupNum).getData().forEach(o -> {
-            TournamentGroupData tournamentGroupData = new TournamentGroupData();
-            BeanUtil.copyProperties(o, tournamentGroupData);
-            int entry = o.getEntry();
-            if (entry > 0) {
-                o.setDrawPhaseTwo(true);
-                String currentGroupName = groupNameMap.getOrDefault(String.valueOf(currentGroupId), "");
-                String entryGroupName = groupEntryNameMap.getOrDefault(entry, "");
-                if ((StringUtils.isEmpty(currentGroupName) || StringUtils.isEmpty(entryGroupName) || !StringUtils.equals(entryGroupName, currentGroupName)) &&
-                        !discloseList.contains(entry)) {
-                    o.setEntry(-1);
-                }
-            } else {
-                o.setDrawPhaseTwo(false);
-            }
-            o.setDiscloseList(discloseList);
-            list.add(o);
-        });
+        this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .eq(TournamentGroupEntity::getGroupId, groupId)
+                .orderByAsc(TournamentGroupEntity::getGroupRank)
+                .orderByAsc(TournamentGroupEntity::getGroupIndex))
+                .forEach(o -> {
+                    TournamentGroupData tournamentGroupData = new TournamentGroupData();
+                    BeanUtil.copyProperties(o, tournamentGroupData);
+                    int entry = o.getEntry();
+                    if (entry > 0) {
+                        tournamentGroupData.setDrawPhaseTwo(true);
+                        String currentGroupName = groupNameMap.getOrDefault(String.valueOf(currentGroupId), "");
+                        String entryGroupName = groupEntryNameMap.getOrDefault(entry, "");
+                        if ((StringUtils.isEmpty(currentGroupName) || StringUtils.isEmpty(entryGroupName) || !StringUtils.equals(entryGroupName, currentGroupName)) &&
+                                !discloseList.contains(entry)) {
+                            o.setEntry(-1);
+                        }
+                    } else {
+                        tournamentGroupData.setDrawPhaseTwo(false);
+                    }
+                    tournamentGroupData.setDiscloseList(discloseList);
+                    list.add(tournamentGroupData);
+                });
         return new TableData<>(list);
     }
 

@@ -215,6 +215,13 @@ public class TournamentController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "/updateZjTournamentPkData")
+    public String updateZjTournamentPkData(@RequestParam int tournamentId, @RequestParam int entry, @RequestParam int pkEntry, @RequestParam int groupId, HttpSession session) {
+        int captainEntry = (int) session.getAttribute("entry");
+        return this.tournamentApi.updateZjTournamentPkData(tournamentId, entry, pkEntry, groupId, captainEntry);
+    }
+
+    @ResponseBody
     @RequestMapping(value = "/qryDiscloseGroupData")
     public TournamentGroupData qryDiscloseGroupData(@RequestParam int tournamentId, @RequestParam int groupNum, @RequestParam int entry, @RequestParam int currentGroupId) {
         return this.tournamentApi.qryDiscloseGroupData(tournamentId, groupNum, entry, currentGroupId);
