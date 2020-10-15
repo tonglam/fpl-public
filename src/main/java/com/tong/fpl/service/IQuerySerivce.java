@@ -183,7 +183,7 @@ public interface IQuerySerivce {
 
     List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId);
 
-    Map<Integer, String> qryZjTournamentGroupEntryMap(int tournamentId, int groupNum);
+    Map<String, String> qryZjTournamentGroupEntryMap(int tournamentId, int groupNum);
 
     /**
      * @apiNote report
