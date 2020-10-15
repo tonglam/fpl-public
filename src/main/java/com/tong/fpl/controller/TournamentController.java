@@ -116,12 +116,12 @@ public class TournamentController {
 		}
 		List<ZjTournamentCaptainData> captainDataList = this.tournamentApi.qryZjTournamentCaptain(id);
 		if (!CollectionUtils.isEmpty(captainDataList)) {
-			if (LocalDateTime.now().isBefore(LocalDateTime.parse(captainDataList.get(0).getPhaseTwoDeadline(), DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+			if (LocalDateTime.now().isAfter(LocalDateTime.parse(captainDataList.get(0).getPhaseTwoDeadline(), DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
 				model.addAttribute("phaseTwoShow", true);
 			} else {
 				model.addAttribute("phaseTwoShow", false);
 			}
-			if (LocalDateTime.now().isBefore(LocalDateTime.parse(captainDataList.get(0).getPkDeadline(), DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+			if (LocalDateTime.now().isAfter(LocalDateTime.parse(captainDataList.get(0).getPkDeadline(), DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
 				model.addAttribute("pkShow", true);
 			} else {
 				model.addAttribute("pkShow", false);
