@@ -17,15 +17,4 @@ public interface TournamentInfoMapper extends BaseMapper<TournamentInfoEntity> {
             "AND state = 1 ")
     List<TournamentInfoEntity> getAllKnockoutTournamentsByEvent(int event);
 
-    @Select("SELECT * FROM tournament_info " +
-            "WHERE group_mode = 'Points_race'" +
-            "AND #{event} BETWEEN group_start_gw AND group_end_gw ")
-    List<TournamentInfoEntity> getAllPointsRaceGroupByEvent(int event);
-
-    @Select("SELECT * FROM tournament_info " +
-            "WHERE group_mode = 'Battle_race'" +
-            "AND #{event} BETWEEN group_start_gw AND group_end_gw" +
-            "AND state = 1 ")
-    List<TournamentInfoEntity> getAllBattleRaceGroupByEvent(int event);
-
 }

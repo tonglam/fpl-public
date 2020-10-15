@@ -13,60 +13,60 @@ import java.util.Map;
  */
 public interface ITournamentApi {
 
-    String createNewTournament(TournamentCreateData tournamentCreateData);
+	String createNewTournament(TournamentCreateData tournamentCreateData);
 
-    String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
+	String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
 
-    TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-    int countTournamentLeagueTeams(String url);
+	int countTournamentLeagueTeams(String url);
 
-    boolean checkTournamentName(String name);
+	boolean checkTournamentName(String name);
 
-    String updateTournamentInfo(TournamentCreateData tournamentCreateData);
+	String updateTournamentInfo(TournamentCreateData tournamentCreateData);
 
-    String deleteTournamentByName(String name);
+	String deleteTournamentByName(String name);
 
-    TableData<TournamentEntryData> qryEntryTournamentList(int entry);
+	TableData<TournamentEntryData> qryEntryTournamentList(int entry);
 
-    EntryInfoData qryEntryInfoData(int entry);
+	EntryInfoData qryEntryInfoData(int entry);
 
-    TournamentInfoData qryTournamentInfoById(int tournamentId);
+	TournamentInfoData qryTournamentInfoById(int tournamentId);
 
-    List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
+	List<TournamentKnockoutData> qryKnockoutListByTournamentId(int tournamentId);
 
-    Map<String, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum);
+	Map<String, String> qryZjTournamentGroupNameMap(int tournamentId);
 
-    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId, int groupNum);
+	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
-    TournamentGroupData qryDiscloseGroupData(int tournamentId, int groupNum, int entry, int currentGroupId);
+	TournamentGroupData qryDiscloseGroupData(int tournamentId, int entry, int currentGroupId);
 
-    int qryTournamentRankByGroupId(int tournamentId, int groupNum, int currentGroupId);
+	int qryZjTournamentPhaseOneRankByGroupId(int tournamentId, int currentGroupId);
 
-    List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId);
+	List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId);
 
-    TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int groupNum, int currentGroupId, int groupId);
+	TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
 
-    KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
+	KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
 
-    List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
+	List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
-    TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+	TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-    TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-    List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
+	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
 
-    List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
+	List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
 
-    EntryInfoData qryEntryInfo(int entry);
+	EntryInfoData qryEntryInfo(int entry);
 
-    TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
+	TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
 
-    List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
+	List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
 
-    String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
+	String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
-    String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int groupId, int captainEntry);
+	String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int groupId, int captainEntry);
 
 }

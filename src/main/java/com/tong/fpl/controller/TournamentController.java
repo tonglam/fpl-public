@@ -140,11 +140,11 @@ public class TournamentController {
 	@GetMapping(value = "/manageZjTournament")
 	public String manageZjTournamentController(@RequestParam int id, Model model) {
 		model.addAttribute("captainDataList", this.tournamentApi.qryZjTournamentCaptain(id));
+		model.addAttribute("groupNameMap", this.tournamentApi.qryZjTournamentGroupNameMap(id));
 		TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
 		if (tournamentInfoData != null) {
 			model.addAttribute("tournamentInfo", tournamentInfoData);
 			model.addAttribute("phaseTwoShowNum", Math.ceil(tournamentInfoData.getTeamPerGroup() * 1.0 / 2));
-			model.addAttribute("groupNameMap", this.tournamentApi.qryZjTournamentGroupNameMap(id, tournamentInfoData.getGroupNum()));
 		}
 		return "tournament/manageZjTournament";
 	}
@@ -219,9 +219,9 @@ public class TournamentController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/qryTournamentRankByGroupId")
-	public int qryTournamentRankByGroupId(@RequestParam int tournamentId, @RequestParam int groupNum, @RequestParam int currentGroupId) {
-		return this.tournamentApi.qryTournamentRankByGroupId(tournamentId, groupNum, currentGroupId);
+	@RequestMapping(value = "/qryZjTournamentPhaseOneRankByGroupId")
+	public int qryZjTournamentPhaseOneRankByGroupId(@RequestParam int tournamentId, @RequestParam int currentGroupId) {
+		return this.tournamentApi.qryZjTournamentPhaseOneRankByGroupId(tournamentId, currentGroupId);
 	}
 
 	@ResponseBody
@@ -232,21 +232,21 @@ public class TournamentController {
 
 	@ResponseBody
 	@RequestMapping(value = "/updateZjTournamentPkData")
-	public String updateZjTournamentPkData(@RequestParam int tournamentId, @RequestParam int entry, @RequestParam int pkEntry, @RequestParam int groupId, HttpSession session) {
+	public String updateZjTournamentPkData(@RequestParam int tournamentId, @RequestParam int entry, @RequestParam int pkEntry, @RequestParam int currentGroupId, HttpSession session) {
 		int captainEntry = (int) session.getAttribute("entry");
-		return this.tournamentApi.updateZjTournamentPkData(tournamentId, entry, pkEntry, groupId, captainEntry);
+		return this.tournamentApi.updateZjTournamentPkData(tournamentId, entry, pkEntry, currentGroupId, captainEntry);
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/qryDiscloseGroupData")
-	public TournamentGroupData qryDiscloseGroupData(@RequestParam int tournamentId, @RequestParam int groupNum, @RequestParam int entry, @RequestParam int currentGroupId) {
-		return this.tournamentApi.qryDiscloseGroupData(tournamentId, groupNum, entry, currentGroupId);
+	public TournamentGroupData qryDiscloseGroupData(@RequestParam int tournamentId, @RequestParam int entry, @RequestParam int currentGroupId) {
+		return this.tournamentApi.qryDiscloseGroupData(tournamentId, entry, currentGroupId);
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/qrySeeableGroupInfoListByGroupId")
-	public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int groupNum, @RequestParam int currentGroupId, @RequestParam int groupId) {
-		return this.tournamentApi.qrySeeableGroupInfoListByGroupId(tournamentId, groupNum, currentGroupId, groupId);
+	public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int currentGroupId, @RequestParam int groupId) {
+		return this.tournamentApi.qrySeeableGroupInfoListByGroupId(tournamentId, currentGroupId, groupId);
 	}
 
 	@ResponseBody
@@ -271,8 +271,8 @@ public class TournamentController {
 
 	@ResponseBody
 	@RequestMapping(value = "/qryGroupInfoListByGroupId")
-	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int groupId, @RequestParam int groupNum) {
-		return this.tournamentApi.qryGroupInfoListByGroupId(tournamentId, groupId, groupNum);
+	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(@RequestParam int tournamentId, @RequestParam int groupId) {
+		return this.tournamentApi.qryGroupInfoListByGroupId(tournamentId, groupId);
 	}
 
 	@ResponseBody

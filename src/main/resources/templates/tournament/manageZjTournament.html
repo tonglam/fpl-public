@@ -305,10 +305,9 @@
             groupNum = parseInt($("#groupNum").text()), teamPerGroup = parseInt($("#teamPerGroup").text());
 
         <!-- 揭牌 -->
-        axios.get('/tournament/qryTournamentRankByGroupId', {
+        axios.get('/tournament/qryZjTournamentPhaseOneRankByGroupId', {
             params: {
                 tournamentId: tournamentId,
-                groupNum: groupNum,
                 currentGroupId: currentGroupId
             }
         })
@@ -370,7 +369,6 @@
                 axios.get('/tournament/qryDiscloseGroupData', {
                     params: {
                         tournamentId: tournamentId,
-                        groupNum: groupNum,
                         entry: entry,
                         currentGroupId: currentGroupId
                     }
@@ -410,8 +408,7 @@
         axios.get('/tournament/qryGroupInfoListByGroupId', {
             params: {
                 tournamentId: tournamentId,
-                groupId: currentGroupId,
-                groupNum: groupNum
+                groupId: currentGroupId
             }
         })
             .then(function (response) {
@@ -587,7 +584,7 @@
                     tournamentId: tournamentId,
                     entry: data.entry,
                     pkEntry: data.pkEntry,
-                    groupId: data.groupId
+                    currentGroupId: data.groupId
                 }
             })
                 .then(function (response) {
@@ -663,7 +660,6 @@
             axios.get('/tournament/qrySeeableGroupInfoListByGroupId', {
                 params: {
                     tournamentId: tournamentId,
-                    groupNum: groupNum,
                     currentGroupId: currentGroupId,
                     groupId: phaseTwoGroupId
                 }

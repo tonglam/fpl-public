@@ -326,8 +326,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	}
 
 	@Override
-	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId, int groupNum) {
+	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
 		List<TournamentGroupData> list = Lists.newArrayList();
+		// tournament_info
+		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return new TableData<>();
+		}
+		int groupNum = tournamentInfoEntity.getGroupNum();
+		// tournament_group
 		this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.eq(TournamentGroupEntity::getGroupId, groupId)
@@ -335,14 +342,8 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.orderByAsc(TournamentGroupEntity::getGroupIndex))
 				.forEach(o -> {
 					int entry = o.getEntry();
-					TournamentGroupData tournamentGroupData = new TournamentGroupData();
+					TournamentGroupData tournamentGroupData = new TournamentGroupData().setGroupMode(tournamentInfoEntity.getGroupMode());
 					BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
-					TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-							.eq(TournamentInfoEntity::getId, tournamentId)
-							.eq(TournamentInfoEntity::getState, 1));
-					if (tournamentInfoEntity != null) {
-						tournamentGroupData.setGroupMode(tournamentInfoEntity.getGroupMode());
-					}
 					tournamentGroupData
 							.setStartGw(o.getStartGw())
 							.setEndGw(o.getEndGw());
@@ -359,7 +360,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 						}
 					}
 					// group name
-					tournamentGroupData.setTournamentGroupNameMap(this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum));
+					tournamentGroupData.setTournamentGroupNameMap(this.querySerivce.qryZjTournamentGroupNameMap(tournamentId));
 					// pk entry
 					TournamentKnockoutEntity tournamentKnockoutEntity = this.tournamentKnockoutService.getOne(new QueryWrapper<TournamentKnockoutEntity>().lambda()
 							.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
@@ -428,50 +429,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
-	// do not cache here
 	@Override
-	public TournamentGroupData qryDiscloseGroupData(int tournamentId, int groupNum, int entry, int currentGroupId) {
-		// check num
-		List<Integer> discloseList = this.redisCacheSerive.getDiscloseList(tournamentId, currentGroupId);
-		int discloseNum = discloseList.size();
-		if (discloseNum > 0 && discloseList.get(0) != entry) {
-			return new TournamentGroupData().setDiscloseList(discloseList);
-		}
-		TournamentGroupEntity tournamentGroupEntity = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
-				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
-				.eq(TournamentGroupEntity::getEntry, entry)
-				.gt(TournamentGroupEntity::getGroupId, groupNum));
-		if (tournamentGroupEntity == null) {
-			return new TournamentGroupData()
-					.setTournamentId(tournamentId)
-					.setEntry(-1)
-					.setDrawPhaseTwo(false)
-					.setDiscloseList(discloseList);
-		}
-		TournamentGroupData tournamentGroupData = new TournamentGroupData();
-		BeanUtil.copyProperties(tournamentGroupEntity, tournamentGroupData, CopyOptions.create().ignoreNullValue());
-		// entry_info
-		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
-		if (entryInfoEntity != null) {
-			tournamentGroupData
-					.setEntryName(entryInfoEntity.getEntryName())
-					.setPlayerName(entryInfoEntity.getPlayerName());
-		}
-		// disclose list
-		this.redisCacheSerive.insertDiscloseCache(tournamentId, currentGroupId, entry);
-		if (!discloseList.contains(entry)) {
-			discloseList.add(entry);
-		}
-		tournamentGroupData.setDiscloseList(discloseList);
-		return tournamentGroupData;
-	}
-
-	@Override
-	public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int groupNum, int currentGroupId, int groupId) {
+	public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId) {
 		// group name
-		Map<String, String> groupNameMap = this.querySerivce.qryZjTournamentGroupNameMap(tournamentId, groupNum);
+		Map<String, String> groupNameMap = this.querySerivce.qryZjTournamentGroupNameMap(tournamentId);
 		// group entry name
-		Map<String, String> groupEntryNameMap = this.querySerivce.qryZjTournamentGroupEntryMap(tournamentId, groupNum);
+		Map<String, String> groupEntryNameMap = this.querySerivce.qryZjTournamentGroupEntryMap(tournamentId);
 		// disclose entry list
 		List<Integer> discloseList = this.redisCacheSerive.getDiscloseList(tournamentId, currentGroupId);
 		// phase two tournament_group

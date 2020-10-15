@@ -13,10 +13,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
-import com.tong.fpl.domain.letletme.tournament.ZjTournamentCaptainData;
+import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
 
 import java.time.LocalDate;
@@ -177,13 +174,17 @@ public interface IQuerySerivce {
 
     List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
 
-    Map<String, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum);
+    Map<String, String> qryZjTournamentGroupNameMap(int tournamentId);
 
-    int qryTournamentRankByGroupId(int tournamentId, int groupNum, int currentGroupId);
+    Map<String, Integer> qryZjTournamentPhaseOneRankMap(int tournamentId);
+
+    Map<String, Integer> qryZjTournamentPhaseTwoRankMap(int tournamentId);
 
     List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId);
 
-    Map<String, String> qryZjTournamentGroupEntryMap(int tournamentId, int groupNum);
+    Map<String, String> qryZjTournamentGroupEntryMap(int tournamentId);
+
+    TournamentGroupData qryDiscloseGroupData(int tournamentId, int entry, int currentGroupId);
 
     /**
      * @apiNote report

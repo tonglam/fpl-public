@@ -26,10 +26,7 @@ import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
-import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
-import com.tong.fpl.domain.letletme.tournament.ZjTournamentCaptainData;
+import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
 import com.tong.fpl.service.IStaticSerive;
@@ -382,9 +379,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	@Override
 	public List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId) {
 		List<TournamentGroupFixtureData> list = Lists.newArrayList();
-		TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
-				.eq(TournamentInfoEntity::getId, tournamentId)
-				.eq(TournamentInfoEntity::getState, 1));
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
 			return list;
 		}
@@ -606,6 +601,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return this.tournamentInfoService.list();
 	}
 
+	@Cacheable(cacheNames = "tournamentInfoEntity", key = "#tournamentId")
 	@Override
 	public TournamentInfoEntity qryTournamentInfoById(int tournamentId) {
 		return this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
@@ -629,7 +625,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId));
 	}
 
-	//    @Cacheable(value = "qryKnockoutBracketResultByTournament", key = "#tournamentId", unless = "#result == null")
+	@Cacheable(value = "qryKnockoutBracketResultByTournament", key = "#tournamentId", unless = "#result == null")
 	@Override
 	public KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId) {
 		// round -> tournament_knockout_result_data list
@@ -742,12 +738,16 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return list;
 	}
 
-	@Cacheable(value = "qryZjTournamentGroupNameMap", key = "#tournamentId+'::'+#groupNum")
+	@Cacheable(value = "qryZjTournamentGroupNameMap", key = "#tournamentId")
 	@Override
-	public Map<String, String> qryZjTournamentGroupNameMap(int tournamentId, int groupNum) {
-		List<Integer> groupList = Lists.newArrayList();
-		IntStream.range(1, groupNum + 1).forEach(groupList::add);
+	public Map<String, String> qryZjTournamentGroupNameMap(int tournamentId) {
 		Map<String, String> groupNameMap = Maps.newHashMap();
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return groupNameMap;
+		}
+		List<Integer> groupList = Lists.newArrayList();
+		IntStream.range(1, tournamentInfoEntity.getGroupNum() + 1).forEach(groupList::add);
 		this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.in(TournamentGroupEntity::getGroupId, groupList))
@@ -755,13 +755,18 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return groupNameMap;
 	}
 
-	@Cacheable(value = "qryTournamentRankByGroupId", key = "#tournamentId+'::'+#groupNum+'::'+#currentGroupId")
+	@Cacheable(value = "qryZjTournamentPhaseOneRankMap", key = "#tournamentId")
 	@Override
-	public int qryTournamentRankByGroupId(int tournamentId, int groupNum, int currentGroupId) {
-		Map<Integer, Integer> map = Maps.newHashMap();
+	public Map<String, Integer> qryZjTournamentPhaseOneRankMap(int tournamentId) {
+		Map<String, Integer> map = Maps.newHashMap();
 		BiMap<Integer, Integer> groupPointsMap = HashBiMap.create();
+		// tournament_info
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return map;
+		}
 		// group Entry
-		for (int groupId = 1; groupId < groupNum + 1; groupId++) {
+		for (int groupId = 1; groupId < tournamentInfoEntity.getGroupNum() + 1; groupId++) {
 			int groupTotalPoints = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 					.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 					.eq(TournamentGroupEntity::getGroupId, groupId))
@@ -770,7 +775,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 					.sum();
 			groupPointsMap.put(groupId, groupTotalPoints);
 		}
-		// group tournament rank
+		// group phase one rank
 		List<Integer> pointsList = groupPointsMap.values()
 				.stream()
 				.sorted(Comparator.comparing(Integer::intValue).reversed())
@@ -778,9 +783,62 @@ public class QueryServiceImpl implements IQuerySerivce {
 		groupPointsMap = groupPointsMap.inverse();
 		for (int i = 0; i < pointsList.size(); i++) {
 			int totalPoints = pointsList.get(i);
-			map.put(groupPointsMap.get(totalPoints), i + 1);
+			int groupId = groupPointsMap.get(totalPoints);
+			map.put(String.valueOf(groupId), i + 1);
 		}
-		return map.getOrDefault(currentGroupId, 0);
+		return map;
+	}
+
+	//	@Cacheable(value = "qryZjTournamentPhaseTwoRankMap", key = "#tournamentId")
+	@Override
+	public Map<String, Integer> qryZjTournamentPhaseTwoRankMap(int tournamentId) {
+		Map<String, Integer> map = Maps.newHashMap();
+		// tournament_info
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return map;
+		}
+		int groupNum = tournamentInfoEntity.getGroupNum();
+		int teamPerGroup = tournamentInfoEntity.getTeamPerGroup();
+		// group list
+		List<Integer> groupList = Lists.newArrayList();
+		IntStream.range(1, groupNum + 1).forEach(groupList::add);
+		// entry group
+		Map<Integer, Integer> entryGroupMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
+				.in(TournamentGroupEntity::getGroupId, groupList))
+				.stream()
+				.collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getGroupId));
+		// entry phase two points
+		List<Integer> phaseTwoGroupList = Lists.newArrayList();
+		IntStream.range(groupNum + 1, groupNum + teamPerGroup + 1).forEach(phaseTwoGroupList::add);
+		List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
+				.in(TournamentGroupEntity::getGroupId, phaseTwoGroupList));
+		if (CollectionUtils.isEmpty(tournamentGroupEntityList)) {
+			return map;
+		}
+		// group phase two points
+		BiMap<Integer, Integer> groupPointsMap = HashBiMap.create();
+		for (TournamentGroupEntity tournamentGroupEntity
+				: tournamentGroupEntityList) {
+			int entry = tournamentGroupEntity.getEntry();
+			int groupId = entryGroupMap.getOrDefault(entry, 0);
+			int groupPoints = groupPointsMap.getOrDefault(groupId, 0) + tournamentGroupEntity.getGroupPoints();
+			groupPointsMap.put(groupId, groupPoints);
+		}
+		//  group phase two rank
+		List<Integer> pointsList = groupPointsMap.values()
+				.stream()
+				.sorted(Comparator.comparing(Integer::intValue).reversed())
+				.collect(Collectors.toList());
+		groupPointsMap = groupPointsMap.inverse();
+		for (int i = 0; i < pointsList.size(); i++) {
+			int totalPoints = pointsList.get(i);
+			int groupId = groupPointsMap.get(totalPoints);
+			map.put(String.valueOf(groupId), i + 1);
+		}
+		return map;
 	}
 
 	@Cacheable(value = "qryGroupEntryInfoList", key = "#tournamentId+'::'+#groupId")
@@ -802,16 +860,64 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return list;
 	}
 
-	@Cacheable(value = "qryZjTournamentGroupEntryMap", key = "#tournamentId+'::'+#groupNum")
+	@Cacheable(value = "qryZjTournamentGroupEntryMap", key = "#tournamentId")
 	@Override
-	public Map<String, String> qryZjTournamentGroupEntryMap(int tournamentId, int groupNum) {
+	public Map<String, String> qryZjTournamentGroupEntryMap(int tournamentId) {
 		List<Integer> groupList = Lists.newArrayList();
-		IntStream.range(1, groupNum + 1).forEach(groupList::add);
+		// tournament_info
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return Maps.newHashMap();
+		}
+		IntStream.range(1, tournamentInfoEntity.getGroupNum() + 1).forEach(groupList::add);
 		return this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.in(TournamentGroupEntity::getGroupId, groupList))
 				.stream()
 				.collect(Collectors.toMap(o -> String.valueOf(o.getEntry()), TournamentGroupEntity::getGroupName));
+	}
+
+	@Override
+	public TournamentGroupData qryDiscloseGroupData(int tournamentId, int entry, int currentGroupId) {
+		// check num
+		List<Integer> discloseList = this.redisCacheSerive.getDiscloseList(tournamentId, currentGroupId);
+		int discloseNum = discloseList.size();
+		if (discloseNum > 0 && discloseList.get(0) != entry) {
+			return new TournamentGroupData().setDiscloseList(discloseList);
+		}
+		// tournament_info
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return new TournamentGroupData().setDiscloseList(discloseList);
+		}
+		// tournament_group
+		TournamentGroupEntity tournamentGroupEntity = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
+				.eq(TournamentGroupEntity::getEntry, entry)
+				.gt(TournamentGroupEntity::getGroupId, tournamentInfoEntity.getGroupNum()));
+		if (tournamentGroupEntity == null) {
+			return new TournamentGroupData()
+					.setTournamentId(tournamentId)
+					.setEntry(-1)
+					.setDrawPhaseTwo(false)
+					.setDiscloseList(discloseList);
+		}
+		TournamentGroupData tournamentGroupData = new TournamentGroupData();
+		BeanUtil.copyProperties(tournamentGroupEntity, tournamentGroupData, CopyOptions.create().ignoreNullValue());
+		// entry_info
+		EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
+		if (entryInfoEntity != null) {
+			tournamentGroupData
+					.setEntryName(entryInfoEntity.getEntryName())
+					.setPlayerName(entryInfoEntity.getPlayerName());
+		}
+		// disclose list
+		this.redisCacheSerive.insertDiscloseCache(tournamentId, currentGroupId, entry);
+		if (!discloseList.contains(entry)) {
+			discloseList.add(entry);
+		}
+		tournamentGroupData.setDiscloseList(discloseList);
+		return tournamentGroupData;
 	}
 
 	/**
@@ -871,6 +977,5 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.sorted(Comparator.comparing(LiveMatchData::getKickoffTime).reversed())
 				.collect(Collectors.toList());
 	}
-
 
 }

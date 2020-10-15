@@ -62,6 +62,6 @@ public interface ITournamentService {
 
     String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
-    String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int groupId, int captainEntry);
+    String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int currentGroupId, int captainEntry);
 
 }

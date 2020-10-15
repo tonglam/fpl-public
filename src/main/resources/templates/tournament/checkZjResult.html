@@ -209,8 +209,7 @@
             axios.get('/tournament/qryGroupInfoListByGroupId', {
                 params: {
                     tournamentId: tournamentId,
-                    groupId: i,
-                    groupNum: groupNum
+                    groupId: i
                 }
             })
                 .then(function (response) {
@@ -295,7 +294,7 @@
                 table.render({
                     elem: elem,
                     url: '/tournament/qryGroupInfoListByGroupId',
-                    where: {tournamentId: tournamentId, groupId: groupNum + j, groupNum: groupNum},
+                    where: {tournamentId: tournamentId, groupId: groupNum + j},
                     loading: true,
                     cellMinWidth: 60,
                     cols: [[
