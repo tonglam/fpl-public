@@ -163,7 +163,7 @@
                     loading: true,
                     cellMinWidth: 100,
                     cols: [[
-                        {title: '', type: 'numbers', width: 40},
+                        {title: '', type: 'numbers', width: 30},
                         {field: 'groupName', title: '小组', align: 'center', width: 150},
                         {field: 'phaseOneGroupPoints', title: '一阶段积分', align: 'center'},
                         {field: 'phaseTwoGroupPoints', title: '二阶段积分', align: 'center'},
@@ -193,7 +193,8 @@
             axios.get('/tournament/qryGroupInfoListByGroupId', {
                 params: {
                     tournamentId: tournamentId,
-                    groupId: i
+                    groupId: i,
+                    groupNum: groupNum
                 }
             })
                 .then(function (response) {
@@ -248,7 +249,7 @@
                             },
                             {field: 'playerName', title: '玩家名称', align: 'center', width: 160},
                             {field: 'play', title: '比赛', align: 'center'},
-                            {field: 'groupPoints', title: '得分', align: 'center', width: 80, totalRow: true}
+                            {field: 'groupPoints', title: '得分', align: 'center', width: 75, totalRow: true}
                         ]],
                         id: id,
                         done: function () {
@@ -274,7 +275,7 @@
             table.render({
                 elem: elem,
                 url: '/tournament/qryGroupInfoListByGroupId',
-                where: {tournamentId: tournamentId, groupId: groupNum + j},
+                where: {tournamentId: tournamentId, groupId: groupNum + j, groupNum: groupNum},
                 loading: true,
                 cellMinWidth: 60,
                 cols: [[
@@ -316,7 +317,7 @@
                         }
                     },
                     {
-                        field: 'playerName', title: '玩家名称', align: 'center', width: 150, templet: function (d) {
+                        field: 'playerName', title: '玩家名称', align: 'center', width: 140, templet: function (d) {
                             if (d.entry <= 0) {
                                 return d.groupName;
                             } else {
