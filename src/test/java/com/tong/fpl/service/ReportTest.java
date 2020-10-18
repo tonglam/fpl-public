@@ -12,7 +12,7 @@ public class ReportTest extends FplApplicationTests {
 
 
     @ParameterizedTest
-    @CsvSource({"4, Classic, 314, 10000"})
+    @CsvSource({"5, Classic, 314, 10000"})
     void inertTeamSelectStat(int event, String leagueType, int leagueId, int limit) {
         this.reportService.inertTeamSelectStat(event, leagueType, leagueId, limit);
         System.out.println(1);

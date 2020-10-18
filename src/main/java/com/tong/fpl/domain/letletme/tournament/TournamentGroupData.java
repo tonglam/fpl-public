@@ -29,7 +29,6 @@ public class TournamentGroupData {
     private int lose;
     private int totalPoints;
     private boolean qualified;
-    private int overallPoints;
     private int overallRank;
     private int startGw;
     private int endGw;
