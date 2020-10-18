@@ -531,6 +531,65 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return new TableData<>(pageResult);
     }
 
+    @Override
+    public TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit) {
+        List<TournamentPointsGroupEventResultData> list = Lists.newArrayList();
+        // tournament_info
+        TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+        if (tournamentInfoEntity == null) {
+            return new TableData<>();
+        }
+        // stage
+        List<Integer> eventList = Lists.newArrayList();
+        if (stage == 1) { // phase one
+            TournamentGroupEntity phaseOne = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
+                    .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                    .eq(TournamentGroupEntity::getGroupId, 1)
+                    .eq(TournamentGroupEntity::getGroupIndex, 1));
+            if (phaseOne == null) {
+                return new TableData<>();
+            }
+            int phaseOneStartGw = phaseOne.getStartGw();
+            int phaseOneEndGw = phaseOne.getEndGw();
+            IntStream.range(phaseOneStartGw, phaseOneEndGw + 1).forEach(eventList::add);
+        } else if (stage == 2) { // phase two
+            TournamentGroupEntity phaseTwo = this.tournamentGroupService.getOne(new QueryWrapper<TournamentGroupEntity>().lambda()
+                    .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                    .eq(TournamentGroupEntity::getGroupId, tournamentInfoEntity.getGroupNum() + 1)
+                    .eq(TournamentGroupEntity::getGroupIndex, 1));
+            if (phaseTwo == null) {
+                return new TableData<>();
+            }
+            int phaseTwoStartGw = phaseTwo.getStartGw();
+            int phaseTwoEndGw = phaseTwo.getEndGw();
+            IntStream.range(phaseTwoStartGw, phaseTwoEndGw + 1).forEach(eventList::add);
+        } else {
+            return new TableData<>();
+        }
+        // points_group_result
+        Page<TournamentPointsGroupResultEntity> pointsGroupResultPage = this.tournamentPointsGroupResultService.getBaseMapper().selectPage(
+                new Page<>(page, limit, true), new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
+                        .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentPointsGroupResultEntity::getEntry, entry)
+                        .in(TournamentPointsGroupResultEntity::getEvent, eventList)
+        );
+        pointsGroupResultPage.getRecords().forEach(o ->
+                list.add(new TournamentPointsGroupEventResultData()
+                        .setTournamentId(tournamentId)
+                        .setGroupId(groupId)
+                        .setEvent(o.getEvent())
+                        .setEntry(entry)
+                        .setGroupRank(o.getEventGroupRank())
+                        .setPoints(o.getEventPoints())
+                        .setCost(o.getEventCost())
+                        .setNetPoints(o.getEventNetPoints())
+                        .setRank(o.getEventRank())
+                ));
+        Page<TournamentPointsGroupEventResultData> pageResult = new Page<>(page, limit, pointsGroupResultPage.getTotal());
+        pageResult.setRecords(list);
+        return new TableData<>(list);
+    }
+
     private String setBattleGroupEntryName(int entry) {
         if (entry < 0) {
             return "平均分";

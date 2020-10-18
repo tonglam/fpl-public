@@ -55,6 +55,8 @@ public interface ITournamentApi {
 
 	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
+	TableData<TournamentPointsGroupEventResultData> qryZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
+
 	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
 
 	List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);

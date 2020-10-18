@@ -50,6 +50,8 @@ public interface ITableQueryService {
 
 	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
+	TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
+
 	TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
 
 	/**
