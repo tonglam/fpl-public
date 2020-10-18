@@ -188,10 +188,6 @@
                         {field: 'tournamentPoints', title: '总积分', align: 'center'}
                     ]],
                     id: 'zjTournamentTable',
-                    initSort: {
-                        field: 'tournamentPoints',
-                        type: 'desc'
-                    },
                     done: function () {
                         soulTable.render(this);
                     }
@@ -302,29 +298,7 @@
                             fixed: 'left',
                             field: 'groupRank',
                             title: '',
-                            align: 'center',
-                            icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
-                            collapse: true,
-                            children: function (d) {
-                                return [{
-                                    title: "每轮赛果",
-                                    url: '/tournament/qryPointsGroupResult',
-                                    where: {tournamentId: tournamentId, groupId: j, entry: d.entry},
-                                    page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
-                                    loading: true,
-                                    limit: 5,
-                                    limits: [5, 10, 15],
-                                    cols: [[
-                                        {field: 'event', title: 'GW', align: 'center'},
-                                        {field: 'points', title: '得分', align: 'center'},
-                                        {field: 'cost', title: '扣分', align: 'center'},
-                                        {field: 'netPoints', title: '净得分', align: 'center'}
-                                    ]],
-                                    done: function () {
-                                        soulTable.render(this);
-                                    }
-                                }]
-                            }
+                            align: 'center'
                         },
                         {
                             field: 'entryName', title: '队伍名称', align: 'center', width: 150, templet: function (d) {
