@@ -141,4 +141,11 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"4"})
+	void qryZjTournamentPhaseTWoRankMap(int tournamentId) {
+		Map<String, Integer> map = this.querySerivce.qryZjTournamentPhaseTwoRankMap(tournamentId);
+		System.out.println(1);
+	}
+
 }

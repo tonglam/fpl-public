@@ -299,6 +299,7 @@
                             field: 'groupRank',
                             title: '',
                             align: 'center',
+                            style: 'color: #fff;',
                             icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                             collapse: true,
                             children: function (d) {
@@ -322,8 +323,14 @@
                                 }]
                             }
                         },
+                        {field: 'groupName', title: '小组', align: 'center', style: 'color: #fff;', width: 100},
                         {
-                            field: 'entryName', title: '队伍名称', align: 'center', width: 150, templet: function (d) {
+                            field: 'entryName',
+                            title: '队伍名称',
+                            align: 'center',
+                            style: 'color: #fff;',
+                            width: 180,
+                            templet: function (d) {
                                 if (d.entry <= 0) {
                                     return d.groupName;
                                 } else {
@@ -331,19 +338,10 @@
                                 }
                             }
                         },
+                        {field: 'play', title: '比赛', align: 'center', style: 'color: #fff;',},
+                        {field: 'totalPoints', title: '得分', align: 'center', style: 'color: #fff;',},
                         {
-                            field: 'playerName', title: '玩家名称', align: 'center', width: 145, templet: function (d) {
-                                if (d.entry <= 0) {
-                                    return d.groupName;
-                                } else {
-                                    return d.playerName;
-                                }
-                            }
-                        },
-                        {field: 'play', title: '比赛', align: 'center'},
-                        {field: 'totalPoints', title: '得分', align: 'center'},
-                        {
-                            field: '', title: '积分', align: 'center', templet: function (d) {
+                            field: '', title: '积分', align: 'center', style: 'color: #fff;', templet: function (d) {
                                 if (d.groupRank == '1') {
                                     return '5';
                                 } else if (d.groupRank == '2') {
@@ -359,8 +357,29 @@
                         }
                     ]],
                     id: id,
-                    done: function () {
+                    done: function (res) {
                         soulTable.render(this);
+                        let that = this.elem.next();
+                        res.data.forEach(function (d, index) {
+                            switch (d.groupIndex) {
+                                case 1: {
+                                    setTableRowColor(that, index, "#009688");
+                                    break;
+                                }
+                                case 2: {
+                                    setTableRowColor(that, index, "#5FB878");
+                                    break;
+                                }
+                                case 3: {
+                                    setTableRowColor(that, index, "#FFB800");
+                                    break;
+                                }
+                                case 4: {
+                                    setTableRowColor(that, index, "#FF5722");
+                                    break;
+                                }
+                            }
+                        });
                     }
                 });
             }

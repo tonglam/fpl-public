@@ -1156,7 +1156,7 @@ public class TournamentServiceImpl implements ITournamentService {
         IntStream.range(1, tournamentInfoEntity.getGroupNum() + 1).forEach(groupList::add);
         // group points
         Map<Integer, Integer> groupPointsMap = Maps.newHashMap();
-        Map<String, Integer> phaseOneGroupRankMap = this.querySerivce.qryZjTournamentPhaseOneRankMap(tournamentId);
+        Map<String, Integer> phaseOneGroupRankMap = Maps.newHashMap();
         Map<String, Integer> phaseTwoGroupRankMap = this.querySerivce.qryZjTournamentPhaseTwoRankMap(tournamentId);
         groupList.forEach(groupId -> {
             int phaseOnePoints = phaseOneGroupRankMap.getOrDefault(String.valueOf(groupId), 0);
@@ -1170,6 +1170,7 @@ public class TournamentServiceImpl implements ITournamentService {
                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                 .forEachOrdered(o -> groupRankMap.put(o.getKey(), o.getValue()));
         // pick order
+        System.out.println(1);
 
         return "分配PK对阵成功!";
     }
