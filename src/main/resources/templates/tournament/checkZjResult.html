@@ -177,19 +177,47 @@
                     elem: '#zjTournamentTable',
                     data: data,
                     loading: true,
-                    cellMinWidth: 100,
-                    cols: [[
-                        {title: '', type: 'numbers', width: 30},
-                        {field: 'groupName', title: '小组', align: 'center', width: 150},
-                        {field: 'phaseOneTotalPoints', title: '一阶段总分', align: 'center'},
-                        {field: 'phaseOneTotalGroupPoints', title: '一阶段积分', align: 'center'},
-                        {field: 'phaseTwoGroupPoints', title: '二阶段总分', align: 'center'},
-                        {field: 'phaseTwoTotalGroupPoints', title: '二阶段积分', align: 'center'},
-                        {field: 'pkGroupPoints', title: 'PK赛总分', align: 'center'},
-                        {field: 'pkTotalGroupPoints', title: 'PK赛积分', align: 'center'},
-                        {field: 'tournamentTotalPoints', title: '小组总分', align: 'center', width: 120},
-                        {field: 'tournamentPoints', title: '总积分', align: 'center'}
-                    ]],
+                    cellMinWidth: 60,
+                    cols: [
+                        [
+                            {field: 'tournamentRank', title: '', align: 'center', width: 40, rowspan: 2},
+                            {field: 'groupName', title: '小组', align: 'center', width: 150, rowspan: 2},
+                            {field: '', title: '一阶段', align: 'center', colspan: 2},
+                            {field: '', title: '二阶段', align: 'center', colspan: 3},
+                            {field: '', title: 'PK赛', align: 'center', colspan: 4},
+                            {field: '', title: '联赛', align: 'center', width: 120, colspan: 2}
+                        ],
+                        [
+                            {field: 'phaseOneTotalPoints', title: '得分', align: 'center'},
+                            {
+                                field: 'phaseOneTotalGroupPoints',
+                                title: '积分',
+                                align: 'center',
+                            },
+                            {field: 'phaseTwoTotalPoints', title: '得分', align: 'center'},
+                            {field: 'phaseTwoGroupPoints', title: '小分', align: 'center'},
+                            {
+                                field: 'phaseTwoTotalGroupPoints',
+                                title: '积分',
+                                align: 'center'
+                            },
+                            {field: 'pkTotalPoints', title: '得分', align: 'center'},
+                            {field: 'pkGroupPoints', title: '小分', align: 'center'},
+                            {
+                                field: 'pkTotalGroupPoints',
+                                title: '积分',
+                                align: 'center',
+                            },
+                            {field: 'tournamentTotalPoints', title: '总得分', align: 'center', width: 80},
+                            {
+                                field: 'tournamentTotalGroupPoints',
+                                title: '总积分',
+                                align: 'center',
+                                width: 80,
+                                style: 'background-color: #5FB878; color: #fff;'
+                            }
+                        ]
+                    ],
                     id: 'zjTournamentTable',
                     done: function () {
                         soulTable.render(this);
@@ -341,8 +369,8 @@
                                 }
                             }
                         },
-                        {field: 'play', title: '比赛', align: 'center', style: 'color: #fff;',},
-                        {field: 'totalNetPoints', title: '得分', align: 'center', style: 'color: #fff;',},
+                        {field: 'play', title: '比赛', align: 'center', style: 'color: #fff;'},
+                        {field: 'totalNetPoints', title: '得分', align: 'center', style: 'color: #fff;'},
                         {
                             field: '', title: '积分', align: 'center', style: 'color: #fff;', templet: function (d) {
                                 if (d.groupRank == '1') {

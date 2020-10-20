@@ -12,14 +12,8 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.event.CreateZjTournamentEventData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
-import com.tong.fpl.domain.letletme.tournament.ZjTournamentCreateData;
-import com.tong.fpl.domain.letletme.tournament.ZjTournamentGroupData;
-import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IStaticSerive;
-import com.tong.fpl.service.ITournamentService;
-import com.tong.fpl.service.IUpdateEventResultService;
+import com.tong.fpl.domain.letletme.tournament.*;
+import com.tong.fpl.service.*;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +44,7 @@ public class TournamentServiceImpl implements ITournamentService {
     private final ApplicationContext context;
     private final IStaticSerive staticSerive;
     private final IQuerySerivce querySerivce;
+    private final ITableQueryService tableQueryService;
     private final IUpdateEventResultService updateEventResultService;
     private final EntryInfoService entryInfoService;
     private final TournamentInfoService tournamentInfoService;
@@ -751,6 +746,7 @@ public class TournamentServiceImpl implements ITournamentService {
                     .setTournamentId(tournamentId)
                     .setGroupId(phaseOneGroupId)
                     .setCaptainEntry(o.getCaptainEntry())
+                    .setPkPickedMatch("")
                     .setPhaseTwoDeadline(o.getPhaseTwoDeadline())
                     .setPkDeadline(o.getPkDeadline())
             );
@@ -1147,32 +1143,39 @@ public class TournamentServiceImpl implements ITournamentService {
             return "死线已过，提交不了！";
         }
         // tournament_info
-	    TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
-	    if (tournamentInfoEntity == null) {
-		    return "赛事不存在！";
-	    }
-	    // group list
-	    List<Integer> groupList = Lists.newArrayList();
-	    IntStream.range(1, tournamentInfoEntity.getGroupNum() + 1).forEach(groupList::add);
-	    // group points
-	    Map<Integer, Integer> groupPointsMap = Maps.newHashMap();
-	    Map<String, Integer> phaseOneGroupRankMap = Maps.newHashMap();
-//        Map<String, Integer> phaseTwoGroupRankMap = this.querySerivce.qryZjTournamentPhaseTwoRankMap(tournamentId);
-//        groupList.forEach(groupId -> {
-//            int phaseOnePoints = phaseOneGroupRankMap.getOrDefault(String.valueOf(groupId), 0);
-//            int phaseTwoPoints = phaseTwoGroupRankMap.getOrDefault(String.valueOf(groupId), 0);
-//            groupPointsMap.put(groupId, phaseOnePoints + phaseTwoPoints);
-//        });
-//        // group rank
-//        LinkedHashMap<Integer, Integer> groupRankMap = Maps.newLinkedHashMap();
-//        groupPointsMap.entrySet()
-//                .stream()
-//                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-//                .forEachOrdered(o -> groupRankMap.put(o.getKey(), o.getValue()));
-	    // pick order
-	    System.out.println(1);
+        TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+        if (tournamentInfoEntity == null) {
+            return "赛事不存在！";
+        }
+        int groupNum = tournamentInfoEntity.getGroupNum();
+        // tournament_knockout
+        List<TournamentKnockoutEntity> tournamentKnockoutEntityList = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                .eq(TournamentKnockoutEntity::getRound, 1));
+        if (CollectionUtils.isEmpty(tournamentKnockoutEntityList)) {
+            return "淘汰赛不存在！";
+        }
+        int matchNum = tournamentKnockoutEntityList.size();
+        // group tournament rank
+        List<ZjTournamentResultData> resultDataList = this.tableQueryService.qryZjTournamentResultById(tournamentId).getData();
+        if (CollectionUtils.isEmpty(resultDataList)) {
+            return "赛事不存在！";
+        }
+        List<Integer> groupRankList = resultDataList
+                .stream()
+                .map(ZjTournamentResultData::getGroupId)
+                .collect(Collectors.toList());
+        // pick order
+        LinkedHashMap<Integer, Integer> pickOrderMap = Maps.newLinkedHashMap();
+        IntStream.range(0, matchNum / groupNum).forEach(repeatTime -> {
+            for (int i = 1; i < groupRankList.size() + 1; i++) {
+                int index = i + groupNum * repeatTime;
+                pickOrderMap.put(index, groupRankList.get(i - 1));
+            }
+        });
+        System.out.println(1);
 
-	    return "分配PK对阵成功!";
+        return "分配PK对阵成功!";
     }
 
 }

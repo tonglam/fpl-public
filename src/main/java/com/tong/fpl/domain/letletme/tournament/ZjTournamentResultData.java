@@ -25,6 +25,7 @@ public class ZjTournamentResultData {
     private int pkGroupPoints;
     private int pkTotalGroupPoints;
     private int tournamentTotalPoints;
-    private int tournamentPoints;
+    private int tournamentTotalGroupPoints;
+    private int tournamentRank;
 
 }

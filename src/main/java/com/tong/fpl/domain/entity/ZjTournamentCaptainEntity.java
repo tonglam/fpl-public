@@ -18,6 +18,7 @@ public class ZjTournamentCaptainEntity {
     private int tournamentId;
     private int groupId;
     private int captainEntry;
+    private String pkPickedMatch;
     private String phaseTwoDeadline;
     private String pkDeadline;
     @TableField(fill = FieldFill.INSERT)
