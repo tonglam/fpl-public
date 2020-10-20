@@ -21,6 +21,15 @@ public class EntryEventResultService extends ServiceImpl<EntryEventResultMapper,
 		return this.baseMapper.sumEventPoints(startGw, current, entry);
 	}
 
+	public int sumEventTransferCost(int current, int startGw, int endGw, int entry) {
+		if (current < startGw) {
+			return 0;
+		} else if (current > endGw) {
+			current = endGw;
+		}
+		return this.baseMapper.sumEventTransfersCost(startGw, current, entry);
+	}
+
 	public int sumEventNetPoints(int current, int startGw, int endGw, int entry) {
 		if (current < startGw) {
 			return 0;

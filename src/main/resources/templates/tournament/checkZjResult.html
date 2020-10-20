@@ -181,9 +181,12 @@
                     cols: [[
                         {title: '', type: 'numbers', width: 30},
                         {field: 'groupName', title: '小组', align: 'center', width: 150},
-                        {field: 'phaseOneGroupPoints', title: '一阶段积分', align: 'center'},
-                        {field: 'phaseTwoGroupPoints', title: '二阶段积分', align: 'center'},
-                        {field: 'pkPoints', title: 'PK赛积分', align: 'center'},
+                        {field: 'phaseOneTotalPoints', title: '一阶段总分', align: 'center'},
+                        {field: 'phaseOneTotalGroupPoints', title: '一阶段积分', align: 'center'},
+                        {field: 'phaseTwoGroupPoints', title: '二阶段总分', align: 'center'},
+                        {field: 'phaseTwoTotalGroupPoints', title: '二阶段积分', align: 'center'},
+                        {field: 'pkGroupPoints', title: 'PK赛总分', align: 'center'},
+                        {field: 'pkTotalGroupPoints', title: 'PK赛积分', align: 'center'},
                         {field: 'tournamentTotalPoints', title: '小组总分', align: 'center', width: 120},
                         {field: 'tournamentPoints', title: '总积分', align: 'center'}
                     ]],
@@ -260,7 +263,7 @@
                             },
                             {field: 'playerName', title: '玩家名称', align: 'center', width: 160},
                             {field: 'play', title: '比赛', align: 'center'},
-                            {field: 'groupPoints', title: '得分', align: 'center', width: 75, totalRow: true}
+                            {field: 'totalPoints', title: '得分', align: 'center', width: 75, totalRow: true}
                         ]],
                         id: id,
                         done: function () {
@@ -339,7 +342,7 @@
                             }
                         },
                         {field: 'play', title: '比赛', align: 'center', style: 'color: #fff;',},
-                        {field: 'totalPoints', title: '得分', align: 'center', style: 'color: #fff;',},
+                        {field: 'totalNetPoints', title: '得分', align: 'center', style: 'color: #fff;',},
                         {
                             field: '', title: '积分', align: 'center', style: 'color: #fff;', templet: function (d) {
                                 if (d.groupRank == '1') {

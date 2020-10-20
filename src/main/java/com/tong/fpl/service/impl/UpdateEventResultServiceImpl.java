@@ -232,7 +232,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			}
 			tournamentGroupEntity
 					.setPlay(event - tournamentGroupEntity.getStartGw() + 1)
-					.setTotalPoints(this.entryEventResultService.sumEventNetPoints(event, groupStartGw, groupEndGw, entry))
+					.setTotalPoints(this.entryEventResultService.sumEventPoints(event, groupStartGw, groupEndGw, entry))
+					.setTotalTransfersCost(this.entryEventResultService.sumEventTransferCost(event, groupStartGw, groupEndGw, entry))
+					.setTotalNetPoints(this.entryEventResultService.sumEventNetPoints(event, groupStartGw, groupEndGw, entry))
 					.setOverallRank(entryEventResultEntity.getOverallRank());
 			// tournament_points_group_result
 			TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity = tournamentPointsGroupResultEntityMap.get(entry);
@@ -368,7 +370,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				EntryEventResultEntity entryEventResult = entryEventResultMap.getOrDefault(entry, null);
 				if (entryEventResult != null) {
 					tournamentGroupEntity
-							.setTotalPoints(this.entryEventResultService.sumEventNetPoints(event, startGw, endGw, entry))
+							.setTotalPoints(this.entryEventResultService.sumEventPoints(event, startGw, endGw, entry))
+							.setTotalTransfersCost(this.entryEventResultService.sumEventTransferCost(event, startGw, endGw, entry))
+							.setTotalNetPoints(this.entryEventResultService.sumEventNetPoints(event, startGw, endGw, entry))
 							.setOverallRank(entryEventResult.getOverallRank());
 				}
 				if (tournamentGroupEntity.getPlay() == playedEvent) {
@@ -399,7 +403,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		this.tournamentGroupService.updateBatchById(tournamentGroupList);
 	}
 
-	private Map<Integer, Map<String, Integer>> sortPointsRaceTournamentGroupRank(List<TournamentGroupEntity> tournamentGroupEntityList) {
+	private Map<Integer, Map<String, Integer>> sortZjTournamentPhaseOneGroupRank(List<TournamentGroupEntity> tournamentGroupEntityList) {
 		// groupIdList
 		Map<Integer, List<TournamentGroupEntity>> groupEntityMap = Maps.newHashMap();
 		tournamentGroupEntityList.forEach(o -> {
@@ -753,6 +757,8 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			tournamentGroupEntity
 					.setPlay(event - phaseOneStartGw + 1)
 					.setTotalPoints(this.entryEventResultService.sumEventPoints(event, phaseOneStartGw, phaseOneEndGw, entry))
+					.setTotalTransfersCost(this.entryEventResultService.sumEventTransferCost(event, phaseOneStartGw, phaseOneEndGw, entry))
+					.setTotalNetPoints(this.entryEventResultService.sumEventNetPoints(event, phaseOneStartGw, phaseOneEndGw, entry))
 					.setOverallRank(entryEventResultEntity.getOverallRank());
 			// tournament_points_group_result
 			TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity = tournamentPointsGroupResultEntityMap.get(entry);
@@ -766,7 +772,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 					.setEventRank(entryEventResultEntity.getEventRank());
 		});
 		// sort group rank
-		Map<Integer, Map<String, Integer>> tournamentGroupRankMap = this.sortPointsRaceTournamentGroupRank(tournamentGroupEntityList); // key:groupId -> value(key:overall_rank -> value:group_rank）
+		Map<Integer, Map<String, Integer>> tournamentGroupRankMap = this.sortZjTournamentPhaseOneGroupRank(tournamentGroupEntityList); // key:groupId -> value(key:overall_rank -> value:group_rank）
 		tournamentGroupEntityList.forEach(tournamentGroupEntity -> {
 			Map<String, Integer> groupRankMap = tournamentGroupRankMap.get(tournamentGroupEntity.getGroupId());  // key:overall_rank -> value:group_rank
 			int groupRank = groupRankMap.getOrDefault(tournamentGroupEntity.getTotalPoints() + "-" + tournamentGroupEntity.getOverallRank(), 0);
@@ -844,7 +850,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			}
 			tournamentGroupEntity
 					.setPlay(event - phaseTwoStartGw + 1)
-					.setTotalPoints(this.entryEventResultService.sumEventNetPoints(event, phaseTwoStartGw, phaseTwoEndGw, entry))
+					.setTotalPoints(this.entryEventResultService.sumEventPoints(event, phaseTwoStartGw, phaseTwoEndGw, entry))
+					.setTotalTransfersCost(this.entryEventResultService.sumEventTransferCost(event, phaseTwoStartGw, phaseTwoEndGw, entry))
+					.setTotalNetPoints(this.entryEventResultService.sumEventNetPoints(event, phaseTwoStartGw, phaseTwoEndGw, entry))
 					.setOverallRank(entryEventResultEntity.getOverallRank());
 			// tournament_points_group_result
 			TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity = tournamentPointsGroupResultEntityMap.get(entry);
@@ -856,12 +864,13 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 					.setEventCost(entryEventResultEntity.getEventTransfersCost())
 					.setEventNetPoints(entryEventResultEntity.getEventPoints() - entryEventResultEntity.getEventTransfersCost())
 					.setEventRank(entryEventResultEntity.getEventRank());
+			tournamentPointsGroupResultEntityMap.put(entry, tournamentPointsGroupResultEntity);
 		});
 		// sort group rank
-		Map<Integer, Map<String, Integer>> tournamentGroupRankMap = this.sortPointsRaceTournamentGroupRank(tournamentGroupEntityList); // key:groupId -> value(key:overall_rank -> value:group_rank）
+		Map<String, Map<Integer, Integer>> tournamentGroupRankMap = this.qryZjTournamentPhaseTwoGroupRankMapByGroupList(tournamentGroupEntityList);
 		tournamentGroupEntityList.forEach(tournamentGroupEntity -> {
-			Map<String, Integer> groupRankMap = tournamentGroupRankMap.get(tournamentGroupEntity.getGroupId());  // key:overall_rank -> value:group_rank
-			int groupRank = groupRankMap.getOrDefault(tournamentGroupEntity.getTotalPoints() + "-" + tournamentGroupEntity.getOverallRank(), 0);
+			Map<Integer, Integer> groupRankMap = tournamentGroupRankMap.get(String.valueOf(tournamentGroupEntity.getGroupId()));
+			int groupRank = groupRankMap.getOrDefault(tournamentGroupEntity.getEntry(), 0);
 			int groupPoints = this.getZjTournamentGroupPoints(groupRank);
 			tournamentGroupEntity
 					.setGroupPoints(groupPoints)
@@ -874,12 +883,48 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			tournamentPointsGroupResultEntity.setEventGroupRank(groupRank);
 			updateGroupPointsResultList.add(tournamentPointsGroupResultEntity);
 		});
-
 		// update
 		this.tournamentGroupService.updateBatchById(updateGroupList);
 		log.info("event:{}, tournament:{}, update tournament group success!", event, tournamentId);
 		this.tournamentPointsGroupResultService.updateBatchById(updateGroupPointsResultList);
 		log.info("event:{}, tournament:{}, update tournament points group result success!", event, tournamentId);
+	}
+
+	private Map<String, Map<Integer, Integer>> qryZjTournamentPhaseTwoGroupRankMapByGroupList(List<TournamentGroupEntity> tournamentGroupEntityList) {
+		Map<String, Map<Integer, Integer>> map = Maps.newHashMap(); // entry -> groupRank
+		// sort by group
+		Multimap<Integer, TournamentGroupEntity> groupEntityMap = HashMultimap.create();
+		tournamentGroupEntityList.forEach(o -> groupEntityMap.put(o.getGroupId(), o));
+		// sort every group
+		groupEntityMap.keySet().forEach(groupId -> {
+			Map<Integer, Integer> groupRankMap = Maps.newHashMap();
+			List<TournamentGroupEntity> groupEntityList = groupEntityMap.get(groupId)
+					.stream()
+					.sorted(Comparator.comparing(TournamentGroupEntity::getTotalNetPoints).reversed()
+							.thenComparing(TournamentGroupEntity::getTotalTransfersCost))
+					.collect(Collectors.toList());
+			int rank = 1;
+			int levelCount = 0;
+			for (int i = 0; i < groupEntityList.size(); i++) {
+				TournamentGroupEntity tournamentGroupEntity = groupEntityList.get(i);
+				int totalNetPoints = tournamentGroupEntity.getTotalNetPoints();
+				int totalTransfersCost = tournamentGroupEntity.getTotalTransfersCost();
+				if (i > 0) {
+					if (totalNetPoints != groupEntityList.get(i - 1).getTotalNetPoints()) {
+						rank = rank + 1 + levelCount;
+						levelCount = 0;
+					} else if (totalTransfersCost != groupEntityList.get(i - 1).getTotalTransfersCost()) {
+						rank = rank + 1 + levelCount;
+						levelCount = 0;
+					} else {
+						levelCount++;
+					}
+				}
+				groupRankMap.put(tournamentGroupEntity.getEntry(), rank);
+			}
+			map.put(String.valueOf(groupId), groupRankMap);
+		});
+		return map;
 	}
 
 	private int getZjTournamentGroupPoints(int groupRank) {

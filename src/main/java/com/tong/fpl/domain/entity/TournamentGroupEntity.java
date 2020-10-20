@@ -31,6 +31,8 @@ public class TournamentGroupEntity {
     private Integer draw;
     private Integer lose;
     private Integer totalPoints;
+    private Integer totalTransfersCost;
+    private Integer totalNetPoints;
     private Boolean qualified;
     private Integer overallRank;
     @TableField(fill = FieldFill.INSERT)

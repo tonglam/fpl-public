@@ -17,10 +17,13 @@ public class ZjTournamentResultData {
     private int step;
     private int phaseOneTotalPoints;
     private int phaseOneGroupPoints;
+    private int phaseOneTotalGroupPoints;
     private int phaseTwoTotalPoints;
     private int phaseTwoGroupPoints;
+    private int phaseTwoTotalGroupPoints;
     private int pkTotalPoints;
-    private int pkPoints;
+    private int pkGroupPoints;
+    private int pkTotalGroupPoints;
     private int tournamentTotalPoints;
     private int tournamentPoints;
 

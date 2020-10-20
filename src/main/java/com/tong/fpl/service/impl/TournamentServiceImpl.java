@@ -1147,32 +1147,32 @@ public class TournamentServiceImpl implements ITournamentService {
             return "死线已过，提交不了！";
         }
         // tournament_info
-        TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
-        if (tournamentInfoEntity == null) {
-            return "赛事不存在！";
-        }
-        // group list
-        List<Integer> groupList = Lists.newArrayList();
-        IntStream.range(1, tournamentInfoEntity.getGroupNum() + 1).forEach(groupList::add);
-        // group points
-        Map<Integer, Integer> groupPointsMap = Maps.newHashMap();
-        Map<String, Integer> phaseOneGroupRankMap = Maps.newHashMap();
-        Map<String, Integer> phaseTwoGroupRankMap = this.querySerivce.qryZjTournamentPhaseTwoRankMap(tournamentId);
-        groupList.forEach(groupId -> {
-            int phaseOnePoints = phaseOneGroupRankMap.getOrDefault(String.valueOf(groupId), 0);
-            int phaseTwoPoints = phaseTwoGroupRankMap.getOrDefault(String.valueOf(groupId), 0);
-            groupPointsMap.put(groupId, phaseOnePoints + phaseTwoPoints);
-        });
-        // group rank
-        LinkedHashMap<Integer, Integer> groupRankMap = Maps.newLinkedHashMap();
-        groupPointsMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                .forEachOrdered(o -> groupRankMap.put(o.getKey(), o.getValue()));
-        // pick order
-        System.out.println(1);
+	    TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+	    if (tournamentInfoEntity == null) {
+		    return "赛事不存在！";
+	    }
+	    // group list
+	    List<Integer> groupList = Lists.newArrayList();
+	    IntStream.range(1, tournamentInfoEntity.getGroupNum() + 1).forEach(groupList::add);
+	    // group points
+	    Map<Integer, Integer> groupPointsMap = Maps.newHashMap();
+	    Map<String, Integer> phaseOneGroupRankMap = Maps.newHashMap();
+//        Map<String, Integer> phaseTwoGroupRankMap = this.querySerivce.qryZjTournamentPhaseTwoRankMap(tournamentId);
+//        groupList.forEach(groupId -> {
+//            int phaseOnePoints = phaseOneGroupRankMap.getOrDefault(String.valueOf(groupId), 0);
+//            int phaseTwoPoints = phaseTwoGroupRankMap.getOrDefault(String.valueOf(groupId), 0);
+//            groupPointsMap.put(groupId, phaseOnePoints + phaseTwoPoints);
+//        });
+//        // group rank
+//        LinkedHashMap<Integer, Integer> groupRankMap = Maps.newLinkedHashMap();
+//        groupPointsMap.entrySet()
+//                .stream()
+//                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+//                .forEachOrdered(o -> groupRankMap.put(o.getKey(), o.getValue()));
+	    // pick order
+	    System.out.println(1);
 
-        return "分配PK对阵成功!";
+	    return "分配PK对阵成功!";
     }
 
 }

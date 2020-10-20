@@ -619,6 +619,25 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.collect(Collectors.toList());
 	}
 
+	@Cacheable(value = "qryGroupEntryInfoList", key = "#tournamentId+'::'+#groupId")
+	@Override
+	public List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId) {
+		List<EntryInfoData> list = Lists.newArrayList();
+		List<Integer> entryList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
+				.eq(TournamentGroupEntity::getGroupId, groupId))
+				.stream()
+				.map(TournamentGroupEntity::getEntry)
+				.collect(Collectors.toList());
+		entryList.forEach(entry -> {
+			EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
+			if (entryInfoEntity != null) {
+				list.add(BeanUtil.copyProperties(entryInfoEntity, EntryInfoData.class));
+			}
+		});
+		return list;
+	}
+
 	@Override
 	public List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId) {
 		return this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
@@ -808,10 +827,26 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return map;
 	}
 
-	//	@Cacheable(value = "qryZjTournamentPhaseTwoRankMap", key = "#tournamentId")
+	@Cacheable(value = "qryZjTournamentPhaseTwoGroupPointsMap", key = "#tournamentId", unless = "#result == null")
 	@Override
-	public Map<String, Integer> qryZjTournamentPhaseTwoRankMap(int tournamentId) {
+	public Map<String, Integer> qryZjTournamentPhaseTwoGroupPointsMap(int tournamentId) {
 		Map<String, Integer> map = Maps.newHashMap();
+		Map<String, Map<TournamentGroupEntity, Integer>> entryRankMap = this.qryZjTournamentPhaseTwoEntryRankMap(tournamentId);
+		if (CollectionUtils.isEmpty(entryRankMap)) {
+			return map;
+		}
+		entryRankMap.keySet().forEach(groupId -> {
+			int groupPoints = entryRankMap.get(groupId).values()
+					.stream()
+					.mapToInt(this::setPhaseTwoGroupPoints)
+					.sum();
+			map.put(groupId, groupPoints);
+		});
+		return map;
+	}
+
+	private Map<String, Map<TournamentGroupEntity, Integer>> qryZjTournamentPhaseTwoEntryRankMap(int tournamentId) {
+		Map<String, Map<TournamentGroupEntity, Integer>> map = Maps.newHashMap();
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
@@ -819,92 +854,135 @@ public class QueryServiceImpl implements IQuerySerivce {
 		}
 		int groupNum = tournamentInfoEntity.getGroupNum();
 		int teamPerGroup = tournamentInfoEntity.getTeamPerGroup();
+		// group entry name
+		Map<String, Integer> groupEntryGroupMap = this.qryZjTournamentGroupEntryGroupIdMap(tournamentId);
 		// group list
 		List<Integer> groupList = Lists.newArrayList();
-		IntStream.range(1, groupNum + 1).forEach(groupList::add);
-		// entry group
-		Map<Integer, Integer> entryGroupMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
-				.in(TournamentGroupEntity::getGroupId, groupList))
-				.stream()
-				.collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getGroupId));
-		// entry phase two points
-		List<Integer> phaseTwoGroupList = Lists.newArrayList();
-		IntStream.range(groupNum + 1, groupNum + teamPerGroup + 1).forEach(phaseTwoGroupList::add);
+		IntStream.range(groupNum + 1, groupNum + teamPerGroup + 1).forEach(groupList::add);
+		// tournament_group
 		List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
-				.in(TournamentGroupEntity::getGroupId, phaseTwoGroupList));
-		if (CollectionUtils.isEmpty(tournamentGroupEntityList)) {
-			return map;
-		}
-		// group phase two points
-		Map<Integer, TournamentGroupEntity> groupPointsMap = Maps.newHashMap();
-		tournamentGroupEntityList.forEach(o -> {
-			int groupId = o.getGroupId();
-			TournamentGroupEntity tournamentGroupEntity = groupPointsMap.getOrDefault(groupId, new TournamentGroupEntity());
-			tournamentGroupEntity
-					.setGroupPoints(tournamentGroupEntity.getGroupPoints() + o.getGroupPoints())
-					.setTotalPoints(tournamentGroupEntity.getTotalPoints() + o.getTotalPoints());
+				.in(TournamentGroupEntity::getGroupId, groupList));
+		// sort by group
+		Multimap<Integer, TournamentGroupEntity> groupEntityMap = HashMultimap.create();
+		tournamentGroupEntityList.forEach(o -> groupEntityMap.put(o.getGroupId(), o));
+		// sort every group
+		groupEntityMap.keySet().forEach(groupId -> {
+			List<TournamentGroupEntity> groupEntityList = groupEntityMap.get(groupId)
+					.stream()
+					.sorted(Comparator.comparing(TournamentGroupEntity::getTotalNetPoints).reversed()
+							.thenComparing(TournamentGroupEntity::getTotalTransfersCost))
+					.collect(Collectors.toList());
+			int rank = 1;
+			int levelCount = 0;
+			for (int i = 0; i < groupEntityList.size(); i++) {
+				TournamentGroupEntity tournamentGroupEntity = groupEntityList.get(i);
+				int totalNetPoints = tournamentGroupEntity.getTotalNetPoints();
+				int totalTransfersCost = tournamentGroupEntity.getTotalTransfersCost();
+				if (i > 0) {
+					if (totalNetPoints != groupEntityList.get(i - 1).getTotalNetPoints()) {
+						rank = rank + 1 + levelCount;
+						levelCount = 0;
+					} else if (totalTransfersCost != groupEntityList.get(i - 1).getTotalTransfersCost()) {
+						rank = rank + 1 + levelCount;
+						levelCount = 0;
+					} else {
+						levelCount++;
+					}
+				}
+				String entryGroupId = String.valueOf(groupEntryGroupMap.get(String.valueOf(tournamentGroupEntity.getEntry())));
+				Map<TournamentGroupEntity, Integer> groupEntryRankMap = Maps.newHashMap();
+				if (map.containsKey(entryGroupId)) {
+					groupEntryRankMap = map.get(entryGroupId);
+				}
+				groupEntryRankMap.put(tournamentGroupEntity, rank);
+				map.put(entryGroupId, groupEntryRankMap);
+			}
 		});
-		// points group
-		Multimap<TournamentGroupEntity, Integer> pointsGroupMap = HashMultimap.create(); // key:tournamentGroupEntity -> value: groupId
-		groupPointsMap.forEach((k, v) -> pointsGroupMap.put(v, k));
-		// group points rank
-//		List<TournamentGroupEntity> groupPointsRankList = Lists.newArrayList();
-//		pointsGroupMap.keySet()
-//				.stream()
-//				.sorted(Comparator.comparing(TournamentGroupEntity::getGroupPoints)
-//						.thenComparing(TournamentGroupEntity::getTotalPoints).reversed())
-//				.forEachOrdered(points -> {
-//					int times = pointsGroupMap.get(points).size();
-//					for (int i = 0; i < times; i++) {
-//						groupPointsRankList.add(points);
-//					}
-//				});
-//		// group rank
-//		int rank = 1;
-//		int levelCount = 0;
-//		for (int i = 0; i < groupPointsRankList.size(); i++) {
-//			int totalPoints = groupPointsRankList.get(i);
-//			Collection<Integer> groupIds = pointsGroupMap.get(totalPoints);
-//			if (i > 0) {
-//				if (totalPoints != groupPointsRankList.get(i - 1)) {
-//					rank = rank + 1 + levelCount;
-//					levelCount = 0;
-//				} else {
-//					levelCount++;
-//				}
-//			}
-//			for (int groupId :
-//					groupIds) {
-//				map.put(String.valueOf(groupId), rank);
-//			}
-//		}
 		return map;
 	}
 
-	@Cacheable(value = "qryGroupEntryInfoList", key = "#tournamentId+'::'+#groupId")
+	@Cacheable(value = "qryZjTournamentPhaseTwoRankMap", key = "#tournamentId", unless = "#result == null")
 	@Override
-	public List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId) {
-		List<EntryInfoData> list = Lists.newArrayList();
-		List<Integer> entryList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
-				.eq(TournamentGroupEntity::getGroupId, groupId))
+	public Map<String, Integer> qryZjTournamentPhaseTwoRankMap(int tournamentId) {
+		Map<String, Integer> map = Maps.newHashMap();
+		Map<String, Map<TournamentGroupEntity, Integer>> entryRankMap = this.qryZjTournamentPhaseTwoEntryRankMap(tournamentId);
+		List<TournamentGroupEntity> list = Lists.newArrayList();
+		entryRankMap.keySet().forEach(groupName ->
+				list.add(new TournamentGroupEntity()
+						.setGroupName(groupName)
+						.setGroupPoints(entryRankMap.get(groupName).values()
+								.stream()
+								.mapToInt(this::setPhaseTwoGroupPoints)
+								.sum())
+						.setTotalNetPoints(entryRankMap.get(groupName).keySet()
+								.stream()
+								.mapToInt(TournamentGroupEntity::getTotalNetPoints)
+								.sum())
+				));
+		List<TournamentGroupEntity> groupEntityList = list
 				.stream()
-				.map(TournamentGroupEntity::getEntry)
+				.sorted(Comparator.comparing(TournamentGroupEntity::getGroupPoints)
+						.thenComparing(TournamentGroupEntity::getTotalNetPoints)
+						.reversed())
 				.collect(Collectors.toList());
-		entryList.forEach(entry -> {
-			EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
-			if (entryInfoEntity != null) {
-				list.add(BeanUtil.copyProperties(entryInfoEntity, EntryInfoData.class));
+		int rank = 1;
+		int levelCount = 0;
+		for (int i = 0; i < groupEntityList.size(); i++) {
+			TournamentGroupEntity tournamentGroupEntity = groupEntityList.get(i);
+			int groupPoints = tournamentGroupEntity.getGroupPoints();
+			int totalNetPoints = tournamentGroupEntity.getTotalNetPoints();
+			if (i > 0) {
+				if (groupPoints != groupEntityList.get(i - 1).getGroupPoints()) {
+					rank = rank + 1 + levelCount;
+					levelCount = 0;
+				} else if (totalNetPoints != groupEntityList.get(i - 1).getTotalNetPoints()) {
+					rank = rank + 1 + levelCount;
+					levelCount = 0;
+				} else {
+					levelCount++;
+				}
 			}
-		});
-		return list;
+			map.put(String.valueOf(tournamentGroupEntity.getGroupId()), rank);
+		}
+		return map;
 	}
 
-	@Cacheable(value = "qryZjTournamentGroupEntryMap", key = "#tournamentId")
+	private int setPhaseTwoGroupPoints(int rank) {
+		switch (rank) {
+			case 1:
+				return 5;
+			case 2:
+				return 3;
+			case 3:
+				return 2;
+			case 4:
+				return 1;
+			default:
+				return 0;
+		}
+	}
+
+	@Cacheable(value = "qryZjTournamentGroupEntryGroupIdMap", key = "#tournamentId")
 	@Override
-	public Map<String, String> qryZjTournamentGroupEntryMap(int tournamentId) {
+	public Map<String, Integer> qryZjTournamentGroupEntryGroupIdMap(int tournamentId) {
+		List<Integer> groupList = Lists.newArrayList();
+		// tournament_info
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return Maps.newHashMap();
+		}
+		IntStream.range(1, tournamentInfoEntity.getGroupNum() + 1).forEach(groupList::add);
+		return this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
+				.in(TournamentGroupEntity::getGroupId, groupList))
+				.stream()
+				.collect(Collectors.toMap(o -> String.valueOf(o.getEntry()), TournamentGroupEntity::getGroupId));
+	}
+
+	@Cacheable(value = "qryZjTournamentGroupEntryGroupNameMap", key = "#tournamentId")
+	@Override
+	public Map<String, String> qryZjTournamentGroupEntryGroupNameMap(int tournamentId) {
 		List<Integer> groupList = Lists.newArrayList();
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
