@@ -1,6 +1,6 @@
 package com.tong.fpl.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -12,20 +12,27 @@ import lombok.experimental.Accessors;
 @TableName(value = "zj_tournament_result")
 public class ZjTournamentResultEntity {
 
-	private int tournamentId;
-	private int groupId;
-	private String groupName;
-	private int phaseOneTotalPoints;
-	private int phaseOneGroupPoints;
-	private int phaseOneTotalGroupPoints;
-	private int phaseTwoTotalPoints;
-	private int phaseTwoGroupPoints;
-	private int phaseTwoTotalGroupPoints;
-	private int pkTotalPoints;
-	private int pkGroupPoints;
-	private int pkTotalGroupPoints;
-	private int tournamentTotalPoints;
-	private int tournamentTotalGroupPoints;
-	private int tournamentRank;
+    @TableId
+    private Integer id;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer tournamentId;
+    private Integer groupId;
+    private String groupName;
+    private Integer phaseOneTotalPoints;
+    private Integer phaseOneGroupPoints;
+    private Integer phaseOneTotalGroupPoints;
+    private Integer phaseTwoTotalPoints;
+    private Integer phaseTwoGroupPoints;
+    private Integer phaseTwoTotalGroupPoints;
+    private Integer pkTotalPoints;
+    private Integer pkGroupPoints;
+    private Integer pkTotalGroupPoints;
+    private Integer tournamentTotalPoints;
+    private Integer tournamentTotalGroupPoints;
+    private Integer tournamentRank;
+    @TableField(fill = FieldFill.INSERT)
+    private String createTime;
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateTime;
 
 }
