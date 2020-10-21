@@ -611,16 +611,14 @@ public class TableQueryServiceImpl implements ITableQueryService {
     public TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId) {
         List<ZjTournamentResultData> list = Lists.newArrayList();
         this.zjTournamentResultService.list(new QueryWrapper<ZjTournamentResultEntity>().lambda()
-                .eq(ZjTournamentResultEntity::getTournamentId, tournamentId))
+                .eq(ZjTournamentResultEntity::getTournamentId, tournamentId)
+                .orderByAsc(ZjTournamentResultEntity::getTournamentRank))
                 .forEach(o -> {
                     ZjTournamentResultData zjTournamentResultData = new ZjTournamentResultData();
                     BeanUtil.copyProperties(o, zjTournamentResultData, CopyOptions.create().ignoreNullValue());
                     list.add(zjTournamentResultData);
                 });
-        return new TableData<>(list
-                .stream()
-                .sorted(Comparator.comparing(ZjTournamentResultData::getTournamentRank))
-                .collect(Collectors.toList()));
+        return new TableData<>(list);
     }
 
     @Override
@@ -635,7 +633,8 @@ public class TableQueryServiceImpl implements ITableQueryService {
         }
         int matchNum = tournamentKnockoutEntityList.size();
         List<Integer> groupRankList = this.zjTournamentResultService.list(new QueryWrapper<ZjTournamentResultEntity>().lambda()
-                .eq(ZjTournamentResultEntity::getTournamentId, tournamentId))
+                .eq(ZjTournamentResultEntity::getTournamentId, tournamentId)
+                .orderByAsc(ZjTournamentResultEntity::getTournamentRank))
                 .stream()
                 .map(ZjTournamentResultEntity::getGroupId)
                 .collect(Collectors.toList());

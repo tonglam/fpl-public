@@ -152,6 +152,10 @@
             }
         });
 
+        $("#retrunButton").on('click', function () {
+            window.location.replace("/tournament/result");
+        });
+
         let tournamentId = getUrlParam("id"), groupNum = parseInt($("#groupNum").text()),
             teamPerGroup = parseInt($("#teamPerGroup").text());
 
