@@ -14,16 +14,28 @@ import java.util.List;
  */
 public interface IStatApi {
 
-    TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
+	/**
+	 * @apiNote price
+	 */
+	TableData<PlayerValueData> qryPriceChangeList();
 
-    TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
+	/**
+	 * @apiNote captain
+	 */
+	TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
 
-    TableData<PlayerInfoData> qryPlayerList(String season);
+	TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
 
-    List<String> qryTeamSelectStatList();
+	/**
+	 * @apiNote compare
+	 */
+	TableData<PlayerInfoData> qryPlayerList(String season);
 
-    TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+	/**
+	 * @apiNote selected
+	 */
+	List<String> qryTeamSelectStatList();
 
-    TableData<PlayerValueData> qryPriceChangeList();
+	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
 
 }

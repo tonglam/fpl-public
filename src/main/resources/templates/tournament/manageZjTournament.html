@@ -233,7 +233,7 @@
                                     return false;
                                 }
                                 // 保存
-                                axios.get('/saveEntry?entry=' + entry)
+                                axios.get('/saveSession?key=entry&&value=' + entry)
                                     .then(function () {
                                         layer.close();
                                         // 刷新
@@ -575,10 +575,6 @@
         <!-- 更新pk分组 -->
         table.on('tool(pkGroupTable)', function (obj) {
             let data = obj.data;
-            if (data.pkDraw) {
-                layer.msg("此队员已经被分配过了！", {time: 1500});
-                return false;
-            }
             axios.get('/tournament/updateZjTournamentPkData', {
                 params: {
                     tournamentId: tournamentId,
@@ -588,7 +584,7 @@
                 }
             })
                 .then(function (response) {
-                    layer.msg(response, {time: 1500});
+                    layer.msg(response, {area: '450px', time: 3000});
                 })
                 .catch(function (error) {
                     console.log(error.message);

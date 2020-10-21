@@ -51,43 +51,55 @@ public class StatController {
 
     @GetMapping(value = "/selected")
     public String selectedController(Model model) {
-        List<String> leagueList = this.statApi.qryTeamSelectStatList();
-        if (!CollectionUtils.isEmpty(leagueList)) {
-            model.addAttribute("leagueList", leagueList);
-        }
-        model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-        model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-        return "stat/selected";
+	    List<String> leagueList = this.statApi.qryTeamSelectStatList();
+	    if (!CollectionUtils.isEmpty(leagueList)) {
+		    model.addAttribute("leagueList", leagueList);
+	    }
+	    model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+	    model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+	    return "stat/selected";
     }
 
-    @RequestMapping("/qryPriceChangeList")
-    @ResponseBody
-    public TableData<PlayerValueData> qryPriceChangeList() {
-        return this.statApi.qryPriceChangeList();
-    }
+	/**
+	 * @apiNote price
+	 */
+	@RequestMapping("/qryPriceChangeList")
+	@ResponseBody
+	public TableData<PlayerValueData> qryPriceChangeList() {
+		return this.statApi.qryPriceChangeList();
+	}
 
-    @RequestMapping("/qryEntryInfoByTournament")
-    @ResponseBody
-    public TableData<EntryInfoData> qryEntryInfoByTournament(@RequestParam String season, @RequestParam int tournamentId) {
-        return this.statApi.qryEntryInfoByTournament(season, tournamentId);
-    }
+	/**
+	 * @apiNote captain
+	 */
+	@RequestMapping("/qryEntryInfoByTournament")
+	@ResponseBody
+	public TableData<EntryInfoData> qryEntryInfoByTournament(@RequestParam String season, @RequestParam int tournamentId) {
+		return this.statApi.qryEntryInfoByTournament(season, tournamentId);
+	}
 
-    @RequestMapping("/qryEntryCaptainList")
-    @ResponseBody
-    public TableData<EntryEventCaptainData> qryEntryCaptainList(@RequestParam String season, @RequestParam int entry) {
-        return this.statApi.qryEntryCaptainList(season, entry);
-    }
+	@RequestMapping("/qryEntryCaptainList")
+	@ResponseBody
+	public TableData<EntryEventCaptainData> qryEntryCaptainList(@RequestParam String season, @RequestParam int entry) {
+		return this.statApi.qryEntryCaptainList(season, entry);
+	}
 
-    @RequestMapping("/qryPlayerList")
-    @ResponseBody
-    public TableData<PlayerInfoData> qryPlayerList(@RequestParam String season) {
-        return this.statApi.qryPlayerList(season);
-    }
+	/**
+	 * @apiNote compare
+	 */
+	@RequestMapping("/qryPlayerList")
+	@ResponseBody
+	public TableData<PlayerInfoData> qryPlayerList(@RequestParam String season) {
+		return this.statApi.qryPlayerList(season);
+	}
 
-    @RequestMapping("/qryTeamSelectStatByName")
-    @ResponseBody
-    public TableData<LeagueStatData> qryTeamSelectStatByName(@RequestParam String leagueName, @RequestParam int event) {
-        return this.statApi.qryTeamSelectStatByName(leagueName, event);
-    }
+	/**
+	 * @apiNote selected
+	 */
+	@RequestMapping("/qryTeamSelectStatByName")
+	@ResponseBody
+	public TableData<LeagueStatData> qryTeamSelectStatByName(@RequestParam String leagueName, @RequestParam int event) {
+		return this.statApi.qryTeamSelectStatByName(leagueName, event);
+	}
 
 }

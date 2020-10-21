@@ -159,7 +159,7 @@
                 }
                 myFplEntry = parseInt(entryInput);
                 if (myFplEntry > 0) {
-                    axios.get('/my_fpl/saveMyFplEntry?myFplEntry=' + myFplEntry)
+                    axios.get('/saveSession?key=myFplEntry&&value=' + myFplEntry)
                         .then(function () {
                             window.location.replace('/my_fpl/entry');
                         });

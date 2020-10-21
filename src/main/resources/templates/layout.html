@@ -148,7 +148,7 @@
                             return false;
                         }
                         // 保存
-                        axios.get('/saveEntry?entry=' + entry)
+                        axios.get('/saveSession?key=entry&&value=' + entry)
                             .then(function () {
                                 // 关闭
                                 layer.msg('team_id更新成功', {
@@ -265,7 +265,7 @@
                                 return false;
                             }
                             // 保存
-                            axios.get('/saveEntry?entry=' + entry)
+                            axios.get('/saveSession?key=entry&&value=' + entry)
                                 .then(function () {
                                     layer.close();
                                     // 刷新

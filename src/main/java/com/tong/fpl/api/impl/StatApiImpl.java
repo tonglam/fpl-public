@@ -24,41 +24,53 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatApiImpl implements IStatApi {
 
-    private final IQuerySerivce querySerivce;
-    private final ITableQueryService tableQueryService;
+	private final IQuerySerivce querySerivce;
+	private final ITableQueryService tableQueryService;
 
-    @Override
-    public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId) {
-        List<EntryInfoData> list = this.tableQueryService.qryEntryInfoByTournament(season, tournamentId).getData()
-                .stream()
-                .sorted(Comparator.comparing(EntryInfoData::getOverallRank))
-                .collect(Collectors.toList());
-        return new TableData<>(list);
-    }
+	/**
+	 * @implNote price
+	 */
+	@Override
+	public TableData<PlayerValueData> qryPriceChangeList() {
+		return this.tableQueryService.qryPriceChangeList();
+	}
 
-    @Override
-    public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry) {
-        return this.tableQueryService.qryEntryCaptainList(season, entry);
-    }
+	/**
+	 * @implNote captain
+	 */
+	@Override
+	public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId) {
+		List<EntryInfoData> list = this.tableQueryService.qryEntryInfoByTournament(season, tournamentId).getData()
+				.stream()
+				.sorted(Comparator.comparing(EntryInfoData::getOverallRank))
+				.collect(Collectors.toList());
+		return new TableData<>(list);
+	}
 
-    @Override
-    public TableData<PlayerInfoData> qryPlayerList(String season) {
-        return this.tableQueryService.qryPlayerList(season);
-    }
+	@Override
+	public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry) {
+		return this.tableQueryService.qryEntryCaptainList(season, entry);
+	}
 
-    @Override
-    public List<String> qryTeamSelectStatList() {
-        return this.querySerivce.qryTeamSelectStatList();
-    }
+	/**
+	 * @implNote compare
+	 */
+	@Override
+	public TableData<PlayerInfoData> qryPlayerList(String season) {
+		return this.tableQueryService.qryPlayerList(season);
+	}
 
-    @Override
-    public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
-        return this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
-    }
+	/**
+	 * @implNote selected
+	 */
+	@Override
+	public List<String> qryTeamSelectStatList() {
+		return this.querySerivce.qryTeamSelectStatList();
+	}
 
-    @Override
-    public TableData<PlayerValueData> qryPriceChangeList() {
-        return this.tableQueryService.qryPriceChangeList();
-    }
+	@Override
+	public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
+		return this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
+	}
 
 }

@@ -19,30 +19,30 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class WebPageController {
 
-    private final IHttpApi httpApi;
+	private final IHttpApi httpApi;
 
-    @GetMapping(value = {"", "/"})
-    public String indexController(Model model) {
-        int nextEvent = this.httpApi.getNextEvent();
-        model.addAttribute("nextGw", nextEvent);
-        model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(nextEvent));
-        return "web/index";
-    }
+	@GetMapping(value = {"", "/"})
+	public String indexController(Model model) {
+		int nextEvent = this.httpApi.getNextEvent();
+		model.addAttribute("nextGw", nextEvent);
+		model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(nextEvent));
+		return "web/index";
+	}
 
-    @GetMapping(value = "/404")
-    public String errorController() {
-        return "web/error";
-    }
+	@GetMapping(value = "/404")
+	public String errorController() {
+		return "web/error";
+	}
 
-    @GetMapping(value = "/test")
-    public String testController() {
-        return "web/test";
-    }
+	@GetMapping(value = "/test")
+	public String testController() {
+		return "web/test";
+	}
 
-    @RequestMapping(value = "/saveEntry")
-    @ResponseBody
-    public void saveEntry(@RequestParam int entry, HttpSession session) {
-        session.setAttribute("entry", entry);
-    }
+	@RequestMapping(value = "/saveSession")
+	@ResponseBody
+	public void saveEntry(@RequestParam String key, @RequestParam Object value, HttpSession session) {
+		session.setAttribute(key, value);
+	}
 
 }

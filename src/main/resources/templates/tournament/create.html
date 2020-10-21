@@ -515,7 +515,7 @@
 
         element.on('tab(typeTab)', function () {
             let tabId = $(this).attr("lay-id");
-            axios.get('/tournament/saveTabId?tabId=' + tabId);
+            axios.get('/saveSession?key=createTabId&&value=' + tabId)
         });
 
         /**

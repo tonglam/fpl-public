@@ -127,7 +127,7 @@
         $("#submitButton").on('click', function () {
             let entry = $("input[name=knockoutRounds]").val();
             // 保存
-            axios.get('/saveEntry?entry=' + entry)
+            axios.get('/saveSession?key=entry&&value=' + entry)
                 .then(function () {
                     // 关闭
                     layer.msg('team_id更新成功', {

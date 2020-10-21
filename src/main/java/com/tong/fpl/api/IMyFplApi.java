@@ -1,6 +1,5 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -14,16 +13,23 @@ import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
  */
 public interface IMyFplApi {
 
-    TableData<PlayerInfoData> qryPlayerDataList(long page, long limit);
-
+    /**
+     * @apiNote entry
+     */
     EntryInfoData qryEntryInfo(int entry);
 
     TableData<EntryEventResultData> qryEntryResultList(int entry);
 
     TableData<EntryPickData> qryEntryEventResult(int event, int entry);
 
-    TableData<ElementEventResultData> qryElementEventResult(int event, int element);
+    /**
+     * @apiNote pick
+     */
+    TableData<PlayerInfoData> qryPlayerDataList(long page, long limit);
 
+    /**
+     * @apiNote league
+     */
     TableData<TournamentInfoData> qryEntryPointsGroupTournamentList(int entry);
 
     TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event);

@@ -200,6 +200,9 @@ public class QueryServiceImpl implements IQuerySerivce {
     @Cacheable(value = "qryEntryInfo", key = "#season+'::'+#entry", unless = "#result == null")
     @Override
     public EntryInfoEntity qryEntryInfo(String season, int entry) {
+        if (entry <= 0) {
+            return new EntryInfoEntity();
+        }
         MybatisPlusConfig.season.set(season);
         EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
         MybatisPlusConfig.season.remove();

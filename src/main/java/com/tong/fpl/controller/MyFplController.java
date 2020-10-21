@@ -2,7 +2,6 @@ package com.tong.fpl.controller;
 
 import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.IMyFplApi;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.TableData;
@@ -59,6 +58,9 @@ public class MyFplController {
         return "myFpl/league";
     }
 
+    /**
+     * @apiNote entry
+     */
     @RequestMapping("/qryEntryResultList")
     @ResponseBody
     public TableData<EntryEventResultData> qryEntryResultList(HttpSession session) {
@@ -76,24 +78,18 @@ public class MyFplController {
         return this.myFplApi.qryEntryEventResult(event, entry);
     }
 
-    @RequestMapping("/qryElementEventResult")
-    @ResponseBody
-    public TableData<ElementEventResultData> qryElementEventResult(@RequestParam int event, @RequestParam int element) {
-        return this.myFplApi.qryElementEventResult(event, element);
-    }
-
-    @RequestMapping(value = "/saveMyFplEntry")
-    @ResponseBody
-    public void saveMyFplEntry(@RequestParam int myFplEntry, HttpSession session) {
-        session.setAttribute("myFplEntry", myFplEntry);
-    }
-
+    /**
+     * @apiNote pick
+     */
     @RequestMapping("/qryPlayerDataList")
     @ResponseBody
     public TableData<PlayerInfoData> qryPlayerDataList(@RequestParam long page, @RequestParam long limit) {
         return this.myFplApi.qryPlayerDataList(page, limit);
     }
 
+    /**
+     * @apiNote league
+     */
     @RequestMapping("/qryTournamentResultList")
     @ResponseBody
     public TableData<TournamentGroupData> qryTournamentResultList(@RequestParam int tournamentId, @RequestParam int event) {

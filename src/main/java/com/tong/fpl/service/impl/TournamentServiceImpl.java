@@ -1186,29 +1186,21 @@ public class TournamentServiceImpl implements ITournamentService {
 		int pickCaptain = pickOrderMap.get(pickMatchId);
 		if (pickCaptain != captainEntry) {
 			EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(pickCaptain);
-			return "不是你的分配轮次，请等待：" + entryInfoEntity.getPlayerName() + "分配！";
+			return "不是你的分配轮次，请等待：" + entryInfoEntity.getEntryName() + "(" + entryInfoEntity.getPlayerName() + ")分配！";
 		}
 		// tournament_knockout
-		TournamentKnockoutEntity tournamentKnockoutEntity = tournamentKnockoutEntityList
+		tournamentKnockoutEntityList
 				.stream()
 				.filter(o -> o.getMatchId() == pickMatchId)
 				.findFirst()
-				.orElse(null);
-		if (tournamentKnockoutEntity != null) {
-			tournamentKnockoutEntity
-					.setHomeEntry(entry)
-					.setAwayEntry(pkEntry);
-//			this.tournamentKnockoutService.updateById(tournamentKnockoutEntity);
-		}
+				.ifPresent(o -> o.setHomeEntry(entry).setAwayEntry(pkEntry));
 		// tournament_knockout_result
 		TournamentKnockoutResultEntity tournamentKnockoutResultEntity = this.tournamentKnockoutResultService.getOne(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
 				.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
 				.eq(TournamentKnockoutResultEntity::getMatchId, pickMatchId)
 				.eq(TournamentKnockoutResultEntity::getPlayAginstId, 1));
 		if (tournamentKnockoutResultEntity != null) {
-			tournamentKnockoutResultEntity
-					.setHomeEntry(entry)
-					.setAwayEntry(pkEntry);
+			tournamentKnockoutResultEntity.setHomeEntry(entry).setAwayEntry(pkEntry);
 //			this.tournamentKnockoutResultService.updateById(tournamentKnockoutResultEntity);
 		}
 		return "分配PK对阵成功!";
