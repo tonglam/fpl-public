@@ -91,9 +91,9 @@ public class TournamentTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"4, 24755, 2138108, 1, 24755"})
-	void updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int currentGroupId, int captainEntry) {
-		this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, currentGroupId, captainEntry);
+	@CsvSource({"4, 24755, 2138108, 24755"})
+	void updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry) {
+		this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, captainEntry);
 		System.out.println(1);
 	}
 

@@ -5,22 +5,24 @@ package com.tong.fpl.service;
  */
 public interface IUpdateEventResultService {
 
-    void updateEntryInfo();
+	void updateEntryInfo();
 
-    void updateEntryEventResult(int event, int entry);
+	void updateEntryEventResult(int event, int entry);
 
-    void updateTournamentEntryEventResult(int event, int tournamentId);
+	void updateTournamentEntryEventResult(int event, int tournamentId);
 
-    void updatePointsRaceGroupResult(int event, int tournamentId);
+	void updatePointsRaceGroupResult(int event, int tournamentId);
 
-    void updateBattleRaceGroupResult(int event, int tournamentId);
+	void updateBattleRaceGroupResult(int event, int tournamentId);
 
-    void updateKnockoutResult(int event, int tournamentId);
+	void updateKnockoutResult(int event, int tournamentId);
 
-    void updateZjPhaseOneResult(int event, int tournamentId);
+	void updateZjPhaseOneResult(int event, int tournamentId);
 
-    void updateZjPhaseTwoResult(int event, int tournamentId);
+	void updateZjPhaseTwoResult(int event, int tournamentId);
 
-    void updateZjPkResult(int event, int tournamentId);
+	void updateZjPkResult(int event, int tournamentId);
+
+	void updateZjTournamentResult(int event, int tournamentId);
 
 }

@@ -46,6 +46,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final TournamentKnockoutResultService tournamentKnockoutResultService;
+	private final ZjTournamentResultService zjTournamentResultService;
 	private final IQuerySerivce querySerivce;
 
 	@Override
@@ -999,6 +1000,143 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			tournamentKnockoutList.add(tournamentKnockoutEntity);
 		});
 		this.tournamentKnockoutService.updateBatchById(tournamentKnockoutList);
+	}
+
+	@Override
+	public void updateZjTournamentResult(int event, int tournamentId) {
+//		// tournament_info
+//		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+//		if (tournamentInfoEntity == null) {
+//			return;
+//		}
+//		// tournament_entry
+//		List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+//				.eq(TournamentEntryEntity::getTournamentId, tournamentId))
+//				.stream()
+//				.map(TournamentEntryEntity::getEntry)
+//				.collect(Collectors.toList());
+//		// phase one result
+//		int groupNum = tournamentInfoEntity.getGroupNum();
+//		List<Integer> phaseOneGroupList = Lists.newArrayList();
+//		IntStream.range(1, groupNum + 1).forEach(phaseOneGroupList::add);
+//		List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+//				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
+//				.gt(TournamentGroupEntity::getEntry, 0)
+//				.in(TournamentGroupEntity::getGroupId, phaseOneGroupList));
+//		Map<Integer, Integer> phaseOneResultMap = tournamentGroupEntityList
+//				.stream()
+//				.collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getTotalPoints));
+//		// phase two result
+//		int teamPerGroup = tournamentInfoEntity.getTeamPerGroup();
+//		List<Integer> phaseTwoGroupList = Lists.newArrayList();
+//		IntStream.range(groupNum + 1, groupNum + teamPerGroup + 1).forEach(phaseTwoGroupList::add);
+//		Map<Integer, Integer> phaseTwoResultMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
+//				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
+//				.gt(TournamentGroupEntity::getEntry, 0)
+//				.in(TournamentGroupEntity::getGroupId, phaseTwoGroupList))
+//				.stream()
+//				.collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getTotalNetPoints));
+//		// pk result
+//		Map<Integer, Integer> pkResultMap = this.getEntryPkResultMap(tournamentId);
+//		// entry_result
+//		Table<Integer, Integer, Integer> entryResultTable = HashBasedTable.create(); // entry -> phase -> points
+//		entryList.forEach(entry -> {
+//			entryResultTable.put(entry, 1, phaseOneResultMap.getOrDefault(entry, 0));
+//			entryResultTable.put(entry, 2, phaseTwoResultMap.getOrDefault(entry, 0));
+//			entryResultTable.put(entry, 3, pkResultMap.getOrDefault(entry, 0));
+//		});
+//		// group points
+//		Map<String, Integer> phaseTwoGroupPointsMap = this.querySerivce.qryZjTournamentPhaseTwoGroupPointsMap(tournamentId);
+//		Map<String, Integer> pkGroupPointsMap = this.querySerivce.qryZjTournamentPkGroupPointsMap(tournamentId);
+//		// group rank
+//		Map<String, Integer> phaseOneRankMap = this.querySerivce.qryZjTournamentPhaseOneRankMap(tournamentId);
+//		Map<String, Integer> phaseTwoRankMap = this.querySerivce.qryZjTournamentPhaseTwoRankMap(tournamentId);
+//		Map<String, Integer> pkRankMap = this.querySerivce.qryZjTournamentPkRankMap(tournamentId);
+//		// total group points
+//		Map<String, Integer> phaseOneTotalGroupPointMap = this.setPhaseOneTotalGroupPoints(phaseOneRankMap);
+//		Map<String, Integer> phaseTwoTotalGroupPointMap = this.setPhaseTwoTotalGroupPoints(phaseTwoRankMap);
+//		Map<String, Integer> pkTotalGroupPointMap = this.setPkTotalGroupPoints(pkRankMap);
+	}
+
+	private Map<Integer, Integer> getEntryPkResultMap(int tournamentId) {
+		Map<Integer, Integer> map = Maps.newHashMap();
+		List<TournamentKnockoutEntity> tournamentKnockoutEntityList = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
+				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+				.eq(TournamentKnockoutEntity::getRound, 1)
+				.gt(TournamentKnockoutEntity::getRoundWinner, 0));
+		tournamentKnockoutEntityList.forEach(o -> {
+			if (o.getHomeEntry().equals(o.getRoundWinner())) {
+				map.put(o.getHomeEntry(), 1);
+				map.put(o.getAwayEntry(), 0);
+			} else if (o.getAwayEntry().equals(o.getRoundWinner())) {
+				map.put(o.getHomeEntry(), 0);
+				map.put(o.getAwayEntry(), 1);
+			}
+		});
+		return map;
+	}
+
+	private Map<String, Integer> setPhaseOneTotalGroupPoints(Map<String, Integer> phaseOneRankMap) {
+		Map<String, Integer> map = Maps.newHashMap();
+		phaseOneRankMap.forEach((groupId, rank) -> map.put(groupId, this.setPhaseOneRankPoints(rank)));
+		return map;
+	}
+
+	private Map<String, Integer> setPhaseTwoTotalGroupPoints(Map<String, Integer> phaseTwoRankMap) {
+		Map<String, Integer> map = Maps.newHashMap();
+		phaseTwoRankMap.forEach((groupId, rank) -> map.put(groupId, this.setPhaseTwoRankPoints(rank)));
+		return map;
+	}
+
+	private Map<String, Integer> setPkTotalGroupPoints(Map<String, Integer> pkRankMap) {
+		Map<String, Integer> map = Maps.newHashMap();
+		pkRankMap.forEach((groupId, rank) -> map.put(groupId, this.setPkRankPoints(rank)));
+		return map;
+	}
+
+	private int setPhaseOneRankPoints(int rank) {
+		switch (rank) {
+			case 1:
+				return 5;
+			case 2:
+				return 3;
+			case 3:
+				return 2;
+			case 4:
+				return 1;
+			default:
+				return 0;
+		}
+	}
+
+	private int setPhaseTwoRankPoints(int rank) {
+		switch (rank) {
+			case 1:
+				return 5;
+			case 2:
+				return 3;
+			case 3:
+				return 2;
+			case 4:
+				return 1;
+			default:
+				return 0;
+		}
+	}
+
+	private int setPkRankPoints(int rank) {
+		switch (rank) {
+			case 1:
+				return 7;
+			case 2:
+				return 5;
+			case 3:
+				return 3;
+			case 4:
+				return 2;
+			default:
+				return 0;
+		}
 	}
 
 }

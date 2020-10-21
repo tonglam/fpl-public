@@ -196,6 +196,8 @@ public interface IQuerySerivce {
 
     TournamentGroupData qryDiscloseGroupData(int tournamentId, int entry, int currentGroupId);
 
+    List<TournamentKnockoutEventFixtureData> qryZjPkPickListById(int tournamentId);
+
     /**
      * @apiNote report
      */

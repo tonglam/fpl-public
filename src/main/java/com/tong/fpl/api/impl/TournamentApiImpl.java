@@ -7,6 +7,7 @@ import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
+import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
@@ -52,16 +53,6 @@ public class TournamentApiImpl implements ITournamentApi {
 	@Override
 	public boolean checkTournamentName(String name) {
 		return this.tournamentService.checkTournamentName(name);
-	}
-
-	@Override
-	public String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry) {
-		return this.tournamentService.updateZjTournamentPhaseTwoGroupData(groupDataList, captainEntry);
-	}
-
-	@Override
-	public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int currentGroupId, int captainEntry) {
-		return this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, currentGroupId, captainEntry);
 	}
 
 	/**
@@ -165,6 +156,26 @@ public class TournamentApiImpl implements ITournamentApi {
 	@Override
 	public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId) {
 		return this.tableQueryService.qrySeeableGroupInfoListByGroupId(tournamentId, currentGroupId, groupId);
+	}
+
+	@Override
+	public List<TournamentKnockoutEventFixtureData> qryZjPkPickListById(int tournamentId) {
+		return this.querySerivce.qryZjPkPickListById(tournamentId);
+	}
+
+	@Override
+	public StepsData qryZjTournamentPkPickSteps(int tournamentId) {
+		return this.tableQueryService.qryZjTournamentPkPickSteps(tournamentId).getData().get(0);
+	}
+
+	@Override
+	public String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry) {
+		return this.tournamentService.updateZjTournamentPhaseTwoGroupData(groupDataList, captainEntry);
+	}
+
+	@Override
+	public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry) {
+		return this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, captainEntry);
 	}
 
 	/**

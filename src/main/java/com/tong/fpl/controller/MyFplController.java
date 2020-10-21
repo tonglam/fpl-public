@@ -28,82 +28,82 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MyFplController {
 
-    private final IMyFplApi myFplApi;
-    private final IHttpApi httpApi;
+	private final IMyFplApi myFplApi;
+	private final IHttpApi httpApi;
 
-    @GetMapping(value = "/pick")
-    public String pickController() {
-        return "myFpl/pick";
-    }
+	@GetMapping(value = "/pick")
+	public String pickController() {
+		return "myFpl/pick";
+	}
 
-    @GetMapping(value = "/entry")
-    public String entryController(Model model, HttpSession session) {
-        int entry = this.getQryEntry(session);
-        model.addAttribute("entryInfo", this.myFplApi.qryEntryInfo(entry));
-        return "myFpl/entry";
-    }
+	@GetMapping(value = "/entry")
+	public String entryController(Model model, HttpSession session) {
+		int entry = this.getQryEntry(session);
+		model.addAttribute("entryInfo", this.myFplApi.qryEntryInfo(entry));
+		return "myFpl/entry";
+	}
 
-    @GetMapping(value = "/league")
-    public String leagueController(Model model, HttpSession session) {
-        int entry = 0;
-        if (session.getAttribute("entry") != null) {
-            entry = (int) session.getAttribute("entry");
-        }
-        TableData<TournamentInfoData> tournamentInfoData = this.myFplApi.qryEntryPointsGroupTournamentList(entry);
-        if (tournamentInfoData != null) {
-            model.addAttribute("tournamentList", tournamentInfoData.getData());
-        }
-        model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-        model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-        return "myFpl/league";
-    }
+	@GetMapping(value = "/league")
+	public String leagueController(Model model, HttpSession session) {
+		int entry = 0;
+		if (session.getAttribute("entry") != null) {
+			entry = Integer.parseInt(session.getAttribute("entry").toString());
+		}
+		TableData<TournamentInfoData> tournamentInfoData = this.myFplApi.qryEntryPointsGroupTournamentList(entry);
+		if (tournamentInfoData != null) {
+			model.addAttribute("tournamentList", tournamentInfoData.getData());
+		}
+		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+		return "myFpl/league";
+	}
 
-    /**
-     * @apiNote entry
-     */
-    @RequestMapping("/qryEntryResultList")
-    @ResponseBody
-    public TableData<EntryEventResultData> qryEntryResultList(HttpSession session) {
-        int entry = this.getQryEntry(session);
-        if (entry == 0) {
-            return new TableData<>();
-        }
-        return this.myFplApi.qryEntryResultList(entry);
-    }
+	/**
+	 * @apiNote entry
+	 */
+	@RequestMapping("/qryEntryResultList")
+	@ResponseBody
+	public TableData<EntryEventResultData> qryEntryResultList(HttpSession session) {
+		int entry = this.getQryEntry(session);
+		if (entry == 0) {
+			return new TableData<>();
+		}
+		return this.myFplApi.qryEntryResultList(entry);
+	}
 
-    @RequestMapping("/qryEntryEventResult")
-    @ResponseBody
-    public TableData<EntryPickData> qryEntryEventResult(@RequestParam int event, HttpSession session) {
-        int entry = this.getQryEntry(session);
-        return this.myFplApi.qryEntryEventResult(event, entry);
-    }
+	@RequestMapping("/qryEntryEventResult")
+	@ResponseBody
+	public TableData<EntryPickData> qryEntryEventResult(@RequestParam int event, HttpSession session) {
+		int entry = this.getQryEntry(session);
+		return this.myFplApi.qryEntryEventResult(event, entry);
+	}
 
-    /**
-     * @apiNote pick
-     */
-    @RequestMapping("/qryPlayerDataList")
-    @ResponseBody
-    public TableData<PlayerInfoData> qryPlayerDataList(@RequestParam long page, @RequestParam long limit) {
-        return this.myFplApi.qryPlayerDataList(page, limit);
-    }
+	/**
+	 * @apiNote pick
+	 */
+	@RequestMapping("/qryPlayerDataList")
+	@ResponseBody
+	public TableData<PlayerInfoData> qryPlayerDataList(@RequestParam long page, @RequestParam long limit) {
+		return this.myFplApi.qryPlayerDataList(page, limit);
+	}
 
-    /**
-     * @apiNote league
-     */
-    @RequestMapping("/qryTournamentResultList")
-    @ResponseBody
-    public TableData<TournamentGroupData> qryTournamentResultList(@RequestParam int tournamentId, @RequestParam int event) {
-        return this.myFplApi.qryTournamentResultList(tournamentId, event);
-    }
+	/**
+	 * @apiNote league
+	 */
+	@RequestMapping("/qryTournamentResultList")
+	@ResponseBody
+	public TableData<TournamentGroupData> qryTournamentResultList(@RequestParam int tournamentId, @RequestParam int event) {
+		return this.myFplApi.qryTournamentResultList(tournamentId, event);
+	}
 
-    private int getQryEntry(HttpSession session) {
-        int entry = 0;
-        if (session.getAttribute("myFplEntry") != null) {
-            entry = (int) session.getAttribute("myFplEntry");
-        } else if (session.getAttribute("entry") != null) {
-            entry = (int) session.getAttribute("entry");
-        }
-        return entry;
-    }
+	private int getQryEntry(HttpSession session) {
+		int entry = 0;
+		if (session.getAttribute("myFplEntry") != null) {
+			entry = Integer.parseInt(session.getAttribute("myFplEntry").toString());
+		} else if (session.getAttribute("entry") != null) {
+			entry = Integer.parseInt(session.getAttribute("entry").toString());
+		}
+		return entry;
+	}
 
 }

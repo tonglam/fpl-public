@@ -2,6 +2,7 @@ package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
+import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 
@@ -23,10 +24,6 @@ public interface ITournamentApi {
 	int countTournamentLeagueTeams(String url);
 
 	boolean checkTournamentName(String name);
-
-	String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
-
-	String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int groupId, int captainEntry);
 
 	/**
 	 * @apiNote result
@@ -79,6 +76,14 @@ public interface ITournamentApi {
 	TournamentGroupData qryDiscloseGroupData(int tournamentId, int entry, int currentGroupId);
 
 	TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
+
+	List<TournamentKnockoutEventFixtureData> qryZjPkPickListById(int tournamentId);
+
+	StepsData qryZjTournamentPkPickSteps(int tournamentId);
+
+	String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
+
+	String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry);
 
 	/**
 	 * @apiNote common

@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
+import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
@@ -53,6 +54,8 @@ public interface ITableQueryService {
 	TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
 
 	TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
+
+	TableData<StepsData> qryZjTournamentPkPickSteps(int tournamentId);
 
 	/**
 	 * @apiNote live

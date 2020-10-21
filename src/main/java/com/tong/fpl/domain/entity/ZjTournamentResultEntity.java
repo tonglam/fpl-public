@@ -1,19 +1,20 @@
-package com.tong.fpl.domain.letletme.tournament;
+package com.tong.fpl.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * Create by tong on 2020/8/30
+ * Create by tong on 2020/10/21
  */
 @Data
 @Accessors(chain = true)
-public class ZjTournamentResultData {
+@TableName(value = "zj_tournament_result")
+public class ZjTournamentResultEntity {
 
 	private int tournamentId;
 	private int groupId;
 	private String groupName;
-	private int phaseStep;
 	private int phaseOneTotalPoints;
 	private int phaseOneGroupPoints;
 	private int phaseOneTotalGroupPoints;

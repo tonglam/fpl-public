@@ -8,6 +8,7 @@ import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
+import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -43,13 +44,13 @@ public class TournamentController {
 		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
 		int zjGroupNum = 4;
 		if (session.getAttribute("zjGroupNum") != null) {
-			zjGroupNum = (int) session.getAttribute("zjGroupNum");
+			zjGroupNum = Integer.parseInt(session.getAttribute("zjGroupNum").toString());
 		}
 		model.addAttribute("zjGroupNum", zjGroupNum);
 		model.addAttribute("showNum", (int) Math.ceil(zjGroupNum * 1.0 / 2));
 		int zjTeamPerGroup = 4;
 		if (session.getAttribute("zjTeamPerGroup") != null) {
-			zjTeamPerGroup = (int) session.getAttribute("zjTeamPerGroup");
+			zjTeamPerGroup = Integer.parseInt(session.getAttribute("zjTeamPerGroup").toString());
 		}
 		model.addAttribute("zjTeamPerGroup", zjTeamPerGroup);
 		String createTabId = "normal";
@@ -70,7 +71,7 @@ public class TournamentController {
 	@GetMapping(value = "/result")
 	public String resultController(Model model, HttpSession session) {
 		if (session.getAttribute("entry") != null) {
-			int entry = (int) session.getAttribute("entry");
+			int entry = Integer.parseInt(session.getAttribute("entry").toString());
 			model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfo(entry));
 			model.addAttribute("tournamentList", this.tournamentApi.qryEntryTournamentList(entry));
 		}
@@ -99,7 +100,7 @@ public class TournamentController {
 			model.addAttribute("showNum", (int) Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
 		}
 		if (session.getAttribute("entry") != null) {
-			int entry = (int) session.getAttribute("entry");
+			int entry = Integer.parseInt(session.getAttribute("entry").toString());
 			model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfo(entry));
 		}
 		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
@@ -146,6 +147,8 @@ public class TournamentController {
 			model.addAttribute("tournamentInfo", tournamentInfoData);
 			model.addAttribute("phaseTwoShowNum", Math.ceil(tournamentInfoData.getTeamPerGroup() * 1.0 / 2));
 		}
+		List<TournamentKnockoutEventFixtureData> pkPickList = this.tournamentApi.qryZjPkPickListById(id);
+		model.addAttribute("pkPickList", pkPickList);
 		return "tournament/manageZjTournament";
 	}
 
@@ -194,7 +197,7 @@ public class TournamentController {
 	public TableData<TournamentEntryData> qryEntryTournamenList(HttpSession session) {
 		int entry = 0;
 		if (session.getAttribute("entry") != null) {
-			entry = (int) session.getAttribute("entry");
+			entry = Integer.parseInt(session.getAttribute("entry").toString());
 		}
 		return this.tournamentApi.qryEntryTournamentList(entry);
 	}
@@ -283,15 +286,21 @@ public class TournamentController {
 		if (CollectionUtils.isEmpty(groupDataList)) {
 			return "分配列表不能为空!";
 		}
-		int captainEntry = (int) session.getAttribute("entry");
+		int captainEntry = Integer.parseInt(session.getAttribute("entry").toString());
 		return this.tournamentApi.updateZjTournamentPhaseTwoGroupData(groupDataList, captainEntry);
 	}
 
 	@ResponseBody
+	@RequestMapping(value = "/qryZjTournamentPkPickSteps")
+	public StepsData qryZjTournamentPkPickSteps(@RequestParam int tournamentId) {
+		return this.tournamentApi.qryZjTournamentPkPickSteps(tournamentId);
+	}
+
+	@ResponseBody
 	@RequestMapping(value = "/updateZjTournamentPkData")
-	public String updateZjTournamentPkData(@RequestParam int tournamentId, @RequestParam int entry, @RequestParam int pkEntry, @RequestParam int currentGroupId, HttpSession session) {
-		int captainEntry = (int) session.getAttribute("entry");
-		return this.tournamentApi.updateZjTournamentPkData(tournamentId, entry, pkEntry, currentGroupId, captainEntry);
+	public String updateZjTournamentPkData(@RequestParam int tournamentId, @RequestParam int entry, @RequestParam int pkEntry, HttpSession session) {
+		int captainEntry = Integer.parseInt(session.getAttribute("entry").toString());
+		return this.tournamentApi.updateZjTournamentPkData(tournamentId, entry, pkEntry, captainEntry);
 	}
 
 	/**
@@ -308,7 +317,7 @@ public class TournamentController {
 	public TableData<TournamentInfoData> qryTournamenList(@RequestBody TournamentQueryParam param, HttpSession session) {
 		int entry;
 		if (session.getAttribute("entry") != null) {
-			entry = (int) session.getAttribute("entry");
+			entry = Integer.parseInt(session.getAttribute("entry").toString());
 			param.setEntry(entry);
 		}
 		return this.tournamentApi.qryTournamenList(param);

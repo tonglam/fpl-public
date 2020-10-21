@@ -5,6 +5,7 @@
 <head th:replace="layout::header(~{::title},~{::link})">
     <title>分组-浙江联赛-letletme</title>
     <link rel="stylesheet" th:href="@{/css/timeTo.css}"/>
+    <link rel="stylesheet" th:href="@{/css/steps.css}"/>
 </head>
 
 <style>
@@ -132,21 +133,37 @@
 
                     <div class="layui-tab-item">
 
-                        <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                        <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 20px">
                             <legend><a id="pkCommitDeadline">提交死线</a></legend>
                         </fieldset>
 
                         <div class="layui-hide" id="pkDeadline"></div>
 
-                        <div class="timeTo timeTo-blue" id="pkCountdown" style="margin-left: 20px"></div>
+                        <div class="timeTo timeTo-blue" id="pkCountdown" style="margin-left: 30px"></div>
 
                         <div style="margin-top: 80px"></div>
 
-                        <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                        <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 20px">
+                            <legend><a>分配进度</a></legend>
+                        </fieldset>
+
+                        <div style="margin-top: 30px"></div>
+
+                        <div id="stage"></div>
+
+                        <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 20px">
                             <legend><a id="pkGroupName"></a></legend>
                         </fieldset>
 
                         <table class="layui-table" id="pkGroupTable" lay-filter="pkGroupTable"></table>
+
+                        <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                            <legend><a>已分配对阵</a></legend>
+                        </fieldset>
+
+                        <div style="font-size: 16px" th:each="item,stat:${pkPickList}">
+                            <p style="margin-top: 20px" th:text="${item.getShowMessage()}"></p>
+                        </div>
 
                     </div>
 
@@ -165,6 +182,8 @@
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
 
 <script th:src="@{/js/jquery.time-to.js}"></script>
+
+<script th:src="@{/js/steps.js}"></script>
 
 <script th:replace="layout::baseScript"></script>
 
@@ -284,7 +303,11 @@
 </script>
 
 <script id="barTpl" type="text/html">
+    {{# if(d.pkDraw){ }}
+    <a class="layui-btn layui-btn-xs layui-btn-disabled">分配</a>
+    {{#  } else { }}
     <a class="layui-btn layui-btn-xs" lay-event="draw">分配</a>
+    {{#  } }}
 </script>
 
 <script th:inline="none">
@@ -527,70 +550,6 @@
                 console.log(error.message);
             });
 
-        <!-- 监听pk对手选择 -->
-        table.on('row(pkGroupTable)', function (obj) {
-            let groupRank = obj.data.groupRank;
-
-            form.on('select(pkGroup' + groupRank + 'Name)', function (data) {
-                let pkEntryNameDom = $("select[name=pkEntry" + groupRank + "Name]");
-                axios.get('/tournament/qryGroupEntryInfoList', {
-                    params: {
-                        tournamentId: tournamentId,
-                        groupId: data.value
-                    }
-                })
-                    .then(function (response) {
-                        pkEntryNameDom.html("");
-                        pkEntryNameDom.append("<option value=''></option>")
-                        $.each(response, function (index, item) {
-                            let optionStr = "<option value='" + item.entry + "'>" + item.entryName + "</option>";
-                            pkEntryNameDom.append(optionStr);
-                        })
-                        form.render('select');
-                    })
-                    .catch(function (error) {
-                        console.log(error.message);
-                    });
-            });
-
-            form.on('select(pkEntry' + groupRank + 'Name)', function (data) {
-                let entry = data.value;
-                if (entry == "") {
-                    return false;
-                }
-                axios.get('/tournament/qryEntryInfo?entry=' + entry)
-                    .then(function (response) {
-                        obj.update({
-                            pkDraw: true,
-                            pkPlayerName: response.playerName
-                        });
-                    })
-                    .catch(function (error) {
-                        console.log(error.message);
-                    });
-            });
-
-        });
-
-        <!-- 更新pk分组 -->
-        table.on('tool(pkGroupTable)', function (obj) {
-            let data = obj.data;
-            axios.get('/tournament/updateZjTournamentPkData', {
-                params: {
-                    tournamentId: tournamentId,
-                    entry: data.entry,
-                    pkEntry: data.pkEntry,
-                    currentGroupId: data.groupId
-                }
-            })
-                .then(function (response) {
-                    layer.msg(response, {area: '450px', time: 3000});
-                })
-                .catch(function (error) {
-                    console.log(error.message);
-                });
-        });
-
         <!-- 监听分组选择 -->
         table.on('row(currentGroupTable)', function (obj) {
             form.on('select(phaseTwoGroupSelect)', function (data) {
@@ -788,6 +747,93 @@
             $(this).removeAttr("disabled");
             return false;
         });
+
+        <!-- 监听pk对手选择 -->
+        table.on('row(pkGroupTable)', function (obj) {
+            let groupRank = obj.data.groupRank;
+
+            form.on('select(pkGroup' + groupRank + 'Name)', function (data) {
+                let pkEntryNameDom = $("select[name=pkEntry" + groupRank + "Name]");
+                axios.get('/tournament/qryGroupEntryInfoList', {
+                    params: {
+                        tournamentId: tournamentId,
+                        groupId: data.value
+                    }
+                })
+                    .then(function (response) {
+                        pkEntryNameDom.html("");
+                        pkEntryNameDom.append("<option value=''></option>")
+                        $.each(response, function (index, item) {
+                            let optionStr = "<option value='" + item.entry + "'>" + item.entryName + "</option>";
+                            pkEntryNameDom.append(optionStr);
+                        })
+                        form.render('select');
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                    });
+            });
+
+            form.on('select(pkEntry' + groupRank + 'Name)', function (data) {
+                let pkEntry = data.value;
+                if (pkEntry == "") {
+                    return false;
+                }
+                obj.update({
+                    pkEntry: pkEntry
+                });
+                axios.get('/tournament/qryEntryInfo?entry=' + pkEntry)
+                    .then(function (response) {
+                        obj.update({
+                            pkDraw: true,
+                            pkPlayerName: response.playerName
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                    });
+            });
+
+        });
+
+        <!-- pk赛分配进度 -->
+        axios.get('/tournament/qryZjTournamentPkPickSteps?tournamentId=' + tournamentId)
+            .then(function (response) {
+                console.info(response);
+                steps({
+                    el: '#stage',
+                    data: response.dataList,
+                    center: true,
+                    space: 200,
+                    iconType: "bullets",
+                    active: response.active
+                });
+            })
+            .catch(function (error) {
+                console.log(error.message);
+            });
+
+        <!-- 更新pk分组 -->
+        table.on('tool(pkGroupTable)', function (obj) {
+            let data = obj.data;
+            axios.get('/tournament/updateZjTournamentPkData', {
+                params: {
+                    tournamentId: tournamentId,
+                    entry: data.entry,
+                    pkEntry: data.pkEntry
+                }
+            })
+                .then(function (response) {
+                    layer.msg(response, {area: '450px', time: 3000});
+                    if (response.indexOf("分配成功") > 0) {
+                        window.location.reload();
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error.message);
+                });
+        });
+
 
     });
 </script>

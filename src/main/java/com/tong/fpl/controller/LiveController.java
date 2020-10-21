@@ -23,19 +23,19 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveController {
 
-    private final IHttpApi httpApi;
-    private final ILiveApi liveApi;
+	private final IHttpApi httpApi;
+	private final ILiveApi liveApi;
 
-    @GetMapping(value = "/entry")
-    public String entryController() {
-        return "live/entry";
-    }
+	@GetMapping(value = "/entry")
+	public String entryController() {
+		return "live/entry";
+	}
 
-    @GetMapping(value = "/liveEntry")
-    public String liveEntryController(int liveEntry, HttpSession session) {
-	    session.setAttribute("liveEntry", liveEntry);
-	    return "forward:/live/entry";
-    }
+	@GetMapping(value = "/liveEntry")
+	public String liveEntryController(int liveEntry, HttpSession session) {
+		session.setAttribute("liveEntry", liveEntry);
+		return "forward:/live/entry";
+	}
 
 	@GetMapping(value = "/league")
 	public String leagueController(Model model) {
@@ -57,16 +57,16 @@ public class LiveController {
 	public TableData<LiveCalaData> qryEntryLivePoints(HttpSession session) {
 		int entry = this.getLiveEntry(session);
 		if (entry == 0) {
-			return new TableData<>(new LiveCalaData());
+			return new TableData<>();
 		}
 		return this.liveApi.qryEntryLivePoints(entry);
 	}
 
 	private int getLiveEntry(HttpSession session) {
 		if (session.getAttribute("liveEntry") != null) {
-			return (int) session.getAttribute("liveEntry");
+			return Integer.parseInt(session.getAttribute("liveEntry").toString());
 		} else if (session.getAttribute("entry") != null) {
-			return (int) session.getAttribute("entry");
+			return Integer.parseInt(session.getAttribute("entry").toString());
 		}
 		return 0;
 	}

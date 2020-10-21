@@ -387,7 +387,7 @@
                 }
                 liveEntry = parseInt(entryInput);
                 if (liveEntry > 0) {
-                    axios.get('/saveSession?key=liveEntry&&value=' + liveEntry)
+                    axios.get('/live/saveLiveEntry?liveEntry=' + liveEntry)
                         .then(function () {
                             reloadTable();
                             // 重设计时器

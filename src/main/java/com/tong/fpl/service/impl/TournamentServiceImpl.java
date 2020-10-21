@@ -1130,7 +1130,7 @@ public class TournamentServiceImpl implements ITournamentService {
 	}
 
 	@Override
-	public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int currentGroupId, int captainEntry) {
+	public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry) {
 		// deadline
 		List<ZjTournamentCaptainEntity> zjTournamentCaptainList = this.zjTournamentCaptainService.list(new QueryWrapper<ZjTournamentCaptainEntity>().lambda()
 				.eq(ZjTournamentCaptainEntity::getTournamentId, tournamentId));
@@ -1193,7 +1193,10 @@ public class TournamentServiceImpl implements ITournamentService {
 				.stream()
 				.filter(o -> o.getMatchId() == pickMatchId)
 				.findFirst()
-				.ifPresent(o -> o.setHomeEntry(entry).setAwayEntry(pkEntry));
+				.ifPresent(o -> {
+					o.setHomeEntry(entry).setAwayEntry(pkEntry);
+					this.tournamentKnockoutService.updateById(o);
+				});
 		// tournament_knockout_result
 		TournamentKnockoutResultEntity tournamentKnockoutResultEntity = this.tournamentKnockoutResultService.getOne(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
 				.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
@@ -1201,9 +1204,13 @@ public class TournamentServiceImpl implements ITournamentService {
 				.eq(TournamentKnockoutResultEntity::getPlayAginstId, 1));
 		if (tournamentKnockoutResultEntity != null) {
 			tournamentKnockoutResultEntity.setHomeEntry(entry).setAwayEntry(pkEntry);
-//			this.tournamentKnockoutResultService.updateById(tournamentKnockoutResultEntity);
+			this.tournamentKnockoutResultService.updateById(tournamentKnockoutResultEntity);
 		}
-		return "分配PK对阵成功!";
+		if (pickMatchId < pickOrderMap.size()) {
+			return "PK对阵分配成功！请等待下一轮次选择！";
+		} else {
+			return "PK对阵分配成功！PK赛分组结束！";
+		}
 	}
 
 }
