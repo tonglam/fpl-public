@@ -81,6 +81,8 @@ public interface ITournamentApi {
 
 	StepsData qryZjTournamentPkPickSteps(int tournamentId);
 
+	TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
+
 	String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
 	String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry);

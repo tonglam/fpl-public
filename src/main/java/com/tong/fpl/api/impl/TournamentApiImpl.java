@@ -169,6 +169,11 @@ public class TournamentApiImpl implements ITournamentApi {
 	}
 
 	@Override
+	public TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId) {
+		return this.tableQueryService.qryZjTournamentPkPickableList(tournamentId, currentGroupId);
+	}
+
+	@Override
 	public String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry) {
 		return this.tournamentService.updateZjTournamentPhaseTwoGroupData(groupDataList, captainEntry);
 	}

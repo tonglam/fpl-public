@@ -6,17 +6,17 @@ import com.tong.fpl.service.ITournamentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Component;
 
 /**
  * Create by tong on 2020/6/24
  */
 @Slf4j
 @EnableAsync
-@Component
+@Configuration
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentEventLister {
 

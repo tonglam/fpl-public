@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.ZjTournamentResultData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -47,6 +48,13 @@ public class TableQueryTest extends FplApplicationTests {
 	@CsvSource({"4"})
 	void qryZjTournamentResultById(int tournamentId) {
 		TableData<ZjTournamentResultData> data = this.tableQueryService.qryZjTournamentResultById(tournamentId);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"4, 2"})
+	void qryZjTournamentPkPickableList(int tournamentId, int currentGroupId) {
+		TableData<TournamentGroupData> data = this.tableQueryService.qryZjTournamentPkPickableList(tournamentId, currentGroupId);
 		System.out.println(1);
 	}
 

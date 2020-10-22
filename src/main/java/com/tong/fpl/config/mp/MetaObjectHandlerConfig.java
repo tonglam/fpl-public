@@ -3,7 +3,7 @@ package com.tong.fpl.config.mp;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.tong.fpl.constant.Constant;
 import org.apache.ibatis.reflection.MetaObject;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Create by tong on 2020/4/27
  */
-@Component
+@Configuration
 public class MetaObjectHandlerConfig implements MetaObjectHandler {
 
 	@Override

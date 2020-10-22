@@ -57,6 +57,8 @@ public interface ITableQueryService {
 
 	TableData<StepsData> qryZjTournamentPkPickSteps(int tournamentId);
 
+	TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
+
 	/**
 	 * @apiNote live
 	 */

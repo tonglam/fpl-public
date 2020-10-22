@@ -302,6 +302,12 @@ public class TournamentController {
 	}
 
 	@ResponseBody
+	@RequestMapping(value = "/qryZjTournamentPkPickableList")
+	public TableData<TournamentGroupData> qryZjTournamentPkPickableList(@RequestParam int tournamentId, @RequestParam int currentGroupId) {
+		return this.tournamentApi.qryZjTournamentPkPickableList(tournamentId, currentGroupId);
+	}
+
+	@ResponseBody
 	@RequestMapping(value = "/updateZjTournamentPkData")
 	public String updateZjTournamentPkData(@RequestParam int tournamentId, @RequestParam int entry, @RequestParam int pkEntry, HttpSession session) {
 		int captainEntry = Integer.parseInt(session.getAttribute("entry").toString());

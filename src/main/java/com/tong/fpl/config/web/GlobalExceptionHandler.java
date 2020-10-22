@@ -3,11 +3,12 @@ package com.tong.fpl.config.web;
 import com.tong.fpl.domain.letletme.global.ResponseData;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * Create by tong on 2020/8/18
  */
-//@RestControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)

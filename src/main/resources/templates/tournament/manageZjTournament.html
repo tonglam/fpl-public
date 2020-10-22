@@ -157,6 +157,12 @@
 
                         <table class="layui-table" id="pkGroupTable" lay-filter="pkGroupTable"></table>
 
+                        <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 20px">
+                            <legend><a>可选择对手</a></legend>
+                        </fieldset>
+
+                        <table class="layui-table" id="pkPickableTable" lay-filter="pkPickableTable"></table>
+
                         <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
                             <legend><a>已分配对阵</a></legend>
                         </fieldset>
@@ -754,6 +760,37 @@
             return false;
         });
 
+        <!-- pk赛分配进度 -->
+        axios.get('/tournament/qryZjTournamentPkPickSteps?tournamentId=' + tournamentId)
+            .then(function (response) {
+                steps({
+                    el: '#stage',
+                    data: response.dataList,
+                    center: true,
+                    space: 200,
+                    iconType: "bullets",
+                    active: response.active
+                });
+            })
+            .catch(function (error) {
+                console.log(error.message);
+            });
+
+        <!-- pk赛可选择对手 -->
+        table.render({
+            elem: '#pkPickableTable',
+            url: '/tournament/qryZjTournamentPkPickableList/',
+            where: {tournamentId: tournamentId, currentGroupId: currentGroupId},
+            loading: true,
+            width: 500,
+            cols: [[
+                {field: 'groupName', title: '小组', align: 'center', width: 100},
+                {field: 'entryName', title: '队伍名称', align: 'center', width: 200},
+                {field: 'playerName', title: '玩家名称', align: 'center', width: 200}
+            ]],
+            id: 'pkPickableTable'
+        });
+
         <!-- 监听pk对手选择 -->
         table.on('row(pkGroupTable)', function (obj) {
             let groupRank = obj.data.groupRank;
@@ -801,22 +838,6 @@
             });
 
         });
-
-        <!-- pk赛分配进度 -->
-        axios.get('/tournament/qryZjTournamentPkPickSteps?tournamentId=' + tournamentId)
-            .then(function (response) {
-                steps({
-                    el: '#stage',
-                    data: response.dataList,
-                    center: true,
-                    space: 200,
-                    iconType: "bullets",
-                    active: response.active
-                });
-            })
-            .catch(function (error) {
-                console.log(error.message);
-            });
 
         <!-- 更新pk分组 -->
         table.on('tool(pkGroupTable)', function (obj) {
