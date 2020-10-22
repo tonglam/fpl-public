@@ -2,6 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
@@ -55,6 +56,13 @@ public class TableQueryTest extends FplApplicationTests {
 	@CsvSource({"4, 2"})
 	void qryZjTournamentPkPickableList(int tournamentId, int currentGroupId) {
 		TableData<TournamentGroupData> data = this.tableQueryService.qryZjTournamentPkPickableList(tournamentId, currentGroupId);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"1870"})
+	void qryEntryResultList(int entry) {
+		TableData<EntryEventResultData> data = this.tableQueryService.qryEntryResultList(entry);
 		System.out.println(1);
 	}
 

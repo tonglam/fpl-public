@@ -30,48 +30,7 @@
 
             <div style="margin-top: 10px"></div>
 
-            <table class="layui-table" style="margin-top: 30px">
-                <colgroup>
-                    <col width="60">
-                    <col width="200">
-                    <col width="150">
-                    <col width="60">
-                    <col width="100">
-                    <col width="60">
-                    <col width="80">
-                    <col width="60">
-                    <col width="100">
-                    <col>
-                </colgroup>
-                <thead>
-                <tr>
-                    <th style="text-align: center">team_id</th>
-                    <th style="text-align: center">队伍名称</th>
-                    <th style="text-align: center">玩家名称</th>
-                    <th style="text-align: center">地区</th>
-                    <th style="text-align: center">开始时间</th>
-                    <th style="text-align: center">总分</th>
-                    <th style="text-align: center">总排名</th>
-                    <th style="text-align: center">余额</th>
-                    <th style="text-align: center">阵容总价</th>
-                    <th style="text-align: center">转会总数</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td style="text-align: center" th:text="${entryInfo?.entry}"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.entryName}"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.playerName}"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.region}"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.startedEvent}"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.overallPoints}"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.overallRank}"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.bank}/10"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.teamValue}/10"></td>
-                    <td style="text-align: center" th:text="${entryInfo?.totalTransfers}"></td>
-                </tr>
-                </tbody>
-            </table>
+            <table class="layui-table" id="entryTable" lay-filter="entryTable"></table>
 
             <div style="margin-top: 20px"></div>
 
@@ -98,6 +57,11 @@
 
 <script th:replace="layout::entryInputLayer"></script>
 
+<script id="nameTpl" type="text/html">
+    <a href="https://fantasy.premierleague.com/entry/{{d.entry}}/event/{{d.event}}" target="_blank"
+       title="查看官网分数" class="layui-table-link">{{d.entryName}}</a>
+</script>
+
 <script th:inline="none">
     layui.use(['element', 'table', 'layer', 'soulTable'], function () {
 
@@ -110,6 +74,125 @@
                 type: 'tips',
                 header: true,
                 total: true
+            }
+        });
+
+        table.render({
+            elem: '#entryTable',
+            url: liveEntryData,
+            loading: true,
+            cellMinWidth: 80,
+            cols: [[
+                {
+                    fixed: 'left',
+                    field: 'entry',
+                    title: 'team',
+                    icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                    align: 'center',
+                    width: 120,
+                    children: [
+                        {
+                            title: '',
+                            data: function (d) {
+                                return [d];
+                            },
+                            cellMinWidth: 80,
+                            cols: [[
+                                {field: 'region', title: '地区', align: 'center'},
+                                {
+                                    field: 'startedEvent',
+                                    title: '开始时间',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        return 'GW' + d.startedEvent;
+                                    }
+                                },
+                                {field: 'lastOverallPoints', title: '上周总得分', align: 'center'},
+                                {
+                                    field: 'lastOverallRank',
+                                    title: '上周总排名',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        if (d.overallRank < 1000) {
+                                            return d.overallRank;
+                                        } else if (d.overallRank < 100000) {
+                                            return Math.floor(parseInt(d.overallRank) / 100) / 10 + 'k';
+                                        } else {
+                                            return Math.floor(parseInt(d.overallRank) / 10000) / 100 + 'm';
+                                        }
+                                    }
+                                },
+                                {
+                                    field: 'bank',
+                                    title: '上周余额',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        if (d.bank > 0) {
+                                            return parseInt(d.bank) / 10 + 'm';
+                                        } else {
+                                            return 0;
+                                        }
+                                    }
+                                },
+                                {
+                                    field: 'lastTeamValue',
+                                    title: '上周阵容身价',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        return parseInt(d.teamValue) / 10 + 'm';
+                                    }
+                                }
+                            ]],
+                            done: function () {
+                                soulTable.render(this);
+                            }
+                        }
+                    ]
+                },
+                {
+                    field: 'event', title: '时间', align: 'center', templet(d) {
+                        return 'GW' + d.event;
+                    }
+                },
+                {field: 'entryName', title: '队伍名字', align: 'center', width: 200, templet: "#nameTpl"},
+                {field: 'playerName', title: '玩家名字', align: 'center', width: 180},
+                {
+                    field: 'livePoints',
+                    title: '实时得分',
+                    style: 'background-color: #5FB878; color: #fff;',
+                    align: 'center',
+                    width: 100
+                },
+                {field: 'transferCost', title: '剁手', align: 'center'},
+                {
+                    field: 'liveNetPoints',
+                    title: '实时净得分',
+                    style: 'background-color: #5FB878; color: #fff;',
+                    align: 'center',
+                    width: 100
+                },
+                {field: 'played', title: '已上场', align: 'center'},
+                {field: 'toPlay', title: '未上场', align: 'center'},
+                {
+                    field: 'liveTotalPoints',
+                    title: '实时总分',
+                    style: 'background-color: #5FB878; color: #fff;',
+                    align: 'center',
+                    width: 100
+                },
+                {
+                    field: 'chip', title: '开卡', align: 'center', width: 100, templet: function (d) {
+                        if (d.chip == null) {
+                            return "无";
+                        } else {
+                            return d.chip;
+                        }
+                    }
+                }
+            ]],
+            id: 'entryTable',
+            done: function () {
+                soulTable.render(this);
             }
         });
 

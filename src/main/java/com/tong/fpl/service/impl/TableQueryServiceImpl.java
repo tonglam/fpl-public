@@ -830,6 +830,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (entry <= 0) {
 			return new TableData<>();
 		}
+		// entry_event_result
 		List<EntryEventResultData> list = Lists.newArrayList();
 		this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
 				.eq(EntryEventResultEntity::getEntry, entry)

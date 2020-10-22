@@ -65,9 +65,6 @@ public class MyFplController {
 	@ResponseBody
 	public TableData<EntryEventResultData> qryEntryResultList(HttpSession session) {
 		int entry = this.getQryEntry(session);
-		if (entry == 0) {
-			return new TableData<>();
-		}
 		return this.myFplApi.qryEntryResultList(entry);
 	}
 
