@@ -189,11 +189,18 @@
 
 <script th:inline="javascript">
     layui.use(['element', 'layer'], function () {
-        let $ = layui.jquery, layer = layui.layer;
+        let $ = layui.jquery, element = layui.element, layer = layui.layer;
 
-        let check = false;
-        let entry = [[${session.entry}]];
-        let captainDataList = [[${captainDataList}]];
+        let check = false, entry = [[${session.entry}]], captainDataList = [[${captainDataList}]],
+            tabId = [[${manageZjTabId}]];
+
+        element.tabChange('phaseTab', tabId);
+
+        element.on('tab(phaseTab)', function () {
+            let tabId = $(this).attr("lay-id");
+            axios.get('/saveSession?key=manageZjTabId&&value=' + tabId)
+        });
+
         $.each(captainDataList, function (index, item) {
             if (entry == item.captainEntry) {
                 check = true;
@@ -421,7 +428,6 @@
                     .catch(function (error) {
                         console.log(error.message);
                     });
-
                 layer.close(index);
             });
 
@@ -799,7 +805,6 @@
         <!-- pk赛分配进度 -->
         axios.get('/tournament/qryZjTournamentPkPickSteps?tournamentId=' + tournamentId)
             .then(function (response) {
-                console.info(response);
                 steps({
                     el: '#stage',
                     data: response.dataList,

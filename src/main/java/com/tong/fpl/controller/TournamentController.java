@@ -139,7 +139,7 @@ public class TournamentController {
 	}
 
 	@GetMapping(value = "/manageZjTournament")
-	public String manageZjTournamentController(@RequestParam int id, Model model) {
+	public String manageZjTournamentController(@RequestParam int id, Model model, HttpSession session) {
 		model.addAttribute("captainDataList", this.tournamentApi.qryZjTournamentCaptain(id));
 		model.addAttribute("groupNameMap", this.tournamentApi.qryZjTournamentGroupNameMap(id));
 		TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
@@ -149,6 +149,11 @@ public class TournamentController {
 		}
 		List<TournamentKnockoutEventFixtureData> pkPickList = this.tournamentApi.qryZjPkPickListById(id);
 		model.addAttribute("pkPickList", pkPickList);
+		String manageZjTabId = "phaseTwo";
+		if (session.getAttribute("manageZjTabId") != null) {
+			manageZjTabId = session.getAttribute("manageZjTabId").toString();
+		}
+		model.addAttribute("manageZjTabId", manageZjTabId);
 		return "tournament/manageZjTournament";
 	}
 
