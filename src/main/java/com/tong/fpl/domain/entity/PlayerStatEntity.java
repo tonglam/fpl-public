@@ -21,12 +21,12 @@ public class PlayerStatEntity {
 	private Integer chanceOfPlayingNextRound;
 	private Integer chanceOfPlayingThisRound;
 	private Integer dreamteamCount;
-	private Integer eventPoIntegers;
+	private Integer eventPoints;
 	private String form;
 	private Boolean inDreamteam;
 	private String news;
 	private String newsAdded;
-	private String poIntegersPerGame;
+	private String pointsPerGame;
 	private String selectedByPercent;
 	private Integer minutes;
 	private Integer goalsScored;
