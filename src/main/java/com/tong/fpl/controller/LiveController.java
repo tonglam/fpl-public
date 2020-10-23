@@ -2,6 +2,7 @@ package com.tong.fpl.controller;
 
 import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.ILiveApi;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +79,15 @@ public class LiveController {
 	@ResponseBody
 	public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
 		return this.liveApi.qryTournamentLivePoints(tournamentId);
+	}
+
+	/**
+	 * @apiNote match
+	 */
+	@RequestMapping("/qryLiveFixturePlayerList")
+	@ResponseBody
+	public TableData<ElementEventResultData> qryLiveFixturePlayerList(@RequestParam int teamId) {
+		return this.liveApi.qryLiveFixturePlayerList(teamId);
 	}
 
 }

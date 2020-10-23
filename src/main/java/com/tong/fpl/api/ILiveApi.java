@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
@@ -25,5 +26,7 @@ public interface ILiveApi {
      * @apiNote match
      */
     List<LiveMatchData> qryLiveMatchList();
+
+    TableData<ElementEventResultData> qryLiveFixturePlayerList(int teamId);
 
 }
