@@ -158,6 +158,20 @@ public class QueryTest extends FplApplicationTests {
 
 	@ParameterizedTest
 	@CsvSource({"4"})
+	void qryZjTournamentPkGroupPointsMap(int tournamentId) {
+		Map<String, Integer> map = this.querySerivce.qryZjTournamentPkGroupPointsMap(tournamentId);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"4"})
+	void qryZjTournamentPkRankMap(int tournamentId) {
+		Map<String, Integer> map = this.querySerivce.qryZjTournamentPkRankMap(tournamentId);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"4"})
 	void qryZjPkPickListById(int tournamentId) {
 		List<TournamentKnockoutEventFixtureData> list = this.querySerivce.qryZjPkPickListById(tournamentId);
 		System.out.println(1);
