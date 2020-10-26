@@ -177,4 +177,11 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"4"})
+	void qryZjTournamentPkResultByTournament(int tournamentId) {
+		List<TournamentKnockoutResultData> list = this.querySerivce.qryZjTournamentPkResultByTournament(tournamentId);
+		System.out.println(1);
+	}
+
 }

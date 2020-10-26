@@ -17,6 +17,10 @@ public class TournamentKnockoutResultData {
 	private int matchId;
 	private int homeEntry;
 	private int awayEntry;
+	private int homeEntryGroupId;
+	private int awayEntryGroupId;
+	private String homeEntryGroupName;
+	private String awayEntryGroupName;
 	private String homeEntryName;
 	private String awayEntryName;
 	private int homeEntryNetPoint;

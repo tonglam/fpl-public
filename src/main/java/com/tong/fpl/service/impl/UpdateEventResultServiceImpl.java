@@ -1052,18 +1052,14 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getTotalNetPoints));
 		// pk result
 		Map<Integer, Integer> pkResultMap = Maps.newHashMap();
-		this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-				.eq(TournamentKnockoutEntity::getRound, 1)
-				.gt(TournamentKnockoutEntity::getRoundWinner, 0))
+		this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
+				.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+				.gt(TournamentKnockoutResultEntity::getHomeEntry, 0)
+				.gt(TournamentKnockoutResultEntity::getAwayEntry, 0)
+				.gt(TournamentKnockoutResultEntity::getMatchWinner, 0))
 				.forEach(o -> {
-					if (o.getHomeEntry().equals(o.getRoundWinner())) {
-						pkResultMap.put(o.getHomeEntry(), 1);
-						pkResultMap.put(o.getAwayEntry(), 0);
-					} else if (o.getAwayEntry().equals(o.getRoundWinner())) {
-						pkResultMap.put(o.getHomeEntry(), 0);
-						pkResultMap.put(o.getAwayEntry(), 1);
-					}
+					pkResultMap.put(o.getHomeEntry(), o.getHomeEntryNetPoints());
+					pkResultMap.put(o.getAwayEntry(), o.getAwayEntryNetPoints());
 				});
 		// entry_result
 		Table<Integer, Integer, Integer> entryResultTable = HashBasedTable.create(); // entry -> phase -> points

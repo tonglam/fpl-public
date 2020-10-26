@@ -98,8 +98,8 @@ public class TournamentApiImpl implements ITournamentApi {
 	 * @implNote checkZjResult
 	 */
 	@Override
-	public List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId) {
-		return this.querySerivce.qryKnockoutResultByTournament(tournamentId);
+	public List<TournamentKnockoutResultData> qryZjTournamentPkResultByTournament(int tournamentId) {
+		return this.querySerivce.qryZjTournamentPkResultByTournament(tournamentId);
 	}
 
 	@Override

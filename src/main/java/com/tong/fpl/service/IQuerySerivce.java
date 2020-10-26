@@ -178,6 +178,8 @@ public interface IQuerySerivce {
 
     Map<String, String> qryZjTournamentGroupNameMap(int tournamentId);
 
+    List<TournamentKnockoutResultData> qryZjTournamentPkResultByTournament(int tournamentId);
+
     Map<String, Integer> qryZjTournamentPhaseOneRankMap(int tournamentId);
 
     Map<String, Integer> qryZjTournamentPhaseTwoGroupPointsMap(int tournamentId);

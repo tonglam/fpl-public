@@ -49,7 +49,7 @@ public interface ITournamentApi {
 	/**
 	 * @apiNote checkZjResult
 	 */
-	List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
+	List<TournamentKnockoutResultData> qryZjTournamentPkResultByTournament(int tournamentId);
 
 	TableData<TournamentPointsGroupEventResultData> qryZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
 

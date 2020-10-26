@@ -128,7 +128,7 @@ public class TournamentController {
 				model.addAttribute("pkShow", false);
 			}
 		}
-		List<TournamentKnockoutResultData> knockoutResultList = this.tournamentApi.qryKnockoutResultByTournament(id);
+		List<TournamentKnockoutResultData> knockoutResultList = this.tournamentApi.qryZjTournamentPkResultByTournament(id);
 		model.addAttribute("knockoutResultList", knockoutResultList);
 		return "tournament/checkZjResult";
 	}
