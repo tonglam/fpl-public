@@ -420,7 +420,7 @@
                             return false;
                         }
                         let tableId = "phaseTwoGroup" + response.groupId + "Table";
-                        let tableData = layui.table.cache[tableId];
+                        let tableData = table.cache[tableId];
                         $.each(tableData, function (index) {
                             if (tableData[index]["groupName"] == response.groupName) {
                                 tableData[index]["entry"] = response.entry;
@@ -565,7 +565,7 @@
         <!-- 监听分组选择 -->
         table.on('row(currentGroupTable)', function (obj) {
             form.on('select(phaseTwoGroupSelect)', function (data) {
-                let currentTableData = layui.table.cache["currentGroupTable"],
+                let currentTableData = table.cache["currentGroupTable"],
                     phaseTwoGroupId = groupNum + parseInt(data.value), selectCheck = true;
                 // 校验选项
                 $.each(currentTableData, function (index) {
@@ -586,7 +586,7 @@
                     groupName = obj.data.groupName;
                 for (let i = 1; i < teamPerGroup + 1; i++) {
                     let tableId = "phaseTwoGroup" + (groupNum + i) + "Table";
-                    let tableData = layui.table.cache[tableId];
+                    let tableData = table.cache[tableId];
                     if ((groupNum + i) == phaseTwoGroupId) {
                         $.each(tableData, function (index) {
                             if (tableData[index]["groupName"] == groupName) {
@@ -706,7 +706,7 @@
             for (let i = 1; i < teamPerGroup + 1; i++) {
                 let tournamentGroupData = {};
                 let tableId = "phaseTwoGroup" + (groupNum + i) + "Table";
-                let tableData = layui.table.cache[tableId];
+                let tableData = table.cache[tableId];
                 $.each(tableData, function (index, item) {
                     if (tableData[index]["groupName"] == currentGroupName) {
                         // 校验
@@ -859,7 +859,6 @@
                     console.log(error.message);
                 });
         });
-
 
     });
 </script>
