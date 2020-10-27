@@ -80,6 +80,11 @@ public class TournamentApiImpl implements ITournamentApi {
 	 * @implNote checkResult
 	 */
 	@Override
+	public TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId) {
+		return this.tableQueryService.qryPointsGroupChampion(tournamentId);
+	}
+
+	@Override
 	public TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
 		return this.tableQueryService.qryPagePointsGroupResult(tournamentId, groupId, entry, page, limit);
 	}

@@ -47,6 +47,8 @@ public interface ITableQueryService {
 
 	TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
 
+	TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId);
+
 	TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
 	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);

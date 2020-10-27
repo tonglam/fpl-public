@@ -13,14 +13,18 @@ import java.util.Map;
 @Accessors(chain = true)
 public class TournamentGroupData {
 
-    private int tournamentId;
-    private String groupMode;
-    private int groupId;
-    private String groupName;
-    private int groupIndex;
+	private int tournamentId;
+	private String groupMode;
+	private int groupId;
+	private String groupName;
+	private int groupIndex;
 	private int entry;
 	private String entryName;
 	private String playerName;
+	private String region;
+	private int startedEvent;
+	private int bank;
+	private int teamValue;
 	private int groupPoints;
 	private int groupRank;
 	private int play;

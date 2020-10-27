@@ -211,6 +211,12 @@ public class TournamentController {
 	 * @apiNote checkResult
 	 */
 	@ResponseBody
+	@RequestMapping(value = "/qryPointsGroupChampion")
+	public TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(@RequestParam int tournamentId) {
+		return this.tournamentApi.qryPointsGroupChampion(tournamentId);
+	}
+
+	@ResponseBody
 	@RequestMapping(value = "/qryPointsGroupResult")
 	public TableData<TournamentPointsGroupEventResultData> qryPointsGroupEventResult(@RequestParam int tournamentId, @RequestParam int groupId, @RequestParam int entry, int page, int limit) {
 		return this.tournamentApi.qryPagePointsGroupResult(tournamentId, groupId, entry, page, limit);
