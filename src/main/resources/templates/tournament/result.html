@@ -67,8 +67,15 @@
         table.on('row(entryTournamentTable)', function (obj) {
             let id = obj.data.tournamentId;
             let tournamentMode = obj.data.tournamentMode;
+            let groupMode = obj.data.groupMode;
+            let knockoutMode = obj.data.knockoutMode;
             switch (tournamentMode) {
                 case 'Normal': {
+                    if (groupMode === '积分赛' && knockoutMode === '无淘汰赛') {
+                        window.location.replace("/tournament/checkresult?id=" + id);
+                        break;
+                    }
+
                     layer.msg('选择查看的内容', {
                         offset: '100px',
                         shade: 0.1,
