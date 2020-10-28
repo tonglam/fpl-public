@@ -143,7 +143,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// upsert entry_event_result
 		List<EntryEventResultEntity> insertEventResultList = Lists.newArrayList();
 		List<EntryEventResultEntity> updateEventResultList = Lists.newArrayList();
-		entryList.parallelStream().forEach(entry -> {
+		entryList.forEach(entry -> {
 			if (entry <= 0) {
 				return;
 			}

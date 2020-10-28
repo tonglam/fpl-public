@@ -176,6 +176,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		}
 		int tournamentId = tournamentInfo.getId();
 		String groupMode = tournamentInfo.getGroupMode();
+		String knockoutMode = tournamentInfo.getKnockoutMode();
 		int groupNum = tournamentInfo.getGroupNum();
 		int groupStartGw = tournamentInfo.getGroupStartGw();
 		int groupEndGw = tournamentInfo.getGroupEndGw();
@@ -189,9 +190,11 @@ public class TournamentServiceImpl implements ITournamentService {
 		this.createBattleGroupResult(tournamentId, groupMode, tournamentInfo.getGroupPlayAgainstNum(), tournamentInfo.getTeamPerGroup(), groupNum, groupStartGw, groupEndGw);
 		// draw knockouts
 		this.drawKnockouts(tournamentId, groupMode, groupNum,
-				tournamentInfo.getGroupQualifiers(), tournamentInfo.getKnockoutMode(),
+				tournamentInfo.getGroupQualifiers(), knockoutMode,
 				tournamentInfo.getKnockoutPlayAgainstNum(), tournamentInfo.getKnockoutTeam(),
 				tournamentInfo.getKnockoutStartGw(), tournamentInfo.getKnockoutRounds());
+		// update gw result
+		this.updateGwResult(tournamentId);
 	}
 
 	private void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, boolean groupFillAverage) {
@@ -621,6 +624,21 @@ public class TournamentServiceImpl implements ITournamentService {
 						.setMatchWinner(0)
 				)));
 		this.tournamentKnockoutResultService.saveBatch(resultEntityList);
+	}
+
+	private void updateGwResult(int tournamentId) {
+		int current = this.querySerivce.getCurrentEvent();
+		IntStream.range(current, current + 1).forEach(event -> {
+			// entry_event_result
+			this.updateEventResultService.updateTournamentEntryEventResult(event, tournamentId);
+			// points_group_result
+			this.updateEventResultService.updatePointsRaceGroupResult(event, tournamentId);
+			// battle_group_result
+			this.updateEventResultService.updateBattleRaceGroupResult(event, tournamentId);
+			// knockout_result
+			this.updateEventResultService.updateKnockoutResult(event, tournamentId);
+		});
+		log.info("tournament:{} update gw result success!", tournamentId);
 	}
 
 	@Override
