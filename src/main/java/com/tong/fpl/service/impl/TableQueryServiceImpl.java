@@ -6,8 +6,10 @@ import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
@@ -329,6 +331,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
+	@Cacheable(value = "qryGroupInfoListByGroupId", key = "#tournamentId+'::'+#groupId")
 	@Override
 	public TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId) {
 		List<TournamentGroupData> list = Lists.newArrayList();
@@ -338,6 +341,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			return new TableData<>();
 		}
 		int groupNum = tournamentInfoEntity.getGroupNum();
+		int current = this.querySerivce.getCurrentEvent();
 		// tournament_group
 		this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
@@ -346,7 +350,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.orderByAsc(TournamentGroupEntity::getGroupIndex))
 				.forEach(o -> {
 					int entry = o.getEntry();
-					TournamentGroupData tournamentGroupData = new TournamentGroupData().setGroupMode(tournamentInfoEntity.getGroupMode());
+					TournamentGroupData tournamentGroupData = new TournamentGroupData()
+							.setEvent(current)
+							.setGroupMode(tournamentInfoEntity.getGroupMode());
 					BeanUtil.copyProperties(o, tournamentGroupData, CopyOptions.create().ignoreNullValue());
 					tournamentGroupData
 							.setStartGw(o.getStartGw())
@@ -472,14 +478,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
-	//	@Cacheable(value = "TournamentPointsGroupEventResultData", key = "#tournamentId", unless = "#result == null")
+	@Cacheable(value = "qryPointsGroupChampion", key = "#tournamentId", unless = "#result == null")
 	@Override
 	public TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId) {
 		TournamentGroupEventChampionData data = new TournamentGroupEventChampionData();
 		List<TournamentPointsGroupEventResultData> eventResultList = Lists.newArrayList();
-		Map<Integer, Map<Integer, Integer>> countMap = Maps.newHashMap();
+		List<Multimap<Integer, TournamentPointsGroupEventResultData>> championCountList = Lists.newArrayList();
 		// tournament_points_group_result
-		List<TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntities = Lists.newArrayList();
 		int current = this.querySerivce.getCurrentEvent();
 		IntStream.range(1, current + 1).forEach(event -> {
 			List<TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityList = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
@@ -492,60 +497,44 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			if (tournamentPointsGroupResultEntityList.size() < 3) {
 				log.error("tournament:{}, event:{}, less than 3 entry, no champion then", tournamentId, event);
 			}
-			// champion
-			TournamentPointsGroupEventResultData championData = this.initEventResultData(tournamentId, tournamentPointsGroupResultEntityList.get(0));
-			eventResultList.add(championData);
-			// set count map
-			Map<Integer, Integer> championMap = Maps.newHashMap();
-			if (countMap.containsKey(1)) {
-				championMap = countMap.get(1);
-			}
-			int championEntry = championData.getEntry();
-			int championCount = 1;
-			if (championMap.containsKey(championEntry)) {
-				championCount += championMap.get(championEntry);
-			}
-			championMap.put(championEntry, championCount);
-			countMap.put(1, championMap);
-			// runner-up
-			TournamentPointsGroupEventResultData runnerUpData = this.initEventResultData(tournamentId, tournamentPointsGroupResultEntityList.get(1));
-			// set count map
-			Map<Integer, Integer> runnerUpMap = Maps.newHashMap();
-			if (countMap.containsKey(2)) {
-				runnerUpMap = countMap.get(2);
-			}
-			int runnerUpEntry = runnerUpData.getEntry();
-			int runnerUpCount = 1;
-			if (runnerUpMap.containsKey(runnerUpEntry)) {
-				runnerUpCount += runnerUpMap.get(runnerUpEntry);
-			}
-			runnerUpMap.put(runnerUpEntry, runnerUpCount);
-			countMap.put(2, runnerUpMap);
-			// second runner-ip
-			TournamentPointsGroupEventResultData secondRnnerUpData = this.initEventResultData(tournamentId, tournamentPointsGroupResultEntityList.get(3));
-			// set count map
-			Map<Integer, Integer> secondRunnerUpMap = Maps.newHashMap();
-			if (countMap.containsKey(3)) {
-				secondRunnerUpMap = countMap.get(3);
-			}
-			int secondRunnerUpEntry = secondRnnerUpData.getEntry();
-			int secondRunnerUpCount = 1;
-			if (secondRunnerUpMap.containsKey(secondRunnerUpEntry)) {
-				secondRunnerUpCount += secondRunnerUpMap.get(secondRunnerUpEntry);
-			}
-			secondRunnerUpMap.put(secondRunnerUpEntry, secondRunnerUpCount);
-			countMap.put(2, secondRunnerUpMap);
+			Multimap<Integer, TournamentPointsGroupEventResultData> eventChampionCountMap = this.getEventChampionCountMap(tournamentPointsGroupResultEntityList);
+			eventResultList.addAll(eventChampionCountMap.get(1));
+			championCountList.add(eventChampionCountMap);
 		});
 		// return
 		data
 				.setEventResultList(eventResultList)
-				.setCountMap(countMap);
+				.setChampionCountList(this.setCountListByMultiMap(championCountList));
 		return new TableData<>(data);
 	}
 
-	private TournamentPointsGroupEventResultData initEventResultData(int tournamentId, TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity) {
+	private Multimap<Integer, TournamentPointsGroupEventResultData> getEventChampionCountMap(List<TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityList) {
+		Multimap<Integer, TournamentPointsGroupEventResultData> map = HashMultimap.create();
+		int onePoints = tournamentPointsGroupResultEntityList.get(0).getEventPoints();
+		map.put(1, this.initEventResultData(tournamentPointsGroupResultEntityList.get(0)));
+		int twoPoints = tournamentPointsGroupResultEntityList.get(1).getEventPoints();
+		if (twoPoints == onePoints) { // 1, 1, 2
+			map.put(1, this.initEventResultData(tournamentPointsGroupResultEntityList.get(1)));
+			map.put(2, this.initEventResultData(tournamentPointsGroupResultEntityList.get(2)));
+		} else { // 1, 2, 2 or 1, 2, 3 or 1, 2, 3, 3
+			map.put(2, this.initEventResultData(tournamentPointsGroupResultEntityList.get(1)));
+			int threePoints = tournamentPointsGroupResultEntityList.get(2).getEventPoints();
+			if (threePoints == twoPoints) { // 1, 2, 2
+				map.put(2, this.initEventResultData(tournamentPointsGroupResultEntityList.get(2)));
+			} else {
+				map.put(3, this.initEventResultData(tournamentPointsGroupResultEntityList.get(2)));  // 1, 2, 3
+				int fourPoints = tournamentPointsGroupResultEntityList.get(3).getEventPoints();
+				if (fourPoints == threePoints) { // 1, 2, 3, 3
+					map.put(3, this.initEventResultData(tournamentPointsGroupResultEntityList.get(3)));
+				}
+			}
+		}
+		return map;
+	}
+
+	private TournamentPointsGroupEventResultData initEventResultData(TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity) {
 		TournamentPointsGroupEventResultData tournamentPointsGroupEventResultData = new TournamentPointsGroupEventResultData()
-				.setTournamentId(tournamentId)
+				.setTournamentId(tournamentPointsGroupResultEntity.getTournamentId())
 				.setEvent(tournamentPointsGroupResultEntity.getEvent())
 				.setPoints(tournamentPointsGroupResultEntity.getEventPoints())
 				.setCost(tournamentPointsGroupResultEntity.getEventCost())
@@ -557,6 +546,60 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			BeanUtil.copyProperties(entryInfoEntity, tournamentPointsGroupEventResultData, CopyOptions.create().ignoreNullValue());
 		}
 		return tournamentPointsGroupEventResultData;
+	}
+
+	private List<TournamentGroupChampionCountData> setCountListByMultiMap(List<Multimap<Integer, TournamentPointsGroupEventResultData>> championCountList) {
+		Map<Integer, TournamentGroupChampionCountData> entryChampionCountMap = Maps.newHashMap();
+		// champion
+		List<TournamentPointsGroupEventResultData> championList = Lists.newArrayList();
+		championCountList.forEach(o -> championList.addAll(o.get(1)));
+		championList.forEach(o -> {
+			int entry = o.getEntry();
+			TournamentGroupChampionCountData entryChampionCountData = this.initChampionCountData(entry, entryChampionCountMap);
+			entryChampionCountData.setChampionNum(entryChampionCountData.getChampionNum() + 1);
+			entryChampionCountMap.put(entry, entryChampionCountData);
+		});
+		// runner_up
+		List<TournamentPointsGroupEventResultData> runnerUpList = Lists.newArrayList();
+		championCountList.forEach(o -> runnerUpList.addAll(o.get(2)));
+		runnerUpList.forEach(o -> {
+			int entry = o.getEntry();
+			TournamentGroupChampionCountData entryChampionCountData = this.initChampionCountData(entry, entryChampionCountMap);
+			entryChampionCountData.setRunnerUpNum(entryChampionCountData.getRunnerUpNum() + 1);
+			entryChampionCountMap.put(entry, entryChampionCountData);
+		});
+		// second runner_up
+		List<TournamentPointsGroupEventResultData> secondRunnerUpList = Lists.newArrayList();
+		championCountList.forEach(o -> secondRunnerUpList.addAll(o.get(3)));
+		secondRunnerUpList.forEach(o -> {
+			int entry = o.getEntry();
+			TournamentGroupChampionCountData entryChampionCountData = this.initChampionCountData(entry, entryChampionCountMap);
+			entryChampionCountData.setSecondRunnerUpNum(entryChampionCountData.getSecondRunnerUpNum() + 1);
+			entryChampionCountMap.put(entry, entryChampionCountData);
+		});
+		return entryChampionCountMap.values()
+				.stream()
+				.sorted(Comparator.comparing(TournamentGroupChampionCountData::getChampionNum)
+						.thenComparing(TournamentGroupChampionCountData::getRunnerUpNum)
+						.thenComparing(TournamentGroupChampionCountData::getSecondRunnerUpNum)
+						.reversed())
+				.collect(Collectors.toList());
+	}
+
+	private TournamentGroupChampionCountData initChampionCountData(int entry, Map<Integer, TournamentGroupChampionCountData> entryChampionCountMap) {
+		TournamentGroupChampionCountData entryChampionCountData;
+		if (entryChampionCountMap.containsKey(entry)) {
+			entryChampionCountData = entryChampionCountMap.get(entry);
+		} else {
+			entryChampionCountData = new TournamentGroupChampionCountData().setEntry(entry);
+			EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
+			if (entryInfoEntity != null) {
+				entryChampionCountData
+						.setEntryName(entryInfoEntity.getEntryName())
+						.setPlayerName(entryInfoEntity.getPlayerName());
+			}
+		}
+		return entryChampionCountData;
 	}
 
 	@Cacheable(value = "qryPagePointsGroupResult", key = "#tournamentId+'::'+#groupId+'::'+#entry+'::'+#page+'::'+#limit", unless = "#result == null")

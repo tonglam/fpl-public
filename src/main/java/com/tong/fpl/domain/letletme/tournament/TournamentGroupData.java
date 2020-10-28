@@ -14,6 +14,7 @@ import java.util.Map;
 public class TournamentGroupData {
 
 	private int tournamentId;
+	private int event;
 	private String groupMode;
 	private int groupId;
 	private String groupName;
@@ -44,8 +45,8 @@ public class TournamentGroupData {
 	private boolean pkDraw;
 	private int pkEntry;
 	private String pkGroupName;
-    private String pkEntryName;
-    private String pkPlayerName;
-    private TournamentPointsGroupEventResultData pointsGroupEventResult;
+	private String pkEntryName;
+	private String pkPlayerName;
+	private TournamentPointsGroupEventResultData pointsGroupEventResult;
 
 }

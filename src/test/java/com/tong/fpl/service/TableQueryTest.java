@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.ZjTournamentResultData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -63,6 +64,13 @@ public class TableQueryTest extends FplApplicationTests {
 	@CsvSource({"1870"})
 	void qryEntryResultList(int entry) {
 		TableData<EntryEventResultData> data = this.tableQueryService.qryEntryResultList(entry);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"8"})
+	void qryPointsGroupChampion(int tournamentId) {
+		TableData<TournamentGroupEventChampionData> data = this.tableQueryService.qryPointsGroupChampion(tournamentId);
 		System.out.println(1);
 	}
 

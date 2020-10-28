@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2020/10/27
@@ -14,6 +13,6 @@ import java.util.Map;
 public class TournamentGroupEventChampionData {
 
 	private List<TournamentPointsGroupEventResultData> eventResultList;
-	private Map<Integer, Map<Integer, Integer>> countMap; // key:rank -> value: (key: entry -> value: times)
+	private List<TournamentGroupChampionCountData> championCountList;
 
 }
