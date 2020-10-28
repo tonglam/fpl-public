@@ -77,7 +77,7 @@ public class TournamentTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"letletme3"})
+    @CsvSource({"guazhang可能要鸽"})
     void createNewTournamentBackground(String name) {
         this.tournamentService.createNewTournamentBackground(name);
         System.out.println(1);

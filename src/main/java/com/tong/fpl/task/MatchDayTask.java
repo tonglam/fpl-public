@@ -2,6 +2,7 @@ package com.tong.fpl.task;
 
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
+import com.tong.fpl.constant.enums.TournamentMode;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.log.TaskLog;
 import com.tong.fpl.service.IQuerySerivce;
@@ -60,7 +61,7 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 0 7 * * *")
 	public void updateTournamentResult() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDay(event)) {
+		if (!this.querySerivce.isMatchDay(event)) {
 			return;
 		}
 		this.querySerivce.qryAllTournamentList()
@@ -83,11 +84,12 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 5 7 * * *")
 	public void updatePointsRaceGroupResult() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDay(event)) {
+		if (!this.querySerivce.isMatchDay(event)) {
 			return;
 		}
 		this.querySerivce.qryAllTournamentList()
 				.stream()
+				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
 				.filter(o -> StringUtils.equals(o.getGroupMode(), GroupMode.Points_race.name()))
 				.filter(o -> o.getGroupStartGw() <= event && o.getGroupEndGw() >= event)
 				.map(TournamentInfoEntity::getId)
@@ -108,11 +110,12 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 10 7 * * *")
 	public void updateBattleRaceGroupResult() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDay(event)) {
+		if (!this.querySerivce.isMatchDay(event)) {
 			return;
 		}
 		this.querySerivce.qryAllTournamentList()
 				.stream()
+				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
 				.filter(o -> StringUtils.equals(o.getGroupMode(), GroupMode.Battle_race.name()))
 				.filter(o -> o.getGroupStartGw() <= event && o.getGroupEndGw() >= event)
 				.map(TournamentInfoEntity::getId)
@@ -133,11 +136,12 @@ public class MatchDayTask {
 	@Scheduled(cron = "0 15 7 * * *")
 	public void updateKnockoutResult() {
 		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDay(event)) {
+		if (!this.querySerivce.isMatchDay(event)) {
 			return;
 		}
 		this.querySerivce.qryAllTournamentList()
 				.stream()
+				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
 				.filter(o -> !StringUtils.equals(o.getKnockoutMode(), KnockoutMode.No_knockout.name()))
 				.filter(o -> o.getKnockoutStartGw() <= event && o.getKnockoutEndGw() >= event)
 				.map(TournamentInfoEntity::getId)

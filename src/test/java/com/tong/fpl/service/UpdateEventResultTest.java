@@ -32,7 +32,7 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"3"})
+	@CsvSource({"2"})
 	void updatePointsRaceGroupResult(int tournamentId) {
 		IntStream.range(1, 7).forEach(event -> {
 			this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
@@ -41,7 +41,7 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"6"})
+	@CsvSource({"3"})
 	void updateBattleRaceGroupResult(int tournamentId) {
 		IntStream.range(1, 7).forEach(event -> {
 			this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);

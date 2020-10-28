@@ -252,9 +252,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// sort group rank
 		Map<String, Integer> groupRankMap = this.sortPointsRaceGroupRank(tournamentGroupEntityList);  // key:overall_rank -> value:group_rank
 		tournamentGroupEntityList.forEach(tournamentGroupEntity -> {
-			int groupRank = groupRankMap.getOrDefault(tournamentGroupEntity.getTotalPoints() + "-" + tournamentGroupEntity.getOverallRank(), 0);
+			int groupRank = groupRankMap.getOrDefault(tournamentGroupEntity.getTotalNetPoints() + "-" + tournamentGroupEntity.getOverallRank(), 0);
 			tournamentGroupEntity
-					.setGroupPoints(tournamentGroupEntity.getTotalPoints())
+					.setGroupPoints(tournamentGroupEntity.getTotalNetPoints())
 					.setGroupRank(groupRank);
 			updateGroupList.add(tournamentGroupEntity);
 			TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity = tournamentPointsGroupResultEntityMap.get(tournamentGroupEntity.getEntry());
@@ -430,15 +430,15 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		Map<String, Integer> groupRankCountMap = Maps.newLinkedHashMap();
 		tournamentGroupEntityList
 				.stream()
-				.filter(o -> o.getTotalPoints() != 0)
-				.sorted(Comparator.comparing(TournamentGroupEntity::getTotalPoints).reversed()
+				.filter(o -> o.getTotalNetPoints() != 0)
+				.sorted(Comparator.comparing(TournamentGroupEntity::getTotalNetPoints).reversed()
 						.thenComparing(TournamentGroupEntity::getOverallRank))
-				.forEachOrdered(o -> this.setGroupRankMapValue(o.getTotalPoints() + "-" + o.getOverallRank(), groupRankCountMap));
+				.forEachOrdered(o -> this.setGroupRankMapValue(o.getTotalNetPoints() + "-" + o.getOverallRank(), groupRankCountMap));
 		tournamentGroupEntityList
 				.stream()
-				.filter(o -> o.getTotalPoints() == 0)
+				.filter(o -> o.getTotalNetPoints() == 0)
 				.sorted(Comparator.comparingInt(TournamentGroupEntity::getEntry))
-				.forEachOrdered(o -> this.setGroupRankMapValue(o.getTotalPoints() + "-" + o.getOverallRank(), groupRankCountMap));
+				.forEachOrdered(o -> this.setGroupRankMapValue(o.getTotalNetPoints() + "-" + o.getOverallRank(), groupRankCountMap));
 		int index = 1;
 		for (String key :
 				groupRankCountMap.keySet()) {
