@@ -31,25 +31,28 @@ public interface ITournamentApi {
 	TableData<TournamentEntryData> qryEntryTournamentList(int entry);
 
 	/**
-	 * @apiNote checkFixture
+	 * @apiNote fixture
 	 */
 	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
 
 	List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);
 
 	/**
-	 * @apiNote checkResult
+	 * @apiNote pointsResult
 	 */
 	TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId);
 
 	TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
-
 	KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
 
 	/**
-	 * @apiNote checkZjResult
+	 * @apiNote battleResult
+	 */
+	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+
+	/**
+	 * @apiNote zjResult
 	 */
 	List<TournamentKnockoutResultData> qryZjTournamentPkResultByTournament(int tournamentId);
 

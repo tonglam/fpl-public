@@ -11,9 +11,9 @@ import lombok.experimental.Accessors;
 public class TournamentGroupEventEntryFixtureData {
 
     private int homeEntry;
-    private int homeEntryPoints;
-    private int awayEntry;
-    private int awayEntryPoints;
-    private String showMessage;
+	private int homeEntryNetPoints;
+	private int awayEntry;
+	private int awayEntryNetPoints;
+	private String showMessage;
 
 }

@@ -42,11 +42,11 @@ public class BattleGroupResultCollector implements Collector<TournamentBattleGro
             }
             TournamentGroupEventEntryFixtureData tournamentGroupFixtureData = new TournamentGroupEventEntryFixtureData();
             tournamentGroupFixtureData
-                    .setHomeEntry(o.getHomeEntry())
-                    .setHomeEntryPoints(o.getHomeEntryNetPoints())
-                    .setAwayEntry(o.getAwayEntry())
-                    .setAwayEntryPoints(o.getAwayEntryNetPoints());
-            list.add(tournamentGroupFixtureData);
+		            .setHomeEntry(o.getHomeEntry())
+		            .setHomeEntryNetPoints(o.getHomeEntryNetPoints())
+		            .setAwayEntry(o.getAwayEntry())
+		            .setAwayEntryNetPoints(o.getAwayEntryNetPoints());
+	        list.add(tournamentGroupFixtureData);
             table.put(event, groupId, list);
         };
     }

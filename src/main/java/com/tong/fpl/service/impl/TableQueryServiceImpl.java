@@ -489,7 +489,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		IntStream.range(1, current + 1).forEach(event -> {
 			List<TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityList = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
 					.eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
-					.in(TournamentPointsGroupResultEntity::getEvent, event)
+					.eq(TournamentPointsGroupResultEntity::getEvent, event)
 					.orderByDesc(TournamentPointsGroupResultEntity::getEventPoints));
 			if (CollectionUtils.isEmpty(tournamentPointsGroupResultEntityList)) {
 				return;
@@ -610,6 +610,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		int current = this.querySerivce.getCurrentEvent();
 		List<Integer> eventList = Lists.newArrayList();
 		IntStream.range(1, current + 1).forEach(eventList::add);
+		if (CollectionUtils.isEmpty(eventList)) {
+			return new TableData<>();
+		}
 		// tournament_points_group_result
 		Page<TournamentPointsGroupResultEntity> pointsGroupResultPage = this.tournamentPointsGroupResultService.getBaseMapper().selectPage(
 				new Page<>(page, limit, true), new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
@@ -647,10 +650,19 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	@Override
 	public TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
 		List<TournamentBattleGroupEventResultData> list = Lists.newArrayList();
+		// event_list
+		int current = this.querySerivce.getCurrentEvent();
+		List<Integer> eventList = Lists.newArrayList();
+		IntStream.range(1, current + 1).forEach(eventList::add);
+		if (CollectionUtils.isEmpty(eventList)) {
+			return new TableData<>();
+		}
+		// tournament_battle_group_resilt
 		Page<TournamentBattleGroupResultEntity> battleGroupResultPage = this.tournamentBattleGroupResultService.getBaseMapper().selectPage(
 				new Page<>(page, limit, true), new QueryWrapper<TournamentBattleGroupResultEntity>().lambda()
 						.eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
 						.eq(TournamentBattleGroupResultEntity::getGroupId, groupId)
+						.in(TournamentBattleGroupResultEntity::getEvent, eventList)
 						.and(o -> o.eq(TournamentBattleGroupResultEntity::getHomeEntry, entry)
 								.or(i -> i.eq(TournamentBattleGroupResultEntity::getAwayEntry, entry)))
 		);
@@ -674,6 +686,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(pageResult);
 	}
 
+	@Cacheable(value = "qryPageZjTournamentGroupResult", key = "#tournamentId+'::'+stage+'::'+#groupId+'::'+#entry+'::'+#page+'::'+#limit", unless = "#result == null")
 	@Override
 	public TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit) {
 		List<TournamentPointsGroupEventResultData> list = Lists.newArrayList();
@@ -707,6 +720,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			int phaseTwoEndGw = phaseTwo.getEndGw();
 			IntStream.range(phaseTwoStartGw, phaseTwoEndGw + 1).forEach(eventList::add);
 		} else {
+			return new TableData<>();
+		}
+		if (CollectionUtils.isEmpty(eventList)) {
 			return new TableData<>();
 		}
 		// points_group_result
@@ -832,6 +848,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				groupList.add(groupId);
 			}
 		});
+		if (CollectionUtils.isEmpty(groupList)) {
+			return new TableData<>();
+		}
 		// picked entry
 		List<Integer> pickedEntryList = Lists.newArrayList();
 		List<TournamentKnockoutEntity> pkPickedList = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()

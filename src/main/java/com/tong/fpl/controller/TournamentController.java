@@ -78,8 +78,8 @@ public class TournamentController {
 		return "tournament/result";
 	}
 
-	@GetMapping(value = "/checkfixture")
-	public String checkfixtureController(@RequestParam int id, Model model) {
+	@GetMapping(value = "/fixture")
+	public String fixtureController(@RequestParam int id, Model model) {
 		TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
 		if (tournamentInfoData != null) {
 			model.addAttribute("tournamentInfo", tournamentInfoData);
@@ -89,11 +89,11 @@ public class TournamentController {
 		List<TournamentKnockoutFixtureData> knockoutFixtureList = this.tournamentApi.qryKnockoutFixtureListById(id);
 		model.addAttribute("knockoutFixtureList", knockoutFixtureList);
 		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-		return "tournament/checkfixture";
+		return "tournament/fixture";
 	}
 
-	@GetMapping(value = "/checkresult")
-	public String checkresultController(@RequestParam int id, Model model, HttpSession session) {
+	@GetMapping(value = "/pointsResult")
+	public String pointsResultController(@RequestParam int id, Model model, HttpSession session) {
 		TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
 		if (tournamentInfoData != null) {
 			model.addAttribute("tournamentInfo", tournamentInfoData);
@@ -104,11 +104,26 @@ public class TournamentController {
 			model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfo(entry));
 		}
 		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-		return "tournament/checkresult";
+		return "tournament/pointsResult";
 	}
 
-	@GetMapping(value = "/checkZjResult")
-	public String checkZjResultController(@RequestParam int id, Model model) {
+	@GetMapping(value = "/battleResult")
+	public String battleResultController(@RequestParam int id, Model model, HttpSession session) {
+		TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
+		if (tournamentInfoData != null) {
+			model.addAttribute("tournamentInfo", tournamentInfoData);
+			model.addAttribute("showNum", (int) Math.ceil(tournamentInfoData.getGroupNum() * 1.0 / 2));
+		}
+		if (session.getAttribute("entry") != null) {
+			int entry = Integer.parseInt(session.getAttribute("entry").toString());
+			model.addAttribute("entryInfo", this.tournamentApi.qryEntryInfo(entry));
+		}
+		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+		return "tournament/battleResult";
+	}
+
+	@GetMapping(value = "/zjResult")
+	public String zjResultController(@RequestParam int id, Model model) {
 		TournamentInfoData tournamentInfoData = this.tournamentApi.qryTournamentInfoById(id);
 		if (tournamentInfoData != null) {
 			model.addAttribute("tournamentInfo", tournamentInfoData);
@@ -130,7 +145,7 @@ public class TournamentController {
 		}
 		List<TournamentKnockoutResultData> knockoutResultList = this.tournamentApi.qryZjTournamentPkResultByTournament(id);
 		model.addAttribute("knockoutResultList", knockoutResultList);
-		return "tournament/checkZjResult";
+		return "tournament/zjResult";
 	}
 
 	@GetMapping(value = "/manage")

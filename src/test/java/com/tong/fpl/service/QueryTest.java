@@ -3,6 +3,7 @@ package com.tong.fpl.service;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
@@ -61,7 +62,7 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2"})
+	@CsvSource({"5"})
 	void qryGroupFixtureListById(int tournamentId) {
 		List<TournamentGroupFixtureData> list = this.querySerivce.qryGroupFixtureListById(tournamentId);
 		System.out.println(1);
@@ -181,6 +182,13 @@ public class QueryTest extends FplApplicationTests {
 	@CsvSource({"4"})
 	void qryZjTournamentPkResultByTournament(int tournamentId) {
 		List<TournamentKnockoutResultData> list = this.querySerivce.qryZjTournamentPkResultByTournament(tournamentId);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"6"})
+	void qryKnockoutBracketResultByTournament(int tournamentId) {
+		KnockoutBracketData knockoutBracketData = this.querySerivce.qryKnockoutBracketResultByTournament(tournamentId);
 		System.out.println(1);
 	}
 

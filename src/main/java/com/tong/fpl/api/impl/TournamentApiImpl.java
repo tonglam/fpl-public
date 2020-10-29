@@ -64,7 +64,7 @@ public class TournamentApiImpl implements ITournamentApi {
 	}
 
 	/**
-	 * @implNote checkFixture
+	 * @implNote fixture
 	 */
 	@Override
 	public List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId) {
@@ -77,7 +77,7 @@ public class TournamentApiImpl implements ITournamentApi {
 	}
 
 	/**
-	 * @implNote checkResult
+	 * @implNote pointsResult
 	 */
 	@Override
 	public TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId) {
@@ -90,17 +90,20 @@ public class TournamentApiImpl implements ITournamentApi {
 	}
 
 	@Override
-	public TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
-		return this.tableQueryService.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
-	}
-
-	@Override
 	public KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId) {
 		return this.querySerivce.qryKnockoutBracketResultByTournament(tournamentId);
 	}
 
 	/**
-	 * @implNote checkZjResult
+	 * @implNote battleResult
+	 */
+	@Override
+	public TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
+		return this.tableQueryService.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
+	}
+
+	/**
+	 * @implNote zjResult
 	 */
 	@Override
 	public List<TournamentKnockoutResultData> qryZjTournamentPkResultByTournament(int tournamentId) {

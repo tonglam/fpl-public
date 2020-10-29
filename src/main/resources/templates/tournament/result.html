@@ -71,9 +71,19 @@
             let knockoutMode = obj.data.knockoutMode;
             switch (tournamentMode) {
                 case 'Normal': {
-                    if (groupMode === '积分赛' && knockoutMode === '无淘汰赛') {
-                        window.location.replace("/tournament/checkresult?id=" + id);
-                        break;
+
+                    if (knockoutMode === '无淘汰赛') {
+                        switch (groupMode) {
+                            case '积分赛': {
+                                window.location.replace("/tournament/pointsResult?id=" + id);
+                                break;
+                            }
+                            case '对阵赛': {
+                                window.location.replace("/tournament/battleResult?id=" + id);
+                                break;
+                            }
+                        }
+                        return false;
                     }
 
                     layer.msg('选择查看的内容', {
@@ -83,17 +93,23 @@
                         time: 10000,
                         btn: ['查看赛程', '查看赛果'],
                         yes: function () {
-                            window.location.replace("/tournament/checkfixture?id=" + id);
+                            window.location.replace("/tournament/fixture?id=" + id);
                         }, btn2: function () {
-                            window.location.replace("/tournament/checkresult?id=" + id);
+                            if (groupMode === '对阵赛') {
+                                window.location.replace("/tournament/battleResult?id=" + id);
+                            } else {
+                                window.location.replace("/tournament/pointsResult?id=" + id);
+                            }
                         }
                     });
                     break;
                 }
                 case 'Zj': {
-                    window.location.replace("/tournament/checkZjResult?id=" + id);
+                    window.location.replace("/tournament/zjResult?id=" + id);
                     break;
                 }
+                default:
+                    return false;
             }
         });
 
