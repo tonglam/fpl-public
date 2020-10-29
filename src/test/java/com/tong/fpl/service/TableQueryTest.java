@@ -1,11 +1,11 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.tournament.TournamentBattleGroupEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
@@ -41,13 +41,6 @@ public class TableQueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"7"})
-	void qryLiveFixturePlayerList(int teamId) {
-		TableData<ElementEventResultData> data = this.tableQueryService.qryLiveFixturePlayerList(teamId);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
 	@CsvSource({"4"})
 	void qryZjTournamentResultById(int tournamentId) {
 		TableData<ZjTournamentResultData> data = this.tableQueryService.qryZjTournamentResultById(tournamentId);
@@ -79,6 +72,13 @@ public class TableQueryTest extends FplApplicationTests {
 	@CsvSource({"5, 1, 1466060, 1, 20"})
 	void qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
 		TableData<TournamentBattleGroupEventResultData> data = this.tableQueryService.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"1"})
+	void qryLiveMatchList(int statusId) {
+		TableData<LiveMatchData> data = this.tableQueryService.qryLiveMatchList(statusId);
 		System.out.println(1);
 	}
 

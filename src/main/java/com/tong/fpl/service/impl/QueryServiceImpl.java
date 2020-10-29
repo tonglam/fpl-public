@@ -11,7 +11,6 @@ import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.HistorySeason;
-import com.tong.fpl.constant.enums.MatchPlayStatus;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
@@ -21,7 +20,6 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
-import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
@@ -1286,38 +1284,6 @@ public class QueryServiceImpl implements IQuerySerivce {
 	@Override
 	public Map<String, Map<String, Integer>> getLiveBonusCacheMap() {
 		return this.redisCacheSerive.getLiveBonusCacheMap();
-	}
-
-	@Override
-	public List<LiveMatchData> qryLiveMatchList() {
-		List<LiveMatchData> list = Lists.newArrayList();
-		Map<String, Map<String, List<LiveFixtureData>>> eventLiveFixtureMap = this.redisCacheSerive.getEventLiveFixtureMap();
-		eventLiveFixtureMap.keySet().forEach(teamId ->
-				eventLiveFixtureMap.get(teamId).forEach((status, fixtureList) -> {
-					if (StringUtils.equals(status, MatchPlayStatus.Not_Start.name())) {
-						return;
-					}
-					fixtureList.forEach(o -> {
-						if (!o.isWasHome()) {
-							return;
-						}
-						list.add(new LiveMatchData()
-								.setHomeTeamId(o.getTeamId())
-								.setHomeTeamName(o.getTeamName())
-								.setHomeTeamShortName(o.getTeamShortName())
-								.setHomeScore(o.getTeamScore())
-								.setAwayTeamId(o.getAgainstId())
-								.setAwayTeamName(o.getAgainstName())
-								.setAwayTeamShortName(o.getAgainstShortName())
-								.setAwayScore(o.getAgainstTeamScore())
-								.setKickoffTime(o.getKickoffTime())
-						);
-					});
-				}));
-		return list
-				.stream()
-				.sorted(Comparator.comparing(LiveMatchData::getKickoffTime).reversed())
-				.collect(Collectors.toList());
 	}
 
 }

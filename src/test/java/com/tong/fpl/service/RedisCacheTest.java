@@ -59,14 +59,14 @@ public class RedisCacheTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"5"})
-	void insertCurrentEventFixture(int event) {
+	@CsvSource({"6"})
+	void insertSingleEventFixture(int event) {
 		this.redisCacheSerive.insertSingleEventFixture(event);
 	}
 
 	@ParameterizedTest
 	@CsvSource({"5"})
-	void insertCurrentEventFixtureCache(int event) {
+	void insertSingleEventFixtureCache(int event) {
 		this.redisCacheSerive.insertSingleEventFixtureCache(event);
 	}
 

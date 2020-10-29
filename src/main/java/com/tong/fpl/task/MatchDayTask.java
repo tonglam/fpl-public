@@ -45,6 +45,9 @@ public class MatchDayTask {
 			return;
 		}
 		TaskLog.info("start true insertEventLive task");
+		this.redisCacheSerive.insertSingleEventFixture(event);
+		this.redisCacheSerive.insertLiveFixtureCache();
+		this.redisCacheSerive.insertLiveBonusCache();
 		this.redisCacheSerive.insertEventLive(event);
 	}
 

@@ -2,9 +2,9 @@ package com.tong.fpl.controller;
 
 import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.ILiveApi;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -45,8 +45,13 @@ public class LiveController {
 	}
 
 	@GetMapping(value = "/match")
-	public String matchController(Model model) {
-		model.addAttribute("matchList", this.liveApi.qryLiveMatchList());
+	public String matchController() {
+		return "live/match";
+	}
+
+	@GetMapping(value = "/match/reload")
+	public String matchController(@RequestParam int statusId, Model model) {
+		model.addAttribute("matchList", this.liveApi.qryLiveMatchList(statusId));
 		return "live/match";
 	}
 
@@ -84,10 +89,10 @@ public class LiveController {
 	/**
 	 * @apiNote match
 	 */
-	@RequestMapping("/qryLiveFixturePlayerList")
+	@RequestMapping("/qryLiveMatchList")
 	@ResponseBody
-	public TableData<ElementEventResultData> qryLiveFixturePlayerList(@RequestParam int teamId) {
-		return this.liveApi.qryLiveFixturePlayerList(teamId);
+	public TableData<LiveMatchData> qryLiveMatchList(@RequestParam int statusId) {
+		return this.liveApi.qryLiveMatchList(statusId);
 	}
 
 }
