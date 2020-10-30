@@ -4,7 +4,7 @@ import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.ILiveApi;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
-import com.tong.fpl.domain.letletme.live.LiveMatchData;
+import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.servlet.http.HttpSession;
 
 /**
  * Create by tong on 2020/6/23
@@ -32,12 +30,6 @@ public class LiveController {
 		return "live/entry";
 	}
 
-	@GetMapping(value = "/liveEntry")
-	public String liveEntryController(int liveEntry, HttpSession session) {
-		session.setAttribute("liveEntry", liveEntry);
-		return "forward:/live/entry";
-	}
-
 	@GetMapping(value = "/league")
 	public String leagueController(Model model) {
 		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
@@ -45,14 +37,15 @@ public class LiveController {
 	}
 
 	@GetMapping(value = "/match")
-	public String matchController() {
+	public String matchController(Model model) {
+		model.addAttribute("matchList", this.liveApi.qryLiveMatchList(0));
 		return "live/match";
 	}
 
 	@GetMapping(value = "/match/reload")
 	public String matchController(@RequestParam int statusId, Model model) {
 		model.addAttribute("matchList", this.liveApi.qryLiveMatchList(statusId));
-		return "live/match";
+		return "live/match::finishedContent";
 	}
 
 	/**
@@ -60,21 +53,11 @@ public class LiveController {
 	 */
 	@RequestMapping("/qryEntryLivePoints")
 	@ResponseBody
-	public TableData<LiveCalaData> qryEntryLivePoints(HttpSession session) {
-		int entry = this.getLiveEntry(session);
-		if (entry == 0) {
+	public TableData<LiveCalaData> qryEntryLivePoints(@RequestParam int entry) {
+		if (entry <= 0) {
 			return new TableData<>();
 		}
 		return this.liveApi.qryEntryLivePoints(entry);
-	}
-
-	private int getLiveEntry(HttpSession session) {
-		if (session.getAttribute("liveEntry") != null) {
-			return Integer.parseInt(session.getAttribute("liveEntry").toString());
-		} else if (session.getAttribute("entry") != null) {
-			return Integer.parseInt(session.getAttribute("entry").toString());
-		}
-		return 0;
 	}
 
 	/**
@@ -89,10 +72,10 @@ public class LiveController {
 	/**
 	 * @apiNote match
 	 */
-	@RequestMapping("/qryLiveMatchList")
+	@RequestMapping("/qryLiveTeamDataList")
 	@ResponseBody
-	public TableData<LiveMatchData> qryLiveMatchList(@RequestParam int statusId) {
-		return this.liveApi.qryLiveMatchList(statusId);
+	public TableData<LiveMatchTeamData> qryLiveTeamDataList(@RequestParam int statusId) {
+		return this.liveApi.qryLiveTeamDataList(statusId);
 	}
 
 }

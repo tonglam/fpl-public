@@ -13,7 +13,6 @@ import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
-import com.tong.fpl.constant.enums.MatchPlayStatus;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
@@ -25,8 +24,7 @@ import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
-import com.tong.fpl.domain.letletme.live.LiveFixtureData;
-import com.tong.fpl.domain.letletme.live.LiveMatchData;
+import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.tournament.*;
@@ -902,68 +900,29 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	}
 
 	@Override
-	public TableData<LiveMatchData> qryLiveMatchList(int statusId) {
-		// live match
-		List<LiveMatchData> liveMatchDataList = this.qryLiveFixtureList(statusId);
-		if (CollectionUtils.isEmpty(liveMatchDataList)) {
-			return new TableData<>();
-		}
-		// live element event result
-		liveMatchDataList.forEach(liveMatchData ->
-				liveMatchData
-						.setHomeElementResultList(this.qryLivePlayerList(liveMatchData.getHomeTeamId()))
-						.setAwayElementResultList(this.qryLivePlayerList(liveMatchData.getAwayTeamId())));
-		return new TableData<>(liveMatchDataList);
-	}
-
-	private List<LiveMatchData> qryLiveFixtureList(int statusId) {
-		List<LiveMatchData> list = Lists.newArrayList();
-		String queryStatus = Arrays.stream(MatchPlayStatus.values())
-				.filter(o -> o.getStatus() == statusId)
-				.map(Enum::name)
-				.findFirst()
-				.orElse("");
-		if (StringUtils.isEmpty(queryStatus)) {
-			return list;
-		}
-		Map<String, Map<String, List<LiveFixtureData>>> eventLiveFixtureMap = this.redisCacheSerive.getEventLiveFixtureMap();
-		eventLiveFixtureMap.keySet().forEach(teamId ->
-				eventLiveFixtureMap.get(teamId).forEach((status, fixtureList) -> {
-					if (!StringUtils.equals(status, queryStatus)) {
-						return;
-					}
-					fixtureList.forEach(o -> {
-						if (!o.isWasHome()) {
-							return;
-						}
-						list.add(new LiveMatchData()
-								.setHomeTeamId(o.getTeamId())
-								.setHomeTeamName(o.getTeamName())
-								.setHomeTeamShortName(o.getTeamShortName())
-								.setHomeScore(o.getTeamScore())
-								.setAwayTeamId(o.getAgainstId())
-								.setAwayTeamName(o.getAgainstName())
-								.setAwayTeamShortName(o.getAgainstShortName())
-								.setAwayScore(o.getAgainstTeamScore())
-								.setKickoffTime(o.getKickoffTime())
-						);
-					});
-				}));
-		return list
-				.stream()
-				.sorted(Comparator.comparing(LiveMatchData::getKickoffTime).reversed())
-				.collect(Collectors.toList());
-	}
-
-	private List<ElementEventResultData> qryLivePlayerList(int teamId) {
-		List<ElementEventResultData> list = Lists.newArrayList();
+	public TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId) {
+		List<LiveMatchTeamData> list = Lists.newArrayList();
 		// prepare
+		int event = this.querySerivce.getCurrentEvent();
+		Collection<EventLiveEntity> eventLiveList = this.querySerivce.getEventLiveByEvent(event).values();
 		Map<Integer, String> playerMap = this.getPlayerMap();
 		Map<Integer, String> positionMap = this.getPositionMap();
+		// live element event result
+		List<Integer> teamIdList = Lists.newArrayList();
+		this.querySerivce.qryLiveMatchList(statusId).forEach(o -> {
+			teamIdList.add(o.getHomeTeamId());
+			teamIdList.add(o.getAwayTeamId());
+		});
+		teamIdList.forEach(teamId -> list.add(this.qryLiveTeamData(teamId, eventLiveList, playerMap, positionMap)));
+		return new TableData<>(list);
+	}
+
+	private LiveMatchTeamData qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, String> playerMap, Map<Integer, String> positionMap) {
+		LiveMatchTeamData data = new LiveMatchTeamData().setTeamId(teamId);
+		List<ElementEventResultData> teamDataList = Lists.newArrayList();
+		// team data
 		Map<Integer, Integer> liveBonusMap = this.getLiveBonusMap(teamId);
-		// live fixture
-		int event = this.querySerivce.getCurrentEvent();
-		this.querySerivce.getEventLiveByEvent(event).values().forEach(o -> {
+		eventLiveList.forEach(o -> {
 			if (o.getTeamId() != teamId || o.getMinutes() <= 0) {
 				return;
 			}
@@ -995,13 +954,16 @@ public class TableQueryServiceImpl implements ITableQueryService {
 						.setBonus(liveBonusMap.getOrDefault(o.getElement(), 0))
 						.setTotalPoints(elementEventResultData.getTotalPoints() + elementEventResultData.getBonus());
 			}
-			list.add(elementEventResultData);
+			teamDataList.add(elementEventResultData);
 		});
-		return list
-				.stream()
-				.sorted(Comparator.comparing(ElementEventResultData::getTotalPoints)
-						.thenComparing(ElementEventResultData::getBps).reversed())
-				.collect(Collectors.toList());
+		data
+				.setElementEventResulList(teamDataList
+						.stream()
+						.sorted(Comparator.comparing(ElementEventResultData::getTotalPoints)
+								.thenComparing(ElementEventResultData::getBps).reversed())
+						.collect(Collectors.toList())
+				);
+		return data;
 	}
 
 	private Map<Integer, String> getPlayerMap() {

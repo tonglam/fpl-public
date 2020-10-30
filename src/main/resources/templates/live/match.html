@@ -14,24 +14,87 @@
     <div class="layui-main">
         <div class="site-content">
 
-            <h1 style="font-size: 28px">实时赛果</h1>
+            <h1 id="headTitle" style="font-size: 28px">实时赛果</h1>
 
-            <div style="margin-top: 50px"></div>
+            <div style="margin-top: 20px"></div>
+
+            <form class="layui-form">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">自动刷新</label>
+                    <div class="layui-input-inline">
+                        <input checked lay-filter="refreshSwitch" lay-skin="switch" lay-text="开|关" name="refreshSwitch"
+                               type="checkbox">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" style="margin-left: -120px">开启后每5分钟自动刷新</div>
+                </div>
+
+            </form>
+
+            <div style="margin-top: 20px"></div>
 
             <div class="layui-tab" lay-filter="matchStatusTab">
 
                 <ul class="layui-tab-title">
                     <li class="layui-this" lay-id="0">进行中</li>
-                    <li lay-id="1">已结束</li>
+                    <li class="" lay-id="1">已结束</li>
                 </ul>
 
-                <div class="layui-tab-content" th:fragment="matchContent">
+                <div class="layui-tab-content">
                     <div class="layui-tab-item layui-show">
+                        <div id="playingContent" th:fragment="playingContent">
+                            <div th:if="${matchList.size() gt 0}">
 
+                                <div th:each="match,matchStat:${matchList}">
+
+                                    <div style="margin-top: 20px"></div>
+
+                                    <fieldset class="layui-elem-field layui-field-title">
+                                        <legend th:text="${match.homeTeamName}+' '+${match.homeScore}+'-'+${match.awayScore}+' '+${match.awayTeamName}"></legend>
+                                    </fieldset>
+
+                                    <table class="layui-table"
+                                           th:attr="id='team'+${match.homeTeamId}+'Table', lay-filter='team'+${match.homeTeamId}+'Table'"></table>
+                                    <table class="layui-table"
+                                           th:attr="id='team'+${match.awayTeamId}+'Table', lay-filter='team'+${match.awayTeamId}+'Table'"></table>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div style="margin-top: 20px"></div>
+                        <div id="playingMatchTips" style="font-size: 16px"></div>
 
                     </div>
 
                     <div class="layui-tab-item">
+
+                        <div id="finishedContent" th:fragment="finishedContent">
+                            <div th:if="${matchList.size() gt 0}">
+
+                                <div th:each="match,matchStat:${matchList}">
+
+                                    <div style="margin-top: 20px"></div>
+
+                                    <fieldset class="layui-elem-field layui-field-title">
+                                        <legend th:text="${match.homeTeamName}+' '+${match.homeScore}+'-'+${match.awayScore}+' '+${match.awayTeamName}"></legend>
+                                    </fieldset>
+
+                                    <table class="layui-table"
+                                           th:attr="id='team'+${match.homeTeamId}+'Table', lay-filter='team'+${match.homeTeamId}+'Table'"></table>
+                                    <table class="layui-table"
+                                           th:attr="id='team'+${match.awayTeamId}+'Table', lay-filter='team'+${match.awayTeamId}+'Table'"></table>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div style="margin-top: 20px"></div>
+                        <div id="playedMatchTips" style="font-size: 16px"></div>
+
                     </div>
 
                 </div>
@@ -48,18 +111,196 @@
 
 <script th:replace="layout::baseScript"></script>
 
-<script th:inline="none">
-    layui.use(['element', 'table'], function () {
-        let $ = layui.jquery, element = layui.element, table = layui.table;
+<script id="bonusTpl" type="text/html">
+    {{# if(d.bonus > 0){ }}
+    <div style="background-color: #FFB800; color:#fff;" class="layui-table-cell">{{d.bonus}}</div>
+    {{#  } else { }}
+    <div class="layui-table-cell">{{d.bonus}}</div>
+    {{#  } }}
+</script>
 
-        $(document).ready(function () {
-            element.tabChange('matchStatusTab', '0');
+<script th:inline="none">
+    layui.use(['element', 'form', 'layer', 'table', 'soulTable'], function () {
+        let $ = layui.jquery, element = layui.element, form = layui.form, layer = layui.layer, table = layui.table,
+            soulTable = layui.soulTable;
+
+        let refreshTimeout = setTimeout(refresh, 300000);
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        $(window).ready(function () {
+
+            let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+
+            let now = new Date().toLocaleTimeString();
+            $("#headTitle").html("实时赛果-刷新时间" + now);
+
+            axios.get('/live/qryLiveTeamDataList?statusId=0')
+                .then(function (response) {
+
+                    layer.close(loadIndex);
+
+                    if (response.data.length == 0) {
+                        $("#playingMatchTips").html('本轮比赛已全部结束');
+                        return false;
+                    }
+
+                    $.each(response.data, function (index, teamItem) {
+
+                        let teamId = teamItem.teamId;
+                        let teamData = teamItem.elementEventResulList;
+                        let tableId = 'team' + teamId + 'Table';
+
+                        table.render({
+                            elem: '#' + tableId,
+                            data: teamData,
+                            even: true,
+                            cellMinWidth: 60,
+                            width: 1085,
+                            cols: [[
+                                {field: 'webName', title: '姓名', align: 'center', width: 150},
+                                {
+                                    field: 'totalPoints',
+                                    title: '分数',
+                                    align: 'center',
+                                    style: 'background-color: #5FB878; color: #fff;'
+                                },
+                                {field: 'bonus', title: 'bonus', align: 'center', width: 70, templet: '#bonusTpl'},
+                                {field: 'bps', title: 'bps', align: 'center'},
+                                {field: 'elementTypeName', title: '位置', align: 'center', width: 70},
+                                {field: 'minutes', title: '时间', align: 'center'},
+                                {field: 'goalsScored', title: '进球', align: 'center'},
+                                {field: 'assists', title: '助攻', align: 'center'},
+                                {field: 'cleanSheets', title: '零封', align: 'center'},
+                                {field: 'goalsConceded', title: '丢球', align: 'center'},
+                                {field: 'ownGoals', title: '乌龙', align: 'center'},
+                                {field: 'yellowCards', title: '黄牌', align: 'center'},
+                                {field: 'redCards', title: '红牌', align: 'center'},
+                                {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+                                {field: 'penaltiesMissed', title: '丢点', align: 'center'},
+                                {field: 'saves', title: '扑救', align: 'center'}
+                            ]],
+                            id: tableId,
+                            done: function () {
+                                soulTable.render(this);
+                            }
+                        });
+
+                    })
+
+                })
+                .catch(function (error) {
+                    layer.close(loadIndex);
+                    console.log(error.message);
+                });
+
         });
 
         element.on('tab(matchStatusTab)', function (data) {
+
+            let now = new Date().toLocaleTimeString();
+            $("#headTitle").html("实时赛果-刷新时间" + now);
+            // 重设计时器
+            refreshTimeout = setTimeout(refresh, 300000);
+
             let statusId = data.index;
-            axios.get('');
+
+            if (statusId == 0) {
+                $("#playingMatchTips").html('');
+            } else if (statusId == 1) {
+                $("#finishedMatchTips").html('');
+            }
+
+            let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+
+            axios.get('/live/match/reload?statusId=' + statusId)
+                .then(function (response) {
+                    if (statusId == 0) {
+                        $("#playingContent").html(response);
+                    } else if (statusId == 1) {
+                        $("#finishedContent").html(response);
+                    }
+                })
+                .catch(function (error) {
+                    layer.close(loadIndex);
+                    console.log(error.message);
+                });
+
+
+            axios.get('/live/qryLiveTeamDataList?statusId=' + statusId)
+                .then(function (response) {
+
+                    layer.close(loadIndex);
+
+                    if (response.data.length == 0) {
+                        if (statusId == 0) {
+                            $("#playingMatchTips").html('本轮比赛已全部结束');
+                        } else if (statusId == 1) {
+                            $("#finishedMatchTips").html('本轮比赛尚未开始');
+                        }
+                        return false;
+                    }
+
+                    $.each(response.data, function (index, teamItem) {
+                        let teamId = teamItem.teamId;
+                        let teamData = teamItem.elementEventResulList;
+                        let tableId = 'team' + teamId + 'Table';
+
+                        table.render({
+                            elem: '#' + tableId,
+                            data: teamData,
+                            even: true,
+                            cellMinWidth: 60,
+                            width: 1085,
+                            cols: [[
+                                {field: 'webName', title: '姓名', align: 'center', width: 150},
+                                {
+                                    field: 'totalPoints',
+                                    title: '分数',
+                                    align: 'center',
+                                    style: 'background-color: #5FB878; color: #fff;'
+                                },
+                                {field: 'bonus', title: 'bonus', align: 'center', width: 70, templet: '#bonusTpl'},
+                                {field: 'bps', title: 'bps', align: 'center'},
+                                {field: 'elementTypeName', title: '位置', align: 'center', width: 70},
+                                {field: 'minutes', title: '时间', align: 'center'},
+                                {field: 'goalsScored', title: '进球', align: 'center'},
+                                {field: 'assists', title: '助攻', align: 'center'},
+                                {field: 'cleanSheets', title: '零封', align: 'center'},
+                                {field: 'goalsConceded', title: '丢球', align: 'center'},
+                                {field: 'ownGoals', title: '乌龙', align: 'center'},
+                                {field: 'yellowCards', title: '黄牌', align: 'center'},
+                                {field: 'redCards', title: '红牌', align: 'center'},
+                                {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+                                {field: 'penaltiesMissed', title: '丢点', align: 'center'},
+                                {field: 'saves', title: '扑救', align: 'center'}
+                            ]],
+                            id: tableId,
+                            done: function () {
+                                soulTable.render(this);
+                            }
+                        });
+
+                    })
+
+                })
+                .catch(function (error) {
+                    layer.close(loadIndex);
+                    console.log(error.message);
+                })
+
         });
+
+        function refresh() {
+            window.location.replace("/live/match");
+        }
 
     });
 </script>

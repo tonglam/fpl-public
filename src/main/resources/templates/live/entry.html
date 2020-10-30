@@ -18,6 +18,9 @@
 
             <div style="margin-top: 50px"></div>
 
+            <div class="layui-hide" id="entry" th:text="${session.entry}"></div>
+            <div class="layui-hide" id="liveEntry" th:text="${session.liveEntry}"></div>
+
             <form class="layui-form">
 
                 <div class="layui-form-item">
@@ -67,315 +70,324 @@
             let entryInputDom = $("input[name=entryInput]");
             let entryButtonDom = $("#entryButton");
 
-            soulTable.config({
-                drag: false,
-                overflow: {
-                    type: 'tips',
-                    header: true,
-                    total: true
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        let entry = $("#liveEntry").text();
+        if (entry === '') {
+            entry = $("#entry").text();
+        }
+
+        if (entry === '') {
+            return false;
+        }
+
+        let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+        entryButtonDom.attr("disabled", "disabled");
+
+        let now = new Date().toLocaleTimeString();
+        $("#headTitle").html("实时得分-刷新时间" + now);
+
+        axios.get('/live/qryEntryLivePoints?entry=' + entry)
+            .then(function (response) {
+                layer.close(loadIndex);
+                entryButtonDom.removeAttr("disabled");
+
+                let data = [];
+                if (response.data[0].entry != 0) {
+                    data = response.data;
                 }
-            });
 
-            $(document).ready(function () {
-                let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
-                entryButtonDom.attr("disabled", "disabled");
-
-                let now = new Date().toLocaleTimeString();
-                $("#headTitle").html("实时得分-刷新时间" + now);
-
-                axios.get('/live/qryEntryLivePoints')
-                    .then(function (response) {
-                        layer.close(loadIndex);
-                        entryButtonDom.removeAttr("disabled");
-
-                        let liveEntryData = [];
-                        if (response.data[0].entry != 0) {
-                            liveEntryData = response.data;
-                        }
-
-                        table.render({
-                            elem: '#liveEntryTable',
-                            data: liveEntryData,
-                            loading: true,
-                            cellMinWidth: 80,
-                            cols: [[
+                table.render({
+                    elem: '#liveEntryTable',
+                    data: data,
+                    loading: true,
+                    cellMinWidth: 80,
+                    cols: [[
+                        {
+                            fixed: 'left',
+                            field: 'entry',
+                            title: 'team',
+                            icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                            align: 'center',
+                            width: 120,
+                            children: [
                                 {
-                                    fixed: 'left',
-                                    field: 'entry',
-                                    title: 'team',
-                                    icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
-                                    align: 'center',
-                                    width: 120,
-                                    children: [
+                                    title: '',
+                                    data: function (d) {
+                                        return [d];
+                                    },
+                                    cellMinWidth: 80,
+                                    cols: [[
+                                        {field: 'region', title: '地区', align: 'center'},
                                         {
-                                            title: '',
+                                            field: 'startedEvent',
+                                            title: '开始时间',
+                                            align: 'center',
+                                            templet: function (d) {
+                                                return 'GW' + d.startedEvent;
+                                            }
+                                        },
+                                        {field: 'lastOverallPoints', title: '上周总得分', align: 'center'},
+                                        {
+                                            field: 'lastOverallRank',
+                                            title: '上周总排名',
+                                            align: 'center',
+                                            templet: function (d) {
+                                                if (d.overallRank < 1000) {
+                                                    return d.overallRank;
+                                                } else if (d.overallRank < 100000) {
+                                                    return Math.floor(parseInt(d.overallRank) / 100) / 10 + 'k';
+                                                } else {
+                                                    return Math.floor(parseInt(d.overallRank) / 10000) / 100 + 'm';
+                                                }
+                                            }
+                                        },
+                                        {
+                                            field: 'bank',
+                                            title: '上周余额',
+                                            align: 'center',
+                                            templet: function (d) {
+                                                if (d.bank > 0) {
+                                                    return parseInt(d.bank) / 10 + 'm';
+                                                } else {
+                                                    return 0;
+                                                }
+                                            }
+                                        },
+                                        {
+                                            field: 'lastTeamValue',
+                                            title: '上周阵容身价',
+                                            align: 'center',
+                                            templet: function (d) {
+                                                return parseInt(d.teamValue) / 10 + 'm';
+                                            }
+                                        }
+                                    ]],
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            field: 'event', title: '时间', align: 'center', templet(d) {
+                                return 'GW' + d.event;
+                            }
+                        },
+                        {field: 'entryName', title: '队伍名字', align: 'center', width: 200, templet: "#nameTpl"},
+                        {field: 'playerName', title: '玩家名字', align: 'center', width: 180},
+                        {
+                            field: 'livePoints',
+                            title: '实时得分',
+                            style: 'background-color: #5FB878; color: #fff;',
+                            align: 'center',
+                            width: 100
+                        },
+                        {field: 'transferCost', title: '剁手', align: 'center'},
+                        {
+                            field: 'liveNetPoints',
+                            title: '实时净得分',
+                            style: 'background-color: #5FB878; color: #fff;',
+                            align: 'center',
+                            width: 100
+                        },
+                        {field: 'played', title: '已上场', align: 'center'},
+                        {field: 'toPlay', title: '未上场', align: 'center'},
+                        {
+                            field: 'liveTotalPoints',
+                            title: '实时总分',
+                            style: 'background-color: #5FB878; color: #fff;',
+                            align: 'center',
+                            width: 100
+                        },
+                        {
+                            field: 'chip', title: '开卡', align: 'center', width: 100, templet: function (d) {
+                                if (d.chip == null) {
+                                    return "无";
+                                } else {
+                                    return d.chip;
+                                }
+                            }
+                        }
+                    ]],
+                    id: 'liveEntryTable',
+                    done: function () {
+                        soulTable.render(this);
+                    }
+                });
+
+                let tableData = [];
+                if (response.data[0].entry != 0) {
+                    tableData = response.data[0].pickList;
+                }
+
+                table.render({
+                    elem: '#liveElementTable',
+                    data: tableData,
+                    loading: true,
+                    limit: 15,
+                    cols: [[
+                        {
+                            fixed: 'left',
+                            field: 'webName',
+                            title: '球员',
+                            icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                            align: 'center',
+                            width: 180,
+                            templet: function (d) {
+                                let webName = d.webName;
+                                if (d.captain == true) {
+                                    webName = webName + ' (c)';
+                                } else if (d.viceCaptain == true) {
+                                    webName = webName + ' (vc)';
+                                }
+                                if (d.playStatus == 0) {
+                                    return '<span style="color: red">' + webName + '</span>';
+                                } else if (d.playStatus == 1) {
+                                    return '<span style="color: blue">' + webName + '</span>';
+                                } else if (d.playStatus == 2) {
+                                    return '<span style="color: black">' + webName + '</span>';
+                                } else if (d.playStatus == 3) {
+                                    return '<span style="color: black">' + webName + '</span>';
+                                } else if (d.playStatus == 4) {
+                                    return '<span style="color: gray">' + webName + '</span>';
+                                }
+                            },
+                            children: function (d) {
+                                if (d.elementType == 1) {
+                                    return [
+                                        {
+                                            title: '详情',
                                             data: function (d) {
                                                 return [d];
                                             },
-                                            cellMinWidth: 80,
                                             cols: [[
-                                                {field: 'region', title: '地区', align: 'center'},
-                                                {
-                                                    field: 'startedEvent',
-                                                    title: '开始时间',
-                                                    align: 'center',
-                                                    templet: function (d) {
-                                                        return 'GW' + d.startedEvent;
-                                                    }
-                                                },
-                                                {field: 'lastOverallPoints', title: '上周总得分', align: 'center'},
-                                                {
-                                                    field: 'lastOverallRank',
-                                                    title: '上周总排名',
-                                                    align: 'center',
-                                                    templet: function (d) {
-                                                        if (d.overallRank < 1000) {
-                                                            return d.overallRank;
-                                                        } else if (d.overallRank < 100000) {
-                                                            return Math.floor(parseInt(d.overallRank) / 100) / 10 + 'k';
-                                                        } else {
-                                                            return Math.floor(parseInt(d.overallRank) / 10000) / 100 + 'm';
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    field: 'bank',
-                                                    title: '上周余额',
-                                                    align: 'center',
-                                                    templet: function (d) {
-                                                        if (d.bank > 0) {
-                                                            return parseInt(d.bank) / 10 + 'm';
-                                                        } else {
-                                                            return 0;
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    field: 'lastTeamValue',
-                                                    title: '上周阵容身价',
-                                                    align: 'center',
-                                                    templet: function (d) {
-                                                        return parseInt(d.teamValue) / 10 + 'm';
-                                                    }
-                                                }
+                                                {field: 'cleanSheets', title: '零封', align: 'center'},
+                                                {field: 'goalsConceded', title: '丢球', align: 'center'},
+                                                {field: 'ownGoals', title: '乌龙', align: 'center'},
+                                                {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+                                                {field: 'penaltiesMissed', title: '丢点', align: 'center'},
+                                                {field: 'yellowCards', title: '黄牌', align: 'center'},
+                                                {field: 'redCards', title: '红牌', align: 'center'},
+                                                {field: 'saves', title: '扑救', align: 'center'}
                                             ]],
                                             done: function () {
                                                 soulTable.render(this);
                                             }
                                         }
-                                    ]
-                                },
-                                {
-                                    field: 'event', title: '时间', align: 'center', templet(d) {
-                                        return 'GW' + d.event;
-                                    }
-                                },
-                                {field: 'entryName', title: '队伍名字', align: 'center', width: 200, templet: "#nameTpl"},
-                                {field: 'playerName', title: '玩家名字', align: 'center', width: 180},
-                                {
-                                    field: 'livePoints',
-                                    title: '实时得分',
-                                    style: 'background-color: #5FB878; color: #fff;',
-                                    align: 'center',
-                                    width: 100
-                                },
-                                {field: 'transferCost', title: '剁手', align: 'center'},
-                                {
-                                    field: 'liveNetPoints',
-                                    title: '实时净得分',
-                                    style: 'background-color: #5FB878; color: #fff;',
-                                    align: 'center',
-                                    width: 100
-                                },
-                                {field: 'played', title: '已上场', align: 'center'},
-                                {field: 'toPlay', title: '未上场', align: 'center'},
-                                {
-                                    field: 'liveTotalPoints',
-                                    title: '实时总分',
-                                    style: 'background-color: #5FB878; color: #fff;',
-                                    align: 'center',
-                                    width: 100
-                                },
-                                {
-                                    field: 'chip', title: '开卡', align: 'center', width: 100, templet: function (d) {
-                                        if (d.chip == null) {
-                                            return "无";
-                                        } else {
-                                            return d.chip;
+                                    ];
+                                } else {
+                                    return [
+                                        {
+                                            title: '详情',
+                                            data: function (d) {
+                                                return [d];
+                                            },
+                                            cols: [[
+                                                {field: 'goalsScored', title: '进球', align: 'center'},
+                                                {field: 'assists', title: '助攻', align: 'center'},
+                                                {field: 'cleanSheets', title: '零封', align: 'center'},
+                                                {field: 'goalsConceded', title: '丢球', align: 'center'},
+                                                {field: 'ownGoals', title: '乌龙', align: 'center'},
+                                                {field: 'yellowCards', title: '黄牌', align: 'center'},
+                                                {field: 'redCards', title: '红牌', align: 'center'}
+                                            ]],
+                                            done: function () {
+                                                soulTable.render(this);
+                                            }
                                         }
-                                    }
+                                    ];
                                 }
-                            ]],
-                            id: 'liveEntryTable',
-                            done: function () {
-                                soulTable.render(this);
-                            }
-                        });
-
-                        let liveElementData = [];
-                        if (response.data[0].entry != 0) {
-                            liveElementData = response.data[0].pickList;
-                        }
-
-                        table.render({
-                            elem: '#liveElementTable',
-                            data: liveElementData,
-                            loading: true,
-                            limit: 15,
-                            cols: [[
-                                {
-                                    fixed: 'left',
-                                    field: 'webName',
-                                    title: '球员',
-                                    icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
-                                    align: 'center',
-                                    width: 180,
-                                    templet: function (d) {
-                                        let webName = d.webName;
-                                        if (d.captain == true) {
-                                            webName = webName + ' (c)';
-                                        } else if (d.viceCaptain == true) {
-                                            webName = webName + ' (vc)';
-                                        }
-                                        if (d.playStatus == 0) {
-                                            return '<span style="color: red">' + webName + '</span>';
-                                        } else if (d.playStatus == 1) {
-                                            return '<span style="color: blue">' + webName + '</span>';
-                                        } else if (d.playStatus == 2) {
-                                            return '<span style="color: black">' + webName + '</span>';
-                                        } else if (d.playStatus == 3) {
-                                            return '<span style="color: black">' + webName + '</span>';
-                                        } else if (d.playStatus == 4) {
-                                            return '<span style="color: gray">' + webName + '</span>';
-                                        }
-                                    },
-                                    children: function (d) {
-                                        if (d.elementType == 1) {
-                                            return [
-                                                {
-                                                    title: '详情',
-                                                    data: function (d) {
-                                                        return [d];
-                                                    },
-                                                    cols: [[
-                                                        {field: 'cleanSheets', title: '零封', align: 'center'},
-                                                        {field: 'goalsConceded', title: '丢球', align: 'center'},
-                                                        {field: 'ownGoals', title: '乌龙', align: 'center'},
-                                                        {field: 'penaltiesSaved', title: '扑点', align: 'center'},
-                                                        {field: 'penaltiesMissed', title: '丢点', align: 'center'},
-                                                        {field: 'yellowCards', title: '黄牌', align: 'center'},
-                                                        {field: 'redCards', title: '红牌', align: 'center'},
-                                                        {field: 'saves', title: '扑救', align: 'center'}
-                                                    ]],
-                                                    done: function () {
-                                                        soulTable.render(this);
-                                                    }
-                                                }
-                                            ];
-                                        } else {
-                                            return [
-                                                {
-                                                    title: '详情',
-                                                    data: function (d) {
-                                                        return [d];
-                                                    },
-                                                    cols: [[
-                                                        {field: 'goalsScored', title: '进球', align: 'center'},
-                                                        {field: 'assists', title: '助攻', align: 'center'},
-                                                        {field: 'cleanSheets', title: '零封', align: 'center'},
-                                                        {field: 'goalsConceded', title: '丢球', align: 'center'},
-                                                        {field: 'ownGoals', title: '乌龙', align: 'center'},
-                                                        {field: 'yellowCards', title: '黄牌', align: 'center'},
-                                                        {field: 'redCards', title: '红牌', align: 'center'}
-                                                    ]],
-                                                    done: function () {
-                                                        soulTable.render(this);
-                                                    }
-                                                }
-                                            ];
-                                        }
-                                    },
-                                },
-                                {
-                                    field: 'price', title: '身价', align: 'center', templet(d) {
-                                        return parseInt(d.price) / 10 + 'm';
-                                    }
-                                },
-                                {
-                                    field: 'elementTypeName',
-                                    title: '位置',
-                                    align: 'center',
-                                    filter: true,
-                                    templet: function (d) {
-                                        if (d.elementType == 1) {
-                                            return '<span style="background-color: #5FB878">' + d.elementTypeName + '</span>';
-                                        } else {
-                                            return d.elementTypeName;
-                                        }
-                                    }
-                                },
-                                {field: 'teamShortName', title: '球队', align: 'center', filter: true},
-                                {field: 'againstShortName', title: '对手', align: 'center'},
-                                {field: 'wasHome', title: '主场', align: 'center', filter: true},
-                                {field: 'score', title: '比分', align: 'center'},
-                                {field: 'minutes', title: '时间', align: 'center', filter: true},
-                                {
-                                    field: 'totalPoints',
-                                    title: '分数',
-                                    align: 'center',
-                                    filter: true,
-                                    style: 'background-color: #5FB878; color: #fff;'
-                                },
-                                {field: 'bps', title: 'bps', align: 'center', filter: true},
-                                {field: 'bonus', title: 'bonus', align: 'center', width: 90, filter: true},
-                                {
-                                    field: 'playStatus',
-                                    title: '状态',
-                                    align: 'center',
-                                    filter: true,
-                                    templet: function (d) {
-                                        if (d.playStatus == 0) {
-                                            return '比赛中';
-                                        } else if (d.playStatus == 1) {
-                                            return '已完赛';
-                                        } else if (d.playStatus == 2) {
-                                            return '未开始';
-                                        } else if (d.playStatus == 3) {
-                                            return '未完赛';
-                                        } else if (d.playStatus == 4) {
-                                            return '无比赛';
-                                        }
-                                    }
-                                }
-                            ]],
-                            id: "liveElementTable",
-                            filter: {
-                                items: ['data'],
-                                bottom: false
                             },
-                            done: function (res) {
-                                soulTable.render(this);
-                                let that = this.elem.next();
-                                res.data.forEach(function (d, index) {
-                                    if (d.pickAvtive == false) {
-                                        setTableRowColor(that, index, "#e2e2e2");
-                                    } else {
-                                        if (d.playStatus == 0) {
-                                            setTableRowColor(that, index, "#FFB800");
-                                        }
-                                    }
-                                });
+                        },
+                        {
+                            field: 'price', title: '身价', align: 'center', templet(d) {
+                                return parseInt(d.price) / 10 + 'm';
+                            }
+                        },
+                        {
+                            field: 'elementTypeName',
+                            title: '位置',
+                            align: 'center',
+                            filter: true,
+                            templet: function (d) {
+                                if (d.elementType == 1) {
+                                    return '<span style="background-color: #5FB878">' + d.elementTypeName + '</span>';
+                                } else {
+                                    return d.elementTypeName;
+                                }
+                            }
+                        },
+                        {field: 'teamShortName', title: '球队', align: 'center', filter: true},
+                        {field: 'againstShortName', title: '对手', align: 'center'},
+                        {field: 'wasHome', title: '主场', align: 'center', filter: true},
+                        {field: 'score', title: '比分', align: 'center'},
+                        {field: 'minutes', title: '时间', align: 'center', filter: true},
+                        {
+                            field: 'totalPoints',
+                            title: '分数',
+                            align: 'center',
+                            filter: true,
+                            style: 'background-color: #5FB878; color: #fff;'
+                        },
+                        {field: 'bps', title: 'bps', align: 'center', filter: true},
+                        {field: 'bonus', title: 'bonus', align: 'center', width: 90, filter: true},
+                        {
+                            field: 'playStatus',
+                            title: '状态',
+                            align: 'center',
+                            filter: true,
+                            templet: function (d) {
+                                if (d.playStatus == 0) {
+                                    return '比赛中';
+                                } else if (d.playStatus == 1) {
+                                    return '已完赛';
+                                } else if (d.playStatus == 2) {
+                                    return '未开始';
+                                } else if (d.playStatus == 3) {
+                                    return '未完赛';
+                                } else if (d.playStatus == 4) {
+                                    return '无比赛';
+                                }
+                            }
+                        }
+                    ]],
+                    id: "liveElementTable",
+                    filter: {
+                        items: ['data'],
+                        bottom: false
+                    },
+                    done: function (res) {
+                        soulTable.render(this);
+                        let that = this.elem.next();
+                        res.data.forEach(function (d, index) {
+                            if (d.pickAvtive == false) {
+                                setTableRowColor(that, index, "#e2e2e2");
+                            } else {
+                                if (d.playStatus == 0) {
+                                    setTableRowColor(that, index, "#FFB800");
+                                }
                             }
                         });
+                    }
+                });
 
-                    });
+            })
+            .catch(function (error) {
+                layer.close(loadIndex);
+                console.log(error.message);
             });
 
             entryButtonDom.on('click', function () {
-                // 保存查询的entry
-                let liveEntry = 0;
-                let entryInput = entryInputDom.val();
-                if (!new RegExp("^[1-9]\\d*$").test(entryInput)) {
+                let liveEntry = entryInputDom.val();
+                if (!new RegExp("^[1-9]\\d*$").test(liveEntry)) {
                     layer.msg('team_id需为正整数', {
                         offset: '100px',
                         shade: 0,
@@ -385,28 +397,33 @@
                     entryInputDom.val('');
                     return false;
                 }
-                liveEntry = parseInt(entryInput);
+
                 if (liveEntry > 0) {
-                    axios.get('/live/saveLiveEntry?liveEntry=' + liveEntry)
+                    axios.get('/saveSession?key=liveEntry&value=' + liveEntry)
                         .then(function () {
-                            reloadTable();
+                            reloadTable(liveEntry);
                             // 重设计时器
                             refreshTimeout = setTimeout(refresh, 300000);
                         })
                 }
+
+                $("#liveEntry").text(liveEntry);
+                reloadTable(liveEntry);
+                // 重设计时器
+                refreshTimeout = setTimeout(refresh, 300000);
             });
 
-            function reloadTable() {
-                let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
-                entryButtonDom.attr("disabled", "disabled");
+        function reloadTable(entry) {
+            let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+            entryButtonDom.attr("disabled", "disabled");
 
-                let now = new Date().toLocaleTimeString();
-                $("#headTitle").html("实时得分-" + now);
+            let now = new Date().toLocaleTimeString();
+            $("#headTitle").html("实时得分-" + now);
 
-                axios.get('/live/qryEntryLivePoints')
-                    .then(function (response) {
-                        layer.close(loadIndex);
-                        $("#entryButton").removeAttr("disabled");
+            axios.get('/live/qryEntryLivePoints?entry=' + entry)
+                .then(function (response) {
+                    layer.close(loadIndex);
+                    $("#entryButton").removeAttr("disabled");
 
                         table.reload('liveEntryTable', {
                             data: response.data

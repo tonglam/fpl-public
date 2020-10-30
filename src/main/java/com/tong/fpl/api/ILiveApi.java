@@ -3,6 +3,9 @@ package com.tong.fpl.api;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
+import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
+
+import java.util.List;
 
 /**
  * Create by tong on 2020/8/3
@@ -22,6 +25,8 @@ public interface ILiveApi {
 	/**
 	 * @apiNote match
 	 */
-	TableData<LiveMatchData> qryLiveMatchList(int statusId);
+	List<LiveMatchData> qryLiveMatchList(int statusId);
+
+	TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
 
 }

@@ -9,6 +9,7 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
+import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -216,5 +217,7 @@ public interface IQuerySerivce {
 	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
 	Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+
+	List<LiveMatchData> qryLiveMatchList(int statusId);
 
 }

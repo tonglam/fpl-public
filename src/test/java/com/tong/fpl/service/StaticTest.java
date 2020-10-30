@@ -20,7 +20,10 @@ public class StaticTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"3571"})
 	void getEntryInfoListFromClassic(int classicId) {
+		long startTime = System.currentTimeMillis();
 		List<EntryInfoData> list = this.staticSerive.getEntryInfoListFromClassic(classicId);
+		long endTime = System.currentTimeMillis();
+		System.out.println(endTime - startTime);
 		System.out.println(1);
 	}
 

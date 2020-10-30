@@ -1,6 +1,5 @@
 package com.tong.fpl.domain.letletme.live;
 
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -22,7 +21,6 @@ public class LiveMatchData {
 	private String awayTeamShortName;
 	private int awayScore;
 	private String kickoffTime;
-	private List<ElementEventResultData> homeElementResultList;
-	private List<ElementEventResultData> awayElementResultList;
+	private List<LiveMatchTeamData> teamDataList;
 
 }
