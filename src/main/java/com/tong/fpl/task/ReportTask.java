@@ -7,13 +7,14 @@ import com.tong.fpl.service.IReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
 /**
  * Create by tong on 2020/9/16
  */
-//@Component
+@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
@@ -21,7 +22,7 @@ public class ReportTask {
 	private final IQuerySerivce querySerivce;
 
 	// should start after deadline
-	@Scheduled(cron = "0 45 19 * * *")
+	@Scheduled(cron = "0 0 4 * * *")
 	public void insertTeamSelectStat() {
 		int event = this.querySerivce.getCurrentEvent();
 		Arrays.stream(ReportLeague.values()).forEach(o -> {
@@ -33,30 +34,30 @@ public class ReportTask {
 			} catch (Exception e) {
 				e.printStackTrace();
 				TaskLog.error("league:{}, error:{}", leagueId, e.getMessage());
-				this.insertLeagueResultStat();
+				this.insertTeamSelectStat();
 			}
 		});
 	}
 
-	@Scheduled(cron = "0 0 8 * * *")
-	public void insertLeagueResultStat() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isLastMatchDay(event)) {
-			return;
-		}
-		TaskLog.info("start true insertLeagueResultStat task");
-		Arrays.stream(ReportLeague.values()).forEach(o -> {
-			int leagueId = o.getId();
-			try {
-				TaskLog.info("start league:{}", leagueId);
-				this.reportService.insertLeagueResultStat(event, o.getType(), leagueId, o.getLimit());
-				TaskLog.info("end league:{}", leagueId);
-			} catch (Exception e) {
-				e.printStackTrace();
-				TaskLog.error("league:{}, error:{}", leagueId, e.getMessage());
-				this.insertLeagueResultStat();
-			}
-		});
-	}
+//	@Scheduled(cron = "0 0 8 * * *")
+//	public void insertLeagueResultStat() {
+//		int event = this.querySerivce.getCurrentEvent();
+//		if (!this.querySerivce.isLastMatchDay(event)) {
+//			return;
+//		}
+//		TaskLog.info("start true insertLeagueResultStat task");
+//		Arrays.stream(ReportLeague.values()).forEach(o -> {
+//			int leagueId = o.getId();
+//			try {
+//				TaskLog.info("start league:{}", leagueId);
+//				this.reportService.insertLeagueResultStat(event, o.getType(), leagueId, o.getLimit());
+//				TaskLog.info("end league:{}", leagueId);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				TaskLog.error("league:{}, error:{}", leagueId, e.getMessage());
+//				this.insertLeagueResultStat();
+//			}
+//		});
+//	}
 
 }
