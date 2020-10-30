@@ -146,7 +146,7 @@
                                 field: 'livePoints', title: '实时得分', style: 'background-color: #5FB878; color: #fff;',
                                 align: 'center', sort: true, filter: true
                             },
-                            {field: 'transferCost', title: '转会扣分', align: 'center', sort: true, filter: true},
+                            {field: 'transferCost', title: '剁手', align: 'center', width: 80, sort: true, filter: true},
                             {
                                 field: 'liveNetPoints',
                                 title: '实时净得分',
@@ -155,6 +155,8 @@
                                 sort: true,
                                 filter: true
                             },
+                            {field: 'played', title: '已完赛', align: 'center', width: 80},
+                            {field: 'toPlay', title: '待出场', align: 'center', width: 80},
                             {
                                 field: 'chip', title: '开卡', align: 'center', filter: true, templet: function (d) {
                                     if (d.chip == null) {
