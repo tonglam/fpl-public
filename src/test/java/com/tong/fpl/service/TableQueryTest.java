@@ -76,7 +76,7 @@ public class TableQueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1"})
+	@CsvSource({"0"})
 	void qryLiveMatchList(int statusId) {
 		TableData<LiveMatchTeamData> data = this.tableQueryService.qryLiveTeamDataList(statusId);
 		System.out.println(1);
