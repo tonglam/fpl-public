@@ -18,21 +18,6 @@
 
             <div style="margin-top: 20px"></div>
 
-            <form class="layui-form">
-
-                <div class="layui-form-item">
-                    <label class="layui-form-label">自动刷新</label>
-                    <div class="layui-input-inline">
-                        <input lay-filter="refreshSwitch" lay-skin="switch" lay-text="开|关" name="refreshSwitch"
-                               type="checkbox">
-                    </div>
-                    <div class="layui-form-mid layui-word-aux" style="margin-left: -120px">开启后每5分钟自动刷新</div>
-                </div>
-
-            </form>
-
-            <div style="margin-top: 20px"></div>
-
             <div class="layui-tab" lay-filter="matchStatusTab">
 
                 <ul class="layui-tab-title">
@@ -120,7 +105,7 @@
 </script>
 
 <script th:inline="none">
-    layui.use(['element', 'form', 'layer', 'table', 'soulTable'], function () {
+    layui.use(['element', 'layer', 'table', 'soulTable'], function () {
         let $ = layui.jquery, element = layui.element, layer = layui.layer, table = layui.table,
             soulTable = layui.soulTable;
 
@@ -149,6 +134,7 @@
 
                     if (response.data.length == 0) {
                         $("#playingMatchTips").html('没有进行中的比赛');
+                        clearInterval(refreshTimeout);
                         return false;
                     }
 
@@ -162,6 +148,7 @@
                             elem: '#' + tableId,
                             data: teamData,
                             even: true,
+                            limit: 15,
                             cellMinWidth: 60,
                             width: 1085,
                             cols: [[
@@ -257,7 +244,7 @@
                             elem: '#' + tableId,
                             data: teamData,
                             even: true,
-                            limits: 15,
+                            limit: 15,
                             cellMinWidth: 60,
                             width: 1085,
                             cols: [[
