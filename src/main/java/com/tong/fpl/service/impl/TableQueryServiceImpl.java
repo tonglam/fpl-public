@@ -491,7 +491,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
             List<TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityList = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
                     .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
                     .eq(TournamentPointsGroupResultEntity::getEvent, event)
-                    .gt(TournamentPointsGroupResultEntity::getEventPoints, 0)
+                    .gt(TournamentPointsGroupResultEntity::getEventNetPoints, 0)
                     .orderByDesc(TournamentPointsGroupResultEntity::getEventPoints));
             if (CollectionUtils.isEmpty(tournamentPointsGroupResultEntityList)) {
                 return;
