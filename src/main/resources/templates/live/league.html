@@ -130,6 +130,7 @@
                                 field: 'entry',
                                 title: '队伍id',
                                 align: 'center',
+                                width: 100,
                                 templet: '#entryTpl'
                             },
                             {field: 'entryName', title: '队伍名称', align: 'center', width: 180, filter: true},
@@ -158,7 +159,12 @@
                             {field: 'played', title: '已完赛', align: 'center', width: 80},
                             {field: 'toPlay', title: '待出场', align: 'center', width: 80},
                             {
-                                field: 'chip', title: '开卡', align: 'center', filter: true, templet: function (d) {
+                                field: 'chip',
+                                title: '开卡',
+                                align: 'center',
+                                width: 80,
+                                filter: true,
+                                templet: function (d) {
                                     if (d.chip == null) {
                                         return "无";
                                     } else {
