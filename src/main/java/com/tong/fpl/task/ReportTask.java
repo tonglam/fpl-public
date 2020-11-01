@@ -7,14 +7,13 @@ import com.tong.fpl.service.IReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
 /**
  * Create by tong on 2020/9/16
  */
-@Component
+//@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
