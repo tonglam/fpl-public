@@ -3,7 +3,6 @@ package com.tong.fpl.service;
 import com.google.common.collect.Maps;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
-import com.tong.fpl.service.db.PlayerService;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +17,9 @@ public class LiveTest extends FplApplicationTests {
 
 	@Autowired
 	private ILiveService liveCalcService;
-	@Autowired
-	private PlayerService playerService;
 
 	@ParameterizedTest
-	@CsvSource({"1, 1870"})
+	@CsvSource({"7, 1327348"})
 	void calcLivePoints(int event, int entry) {
 		LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
 		System.out.println("points: " + liveCalaData.getLivePoints());
