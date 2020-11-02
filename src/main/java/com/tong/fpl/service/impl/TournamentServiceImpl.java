@@ -226,6 +226,9 @@ public class TournamentServiceImpl implements ITournamentService {
 							.setBank(o.getLastDeadlineBank())
 							.setTeamValue(o.getLastDeadlineValue())
 							.setTotalTransfers(o.getLastDeadlineTotalTransfers())
+							.setLastOverallPoints(o.getSummaryOverallPoints())
+							.setLastOverallRank(o.getSummaryOverallRank())
+							.setLastTeamValue(o.getLastDeadlineValue())
 					)
 			);
 		});
@@ -1053,6 +1056,9 @@ public class TournamentServiceImpl implements ITournamentService {
 							.setBank(o.getLastDeadlineBank())
 							.setTeamValue(o.getLastDeadlineValue())
 							.setTotalTransfers(o.getLastDeadlineTotalTransfers())
+							.setLastOverallPoints(o.getSummaryOverallPoints())
+							.setLastOverallRank(o.getSummaryOverallRank())
+							.setLastTeamValue(o.getLastDeadlineValue())
 					)
 			);
 		});

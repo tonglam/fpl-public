@@ -69,7 +69,10 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 					.setOverallRank(entryRes.getSummaryOverallRank())
 					.setBank(entryRes.getLastDeadlineBank())
 					.setTeamValue(entryRes.getLastDeadlineValue())
-					.setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+					.setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
+					.setLastOverallPoints(entryRes.getSummaryOverallPoints())
+					.setLastOverallRank(entryRes.getSummaryOverallRank())
+					.setLastTeamValue(entryRes.getLastDeadlineValue());
 			// user_history
 			Current lastCurrent = this.getUserLastCurrent(entry);
 			entryInfoEntity
