@@ -198,15 +198,12 @@ public class LiveService implements ILiveService {
 		List<ElementEventResultData> pickList = this.getPickList(elementEventResultDataList);
 		// calc live points
 		int livePoints = this.calcActivePoints(Chip.getChipFromValue(userPicksRes.getActiveChip()), pickList);
+		// sortPickList
+		List<ElementEventResultData> sortedPickList = this.sortPickList(pickList);
 		return new LiveCalaData()
 				.setEntry(entry)
 				.setEvent(event)
-				.setPickList(pickList
-						.stream()
-						.sorted(Comparator.comparing(ElementEventResultData::isPickAvtive).reversed()
-								.thenComparing(ElementEventResultData::getPlayStatus))
-						.collect(Collectors.toList())
-				)
+				.setPickList(sortedPickList)
 				.setChip(userPicksRes.getActiveChip())
 				.setLivePoints(livePoints)
 				.setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
@@ -491,6 +488,34 @@ public class LiveService implements ILiveService {
 					.orElse(0);
 		}
 		return activeCaptain;
+	}
+
+	private List<ElementEventResultData> sortPickList(List<ElementEventResultData> pickList) {
+		List<ElementEventResultData> list = Lists.newArrayList();
+		list.add(pickList.get(0));
+		list.addAll(pickList
+				.stream()
+				.filter(o -> o.getElementType() != 1)
+				.filter(ElementEventResultData::isPickAvtive)
+				.sorted(Comparator.comparing(ElementEventResultData::getPlayStatus)
+						.thenComparing(ElementEventResultData::getElementType)
+						.thenComparing(ElementEventResultData::getPosition))
+				.collect(Collectors.toList()));
+		list.add(pickList
+				.stream()
+				.filter(o -> o.getElementType() == 1)
+				.filter(o -> !list.contains(o))
+				.findFirst()
+				.orElse(new ElementEventResultData()));
+		list.addAll(pickList
+				.stream()
+				.filter(o -> o.getElementType() != 1)
+				.filter(o -> !o.isPickAvtive())
+				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
+				.collect(Collectors.toList()));
+		list.subList(0, 11).forEach(o -> o.setAutosub(o.getPosition() > 11));
+		list.subList(11, 15).forEach(o -> o.setAutosub(o.getPosition() < 12));
+		return list;
 	}
 
 	@SafeVarargs
