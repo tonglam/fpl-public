@@ -20,6 +20,7 @@
 
             <div class="layui-hide" id="entry" th:text="${session.entry}"></div>
             <div class="layui-hide" id="liveEntry" th:text="${session.liveEntry}"></div>
+            <div class="layui-hide" id="qryEntry" th:text="${qryEntry}"></div>
 
             <form class="layui-form">
 
@@ -63,12 +64,12 @@
 <script th:inline="none">
     layui.use(['form', 'layer', 'table', 'soulTable'], function () {
 
-            let $ = layui.jquery, form = layui.form, layer = layui.layer, table = layui.table, soulTable = layui.soulTable;
+        let $ = layui.jquery, form = layui.form, layer = layui.layer, table = layui.table, soulTable = layui.soulTable;
 
-            let refreshTimeout = setTimeout(refresh, 300000);
+        let refreshTimeout = setTimeout(refresh, 300000);
 
-            let entryInputDom = $("input[name=entryInput]");
-            let entryButtonDom = $("#entryButton");
+        let entryInputDom = $("input[name=entryInput]");
+        let entryButtonDom = $("#entryButton");
 
         soulTable.config({
             drag: false,
@@ -79,7 +80,10 @@
             }
         });
 
-        let entry = $("#liveEntry").text();
+        let entry = $("#qryEntry").text();
+        if (entry === '') {
+            entry = $("#liveEntry").text();
+        }
         if (entry === '') {
             entry = $("#entry").text();
         }
@@ -401,16 +405,14 @@
                 if (liveEntry > 0) {
                     axios.get('/saveSession?key=liveEntry&value=' + liveEntry)
                         .then(function () {
+                            entryInputDom.val('');
+                            $("#liveEntry").text(liveEntry);
                             reloadTable(liveEntry);
                             // 重设计时器
                             refreshTimeout = setTimeout(refresh, 300000);
                         })
                 }
 
-                $("#liveEntry").text(liveEntry);
-                reloadTable(liveEntry);
-                // 重设计时器
-                refreshTimeout = setTimeout(refresh, 300000);
             });
 
         function reloadTable(entry) {
@@ -425,15 +427,15 @@
                     layer.close(loadIndex);
                     $("#entryButton").removeAttr("disabled");
 
-                        table.reload('liveEntryTable', {
-                            data: response.data
-                        });
+                    table.reload('liveEntryTable', {
+                        data: response.data
+                    });
 
-                        table.reload('liveElementTable', {
-                            data: response.data[0].pickList
-                        });
+                    table.reload('liveElementTable', {
+                        data: response.data[0].pickList
+                    });
 
-                    })
+                })
 
             }
 
@@ -453,7 +455,7 @@
             });
 
             function refresh() {
-                window.location.replace("/live/entry");
+                window.location.reload();
             }
 
         }

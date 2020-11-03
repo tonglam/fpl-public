@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
-
 /**
  * Create by tong on 2020/6/23
  */
@@ -24,70 +22,70 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveController {
 
-    private final IHttpApi httpApi;
-    private final ILiveApi liveApi;
+	private final IHttpApi httpApi;
+	private final ILiveApi liveApi;
 
-    @GetMapping(value = "/entry")
-    public String entryController() {
-        return "live/entry";
-    }
+	@GetMapping(value = "/entry")
+	public String entryController() {
+		return "live/entry";
+	}
 
-    @GetMapping(value = "/liveEntry")
-    public String liveEntryController(@RequestParam int liveEntry, HttpSession session) {
-        session.setAttribute("liveEntry", liveEntry);
-        return "redirect:/live/entry";
-    }
+	@GetMapping(value = "/entry/liveEntry")
+	public String liveEntryController(@RequestParam int entry, Model model) {
+		model.addAttribute("qryEntry", entry);
+		return "forward:/live/entry";
+	}
 
-    @GetMapping(value = "/league")
-    public String leagueController(Model model) {
-        model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-        return "live/league";
-    }
+	@GetMapping(value = "/league")
+	public String leagueController(Model model) {
+		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+		return "live/league";
+	}
 
-    @GetMapping(value = "/match")
-    public String matchController(Model model) {
-        model.addAttribute("matchList", this.liveApi.qryLiveMatchList(0));
-        return "live/match";
-    }
+	@GetMapping(value = "/match")
+	public String matchController(Model model) {
+		model.addAttribute("matchList", this.liveApi.qryLiveMatchList(0));
+		return "live/match";
+	}
 
-    @GetMapping(value = "/match/reload")
-    public String matchController(@RequestParam int statusId, Model model) {
-        model.addAttribute("matchList", this.liveApi.qryLiveMatchList(statusId));
-        if (statusId == 0) {
-            return "live/match::playingContent";
-        } else {
-            return "live/match::finishedContent";
-        }
-    }
+	@GetMapping(value = "/match/reload")
+	public String matchController(@RequestParam int statusId, Model model) {
+		model.addAttribute("matchList", this.liveApi.qryLiveMatchList(statusId));
+		if (statusId == 0) {
+			return "live/match::playingContent";
+		} else {
+			return "live/match::finishedContent";
+		}
+	}
 
-    /**
-     * @apiNote entry
-     */
-    @RequestMapping("/qryEntryLivePoints")
-    @ResponseBody
-    public TableData<LiveCalaData> qryEntryLivePoints(@RequestParam int entry) {
-        if (entry <= 0) {
-            return new TableData<>();
-        }
-        return this.liveApi.qryEntryLivePoints(entry);
-    }
+	/**
+	 * @apiNote entry
+	 */
+	@RequestMapping("/qryEntryLivePoints")
+	@ResponseBody
+	public TableData<LiveCalaData> qryEntryLivePoints(@RequestParam int entry) {
+		if (entry <= 0) {
+			return new TableData<>();
+		}
+		return this.liveApi.qryEntryLivePoints(entry);
+	}
 
-    /**
-     * @apiNote league
-     */
-    @RequestMapping("/qryTournamentLivePoints")
-    @ResponseBody
-    public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
-        return this.liveApi.qryTournamentLivePoints(tournamentId);
-    }
+	/**
+	 * @apiNote league
+	 */
+	@RequestMapping("/qryTournamentLivePoints")
+	@ResponseBody
+	public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
+		return this.liveApi.qryTournamentLivePoints(tournamentId);
+	}
 
-    /**
-     * @apiNote match
-     */
-    @RequestMapping("/qryLiveTeamDataList")
-    @ResponseBody
-    public TableData<LiveMatchTeamData> qryLiveTeamDataList(@RequestParam int statusId) {
-        return this.liveApi.qryLiveTeamDataList(statusId);
-    }
+	/**
+	 * @apiNote match
+	 */
+	@RequestMapping("/qryLiveTeamDataList")
+	@ResponseBody
+	public TableData<LiveMatchTeamData> qryLiveTeamDataList(@RequestParam int statusId) {
+		return this.liveApi.qryLiveTeamDataList(statusId);
+	}
 
 }

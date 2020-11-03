@@ -187,7 +187,7 @@ public class LiveService implements ILiveService {
 	                                               ForkJoinPool forkJoinPool) {
 		// get user pick
 		UserPicksRes userPicksRes = this.querySerivce.getUserPicks(event, entry);
-		if (CollectionUtils.isEmpty(userPicksRes.getPicks())) {
+		if (userPicksRes == null || CollectionUtils.isEmpty(userPicksRes.getPicks())) {
 			return new LiveCalaData();
 		}
 		// initialize element_live_data, static part
@@ -344,12 +344,12 @@ public class LiveService implements ILiveService {
 			if (eventLiveEntity != null) {
 				BeanUtil.copyProperties(eventLiveEntity, elementEventResultData, CopyOptions.create().ignoreNullValue());
 				elementEventResultData.setPlayed(elementEventResultData.getMinutes() > 0 || elementEventResultData.getYellowCards() > 0 || elementEventResultData.getRedCards() > 0);
-				this.setEventLiveBonusData(elementEventResultData, eventLiveEntity, liveBonusTable);
+				this.setEventLiveBonusData(elementEventResultData, liveBonusTable);
 			}
 		});
 	}
 
-	private void setEventLiveBonusData(ElementEventResultData elementEventResultData, EventLiveEntity eventLiveEntity, Table<Integer, Integer, Integer> liveBonusTable) {
+	private void setEventLiveBonusData(ElementEventResultData elementEventResultData, Table<Integer, Integer, Integer> liveBonusTable) {
 		int teamId = elementEventResultData.getTeamId();
 		int element = elementEventResultData.getElement();
 		if (liveBonusTable.contains(teamId, element)) {
@@ -409,7 +409,7 @@ public class LiveService implements ILiveService {
 		List<ElementEventResultData> activeList = this.createSteam(gkps, defs, fwds, mids)
 				.flatMap(Collection::stream)
 				.sorted(Comparator.comparing(ElementEventResultData::getElementType)
-						.thenComparing(Comparator.comparing(ElementEventResultData::getPosition)))
+						.thenComparing(ElementEventResultData::getPosition))
 				.collect(Collectors.toList());
 		List<ElementEventResultData> standByList = this.createSteam(
 				map.get(Position.DEF.getPosition()).get(true, false),

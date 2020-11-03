@@ -213,6 +213,9 @@ public class QueryServiceImpl implements IQuerySerivce {
 			return new EntryInfoEntity();
 		}
 		EntryRes entryRes = this.getEntry(entry);
+		if (entryRes == null) {
+			return new EntryInfoEntity();
+		}
 		return new EntryInfoEntity()
 				.setEntry(entryRes.getId())
 				.setEntryName(entryRes.getName())
