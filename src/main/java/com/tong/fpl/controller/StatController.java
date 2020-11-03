@@ -29,36 +29,36 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatController {
 
-    private final IStatApi statApi;
-    private final IHttpApi httpApi;
+	private final IStatApi statApi;
+	private final IHttpApi httpApi;
 
-    @GetMapping(value = "/price")
-    public String priceController() {
-        return "stat/price";
-    }
+	@GetMapping(value = "/price")
+	public String priceController() {
+		return "stat/price";
+	}
 
-    @GetMapping(value = "/compare")
-    public String compareController() {
-        return "stat/compare";
-    }
+	@GetMapping(value = "/compare")
+	public String compareController() {
+		return "stat/compare";
+	}
 
-    @GetMapping(value = "/captain")
-    public String captainController(Model model) {
-        model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-        model.addAttribute("tournamentName", "赛事：让让我吧");
-        return "stat/captain";
-    }
+	@GetMapping(value = "/captain")
+	public String captainController(Model model) {
+		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+		model.addAttribute("seasonMap", CommonUtils.createSeasonMapForOption());
+		return "stat/captain";
+	}
 
-    @GetMapping(value = "/selected")
-    public String selectedController(Model model) {
-	    List<String> leagueList = this.statApi.qryTeamSelectStatList();
-	    if (!CollectionUtils.isEmpty(leagueList)) {
-		    model.addAttribute("leagueList", leagueList);
-	    }
-	    model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-	    model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
-	    return "stat/selected";
-    }
+	@GetMapping(value = "/selected")
+	public String selectedController(Model model) {
+		List<String> leagueList = this.statApi.qryTeamSelectStatList();
+		if (!CollectionUtils.isEmpty(leagueList)) {
+			model.addAttribute("leagueList", leagueList);
+		}
+		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+		return "stat/selected";
+	}
 
 	/**
 	 * @apiNote price

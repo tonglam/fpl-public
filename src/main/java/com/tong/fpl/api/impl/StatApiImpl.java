@@ -49,7 +49,7 @@ public class StatApiImpl implements IStatApi {
 
 	@Override
 	public TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry) {
-		return this.tableQueryService.qryEntryCaptainList(season, entry);
+		return null;
 	}
 
 	/**

@@ -12,7 +12,9 @@ import java.util.List;
 @Accessors(chain = true)
 public class TournamentGroupEventChampionData {
 
-	private List<TournamentPointsGroupEventResultData> eventResultList;
+	private List<TournamentPointsGroupEventResultData> eventChampionResultList;
+	private List<TournamentPointsGroupEventResultData> eventRunnerUpResultList;
+	private List<TournamentPointsGroupEventResultData> eventSecondRunnerUpResultList;
 	private List<TournamentGroupChampionCountData> championCountList;
 
 }

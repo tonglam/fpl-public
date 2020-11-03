@@ -1,7 +1,6 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
-import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -85,8 +84,5 @@ public interface ITableQueryService {
 	 * @apiNote report
 	 */
 	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
-
-	//待重构
-	TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
 
 }

@@ -95,8 +95,7 @@
                                         <label class="layui-form-label label-required">小组赛模式</label>
                                         <div class="layui-input-block">
                                             <select class="layui-select" lay-filter="groupMode" lay-reqtext="请选择小组赛模式"
-                                                    lay-verify="required"
-                                                    name="groupMode">
+                                                    lay-verify="required" name="groupMode">
                                                 <option value=""></option>
                                                 <option value="0">无小组赛</option>
                                                 <option value="1">积分赛</option>
@@ -111,8 +110,7 @@
                                         <label class="layui-form-label label-required">开始时间</label>
                                         <div class="layui-input-block">
                                             <select class="layui-select" lay-filter="groupStartGw" lay-search=""
-                                                    lay-verify="required"
-                                                    name="groupStartGw">
+                                                    lay-verify="required" name="groupStartGw">
                                                 <option th:each="item,userStat:${gwMap}"
                                                         th:text="${userStat.current.value}"
                                                         th:value="${userStat.current.key}"></option>
@@ -123,8 +121,7 @@
                                         <label class="layui-form-label label-required">结束时间</label>
                                         <div class="layui-input-block">
                                             <select class="layui-select" lay-filter="groupEndGw" lay-search=""
-                                                    lay-verify="required"
-                                                    name="groupEndGw">
+                                                    lay-verify="required" name="groupEndGw">
                                                 <option th:each="item,userStat:${gwMap}"
                                                         th:text="${userStat.current.value}"
                                                         th:value="${userStat.current.key}"></option>
@@ -149,8 +146,7 @@
                                         </div>
                                         <div class="layui-col-sm2" style="margin-right: 48px">
                                             <input class="layui-input" lay-filter="groupFillAverage" lay-skin="switch"
-                                                   lay-text="是|否"
-                                                   name="groupFillAverage" type="checkbox" value=1>
+                                                   lay-text="是|否" name="groupFillAverage" type="checkbox" value=1>
                                         </div>
                                         <div class="layui-col-sm6">
                                             <div class="layui-form-mid layui-word-aux" id="fillAverageTips"></div>

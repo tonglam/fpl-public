@@ -42,6 +42,23 @@ public class CommonUtils {
 		return map;
 	}
 
+	public static Map<String, String> createSeasonMapForOption() {
+		Map<String, String> map = Maps.newLinkedHashMap();
+		map.put("", "请选择");
+		LocalDate startYear = LocalDate.of(2019, 1, 1);
+		LocalDate endYear = LocalDate.now().plusYears(1);
+		IntStream.range(0, 10).forEachOrdered(i -> {
+			LocalDate year = startYear.plusYears(i);
+			LocalDate nextYear = year.plusYears(1);
+			if (nextYear.isAfter(endYear)) {
+				return;
+			}
+			String season = String.valueOf(year).substring(2, 4) + String.valueOf(nextYear).substring(2, 4);
+			map.put(season, season);
+		});
+		return map;
+	}
+
 	public static String getCurrentSeason() {
 		return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
 				String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);

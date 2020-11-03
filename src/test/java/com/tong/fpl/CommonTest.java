@@ -2,14 +2,16 @@ package com.tong.fpl;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.utils.JsonUtils;
+import com.tong.fpl.utils.CommonUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 
 /**
@@ -45,12 +47,8 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		Map<Integer, Integer> map = Maps.newHashMap();
-		map.put(1, 1);
-		String a = JsonUtils.obj2json(map);
-		System.out.println(a);
+		System.out.println(CommonUtils.createSeasonMapForOption());
 	}
-
 
 	@Test
 	void guavaTable() {

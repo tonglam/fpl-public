@@ -62,7 +62,7 @@ public class TableQueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"8"})
+	@CsvSource({"3"})
 	void qryPointsGroupChampion(int tournamentId) {
 		TableData<TournamentGroupEventChampionData> data = this.tableQueryService.qryPointsGroupChampion(tournamentId);
 		System.out.println(1);

@@ -213,6 +213,14 @@
 
 </script>
 
+<script id="championToolbar" type="text/html">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="checkEventChampion">周冠军榜</button>
+        <button class="layui-btn layui-btn-sm" lay-event="checkEventRunnerUp">周亚军榜</button>
+        <button class="layui-btn layui-btn-sm" lay-event="checkEventSecondRunerUp">周季军榜</button>
+    </div>
+</script>
+
 <script id="entryTpl" type="text/html">
     <a href="https://fantasy.premierleague.com/entry/{{d.entry}}/event/{{d.event}}" target="_blank"
        title="查看官网分数" class="layui-table-link">{{d.entry}}</a>
@@ -234,12 +242,16 @@
         let tournamentId = getUrlParam("id"), groupNum = $("#groupNum").text();
 
         <!-- 冠军榜 -->
+        let eventChampionData = [];
         axios.get('/tournament/qryPointsGroupChampion?tournamentId=' + tournamentId)
             .then(function (response) {
-                let eventResultData = response.data[0].eventResultList;
+                eventChampionData = response.data[0];
+
                 table.render({
                     elem: '#championTable',
-                    data: eventResultData,
+                    data: eventChampionData.eventChampionResultList,
+                    toolbar: '#championToolbar',
+                    defaultToolbar: false,
                     loading: true,
                     page: true,
                     limit: 10,
@@ -248,7 +260,7 @@
                     cellMinWidth: 80,
                     cols: [[
                         {field: 'event', title: 'GW', align: 'center', width: 60},
-                        {field: 'entryName', title: '冠军', align: 'center', width: 180},
+                        {field: 'entryName', title: '周冠军', align: 'center', width: 180},
                         {field: 'points', title: '得分', align: 'center'},
                         {field: 'cost', title: '扣分', align: 'center'},
                         {field: 'netPoints', title: '净得分', align: 'center'}
@@ -259,10 +271,9 @@
                     }
                 });
 
-                let championCountData = response.data[0].championCountList;
                 table.render({
                     elem: '#championCountTable',
-                    data: championCountData,
+                    data: eventChampionData.championCountList,
                     loading: true,
                     page: true,
                     limit: 10,
@@ -289,6 +300,52 @@
             .catch(function (error) {
                 console.info(error.message);
             });
+
+        table.on('toolbar(championTable)', function (obj) {
+            switch (obj.event) {
+                case 'checkEventChampion': {
+                    table.reload('championTable', {
+                        data: eventChampionData.eventChampionResultList,
+                        cols: [[
+                            {field: 'event', title: 'GW', align: 'center', width: 60},
+                            {field: 'entryName', title: '周冠军', align: 'center', width: 180},
+                            {field: 'points', title: '得分', align: 'center'},
+                            {field: 'cost', title: '扣分', align: 'center'},
+                            {field: 'netPoints', title: '净得分', align: 'center'}
+                        ]]
+                    })
+                    break;
+                }
+                case 'checkEventRunnerUp': {
+                    table.reload('championTable', {
+                        data: eventChampionData.eventRunnerUpResultList,
+                        cols: [[
+                            {field: 'event', title: 'GW', align: 'center', width: 60},
+                            {field: 'entryName', title: '周亚军', align: 'center', width: 180},
+                            {field: 'points', title: '得分', align: 'center'},
+                            {field: 'cost', title: '扣分', align: 'center'},
+                            {field: 'netPoints', title: '净得分', align: 'center'}
+                        ]]
+                    })
+                    break;
+                }
+                case 'checkEventSecondRunerUp': {
+                    table.reload('championTable', {
+                        data: eventChampionData.eventSecondRunnerUpResultList,
+                        cols: [[
+                            {field: 'event', title: 'GW', align: 'center', width: 60},
+                            {field: 'entryName', title: '周季军', align: 'center', width: 180},
+                            {field: 'points', title: '得分', align: 'center'},
+                            {field: 'cost', title: '扣分', align: 'center'},
+                            {field: 'netPoints', title: '净得分', align: 'center'}
+                        ]]
+                    })
+                    break;
+                }
+                default:
+                    return false;
+            }
+        });
 
         <!-- 积分榜 -->
         for (let i = 1; i < groupNum + 1; i++) {
@@ -331,7 +388,7 @@
                                     {field: 'event', title: 'GW', align: 'center'},
                                     {field: 'groupRank', title: '周小组排名', align: 'center'},
                                     {field: 'points', title: '得分', align: 'center'},
-                                    {field: 'cost', title: '扣分', align: 'center'},
+                                    {field: 'cost', title: '剁手', align: 'center'},
                                     {field: 'netPoints', title: '净得分', align: 'center'},
                                     {field: 'benchPoints', title: '板凳得分', align: 'center'},
                                     {field: 'chip', title: '开卡', align: 'center'},
@@ -359,16 +416,15 @@
                     {field: 'entry', title: 'team_id', align: 'center', width: 100, templet: "#entryTpl"},
                     {field: 'entryName', title: '队名', align: 'center', width: 180},
                     {field: 'playerName', title: '玩家', align: 'center', width: 180},
-                    {field: 'totalPoints', title: '总得分', align: 'center', sort: true, filter: true},
-                    {field: 'totalTransfersCost', title: '总剁手', align: 'center', sort: true, filter: true},
                     {
                         field: 'totalNetPoints',
-                        title: '净得分',
+                        title: '总得分',
                         align: 'center',
                         sort: true,
                         filter: true,
                         style: 'background-color: #5FB878; color: #fff;'
                     },
+                    {field: 'totalTransfersCost', title: '总剁手', align: 'center', sort: true, filter: true},
                     {
                         field: 'overallRank',
                         title: '总排名',
