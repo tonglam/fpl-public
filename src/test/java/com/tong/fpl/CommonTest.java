@@ -8,10 +8,7 @@ import com.tong.fpl.utils.CommonUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -47,7 +44,8 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		System.out.println(CommonUtils.createSeasonMapForOption());
+		Map<String, String> map = CommonUtils.createCurrentGwMapForOption(8);
+		System.out.println(1);
 	}
 
 	@Test

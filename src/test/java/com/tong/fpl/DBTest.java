@@ -41,7 +41,7 @@ public class DBTest extends FplApplicationTests {
 	@Autowired
 	private TournamentKnockoutService tournamentKnockoutService;
 	@Autowired
-	private TeamSelectStatService teamSelectStatService;
+	private LeagueEventStatService teamSelectStatService;
 
 	@Test
 	void test() {
@@ -143,9 +143,9 @@ public class DBTest extends FplApplicationTests {
 	@CsvSource("这破游戏⚽️让让群姐妹联赛大乱斗, 1")
 	void teamSelect(String leagueName, int event) {
 		List<Integer> elementList = Lists.newArrayList();
-		this.teamSelectStatService.list(new QueryWrapper<TeamSelectStatEntity>().lambda()
-				.eq(TeamSelectStatEntity::getLeagueName, leagueName)
-				.eq(TeamSelectStatEntity::getEvent, event))
+		this.teamSelectStatService.list(new QueryWrapper<LeagueEventStatEntity>().lambda()
+				.eq(LeagueEventStatEntity::getLeagueName, leagueName)
+				.eq(LeagueEventStatEntity::getEvent, event))
 				.forEach(o -> {
 					elementList.add(o.getPosition1());
 					elementList.add(o.getPosition2());

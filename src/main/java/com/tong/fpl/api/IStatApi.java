@@ -1,11 +1,13 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
-import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.tournament.TournamentEventCaptainData;
+import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
 
 import java.util.List;
 
@@ -22,9 +24,11 @@ public interface IStatApi {
 	/**
 	 * @apiNote captain
 	 */
-	TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
+	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-	TableData<EntryEventCaptainData> qryEntryCaptainList(String season, int entry);
+	TableData<TournamentEventCaptainData> qryLeagueCaptainDataList(int tournamentId);
+
+	TableData<EntryEventCaptainData> qryLeagueEventCaptainDataList(int tournamentId, int event);
 
 	/**
 	 * @apiNote compare
@@ -37,5 +41,10 @@ public interface IStatApi {
 	List<String> qryTeamSelectStatList();
 
 	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+
+	/**
+	 * @apiNote common
+	 */
+	TournamentInfoData qryTournamentInfoById(int id);
 
 }

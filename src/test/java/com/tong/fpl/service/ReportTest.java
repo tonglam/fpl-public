@@ -7,25 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class ReportTest extends FplApplicationTests {
 
-    @Autowired
-    private IReportService reportService;
+	@Autowired
+	private IReportService reportService;
 
+	@ParameterizedTest
+	@CsvSource({"1, 3571, Classic, 0"})
+	void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit) {
+		this.reportService.insertLeagueEventSelectStat(event, leagueId, leagueType, limit);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"7, Classic, 314, 10000"})
-    void inertTeamSelectStat(int event, String leagueType, int leagueId, int limit) {
-        this.reportService.inertTeamSelectStat(event, leagueType, leagueId, limit);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"2, Classic, 3571, 0"})
-    void insertLeagueResultStat(int event, String leagueType, int leagueId, int limit) {
-        long startTime = System.currentTimeMillis();
-        this.reportService.insertLeagueResultStat(event, leagueType, leagueId, limit);
-        long endTime = System.currentTimeMillis();
-        System.out.println("escape: " + (endTime - startTime) + "ms");
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"1, 65, Classic"})
+	void updateLeagueEventResultStat(int event, int leagueId, String leagueType) {
+		this.reportService.updateLeagueEventResultStat(event, leagueId, leagueType);
+		System.out.println(1);
+	}
 
 }

@@ -2,9 +2,6 @@ package com.tong.fpl.api.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.tong.fpl.api.ITournamentApi;
-import com.tong.fpl.constant.enums.GroupMode;
-import com.tong.fpl.constant.enums.KnockoutMode;
-import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.global.StepsData;
@@ -15,7 +12,6 @@ import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.ITournamentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -199,19 +195,9 @@ public class TournamentApiImpl implements ITournamentApi {
 		return this.tableQueryService.qryTournamenList(param);
 	}
 
-	@Cacheable(cacheNames = "tournamentData", key = "#tournamentId")
 	@Override
 	public TournamentInfoData qryTournamentInfoById(int tournamentId) {
-		TournamentInfoData tournamentInfoData = new TournamentInfoData();
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
-		if (tournamentInfoEntity == null) {
-			return tournamentInfoData;
-		}
-		BeanUtil.copyProperties(tournamentInfoEntity, tournamentInfoData);
-		tournamentInfoData
-				.setGroupModeName(GroupMode.valueOf(tournamentInfoData.getGroupMode()).getModeName())
-				.setKnockoutModeName(KnockoutMode.valueOf(tournamentInfoData.getKnockoutMode()).getModeName());
-		return tournamentInfoData;
+		return this.querySerivce.qryTournamentDataById(tournamentId);
 	}
 
 	@Override

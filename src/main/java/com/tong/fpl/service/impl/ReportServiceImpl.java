@@ -1,27 +1,25 @@
 package com.tong.fpl.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.LeagueType;
+import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
+import com.tong.fpl.domain.entity.EntryEventResultEntity;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.LeagueResultStatEntity;
-import com.tong.fpl.domain.entity.TeamSelectStatEntity;
+import com.tong.fpl.domain.entity.LeagueEventStatEntity;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
-import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
-import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.IStaticSerive;
+import com.tong.fpl.service.db.EntryEventResultService;
+import com.tong.fpl.service.db.EntryInfoService;
 import com.tong.fpl.service.db.EventLiveService;
-import com.tong.fpl.service.db.LeagueResultStatService;
-import com.tong.fpl.service.db.TeamSelectStatService;
-import com.tong.fpl.utils.JsonUtils;
+import com.tong.fpl.service.db.LeagueEventStatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -29,16 +27,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.validation.constraints.NotEmpty;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 /**
+ * 并发任务，不要走redis
+ * <p>
  * Create by tong on 2020/9/2
  */
 @Slf4j
@@ -46,147 +43,72 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportServiceImpl implements IReportService {
 
-	private final IQuerySerivce querySerivce;
 	private final IStaticSerive staticSerive;
+	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;
-	private final LeagueResultStatService leagueResultStatService;
-	private final TeamSelectStatService teamSelectStatService;
+	private final EntryEventResultService entryEventResultService;
+	private final LeagueEventStatService leagueEventStatService;
 
 	@Override
-	public void insertLeagueResultStat(int event, String leagueType, int leagueId, int limit) {
+	public void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit) {
 		// get league Entry
-		LeagueInfoData leagueInfoData = this.getLeagueDataByTypeAndId(leagueType, leagueId, limit);
-		String leagueName = leagueInfoData.getName();
-		// prepare
-		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-				.eq(EventLiveEntity::getEvent, event))
-				.stream()
-				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
-		// init league result stat
-		List<EntryInfoData> entryInfoDataList = leagueInfoData.getEntryInfoList();
-		log.info("entryInfoDataList size:{}", entryInfoDataList.size());
-		// async
-		List<CompletableFuture<LeagueResultStatEntity>> future = entryInfoDataList.stream()
-				.map(o -> CompletableFuture.supplyAsync(() -> this.initEntryResultStat(event, o, elementPointsMap), new ForkJoinPool(4)))
-				.collect(Collectors.toList());
-		List<LeagueResultStatEntity> leagueResultStatList = future
-				.stream()
-				.map(CompletableFuture::join)
-				.collect(Collectors.toList());
-		log.info("leagueResultStatList size:{}", leagueResultStatList.size());
-		// league info
-		leagueResultStatList.forEach(o -> o.setLeagueId(leagueId).setLeagueType(leagueType).setLeagueName(leagueName));
-		// save
-		this.leagueResultStatService.saveBatch(leagueResultStatList);
-		log.info("insert league_result_stat size:{}!", leagueResultStatList.size());
-	}
-
-	private LeagueInfoData getLeagueDataByTypeAndId(String leagueType, int leagueId, int limit) {
-		LeagueInfoData leagueInfoData = new LeagueInfoData();
-		if (LeagueType.valueOf(leagueType).equals(LeagueType.Classic)) {
-			leagueInfoData = this.staticSerive.getEntryInfoListFromClassicByLimit(leagueId, limit);
-		} else if (LeagueType.valueOf(leagueType).equals(LeagueType.H2h)) {
-			leagueInfoData = this.staticSerive.getEntryInfoListFromH2hByLimit(leagueId, limit);
+		LeagueInfoData leagueInfoData = this.getLeagueDataByTypeAndId(leagueId, leagueType, limit);
+		if (leagueInfoData == null) {
+			return;
 		}
-		return leagueInfoData;
-	}
-
-	private LeagueResultStatEntity initEntryResultStat(int event, EntryInfoData entryInfoData, Map<Integer, Integer> elementPointsMap) {
-		LeagueResultStatEntity leagueResultStatEntity = new LeagueResultStatEntity();
-		// entry info
-		BeanUtil.copyProperties(entryInfoData, leagueResultStatEntity, CopyOptions.create().ignoreNullValue());
-		// entry event result
-		int entry = entryInfoData.getEntry();
-		Optional<UserPicksRes> result = this.staticSerive.getUserPicks(event, entry);
-		result.ifPresent(userPick ->
-				leagueResultStatEntity.setEntry(entry)
-						.setEvent(event)
-						.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
-						.setOverallRank(userPick.getEntryHistory().getOverallRank())
-						.setBank(userPick.getEntryHistory().getBank())
-						.setTeamValue(userPick.getEntryHistory().getValue())
-						.setEventPoints(userPick.getEntryHistory().getPoints())
-						.setEventTransfers(userPick.getEntryHistory().getEventTransfers())
-						.setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
-						.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
-						.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
-						.setEventRank(userPick.getEntryHistory().getRank())
-						.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
-						.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap)));
-		// event captain
-		List<EntryPickData> captainPickList = this.querySerivce.qryPickListFromPicks(leagueResultStatEntity.getEventPicks())
-				.stream()
-				.filter(o -> o.isCaptain() || o.isViceCaptain())
-				.collect(Collectors.toList());
-		EntryPickData captainPick = this.getRealCaptainPoints(captainPickList);
-		if (captainPick != null) {
-			leagueResultStatEntity
-					.setEventCaptain(captainPick.getWebName())
-					.setEventCaptainPoints(captainPick.getPoints());
-		}
-		return leagueResultStatEntity;
-	}
-
-	private String setUserPicks(List<Pick> picks, @NotEmpty Map<Integer, Integer> elementPointsMap) {
-		List<EntryPickData> pickList = Lists.newArrayList();
-		picks.forEach(o -> pickList.add(new EntryPickData()
-				.setElement(o.getElement())
-				.setPosition(o.getPosition())
-				.setMultiplier(o.getMultiplier())
-				.setCaptain(o.isCaptain())
-				.setViceCaptain(o.isViceCaptain())
-				.setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
-		));
-		return JsonUtils.obj2json(pickList);
-	}
-
-	private EntryPickData getRealCaptainPoints(List<EntryPickData> captainPickList) {
-		if (CollectionUtils.isEmpty(captainPickList)) {
-			return null;
-		}
-		EntryPickData captain = captainPickList.stream().filter(EntryPickData::isCaptain).findFirst().orElse(null);
-		EntryPickData viceCaptain = captainPickList.stream().filter(EntryPickData::isViceCaptain).findFirst().orElse(null);
-		if (captain == null || viceCaptain == null) {
-			return null;
-		}
-		if (captain.getPoints() == 0 && viceCaptain.getPoints() > 0) {
-			return viceCaptain;
-		}
-		return captain;
-	}
-
-	@Override
-	public void inertTeamSelectStat(int event, String leagueType, int leagueId, int limit) {
-		// get league Entry
-		LeagueInfoData leagueInfoData = this.getLeagueDataByTypeAndId(leagueType, leagueId, limit);
+		String leagueName = limit == 0 ? leagueInfoData.getName() : leagueInfoData.getName() + "(top " + (int) NumberUtil.div(limit, 1000, 0, RoundingMode.FLOOR) + "k)";
 		// init league result stat
 		List<EntryInfoData> entryInfoDataList = leagueInfoData.getEntryInfoList();
 		// get user picks
-		List<CompletableFuture<TeamSelectStatEntity>> future = entryInfoDataList.stream()
+		List<CompletableFuture<LeagueEventStatEntity>> future = entryInfoDataList
+				.stream()
 				.map(o ->
 						CompletableFuture.supplyAsync(() ->
-								this.initEntryTeamSelectStat(event, o.getEntry(), leagueInfoData.getName(), limit)))
+								this.initEntryEventSelectStat(event, o.getEntry(), leagueId, leagueType, leagueName)))
 				.collect(Collectors.toList());
-		List<TeamSelectStatEntity> teamSelectStatList = future
+		List<LeagueEventStatEntity> leagueEventStatEntityList = future
 				.stream()
 				.map(CompletableFuture::join)
 				.collect(Collectors.toList());
 		// save
-		this.teamSelectStatService.saveBatch(teamSelectStatList);
-		log.info("insert team_select_stat size:{}!", teamSelectStatList.size());
+		this.leagueEventStatService.saveBatch(leagueEventStatEntityList);
+		log.info("insert league_event_stat size:{}!", leagueEventStatEntityList.size());
 	}
 
-	private TeamSelectStatEntity initEntryTeamSelectStat(int event, int entry, String leagueName, int limit) {
-		UserPicksRes userPicksRes = this.querySerivce.getUserPicks(event, entry);
+	private LeagueInfoData getLeagueDataByTypeAndId(int leagueId, String leagueType, int limit) {
+		if (LeagueType.valueOf(leagueType).equals(LeagueType.Classic)) {
+			return this.staticSerive.getEntryInfoListFromClassicByLimit(leagueId, limit);
+		} else if (LeagueType.valueOf(leagueType).equals(LeagueType.H2h)) {
+			return this.staticSerive.getEntryInfoListFromH2hByLimit(leagueId, limit);
+		}
+		return null;
+	}
+
+	private LeagueEventStatEntity initEntryEventSelectStat(int event, int entry, int leagueId, String leagueType, String leagueName) {
+		UserPicksRes userPicksRes = this.staticSerive.getUserPicks(event, entry).orElse(null);
 		if (userPicksRes == null) {
-			return new TeamSelectStatEntity();
+			return null;
 		}
 		List<Pick> picks = userPicksRes.getPicks();
-		TeamSelectStatEntity teamSelectStatEntity = new TeamSelectStatEntity();
-		teamSelectStatEntity.setLeagueName(limit < 0 ? leagueName : leagueName + "(top " + (int) NumberUtil.div(limit, 1000, 0, RoundingMode.FLOOR) + "k)")
-				.setEvent(event)
+		LeagueEventStatEntity leagueEventStatEntity = new LeagueEventStatEntity()
+				.setLeagueId(leagueId)
+				.setLeagueType(leagueType)
+				.setLeagueName(leagueName)
 				.setEntry(entry)
-				.setChip(userPicksRes.getActiveChip() == null ? "n/a" : userPicksRes.getActiveChip())
+				.setEntryName("")
+				.setPlayerName("")
+				.setOverallPoints(0)
+				.setOverallRank(0)
+				.setTeamValue(0)
+				.setBank(0)
+				.setEvent(event)
+				.setEventPoints(0)
+				.setEventTransfers(0)
+				.setEventTransfersCost(0)
+				.setEventNetPoints(0)
+				.setEventBenchPoints(0)
+				.setEventRank(0)
+				.setEventChip("")
 				.setPosition1(picks.get(0).getElement())
 				.setPosition2(picks.get(1).getElement())
 				.setPosition3(picks.get(2).getElement())
@@ -202,21 +124,203 @@ public class ReportServiceImpl implements IReportService {
 				.setPosition13(picks.get(12).getElement())
 				.setPosition14(picks.get(13).getElement())
 				.setPosition15(picks.get(14).getElement());
-		teamSelectStatEntity.setCaptain(picks
+		// captain
+		leagueEventStatEntity
+				.setCaptain(picks
+						.stream()
+						.filter(Pick::isCaptain)
+						.map(Pick::getElement)
+						.findFirst()
+						.orElse(0)
+				)
+				.setCaptainPoints(0)
+				.setCaptainBlank(true);
+		// vice captain
+		leagueEventStatEntity
+				.setViceCaptain(picks
+						.stream()
+						.filter(Pick::isViceCaptain)
+						.map(Pick::getElement)
+						.findFirst()
+						.orElse(0)
+				)
+				.setViceCaptainPoints(0)
+				.setViceCaptainBlank(true);
+		// highest score
+		leagueEventStatEntity
+				.setHighestScore(0)
+				.setHighestScorePoints(0)
+				.setHighestScoreBlank(true);
+		return leagueEventStatEntity;
+	}
+
+	@Override
+	public void updateLeagueEventResultStat(int event, int leagueId, String leagueType) {
+		// league_event_stat
+		List<LeagueEventStatEntity> leagueEventStatList = this.leagueEventStatService.list(new QueryWrapper<LeagueEventStatEntity>().lambda()
+				.eq(LeagueEventStatEntity::getLeagueId, leagueId)
+				.eq(LeagueEventStatEntity::getLeagueType, leagueType));
+		if (CollectionUtils.isEmpty(leagueEventStatList)) {
+			return;
+		}
+		List<Integer> entryList = leagueEventStatList
 				.stream()
-				.filter(Pick::isCaptain)
-				.map(Pick::getElement)
-				.findFirst()
-				.orElse(0)
-		);
-		teamSelectStatEntity.setViceCaptain(picks
+				.map(LeagueEventStatEntity::getEntry)
+				.collect(Collectors.toList());
+		// preapre
+		Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
 				.stream()
-				.filter(Pick::isViceCaptain)
-				.map(Pick::getElement)
-				.findFirst()
-				.orElse(0)
-		);
-		return teamSelectStatEntity;
+				.collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEvent, event)
+				.in(EntryEventResultEntity::getEntry, entryList))
+				.stream()
+				.collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
+		// collect
+		List<CompletableFuture<LeagueEventStatEntity>> future = leagueEventStatList
+				.stream()
+				.map(o ->
+						CompletableFuture.supplyAsync(() ->
+								this.updateEntryEventResultStat(event, o, eventLiveMap, entryEventResultMap)))
+				.collect(Collectors.toList());
+		List<LeagueEventStatEntity> leagueEventStatEntityList = future
+				.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
+		// update
+		this.leagueEventStatService.updateBatchById(leagueEventStatEntityList);
+		log.info("update league_event_stat size:{}!", leagueEventStatEntityList.size());
+	}
+
+	private LeagueEventStatEntity updateEntryEventResultStat(int event, LeagueEventStatEntity leagueEventStatEntity, Map<Integer, EventLiveEntity> eventLiveMap, Map<Integer, EntryEventResultEntity> entryEventResultMap) {
+		int entry = leagueEventStatEntity.getEntry();
+		// entry_info
+		EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
+		if (entryInfoEntity != null) {
+			leagueEventStatEntity
+					.setEntryName(entryInfoEntity.getEntryName())
+					.setPlayerName(entryInfoEntity.getPlayerName())
+					.setOverallPoints(entryInfoEntity.getOverallPoints())
+					.setOverallRank(entryInfoEntity.getOverallRank())
+					.setTeamValue(entryInfoEntity.getTeamValue())
+					.setBank(entryInfoEntity.getBank());
+		}
+		// entry_event_result
+		if (entryEventResultMap.containsKey(entry)) {
+			EntryEventResultEntity entryEventResultEntity = entryEventResultMap.get(entry);
+			leagueEventStatEntity
+					.setEventPoints(entryEventResultEntity.getEventPoints())
+					.setEventTransfers(entryEventResultEntity.getEventTransfers())
+					.setEventTransfersCost(entryEventResultEntity.getEventTransfersCost())
+					.setEventNetPoints(entryEventResultEntity.getEventNetPoints())
+					.setEventBenchPoints(entryEventResultEntity.getEventBenchPoints())
+					.setEventRank(entryEventResultEntity.getEventRank())
+					.setEventChip(entryEventResultEntity.getEventChip());
+		} else {
+			this.staticSerive.getUserPicks(event, entry)
+					.ifPresent(userPick -> leagueEventStatEntity
+							.setEventPoints(userPick.getEntryHistory().getPoints())
+							.setEventTransfers(userPick.getEntryHistory().getEventTransfers())
+							.setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
+							.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
+							.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
+							.setEventRank(userPick.getEntryHistory().getRank())
+							.setOverallRank(userPick.getEntryHistory().getOverallRank())
+							.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip()));
+		}
+		// captain
+		int captain = leagueEventStatEntity.getCaptain();
+		if (eventLiveMap.containsKey(captain)) {
+			EventLiveEntity captainEventLiveEntity = eventLiveMap.get(captain);
+			leagueEventStatEntity
+					.setCaptainPoints(captainEventLiveEntity.getTotalPoints())
+					.setCaptainBlank(this.setElementBlank(captainEventLiveEntity));
+		}
+		// vice captain
+		int viceCaptain = leagueEventStatEntity.getViceCaptain();
+		if (eventLiveMap.containsKey(viceCaptain)) {
+			EventLiveEntity viceCaptainEventLiveEntity = eventLiveMap.get(viceCaptain);
+			leagueEventStatEntity
+					.setViceCaptainPoints(viceCaptainEventLiveEntity.getTotalPoints())
+					.setViceCaptainBlank(this.setElementBlank(viceCaptainEventLiveEntity));
+		}
+		// highest score
+		int highestElement = this.getHighestScoreElement(leagueEventStatEntity, eventLiveMap);
+		if (eventLiveMap.containsKey(highestElement)) {
+			EventLiveEntity highestEventLiveEntity = eventLiveMap.get(highestElement);
+			leagueEventStatEntity
+					.setHighestScore(highestElement)
+					.setHighestScorePoints(highestEventLiveEntity.getTotalPoints())
+					.setHighestScoreBlank(this.setElementBlank(highestEventLiveEntity));
+		}
+		return leagueEventStatEntity;
+	}
+
+	private EntryInfoEntity qryEntryInfo(int entry) {
+		if (entry <= 0) {
+			return new EntryInfoEntity();
+		}
+		EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+		if (entryInfoEntity != null) {
+			return entryInfoEntity;
+		}
+		EntryRes entryRes = this.staticSerive.getEntry(entry).orElse(null);
+		if (entryRes == null) {
+			return new EntryInfoEntity();
+		}
+		return new EntryInfoEntity()
+				.setEntry(entryRes.getId())
+				.setEntryName(entryRes.getName())
+				.setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+				.setRegion(entryRes.getPlayerRegionName())
+				.setStartedEvent(entryRes.getStartedEvent())
+				.setOverallPoints(entryRes.getSummaryOverallPoints())
+				.setOverallRank(entryRes.getSummaryOverallRank())
+				.setBank(entryRes.getLastDeadlineBank())
+				.setTeamValue(entryRes.getLastDeadlineValue())
+				.setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+	}
+
+	private int getHighestScoreElement(LeagueEventStatEntity leagueEventStatEntity, Map<Integer, EventLiveEntity> eventLiveMap) {
+		Map<Integer, Integer> elementPointsMap = Maps.newHashMap();
+		elementPointsMap.put(leagueEventStatEntity.getPosition1(), this.getElementEventPoints(leagueEventStatEntity.getPosition1(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition2(), this.getElementEventPoints(leagueEventStatEntity.getPosition2(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition3(), this.getElementEventPoints(leagueEventStatEntity.getPosition3(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition4(), this.getElementEventPoints(leagueEventStatEntity.getPosition4(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition5(), this.getElementEventPoints(leagueEventStatEntity.getPosition5(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition6(), this.getElementEventPoints(leagueEventStatEntity.getPosition6(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition7(), this.getElementEventPoints(leagueEventStatEntity.getPosition7(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition8(), this.getElementEventPoints(leagueEventStatEntity.getPosition8(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition9(), this.getElementEventPoints(leagueEventStatEntity.getPosition9(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition10(), this.getElementEventPoints(leagueEventStatEntity.getPosition10(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition11(), this.getElementEventPoints(leagueEventStatEntity.getPosition11(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition12(), this.getElementEventPoints(leagueEventStatEntity.getPosition12(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition13(), this.getElementEventPoints(leagueEventStatEntity.getPosition13(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition14(), this.getElementEventPoints(leagueEventStatEntity.getPosition14(), eventLiveMap));
+		elementPointsMap.put(leagueEventStatEntity.getPosition15(), this.getElementEventPoints(leagueEventStatEntity.getPosition15(), eventLiveMap));
+		// sort
+		return elementPointsMap.entrySet()
+				.stream()
+				.max(Map.Entry.comparingByValue())
+				.map(Map.Entry::getKey)
+				.orElse(0);
+	}
+
+	private int getElementEventPoints(int element, Map<Integer, EventLiveEntity> eventLiveMap) {
+		if (eventLiveMap.containsKey(element)) {
+			return eventLiveMap.get(element).getTotalPoints();
+		}
+		return 0;
+	}
+
+	private boolean setElementBlank(EventLiveEntity eventLiveEntity) {
+		return eventLiveEntity.getGoalsScored() <= 0 &&
+				eventLiveEntity.getAssists() <= 0 &&
+				eventLiveEntity.getBonus() <= 0 &&
+				eventLiveEntity.getPenaltiesSaved() <= 0 &&
+				eventLiveEntity.getSaves() <= 3 &&
+				((eventLiveEntity.getElementType() != 1 && eventLiveEntity.getElementType() != 2) || eventLiveEntity.getCleanSheets() <= 0);
 	}
 
 }

@@ -17,65 +17,51 @@
 
             <h1 style="font-size: 28px">队长统计</h1>
 
-            <div style="margin-top: 20px"></div>
+            <div style="margin-top: 30px"></div>
 
-            <div class="layui-tab" lay-allowClose="true" lay-filter="entryTab">
-                <ul class="layui-tab-title">
-                    <li class="layui-this" id="base">选择联赛</li>
-                </ul>
-                <div class="layui-tab-content">
+            <form class="layui-form">
+                <div class="layui-form-item">
 
-                    <div class="layui-tab-item layui-show">
-
-                        <div style="padding-top: 20px"></div>
-
-                        <form class="layui-form">
-                            <div class="layui-form-item">
-
-                                <div class="layui-inline">
-                                    <label class="layui-form-label" style="padding-left: 0">赛事名称</label>
-                                    <div class="layui-input-inline" style="width: 180px">
-                                        <input autocomplete="on" class="layui-input" name="name" type="text">
-                                    </div>
-                                </div>
-
-                                <div class="layui-inline">
-                                    <label class="layui-form-label" style="margin-left: -50px">创建者</label>
-                                    <div class="layui-input-inline" style="width: 150px">
-                                        <input autocomplete="on" class="layui-input" name="creator" type="text">
-                                    </div>
-                                </div>
-
-                                <div class="layui-inline">
-                                    <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
-                                    <div class="layui-input-inline" style="width: 110px">
-                                        <input autocomplete="on" class="layui-input" name="leagueId" type="text">
-                                    </div>
-                                </div>
-
-                                <div class="layui-inline">
-                                    <label class="layui-form-label" style="margin-left: -30px">赛季</label>
-                                    <div class="layui-inline">
-                                        <select class="layui-select" lay-filter="season" lay-search=""
-                                                lay-verify="required" name="season">
-                                            <option th:each="item,userStat:${seasonMap}"
-                                                    th:text="${userStat.current.value}"
-                                                    th:value="${userStat.current.key}"></option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <button class="layui-btn" id="searchButton" type="button">查看</button>
-
-                            </div>
-                        </form>
-
-                        <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
-
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="padding-left: 0">赛事名称</label>
+                        <div class="layui-input-inline" style="width: 180px">
+                            <input autocomplete="on" class="layui-input" name="name" type="text">
+                        </div>
                     </div>
 
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px">创建者</label>
+                        <div class="layui-input-inline" style="width: 150px">
+                            <input autocomplete="on" class="layui-input" name="creator" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
+                        <div class="layui-input-inline" style="width: 110px">
+                            <input autocomplete="on" class="layui-input" name="leagueId" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px">赛季</label>
+                        <div class="layui-input-inline" style="width: 100px">
+                            <select class="layui-select" lay-filter="season" lay-search="" name="season">
+                                <option th:each="item,userStat:${seasonMap}"
+                                        th:text="${userStat.current.value}"
+                                        th:value="${userStat.current.key}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="layui-btn" id="searchButton" style="margin-top: -5px"
+                            type="button">查看
+                    </button>
+
                 </div>
-            </div>
+            </form>
+
+            <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
 
         </div>
     </div>
@@ -87,171 +73,54 @@
 
 <script th:replace="layout::baseScript"></script>
 
+<div th:replace="layout::entryInputLayer"></div>
+
 <script th:inline="none">
-    layui.use(['element', 'form', 'table', 'layer', 'soulTable'], function () {
+    layui.use(['table'], function () {
 
-        let $ = layui.jquery, element = layui.element, table = layui.table,
-            soulTable = layui.soulTable;
+        let $ = layui.jquery, table = layui.table;
 
-        soulTable.config({
-            drag: false,
-            overflow: {
-                type: 'tips',
-                header: true,
-                total: true
-            }
+        $("#searchButton").on('click', function () {
+            let name = $("input[name=name]").val();
+            let creator = $("input[name=creator]").val();
+            let leagueId = $("input[name=leagueId]").val();
+            let season = $("select[name=season]").val();
+
+            table.render({
+                elem: '#tournamentTable',
+                method: 'post',
+                contentType: 'application/json',
+                url: '/stat/qryTournamenList',
+                where: {
+                    name: name,
+                    creator: creator,
+                    leagueId: leagueId,
+                    season: season
+                },
+                loading: true,
+                width: 820,
+                cols: [[
+                    {
+                        field: 'name',
+                        title: '名字',
+                        align: 'center',
+                        templet: '<div><a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a></div>'
+                    },
+                    {field: 'creator', title: '创建者', align: 'center', width: 150},
+                    {field: 'season', title: '赛季', align: 'center', width: 80},
+                    {field: 'leagueType', title: '类型', align: 'center', width: 80},
+                    {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100},
+                    {field: 'createTime', title: '创建时间', align: 'center', width: 120}
+                ]],
+                id: 'tournamenTable'
+            });
+
         });
 
-        // table.render({
-        //     elem: '#tournamentTable',
-        //     method: 'post',
-        //     contentType: 'application/json',
-        //     url: '/tournament/qryTournamenList',
-        //     loading: true,
-        //     cellMinWidth: 80,
-        //     cols: [[
-        //         {
-        //             field: 'name',
-        //             title: '名字',
-        //             align: 'center',
-        //             width: 250,
-        //             templet: '<div><a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a></div>'
-        //         },
-        //         {field: 'creator', title: '创建者', align: 'center', edit: 'text', width: 150},
-        //         {field: 'season', title: '赛季', align: 'center'},
-        //         {field: 'leagueType', title: '类型', align: 'center'},
-        //         {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100}
-        //     ]],
-        //     initSort: {
-        //         field: 'name',
-        //         type: 'asc'
-        //     },
-        //     id: 'tournamenTable',
-        //     done: function () {
-        //         soulTable.render(this);
-        //     }
-        // });
-
-        // axios.get('/stat/qryEntryInfoByTournament', {
-        //     params: {
-        //         tournamentId: 1,
-        //         season: '2021'
-        //     }
-        // }).then(function (response) {
-        //     table.render({
-        //         elem: '#captainTable',
-        //         data: response.data,
-        //         page: true,
-        //         limit: 20,
-        //         limits: [20, 50, 100, 150],
-        //         toolbar: '#captainBar',
-        //         defaultToolbar: ['filter', {title: '筛选重置', layEvent: 'clearFilter', icon: 'layui-icon-refresh-3'}],
-        //         loading: true,
-        //         cellMinWidth: 100,
-        //         cols: [[
-        //             {title: '排名', type: 'numbers', width: 50, templet: '#indexTpl'},
-        //             {field: 'entryName', title: '队伍名字', align: 'center', width: 200, filter: true},
-        //             {field: 'playerName', title: '玩家名字', align: 'center', width: 150, filter: true},
-        //             {field: 'overallPoints', title: '总得分', align: 'center', sort: true, filter: true},
-        //             {field: 'overallRank', title: '总排名', align: 'center', sort: true, filter: true},
-        //             {field: 'capTotalPoints', title: '队长总分', align: 'center', width: 120, sort: true},
-        //             {field: 'percent', title: '占比', align: 'center', sort: true, filter: true}
-        //         ]],
-        //         filter: {
-        //             items: ['data', 'condition'],
-        //             bottom: false
-        //         },
-        //         id: 'captainTable',
-        //         done: function () {
-        //             soulTable.render(this);
-        //         }
-        //     });
-        // })
-        //     .catch(function (error) {
-        //         console.info(error.message);
-        //     });
-        //
-        // table.on('toolbar(captainTable)', function (obj) {
-        //     if (obj.event === 'clearFilter') {
-        //         soulTable.clearFilter('captainTable');
-        //     }
-        // });
-        //
-        // table.on('row(captainTable)', function (obj) {
-        //     let entry = obj.data.entry, entryName = obj.data.entryName;
-        //     // 是否存在
-        //     if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
-        //         //选项卡已经存在
-        //         element.tabChange('entryTab', entry);
-        //         return false;
-        //     }
-        //     // 增加标签页
-        //     let tableId = entry + "Table";
-        //     element.tabAdd('entryTab', {
-        //         title: entryName,
-        //         content: '<table class="layui-table" id=' + tableId + ' lay-filter=' + tableId + '></table>',
-        //         id: entry
-        //     });
-        //     // 切换
-        //     element.tabChange('entryTab', entry);
-        // });
-        //
-        // element.on('tab(entryTab)', function () {
-        //     let entry = $(this).attr("lay-id");
-        //     if (entry == null) {
-        //         return false;
-        //     }
-        //     let tableId = entry + "Table";
-        //     axios.get('/stat/qryEntryCaptainList', {
-        //         params: {
-        //             season: '2021',
-        //             entry: entry
-        //         }
-        //     })
-        //         .then(function (response) {
-        //             table.render({
-        //                 elem: '#' + tableId,
-        //                 data: response.data,
-        //                 page: true,
-        //                 limit: 15,
-        //                 limits: [15, 30, 40],
-        //                 toolbar: '#toolbar',
-        //                 defaultToolbar: ['filter', {
-        //                     title: '筛选重置',
-        //                     layEvent: 'clearFilter',
-        //                     icon: 'layui-icon-refresh-3'
-        //                 }],
-        //                 loading: true,
-        //                 cellMinWidth: 100,
-        //                 cols: [[
-        //                     {title: '排名', type: 'numbers'},
-        //                     {field: 'event', title: '比赛周', align: 'center', sort: true, filter: true},
-        //                     {field: 'chip', title: '开卡', align: 'center', filter: true},
-        //                     {field: 'webName', title: '队长', align: 'center', width: 150, filter: true},
-        //                     {field: 'points', title: '原始分', align: 'center', sort: true, filter: true},
-        //                     {field: 'totalPoints', title: '总得分', align: 'center', sort: true, filter: true}
-        //                 ]],
-        //                 filter: {
-        //                     items: ['data', 'condition'],
-        //                     bottom: false,
-        //                     clearFilter: true
-        //                 },
-        //                 done: function () {
-        //                     soulTable.render(this);
-        //                 },
-        //                 id: tableId
-        //             });
-        //         })
-        //         .catch(function (error) {
-        //             console.info(error.message);
-        //         });
-        // });
-        //
-        // table.on('toolbar(tabTable)', function (obj) {
-        //     if (obj.event === 'clearFilter') {
-        //         soulTable.clearFilter('captainTable');
-        //     }
-        // });
+        table.on('row(tournamentTable)', function (obj) {
+            let id = obj.data.id;
+            window.location.replace('/stat/leagueCaptain?id=' + id);
+        });
 
     });
 </script>

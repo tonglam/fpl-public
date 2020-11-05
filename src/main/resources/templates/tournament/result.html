@@ -32,6 +32,10 @@
 
 <script th:replace="layout::entryInputLayer"></script>
 
+<script id="nameTpl" type="text/html">
+    <a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a>
+</script>
+
 <script th:inline="none">
 
     layui.use(['table', 'layer', 'laydate'], function () {
@@ -115,10 +119,6 @@
 
     });
 
-</script>
-
-<script id="nameTpl" type="text/html">
-    <a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a>
 </script>
 
 </html>

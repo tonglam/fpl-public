@@ -12,6 +12,7 @@ public class TournamentQueryParam {
 	private String name;
 	private String creator;
 	private int leagueId;
+	private String season;
 	private String createTime;
 
 }

@@ -20,13 +20,6 @@ public class TableQueryTest extends FplApplicationTests {
 	private ITableQueryService tableQueryService;
 
 	@ParameterizedTest
-	@CsvSource({"1920, 1, 2, 20"})
-	void qryEntryInfoByTournament(String season, int tournamentId) {
-		this.tableQueryService.qryEntryInfoByTournament(season, tournamentId);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
 	@CsvSource({"1870"})
 	void qryEntryLivePoints(int entry) {
 		TableData<LiveCalaData> liveCalaDataTableData = this.tableQueryService.qryEntryLivePoints(entry);

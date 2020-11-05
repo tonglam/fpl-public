@@ -1,7 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.entity.PlayerEntity;
+import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
@@ -10,7 +10,6 @@ import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutEventFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
-import com.tong.fpl.service.db.PlayerService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -20,28 +19,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class QueryTest extends FplApplicationTests {
 
 	@Autowired
 	private IQuerySerivce querySerivce;
-	@Autowired
-	private PlayerService playerService;
-
-	@Test
-	void test() {
-		long startTime = System.currentTimeMillis();
-		IntStream.range(1, 21).forEach(teamId -> {
-//			String name = this.querySerivce.qryTeamPropertyById("2021", teamId, "name");
-		});
-		long endTime = System.currentTimeMillis();
-		System.out.println("esaped: " + (endTime - startTime) + "ms");
-	}
 
 	@ParameterizedTest
-	@CsvSource({"1920, 1, 1404"})
+	@CsvSource({"2021, 1, 1870"})
 	void qryEntryEvent(String season, int event, int entry) {
 		EntryEventResultData entryEventResultData = this.querySerivce.qryEntryEventResult(season, event, entry);
 		System.out.println(1);
@@ -87,15 +72,6 @@ public class QueryTest extends FplApplicationTests {
 	void getPlayerByElememt(int element) {
 		long start = System.currentTimeMillis();
 		this.querySerivce.getPlayerByElememt(element);
-		long end = System.currentTimeMillis();
-		System.out.println("escape: " + (end - start) + "ms!");
-		System.out.println(1);
-	}
-
-	@Test
-	void getAllPlayer() {
-		long start = System.currentTimeMillis();
-		Map<Integer, PlayerEntity> map = this.playerService.list().stream().collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
 		long end = System.currentTimeMillis();
 		System.out.println("escape: " + (end - start) + "ms!");
 		System.out.println(1);
@@ -191,5 +167,13 @@ public class QueryTest extends FplApplicationTests {
 		KnockoutBracketData knockoutBracketData = this.querySerivce.qryKnockoutBracketResultByTournament(tournamentId);
 		System.out.println(1);
 	}
+
+	@ParameterizedTest
+	@CsvSource({"2, 1870"})
+	void qryEntryEventCaptainDataList(int event, int entry) {
+		EntryEventCaptainData data = this.querySerivce.qryEntryEventCaptainDataList(event, entry);
+		System.out.println(1);
+	}
+
 
 }

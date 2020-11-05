@@ -1,5 +1,6 @@
 package com.tong.fpl.domain.letletme.entry;
 
+import com.tong.fpl.domain.letletme.element.ElementCaptainData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -10,12 +11,19 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class EntryEventCaptainData {
 
-	private int entry;
 	private int event;
-	private String chip;
-	private int element;
-	private String webName;
+	private int entry;
+	private String entryName;
+	private String playerName;
+	private int transfers;
 	private int points;
-	private int totalPoints;
+	private int transfersCost;
+	private int netPoints;
+	private int benchPoints;
+	private int rank;
+	private String chip;
+	private ElementCaptainData captainData;
+	private ElementCaptainData viceCaptainData;
+	private ElementCaptainData highestScoreData;
 
 }

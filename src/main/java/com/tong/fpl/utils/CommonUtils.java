@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -42,6 +44,13 @@ public class CommonUtils {
 		return map;
 	}
 
+	public static Map<String, String> createCurrentGwMapForOption(int currentGw) {
+		Map<String, String> map = Maps.newLinkedHashMap();
+		map.put("", "请选择");
+		IntStream.range(1, currentGw + 1).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
+		return map;
+	}
+
 	public static Map<String, String> createSeasonMapForOption() {
 		Map<String, String> map = Maps.newLinkedHashMap();
 		map.put("", "请选择");
@@ -62,6 +71,23 @@ public class CommonUtils {
 	public static String getCurrentSeason() {
 		return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
 				String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
+	}
+
+	public static <T> List<List<T>> batchList(List<T> sourceList) {
+		int batchCount = 1000;
+		List<List<T>> returnList = new ArrayList<>();
+		int startIndex = 0;
+		while (startIndex < sourceList.size()) {
+			int endIndex;
+			if (sourceList.size() - batchCount < startIndex) {
+				endIndex = sourceList.size();
+			} else {
+				endIndex = startIndex + batchCount;
+			}
+			returnList.add(sourceList.subList(startIndex, endIndex));
+			startIndex = startIndex + batchCount;
+		}
+		return returnList;
 	}
 
 }

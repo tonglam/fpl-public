@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>队长统计-数据查询-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+
+        <div class="site-content">
+
+            <form class="layui-form">
+
+                <div class="layui-form-item">
+
+                    <div class="layui-input-inline">
+                        <h1 style="font-size: 28px">队长统计 - </h1>
+                    </div>
+
+                    <div class="layui-input-inline" style="width: 100px;margin-left: -60px;margin-top: 2px">
+                        <select class="layui-select" lay-filter="gwSelect" lay-search="" name="gwSelect">
+                            <option value="0">赛季</option>
+                            <option th:each="item,userStat:${gwMap}"
+                                    th:if="${userStat.current.key} != ''"
+                                    th:text="${userStat.current.value}"
+                                    th:value="${userStat.current.key}"></option>
+                        </select>
+                    </div>
+                </div>
+
+            </form>
+
+            <div style="margin-top: 40px"></div>
+
+            <div class="layui-tab" lay-allowClose="true" lay-filter="leagueTab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" id="base" th:text="${tournamentInfo?.name}"></li>
+                </ul>
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 20px"></div>
+
+                        <table class="layui-table" id="leagueTable" lay-filter="leagueTable"></table>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<div th:replace="layout::entryInputLayer"></div>
+
+<script th:inline="none">
+    layui.use(['element', 'form', 'table', 'layer', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, form = layui.form, table = layui.table,
+            soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        let tournamentId = getUrlParam("id");
+
+        form.on('select(gwSelect)', function (data) {
+            let event = data.value;
+
+            let loadIndex = layer.msg("统计中，请稍等", {time: false, scrollbar: false});
+
+            if (event == '0') {
+                // table.render({
+                //     elem: '#leagueTable',
+                //     url: '/stat/qryLeagueCaptainDataList',
+                //     where: {
+                //         id: tournamentId
+                //     },
+                //     loading: true,
+                //     cellMinWidth: 60,
+                //     cols: [[
+                //         {field: 'creator', title: '创建者', align: 'center', edit: 'text', width: 150},
+                //         {field: 'season', title: '赛季', align: 'center', width: 80},
+                //         {field: 'leagueType', title: '类型', align: 'center', width: 80},
+                //         {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100}
+                //     ]],
+                //     id: 'leagueTable',
+                //     done: function () {
+                //         soulTable.render(this);
+                //     }
+                // });
+            } else {
+                axios.get('/stat/qryLeagueEventCaptainDataList', {
+                    params: {
+                        tournamentId: tournamentId,
+                        event: event
+                    }
+                })
+                    .then(function (response) {
+                        layer.close(loadIndex);
+
+                        let tableData = [];
+                        $.each(response.data, function (index, item) {
+                            // captain
+                            item.captainWebName = item.captainData.webName;
+                            item.captainPoints = item.captainData.points;
+                            item.captainSelectByPercent = item.captainData.selectByPercent;
+                            item.captainPointsByPercent = item.captainData.pointsByPercent;
+                            item.captainBlank = item.captainData.blank;
+                            // vice captain
+                            item.viceCaptainWebName = item.viceCaptainData.webName;
+                            item.viceCaptainPoints = item.viceCaptainData.points;
+                            item.viceCaptainSelectByPercent = item.viceCaptainData.selectByPercent;
+                            // highest score
+                            item.highestWebName = item.highestScoreData.webName;
+                            item.highestPoints = item.highestScoreData.points;
+                            tableData.push(item);
+                        })
+
+                        table.render({
+                            elem: '#leagueTable',
+                            data: tableData,
+                            loading: true,
+                            limit: 200,
+                            even: true,
+                            cellMinWidth: 80,
+                            cols: [
+                                [
+                                    {field: 'entryName', title: '球队名称', align: 'center', width: 200, rowspan: 2},
+                                    {field: 'points', title: '得分', align: 'center', rowspan: 2},
+                                    {field: 'chip', title: '开卡', align: 'center', rowspan: 2},
+                                    {title: '队长', align: 'center', colspan: 4},
+                                    {title: '副队长', align: 'center', colspan: 3},
+                                    {title: '最高分', align: 'center', colspan: 2},
+                                ],
+                                [
+                                    {
+                                        field: 'captainWebName',
+                                        title: '名称',
+                                        align: 'center',
+                                        width: 120,
+                                        style: 'background-color: #5FB878; color: #fff;',
+                                        filter: true
+                                    },
+                                    {
+                                        field: 'captainPoints',
+                                        title: '得分',
+                                        align: 'center',
+                                        templet: function (d) {
+                                            if (d.captainBlank) {
+                                                return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
+                                            } else {
+                                                return '<div style="background-color: #FFB800;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
+                                            }
+                                        },
+                                        sort: true,
+                                        filter: true
+                                    },
+                                    {
+                                        field: 'captainSelectByPercent',
+                                        title: '持有率',
+                                        align: 'center',
+                                        width: 90,
+                                        sort: true,
+                                        filter: true
+                                    },
+                                    {
+                                        field: 'captainPointsByPercent',
+                                        title: '得分占比',
+                                        align: 'center',
+                                        width: 110,
+                                        sort: true,
+                                        filter: true
+                                    },
+
+                                    {
+                                        field: 'viceCaptainWebName',
+                                        title: '名称',
+                                        align: 'center',
+                                        width: 120,
+                                        filter: true
+                                    },
+                                    {
+                                        field: 'viceCaptainPoints',
+                                        title: '得分',
+                                        align: 'center',
+                                        sort: true,
+                                        filter: true
+                                    },
+                                    {
+                                        field: 'viceCaptainSelectByPercent',
+                                        title: '持有率',
+                                        align: 'center',
+                                        width: 90,
+                                        sort: true,
+                                        filter: true
+                                    },
+
+                                    {field: 'highestWebName', title: '名称', align: 'center', width: 120, filter: true},
+                                    {field: 'highestPoints', title: '得分', align: 'center', sort: true, filter: true}
+                                ]
+                            ],
+                            id: 'leagueTable',
+                            filter: {
+                                items: ['data'],
+                                bottom: false
+                            },
+                            done: function () {
+                                soulTable.render(this);
+                            }
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log(error.message);
+                        layer.close(loadIndex);
+                    });
+
+            }
+
+        });
+
+        // table.on('row(tournamentTable)', function (obj) {
+        //     let tournamentId = obj.data.id, name = obj.data.name;
+        //     // 是否存在
+        //     if ($(".layui-tab-title li[lay-id='" + tournamentId + "']").length > 0) {
+        //         //选项卡已经存在
+        //         element.tabChange('leagueTab', tournamentId);
+        //         return false;
+        //     }
+        //     // 增加标签页
+        //     let tableId = 'captain' + tournamentId + 'Table';
+        //     element.tabAdd('leagueTab', {
+        //         title: name,
+        //         content: '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
+        //         id: tournamentId
+        //     });
+        //     // 切换
+        //     element.tabChange('leagueTab', tournamentId);
+        //     // 渲染
+        //     axios.get('/live/qryTournamentLivePoints', {
+        //         params: {
+        //             tournamentId: tournamentId
+        //         }
+        //     })
+        //         .then(function (response) {
+        //             table.render({
+        //                 elem: '#' + tableId,
+        //                 data: response.data,
+        //                 limit: 200,
+        //                 loading: true,
+        //                 toolbar: '#toolbar',
+        //                 defaultToolbar: [{title: '筛选重置', layEvent: 'clearFilter', icon: 'layui-icon-refresh-3'}],
+        //                 cellMinWidth: 120,
+        //                 cols: [[
+        //                     {title: '排名', type: 'numbers', width: 50, templet: '#indexTpl'},
+        //                     {field: 'entryName', title: '队伍名字', align: 'center', width: 200, filter: true},
+        //                     {field: 'playerName', title: '玩家名字', align: 'center', width: 150, filter: true},
+        //                     {field: 'overallPoints', title: '总得分', align: 'center', sort: true, filter: true},
+        //                     {field: 'overallRank', title: '总排名', align: 'center', sort: true, filter: true},
+        //                     {field: 'capTotalPoints', title: '队长总分', align: 'center', width: 120, sort: true},
+        //                     {field: 'percent', title: '占比', align: 'center', sort: true, filter: true}
+        //                 ]],
+        //                 filter: {
+        //                     items: ['data'],
+        //                     bottom: false
+        //                 },
+        //                 done: function () {
+        //                     soulTable.render(this);
+        //                 },
+        //                 id: tableId
+        //             });
+        //         })
+        //         .catch(function (error) {
+        //             console.info(error.message);
+        //         });
+        //
+        //     table.on('toolbar(' + tableId + ')', function (obj) {
+        //         if (obj.event === 'clearFilter') {
+        //             soulTable.clearFilter(tableId);
+        //         }
+        //     });
+        //
+        // });
+
+        // axios.get('/stat/qryEntryInfoByTournament', {
+        //     params: {
+        //         tournamentId: 1,
+        //         season: '2021'
+        //     }
+        // }).then(function (response) {
+        //     table.render({
+        //         elem: '#captainTable',
+        //         data: response.data,
+        //         page: true,
+        //         limit: 20,
+        //         limits: [20, 50, 100, 150],
+        //         toolbar: '#captainBar',
+        //         defaultToolbar: ['filter', {title: '筛选重置', layEvent: 'clearFilter', icon: 'layui-icon-refresh-3'}],
+        //         loading: true,
+        //         cellMinWidth: 100,
+        //         cols: [[
+        //             {title: '排名', type: 'numbers', width: 50, templet: '#indexTpl'},
+        //             {field: 'entryName', title: '队伍名字', align: 'center', width: 200, filter: true},
+        //             {field: 'playerName', title: '玩家名字', align: 'center', width: 150, filter: true},
+        //             {field: 'overallPoints', title: '总得分', align: 'center', sort: true, filter: true},
+        //             {field: 'overallRank', title: '总排名', align: 'center', sort: true, filter: true},
+        //             {field: 'capTotalPoints', title: '队长总分', align: 'center', width: 120, sort: true},
+        //             {field: 'percent', title: '占比', align: 'center', sort: true, filter: true}
+        //         ]],
+        //         filter: {
+        //             items: ['data', 'condition'],
+        //             bottom: false
+        //         },
+        //         id: 'captainTable',
+        //         done: function () {
+        //             soulTable.render(this);
+        //         }
+        //     });
+        // })
+        //     .catch(function (error) {
+        //         console.info(error.message);
+        //     });
+        //
+        // table.on('toolbar(captainTable)', function (obj) {
+        //     if (obj.event === 'clearFilter') {
+        //         soulTable.clearFilter('captainTable');
+        //     }
+        // });
+        //
+        // table.on('row(captainTable)', function (obj) {
+        //     let entry = obj.data.entry, entryName = obj.data.entryName;
+        //     // 是否存在
+        //     if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
+        //         //选项卡已经存在
+        //         element.tabChange('entryTab', entry);
+        //         return false;
+        //     }
+        //     // 增加标签页
+        //     let tableId = entry + "Table";
+        //     element.tabAdd('entryTab', {
+        //         title: entryName,
+        //         content: '<table class="layui-table" id=' + tableId + ' lay-filter=' + tableId + '></table>',
+        //         id: entry
+        //     });
+        //     // 切换
+        //     element.tabChange('entryTab', entry);
+        // });
+        //
+        // element.on('tab(entryTab)', function () {
+        //     let entry = $(this).attr("lay-id");
+        //     if (entry == null) {
+        //         return false;
+        //     }
+        //     let tableId = entry + "Table";
+        //     axios.get('/stat/qryEntryCaptainList', {
+        //         params: {
+        //             season: '2021',
+        //             entry: entry
+        //         }
+        //     })
+        //         .then(function (response) {
+        //             table.render({
+        //                 elem: '#' + tableId,
+        //                 data: response.data,
+        //                 page: true,
+        //                 limit: 15,
+        //                 limits: [15, 30, 40],
+        //                 toolbar: '#toolbar',
+        //                 defaultToolbar: ['filter', {
+        //                     title: '筛选重置',
+        //                     layEvent: 'clearFilter',
+        //                     icon: 'layui-icon-refresh-3'
+        //                 }],
+        //                 loading: true,
+        //                 cellMinWidth: 100,
+        //                 cols: [[
+        //                     {title: '排名', type: 'numbers'},
+        //                     {field: 'event', title: '比赛周', align: 'center', sort: true, filter: true},
+        //                     {field: 'chip', title: '开卡', align: 'center', filter: true},
+        //                     {field: 'webName', title: '队长', align: 'center', width: 150, filter: true},
+        //                     {field: 'points', title: '原始分', align: 'center', sort: true, filter: true},
+        //                     {field: 'totalPoints', title: '总得分', align: 'center', sort: true, filter: true}
+        //                 ]],
+        //                 filter: {
+        //                     items: ['data', 'condition'],
+        //                     bottom: false,
+        //                     clearFilter: true
+        //                 },
+        //                 done: function () {
+        //                     soulTable.render(this);
+        //                 },
+        //                 id: tableId
+        //             });
+        //         })
+        //         .catch(function (error) {
+        //             console.info(error.message);
+        //         });
+        // });
+        //
+        // table.on('toolbar(tabTable)', function (obj) {
+        //     if (obj.event === 'clearFilter') {
+        //         soulTable.clearFilter('captainTable');
+        //     }
+        // });
+
+    });
+</script>
+
+</html>

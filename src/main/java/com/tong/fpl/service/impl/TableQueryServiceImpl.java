@@ -15,8 +15,8 @@ import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
-import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.StepDetailData;
 import com.tong.fpl.domain.letletme.global.StepsData;
@@ -64,13 +64,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	private final EntryInfoService entryInfoService;
 	private final EntryEventResultService entryEventResultService;
 	private final TournamentInfoService tournamentInfoService;
-	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
 	private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
 	private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final ZjTournamentResultService zjTournamentResultService;
-	private final TeamSelectStatService teamSelectStatService;
+	private final LeagueEventStatService leagueEventStatService;
 
 	/**
 	 * @apiNote player
@@ -127,15 +126,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	}
 
 	/**
-	 * @apiNote entry
-	 */
-	// TODO: 2020/9/23
-	@Override
-	public TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId) {
-		return new TableData<>();
-	}
-
-	/**
 	 * @apiNote tournament
 	 */
 	@Override
@@ -144,11 +134,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		// get tournament info
 		LambdaQueryWrapper<TournamentInfoEntity> queryWrapper = new QueryWrapper<TournamentInfoEntity>().lambda();
 		if (param.getEntry() > 0) {
-			List<Integer> tournamentIdList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-					.eq(TournamentEntryEntity::getEntry, param.getEntry()))
-					.stream()
-					.map(TournamentEntryEntity::getTournamentId)
-					.collect(Collectors.toList());
+			List<Integer> tournamentIdList = this.querySerivce.qryEntryTournamentList(param.getEntry());
 			if (!CollectionUtils.isEmpty(tournamentIdList)) {
 				queryWrapper.in(TournamentInfoEntity::getId, tournamentIdList);
 			}
@@ -163,12 +149,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			} else if (StringUtils.isNotBlank(param.getCreateTime())) {
 				queryWrapper.gt(TournamentInfoEntity::getCreateTime, param.getCreateTime());
 				queryWrapper.lt(TournamentInfoEntity::getCreateTime, LocalDate.parse(param.getCreateTime()).plusDays(1).format(DateTimeFormatter.ofPattern(Constant.DATE)));
+			} else if (StringUtils.isNotBlank(param.getSeason())) {
+				queryWrapper.eq(TournamentInfoEntity::getSeason, param.getSeason());
 			}
 		}
 		if (queryWrapper.getExpression().getNormal().size() == 0) {
 			return new TableData<>();
 		}
-		queryWrapper.eq(TournamentInfoEntity::getState, 1);
+		queryWrapper.eq(TournamentInfoEntity::getState, 1)
+				.orderByAsc(TournamentInfoEntity::getId);
 		// return
 		this.tournamentInfoService.list(queryWrapper).forEach(o -> {
 			TournamentInfoData tournamentInfoData = new TournamentInfoData();
@@ -195,11 +184,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		}
 		int currentEvent = this.querySerivce.getCurrentEvent();
 		// get tournament_list
-		List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-				.eq(TournamentEntryEntity::getEntry, entry))
-				.stream()
-				.map(TournamentEntryEntity::getTournamentId)
-				.collect(Collectors.toList());
+		List<Integer> tournamentList = this.querySerivce.qryEntryTournamentList(entry);
 		if (CollectionUtils.isEmpty(tournamentList)) {
 			return new TableData<>();
 		}
@@ -263,11 +248,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			return new TableData<>();
 		}
 		// get tournament_list
-		List<Integer> tournamentList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-				.eq(TournamentEntryEntity::getEntry, entry))
-				.stream()
-				.map(TournamentEntryEntity::getTournamentId)
-				.collect(Collectors.toList());
+		List<Integer> tournamentList = this.querySerivce.qryEntryTournamentList(entry);
 		if (CollectionUtils.isEmpty(tournamentList)) {
 			return new TableData<>();
 		}
@@ -889,6 +870,39 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
+	//	@Cacheable(value = "qryLeagueCaptainDataList", key = "#tournamentId")
+	@Override
+	public TableData<TournamentEventCaptainData> qryLeagueCaptainDataList(int tournamentId) {
+		// tournament_entry
+		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			return new TableData<>();
+		}
+		// entry_event_result
+
+
+		return null;
+	}
+
+	@Cacheable(value = "qryLeagueEventCaptainDataList", key = "#tournamentId+'::'+#event")
+	@Override
+	public TableData<EntryEventCaptainData> qryLeagueEventCaptainDataList(int tournamentId, int event) {
+		List<EntryEventCaptainData> list = Lists.newArrayList();
+		// tournament_entry
+		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			return new TableData<>();
+		}
+		// entry_event_result
+		entryList.forEach(entry -> {
+			EntryEventCaptainData tournamentEntryCaptainData = this.querySerivce.qryEntryEventCaptainDataList(event, entry);
+			if (tournamentEntryCaptainData != null) {
+				list.add(tournamentEntryCaptainData);
+			}
+		});
+		return new TableData<>(list);
+	}
+
 	/**
 	 * @apiNote live
 	 */
@@ -1071,9 +1085,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
 		// team select
-		List<TeamSelectStatEntity> teamSelectList = this.teamSelectStatService.list(new QueryWrapper<TeamSelectStatEntity>().lambda()
-				.eq(TeamSelectStatEntity::getLeagueName, leagueName)
-				.eq(TeamSelectStatEntity::getEvent, event));
+		List<LeagueEventStatEntity> teamSelectList = this.leagueEventStatService.list(new QueryWrapper<LeagueEventStatEntity>().lambda()
+				.eq(LeagueEventStatEntity::getLeagueName, leagueName)
+				.eq(LeagueEventStatEntity::getEvent, event));
 		int teamSize = teamSelectList.size();
 		if (CollectionUtils.isEmpty(teamSelectList)) {
 			return new TableData<>(leagueStatData);
@@ -1099,7 +1113,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(leagueStatData);
 	}
 
-	private LinkedHashMap<String, String> getMostTransferInMap(String leagueName, int event, List<TeamSelectStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getMostTransferInMap(String leagueName, int event, List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		if (event <= 1) {
 			return Maps.newLinkedHashMap();
 		}
@@ -1120,7 +1134,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
 	}
 
-	private LinkedHashMap<String, String> getMostTransferOutMap(String leagueName, int event, List<TeamSelectStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getMostTransferOutMap(String leagueName, int event, List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		if (event <= 1) {
 			return Maps.newLinkedHashMap();
 		}
@@ -1142,13 +1156,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	}
 
 	private Map<Integer, List<Integer>> collectPreviousEntrySelectedMap(String leagueName, int event) {
-		List<TeamSelectStatEntity> previousSelectList = this.teamSelectStatService.list(new QueryWrapper<TeamSelectStatEntity>().lambda()
-				.eq(TeamSelectStatEntity::getLeagueName, leagueName)
-				.eq(TeamSelectStatEntity::getEvent, event - 1));
+		List<LeagueEventStatEntity> previousSelectList = this.leagueEventStatService.list(new QueryWrapper<LeagueEventStatEntity>().lambda()
+				.eq(LeagueEventStatEntity::getLeagueName, leagueName)
+				.eq(LeagueEventStatEntity::getEvent, event - 1));
 		return this.collectEntrySelectedMap(previousSelectList);
 	}
 
-	private Map<Integer, List<Integer>> collectEntrySelectedMap(List<TeamSelectStatEntity> teamSelectList) {
+	private Map<Integer, List<Integer>> collectEntrySelectedMap(List<LeagueEventStatEntity> teamSelectList) {
 		Map<Integer, List<Integer>> teamSelectMap = Maps.newHashMap();
 		teamSelectList.forEach(o -> {
 			List<Integer> elementList = Lists.newArrayList(
@@ -1161,24 +1175,24 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return teamSelectMap;
 	}
 
-	private LinkedHashMap<String, String> getCaptainSelectedMap(List<TeamSelectStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getCaptainSelectedMap(List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		List<Integer> elementList = teamSelectList
 				.stream()
-				.map(TeamSelectStatEntity::getCaptain)
+				.map(LeagueEventStatEntity::getCaptain)
 				.collect(Collectors.toList());
 		return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
 	}
 
-	private LinkedHashMap<String, String> getViceCaptainSelectedMap(List<TeamSelectStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getViceCaptainSelectedMap(List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		// collect
 		List<Integer> elementList = teamSelectList
 				.stream()
-				.map(TeamSelectStatEntity::getViceCaptain)
+				.map(LeagueEventStatEntity::getViceCaptain)
 				.collect(Collectors.toList());
 		return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
 	}
 
-	private LinkedHashMap<String, String> getTopSelectedPlayerMap(List<TeamSelectStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getTopSelectedPlayerMap(List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		List<Integer> elementList = Lists.newArrayList();
 		teamSelectList.forEach(o -> {
 			elementList.add(o.getPosition1());
@@ -1200,7 +1214,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return this.collectSelectedMap(elementList, teamSize, 20, playerMap);
 	}
 
-	private LinkedHashMap<Integer, Map<String, String>> getTopSelectedTeamMap(List<TeamSelectStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<Integer, Map<String, String>> getTopSelectedTeamMap(List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		// element list
 		List<PlayerEntity> elementPlayerInfoList = Lists.newArrayList();
 		teamSelectList.forEach(o -> {

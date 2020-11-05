@@ -11,11 +11,14 @@ import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.HistorySeason;
+import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.MatchPlayStatus;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.element.ElementCaptainData;
+import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -72,7 +75,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 	private final ZjTournamentCaptainService zjTournamentCaptainService;
-	private final TeamSelectStatService teamSelectStatService;
+	private final LeagueEventStatService leagueEventStatService;
 
 	/**
 	 * @implNote player
@@ -194,6 +197,50 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return this.redisCacheSerive.getPlayerValueByChangeDay(changeDay);
 	}
 
+	@Cacheable(value = "qryinitElementCaptainData", key = "#element+'::'+#event+'::'+#entryPoints", unless = "#result == null")
+	@Override
+	public ElementCaptainData initElementCaptainData(int element, int event, int elementPoints, int entryPoints) {
+		// position
+		Map<String, String> positionMap = this.getPositionMap();
+		if (CollectionUtils.isEmpty(positionMap)) {
+			return new ElementCaptainData();
+		}
+		ElementCaptainData data = new ElementCaptainData()
+				.setElement(element)
+				.setEvent(event)
+				.setPoints(elementPoints)
+				.setPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(elementPoints, entryPoints), 1));
+		// event_live
+		EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getElement, element)
+				.eq(EventLiveEntity::getEvent, event));
+		if (eventLiveEntity != null) {
+			data.setBlank(this.setElementBlank(eventLiveEntity));
+		}
+		// player
+		PlayerEntity playerEntity = this.getPlayerByElememt(data.getElement());
+		if (playerEntity != null) {
+			data
+					.setWebName(playerEntity.getWebName())
+					.setElementTypeName(positionMap.getOrDefault(String.valueOf(playerEntity.getElementType()), ""));
+		}
+		// player_stat
+		PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(element);
+		if (playerEntity != null) {
+			data.setSelectByPercent(playerStatEntity.getSelectedByPercent() + '%');
+		}
+		return data;
+	}
+
+	private boolean setElementBlank(EventLiveEntity eventLiveEntity) {
+		return eventLiveEntity.getGoalsScored() <= 0 &&
+				eventLiveEntity.getAssists() <= 0 &&
+				eventLiveEntity.getBonus() <= 0 &&
+				eventLiveEntity.getPenaltiesSaved() <= 0 &&
+				eventLiveEntity.getSaves() <= 3 &&
+				((eventLiveEntity.getElementType() != 1 && eventLiveEntity.getElementType() != 2) || eventLiveEntity.getCleanSheets() <= 0);
+	}
+
 	/**
 	 * @implNote entry
 	 */
@@ -247,9 +294,65 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return this.staticSerive.getUserHistory(entry).orElse(null);
 	}
 
+	@Cacheable(value = "qryEntryTournamentList", key = "#entry", unless = "#result == null")
 	@Override
-	public int getLastEvent() {
-		return this.getCurrentEvent() - 1;
+	public List<Integer> qryEntryTournamentList(int entry) {
+		return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+				.eq(TournamentEntryEntity::getEntry, entry))
+				.stream()
+				.map(TournamentEntryEntity::getTournamentId)
+				.collect(Collectors.toList());
+	}
+
+	@Cacheable(value = "qryEntryEventCaptainDataList", key = "#event+'::'+#entry", unless = "#result == null")
+	@Override
+	public EntryEventCaptainData qryEntryEventCaptainDataList(int event, int entry) {
+		EntryEventResultData entryEventResultData = this.qryEntryEventResult(event, entry);
+		if (entryEventResultData == null) {
+			return null;
+		}
+		int entryEventPoints = entryEventResultData.getPoints();
+		EntryEventCaptainData data = BeanUtil.copyProperties(entryEventResultData, EntryEventCaptainData.class);
+		// entry_info
+		EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
+		if (entryInfoEntity != null) {
+			data
+					.setEntryName(entryInfoEntity.getEntryName())
+					.setPlayerName(entryInfoEntity.getPlayerName());
+		}
+		// captain
+		EntryPickData captainPickData = entryEventResultData.getPicks()
+				.stream()
+				.filter(EntryPickData::isCaptain)
+				.findFirst()
+				.orElse(null);
+		if (captainPickData == null) {
+			return data;
+		}
+		ElementCaptainData captainData = this.initElementCaptainData(captainPickData.getElement(), event, captainPickData.getPoints(), entryEventPoints);
+		data.setCaptainData(captainData);
+		// vice captain
+		EntryPickData viceCaptainPickData = entryEventResultData.getPicks()
+				.stream()
+				.filter(EntryPickData::isViceCaptain)
+				.findFirst()
+				.orElse(null);
+		if (viceCaptainPickData == null) {
+			return data;
+		}
+		ElementCaptainData viceCaptainData = this.initElementCaptainData(viceCaptainPickData.getElement(), event, viceCaptainPickData.getPoints(), entryEventPoints);
+		data.setViceCaptainData(viceCaptainData);
+		// highest score
+		EntryPickData highestScorePickData = entryEventResultData.getPicks()
+				.stream()
+				.max(Comparator.comparing(EntryPickData::getPoints))
+				.orElse(null);
+		if (highestScorePickData == null) {
+			return data;
+		}
+		ElementCaptainData highestScoreData = this.initElementCaptainData(highestScorePickData.getElement(), event, highestScorePickData.getPoints(), entryEventPoints);
+		data.setHighestScoreData(highestScoreData);
+		return data;
 	}
 
 	/**
@@ -267,6 +370,11 @@ public class QueryServiceImpl implements IQuerySerivce {
 			}
 		}
 		return event;
+	}
+
+	@Override
+	public int getLastEvent() {
+		return this.getCurrentEvent() - 1;
 	}
 
 	@Override
@@ -614,6 +722,21 @@ public class QueryServiceImpl implements IQuerySerivce {
 	@Override
 	public List<TournamentInfoEntity> qryAllTournamentList() {
 		return this.tournamentInfoService.list();
+	}
+
+	@Cacheable(cacheNames = "tournamentData", key = "#tournamentId")
+	@Override
+	public TournamentInfoData qryTournamentDataById(int tournamentId) {
+		TournamentInfoData tournamentInfoData = new TournamentInfoData();
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return tournamentInfoData;
+		}
+		BeanUtil.copyProperties(tournamentInfoEntity, tournamentInfoData);
+		tournamentInfoData
+				.setGroupModeName(GroupMode.valueOf(tournamentInfoData.getGroupMode()).getModeName())
+				.setKnockoutModeName(KnockoutMode.valueOf(tournamentInfoData.getKnockoutMode()).getModeName());
+		return tournamentInfoData;
 	}
 
 	@Cacheable(cacheNames = "tournamentInfoEntity", key = "#tournamentId")
@@ -1270,7 +1393,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	 */
 	@Override
 	public List<String> qryTeamSelectStatList() {
-		return this.teamSelectStatService.getBaseMapper().qryLeagueNameList();
+		return this.leagueEventStatService.getBaseMapper().qryLeagueNameList();
 	}
 
 	/**

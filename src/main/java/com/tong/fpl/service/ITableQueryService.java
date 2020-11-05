@@ -1,8 +1,8 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
-import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
@@ -26,11 +26,6 @@ public interface ITableQueryService {
 	TableData<PlayerInfoData> qryPagePlayerDataList(long page, long limit);
 
 	TableData<PlayerValueData> qryPriceChangeList();
-
-	/**
-	 * @apiNote entry
-	 */
-	TableData<EntryInfoData> qryEntryInfoByTournament(String season, int tournamentId);
 
 	/**
 	 * @apiNote tournament
@@ -61,6 +56,10 @@ public interface ITableQueryService {
 
 	TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
 
+	TableData<TournamentEventCaptainData> qryLeagueCaptainDataList(int tournamentId);
+
+	TableData<EntryEventCaptainData> qryLeagueEventCaptainDataList(int tournamentId, int event);
+
 	/**
 	 * @apiNote live
 	 */
@@ -69,7 +68,6 @@ public interface ITableQueryService {
 	TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId);
 
 	TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
-
 
 	/**
 	 * @apiNote entry_result

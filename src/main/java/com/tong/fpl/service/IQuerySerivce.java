@@ -4,6 +4,8 @@ import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.element.ElementCaptainData;
+import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -61,6 +63,8 @@ public interface IQuerySerivce {
 
 	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 
+	ElementCaptainData initElementCaptainData(int element, int event, int elementPoints, int entryPoints);
+
 	/**
 	 * @apiNote entry
 	 */
@@ -76,12 +80,16 @@ public interface IQuerySerivce {
 
 	UserHistoryRes getUserHistory(int entry);
 
+	List<Integer> qryEntryTournamentList(int entry);
+
+	EntryEventCaptainData qryEntryEventCaptainDataList(int event, int entry);
+
 	/**
 	 * @apiNote event
 	 */
-	int getLastEvent();
-
 	int getCurrentEvent();
+
+	int getLastEvent();
 
 	int getNextEvent();
 
@@ -165,6 +173,8 @@ public interface IQuerySerivce {
 	 * @apiNote tournament
 	 */
 	List<TournamentInfoEntity> qryAllTournamentList();
+
+	TournamentInfoData qryTournamentDataById(int tournamentId);
 
 	TournamentInfoEntity qryTournamentInfoById(int tournamentId);
 

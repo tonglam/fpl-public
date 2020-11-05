@@ -1,8 +1,8 @@
 package com.tong.fpl.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -12,18 +12,29 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "team_select_stat")
-public class TeamSelectStatEntity {
+@TableName(value = "league_event_stat")
+public class LeagueEventStatEntity {
 
-	@TableField
+	@TableId
 	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+	private Integer leagueId;
+	private String leagueType;
 	private String leagueName;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer event;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer entry;
-	private String chip;
+	private String entryName;
+	private String playerName;
+	private Integer overallPoints;
+	private Integer overallRank;
+	private Integer teamValue;
+	private Integer bank;
+	private Integer event;
+	private Integer eventPoints;
+	private Integer eventTransfers;
+	private Integer eventTransfersCost;
+	private Integer eventNetPoints;
+	private Integer eventBenchPoints;
+	private Integer eventRank;
+	private String eventChip;
 	private Integer position1;
 	private Integer position2;
 	private Integer position3;
@@ -40,7 +51,14 @@ public class TeamSelectStatEntity {
 	private Integer position14;
 	private Integer position15;
 	private Integer captain;
+	private Integer captainPoints;
+	private Boolean captainBlank;
 	private Integer viceCaptain;
+	private Integer viceCaptainPoints;
+	private Boolean viceCaptainBlank;
+	private Integer highestScore;
+	private Integer highestScorePoints;
+	private Boolean highestScoreBlank;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 
