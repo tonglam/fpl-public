@@ -1,10 +1,8 @@
 package com.tong.fpl.task;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.tong.fpl.constant.enums.TournamentMode;
-import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.log.TaskLog;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IReportService;
@@ -13,11 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2020/9/16
@@ -61,7 +56,7 @@ public class ReportTask {
 	}
 
 	private boolean isNotSelectTime(int event) {
-		LocalDateTime localDateTime = LocalDateTime.parse(this.querySerivce.getDeadlineByEvent(event));
+		LocalDateTime localDateTime = LocalDateTime.parse(this.querySerivce.getDeadlineByEvent(event).replace(" ", "T"));
 		return LocalDateTime.now().equals(localDateTime);
 	}
 
