@@ -40,8 +40,6 @@ public class DBTest extends FplApplicationTests {
 	private IQuerySerivce querySerivce;
 	@Autowired
 	private TournamentKnockoutService tournamentKnockoutService;
-	@Autowired
-	private LeagueEventStatService teamSelectStatService;
 
 	@Test
 	void test() {
@@ -136,43 +134,6 @@ public class DBTest extends FplApplicationTests {
 				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
 				.ge(TournamentKnockoutEntity::getStartGw, event)
 				.le(TournamentKnockoutEntity::getEndGw, event));
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@CsvSource("这破游戏⚽️让让群姐妹联赛大乱斗, 1")
-	void teamSelect(String leagueName, int event) {
-		List<Integer> elementList = Lists.newArrayList();
-		this.teamSelectStatService.list(new QueryWrapper<LeagueEventStatEntity>().lambda()
-				.eq(LeagueEventStatEntity::getLeagueName, leagueName)
-				.eq(LeagueEventStatEntity::getEvent, event))
-				.forEach(o -> {
-					elementList.add(o.getPosition1());
-					elementList.add(o.getPosition2());
-					elementList.add(o.getPosition3());
-					elementList.add(o.getPosition4());
-					elementList.add(o.getPosition5());
-					elementList.add(o.getPosition6());
-					elementList.add(o.getPosition7());
-					elementList.add(o.getPosition8());
-					elementList.add(o.getPosition9());
-					elementList.add(o.getPosition10());
-					elementList.add(o.getPosition11());
-					elementList.add(o.getPosition12());
-					elementList.add(o.getPosition13());
-					elementList.add(o.getPosition14());
-					elementList.add(o.getPosition15());
-				});
-		Map<Integer, Long> map = elementList
-				.stream()
-				.collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
-		Map<Integer, Integer> result = map.entrySet()
-				.stream()
-				.sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-				.limit(20)
-				.collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
-		result.forEach((k, v) ->
-				System.out.println(this.playerService.getById(k).getWebName() + ": " + NumberUtil.div(v.intValue(), 113, 2) * 100 + "%"));
 		System.out.println(1);
 	}
 

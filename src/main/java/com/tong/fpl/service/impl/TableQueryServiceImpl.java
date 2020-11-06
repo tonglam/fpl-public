@@ -69,7 +69,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final ZjTournamentResultService zjTournamentResultService;
-	private final LeagueEventStatService leagueEventStatService;
+	private final LeagueEventReportService leagueEventReportService;
 
 	/**
 	 * @apiNote player
@@ -1085,40 +1085,40 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
 		// team select
-		List<LeagueEventStatEntity> teamSelectList = this.leagueEventStatService.list(new QueryWrapper<LeagueEventStatEntity>().lambda()
-				.eq(LeagueEventStatEntity::getLeagueName, leagueName)
-				.eq(LeagueEventStatEntity::getEvent, event));
-		int teamSize = teamSelectList.size();
-		if (CollectionUtils.isEmpty(teamSelectList)) {
+		List<LeagueEventReportEntity> leagueEventReportList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueName, leagueName)
+				.eq(LeagueEventReportEntity::getEvent, event));
+		int teamSize = leagueEventReportList.size();
+		if (CollectionUtils.isEmpty(leagueEventReportList)) {
 			return new TableData<>(leagueStatData);
 		}
 		// most transfer in
-		LinkedHashMap<String, String> mostTransferInMap = this.getMostTransferInMap(leagueName, event, teamSelectList, teamSize, playerMap);
+		LinkedHashMap<String, String> mostTransferInMap = this.getMostTransferInMap(leagueName, event, leagueEventReportList, teamSize, playerMap);
 		leagueStatData.setMostTransferIn(mostTransferInMap);
 		// most transfer out
-		LinkedHashMap<String, String> mostTransferOutMap = this.getMostTransferOutMap(leagueName, event, teamSelectList, teamSize, playerMap);
+		LinkedHashMap<String, String> mostTransferOutMap = this.getMostTransferOutMap(leagueName, event, leagueEventReportList, teamSize, playerMap);
 		leagueStatData.setMostTransferOut(mostTransferOutMap);
 		// captain selected
-		LinkedHashMap<String, String> captainSelectedMap = this.getCaptainSelectedMap(teamSelectList, teamSize, playerMap);
+		LinkedHashMap<String, String> captainSelectedMap = this.getCaptainSelectedMap(leagueEventReportList, teamSize, playerMap);
 		leagueStatData.setCaptainSelectedMap(captainSelectedMap);
 		// vice captain selected
-		LinkedHashMap<String, String> viceCaptainSelectedMap = this.getViceCaptainSelectedMap(teamSelectList, teamSize, playerMap);
+		LinkedHashMap<String, String> viceCaptainSelectedMap = this.getViceCaptainSelectedMap(leagueEventReportList, teamSize, playerMap);
 		leagueStatData.setViceCaptainSelectedMap(viceCaptainSelectedMap);
 		// top selected player
-		LinkedHashMap<String, String> topSelectedPlayerMap = this.getTopSelectedPlayerMap(teamSelectList, teamSize, playerMap);
+		LinkedHashMap<String, String> topSelectedPlayerMap = this.getTopSelectedPlayerMap(leagueEventReportList, teamSize, playerMap);
 		leagueStatData.setTopSelectedPlayerMap(topSelectedPlayerMap);
 		// top selected team
-		LinkedHashMap<Integer, Map<String, String>> topSelectedTeamMap = this.getTopSelectedTeamMap(teamSelectList, teamSize, playerMap);
+		LinkedHashMap<Integer, Map<String, String>> topSelectedTeamMap = this.getTopSelectedTeamMap(leagueEventReportList, teamSize, playerMap);
 		leagueStatData.setTopSelectedTeamMap(topSelectedTeamMap);
 		return new TableData<>(leagueStatData);
 	}
 
-	private LinkedHashMap<String, String> getMostTransferInMap(String leagueName, int event, List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getMostTransferInMap(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		if (event <= 1) {
 			return Maps.newLinkedHashMap();
 		}
 		// current gw
-		Map<Integer, List<Integer>> currentSelectMap = this.collectEntrySelectedMap(teamSelectList);
+		Map<Integer, List<Integer>> currentSelectMap = this.collectEntrySelectedMap(leagueEventReportList);
 		// previous gw
 		Map<Integer, List<Integer>> previousSelectMap = this.collectPreviousEntrySelectedMap(leagueName, event);
 		// different
@@ -1134,12 +1134,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
 	}
 
-	private LinkedHashMap<String, String> getMostTransferOutMap(String leagueName, int event, List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getMostTransferOutMap(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		if (event <= 1) {
 			return Maps.newLinkedHashMap();
 		}
 		// current gw
-		Map<Integer, List<Integer>> currentSelectMap = this.collectEntrySelectedMap(teamSelectList);
+		Map<Integer, List<Integer>> currentSelectMap = this.collectEntrySelectedMap(leagueEventReportList);
 		// previous gw
 		Map<Integer, List<Integer>> previousSelectMap = this.collectPreviousEntrySelectedMap(leagueName, event);
 		// different
@@ -1156,15 +1156,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	}
 
 	private Map<Integer, List<Integer>> collectPreviousEntrySelectedMap(String leagueName, int event) {
-		List<LeagueEventStatEntity> previousSelectList = this.leagueEventStatService.list(new QueryWrapper<LeagueEventStatEntity>().lambda()
-				.eq(LeagueEventStatEntity::getLeagueName, leagueName)
-				.eq(LeagueEventStatEntity::getEvent, event - 1));
+		List<LeagueEventReportEntity> previousSelectList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueName, leagueName)
+				.eq(LeagueEventReportEntity::getEvent, event - 1));
 		return this.collectEntrySelectedMap(previousSelectList);
 	}
 
-	private Map<Integer, List<Integer>> collectEntrySelectedMap(List<LeagueEventStatEntity> teamSelectList) {
+	private Map<Integer, List<Integer>> collectEntrySelectedMap(List<LeagueEventReportEntity> leagueEventReportList) {
 		Map<Integer, List<Integer>> teamSelectMap = Maps.newHashMap();
-		teamSelectList.forEach(o -> {
+		leagueEventReportList.forEach(o -> {
 			List<Integer> elementList = Lists.newArrayList(
 					o.getPosition1(), o.getPosition2(), o.getPosition3(), o.getPosition4(), o.getPosition5(),
 					o.getPosition6(), o.getPosition7(), o.getPosition8(), o.getPosition9(), o.getPosition10(),
@@ -1175,26 +1175,26 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return teamSelectMap;
 	}
 
-	private LinkedHashMap<String, String> getCaptainSelectedMap(List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
-		List<Integer> elementList = teamSelectList
+	private LinkedHashMap<String, String> getCaptainSelectedMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+		List<Integer> elementList = leagueEventReportList
 				.stream()
-				.map(LeagueEventStatEntity::getCaptain)
+				.map(LeagueEventReportEntity::getCaptain)
 				.collect(Collectors.toList());
 		return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
 	}
 
-	private LinkedHashMap<String, String> getViceCaptainSelectedMap(List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getViceCaptainSelectedMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		// collect
-		List<Integer> elementList = teamSelectList
+		List<Integer> elementList = leagueEventReportList
 				.stream()
-				.map(LeagueEventStatEntity::getViceCaptain)
+				.map(LeagueEventReportEntity::getViceCaptain)
 				.collect(Collectors.toList());
 		return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
 	}
 
-	private LinkedHashMap<String, String> getTopSelectedPlayerMap(List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<String, String> getTopSelectedPlayerMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		List<Integer> elementList = Lists.newArrayList();
-		teamSelectList.forEach(o -> {
+		leagueEventReportList.forEach(o -> {
 			elementList.add(o.getPosition1());
 			elementList.add(o.getPosition2());
 			elementList.add(o.getPosition3());
@@ -1214,10 +1214,10 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return this.collectSelectedMap(elementList, teamSize, 20, playerMap);
 	}
 
-	private LinkedHashMap<Integer, Map<String, String>> getTopSelectedTeamMap(List<LeagueEventStatEntity> teamSelectList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+	private LinkedHashMap<Integer, Map<String, String>> getTopSelectedTeamMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
 		// element list
 		List<PlayerEntity> elementPlayerInfoList = Lists.newArrayList();
-		teamSelectList.forEach(o -> {
+		leagueEventReportList.forEach(o -> {
 			elementPlayerInfoList.add(playerMap.get(o.getPosition1()));
 			elementPlayerInfoList.add(playerMap.get(o.getPosition2()));
 			elementPlayerInfoList.add(playerMap.get(o.getPosition3()));

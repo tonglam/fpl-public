@@ -1,6 +1,9 @@
 package com.tong.fpl.service;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.constant.enums.TournamentMode;
 import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
@@ -10,6 +13,7 @@ import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutEventFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -175,5 +179,42 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"8"})
+	void getDeadlineByEvent(int event) {
+		String deadline = this.querySerivce.getDeadlineByEvent(event).replace(" ", "T");
+		LocalDateTime localDateTime = LocalDateTime.parse(deadline).minusHours(1);
+		System.out.println(LocalDateTime.now().equals(localDateTime));
+		System.out.println(1);
+	}
+
+	@Test
+	void a() {
+		Table<Integer, String, Integer> table = HashBasedTable.create();
+		this.querySerivce.qryAllTournamentList().forEach(o -> {
+			if (StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()) && !table.containsRow(o.getLeagueId())) {
+				table.put(o.getLeagueId(), o.getLeagueType(), 0);
+			}
+		});
+		// China
+		table.put(65, "Classic", 0);
+		// Overall top 10k
+		table.put(314, "Classic", 10000);
+		table.rowKeySet().forEach(leagueId -> {
+			String leagueType = table.row(leagueId).keySet()
+					.stream()
+					.findFirst()
+					.orElse("");
+			if (StringUtils.isEmpty(leagueType)) {
+				return;
+			}
+			int limit = table.row(leagueId).values()
+					.stream()
+					.findFirst()
+					.orElse(0);
+			System.out.println(leagueType + "-" + limit);
+		});
+		System.out.println(1);
+	}
 
 }

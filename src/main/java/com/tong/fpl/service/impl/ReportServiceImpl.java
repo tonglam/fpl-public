@@ -11,7 +11,7 @@ import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.LeagueEventStatEntity;
+import com.tong.fpl.domain.entity.LeagueEventReportEntity;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.service.IReportService;
@@ -19,7 +19,7 @@ import com.tong.fpl.service.IStaticSerive;
 import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EntryInfoService;
 import com.tong.fpl.service.db.EventLiveService;
-import com.tong.fpl.service.db.LeagueEventStatService;
+import com.tong.fpl.service.db.LeagueEventReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -47,10 +48,10 @@ public class ReportServiceImpl implements IReportService {
 	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
-	private final LeagueEventStatService leagueEventStatService;
+	private final LeagueEventReportService leagueEventReportService;
 
 	@Override
-	public void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit) {
+	public void insertLeagueEventSelect(int event, int leagueId, String leagueType, int limit) {
 		// get league Entry
 		LeagueInfoData leagueInfoData = this.getLeagueDataByTypeAndId(leagueId, leagueType, limit);
 		if (leagueInfoData == null) {
@@ -60,18 +61,19 @@ public class ReportServiceImpl implements IReportService {
 		// init league result stat
 		List<EntryInfoData> entryInfoDataList = leagueInfoData.getEntryInfoList();
 		// get user picks
-		List<CompletableFuture<LeagueEventStatEntity>> future = entryInfoDataList
+		List<CompletableFuture<LeagueEventReportEntity>> future = entryInfoDataList
 				.stream()
 				.map(o ->
 						CompletableFuture.supplyAsync(() ->
 								this.initEntryEventSelectStat(event, o.getEntry(), leagueId, leagueType, leagueName)))
 				.collect(Collectors.toList());
-		List<LeagueEventStatEntity> leagueEventStatEntityList = future
+		List<LeagueEventReportEntity> leagueEventStatEntityList = future
 				.stream()
 				.map(CompletableFuture::join)
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		// save
-		this.leagueEventStatService.saveBatch(leagueEventStatEntityList);
+		this.leagueEventReportService.saveBatch(leagueEventStatEntityList);
 		log.info("insert league_event_stat size:{}!", leagueEventStatEntityList.size());
 	}
 
@@ -84,13 +86,13 @@ public class ReportServiceImpl implements IReportService {
 		return null;
 	}
 
-	private LeagueEventStatEntity initEntryEventSelectStat(int event, int entry, int leagueId, String leagueType, String leagueName) {
+	private LeagueEventReportEntity initEntryEventSelectStat(int event, int entry, int leagueId, String leagueType, String leagueName) {
 		UserPicksRes userPicksRes = this.staticSerive.getUserPicks(event, entry).orElse(null);
 		if (userPicksRes == null) {
 			return null;
 		}
 		List<Pick> picks = userPicksRes.getPicks();
-		LeagueEventStatEntity leagueEventStatEntity = new LeagueEventStatEntity()
+		LeagueEventReportEntity leagueEventReportEntity = new LeagueEventReportEntity()
 				.setLeagueId(leagueId)
 				.setLeagueType(leagueType)
 				.setLeagueName(leagueName)
@@ -125,7 +127,7 @@ public class ReportServiceImpl implements IReportService {
 				.setPosition14(picks.get(13).getElement())
 				.setPosition15(picks.get(14).getElement());
 		// captain
-		leagueEventStatEntity
+		leagueEventReportEntity
 				.setCaptain(picks
 						.stream()
 						.filter(Pick::isCaptain)
@@ -136,7 +138,7 @@ public class ReportServiceImpl implements IReportService {
 				.setCaptainPoints(0)
 				.setCaptainBlank(true);
 		// vice captain
-		leagueEventStatEntity
+		leagueEventReportEntity
 				.setViceCaptain(picks
 						.stream()
 						.filter(Pick::isViceCaptain)
@@ -147,25 +149,25 @@ public class ReportServiceImpl implements IReportService {
 				.setViceCaptainPoints(0)
 				.setViceCaptainBlank(true);
 		// highest score
-		leagueEventStatEntity
+		leagueEventReportEntity
 				.setHighestScore(0)
 				.setHighestScorePoints(0)
 				.setHighestScoreBlank(true);
-		return leagueEventStatEntity;
+		return leagueEventReportEntity;
 	}
 
 	@Override
-	public void updateLeagueEventResultStat(int event, int leagueId, String leagueType) {
+	public void updateLeagueEventResult(int event, int leagueId, String leagueType) {
 		// league_event_stat
-		List<LeagueEventStatEntity> leagueEventStatList = this.leagueEventStatService.list(new QueryWrapper<LeagueEventStatEntity>().lambda()
-				.eq(LeagueEventStatEntity::getLeagueId, leagueId)
-				.eq(LeagueEventStatEntity::getLeagueType, leagueType));
+		List<LeagueEventReportEntity> leagueEventStatList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType));
 		if (CollectionUtils.isEmpty(leagueEventStatList)) {
 			return;
 		}
 		List<Integer> entryList = leagueEventStatList
 				.stream()
-				.map(LeagueEventStatEntity::getEntry)
+				.map(LeagueEventReportEntity::getEntry)
 				.collect(Collectors.toList());
 		// preapre
 		Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
@@ -178,22 +180,22 @@ public class ReportServiceImpl implements IReportService {
 				.stream()
 				.collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
 		// collect
-		List<CompletableFuture<LeagueEventStatEntity>> future = leagueEventStatList
+		List<CompletableFuture<LeagueEventReportEntity>> future = leagueEventStatList
 				.stream()
 				.map(o ->
 						CompletableFuture.supplyAsync(() ->
 								this.updateEntryEventResultStat(event, o, eventLiveMap, entryEventResultMap)))
 				.collect(Collectors.toList());
-		List<LeagueEventStatEntity> leagueEventStatEntityList = future
+		List<LeagueEventReportEntity> leagueEventStatEntityList = future
 				.stream()
 				.map(CompletableFuture::join)
 				.collect(Collectors.toList());
 		// update
-		this.leagueEventStatService.updateBatchById(leagueEventStatEntityList);
+		this.leagueEventReportService.updateBatchById(leagueEventStatEntityList);
 		log.info("update league_event_stat size:{}!", leagueEventStatEntityList.size());
 	}
 
-	private LeagueEventStatEntity updateEntryEventResultStat(int event, LeagueEventStatEntity leagueEventStatEntity, Map<Integer, EventLiveEntity> eventLiveMap, Map<Integer, EntryEventResultEntity> entryEventResultMap) {
+	private LeagueEventReportEntity updateEntryEventResultStat(int event, LeagueEventReportEntity leagueEventStatEntity, Map<Integer, EventLiveEntity> eventLiveMap, Map<Integer, EntryEventResultEntity> entryEventResultMap) {
 		int entry = leagueEventStatEntity.getEntry();
 		// entry_info
 		EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
@@ -282,7 +284,7 @@ public class ReportServiceImpl implements IReportService {
 				.setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
 	}
 
-	private int getHighestScoreElement(LeagueEventStatEntity leagueEventStatEntity, Map<Integer, EventLiveEntity> eventLiveMap) {
+	private int getHighestScoreElement(LeagueEventReportEntity leagueEventStatEntity, Map<Integer, EventLiveEntity> eventLiveMap) {
 		Map<Integer, Integer> elementPointsMap = Maps.newHashMap();
 		elementPointsMap.put(leagueEventStatEntity.getPosition1(), this.getElementEventPoints(leagueEventStatEntity.getPosition1(), eventLiveMap));
 		elementPointsMap.put(leagueEventStatEntity.getPosition2(), this.getElementEventPoints(leagueEventStatEntity.getPosition2(), eventLiveMap));

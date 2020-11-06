@@ -1,25 +1,26 @@
 package com.tong.fpl.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * Create by tong on 2020/3/10
+ * Create by tong on 2020/11/6
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "league_event_stat")
-public class LeagueEventStatEntity {
+@TableName(value = "league_event_report")
+public class LeagueEventReportEntity {
 
 	@TableId
 	private Integer id;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer leagueId;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY)
 	private String leagueType;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY)
 	private String leagueName;
+	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer entry;
 	private String entryName;
 	private String playerName;
@@ -27,6 +28,7 @@ public class LeagueEventStatEntity {
 	private Integer overallRank;
 	private Integer teamValue;
 	private Integer bank;
+	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer event;
 	private Integer eventPoints;
 	private Integer eventTransfers;
@@ -59,7 +61,5 @@ public class LeagueEventStatEntity {
 	private Integer highestScore;
 	private Integer highestScorePoints;
 	private Boolean highestScoreBlank;
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-	private String updateTime;
 
 }

@@ -5,8 +5,8 @@ package com.tong.fpl.service;
  */
 public interface IReportService {
 
-	void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit);
+	void insertLeagueEventSelect(int event, int leagueId, String leagueType, int limit);
 
-	void updateLeagueEventResultStat(int event, int leagueId, String leagueType);
+	void updateLeagueEventResult(int event, int leagueId, String leagueType);
 
 }

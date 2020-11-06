@@ -75,7 +75,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 	private final ZjTournamentCaptainService zjTournamentCaptainService;
-	private final LeagueEventStatService leagueEventStatService;
+	private final LeagueEventReportService leagueEventReportService;
 
 	/**
 	 * @implNote player
@@ -1393,7 +1393,8 @@ public class QueryServiceImpl implements IQuerySerivce {
 	 */
 	@Override
 	public List<String> qryTeamSelectStatList() {
-		return this.leagueEventStatService.getBaseMapper().qryLeagueNameList();
+		return Lists.newArrayList();
+//		return this.leagueEventSelectService.getBaseMapper().qryLeagueNameList();
 	}
 
 	/**
