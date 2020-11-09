@@ -1,4 +1,4 @@
-<!DO CTYPE html>
+<!DOCTYPE html>
 
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
@@ -12,42 +12,104 @@
 
 <div class="layui-fluid">
     <div class="layui-main">
+
         <div class="site-content">
 
             <h1 style="font-size: 28px">查看联赛</h1>
-
-            <div class="layui-hide" id="currentGw" th:text="${currentGw}"></div>
 
             <div style="margin-top: 30px"></div>
 
             <form class="layui-form">
 
-                <div class="layui-form-item">
-                    <label class="layui-form-label">联赛名称</label>
-                    <div class="layui-input-block">
-                        <select lay-filter="leagueNameSelect" name="leagueNameSelect">
-                            <option th:each="item,stat:${tournamentList}" th:text="${item.name}"
-                                    th:value="${item.id}"></option>
-                        </select>
-                    </div>
-                </div>
+                <fieldset class="layui-elem-field layui-field-title site-title"
+                          style="margin-top: 30px">
+                    <legend><a>查看的输入官方联赛id</a></legend>
+                </fieldset>
+
+                <blockquote class="layui-elem-quote">直接查看官方联赛只支持队伍少于100的官方联赛，且只提供当前比赛周数据。若不满足现要求，请先创建自定义联赛后，查看已创建的赛事。</blockquote>
+
+                <div style="margin-top: 30px"></div>
 
                 <div class="layui-form-item">
-                    <label class="layui-form-label">查看时间</label>
-                    <div class="layui-input-inline">
-                        <select lay-filter="gwSelect" name="gwSelect">
-                            <option th:each="item,stat:${gwMap}" th:text="${stat.current.value}"
-                                    th:value="${stat.current.key}"></option>
-                        </select>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
+                        <div class="layui-input-inline" style="width: 110px">
+                            <input autocomplete="on" class="layui-input" name="leagueId" type="text">
+                        </div>
                     </div>
-                    <div class="layui-input-inline" style="margin-left: 20px">
-                        <button class="layui-btn" id="checkButton" type="button">开始</button>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px">类型</label>
+                        <div class="layui-input-inline" style="width: 120px">
+                            <select class="layui-select" lay-filter="leagueType" name="leagueType">
+                                <option value="Classic">Classic</option>
+                                <option value="H2H">H2H</option>
+                            </select>
+                        </div>
                     </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -40px">赛季</label>
+                        <div class="layui-input-inline" style="width: 100px">
+                            <input class="layui-input" type="text" value="2021" disabled>
+                        </div>
+                    </div>
+
+                    <button class="layui-btn" id="searchServiceButton" style="margin-left: 20px;margin-top: -5px"
+                            type="button">查看
+                    </button>
+
+                </div>
+
+                <fieldset class="layui-elem-field layui-field-title site-title"
+                          style="margin-top: 30px">
+                    <legend><a>查看已创建的赛事</a></legend>
+                </fieldset>
+
+                <div class="layui-form-item">
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
+                        <div class="layui-input-inline" style="width: 110px">
+                            <input autocomplete="on" class="layui-input" name="leagueId" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -30px">赛事名称</label>
+                        <div class="layui-input-inline" style="width: 180px">
+                            <input autocomplete="on" class="layui-input" name="name" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px">创建者</label>
+                        <div class="layui-input-inline" style="width: 150px">
+                            <input autocomplete="on" class="layui-input" name="creator" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px">赛季</label>
+                        <div class="layui-input-inline" style="width: 100px">
+                            <select class="layui-select" lay-filter="season" lay-search="" name="season">
+                                <option th:each="item,userStat:${seasonMap}"
+                                        th:text="${userStat.current.value}"
+                                        th:value="${userStat.current.key}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="layui-btn" id="searchTournamentButton" style="margin-left: 20px;margin-top: -5px"
+                            type="button">查看
+                    </button>
+
                 </div>
 
             </form>
 
-            <table class="layui-table" id="tournamentResultTable" lay-filter="tournamentResultTable"></table>
+            <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
 
         </div>
     </div>
@@ -59,102 +121,54 @@
 
 <script th:replace="layout::baseScript"></script>
 
-<script th:replace="layout::entryInputLayer"></script>
+<div th:replace="layout::entryInputLayer"></div>
 
 <script th:inline="none">
-    layui.use(['element', 'form', 'table', 'layer', 'soulTable'], function () {
+    layui.use(['table'], function () {
 
-        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable;
+        let $ = layui.jquery, table = layui.table;
 
-        soulTable.config({
-            drag: false,
-            overflow: {
-                type: 'tips',
-                header: true,
-                total: true
-            }
+        $("#searchTournamentButton").on('click', function () {
+            let leagueId = $("input[name=leagueId]").val();
+            let name = $("input[name=name]").val();
+            let creator = $("input[name=creator]").val();
+            let season = $("select[name=season]").val();
+
+            table.render({
+                elem: '#tournamentTable',
+                method: 'post',
+                contentType: 'application/json',
+                url: '/my_fpl/qryTournamenList',
+                where: {
+                    name: name,
+                    creator: creator,
+                    leagueId: leagueId,
+                    season: season
+                },
+                loading: true,
+                width: 820,
+                cols: [[
+                    {
+                        field: 'name',
+                        title: '名字',
+                        align: 'center',
+                        templet: '<div><a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a></div>'
+                    },
+                    {field: 'creator', title: '创建者', align: 'center', width: 150},
+                    {field: 'season', title: '赛季', align: 'center', width: 80},
+                    {field: 'leagueType', title: '类型', align: 'center', width: 80},
+                    {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100},
+                    {field: 'createTime', title: '创建时间', align: 'center', width: 120}
+                ]],
+                id: 'tournamenTable'
+            });
+
         });
 
-        let event = $("#currentGw").html();
-        let optionValue = "dd[lay-value=" + event + "]";
-        $("select[name=gwSelect]").siblings("div.layui-form-select").find("dl").find(optionValue).click();
-
-        $("#checkButton").on('click', function () {
-            let loadIndex = layer.load(2);
-
-            let tournamentId = $("select[name=leagueNameSelect]").val();
-            let event = $("select[name=gwSelect]").val();
-
-            axios.get('/my_fpl/qryTournamentResultList', {
-                params: {
-                    tournamentId: tournamentId,
-                    event: event
-                }
-            })
-                .then(function (response) {
-                    let data = [];
-                    $.each(response.data, function (index, value) {
-                        let entryData = {};
-                        entryData.groupRank = value.groupRank;
-                        entryData.entryName = value.entryName;
-                        entryData.playerName = value.playerName;
-                        entryData.points = value.pointsGroupEventResult.points;
-                        entryData.cost = value.pointsGroupEventResult.cost;
-                        entryData.netPoints = value.pointsGroupEventResult.netPoints;
-                        entryData.rank = value.pointsGroupEventResult.rank;
-                        entryData.overallPoints = value.overallPoints;
-                        entryData.overallRank = value.overallRank;
-                        data.push(entryData);
-                    });
-
-                    layer.close(loadIndex);
-
-                    table.render({
-                        elem: '#tournamentResultTable',
-                        data: data,
-                        toolbar: '#toolbar',
-                        defaultToolbar: [{title: '筛选重置', layEvent: 'clearFilter', icon: 'layui-icon-refresh-3'}],
-                        page: true,
-                        limit: 30,
-                        limits: [30, 50, 100],
-                        loading: true,
-                        cellMinWidth: 80,
-                        cols: [[
-                            {field: 'groupRank', title: '排名', align: 'center'},
-                            {field: 'entryName', title: '队伍', align: 'center', width: 200, filter: true},
-                            {field: 'playerName', title: '玩家', align: 'center', width: 150, filter: true},
-                            {field: 'points', title: '周得分', align: 'center', width: 100, sort: true, filter: true},
-                            {field: 'cost', title: '周剁手', align: 'center', width: 100, sort: true, filter: true},
-                            {field: 'netPoints', title: '周净得分', align: 'center', width: 120, sort: true, filter: true},
-                            {field: 'rank', title: '周排名', align: 'center', width: 100, sort: true, filter: true},
-                            {
-                                field: 'overallPoints',
-                                title: '总得分',
-                                align: 'center',
-                                width: 100,
-                                sort: true,
-                                filter: true
-                            },
-                            {field: 'overallRank', title: '总排名', align: 'center', width: 100, sort: true, filter: true}
-                        ]],
-                        filter: {
-                            items: ['data'],
-                            bottom: false
-                        },
-                        id: 'tournamentResultTable',
-                        done: function () {
-                            soulTable.render(this);
-                        }
-                    });
-
-                })
-                .catch(function (error) {
-                    console.info(error.message);
-                    layer.close(loadIndex);
-                });
-
-        })
-
+        table.on('row(tournamentTable)', function (obj) {
+            let id = obj.data.id;
+            window.location.replace('/my_fpl/leagueReport?id=' + id);
+        });
 
     });
 </script>

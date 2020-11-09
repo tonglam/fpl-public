@@ -126,7 +126,7 @@
         let tournamentId = getUrlParam('id');
         axios.get('/tournament/qryKnockoutBracketResultByTournament?tournamentId=' + tournamentId)
             .then(function (response) {
-                if (response.results.length == 0) {
+                if (response.results.length === 0) {
                     layer.msg("当前比赛周无淘汰赛数据", {time: 1500});
                     return false;
                 }
@@ -184,7 +184,7 @@
     }
 
     function onhover(data, hover) {
-        if (hover == true) {
+        if (hover === true) {
             $('#matchInfo').text(data);
         }
     }
@@ -317,7 +317,7 @@
             let bracketDom = $("#bracket");
             // 无小组赛关闭小组赛tab
             let groupNum = [[${tournamentInfo?.getGroupNum()}]];
-            if (groupNum == 0) {
+            if (groupNum === 0) {
                 element.tabDelete('stageTab', 'groupTab');
                 // 渲染对阵图
                 bracketDom.removeClass("layui-hide");
@@ -327,7 +327,7 @@
             bracketDom.addClass("layui-hide");
             // 无淘汰赛关闭淘汰赛tab
             let knockoutNum = [[${tournamentInfo?.getKnockoutTeam()}]];
-            if (knockoutNum == 0) {
+            if (knockoutNum === 0) {
                 element.tabDelete('stageTab', 'knockoutTab');
             }
         });
@@ -339,9 +339,9 @@
         element.on('tab(stageTab)', function (data) {
             $("#config").addClass("layui-hide");
             let bracketDom = $("#bracket");
-            if (data.index == 1) {
+            if (data.index === 1) {
                 bracketDom.removeClass("layui-hide");
-                if (bracketDom.children().length == 0) {
+                if (bracketDom.children().length === 0) {
                     initKnockoutResult();
                 }
             } else {

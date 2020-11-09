@@ -544,7 +544,7 @@
          */
         util.fixbar({
             bar1: "&#xe607;", click: function (type) {
-                if (type == 'bar1') {
+                if (type === 'bar1') {
                     layer.open({
                         type: 1,
                         title: '自定义赛事规则',
@@ -575,7 +575,7 @@
             let totalTeamDom = $("#totalTeam");
             // 校验url
             let url = formatUrl($(this).val());
-            if (url == '') {
+            if (url === '') {
                 totalTeamDom.val("");
                 groupConfigDiv.addClass("layui-hide");
                 clearGroupConfig();
@@ -600,7 +600,7 @@
                 .then(function (response) {
                     layer.close(loadIndex);
                     let totalTeam = response;
-                    if (totalTeam == 0) {
+                    if (totalTeam === 0) {
                         layer.msg('联赛队伍总数为0，请重新填写官方联赛url', {time: 1500});
                         $(this).val('');
                         totalTeamDom.html("");
@@ -633,7 +633,7 @@
             let tournamentNameDom = $("input[name=tournamentName]");
             // 校验赛事名称
             let name = $(this).val();
-            if (name == '') {
+            if (name === '') {
                 nameTipsIconDiv.addClass("layui-hide");
                 return false;
             }
@@ -644,9 +644,9 @@
                 }
             })
                 .then(function (response) {
-                    if (response == "true") {
+                    if (response === "true") {
                         nameTipsIconDiv.removeClass("layui-hide");
-                    } else if (response == "false") {
+                    } else if (response === "false") {
                         layer.msg("赛事名称已存在，请更换", {time: 1500});
                         nameTipsIconDiv.addClass("layui-hide");
                         tournamentNameDom.val('');
@@ -693,7 +693,7 @@
                     // 去除必选属性
                     removeGroupRequired();
                     // 不能无淘汰赛
-                    if (knockoutMode == "0") {
+                    if (knockoutMode === "0") {
                         layer.msg("没有小组赛又没有淘汰赛还弄个啥", {icon: 5, time: 1000});
                     }
                     break;
@@ -743,12 +743,12 @@
          */
         form.on('select(groupStartGw)', function (data) {
             let groupStartGw = getGwValue(data.value);
-            if (groupStartGw == '') {
+            if (groupStartGw === '') {
                 return false;
             }
             // 校验开始时间
             let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
-            if (groupEndGw != '' && groupStartGw >= groupEndGw) {
+            if (groupEndGw !== '' && groupStartGw >= groupEndGw) {
                 layer.msg("开始时间必须早于结束时间！", {time: 1500});
                 $("select[name=groupStartGw]").val('0');
             }
@@ -767,13 +767,13 @@
             // 校验结束时间
             let groupStartGw = getGwValue($("select[name=groupStartGw]").val());
             let groupEndGw = getGwValue(data.value);
-            if (groupStartGw != '' && groupEndGw != '' && groupStartGw >= groupEndGw) {
+            if (groupStartGw !== '' && groupEndGw !== '' && groupStartGw >= groupEndGw) {
                 layer.msg("结束时间必须晚于开始时间！", {time: 1500});
                 $("select[name=groupEndGw]").val('0');
             }
             // 触发淘汰赛开始时间事件
             let knockoutMode = $("select[name=knockoutMode]").val();
-            if (knockoutMode == "1" || knockoutMode == "2") {
+            if (knockoutMode === "1" || knockoutMode === "2") {
                 knockoutStartGwDom.trigger('focusout');
             }
         });
@@ -793,7 +793,7 @@
             let groupFillAverageDom = $("input[name=groupFillAverage]");
             // 校验每组队伍数量
             let groupTeamPerGroup = $(this).val();
-            if (groupTeamPerGroup == '') {
+            if (groupTeamPerGroup === '') {
                 clearGroupTeamPerGroup();
                 return false;
             }
@@ -821,7 +821,7 @@
             let groupMode = $("select[name=groupMode]").val();
             switch (groupMode) {
                 case "1": {
-                    if (totalTeam % groupTeamPerGroup == 0) {
+                    if (totalTeam % groupTeamPerGroup === 0) {
                         groupFillAverageDom.attr("disabled", "");
                         groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
                         groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
@@ -834,7 +834,7 @@
                 }
                 case "2": {
                     groupFillAverageDom.attr("disabled", "");
-                    if (groupTeamPerGroup % 2 == 0) {
+                    if (groupTeamPerGroup % 2 === 0) {
                         groupFillAverageDom.siblings("div.layui-form-switch").removeClass("layui-form-onswitch");
                         groupFillAverageDom.siblings("div.layui-form-switch").children("em").text("否");
                         $("#fillAverageTips").text("每个小组队伍数量为偶数，无需加入平均分");
@@ -871,7 +871,7 @@
             let knockoutRoundsDom = $("input[name=knockoutRounds]");
             // 校验每组出线数量
             let groupQualifiers = $(this).val();
-            if (groupQualifiers == '') {
+            if (groupQualifiers === '') {
                 knockoutRoundsDom.trigger('focusout');
                 return false;
             }
@@ -894,7 +894,7 @@
             knockoutRoundsDom.trigger('focusout');
             // 校验每组队伍数量
             let groupTeamPerGroup = $("input[name=groupTeamPerGroup]").val();
-            if (groupTeamPerGroup == '' || parseInt(groupQualifiers) > parseInt(groupTeamPerGroup)) {
+            if (groupTeamPerGroup === '' || parseInt(groupQualifiers) > parseInt(groupTeamPerGroup)) {
                 layer.msg("每组出线数量不能大于每组队伍数量：" + groupTeamPerGroup, {time: 1500});
                 $(this).val('');
                 knockoutRoundsDom.trigger('focusout');
@@ -927,7 +927,7 @@
                     // 隐藏淘汰赛配置
                     hideKnockoutConfig();
                     // 不能无小组赛
-                    if (groupMode == "0") {
+                    if (groupMode === "0") {
                         layer.msg("没有小组赛又没有淘汰赛还弄个啥", {icon: 5, time: 1000});
                         createButtonDiv.addClass("layui-hide");
                         return false;
@@ -992,7 +992,7 @@
             let knockoutEndGwDom = $("input[name=knockoutEndGw]");
             // 校验淘汰赛开始时间
             let knockoutStartGwSelect = getGwValue(data.value);
-            if (knockoutStartGwSelect == '') {
+            if (knockoutStartGwSelect === '') {
                 // 清空淘汰赛结束时间
                 knockoutEndGwDom.val('');
                 return false;
@@ -1017,7 +1017,7 @@
             // 计算淘汰赛开始时间
             let knockoutStartGw = '';
             let groupEndGw = getGwValue($("select[name=groupEndGw]").val());
-            if (groupEndGw == '') {
+            if (groupEndGw === '') {
                 $(this).val('');
                 knockoutEndGwDom.trigger('focusout');
             } else {
@@ -1050,15 +1050,15 @@
             let knockoutStartGw = getCurrentKnockoutStartGw(groupMode);
             let knockoutEvents = $("input[name=knockoutEvents]").val();
             let knockoutEndGw = '';
-            if (knockoutStartGw != '' && knockoutEvents != '') {
+            if (knockoutStartGw !== '' && knockoutEvents !== '') {
                 knockoutEndGw = knockoutStartGw + parseInt(knockoutEvents) - 1;
             }
             // 校验淘汰赛结束时间
             if (knockoutEndGw > 38) {
-                if (groupMode == "0") {
+                if (groupMode === "0") {
                     let lastGw = 38 - knockoutEvents + 1;
                     layer.msg("淘汰赛打不完啦，淘汰赛开始时间最迟为GW" + lastGw, {time: 1500});
-                } else if (groupMode == "1" || groupMode == "2") {
+                } else if (groupMode === "1" || groupMode === "2") {
                     let lastGw = 38 - knockoutEvents;
                     layer.msg("淘汰赛打不完啦，小组赛结束时间最迟为GW" + lastGw, {time: 1500});
                 }
@@ -1083,7 +1083,7 @@
             // 校验淘汰赛模式
             let knockoutTeamsDom = $("#knockoutTeams");
             let knockoutMode = $("select[name=knockoutMode]").val();
-            if (knockoutMode != "1" && knockoutMode != "2") {
+            if (knockoutMode !== "1" && knockoutMode !== "2") {
                 $(this).val('');
                 knockoutTeamsDom.html("");
                 return false;
@@ -1091,19 +1091,19 @@
             // 计算淘汰赛队伍数量
             let groupMode = $("select[name=groupMode]").val();
             let knockoutTeams = '';
-            if (groupMode == "0") {
+            if (groupMode === "0") {
                 knockoutTeams = getValueFromStr($("#totalTeam").html());
-            } else if (groupMode == "1" || groupMode == "2") {
+            } else if (groupMode === "1" || groupMode === "2") {
                 let groupQualifiers = $("input[name=groupQualifiers]").val();
                 let groupNum = getValueFromStr($("#groupNum").html());
-                if (groupQualifiers != '' && groupNum != '') {
+                if (groupQualifiers !== '' && groupNum !== '') {
                     knockoutTeams = parseInt(groupQualifiers) * parseInt(groupNum);
                 }
             }
             // 计算淘汰赛轮次
             let knockoutRounds = "";
             let knockoutEvents = "";
-            if (knockoutTeams == '') {
+            if (knockoutTeams === '') {
                 knockoutTeamsDom.html("");
             } else {
                 knockoutRounds = Math.ceil(Math.log(parseInt(knockoutTeams)) / Math.log(2));
@@ -1113,11 +1113,11 @@
             $(this).val(knockoutRounds);
             $("input[name=knockoutEvents]").val(knockoutEvents);
             // 触发淘汰赛开始时间事件
-            if (groupMode == "0") {
+            if (groupMode === "0") {
                 let knockoutStartGwSelectDom = $("select[name=knockoutStartGwSelect]");
                 let knockoutStartGwSelect = knockoutStartGwSelectDom.val();
                 knockoutStartGwSelectDom.siblings("div.layui-form-select").find("dl").find("dd[lay-value='" + knockoutStartGwSelect + "']").click();
-            } else if (groupMode == "1" || groupMode == "2") {
+            } else if (groupMode === "1" || groupMode === "2") {
                 $("input[name=knockoutStartGw]").trigger('focusout');
             }
         });
@@ -1141,7 +1141,7 @@
             tournamentCreateData.groupMode = formData.groupMode;
             tournamentCreateData.teamPerGroup = formData.groupTeamPerGroup;
             tournamentCreateData.groupNum = getValueFromStr($("#groupNum").html());
-            $("input[name=groupFillAverage]").siblings("div.layui-form-switch").children("em").text() == "是" ?
+            $("input[name=groupFillAverage]").siblings("div.layui-form-switch").children("em").text() === "是" ?
                 tournamentCreateData.groupFillAverage = true : tournamentCreateData.groupFillAverage = false;
             tournamentCreateData.groupStartGw = getGwValue(formData.groupStartGw);
             tournamentCreateData.groupEndGw = getGwValue(formData.groupEndGw);
@@ -1180,7 +1180,7 @@
             let nameTipsIconDiv = $("#zjNameTipsIcon");
             // 校验赛事名称
             let name = $(this).val();
-            if (name == '') {
+            if (name === '') {
                 nameTipsIconDiv.addClass("layui-hide");
                 return false;
             }
@@ -1191,9 +1191,9 @@
                 }
             })
                 .then(function (response) {
-                    if (response == "true") {
+                    if (response === "true") {
                         nameTipsIconDiv.removeClass("layui-hide");
-                    } else if (response == "false") {
+                    } else if (response === "false") {
                         layer.msg("赛事名称已存在，请更换", {time: 1500});
                         nameTipsIconDiv.addClass("layui-hide");
                         this.val('');
@@ -1237,7 +1237,7 @@
                 let radioName = i + 'captain';
                 let captainIndex = $('input[name=' + radioName + ']:checked').val();
                 let tableData = table.cache[tableId];
-                if (captainEntry == '' && obj.data.index == captainIndex) {
+                if (captainEntry === '' && obj.data.index === captainIndex) {
                     tableData[captainIndex - 1]["captainEntry"] = entry;
                     obj.update({
                         captainEntry: entry
@@ -1285,7 +1285,7 @@
             let zjOldGroupNum = $("#zjGroupNum").text();
             let zjGroupNum = $(this).val();
             let zjGroupNumValue = parseInt(zjGroupNum);
-            if (zjGroupNum == '') {
+            if (zjGroupNum === '') {
                 layer.msg('分组数量不能为空！', {time: 1000});
                 $(this).val(zjOldGroupNum);
                 return false;
@@ -1295,12 +1295,12 @@
                 $(this).val(zjOldGroupNum);
                 return false;
             }
-            if (zjGroupNumValue % 2 != 0) {
+            if (zjGroupNumValue % 2 !== 0) {
                 layer.msg('分组数量必须为偶数！', {time: 1000});
                 $(this).val(zjOldGroupNum);
                 return false;
             }
-            if (zjGroupNum == zjOldGroupNum) {
+            if (zjGroupNum === zjOldGroupNum) {
                 layer.msg('分组数量没有改变！', {time: 1000});
                 return false;
             }
@@ -1317,7 +1317,7 @@
             let zjOldTeamPerGroup = $("#zjTeamPerGroup").text();
             let zjTeamPerGroup = $(this).val();
             let zjTeamPerGroupValue = parseInt(zjTeamPerGroup);
-            if (zjTeamPerGroup == '') {
+            if (zjTeamPerGroup === '') {
                 layer.msg('分组队伍数量没有改变！', {time: 1000});
                 $(this).val(zjOldTeamPerGroup);
                 return false;
@@ -1327,7 +1327,7 @@
                 $(this).val(zjOldTeamPerGroup);
                 return false;
             }
-            if (zjTeamPerGroup == zjOldTeamPerGroup) {
+            if (zjTeamPerGroup === zjOldTeamPerGroup) {
                 layer.msg('分组队伍数量没有改变！', {time: 1000});
                 return false;
             }
@@ -1363,7 +1363,7 @@
             let zjPhaseTwoRoundDom = $("input[name=zjPhaseTwoRound]");
             let zjPhaseOneRound = $("input[name=zjPhaseOneRound]").val();
             let zjPhaseOneStartGw = $("select[name=zjPhaseOneStartGw]").val();
-            if (zjPhaseOneRound == '' || zjPhaseOneStartGw == '') {
+            if (zjPhaseOneRound === '' || zjPhaseOneStartGw === '') {
                 $(this).val('');
                 return false;
             }
@@ -1396,7 +1396,7 @@
         $("input[name=zjPhaseTwoStartGw]").on('focusout', function () {
             let zjPhaseTwoEndGwDom = $("input[name=zjPhaseTwoEndGw]");
             let zjPhaseOneEndGw = $("input[name=zjPhaseOneEndGw]").val();
-            if (zjPhaseOneEndGw == '') {
+            if (zjPhaseOneEndGw === '') {
                 $(this).val('');
                 return false;
             }
@@ -1420,7 +1420,7 @@
             let zjPkRoundDom = $("input[name=zjPkRound]");
             let zjPhaseTwoRound = $("input[name=zjPhaseTwoRound]").val();
             let zjPhaseTwoStartGw = $("input[name=zjPhaseTwoStartGw]").val();
-            if (zjPhaseTwoRound == '' || zjPhaseTwoStartGw == '') {
+            if (zjPhaseTwoRound === '' || zjPhaseTwoStartGw === '') {
                 $(this).val('');
                 return false;
             }
@@ -1452,7 +1452,7 @@
         $("input[name=zjPkStartGw]").on('focusout', function () {
             let zjPkEndGwDom = $("input[name=zjPkEndGw]");
             let zjPhaseTwoEndGw = $("input[name=zjPhaseTwoEndGw]").val();
-            if (zjPhaseTwoEndGw == '') {
+            if (zjPhaseTwoEndGw === '') {
                 return false;
             }
             let zjPkStartGw = getGwValue(zjPhaseTwoEndGw) + 1;
@@ -1474,7 +1474,7 @@
         $("input[name=zjPkEndGw]").on('focusout', function () {
             let zjPkRound = $("input[name=zjPkRound]").val();
             let zjPkStartGw = $("input[name=zjPkStartGw]").val();
-            if (zjPkRound == '' || zjPkStartGw == '') {
+            if (zjPkRound === '' || zjPkStartGw === '') {
                 $(this).val('');
                 return false;
             }
@@ -1505,17 +1505,17 @@
                 let tableId = 'zjGroup' + i + 'Table';
                 $.each(table.cache[tableId], function (index, item) {
                     let entry = item.entry;
-                    if (entry == '' || entry <= 0) {
+                    if (entry === '' || entry <= 0) {
                         layer.msg('小组还有坑位没分配，不能创建', {time: 1000});
                         commit = false;
                         return false;
                     }
-                    if (item.captainEntry != '') {
+                    if (item.captainEntry !== '') {
                         captainEntry = item.captainEntry;
                     }
                     groupEntryList.push(entry);
                 });
-                if (commit == false) {
+                if (commit === false) {
                     return false;
                 }
                 zjTournamentGroupData.groupId = i;
@@ -1526,7 +1526,7 @@
                 zjTournamentGroupData.groupEntryList = groupEntryList;
                 groupDataList.push(zjTournamentGroupData);
             }
-            if (commit == false) {
+            if (commit === false) {
                 return false;
             }
             let zjTournamentCreateData = {};
@@ -1575,24 +1575,24 @@
 
     function formatUrl(url) {
         url = url.trim();
-        if (url.indexOf("https") != 0) {
+        if (url.indexOf("https") !== 0) {
             url = "https" + url;
         }
         return url;
     }
 
     function getGwValue(gwStr) {
-        if (gwStr == '') {
+        if (gwStr === '') {
             return '';
         }
-        if (gwStr.indexOf("GW") == 0) {
+        if (gwStr.indexOf("GW") === 0) {
             gwStr = gwStr.substr(2, gwStr.length);
         }
         return parseInt(gwStr);
     }
 
     function setGwStr(value) {
-        if (value == '') {
+        if (value === '') {
             return '';
         }
         return "GW" + value;
@@ -1618,7 +1618,7 @@
         let $ = layui.jquery;
         $("#groupGw").removeClass("layui-hide");
         $("#groupTeamPerGroup").removeClass("layui-hide");
-        if (groupMode == "1" || groupMode == "2") {
+        if (groupMode === "1" || groupMode === "2") {
             $("#groupFillAverage").removeClass("layui-hide");
         } else {
             $("#groupFillAverage").addClass("layui-hide");
@@ -1659,9 +1659,9 @@
 
     function getCurrentKnockoutStartGw(groupMode) {
         let $ = layui.jquery;
-        if (groupMode == "0") {
+        if (groupMode === "0") {
             return getGwValue($("select[name=knockoutStartGwSelect]").val());
-        } else if (groupMode == "1" || groupMode == "2") {
+        } else if (groupMode === "1" || groupMode === "2") {
             return getGwValue($("input[name=knockoutStartGw]").val());
         }
         return '';
@@ -1670,7 +1670,7 @@
     function getActiveKnockoutStartGw() {
         let $ = layui.jquery;
         let knockoutStartGw = $("select[name=knockoutStartGwSelect]").val();
-        if (knockoutStartGw == null || knockoutStartGw == '') {
+        if (knockoutStartGw == null || knockoutStartGw === '') {
             knockoutStartGw = $("input[name=knockoutStartGw]").val();
         }
         return getGwValue(knockoutStartGw);

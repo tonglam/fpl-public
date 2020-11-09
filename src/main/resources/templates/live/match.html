@@ -132,7 +132,7 @@
 
                     layer.close(loadIndex);
 
-                    if (response.data.length == 0) {
+                    if (response.data.length === 0) {
                         $("#playingMatchTips").html('没有进行中的比赛');
                         clearInterval(refreshTimeout);
                         return false;
@@ -199,9 +199,9 @@
 
             let statusId = data.index;
 
-            if (statusId == 0) {
+            if (statusId === 0) {
                 $("#playingMatchTips").html('');
-            } else if (statusId == 1) {
+            } else if (statusId === 1) {
                 $("#finishedMatchTips").html('');
             }
 
@@ -209,9 +209,9 @@
 
             axios.get('/live/match/reload?statusId=' + statusId)
                 .then(function (response) {
-                    if (statusId == 0) {
+                    if (statusId === 0) {
                         $("#playingContent").html(response);
-                    } else if (statusId == 1) {
+                    } else if (statusId === 1) {
                         $("#finishedContent").html(response);
                     }
                 })
@@ -226,10 +226,10 @@
 
                     layer.close(loadIndex);
 
-                    if (response.data.length == 0) {
-                        if (statusId == 0) {
+                    if (response.data.length === 0) {
+                        if (statusId === 0) {
                             $("#playingMatchTips").html('没有进行中的比赛');
-                        } else if (statusId == 1) {
+                        } else if (statusId === 1) {
                             $("#finishedMatchTips").html('本轮比赛尚未开始');
                         }
                         return false;

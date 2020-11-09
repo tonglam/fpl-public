@@ -371,13 +371,13 @@
                         {field: 'totalNetPoints', title: '得分', align: 'center', style: 'color: #fff;'},
                         {
                             field: '', title: '积分', align: 'center', style: 'color: #fff;', templet: function (d) {
-                                if (d.groupRank == '1') {
+                                if (d.groupRank === '1') {
                                     return '5';
-                                } else if (d.groupRank == '2') {
+                                } else if (d.groupRank === '2') {
                                     return '3';
-                                } else if (d.groupRank == '3') {
+                                } else if (d.groupRank === '3') {
                                     return '2';
-                                } else if (d.groupRank == '4') {
+                                } else if (d.groupRank === '4') {
                                     return '1';
                                 } else {
                                     return '0';

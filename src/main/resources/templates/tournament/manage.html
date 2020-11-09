@@ -187,7 +187,7 @@
                 let name = data.name, creator = data.creator, adminerEntry = data.adminerEntry;
                 layer.prompt({title: '请输入管理员id', formType: 1}, function (value, checkIndex) {
                     let check = adminerEntry - value;
-                    if (check != 0) {
+                    if (check !== 0) {
                         layer.msg("只有管理员可以修改和删除！", {icon: 2, time: 1500});
                         layer.close(checkIndex);
                         return false;
@@ -220,7 +220,7 @@
                         // 校验
                         layer.prompt({title: '请输入管理员id', formType: 1}, function (value, checkIndex) {
                             let check = adminerEntry - value;
-                            if (check != 0) {
+                            if (check !== 0) {
                                 layer.msg("只有管理员可以修改和删除！", {icon: 2, time: 1500});
                                 layer.close(checkIndex);
                                 return false;
@@ -243,7 +243,7 @@
                     let name = data.name, creator = data.creator, adminerEntry = data.adminerEntry;
                     layer.prompt({title: '请输入管理员id', formType: 1}, function (value, checkIndex) {
                         let check = adminerEntry - value;
-                        if (check != 0) {
+                        if (check !== 0) {
                             layer.msg("只有管理员可以修改和删除！", {icon: 2, time: 1500});
                             layer.close(checkIndex);
                             return false;

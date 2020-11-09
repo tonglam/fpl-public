@@ -208,7 +208,7 @@
         });
 
         $.each(captainDataList, function (index, item) {
-            if (entry == item.captainEntry) {
+            if (entry === item.captainEntry) {
                 check = true;
                 $("#currentGroupId").val(item.groupId);
                 // phase two deadline
@@ -223,7 +223,7 @@
             }
         });
 
-        if (check == false) {
+        if (check === false) {
             layer.msg("不是队长不让进！", {
                 icon: 2,
                 time: 1500,
@@ -349,7 +349,7 @@
         })
             .then(function (response) {
                 let disCloseFormDom = $("#disCloseForm");
-                if (response == 1) {
+                if (response === 1) {
                     disCloseFormDom.removeClass("layui-hide");
                 } else {
                     disCloseFormDom.addClass("layui-hide");
@@ -383,7 +383,7 @@
 
         form.on('select(disCloseEntryName)', function (data) {
             let entry = data.value;
-            if (entry == "") {
+            if (entry === "") {
                 return false;
             }
             axios.get('/tournament/qryEntryInfo?entry=' + entry)
@@ -397,7 +397,7 @@
 
         $("#disClostButton").on('click', function () {
             let entry = $("select[name=disCloseEntryName]").val();
-            if (entry == '') {
+            if (entry === '') {
                 layer.msg("请选择要揭牌的队员！", {time: 1500});
                 return false;
             }
@@ -415,14 +415,14 @@
                             return false;
                         }
                         let discloseList = response.discloseList;
-                        if (discloseList.length > 0 && discloseList[0] != entry) {
+                        if (discloseList.length > 0 && discloseList[0] !== entry) {
                             layer.msg("揭过牌了，不要贪心！", {icon: 2, time: 1500});
                             return false;
                         }
                         let tableId = "phaseTwoGroup" + response.groupId + "Table";
                         let tableData = table.cache[tableId];
                         $.each(tableData, function (index) {
-                            if (tableData[index]["groupName"] == response.groupName) {
+                            if (tableData[index]["groupName"] === response.groupName) {
                                 tableData[index]["entry"] = response.entry;
                                 tableData[index]["entryName"] = response.entryName;
                                 tableData[index]["playerName"] = response.playerName;
@@ -515,7 +515,7 @@
                                     let select = "<select name='pkGroup" + d.groupRank + "Name' lay-filter='pkGroup" + d.groupRank + "Name' lay-search=''>";
                                     select += "<option value=''></option>";
                                     $.each(d.tournamentGroupNameMap, function (index, item) {
-                                        if (d.groupName != item) {
+                                        if (d.groupName !== item) {
                                             select += "'<option value='" + index + "'>" + item + "</option>";
                                         }
                                     })
@@ -569,14 +569,14 @@
                     phaseTwoGroupId = groupNum + parseInt(data.value), selectCheck = true;
                 // 校验选项
                 $.each(currentTableData, function (index) {
-                    if (currentTableData[index]["phaseTwoGroup"] == phaseTwoGroupId && currentTableData[index]["entry"] != obj.data.entry) {
+                    if (currentTableData[index]["phaseTwoGroup"] === phaseTwoGroupId && currentTableData[index]["entry"] !== obj.data.entry) {
                         layer.msg("不能分配到同一组！", {icon: 2, time: 1000});
                         data.othis.find("dl").find("dd[lay-value='']").click();
                         selectCheck = false;
                         return false;
                     }
                 });
-                if (selectCheck == false) {
+                if (selectCheck === false) {
                     return false;
                 }
                 // 存选项
@@ -587,9 +587,9 @@
                 for (let i = 1; i < teamPerGroup + 1; i++) {
                     let tableId = "phaseTwoGroup" + (groupNum + i) + "Table";
                     let tableData = table.cache[tableId];
-                    if ((groupNum + i) == phaseTwoGroupId) {
+                    if ((groupNum + i) === phaseTwoGroupId) {
                         $.each(tableData, function (index) {
-                            if (tableData[index]["groupName"] == groupName) {
+                            if (tableData[index]["groupName"] === groupName) {
                                 tableData[index]["entry"] = entry;
                                 tableData[index]["entryName"] = entryName;
                                 tableData[index]["playerName"] = playerName;
@@ -599,7 +599,7 @@
                         });
                     } else {
                         $.each(tableData, function (index) {
-                            if (tableData[index]["groupName"] == groupName && tableData[index]["entry"] == entry) {
+                            if (tableData[index]["groupName"] === groupName && tableData[index]["entry"] === entry) {
                                 tableData[index]["entry"] = -1;
                                 tableData[index]["entryName"] = entryName;
                                 tableData[index]["playerName"] = playerName;
@@ -685,7 +685,7 @@
                             let that = this.elem.next();
                             $.each(res.data, function (rowIndex, row) {
                                 $.each(row.discloseList, function (index, item) {
-                                    if (row.entry == item) {
+                                    if (row.entry === item) {
                                         setTableRowColor(that, index, "#5FB878");
                                     }
                                 })
@@ -708,7 +708,7 @@
                 let tableId = "phaseTwoGroup" + (groupNum + i) + "Table";
                 let tableData = table.cache[tableId];
                 $.each(tableData, function (index, item) {
-                    if (tableData[index]["groupName"] == currentGroupName) {
+                    if (tableData[index]["groupName"] === currentGroupName) {
                         // 校验
                         if (item.entry <= 0) {
                             commitCheck = false;
@@ -723,11 +723,11 @@
                         groupDataList.push(tournamentGroupData);
                     }
                 });
-                if (commitCheck == false) {
+                if (commitCheck === false) {
                     return false;
                 }
             }
-            if (commitCheck == false) {
+            if (commitCheck === false) {
                 return false;
             }
 
@@ -819,7 +819,7 @@
 
             form.on('select(pkEntry' + groupRank + 'Name)', function (data) {
                 let pkEntry = data.value;
-                if (pkEntry == "") {
+                if (pkEntry === "") {
                     return false;
                 }
                 obj.update({

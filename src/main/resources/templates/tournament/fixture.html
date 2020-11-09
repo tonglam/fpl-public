@@ -147,10 +147,10 @@
 
         let groupSize = [[${groupFixtureList}]].length, knockoutSize = [[${knockoutFixtureList}]].length;
         $(document).ready(function () {
-            if (groupSize == 0) {
+            if (groupSize === 0) {
                 $("#groupTree").addClass("layui-hide");
                 $("#groupContent").addClass("layui-hide");
-            } else if (knockoutSize == 0) {
+            } else if (knockoutSize === 0) {
                 $("#knockoutTree").addClass("layui-hide");
                 $("#knockoutContent").addClass("layui-hide");
             }
