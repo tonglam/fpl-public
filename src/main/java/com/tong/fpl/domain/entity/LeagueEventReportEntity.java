@@ -51,15 +51,17 @@ public class LeagueEventReportEntity {
 	private Integer position12;
 	private Integer position13;
 	private Integer position14;
-	private Integer position15;
-	private Integer captain;
-	private Integer captainPoints;
-	private Boolean captainBlank;
-	private Integer viceCaptain;
-	private Integer viceCaptainPoints;
-	private Boolean viceCaptainBlank;
-	private Integer highestScore;
-	private Integer highestScorePoints;
-	private Boolean highestScoreBlank;
+    private Integer position15;
+    private Integer captain;
+    private Integer captainPoints;
+    private Boolean captainBlank;
+    private Integer viceCaptain;
+    private Integer viceCaptainPoints;
+    private Boolean viceCaptainBlank;
+    private Integer highestScore;
+    private Integer highestScorePoints;
+    private Boolean highestScoreBlank;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateTime;
 
 }
