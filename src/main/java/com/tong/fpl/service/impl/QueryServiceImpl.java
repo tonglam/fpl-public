@@ -1392,8 +1392,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	 */
 	@Override
 	public List<String> qryTeamSelectStatList() {
-		return Lists.newArrayList();
-//		return this.leagueEventSelectService.getBaseMapper().qryLeagueNameList();
+		return this.leagueEventReportService.getBaseMapper().qryLeagueNameList();
 	}
 
 	/**
