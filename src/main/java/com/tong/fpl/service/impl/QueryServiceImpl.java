@@ -294,7 +294,6 @@ public class QueryServiceImpl implements IQuerySerivce {
 		return this.staticSerive.getUserHistory(entry).orElse(null);
 	}
 
-	@Cacheable(value = "qryEntryTournamentList", key = "#entry", unless = "#result == null")
 	@Override
 	public List<Integer> qryEntryTournamentList(int entry) {
 		return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()

@@ -103,13 +103,13 @@ public class RedisCacheTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"7"})
+	@CsvSource({"8"})
 	void insertEventLive(int event) {
 		this.redisCacheSerive.insertEventLive(event);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"7"})
+	@CsvSource({"8"})
 	void insertEventLiveCache(int event) {
 		this.redisCacheSerive.insertEventLiveCache(event);
 	}
