@@ -26,7 +26,8 @@
                     <legend><a>查看的输入官方联赛id</a></legend>
                 </fieldset>
 
-                <blockquote class="layui-elem-quote">直接查看官方联赛只支持队伍少于100的官方联赛，且只提供当前比赛周数据。若不满足现要求，请先创建自定义联赛后，查看已创建的赛事。</blockquote>
+                <blockquote class="layui-elem-quote">直接查看官方联赛只支持队伍少于100的官方联赛，且只提供当前比赛周数据。若不满足现要求，请先创建自定义联赛后，查看已创建的赛事。
+                </blockquote>
 
                 <div style="margin-top: 30px"></div>
 
@@ -166,8 +167,9 @@
         });
 
         table.on('row(tournamentTable)', function (obj) {
-            let id = obj.data.id;
-            window.location.replace('/my_fpl/leagueReport?id=' + id);
+            let leagueId = obj.data.leagueId;
+            let leagueType = obj.data.leagueType;
+            window.location.replace('/my_fpl/leagueReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
         });
 
     });

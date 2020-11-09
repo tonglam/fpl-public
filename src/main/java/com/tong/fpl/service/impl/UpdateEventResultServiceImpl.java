@@ -38,6 +38,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 
+	private final IQuerySerivce queryService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
 	private final EntryInfoService entryInfoService;
@@ -48,7 +49,6 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	private final TournamentKnockoutService tournamentKnockoutService;
 	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 	private final ZjTournamentResultService zjTournamentResultService;
-	private final IQuerySerivce querySerivce;
 
 	@Override
 	public void updateEntryInfo() {
@@ -58,7 +58,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		entryInfoList.parallelStream().forEach(entryInfoEntity -> {
 			int entry = entryInfoEntity.getEntry();
 			// entry
-			EntryRes entryRes = this.querySerivce.getEntry(entry);
+			EntryRes entryRes = this.queryService.getEntry(entry);
 			if (entryRes == null) {
 				return;
 			}
@@ -86,11 +86,11 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	private Current getUserLastCurrent(int entry) {
-		UserHistoryRes userHistoryRes = this.querySerivce.getUserHistory(entry);
+		UserHistoryRes userHistoryRes = this.queryService.getUserHistory(entry);
 		if (userHistoryRes == null) {
 			return null;
 		}
-		int lastEvent = this.querySerivce.getLastEvent();
+		int lastEvent = this.queryService.getLastEvent();
 		return userHistoryRes.getCurrent()
 				.stream()
 				.filter(o -> o.getEvent() == lastEvent)
@@ -103,7 +103,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		if (entry <= 0) {
 			return;
 		}
-		UserPicksRes userPick = this.querySerivce.getUserPicks(event, entry);
+		UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
 		if (userPick == null) {
 			return;
 		}
@@ -132,7 +132,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	@Override
 	public void updateTournamentEntryEventResult(int event, int tournamentId) {
 		// get entry_list
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
 				.eq(EntryEventResultEntity::getEvent, event)
 				.in(EntryEventResultEntity::getEntry, entryList))
@@ -150,7 +150,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			if (entry <= 0) {
 				return;
 			}
-			UserPicksRes userPick = this.querySerivce.getUserPicks(event, entry);
+			UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
 			if (userPick == null) {
 				return;
 			}
@@ -187,7 +187,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	@Override
 	public void updatePointsRaceGroupResult(int event, int tournamentId) {
 		// tournament_info
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
 			log.error("tournament_info not exists, tournament:{}!", tournamentId);
 			return;
@@ -204,7 +204,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			return;
 		}
 		// entry list
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		// entry_event_result
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
@@ -285,7 +285,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	@Override
 	public void updateBattleRaceGroupResult(int event, int tournamentId) {
 		// tournament_info
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
 			log.error("tournament_info not exists, tournament:{}!", tournamentId);
 			return;
@@ -301,8 +301,8 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			log.error("group stage passed,current event:{}, tournament:{}!", event, tournamentId);
 			return;
 		}
-		// tournamet_entry
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		// tournament_entry
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		// entry_event_result
 		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(entryEventResultMap)) {
@@ -483,7 +483,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	@Override
 	public void updateKnockoutResult(int event, int tournamentId) {
 		// tournament_info
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
 			log.error("tournament_info not exists, tournament:{}!", tournamentId);
 			return;
@@ -499,7 +499,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			return;
 		}
 		// get entry_list by tournament
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		// get event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
@@ -512,12 +512,12 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			return;
 		}
 		// tournament_knockout
-		Map<Integer, TournamentKnockoutNextRoundData> nextKouckoutMap = this.updateKnockoutInfo(tournamentId, event, knockoutResultDataMap);
-		if (CollectionUtils.isEmpty(nextKouckoutMap)) {
+		Map<Integer, TournamentKnockoutNextRoundData> nextKnockoutMap = this.updateKnockoutInfo(tournamentId, event, knockoutResultDataMap);
+		if (CollectionUtils.isEmpty(nextKnockoutMap)) {
 			return;
 		}
 		// next round entry
-		this.updateNextKnockout(tournamentId, nextKouckoutMap);
+		this.updateNextKnockout(tournamentId, nextKnockoutMap);
 	}
 
 	private Multimap<Integer, TournamentKnockoutResultData> updateKnockoutResult(int tournamentId, int event, Map<Integer, EntryEventResultEntity> eventResultMap) {
@@ -554,7 +554,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	private Map<Integer, TournamentKnockoutNextRoundData> updateKnockoutInfo(int tournamentId, int event, Multimap<Integer, TournamentKnockoutResultData> knockoutResultDataMap) {
-		List<TournamentKnockoutEntity> tournametKnockoutList = Lists.newArrayList();
+		List<TournamentKnockoutEntity> tournamentKnockoutList = Lists.newArrayList();
 		// next_match_id -> tournament_knockout_result data
 		Map<Integer, TournamentKnockoutNextRoundData> nextKnockoutMap = Maps.newHashMap();
 		Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
@@ -575,18 +575,18 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 						return;
 					}
 					knockoutEntity.setRoundWinner(this.getRoundWinner(knockoutResultDataMap.get(matchId)));
-					tournametKnockoutList.add(knockoutEntity);
+					tournamentKnockoutList.add(knockoutEntity);
 					// set next round data
 					this.setNextRoundData(nextKnockoutMap, knockoutEntity);
 				})
 		);
-		this.tournamentKnockoutService.updateBatchById(tournametKnockoutList);
+		this.tournamentKnockoutService.updateBatchById(tournamentKnockoutList);
 		return nextKnockoutMap;
 	}
 
-	private void updateNextKnockout(int tournamentId, Map<Integer, TournamentKnockoutNextRoundData> nextKouckoutMap) {
+	private void updateNextKnockout(int tournamentId, Map<Integer, TournamentKnockoutNextRoundData> nextKnockoutMap) {
 		// get round
-		int nextRound = nextKouckoutMap.values()
+		int nextRound = nextKnockoutMap.values()
 				.stream()
 				.map(TournamentKnockoutNextRoundData::getNextRound)
 				.findFirst()
@@ -600,16 +600,16 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
 				.eq(TournamentKnockoutEntity::getRound, nextRound))
 				.forEach(knockoutEntity -> tournamentKnockoutEntityList.add(knockoutEntity
-						.setHomeEntry(nextKouckoutMap.get(knockoutEntity.getMatchId()).getNextRoundHomeEntry())
-						.setAwayEntry(nextKouckoutMap.get(knockoutEntity.getMatchId()).getNextRoundAwayEntry())));
+						.setHomeEntry(nextKnockoutMap.get(knockoutEntity.getMatchId()).getNextRoundHomeEntry())
+						.setAwayEntry(nextKnockoutMap.get(knockoutEntity.getMatchId()).getNextRoundAwayEntry())));
 		// tournament_knockout_result
 		List<TournamentKnockoutResultEntity> tournamentKnockoutResultList = Lists.newArrayList();
 		this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
 				.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-				.in(TournamentKnockoutResultEntity::getMatchId, nextKouckoutMap.keySet()))
+				.in(TournamentKnockoutResultEntity::getMatchId, nextKnockoutMap.keySet()))
 				.forEach(knockoutResultEntity -> tournamentKnockoutResultList.add(knockoutResultEntity
-						.setHomeEntry(nextKouckoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundHomeEntry())
-						.setAwayEntry(nextKouckoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundAwayEntry())));
+						.setHomeEntry(nextKnockoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundHomeEntry())
+						.setAwayEntry(nextKnockoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundAwayEntry())));
 		this.tournamentKnockoutService.updateBatchById(tournamentKnockoutEntityList);
 		this.tournamentKnockoutResultService.updateBatchById(tournamentKnockoutResultList);
 		log.info("1");
@@ -673,13 +673,13 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		}
 	}
 
-	private int getRoundWinner(Collection<TournamentKnockoutResultData> collention) {
-		if (collention.size() == 1) {
-			return collention.stream().map(TournamentKnockoutResultData::getMatchWinner).findFirst().orElse(0);
+	private int getRoundWinner(Collection<TournamentKnockoutResultData> collection) {
+		if (collection.size() == 1) {
+			return collection.stream().map(TournamentKnockoutResultData::getMatchWinner).findFirst().orElse(0);
 		}
-		List<TournamentKnockoutResultData> winners = new ArrayList<>(collention);
+		List<TournamentKnockoutResultData> winners = new ArrayList<>(collection);
 		int firstWinner = winners.get(0).getMatchWinner();
-		Map<Integer, Integer> secondWinnerMap = collention.stream()
+		Map<Integer, Integer> secondWinnerMap = collection.stream()
 				.filter(tournamentKnockoutResultData -> tournamentKnockoutResultData.getMatchWinner() != firstWinner)
 				.limit(1)
 				.collect(Collectors.toMap(TournamentKnockoutResultData::getMatchWinner, TournamentKnockoutResultData::getWinnerRank)); // find the other match winner
@@ -710,7 +710,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	@Override
 	public void updateZjPhaseOneResult(int event, int tournamentId) {
 		// tournament_info
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
 			log.error("tournament_info not exists, tournament:{}!", tournamentId);
 			return;
@@ -718,9 +718,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		int groupNum = tournamentInfoEntity.getGroupNum();
 		// get group_id
 		List<Integer> groupIdList = Lists.newArrayList();
-		IntStream.range(1, groupNum + 1).forEach(groupIdList::add);
+		IntStream.rangeClosed(1, groupNum).forEach(groupIdList::add);
 		// get entry_list by tournament
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		// entry_event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
@@ -807,7 +807,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	@Override
 	public void updateZjPhaseTwoResult(int event, int tournamentId) {
 		// tournament_info
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
 			log.error("tournament_info not exists, tournament:{}!", tournamentId);
 			return;
@@ -816,9 +816,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		int teamPerGroup = tournamentInfoEntity.getTeamPerGroup();
 		// get group_id
 		List<Integer> groupIdList = Lists.newArrayList();
-		IntStream.range(groupNum + 1, groupNum + teamPerGroup + 1).forEach(groupIdList::add);
+		IntStream.rangeClosed(groupNum + 1, groupNum + teamPerGroup).forEach(groupIdList::add);
 		// get entry_list by tournament
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		// entry_event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
@@ -958,7 +958,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	@Override
 	public void updateZjPkResult(int event, int tournamentId) {
 		// tournament_info
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
 			log.error("tournament_info not exists, tournament:{}!", tournamentId);
 			return;
@@ -975,7 +975,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			return;
 		}
 		// get entry_list by tournament
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		// get event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
@@ -1021,7 +1021,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	@Override
 	public void updateZjTournamentResult(int tournamentId) {
 		// tournament_info
-		TournamentInfoEntity tournamentInfoEntity = this.querySerivce.qryTournamentInfoById(tournamentId);
+		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
 			log.error("tournament_info not exists, tournament:{}!", tournamentId);
 			return;
@@ -1035,7 +1035,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// phase one result
 		int groupNum = tournamentInfoEntity.getGroupNum();
 		List<Integer> phaseOneGroupList = Lists.newArrayList();
-		IntStream.range(1, groupNum + 1).forEach(phaseOneGroupList::add);
+		IntStream.rangeClosed(1, groupNum).forEach(phaseOneGroupList::add);
 		List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.gt(TournamentGroupEntity::getEntry, 0)
@@ -1046,7 +1046,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// phase two result
 		int teamPerGroup = tournamentInfoEntity.getTeamPerGroup();
 		List<Integer> phaseTwoGroupList = Lists.newArrayList();
-		IntStream.range(groupNum + 1, groupNum + teamPerGroup + 1).forEach(phaseTwoGroupList::add);
+		IntStream.rangeClosed(groupNum + 1, groupNum + teamPerGroup).forEach(phaseTwoGroupList::add);
 		Map<Integer, Integer> phaseTwoResultMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.gt(TournamentGroupEntity::getEntry, 0)
@@ -1072,12 +1072,12 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			entryResultTable.put(entry, 3, pkResultMap.getOrDefault(entry, 0));
 		});
 		// group points
-		Map<String, Integer> phaseTwoGroupPointsMap = this.querySerivce.qryZjTournamentPhaseTwoGroupPointsMap(tournamentId);
-		Map<String, Integer> pkGroupPointsMap = this.querySerivce.qryZjTournamentPkGroupPointsMap(tournamentId);
+		Map<String, Integer> phaseTwoGroupPointsMap = this.queryService.qryZjTournamentPhaseTwoGroupPointsMap(tournamentId);
+		Map<String, Integer> pkGroupPointsMap = this.queryService.qryZjTournamentPkGroupPointsMap(tournamentId);
 		// group rank
-		Map<String, Integer> phaseOneRankMap = this.querySerivce.qryZjTournamentPhaseOneRankMap(tournamentId);
-		Map<String, Integer> phaseTwoRankMap = this.querySerivce.qryZjTournamentPhaseTwoRankMap(tournamentId);
-		Map<String, Integer> pkRankMap = this.querySerivce.qryZjTournamentPkRankMap(tournamentId);
+		Map<String, Integer> phaseOneRankMap = this.queryService.qryZjTournamentPhaseOneRankMap(tournamentId);
+		Map<String, Integer> phaseTwoRankMap = this.queryService.qryZjTournamentPhaseTwoRankMap(tournamentId);
+		Map<String, Integer> pkRankMap = this.queryService.qryZjTournamentPkRankMap(tournamentId);
 		// total group points
 		Map<String, Integer> phaseOneTotalGroupPointMap = this.setPhaseOneTotalGroupPoints(phaseOneRankMap);
 		Map<String, Integer> phaseTwoTotalGroupPointMap = this.setPhaseTwoTotalGroupPoints(phaseTwoRankMap);
@@ -1109,7 +1109,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 							.setTournamentTotalGroupPoints(zjTournamentResultEntity.getPhaseOneTotalGroupPoints() + zjTournamentResultEntity.getPhaseTwoTotalGroupPoints() + zjTournamentResultEntity.getPkTotalGroupPoints());
 					zjTournamentResultEntityList.add(zjTournamentResultEntity);
 				});
-		// group tourmanet rank
+		// group tournament rank
 		Map<String, Integer> tournamentRankMap = this.qryZjTournamentRankMap(zjTournamentResultEntityList);
 		zjTournamentResultEntityList.forEach(o -> o.setTournamentRank(tournamentRankMap.getOrDefault(String.valueOf(o.getGroupId()), 0)));
 		// update

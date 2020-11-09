@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveService implements ILiveService {
 
-	private final IQuerySerivce querySerivce;
+	private final IQuerySerivce queryService;
 	private final EntryInfoService entryInfoService;
 	private final PlayerService playerService;
 
@@ -59,7 +59,7 @@ public class LiveService implements ILiveService {
 		LiveCalaData liveCalaData = this.calcLiveSingleEntryPoints(event, entry, playerInfoMap, positionMap,
 				teamLiveFixtureMap, eventLiveMap, liveBonusTable, new ForkJoinPool(4));
 		// entry info
-		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(entry);
+		EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
 		if (entryInfoEntity != null) {
 			BeanUtil.copyProperties(entryInfoEntity, liveCalaData);
 			liveCalaData
@@ -79,14 +79,14 @@ public class LiveService implements ILiveService {
 		Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.getEventLiveFixtureMap();
 		Table<Integer, Integer, Integer> liveBonusTable = this.getLiveBonusTable();
 		// get entry list
-		List<Integer> entryList = this.querySerivce.qryEntryListByTournament(tournamentId);
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		// calc live entry points
 		ForkJoinPool forkJoinPool = new ForkJoinPool(10);
 		List<CompletableFuture<LiveCalaData>> future = entryList.stream()
 				.map(o -> CompletableFuture.supplyAsync(() -> this.calcLiveSingleEntryPoints(event, o, playerInfoMap, positionMap,
 						teamLiveFixtureMap, eventLiveMap, liveBonusTable, forkJoinPool), forkJoinPool))
 				.collect(Collectors.toList());
-		List<LiveCalaData> liveCalaList = future
+		List<LiveCalaData> liveCalcList = future
 				.stream()
 				.map(CompletableFuture::join)
 				.collect(Collectors.toList());
@@ -94,14 +94,14 @@ public class LiveService implements ILiveService {
 		Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list()
 				.stream()
 				.collect(Collectors.toMap(EntryInfoEntity::getEntry, v -> v));
-		liveCalaList.forEach(liveCalaData -> {
-			EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(liveCalaData.getEntry(), null);
+		liveCalcList.forEach(liveCalcData -> {
+			EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(liveCalcData.getEntry(), null);
 			if (entryInfoEntity != null) {
-				BeanUtil.copyProperties(entryInfoEntity, liveCalaData);
-				liveCalaData.setLiveTotalPoints(liveCalaData.getLastOverallPoints() + liveCalaData.getLiveNetPoints());
+				BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
+				liveCalcData.setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
 			}
 		});
-		return liveCalaList
+		return liveCalcList
 				.stream()
 				.sorted(Comparator.comparing(LiveCalaData::getLiveTotalPoints).reversed())
 				.collect(Collectors.toList());
@@ -147,25 +147,25 @@ public class LiveService implements ILiveService {
 
 	private Map<Integer, String> getPositionMap() {
 		Map<Integer, String> map = Maps.newHashMap();
-		this.querySerivce.getPositionMap().forEach((k, v) -> map.put(Integer.valueOf(k), v));
+		this.queryService.getPositionMap().forEach((k, v) -> map.put(Integer.valueOf(k), v));
 		return map;
 	}
 
 	private Map<Integer, EventLiveEntity> getEventLiveByEvent(int event) {
 		Map<Integer, EventLiveEntity> map = Maps.newHashMap();
-		this.querySerivce.getEventLiveByEvent(event).forEach((k, v) -> map.put(Integer.valueOf(k), v));
+		this.queryService.getEventLiveByEvent(event).forEach((k, v) -> map.put(Integer.valueOf(k), v));
 		return map;
 	}
 
 	private Map<Integer, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap() {
 		Map<Integer, Map<String, List<LiveFixtureData>>> map = Maps.newHashMap(); // key:teamId -> value:(key:status -> value:liveFixtureData)
-		this.querySerivce.getEventLiveFixtureMap().forEach((k, v) -> map.put(Integer.valueOf(k), v));
+		this.queryService.getEventLiveFixtureMap().forEach((k, v) -> map.put(Integer.valueOf(k), v));
 		return map;
 	}
 
 	private Table<Integer, Integer, Integer> getLiveBonusTable() {
 		Table<Integer, Integer, Integer> table = HashBasedTable.create();
-		this.querySerivce.getLiveBonusCacheMap().forEach((k, v) -> {
+		this.queryService.getLiveBonusCacheMap().forEach((k, v) -> {
 			int element = v.keySet()
 					.stream()
 					.mapToInt(Integer::parseInt)
@@ -186,7 +186,7 @@ public class LiveService implements ILiveService {
 	                                               Map<Integer, EventLiveEntity> eventLiveMap, Table<Integer, Integer, Integer> liveBonusTable,
 	                                               ForkJoinPool forkJoinPool) {
 		// get user pick
-		UserPicksRes userPicksRes = this.querySerivce.getUserPicks(event, entry);
+		UserPicksRes userPicksRes = this.queryService.getUserPicks(event, entry);
 		if (userPicksRes == null || CollectionUtils.isEmpty(userPicksRes.getPicks())) {
 			return new LiveCalaData();
 		}
@@ -248,7 +248,7 @@ public class LiveService implements ILiveService {
 		if (playerInfoMap.containsKey(element)) {
 			playerEntity = playerInfoMap.get(element);
 		} else {
-			playerEntity = this.querySerivce.getPlayerByElememt(element);
+			playerEntity = this.queryService.getPlayerByElement(element);
 		}
 		if (playerEntity != null) {
 			elementEventResultData

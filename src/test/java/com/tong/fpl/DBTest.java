@@ -17,6 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +32,8 @@ public class DBTest extends FplApplicationTests {
 	@Autowired
 	private PlayerService playerService;
 	@Autowired
+	private PlayerStatService playerStatService;
+	@Autowired
 	private PlayerValueService playerValueService;
 	@Autowired
 	private TournamentEntryService tournamentEntryService;
@@ -40,6 +43,8 @@ public class DBTest extends FplApplicationTests {
 	private IQuerySerivce querySerivce;
 	@Autowired
 	private TournamentKnockoutService tournamentKnockoutService;
+	@Autowired
+	private LeagueEventReportService leagueEventReportService;
 
 	@Test
 	void test() {
@@ -163,6 +168,45 @@ public class DBTest extends FplApplicationTests {
 				.max(Integer::compareTo)
 				.orElse(0);
 		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"8"})
+	void update(int event) {
+		List<LeagueEventReportEntity> list = Lists.newArrayList();
+		Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
+		this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+				.eq(PlayerStatEntity::getEvent, event))
+				.forEach(o -> {
+					int element = o.getElement();
+					if (playerStatMap.containsKey(element)) {
+						PlayerStatEntity playerStatEntity = playerStatMap.get(element);
+						if (LocalDateTime.parse(playerStatEntity.getUpdateTime().replace(" ", "T"))
+								.isAfter(LocalDateTime.parse(o.getUpdateTime().replace(" ", "T")))) {
+							playerStatMap.put(element, playerStatEntity);
+						}
+					} else {
+						playerStatMap.put(element, o);
+					}
+				});
+		List<Integer> leagueList = Lists.list(3571, 11316, 4029, 23451, 72516, 65, 314);
+		leagueList.forEach(leagueId -> {
+			this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+					.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+					.eq(LeagueEventReportEntity::getLeagueType, "Classic")
+					.eq(LeagueEventReportEntity::getEvent, event))
+					.forEach(o -> {
+						o.
+								setCaptainSelected(playerStatMap.get(o.getCaptain()).getSelectedByPercent() + '%')
+								.setViceCaptainSelected(playerStatMap.get(o.getViceCaptain()).getSelectedByPercent() + '%')
+								.setHighestScoreSelected(playerStatMap.get(o.getHighestScore()).getSelectedByPercent() + '%');
+						list.add(o);
+					});
+			// update
+			this.leagueEventReportService.updateBatchById(list);
+			System.out.println("update leagueId:" + leagueId);
+		});
+
 	}
 
 }

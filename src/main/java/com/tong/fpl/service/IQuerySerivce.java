@@ -4,8 +4,6 @@ import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
-import com.tong.fpl.domain.letletme.element.ElementCaptainData;
-import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -49,11 +47,11 @@ public interface IQuerySerivce {
 
 	List<PlayerInfoData> qryAllPlayers(String season);
 
-	default PlayerEntity getPlayerByElememt(int element) {
-		return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);
+	default PlayerEntity getPlayerByElement(int element) {
+		return this.getPlayerByElement(CommonUtils.getCurrentSeason(), element);
 	}
 
-	PlayerEntity getPlayerByElememt(String season, int element);
+	PlayerEntity getPlayerByElement(String season, int element);
 
 	default PlayerStatEntity getPlayerStatByElement(int element) {
 		return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
@@ -62,8 +60,6 @@ public interface IQuerySerivce {
 	PlayerStatEntity getPlayerStatByElement(String season, int element);
 
 	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
-
-	ElementCaptainData initElementCaptainData(int element, int event, int elementPoints, int entryPoints);
 
 	/**
 	 * @apiNote entry
@@ -81,8 +77,6 @@ public interface IQuerySerivce {
 	UserHistoryRes getUserHistory(int entry);
 
 	List<Integer> qryEntryTournamentList(int entry);
-
-	EntryEventCaptainData qryEntryEventCaptainDataList(int event, int entry);
 
 	/**
 	 * @apiNote event
@@ -217,6 +211,8 @@ public interface IQuerySerivce {
 	/**
 	 * @apiNote report
 	 */
+	String qryLeagueNameByIdAndType(int leagueId, String leagueType);
+
 	List<String> qryTeamSelectStatList();
 
 	/**

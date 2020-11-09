@@ -16,9 +16,6 @@ import java.util.stream.Stream;
  */
 public class CommonTest extends FplApplicationTests {
 
-	@Autowired
-	private IQuerySerivce querySerivce;
-
 	@SafeVarargs
 	private final <T> Stream<T> createSteam(T... values) {
 		Stream.Builder<T> builder = Stream.builder();
@@ -44,7 +41,7 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		Map<String, String> map = CommonUtils.createCurrentGwMapForOption(8);
+		int a = (int) Math.ceil(51 * 1.0 / 50);
 		System.out.println(1);
 	}
 

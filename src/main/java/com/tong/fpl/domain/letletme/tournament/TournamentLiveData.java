@@ -1,5 +1,6 @@
-package com.tong.fpl.domain.letletme.live;
+package com.tong.fpl.domain.letletme.tournament;
 
+import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

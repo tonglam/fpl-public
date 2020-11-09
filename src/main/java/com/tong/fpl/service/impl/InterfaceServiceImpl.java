@@ -117,7 +117,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 	}
 
 	@Override
-	public Optional<StaticRes> getBootstrapStaic() {
+	public Optional<StaticRes> getBootstrapStatic() {
 		try {
 			String result = HttpUtils.httpGet(Constant.BOOTSTRAP_STATIC).orElse("");
 			ObjectMapper mapper = new ObjectMapper();

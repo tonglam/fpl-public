@@ -1,7 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
-import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
+import com.tong.fpl.domain.letletme.league.LeagueEventReportData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.StepsData;
@@ -30,13 +30,9 @@ public interface ITableQueryService {
 	/**
 	 * @apiNote tournament
 	 */
-	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+	TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
 
 	TableData<TournamentEntryData> qryEntryTournamentList(int entry);
-
-	TableData<TournamentInfoData> qryEntryPointsGroupTournamentList(int entry);
-
-	TableData<TournamentGroupData> qryTournamentResultList(int tournamentId, int event);
 
 	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
@@ -55,10 +51,6 @@ public interface ITableQueryService {
 	TableData<StepsData> qryZjTournamentPkPickSteps(int tournamentId);
 
 	TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
-
-	TableData<TournamentEventCaptainData> qryLeagueCaptainDataList(int tournamentId);
-
-	TableData<EntryEventCaptainData> qryLeagueEventCaptainDataList(int tournamentId, int event);
 
 	/**
 	 * @apiNote live
@@ -82,5 +74,7 @@ public interface ITableQueryService {
 	 * @apiNote report
 	 */
 	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+
+	TableData<LeagueEventReportData> qryLeagueEventReportList(int leagueId, String leagueType, int event);
 
 }

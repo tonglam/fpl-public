@@ -40,7 +40,7 @@
 
             <div class="layui-tab" lay-allowClose="true" lay-filter="leagueTab">
                 <ul class="layui-tab-title">
-                    <li class="layui-this" id="base" th:text="${tournamentInfo?.name}"></li>
+                    <li class="layui-this" id="base" th:text="${leagueName}"></li>
                 </ul>
                 <div class="layui-tab-content">
 
@@ -82,14 +82,12 @@
             }
         });
 
-        let tournamentId = getUrlParam("id");
+        let leagueId = getUrlParam("leagueId"), leagueType = getUrlParam("leagueType");
 
         form.on('select(gwSelect)', function (data) {
             let event = data.value;
 
-            let loadIndex = layer.msg("统计中，请稍等", {time: false, scrollbar: false});
-
-            if (event == '0') {
+            if (event === '0') {
                 // table.render({
                 //     elem: '#leagueTable',
                 //     url: '/stat/qryLeagueCaptainDataList',
@@ -110,130 +108,103 @@
                 //     }
                 // });
             } else {
-                axios.get('/stat/qryLeagueEventCaptainDataList', {
-                    params: {
-                        tournamentId: tournamentId,
+                table.render({
+                    elem: '#leagueTable',
+                    url: '/my_fpl/qryLeagueEventReportList',
+                    where: {
+                        leagueId: leagueId,
+                        leagueType: leagueType,
                         event: event
-                    }
-                })
-                    .then(function (response) {
-                        layer.close(loadIndex);
-
-                        let tableData = [];
-                        $.each(response.data, function (index, item) {
-                            // captain
-                            item.captainWebName = item.captainData.webName;
-                            item.captainPoints = item.captainData.points;
-                            item.captainSelectByPercent = item.captainData.selectByPercent;
-                            item.captainPointsByPercent = item.captainData.pointsByPercent;
-                            item.captainBlank = item.captainData.blank;
-                            // vice captain
-                            item.viceCaptainWebName = item.viceCaptainData.webName;
-                            item.viceCaptainPoints = item.viceCaptainData.points;
-                            item.viceCaptainSelectByPercent = item.viceCaptainData.selectByPercent;
-                            // highest score
-                            item.highestWebName = item.highestScoreData.webName;
-                            item.highestPoints = item.highestScoreData.points;
-                            tableData.push(item);
-                        })
-
-                        table.render({
-                            elem: '#leagueTable',
-                            data: tableData,
-                            loading: true,
-                            limit: 200,
-                            even: true,
-                            cellMinWidth: 80,
-                            cols: [
-                                [
-                                    {field: 'entryName', title: '球队名称', align: 'center', width: 200, rowspan: 2},
-                                    {field: 'points', title: '得分', align: 'center', rowspan: 2},
-                                    {field: 'chip', title: '开卡', align: 'center', rowspan: 2},
-                                    {title: '队长', align: 'center', colspan: 4},
-                                    {title: '副队长', align: 'center', colspan: 3},
-                                    {title: '最高分', align: 'center', colspan: 2},
-                                ],
-                                [
-                                    {
-                                        field: 'captainWebName',
-                                        title: '名称',
-                                        align: 'center',
-                                        width: 120,
-                                        style: 'background-color: #5FB878; color: #fff;',
-                                        filter: true
-                                    },
-                                    {
-                                        field: 'captainPoints',
-                                        title: '得分',
-                                        align: 'center',
-                                        templet: function (d) {
-                                            if (d.captainBlank) {
-                                                return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
-                                            } else {
-                                                return '<div style="background-color: #FFB800;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
-                                            }
-                                        },
-                                        sort: true,
-                                        filter: true
-                                    },
-                                    {
-                                        field: 'captainSelectByPercent',
-                                        title: '持有率',
-                                        align: 'center',
-                                        width: 90,
-                                        sort: true,
-                                        filter: true
-                                    },
-                                    {
-                                        field: 'captainPointsByPercent',
-                                        title: '得分占比',
-                                        align: 'center',
-                                        width: 110,
-                                        sort: true,
-                                        filter: true
-                                    },
-
-                                    {
-                                        field: 'viceCaptainWebName',
-                                        title: '名称',
-                                        align: 'center',
-                                        width: 120,
-                                        filter: true
-                                    },
-                                    {
-                                        field: 'viceCaptainPoints',
-                                        title: '得分',
-                                        align: 'center',
-                                        sort: true,
-                                        filter: true
-                                    },
-                                    {
-                                        field: 'viceCaptainSelectByPercent',
-                                        title: '持有率',
-                                        align: 'center',
-                                        width: 90,
-                                        sort: true,
-                                        filter: true
-                                    },
-
-                                    {field: 'highestWebName', title: '名称', align: 'center', width: 120, filter: true},
-                                    {field: 'highestPoints', title: '得分', align: 'center', sort: true, filter: true}
-                                ]
-                            ],
-                            id: 'leagueTable',
-                            filter: {
-                                items: ['data'],
-                                bottom: false
+                    },
+                    loading: true,
+                    limit: 200,
+                    even: true,
+                    cellMinWidth: 80,
+                    cols: [
+                        [
+                            {field: 'entryName', title: '球队名称', align: 'center', width: 200, rowspan: 2},
+                            {field: 'eventPoints', title: '得分', align: 'center', rowspan: 2, sort: true, filter: true},
+                            {field: 'eventChip', title: '开卡', align: 'center', rowspan: 2},
+                            {title: '队长', align: 'center', colspan: 4},
+                            {title: '副队长', align: 'center', colspan: 3},
+                            {title: '最高分', align: 'center', colspan: 2},
+                        ],
+                        [
+                            {
+                                field: 'captainWebName',
+                                title: '名称',
+                                align: 'center',
+                                width: 120,
+                                style: 'background-color: #5FB878; color: #fff;',
+                                filter: true
                             },
-                            done: function () {
-                                soulTable.render(this);
-                            }
-                        });
-                    })
-                    .catch(function (error) {
-                        console.log(error.message);
-                        layer.close(loadIndex);
-                    });
+                            {
+                                field: 'captainPoints',
+                                title: '得分',
+                                align: 'center',
+                                templet: function (d) {
+                                    if (d.captainBlank) {
+                                        return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
+                                    } else {
+                                        return '<div style="background-color: #FFB800;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
+                                    }
+                                },
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'captainSelected',
+                                title: '持有率',
+                                align: 'center',
+                                width: 90,
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'captainPointsByPercent',
+                                title: '得分占比',
+                                align: 'center',
+                                width: 110,
+                                sort: true,
+                                filter: true
+                            },
+
+                            {
+                                field: 'viceCaptainWebName',
+                                title: '名称',
+                                align: 'center',
+                                width: 120,
+                                filter: true
+                            },
+                            {
+                                field: 'viceCaptainPoints',
+                                title: '得分',
+                                align: 'center',
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'viceCaptainSelected',
+                                title: '持有率',
+                                align: 'center',
+                                width: 90,
+                                sort: true,
+                                filter: true
+                            },
+
+                            {field: 'highestScoreWebName', title: '名称', align: 'center', width: 120, filter: true},
+                            {field: 'highestScorePoints', title: '得分', align: 'center', sort: true, filter: true}
+                        ]
+                    ],
+                    id: 'leagueTable',
+                    filter: {
+                        items: ['data'],
+                        bottom: false
+                    },
+                    done: function () {
+                        soulTable.render(this);
+                    }
+                });
 
             }
 

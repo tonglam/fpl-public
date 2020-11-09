@@ -26,7 +26,7 @@ public interface IInterfaceService {
 
 	Optional<List<EventFixturesRes>> getEventFixture(int event);
 
-	Optional<StaticRes> getBootstrapStaic();
+	Optional<StaticRes> getBootstrapStatic();
 
 	Optional<ElementSummaryRes> getElementSummary(int element);
 

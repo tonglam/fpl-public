@@ -6,9 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -40,31 +39,35 @@ public class CommonUtils {
 	public static Map<String, String> createGwMapForOption() {
 		Map<String, String> map = Maps.newLinkedHashMap();
 		map.put("", "请选择");
-		IntStream.range(1, 39).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
+		IntStream.rangeClosed(1, 38).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
 		return map;
 	}
 
 	public static Map<String, String> createCurrentGwMapForOption(int currentGw) {
 		Map<String, String> map = Maps.newLinkedHashMap();
 		map.put("", "请选择");
-		IntStream.range(1, currentGw + 1).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
+		IntStream.rangeClosed(1, currentGw).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
 		return map;
 	}
 
-	public static Map<String, String> createSeasonMapForOption() {
-		Map<String, String> map = Maps.newLinkedHashMap();
-		map.put("", "请选择");
+	public static LinkedHashMap<String, String> createSeasonMapForOption() {
+		Map<Integer, String> seasonMap = Maps.newLinkedHashMap();
 		LocalDate startYear = LocalDate.of(2019, 1, 1);
 		LocalDate endYear = LocalDate.now().plusYears(1);
-		IntStream.range(0, 10).forEachOrdered(i -> {
+		IntStream.rangeClosed(0, 10).forEach(i -> {
 			LocalDate year = startYear.plusYears(i);
 			LocalDate nextYear = year.plusYears(1);
 			if (nextYear.isAfter(endYear)) {
 				return;
 			}
 			String season = String.valueOf(year).substring(2, 4) + String.valueOf(nextYear).substring(2, 4);
-			map.put(season, season);
+			seasonMap.put(Integer.valueOf(season), season);
 		});
+		LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
+		seasonMap.entrySet()
+				.stream()
+				.sorted(Map.Entry.<Integer, String>comparingByKey().reversed())
+				.forEachOrdered(o -> map.put(String.valueOf(o.getKey()), o.getValue()));
 		return map;
 	}
 

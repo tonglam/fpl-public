@@ -1,12 +1,11 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IStatApi;
-import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
+import com.tong.fpl.domain.letletme.league.LeagueEventReportData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
-import com.tong.fpl.domain.letletme.tournament.TournamentEventCaptainData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
 import com.tong.fpl.service.IQuerySerivce;
@@ -36,24 +35,6 @@ public class StatApiImpl implements IStatApi {
 	}
 
 	/**
-	 * @implNote captain
-	 */
-	@Override
-	public TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param) {
-		return this.tableQueryService.qryTournamenList(param);
-	}
-
-	@Override
-	public TableData<TournamentEventCaptainData> qryLeagueCaptainDataList(int tournamentId) {
-		return this.tableQueryService.qryLeagueCaptainDataList(tournamentId);
-	}
-
-	@Override
-	public TableData<EntryEventCaptainData> qryLeagueEventCaptainDataList(int tournamentId, int event) {
-		return this.tableQueryService.qryLeagueEventCaptainDataList(tournamentId, event);
-	}
-
-	/**
 	 * @implNote compare
 	 */
 	@Override
@@ -72,14 +53,6 @@ public class StatApiImpl implements IStatApi {
 	@Override
 	public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
 		return this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
-	}
-
-	/**
-	 * @apiNote common
-	 */
-	@Override
-	public TournamentInfoData qryTournamentInfoById(int tournamentId) {
-		return this.querySerivce.qryTournamentDataById(tournamentId);
 	}
 
 }
