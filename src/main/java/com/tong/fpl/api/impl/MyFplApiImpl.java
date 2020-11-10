@@ -76,4 +76,9 @@ public class MyFplApiImpl implements IMyFplApi {
 		return this.tableQueryService.qryLeagueEventReportList(leagueId, leagueType, event);
 	}
 
+	@Override
+	public TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry) {
+		return this.tableQueryService.qryEntryEventReportList(leagueId, leagueType, entry);
+	}
+
 }

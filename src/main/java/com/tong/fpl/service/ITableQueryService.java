@@ -80,4 +80,6 @@ public interface ITableQueryService {
 
 	TableData<LeagueEventReportData> qryLeagueEventReportList(int leagueId, String leagueType, int event);
 
+	TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry);
+
 }

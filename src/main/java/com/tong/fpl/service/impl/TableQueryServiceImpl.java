@@ -1298,7 +1298,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return 0;
 	}
 
-	//	@Cacheable(value = "qryLeagueReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
+	@Cacheable(value = "qryLeagueReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportStatData> qryLeagueReportStat(int leagueId, String leagueType) {
 		// prepare
@@ -1413,7 +1413,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		leagueEventReportEntityList.forEach(o -> {
 			LeagueEventReportData data = new LeagueEventReportData();
 			BeanUtil.copyProperties(o, data);
-			data.setCaptainPoints(StringUtils.equals(o.getEventChip(), Chip.TC.getValue()) ? 3 * o.getCaptainPoints() : 2 * o.getCaptainPoints());
+			data.setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * o.getCaptainPoints() : 2 * o.getCaptainPoints());
 			data
 					.setCaptainWebName(webNameMap.getOrDefault(o.getCaptain(), ""))
 					.setCaptainSelectedInLeague(captainCountMap.getOrDefault(o.getCaptain(), "0"))
@@ -1460,6 +1460,45 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		selectMap.forEach((element, count) ->
 				map.put(element, NumberUtil.formatPercent(NumberUtil.div(count.intValue(), size), 1)));
 		return map;
+	}
+
+	@Cacheable(value = "qryEntryEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	@Override
+	public TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry) {
+		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType)
+				.eq(LeagueEventReportEntity::getEntry, entry)
+				.orderByAsc(LeagueEventReportEntity::getEvent));
+		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+			return new TableData<>();
+		}
+		List<LeagueEventReportData> list = Lists.newArrayList();
+		// prepare
+		Map<Integer, String> webNameMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+		Map<Integer, String> captainCountMap = this.getLeagueEventCaptainCountMap(leagueEventReportEntityList);
+		Map<Integer, String> viceCaptainCountMap = this.getLeagueEventViceCaptainCountMap(leagueEventReportEntityList);
+		Map<Integer, String> highestScoreCountMap = this.getLeagueEventHighestScoreCountMap(leagueEventReportEntityList);
+		// collect
+		leagueEventReportEntityList.forEach(o -> {
+			LeagueEventReportData data = new LeagueEventReportData();
+			BeanUtil.copyProperties(o, data);
+			data.setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * o.getCaptainPoints() : 2 * o.getCaptainPoints());
+			data
+					.setCaptainWebName(webNameMap.getOrDefault(o.getCaptain(), ""))
+					.setCaptainSelectedInLeague(captainCountMap.getOrDefault(o.getCaptain(), "0"))
+					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
+					.setViceCaptainWebName(webNameMap.getOrDefault(o.getViceCaptain(), ""))
+					.setViceCaptainSelectedInLeague(viceCaptainCountMap.getOrDefault(o.getViceCaptain(), "0"))
+					.setViceCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getViceCaptainPoints(), data.getEventPoints()), 1))
+					.setHighestScoreWebName(webNameMap.getOrDefault(o.getHighestScore(), ""))
+					.setHighestScoreSelectedInLeague(highestScoreCountMap.getOrDefault(o.getHighestScore(), "0"))
+					.setHighestScorePointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getHighestScorePoints(), data.getEventPoints()), 1));
+			list.add(data);
+		});
+		return new TableData<>(list);
 	}
 
 	private LinkedHashMap<String, String> collectSelectedMap(List<Integer> elementList, int teamSize, int limit, Map<Integer, PlayerEntity> playerMap) {

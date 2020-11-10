@@ -169,7 +169,7 @@
         table.on('row(tournamentTable)', function (obj) {
             let leagueId = obj.data.leagueId;
             let leagueType = obj.data.leagueType;
-            window.location.replace('/my_fpl/leagueReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+            window.location.replace('/my_fpl/leagueCaptainReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
         });
 
     });
