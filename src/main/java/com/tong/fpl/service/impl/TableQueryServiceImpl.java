@@ -1413,6 +1413,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		leagueEventReportEntityList.forEach(o -> {
 			LeagueEventReportData data = new LeagueEventReportData();
 			BeanUtil.copyProperties(o, data);
+			data.setCaptainPoints(StringUtils.equals(o.getEventChip(), Chip.TC.getValue()) ? 3 * o.getCaptainPoints() : 2 * o.getCaptainPoints());
 			data
 					.setCaptainWebName(webNameMap.getOrDefault(o.getCaptain(), ""))
 					.setCaptainSelectedInLeague(captainCountMap.getOrDefault(o.getCaptain(), "0"))
