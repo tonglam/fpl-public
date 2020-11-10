@@ -30,18 +30,21 @@ public class LeagueEventReportData {
 	private int captainPoints;
 	private boolean captainBlank;
 	private String captainSelected;
+	private String captainSelectedInLeague;
 	private String captainPointsByPercent;
 	private int viceCaptain;
 	private String viceCaptainWebName;
 	private int viceCaptainPoints;
 	private boolean viceCaptainBlank;
 	private String viceCaptainSelected;
+	private String viceCaptainSelectedInLeague;
 	private String viceCaptainPointsByPercent;
 	private int highestScore;
 	private String highestScoreWebName;
 	private int highestScorePoints;
 	private boolean highestScoreBlank;
 	private String highestScoreSelected;
+	private String highestScoreSelectedInLeague;
 	private String highestScorePointsByPercent;
 
 

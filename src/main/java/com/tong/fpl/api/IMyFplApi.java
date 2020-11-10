@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueEventReportData;
+import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -35,6 +36,8 @@ public interface IMyFplApi {
     TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
     String qryLeagueNameByIdAndType(int leagueId, String leagueType);
+
+    TableData<LeagueEventReportStatData> qryLeagueReportStat(int leagueId, String leagueType);
 
     TableData<LeagueEventReportData> qryLeagueEventReportList(int leagueId, String leagueType, int event);
 

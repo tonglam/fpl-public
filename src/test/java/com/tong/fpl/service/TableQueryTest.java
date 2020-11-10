@@ -4,6 +4,7 @@ import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueEventReportData;
+import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
@@ -80,6 +81,13 @@ public class TableQueryTest extends FplApplicationTests {
 	@CsvSource({"3571, Classic, 8"})
 	void qryLeagueEventReportList(int leagueId, String leagueType, int event) {
 		TableData<LeagueEventReportData> data = this.tableQueryService.qryLeagueEventReportList(leagueId, leagueType, event);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"3571, Classic"})
+	void qryLeagueReportStat(int leagueId, String leagueType) {
+		TableData<LeagueEventReportStatData> data = this.tableQueryService.qryLeagueReportStat(leagueId, leagueType);
 		System.out.println(1);
 	}
 

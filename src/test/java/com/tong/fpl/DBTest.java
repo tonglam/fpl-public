@@ -48,10 +48,20 @@ public class DBTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		long startTime = System.currentTimeMillis();
-		List<PlayerEntity> list = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda().eq(PlayerEntity::getElement, 211));
-		long endTime = System.currentTimeMillis();
-		System.out.println("escape: " + (endTime - startTime) + "ms");
+		Map<Integer, String> playerNameMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueId, 4089)
+				.eq(LeagueEventReportEntity::getLeagueType, "Classic")
+				.eq(LeagueEventReportEntity::getEvent, 1));
+		int size = leagueEventReportEntityList.size();
+		Map<Integer, Long> selectMap = leagueEventReportEntityList
+				.stream()
+				.collect(Collectors.groupingBy(LeagueEventReportEntity::getCaptain, Collectors.counting()));
+		Map<String, String> map = Maps.newHashMap();
+		selectMap.forEach((element, count) ->
+				map.put(playerNameMap.getOrDefault(element, ""), NumberUtil.formatPercent(NumberUtil.div(count.intValue(), size), 1)));
 		System.out.println(1);
 	}
 
@@ -172,7 +182,7 @@ public class DBTest extends FplApplicationTests {
 
 	@ParameterizedTest
 	@CsvSource({"8"})
-	void update(int event) {
+	void updateLeagueEventReport(int event) {
 		List<LeagueEventReportEntity> list = Lists.newArrayList();
 		Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
 		this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
@@ -206,7 +216,6 @@ public class DBTest extends FplApplicationTests {
 			this.leagueEventReportService.updateBatchById(list);
 			System.out.println("update leagueId:" + leagueId);
 		});
-
 	}
 
 }

@@ -6,6 +6,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
+import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
@@ -74,6 +75,8 @@ public interface ITableQueryService {
 	 * @apiNote report
 	 */
 	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+
+	TableData<LeagueEventReportStatData> qryLeagueReportStat(int leagueId, String leagueType);
 
 	TableData<LeagueEventReportData> qryLeagueEventReportList(int leagueId, String leagueType, int event);
 
