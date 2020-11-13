@@ -3,12 +3,13 @@ package com.tong.fpl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.utils.CommonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 
 /**
@@ -41,8 +42,16 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		int a = (int) Math.ceil(51 * 1.0 / 50);
-		System.out.println(1);
+		String a = "pea, cake, milk, bird, egg, wolf, duck, fox, crab,  soup. rice, pig, fish, dog, cow, owl, frog,cat, lion, corn";
+		List<String> letterList = Lists.newArrayList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
+		int count = 0;
+		for (String o :
+				letterList) {
+			int i = StringUtils.countMatches(a, o);
+			count += i;
+			System.out.println(o + ": " + i);
+		}
+		System.out.println("total: " + count);
 	}
 
 	@Test

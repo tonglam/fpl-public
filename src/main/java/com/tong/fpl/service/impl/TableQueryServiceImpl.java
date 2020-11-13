@@ -1426,7 +1426,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setHighestScorePointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getHighestScorePoints(), data.getEventPoints()), 1));
 			list.add(data);
 		});
-		return new TableData<>(list);
+		return new TableData<>(list
+				.stream()
+				.sorted(Comparator.comparing(LeagueEventReportData::getCaptainPoints)
+						.thenComparing(LeagueEventReportData::getEventPoints)
+						.reversed())
+				.collect(Collectors.toList())
+		);
 	}
 
 	private Map<Integer, String> getLeagueEventCaptainCountMap(List<LeagueEventReportEntity> leagueEventReportEntityList) {

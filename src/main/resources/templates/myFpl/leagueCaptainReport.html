@@ -37,7 +37,7 @@
 
             <div style="margin-top: 40px"></div>
 
-            <div class="layui-tab" lay-allowClose="true" lay-filter="entryTab" style="margin-left: -200px">
+            <div class="layui-tab" lay-allowClose="true" lay-filter="entryTab">
                 <ul class="layui-tab-title">
                     <li class="layui-this" id="base" th:text="${leagueName}"></li>
                 </ul>
@@ -127,6 +127,8 @@
                     "data": data
                 };
             },
+            toolbar: true,
+            defaultToolbar: ['filter'],
             loading: true,
             even: true,
             limit: 200,
@@ -170,41 +172,14 @@
                             }
                         }
                     },
-                    {
-                        field: 'teamValue',
-                        title: '阵容身价',
-                        align: 'center',
-                        width: 110,
-                        rowspan: 2,
-                        sort: true,
-                        filter: true,
-                        templet: function (d) {
-                            return parseInt(d.teamValue) / 10 + 'm';
-                        }
-                    },
-                    {
-                        field: 'bank',
-                        title: '余额',
-                        align: 'center',
-                        rowspan: 2,
-                        sort: true,
-                        filter: true,
-                        templet: function (d) {
-                            if (d.bank > 0) {
-                                return parseInt(d.bank) / 10 + 'm';
-                            } else {
-                                return 0;
-                            }
-                        }
-                    },
                     {title: '队长', align: 'center', colspan: 9}
                 ],
                 [
                     {
                         field: 'captainTotalPoints',
-                        title: '总得分',
+                        title: '加权总分',
                         align: 'center',
-                        width: 90,
+                        width: 110,
                         style: 'background-color: #5FB878; color: #fff;',
                         sort: true,
                         filter: true
@@ -222,13 +197,13 @@
                         field: 'captainMaxPoints',
                         title: '最高分',
                         align: 'center',
-                        width: 90,
+                        width: 100,
                         style: 'background-color: #5FB878; color: #fff;',
-                        sort: true,
-                        filter: true,
                         templet: function (d) {
-                            return d.captainMaxPoints + '(GW' + d.captainMaxPointsEvent + ')';
-                        }
+                            return d.captainMaxPoints + '  (GW' + d.captainMaxPointsEvent + ') ';
+                        },
+                        sort: true,
+                        filter: true
                     },
                     {
                         field: 'captainMaxPointsWebName',
@@ -242,8 +217,11 @@
                         field: 'captainMinPoints',
                         title: '最低分',
                         align: 'center',
-                        width: 90,
+                        width: 100,
                         style: 'background-color: #5FB878; color: #fff;',
+                        templet: function (d) {
+                            return d.captainMinPoints + ' (GW' + d.captainMaxPointsEvent + ') ';
+                        },
                         sort: true,
                         filter: true
                     },
@@ -251,21 +229,12 @@
                         field: 'mostSelectedCaptainWebName',
                         title: '最多选择',
                         align: 'center',
-                        width: 120,
+                        width: 150,
                         style: 'background-color: #5FB878; color: #fff;',
-                        filter: true
-                    },
-                    {
-                        field: 'mostSelectedCaptainTimes',
-                        title: '次数',
-                        align: 'center',
-                        width: 80,
-                        style: 'background-color: #5FB878; color: #fff;',
-                        sort: true,
-                        filter: true,
                         templet: function (d) {
-                            return d.mostSelectedCaptainTimes + '次';
-                        }
+                            return d.mostSelectedCaptainWebName + " (" + d.mostSelectedCaptainTimes + '次) ';
+                        },
+                        filter: true
                     },
                     {
                         field: 'captainBlankTimes',
@@ -280,9 +249,9 @@
                     },
                     {
                         field: 'captainHitTimes',
-                        title: '命中周最高分',
+                        title: '命中最高分',
                         align: 'center',
-                        width: 140,
+                        width: 120,
                         style: 'background-color: #5FB878; color: #fff;',
                         sort: true,
                         filter: true,
@@ -332,6 +301,8 @@
                         leagueType: leagueType,
                         event: event
                     },
+                    toolbar: true,
+                    defaultToolbar: ['filter'],
                     loading: true,
                     limit: 200,
                     even: true,
@@ -348,25 +319,26 @@
                                 templet: '#entryNameTpl',
                                 filter: true
                             },
-                            {field: 'eventPoints', title: '得分', align: 'center', rowspan: 2, sort: true, filter: true},
                             {
-                                field: 'eventChip',
-                                title: '开卡',
+                                field: 'eventPoints',
+                                title: '得分',
                                 align: 'center',
                                 rowspan: 2,
                                 templet: function (d) {
                                     if (d.eventChip === 'wildcard') {
-                                        return 'wc';
+                                        return d.eventPoints + " (wc) ";
                                     } else if (d.eventChip === '3xc') {
-                                        return '3c';
+                                        return d.eventPoints + " (3c) ";
                                     } else if (d.eventChip === 'bboost') {
-                                        return 'bb';
+                                        return d.eventPoints + " (bb) ";
                                     } else if (d.eventChip === 'freehit') {
-                                        return 'fh';
+                                        return d.eventPoints + " (fh) ";
                                     } else {
-                                        return d.eventChip;
+                                        return d.eventPoints;
                                     }
-                                }
+                                },
+                                sort: true,
+                                filter: true
                             },
                             {title: '队长', align: 'center', colspan: 5},
                             {title: '副队长', align: 'center', colspan: 3},
@@ -442,6 +414,7 @@
                                 title: '持有率',
                                 align: 'center',
                                 width: 90,
+                                hide: true,
                                 sort: true,
                                 filter: true
                             },
@@ -452,6 +425,7 @@
                                 title: '联赛选择',
                                 align: 'center',
                                 width: 110,
+                                hide: true,
                                 sort: true,
                                 filter: true
                             }
@@ -461,10 +435,6 @@
                     filter: {
                         items: ['data'],
                         bottom: false
-                    },
-                    initSort: {
-                        field: 'captainPoints',
-                        type: 'desc'
                     },
                     done: function () {
                         soulTable.render(this);
