@@ -42,7 +42,7 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		String a = "pea, cake, milk, bird, egg, wolf, duck, fox, crab,  soup. rice, pig, fish, dog, cow, owl, frog,cat, lion, corn";
+		String a = "owl, fox, rice, egg, wolf, pea, frog, duck, soup, milk";
 		List<String> letterList = Lists.newArrayList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
 		int count = 0;
 		for (String o :

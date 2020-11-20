@@ -21,6 +21,7 @@
 
     <script src="https://www.layuicdn.com/layui-v2.5.6/layui.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.1.0/axios.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
 </head>
 
@@ -96,14 +97,15 @@
 
 <script th:fragment="baseScript" th:inline="javascript">
     layui.config({
-        base: '/layui/modules/',
+        base: '/layui/lay/modules/',
         version: 'v1.5.17'
     }).extend({
         soulTable: '{/}https://cdn.jsdelivr.net/npm/layui-soul-table/docs/ext/soulTable',
         tableChild: '{/}https://cdn.jsdelivr.net/npm/layui-soul-table/docs/ext/tableChild',
         tableMerge: '{/}https://cdn.jsdelivr.net/npm/layui-soul-table/docs/ext/tableMerge',
         tableFilter: '{/}https://cdn.jsdelivr.net/npm/layui-soul-table/docs/ext/tableFilter',
-        excel: '{/}https://cdn.jsdelivr.net/npm/layui-soul-table/docs/ext/excel'
+        excel: '{/}https://cdn.jsdelivr.net/npm/layui-soul-table/docs/ext/excel',
+        dropdown: 'ex/dropdown'
     });
 
     layui.use(['element', 'layer'], function () {

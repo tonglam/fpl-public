@@ -124,10 +124,28 @@
 
 <div th:replace="layout::entryInputLayer"></div>
 
-<script th:inline="none">
-    layui.use(['table'], function () {
+<script id="checkbar" type="text/plain">
+   <button class="layui-btn layui-btn-sm" id="check_{{d.id}}" lay-dropdown="{menus: [{txt: '队长统计', event:'captain'}, {txt: '转会统计', event:'transfer'}]}"}>
+   <span>查看类型</span>
+   <i class="layui-icon layui-icon-triangle-d" style="display: inline-block"></i>
+   </button>
 
-        let $ = layui.jquery, table = layui.table;
+
+</script>
+
+<script th:inline="none">
+    layui.use(['table', 'soulTable', 'dropdown'], function () {
+
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, dropdown = layui.dropdown;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
 
         $("#searchTournamentButton").on('click', function () {
             let leagueId = $("input[name=leagueId]").val();
@@ -147,29 +165,41 @@
                     season: season
                 },
                 loading: true,
-                width: 820,
+                cellMinWidth: 80,
                 cols: [[
-                    {
-                        field: 'name',
-                        title: '名字',
-                        align: 'center',
-                        templet: '<div><a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a></div>'
-                    },
-                    {field: 'creator', title: '创建者', align: 'center', width: 150},
-                    {field: 'season', title: '赛季', align: 'center', width: 80},
-                    {field: 'leagueType', title: '类型', align: 'center', width: 80},
+                    {field: 'name', title: '名字', align: 'center', width: 300},
+                    {field: 'creator', title: '创建者', align: 'center', width: 120},
+                    {field: 'season', title: '赛季', align: 'center'},
+                    {field: 'leagueType', title: '类型', align: 'center'},
                     {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100},
-                    {field: 'createTime', title: '创建时间', align: 'center', width: 120}
+                    {field: 'createTime', title: '创建时间', align: 'center', width: 120},
+                    {
+                        fixed: 'right',
+                        title: '操作',
+                        align: 'center',
+                        width: 125,
+                        toolbar: '#checkbar'
+                    }
                 ]],
-                id: 'tournamenTable'
+                id: 'tournamenTable',
+                done: function (res) {
+                    soulTable.render(this);
+                    // 在表格渲染完成后进行下拉框渲染
+                    for (let i = 0; i < res.data.length; i++) {
+                        dropdown.suite("#check_" + res.data[i].id, {
+                            data: res.data[i]
+                        });
+                    }
+                }
             });
 
         });
 
-        table.on('row(tournamentTable)', function (obj) {
-            let leagueId = obj.data.leagueId;
-            let leagueType = obj.data.leagueType;
-            window.location.replace('/my_fpl/leagueCaptainReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+        table.on('tool(tournamentTable)', function (obj) {
+            let event = obj.event, leagueId = obj.data.leagueId, leagueType = obj.data.leagueType;
+            if (event === 'captain') {
+                window.location.replace('/my_fpl/leagueCaptainReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+            }
         });
 
     });

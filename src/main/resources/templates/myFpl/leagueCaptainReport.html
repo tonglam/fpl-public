@@ -18,7 +18,13 @@
 
                 <div class="layui-form-item">
 
-                    <div class="layui-input-inline">
+                    <div class="layui-input-inline" style="margin-top: 5px">
+                        <button class="layui-btn layui-btn-primary layui-btn-sm" id="returnButton" type="button">
+                            <i class="layui-icon layui-icon-return"></i>
+                        </button>
+                    </div>
+
+                    <div class="layui-input-inline" style="margin-left: -140px">
                         <h1 style="font-size: 28px">队长统计 - </h1>
                     </div>
 
@@ -341,7 +347,7 @@
                                 filter: true
                             },
                             {title: '队长', align: 'center', colspan: 5},
-                            {title: '副队长', align: 'center', colspan: 3},
+                            {title: '副队长', align: 'center', colspan: 5},
                             {title: '最高分', align: 'center', colspan: 3}
                         ],
                         [
@@ -418,6 +424,24 @@
                                 sort: true,
                                 filter: true
                             },
+                            {
+                                field: 'viceCaptainPointsByPercent',
+                                title: '得分占比',
+                                align: 'center',
+                                width: 110,
+                                hide: true,
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'viceCaptainSelectedInLeague',
+                                title: '联赛选择',
+                                align: 'center',
+                                width: 110,
+                                hide: true,
+                                sort: true,
+                                filter: true
+                            },
                             {field: 'highestScoreWebName', title: '名称', align: 'center', width: 120, filter: true},
                             {field: 'highestScorePoints', title: '得分', align: 'center', sort: true, filter: true},
                             {
@@ -490,11 +514,20 @@
                             width: 60,
                             rowspan: 2
                         },
-                        {field: 'eventPoints', title: '得分', align: 'center', rowspan: 2},
-                        {field: 'eventTransfers', title: '转会', align: 'center', rowspan: 2},
-                        {field: 'eventTransfersCost', title: '剁手', align: 'center', rowspan: 2},
-                        {field: 'eventNetPoints', title: '净得分', align: 'center', width: 80, rowspan: 2},
-                        {field: 'eventBenchPoints', title: '板凳', align: 'center', rowspan: 2},
+                        {
+                            field: 'eventNetPoints',
+                            title: '净得分',
+                            align: 'center',
+                            width: 80,
+                            rowspan: 2,
+                            templet: function (d) {
+                                if (d.eventTransfersCost > 0) {
+                                    return d.eventNetPoints + '(-' + d.eventTransfersCost + ')';
+                                } else {
+                                    return d.eventNetPoints;
+                                }
+                            }
+                        },
                         {
                             field: 'eventChip',
                             title: '开卡',
@@ -515,7 +548,7 @@
                             }
                         },
                         {title: '队长', align: 'center', colspan: 5},
-                        {title: '副队长', align: 'center', colspan: 3},
+                        {title: '副队长', align: 'center', colspan: 4},
                         {title: '最高分', align: 'center', colspan: 3}
                     ],
                     [
@@ -529,7 +562,7 @@
                         },
                         {
                             field: 'captainPoints',
-                            title: '得分',
+                            title: '加权分',
                             align: 'center',
                             width: 100,
                             templet: function (d) {
@@ -576,10 +609,24 @@
                             align: 'center'
                         },
                         {
+                            field: 'viceCaptainBlank',
+                            title: 'blank',
+                            align: 'center',
+                            width: 80,
+                            templet: function (d) {
+                                if (d.viceCaptainBlank) {
+                                    return '是';
+                                } else {
+                                    return '否';
+                                }
+                            }
+                        },
+                        {
                             field: 'viceCaptainSelected',
                             title: '持有率',
                             align: 'center',
-                            width: 80
+                            width: 80,
+                            hide: true
                         },
                         {field: 'highestScoreWebName', title: '名称', align: 'center', width: 140, filter: true},
                         {field: 'highestScorePoints', title: '得分', align: 'center'},

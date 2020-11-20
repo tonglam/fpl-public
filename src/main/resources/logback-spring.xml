@@ -64,4 +64,5 @@
     <logger name="com.tong.fpl.log.TaskLog" additivity="false">
         <appender-ref ref="taskLog"/>
     </logger>
+
 </configuration>
