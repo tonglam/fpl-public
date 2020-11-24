@@ -13,11 +13,11 @@ import lombok.experimental.Accessors;
 public class ZjTournamentCaptainEntity {
 
     @TableId
-    private int id;
+    private Integer id;
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private int tournamentId;
-    private int groupId;
-    private int captainEntry;
+    private Integer tournamentId;
+    private Integer groupId;
+    private Integer captainEntry;
     private String phaseTwoDeadline;
     private String pkDeadline;
     @TableField(fill = FieldFill.INSERT)
