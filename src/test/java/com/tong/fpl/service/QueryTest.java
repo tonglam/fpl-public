@@ -91,7 +91,7 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2"})
+	@CsvSource({"9"})
 	void isMatchDay(int event) {
 		boolean a = this.querySerivce.isMatchDay(event);
 		System.out.println(1);
