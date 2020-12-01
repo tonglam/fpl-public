@@ -101,6 +101,10 @@
 
         let leagueId = getUrlParam("leagueId"), leagueType = getUrlParam("leagueType");
 
+        $("#returnButton").on('click', function () {
+            window.location.replace("/my_fpl/league");
+        });
+
         table.render({
             elem: '#leagueReportStatTable',
             url: '/my_fpl/qryLeagueReportStat',

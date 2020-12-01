@@ -25,7 +25,7 @@ public class MatchDayTask {
 	private final IRedisCacheSerive redisCacheSerive;
 	private final IUpdateEventResultService updateEventResultsService;
 
-	@Scheduled(cron = "0 0/5 0-6,19-23 * * *")
+	@Scheduled(cron = "0 0/5 0-7,19-23 * * *")
 	public void insertEventLiveCache() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDayTime(event)) {
