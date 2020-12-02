@@ -75,12 +75,12 @@ public class MatchDayTask {
 
 	private void updateSingleTournamentResult(int event, int tournamentId) {
 		try {
-			TaskLog.info("start update tournament result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("start updateSubtitle tournament result, event:{}, tournament:{}", event, tournamentId);
 			this.updateEventResultsService.updateTournamentEntryEventResult(event, tournamentId);
-			TaskLog.info("end update tournament result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("end updateSubtitle tournament result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TaskLog.error("update tournament result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
+			TaskLog.error("updateSubtitle tournament result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
 		}
 	}
 
@@ -101,12 +101,12 @@ public class MatchDayTask {
 
 	private void updateSinglePointsRaceGroupResult(int event, int tournamentId) {
 		try {
-			TaskLog.info("start update points_race group result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("start updateSubtitle points_race group result, event:{}, tournament:{}", event, tournamentId);
 			this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
-			TaskLog.info("end update points_race group result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("end updateSubtitle points_race group result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TaskLog.error("update points_race group result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
+			TaskLog.error("updateSubtitle points_race group result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
 		}
 	}
 
@@ -127,12 +127,12 @@ public class MatchDayTask {
 
 	private void updateSingleBattleRaceGroupResult(int event, int tournamentId) {
 		try {
-			TaskLog.info("start update battle_race group result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("start updateSubtitle battle_race group result, event:{}, tournament:{}", event, tournamentId);
 			this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
-			TaskLog.info("end update battle_race group result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("end updateSubtitle battle_race group result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TaskLog.error("update battle_race group result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
+			TaskLog.error("updateSubtitle battle_race group result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
 		}
 	}
 
@@ -153,12 +153,12 @@ public class MatchDayTask {
 
 	private void updateSingleKnockoutResult(int event, int tournamentId) {
 		try {
-			TaskLog.info("start update knockout result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("start updateSubtitle knockout result, event:{}, tournament:{}", event, tournamentId);
 			this.updateEventResultsService.updateKnockoutResult(event, tournamentId);
-			TaskLog.info("end update knockout result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("end updateSubtitle knockout result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TaskLog.error("update knockout result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
+			TaskLog.error("updateSubtitle knockout result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
 		}
 	}
 

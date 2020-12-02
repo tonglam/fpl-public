@@ -81,7 +81,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 					.setLastTeamValue(lastCurrent == null ? 0 : lastCurrent.getValue());
 			updateEntryInfoList.add(entryInfoEntity);
 		});
-		// update
+		// updateSubtitle
 		this.entryInfoService.updateBatchById(updateEntryInfoList);
 	}
 
@@ -117,7 +117,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		if (entryEventResult == null) {
 			return;
 		}
-		// insert or update
+		// insert or updateSubtitle
 		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
 				.eq(EntryEventResultEntity::getEvent, event)
 				.eq(EntryEventResultEntity::getEntry, entry));
@@ -224,7 +224,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.eq(TournamentPointsGroupResultEntity::getEvent, event))
 				.stream()
 				.collect(Collectors.toMap(TournamentPointsGroupResultEntity::getEntry, o -> o));
-		// update tournament_group and tournament_group_result
+		// updateSubtitle tournament_group and tournament_group_result
 		List<TournamentGroupEntity> updateGroupList = Lists.newArrayList();
 		List<TournamentPointsGroupResultEntity> updateGroupPointsResultList = Lists.newArrayList();
 		// tournament_group
@@ -267,11 +267,11 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			tournamentPointsGroupResultEntity.setEventGroupRank(groupRank);
 			updateGroupPointsResultList.add(tournamentPointsGroupResultEntity);
 		});
-		// update
+		// updateSubtitle
 		this.tournamentGroupService.updateBatchById(updateGroupList);
-		log.info("event:{}, tournament:{}, update tournament group success!", event, tournamentId);
+		log.info("event:{}, tournament:{}, updateSubtitle tournament group success!", event, tournamentId);
 		this.tournamentPointsGroupResultService.updateBatchById(updateGroupPointsResultList);
-		log.info("event:{}, tournament:{}, update tournament points group result success!", event, tournamentId);
+		log.info("event:{}, tournament:{}, updateSubtitle tournament points group result success!", event, tournamentId);
 	}
 
 	private Map<Integer, EntryEventResultEntity> getEntryEventResultByEvent(int event, List<Integer> entryList) {
@@ -306,7 +306,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// entry_event_result
 		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(entryEventResultMap)) {
-			log.error("event_result not update, event:{}, tournament:{}!", event, tournamentId);
+			log.error("event_result not updateSubtitle, event:{}, tournament:{}!", event, tournamentId);
 			return;
 		}
 		// tournament_group_battle_result
@@ -503,7 +503,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// get event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
-			log.error("event_result not update, event:{}, tournament:{}!", event, tournamentId);
+			log.error("event_result not updateSubtitle, event:{}, tournament:{}!", event, tournamentId);
 			return;
 		}
 		// tournament_knockout_result
@@ -563,10 +563,10 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.orderByAsc(TournamentKnockoutEntity::getMatchId))
 				.stream()
 				.collect(Collectors.toMap(TournamentKnockoutEntity::getMatchId, v -> v));
-		// update by match id
+		// updateSubtitle by match id
 		knockoutResultDataMap.keySet().forEach(matchId ->
 				knockoutResultDataMap.get(matchId).forEach(resultData -> {
-					// update tournament_knockout
+					// updateSubtitle tournament_knockout
 					if (!knockoutMap.containsKey(matchId)) {
 						return;
 					}
@@ -752,7 +752,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			log.error("phase one passed, current event:{}, tournament:{}!", event, tournamentId);
 			return;
 		}
-		// update phase one result
+		// updateSubtitle phase one result
 		List<TournamentGroupEntity> updateGroupList = Lists.newArrayList();
 		List<TournamentPointsGroupResultEntity> updateGroupPointsResultList = Lists.newArrayList();
 		// tournament_group
@@ -797,11 +797,11 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			updateGroupPointsResultList.add(tournamentPointsGroupResultEntity);
 		});
 
-		// update
+		// updateSubtitle
 		this.tournamentGroupService.updateBatchById(updateGroupList);
-		log.info("event:{}, tournament:{}, update tournament group success!", event, tournamentId);
+		log.info("event:{}, tournament:{}, updateSubtitle tournament group success!", event, tournamentId);
 		this.tournamentPointsGroupResultService.updateBatchById(updateGroupPointsResultList);
-		log.info("event:{}, tournament:{}, update tournament points group result success!", event, tournamentId);
+		log.info("event:{}, tournament:{}, updateSubtitle tournament points group result success!", event, tournamentId);
 	}
 
 	@Override
@@ -850,7 +850,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			log.error("phase two passed, current event:{}, tournament:{}!", event, tournamentId);
 			return;
 		}
-		// update phase one result
+		// updateSubtitle phase one result
 		List<TournamentGroupEntity> updateGroupList = Lists.newArrayList();
 		List<TournamentPointsGroupResultEntity> updateGroupPointsResultList = Lists.newArrayList();
 		// tournament_group
@@ -896,11 +896,11 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			tournamentPointsGroupResultEntity.setEventGroupRank(groupRank);
 			updateGroupPointsResultList.add(tournamentPointsGroupResultEntity);
 		});
-		// update
+		// updateSubtitle
 		this.tournamentGroupService.updateBatchById(updateGroupList);
-		log.info("event:{}, tournament:{}, update tournament group success!", event, tournamentId);
+		log.info("event:{}, tournament:{}, updateSubtitle tournament group success!", event, tournamentId);
 		this.tournamentPointsGroupResultService.updateBatchById(updateGroupPointsResultList);
-		log.info("event:{}, tournament:{}, update tournament points group result success!", event, tournamentId);
+		log.info("event:{}, tournament:{}, updateSubtitle tournament points group result success!", event, tournamentId);
 	}
 
 	private Map<String, Map<Integer, Integer>> qryZjTournamentPhaseTwoGroupRankMapByGroupList(List<TournamentGroupEntity> tournamentGroupEntityList) {
@@ -979,7 +979,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// get event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
-			log.error("event_result not update, event:{}, tournament:{}!", event, tournamentId);
+			log.error("event_result not updateSubtitle, event:{}, tournament:{}!", event, tournamentId);
 			return;
 		}
 		// tournament_knockout_result
@@ -1004,7 +1004,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 					tournamentKnockoutResultList.add(tournamentKnockoutResultEntity);
 				});
 		this.tournamentKnockoutResultService.updateBatchById(tournamentKnockoutResultList);
-		log.info("event:{}, tournament:{}, update zj tournament pk knockout success!", event, tournamentId);
+		log.info("event:{}, tournament:{}, updateSubtitle zj tournament pk knockout success!", event, tournamentId);
 		// tournament_knockout
 		List<TournamentKnockoutEntity> tournamentKnockoutList = Lists.newArrayList();
 		matchWinnerMap.keySet().forEach(matchId -> {
@@ -1015,7 +1015,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			tournamentKnockoutList.add(tournamentKnockoutEntity);
 		});
 		this.tournamentKnockoutService.updateBatchById(tournamentKnockoutList);
-		log.info("event:{}, tournament:{}, update zj tournament pk knockout result success!", event, tournamentId);
+		log.info("event:{}, tournament:{}, updateSubtitle zj tournament pk knockout result success!", event, tournamentId);
 	}
 
 	@Override
@@ -1112,9 +1112,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// group tournament rank
 		Map<String, Integer> tournamentRankMap = this.qryZjTournamentRankMap(zjTournamentResultEntityList);
 		zjTournamentResultEntityList.forEach(o -> o.setTournamentRank(tournamentRankMap.getOrDefault(String.valueOf(o.getGroupId()), 0)));
-		// update
+		// updateSubtitle
 		this.zjTournamentResultService.updateBatchById(zjTournamentResultEntityList);
-		log.info("tournament:{}, update zj tournament result success!", tournamentId);
+		log.info("tournament:{}, updateSubtitle zj tournament result success!", tournamentId);
 	}
 
 	private Map<String, Integer> setPhaseOneTotalGroupPoints(Map<String, Integer> phaseOneRankMap) {

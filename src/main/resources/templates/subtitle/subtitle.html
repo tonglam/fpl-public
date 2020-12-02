@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <title>字幕</title>
+
+    <meta charset="utf-8">
+    <meta content="webkit" name="renderer">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="telephone=no" name="format-detection">
+
+    <link href="https://www.layuicdn.com/layui-v2.5.6/css/layui.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
+    <link href="https://cdn.jsdelivr.net/npm/layui-soul-table/docs/soulTable.css" media="all" rel="stylesheet"/>
+
+    <script src="https://www.layuicdn.com/layui-v2.5.6/layui.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.1.0/axios.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+</head>
+
+<style>
+    .layui-table-cell, .layui-table-box, .layui-table-body {
+        overflow: visible;
+    }
+
+    td .layui-form-select {
+        margin-top: -10px;
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+</style>
+
+<body>
+
+<div class="layui-header header header-doc">
+    <div class="layui-main">
+        <a class="logo" href="/subtitle">字幕</a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <div style="margin-top: 20px"></div>
+
+            <form class="layui-form">
+                <div class="layui-form-item">
+
+                    <div class="layui-inline" style="width: 110px">
+                        <select class="layui-select" lay-filter="mode" name="mode">
+                            <option value="1">接活时间</option>
+                            <option value="2">完成时间</option>
+                        </select>
+                    </div>
+
+                    <div class="layui-inline" style="margin-left: 10px;width: 120px">
+                        <input autocomplete="off" class="layui-input" name="startDay" type="text">
+                    </div>
+                    <div class="layui-inline">
+                        <div class="layui-form-mid">到</div>
+                    </div>
+                    <div class="layui-inline" style="margin-left: -10px;width: 120px">
+                        <input autocomplete="off" class="layui-input" name="endDay" type="text">
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px;margin-right: -20px">标题</label>
+                    </div>
+                    <div class="layui-inline" style="width: 300px">
+                        <input class="layui-input" name="title" type="text">
+                    </div>
+
+                    <div class="layui-inline" style="margin-right: -80px">
+                        <label class="layui-form-label" style="margin-left: -50px">状态</label>
+                        <div class="layui-input-inline" style="width: 30%">
+                            <select class="layui-select" lay-filter="status" name="status">
+                                <option value="">请选择</option>
+                                <option value="1">已接活</option>
+                                <option value="2">已翻译</option>
+                                <option value="3">已拉轴</option>
+                                <option value="4">已压制</option>
+                                <option value="5">已填表</option>
+                                <option value="6">已结算</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline" style="margin-left: -30px">
+                        <button class="layui-btn" id="search" type="button">查询</button>
+                    </div>
+
+                </div>
+            </form>
+
+            <div style="margin-top: 20px"></div>
+
+            <button class="layui-btn layui-btn-sm" id="addRecord" style="margin-bottom: -10px">新增</button>
+
+            <table class="layui-table" id="subtitleTable" lay-filter="subtitleTable"></table>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script id="barTpl" type="text/html">
+    {{#  if(d.id > 0){ }}
+    <a class="layui-btn layui-btn-xs" title="点击单元格编辑修改的内容" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    {{#  } else { }}
+    <a class="layui-btn layui-btn-xs" lay-event="add">新增</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="cancel">取消</a>
+    {{#  } }}
+</script>
+
+<script th:inline="none">
+    layui.use(['form', 'layer', 'laydate', 'table', 'soulTable'], function () {
+
+        let $ = layui.$, form = layui.form, layer = layui.layer, laydate = layui.laydate, table = layui.table,
+            soulTable = layui.soulTable;
+
+        laydate.render({
+            elem: 'input[name=startDay]',
+            trigger: "click",
+            max: moment().format('YYYY-MM-DD')
+        });
+
+        laydate.render({
+            elem: 'input[name=endDay]',
+            trigger: "click",
+            max: moment().format('YYYY-MM-DD')
+        });
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        let statusEnum = ["已接活", "已翻译", "已拉轴", "已压制", "已填表", "已结算"];
+
+        let subtitleTable, qryParam = {
+            title: $("input[name=title]").val(),
+            mode: $("select[name=mode]").val(),
+            startDay: $("input[name=startDay]").val(),
+            endDay: $("input[name=endDay]").val(),
+            status: $("select[name=status]").siblings("div.layui-form-select").find("dl").find("dd.layui-this").text()
+        };
+
+        axios.post('/subtitle/qrySubtitleList', qryParam)
+            .then(function (response) {
+                subtitleTable = table.render({
+                    elem: '#subtitleTable',
+                    data: response.data,
+                    limit: 100,
+                    cellMinWidth: 80,
+                    cols: [[
+                        {title: '序号', type: 'numbers', width: 50},
+                        {field: 'title', title: '视频标题', align: 'center', width: 300, edit: true},
+                        {
+                            field: 'url',
+                            title: '视频地址',
+                            align: 'center',
+                            width: 200,
+                            edit: true,
+                            templet: function (d) {
+                                if (d.id > 0) {
+                                    return '<a href="https://' + d.url + '" target="_blank" class="layui-table-link">' + d.url + '</a>'
+                                } else {
+                                    return "";
+                                }
+                            }
+                        },
+                        {field: 'length', title: '时长(s)', align: 'center', edit: true},
+                        {field: 'jobDate', title: '接活日期', align: 'center', width: 150, edit: true},
+                        {field: 'proofreader', title: '校对', align: 'center', edit: true},
+                        {field: 'proportion', title: '翻译占比', align: 'center', width: 100, edit: true},
+                        {
+                            field: 'interpreterLength',
+                            title: '翻译时长(s)',
+                            align: 'center',
+                            width: 110,
+                            hide: true,
+                            templet: function (d) {
+                                return d.length * (d.proportion / 10);
+                            }
+                        },
+                        {
+                            field: 'proofreaderLength',
+                            title: '校对时长(s)',
+                            align: 'center',
+                            width: 110,
+                            hide: true,
+                            templet: function (d) {
+                                return d.length * ((10 - d.proportion) / 10);
+                            }
+                        },
+                        {
+                            field: 'status', title: '状态', align: 'center', width: 90, templet: function (d) {
+                                let select = "<select name='statusSelect' lay-filter='statusSelect'>";
+                                select += "<option value=" + d.status + ">" + d.status + "</option>";
+                                $.each(statusEnum, function (index, item) {
+                                    if (item !== d.status) {
+                                        select += "<option value=" + item + ">" + item + "</option>";
+                                    }
+                                })
+                                select += "</select>";
+                                return select;
+                            }
+                        },
+                        {field: 'finishDate', title: '完成日期', align: 'center', width: 120, edit: true},
+                        {fixed: 'right', title: '操作', align: 'center', width: 120, toolbar: '#barTpl'}
+                    ]],
+                    id: 'subtitleTable',
+                    done: function () {
+                        soulTable.render(this);
+                    }
+                });
+            })
+
+        $("#search").on('click', function () {
+            qryParam = {
+                title: $("input[name=title]").val(),
+                mode: $("select[name=mode]").val(),
+                startDay: $("input[name=startDay]").val(),
+                endDay: $("input[name=endDay]").val(),
+                status: $("select[name=status]").siblings("div.layui-form-select").find("dl").find("dd.layui-this").text()
+            };
+            axios.post('/subtitle/qrySubtitleList', qryParam)
+                .then(function (response) {
+                    subtitleTable = table.reload('subtitleTable', {data: response.data});
+                })
+        });
+
+        $('#addRecord').on('click', function () {
+            let config = subtitleTable.config;
+            let newData = [];
+            let select = "<select name='statusSelect' lay-filter='statusSelect'><option value='已接活'>已接活</option></select>";
+            newData.push({id: 'new' + new Date().getTime(), status: '已接活'});
+            $.each(config.data, function (index, item) {
+                newData.push(item);
+            })
+            subtitleTable = table.reload(config.id, $.extend(true, {data: newData}, {}));
+        });
+
+        table.on('row(subtitleTable)', function (obj) {
+            form.on('select(statusSelect)', function (data) {
+                let tableData = table.cache["subtitleTable"]
+                tableData[obj.data.id - 1]["status"] = data;
+            });
+        });
+
+        table.on('edit(subtitleTable)', function (obj) {
+            if (obj.field === 'title') {
+                if (obj.value === '') {
+                    layer.msg("标题不能为空", {time: 1500});
+                    let old = $(this).prev().text();
+                    $(this).val(old);
+                    subtitleTable.config.data[obj.data.id - 1].title = old;
+                }
+            }
+            if (obj.field === 'length') {
+                let reg = /^[0-9]*$/;
+                if (obj.value.match(reg) == null) {
+                    layer.msg("必须填数字", {time: 1500});
+                    let old = $(this).prev().text();
+                    $(this).val(old);
+                    subtitleTable.config.data[obj.data.id - 1].length = old;
+                }
+            }
+            if (obj.field === 'proportion') {
+                let reg = /^[0-9]*$/;
+                if (obj.value.match(reg) == null) {
+                    layer.msg("必须填数字", {time: 1500});
+                    let old = $(this).prev().text();
+                    $(this).val(old);
+                    subtitleTable.config.data[obj.data.id - 1].proportion = old;
+                }
+            }
+            if (obj.field === 'proportion') {
+                if (parseInt(obj.value) < 0 || parseInt(obj.value) > 9) {
+                    layer.msg("翻译占比必须是0-9", {time: 1500});
+                    let old = $(this).prev().text();
+                    $(this).val(old);
+                    subtitleTable.config.data[obj.data.id - 1].proportion = old;
+                }
+            }
+            if (obj.field === 'jobDate') {
+                let reg = /^[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+                if (obj.value.match(reg) == null) {
+                    layer.msg("日期格式：yyyy-MM-dd", {time: 1500});
+                    let old = $(this).prev().text();
+                    $(this).val(old);
+                    subtitleTable.config.data[obj.data.id - 1].jobDate = old;
+                }
+            }
+            if (obj.field === 'finishDate') {
+                let reg = /^[1-9]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/;
+                if (obj.value.match(reg) == null) {
+                    layer.msg("日期格式：yyyy-MM-dd", {time: 1500});
+                    let old = $(this).prev().text();
+                    $(this).val(old);
+                    subtitleTable.config.data[obj.data.id - 1].finishDate = old;
+                }
+            }
+        });
+
+        table.on('tool(subtitleTable)', function (obj) {
+            let data = obj.data;
+            switch (obj.event) {
+                case 'edit': {
+                    layer.confirm('确定要修改？', {title: false}, function (confirmIndex) {
+                        layer.close(confirmIndex);
+                        let subtitleData = {};
+                        subtitleData.id = data.id;
+                        subtitleData.title = data.title;
+                        subtitleData.url = data.url;
+                        subtitleData.length = data.length;
+                        subtitleData.jobDate = data.jobDate;
+                        subtitleData.proofreader = data.proofreader;
+                        subtitleData.proportion = data.proportion;
+                        subtitleData.status = data.status.value;
+                        subtitleData.finishDate = data.finishDate;
+                        axios.post('/subtitle/updateSubtitle', subtitleData)
+                            .then(function (response) {
+                                layer.msg(response, {icon: 6, time: 1500});
+                            })
+                            .catch(function (error) {
+                                console.log(error.message);
+                                layer.msg("修改错误，请重新尝试！", {icon: 2, time: 1500});
+                            });
+                    });
+                    break;
+                }
+                case 'del': {
+                    layer.confirm('确定要删除？', {title: false}, function (confirmIndex) {
+                        layer.close(confirmIndex);
+                        axios.get('/subtitle/removeSubtitle?id=' + data.id)
+                            .then(function (response) {
+                                layer.msg(response, {icon: 6, time: 1500});
+                                let config = subtitleTable.config;
+                                let dataTemp = config.data;
+                                dataTemp.splice(obj.tr.first().data('index'), 1);
+                                subtitleTable = table.reload(config.id, $.extend(true, {data: dataTemp}, {}));
+                            })
+                            .catch(function (error) {
+                                console.log(error.message);
+                                layer.msg("删除错误，请重新尝试！", {icon: 2, time: 1500});
+                            });
+                    });
+                    break;
+                }
+                case 'add': {
+                    let subtitleData = {};
+                    subtitleData.title = data.title;
+                    subtitleData.url = data.url;
+                    subtitleData.length = data.length;
+                    subtitleData.jobDate = data.jobDate;
+                    subtitleData.proofreader = data.proofreader;
+                    subtitleData.proportion = data.proportion;
+                    subtitleData.status = data.status;
+                    subtitleData.finishDate = data.finishDate;
+                    axios.post('/subtitle/addSubtitle', subtitleData)
+                        .then(function (response) {
+                            let config = subtitleTable.config;
+                            let dataTemp = config.data;
+                            let index = obj.tr.first().data('index');
+                            dataTemp[index].id = response.id;
+                            subtitleTable = table.reload(config.id, $.extend(true, {data: dataTemp}, {}));
+                            layer.msg("新增成功！", {icon: 6, time: 1500});
+                        })
+                        .catch(function (error) {
+                            console.log(error.message);
+                            layer.msg("新增错误，请重新尝试！", {icon: 2, time: 1500});
+                        });
+                    break;
+                }
+                case 'cancel': {
+                    let config = subtitleTable.config;
+                    let dataTemp = config.data;
+                    dataTemp.splice(obj.tr.first().data('index'), 1);
+                    subtitleTable = table.reload(config.id, $.extend(true, {data: dataTemp}, {}));
+                    break;
+                }
+            }
+        });
+
+    });
+</script>
+
+</html>

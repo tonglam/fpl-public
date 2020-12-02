@@ -212,9 +212,9 @@ public class DBTest extends FplApplicationTests {
 								.setHighestScoreSelected(playerStatMap.get(o.getHighestScore()).getSelectedByPercent() + '%');
 						list.add(o);
 					});
-			// update
+			// updateSubtitle
 			this.leagueEventReportService.updateBatchById(list);
-			System.out.println("update leagueId:" + leagueId);
+			System.out.println("updateSubtitle leagueId:" + leagueId);
 		});
 	}
 

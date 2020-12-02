@@ -202,9 +202,9 @@ public class ReportServiceImpl implements IReportService {
 				.stream()
 				.map(CompletableFuture::join)
 				.collect(Collectors.toList());
-		// update
+		// updateSubtitle
 		this.leagueEventReportService.updateBatchById(leagueEventStatEntityList);
-		log.info("update league_event_stat size:{}!", leagueEventStatEntityList.size());
+		log.info("updateSubtitle league_event_stat size:{}!", leagueEventStatEntityList.size());
 	}
 
 	private LeagueEventReportEntity updateEntryEventResultStat(int event, LeagueEventReportEntity leagueEventStatEntity, Map<Integer, PlayerStatEntity> playerStatMap, Map<Integer, EventLiveEntity> eventLiveMap, Map<Integer, EntryEventResultEntity> entryEventResultMap) {

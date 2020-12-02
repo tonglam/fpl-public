@@ -44,7 +44,7 @@ public interface ITournamentService {
     boolean checkTournamentName(String name);
 
     /**
-     * update tournament info
+     * updateSubtitle tournament info
      * editable: creator, adminir_entry
      */
     String updateTournamentInfo(TournamentCreateData tournamentCreateData);
@@ -52,11 +52,11 @@ public interface ITournamentService {
     String deleteTournamentByName(String name);
 
     /**
-     * exist tournament add new entry
+     * exist tournament addSubtitle new entry
      * only use for normal tournamet which group mode is points race and no knoutkout
      * 1.save new entry_info
      * 2.save new tournament group and tournament_group_result
-     * 3.update tournament points group result
+     * 3.updateSubtitle tournament points group result
      */
     String addTournamentNewEntry(int tournamentId);
 

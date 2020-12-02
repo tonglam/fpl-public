@@ -193,14 +193,14 @@ public class TournamentServiceImpl implements ITournamentService {
 				tournamentInfo.getGroupQualifiers(), knockoutMode,
 				tournamentInfo.getKnockoutPlayAgainstNum(), tournamentInfo.getKnockoutTeam(),
 				tournamentInfo.getKnockoutStartGw(), tournamentInfo.getKnockoutRounds());
-		// update gw result
+		// updateSubtitle gw result
 		this.updateGwResult(tournamentId);
 	}
 
 	private void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, boolean groupFillAverage) {
 		// save entry_info
 		List<EntryInfoEntity> entryInfoEntityList = this.saveEntryInfoFromFplServer(leagueType, leagueId);
-		// save tournament_entry (add average)
+		// save tournament_entry (addSubtitle average)
 		this.saveTournamentEntry(tournamentId, leagueId, groupFillAverage, entryInfoEntityList);
 		log.info("save tournament:{} entry info success!", tournamentId);
 	}
@@ -270,7 +270,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		Multimap<Integer, Integer> teamInGroupMap = ArrayListMultimap.create();
 		Multimap<Integer, Integer> groupIndexMap = ArrayListMultimap.create();
 		Random random = new Random();
-		// add average, represent by negative num
+		// addSubtitle average, represent by negative num
 		List<Integer> averageList = Lists.newArrayList();
 		int averageNum = teamsPerGroup * groupNum - entryList.size();
 		if (averageNum > 0) {
@@ -324,7 +324,7 @@ public class TournamentServiceImpl implements ITournamentService {
 					.setOverallRank(0)
 			);
 		});
-		// update
+		// updateSubtitle
 		this.tournamentGroupService.saveBatch(tournamentGroupList);
 		log.info("draw tournament:{} groups success!", tournamentId);
 	}
@@ -415,7 +415,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		if (CollectionUtils.isEmpty(groupIndexMap)) {
 			return;
 		}
-		// update every group round
+		// updateSubtitle every group round
 		abstractBattleMap.keySet().forEach(event -> {
 			List<String> battleList = this.replaceBattleEntry(abstractBattleMap.get(event), groupIndexMap);
 			if (CollectionUtils.isEmpty(battleList)) {
@@ -537,7 +537,7 @@ public class TournamentServiceImpl implements ITournamentService {
 			log.error("tournament:{} no entry for knockout!", tournamentId);
 			return;
 		}
-		// add blank teams
+		// addSubtitle blank teams
 		int blankNum = (int) Math.pow(2, knockoutRounds) - knockoutTeam;
 		if (blankNum >= entryList.size()) {
 			log.error("tournament:{} blank num is bigger than entry num!", tournamentId);
@@ -641,7 +641,7 @@ public class TournamentServiceImpl implements ITournamentService {
 			// knockout_result
 			this.updateEventResultService.updateKnockoutResult(event, tournamentId);
 		});
-		log.info("tournament:{} update gw result success!", tournamentId);
+		log.info("tournament:{} updateSubtitle gw result success!", tournamentId);
 	}
 
 	@Override
@@ -996,13 +996,13 @@ public class TournamentServiceImpl implements ITournamentService {
 		}
 		// create new tournament group and tournament_group_result
 		this.createTournamentNewGroupData(tournamentId, groupStartGw, groupEndGw, newEntryInfoList);
-		// update tournament new entry event result
+		// updateSubtitle tournament new entry event result
 		List<Integer> newEntryList = newEntryInfoList
 				.stream()
 				.map(EntryInfoData::getEntry)
 				.collect(Collectors.toList());
 		this.updateTournamentNewEntryEventResult(tournamentId, groupStartGw, groupEndGw, newEntryList);
-		// update tournament points group result
+		// updateSubtitle tournament points group result
 		this.updateTournamentPointsGroupResult(tournamentId, groupStartGw, groupEndGw);
 		// return
 		return "更新联赛队伍成功，新增队伍数量：" + newEntryInfoList.size();
@@ -1026,7 +1026,7 @@ public class TournamentServiceImpl implements ITournamentService {
 			entryInfoList = this.staticService.getEntryInfoListFromH2h(leagueId);
 		}
 		int newTeamNum = entryInfoList.size();
-		// update tournament_info
+		// updateSubtitle tournament_info
 		tournamentInfoEntity
 				.setTotalTeam(newTeamNum)
 				.setTeamPerGroup(newTeamNum);
@@ -1083,7 +1083,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId));
 		int startGroupIndex = tournamentGroupEntityList.size() + 1;
-		// add new group data
+		// addSubtitle new group data
 		for (int i = 0; i < newEntryInfoList.size(); i++) {
 			int entry = newEntryInfoList.get(i).getEntry();
 			// tournament_group
@@ -1135,7 +1135,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event ->
 				newEntryList.forEach(entry ->
 						this.updateEventResultService.updateEntryEventResult(event, entry)));
-		log.info("update tournament:{} new entry event result success!", tournamentId);
+		log.info("updateSubtitle tournament:{} new entry event result success!", tournamentId);
 	}
 
 	private void updateTournamentPointsGroupResult(int tournamentId, int groupStartGw, int groupEndGw) {
@@ -1147,7 +1147,7 @@ public class TournamentServiceImpl implements ITournamentService {
 			currentEvent = groupEndGw;
 		}
 		IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.updateEventResultService.updatePointsRaceGroupResult(event, tournamentId));
-		log.info("update tournament:{} points group result success!", tournamentId);
+		log.info("updateSubtitle tournament:{} points group result success!", tournamentId);
 	}
 
 	@Override

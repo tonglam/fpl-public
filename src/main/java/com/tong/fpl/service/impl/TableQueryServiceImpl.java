@@ -1147,7 +1147,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
 			result.forEach(playerSelectedMap::put);
 		});
-		// add key:element_type
+		// addSubtitle key:element_type
 		Map<Integer, Map<Integer, Integer>> elementTypeMap = this.collectPlayerSelectedMap(playerSelectedMap, playerMap); // key:element_type -> value: elementCountMap
 		// sort by selected
 		LinkedHashMap<Integer, Integer> elementSelectedSortMap = playerSelectedMap.entrySet() // key:element -> value: count (sort by count)

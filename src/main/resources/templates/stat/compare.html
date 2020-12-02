@@ -461,7 +461,7 @@
 
     function removePlayerData(chart, datasetOrder) {
         currentLength = chart.data.datasets.length;
-        if (datasetOrder < 0) { // all remove
+        if (datasetOrder < 0) { // all removeSubtitle
             if (chart.data.datasets)
                 chart.data.datasets = [];
             if ('annotation' in chart.options)

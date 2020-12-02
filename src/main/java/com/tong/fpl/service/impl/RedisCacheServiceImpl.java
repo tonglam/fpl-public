@@ -524,7 +524,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 			valueSet.addAll(playerValueList);
 			cacheMap.put(key, valueSet);
 			RedisUtils.pipelineSetCache(cacheMap, 1, TimeUnit.DAYS);
-			// update price in table player
+			// updateSubtitle price in table player
 			this.updatePriceOfPlayer(playerValueList);
 		});
 	}
@@ -759,7 +759,7 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 	private void updatePriceOfPlayer(List<PlayerValueEntity> playerValueList) {
 		List<PlayerEntity> updatePlayerList = Lists.newArrayList();
 		playerValueList.forEach(o -> {
-			// update table
+			// updateSubtitle table
 			PlayerEntity playerEntity = this.playerService.getById(o.getElement());
 			playerEntity.setPrice(o.getValue());
 			if (playerEntity.getStartPrice() == 0) {
