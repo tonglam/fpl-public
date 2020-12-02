@@ -46,12 +46,19 @@
 
 <div class="layui-fluid">
     <div class="layui-main">
-        <div class="site-content">
+        <div class="site-content" style="margin-left: -100px">
 
             <div style="margin-top: 20px"></div>
 
             <form class="layui-form">
                 <div class="layui-form-item">
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px;margin-right: -20px">标题</label>
+                    </div>
+                    <div class="layui-inline" style="width: 300px">
+                        <input class="layui-input" name="title" type="text">
+                    </div>
 
                     <div class="layui-inline" style="width: 110px">
                         <select class="layui-select" lay-filter="mode" name="mode">
@@ -70,16 +77,9 @@
                         <input autocomplete="off" class="layui-input" name="endDay" type="text">
                     </div>
 
-                    <div class="layui-inline">
-                        <label class="layui-form-label" style="margin-left: -50px;margin-right: -20px">标题</label>
-                    </div>
-                    <div class="layui-inline" style="width: 300px">
-                        <input class="layui-input" name="title" type="text">
-                    </div>
-
                     <div class="layui-inline" style="margin-right: -80px">
                         <label class="layui-form-label" style="margin-left: -50px">状态</label>
-                        <div class="layui-input-inline" style="width: 30%">
+                        <div class="layui-input-inline" style="width: 35%">
                             <select class="layui-select" lay-filter="status" name="status">
                                 <option value="">请选择</option>
                                 <option value="1">已接活</option>
@@ -92,7 +92,7 @@
                         </div>
                     </div>
 
-                    <div class="layui-inline" style="margin-left: -30px">
+                    <div class="layui-inline" style="margin-left: -10px">
                         <button class="layui-btn" id="search" type="button">查询</button>
                     </div>
 
@@ -171,7 +171,7 @@
                     cellMinWidth: 80,
                     cols: [[
                         {title: '序号', type: 'numbers', width: 50},
-                        {field: 'title', title: '视频标题', align: 'center', width: 300, edit: true},
+                        {field: 'title', title: '视频标题', align: 'center', width: 350, edit: true},
                         {
                             field: 'url',
                             title: '视频地址',
@@ -179,7 +179,7 @@
                             width: 200,
                             edit: true,
                             templet: function (d) {
-                                if (d.id > 0) {
+                                if (d.id > 0 && d.url !== null) {
                                     return '<a href="https://' + d.url + '" target="_blank" class="layui-table-link">' + d.url + '</a>'
                                 } else {
                                     return "";
@@ -213,12 +213,18 @@
                         {
                             field: 'status', title: '状态', align: 'center', width: 90, templet: function (d) {
                                 let select = "<select name='statusSelect' lay-filter='statusSelect'>";
-                                select += "<option value=" + d.status + ">" + d.status + "</option>";
-                                $.each(statusEnum, function (index, item) {
-                                    if (item !== d.status) {
+                                if (d.status != null) {
+                                    select += "<option value=" + d.status + ">" + d.status + "</option>";
+                                    $.each(statusEnum, function (index, item) {
+                                        if (item !== d.status) {
+                                            select += "<option value=" + item + ">" + item + "</option>";
+                                        }
+                                    })
+                                } else {
+                                    $.each(statusEnum, function (index, item) {
                                         select += "<option value=" + item + ">" + item + "</option>";
-                                    }
-                                })
+                                    })
+                                }
                                 select += "</select>";
                                 return select;
                             }
@@ -250,8 +256,7 @@
         $('#addRecord').on('click', function () {
             let config = subtitleTable.config;
             let newData = [];
-            let select = "<select name='statusSelect' lay-filter='statusSelect'><option value='已接活'>已接活</option></select>";
-            newData.push({id: 'new' + new Date().getTime(), status: '已接活'});
+            newData.push({id: 'new' + new Date().getTime()});
             $.each(config.data, function (index, item) {
                 newData.push(item);
             })
@@ -261,14 +266,30 @@
         table.on('row(subtitleTable)', function (obj) {
             form.on('select(statusSelect)', function (data) {
                 let tableData = table.cache["subtitleTable"]
-                tableData[obj.data.id - 1]["status"] = data;
+                let id = obj.data.id;
+                if (id > 0) {
+                    tableData[obj.data.id - 1]["status"] = data.value;
+                } else {
+                    let title = obj.data.title;
+                    if (typeof title === 'undefined') {
+                        layer.msg("先填标题！", {time: 1500});
+                        $("select[name=statusSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='已接活']").click();
+                        return false;
+                    }
+                    $.each(tableData, function (index, item) {
+                        if (item.title === title) {
+                            item.status = data.value;
+                        }
+                    })
+                }
+                console.info(tableData);
             });
         });
 
         table.on('edit(subtitleTable)', function (obj) {
             if (obj.field === 'title') {
                 if (obj.value === '') {
-                    layer.msg("标题不能为空", {time: 1500});
+                    layer.msg("标题不能为空！", {time: 1500});
                     let old = $(this).prev().text();
                     $(this).val(old);
                     subtitleTable.config.data[obj.data.id - 1].title = old;
@@ -334,7 +355,7 @@
                         subtitleData.jobDate = data.jobDate;
                         subtitleData.proofreader = data.proofreader;
                         subtitleData.proportion = data.proportion;
-                        subtitleData.status = data.status.value;
+                        subtitleData.status = data.status;
                         subtitleData.finishDate = data.finishDate;
                         axios.post('/subtitle/updateSubtitle', subtitleData)
                             .then(function (response) {
@@ -366,6 +387,10 @@
                     break;
                 }
                 case 'add': {
+                    if (typeof data.title === 'undefined') {
+                        layer.msg("视频标题不能为空！", {icon: 2, time: 1500});
+                        return false;
+                    }
                     let subtitleData = {};
                     subtitleData.title = data.title;
                     subtitleData.url = data.url;
