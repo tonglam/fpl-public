@@ -12,7 +12,7 @@ spring:
         max-idle: 8
         min-idle: 0
         max-wait: -1
-    password: tongRedis
+    password: letletguanlaoshiRedis14
     timeout: 10000ms
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
