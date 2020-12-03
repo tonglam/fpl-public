@@ -1,8 +1,9 @@
-package com.tong.fpl.subtitle;
+package com.tong.fpl.controller;
 
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.subtitle.QueryParam;
 import com.tong.fpl.domain.subtitle.SubtitleData;
+import com.tong.fpl.subtitle.ISubtitleService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
