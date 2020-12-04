@@ -52,7 +52,7 @@ public interface ITournamentService {
     String deleteTournamentByName(String name);
 
     /**
-     * exist tournament addSubtitle new entry
+     * exist tournament add new entry
      * only use for normal tournamet which group mode is points race and no knoutkout
      * 1.save new entry_info
      * 2.save new tournament group and tournament_group_result

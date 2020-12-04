@@ -200,7 +200,7 @@ public class TournamentServiceImpl implements ITournamentService {
 	private void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, boolean groupFillAverage) {
 		// save entry_info
 		List<EntryInfoEntity> entryInfoEntityList = this.saveEntryInfoFromFplServer(leagueType, leagueId);
-		// save tournament_entry (addSubtitle average)
+		// save tournament_entry (add average)
 		this.saveTournamentEntry(tournamentId, leagueId, groupFillAverage, entryInfoEntityList);
 		log.info("save tournament:{} entry info success!", tournamentId);
 	}
@@ -270,7 +270,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		Multimap<Integer, Integer> teamInGroupMap = ArrayListMultimap.create();
 		Multimap<Integer, Integer> groupIndexMap = ArrayListMultimap.create();
 		Random random = new Random();
-		// addSubtitle average, represent by negative num
+		// add average, represent by negative num
 		List<Integer> averageList = Lists.newArrayList();
 		int averageNum = teamsPerGroup * groupNum - entryList.size();
 		if (averageNum > 0) {
@@ -537,7 +537,7 @@ public class TournamentServiceImpl implements ITournamentService {
 			log.error("tournament:{} no entry for knockout!", tournamentId);
 			return;
 		}
-		// addSubtitle blank teams
+		// add blank teams
 		int blankNum = (int) Math.pow(2, knockoutRounds) - knockoutTeam;
 		if (blankNum >= entryList.size()) {
 			log.error("tournament:{} blank num is bigger than entry num!", tournamentId);
@@ -1083,7 +1083,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		List<TournamentGroupEntity> tournamentGroupEntityList = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId));
 		int startGroupIndex = tournamentGroupEntityList.size() + 1;
-		// addSubtitle new group data
+		// add new group data
 		for (int i = 0; i < newEntryInfoList.size(); i++) {
 			int entry = newEntryInfoList.get(i).getEntry();
 			// tournament_group
