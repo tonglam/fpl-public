@@ -46,7 +46,7 @@
 
 <div class="layui-fluid">
     <div class="layui-main">
-        <div class="site-content" style="margin-left: -100px">
+        <div class="site-content">
 
             <div style="margin-top: 20px"></div>
 
@@ -54,10 +54,17 @@
                 <div class="layui-form-item">
 
                     <div class="layui-inline">
-                        <label class="layui-form-label" style="margin-left: -50px;margin-right: -20px">标题</label>
+                        <label class="layui-form-label" style="margin-left: -80px;margin-right: -20px">标题</label>
                     </div>
                     <div class="layui-inline" style="width: 300px">
                         <input class="layui-input" name="title" type="text">
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -60px;margin-right: -20px">翻译</label>
+                    </div>
+                    <div class="layui-inline" style="width: 100px">
+                        <input class="layui-input" name="translator" type="text">
                     </div>
 
                     <div class="layui-inline" style="width: 110px">
@@ -78,16 +85,13 @@
                     </div>
 
                     <div class="layui-inline" style="margin-right: -80px">
-                        <label class="layui-form-label" style="margin-left: -50px">状态</label>
+                        <label class="layui-form-label" style="margin-left: -60px">状态</label>
                         <div class="layui-input-inline" style="width: 35%">
                             <select class="layui-select" lay-filter="status" name="status">
                                 <option value="">请选择</option>
-                                <option value="1">已接活</option>
-                                <option value="2">已翻译</option>
-                                <option value="3">已拉轴</option>
-                                <option value="4">已压制</option>
-                                <option value="5">已填表</option>
-                                <option value="6">已结算</option>
+                                <option value="0">全部</option>
+                                <option value="1">未完成</option>
+                                <option value="2">已完成</option>
                             </select>
                         </div>
                     </div>
@@ -104,6 +108,34 @@
             <button class="layui-btn layui-btn-sm" id="addRecord" style="margin-bottom: -10px">新增</button>
 
             <table class="layui-table" id="subtitleTable" lay-filter="subtitleTable"></table>
+
+            <fieldset class="layui-elem-field layui-field-title site-title"
+                      style="margin-top: 30px">
+                <legend><a>合成字幕</a></legend>
+            </fieldset>
+
+            <form class="layui-form">
+                <div class="layui-form-item">
+
+                    <div class="layui-inline">
+                        <input class="layui-input" name="uploadFile" type="text">
+                    </div>
+
+                </div>
+            </form>
+
+            <fieldset class="layui-elem-field layui-field-title site-title"
+                      style="margin-top: 30px">
+                <legend><a>网站</a></legend>
+            </fieldset>
+
+            <a href="https://clipconverter.io/" style="font-size: 15px" target="_blank">视频下载</a>
+            <br>
+            <br>
+            <a href="https://https://zhuwei.me/y2b/" style="font-size: 15px" target="_blank">字幕下载</a>
+            <br>
+            <br>
+            <a href="https://musicallydown.com/" style="font-size: 15px" target="_blank">抖音下载</a>
 
         </div>
     </div>
@@ -152,7 +184,7 @@
             }
         });
 
-        let statusEnum = ["已接活", "已翻译", "已拉轴", "已压制", "已填表", "已结算"];
+        let statusEnum = ["已接活", "已翻译", "已校对", "已拉轴", "已压制", "已填表", "已结算"];
 
         let subtitleTable, qryParam = {
             title: $("input[name=title]").val(),
@@ -167,37 +199,25 @@
                 subtitleTable = table.render({
                     elem: '#subtitleTable',
                     data: response.data,
+                    toolbar: true,
+                    defaultToolbar: ["filter"],
                     limit: 100,
                     cellMinWidth: 80,
                     cols: [[
-                        {title: '序号', type: 'numbers', width: 50},
-                        {field: 'title', title: '视频标题', align: 'center', width: 350, edit: true},
-                        {
-                            field: 'url',
-                            title: '视频地址',
-                            align: 'center',
-                            width: 200,
-                            edit: true,
-                            templet: function (d) {
-                                if (d.id > 0 && d.url !== null) {
-                                    return '<a href="https://' + d.url + '" target="_blank" class="layui-table-link">' + d.url + '</a>'
-                                } else {
-                                    return "";
-                                }
-                            }
-                        },
+                        {field: 'title', title: '视频标题', align: 'center', width: 450, edit: true},
                         {field: 'length', title: '时长(s)', align: 'center', edit: true},
-                        {field: 'jobDate', title: '接活日期', align: 'center', width: 150, edit: true},
+                        {field: 'translator', title: '翻译', align: 'center', edit: true},
+                        {field: 'jobDate', title: '接活日期', align: 'center', width: 120, edit: true},
                         {field: 'proofreader', title: '校对', align: 'center', edit: true},
-                        {field: 'proportion', title: '翻译占比', align: 'center', width: 100, edit: true},
+                        {field: 'proportion', title: '占比', align: 'center', width: 60, edit: true},
                         {
-                            field: 'interpreterLength',
+                            field: 'translatorLength',
                             title: '翻译时长(s)',
                             align: 'center',
                             width: 110,
                             hide: true,
                             templet: function (d) {
-                                return d.length * (d.proportion / 10);
+                                return Math.ceil(d.length * (d.proportion / 10));
                             }
                         },
                         {
@@ -207,7 +227,12 @@
                             width: 110,
                             hide: true,
                             templet: function (d) {
-                                return d.length * ((10 - d.proportion) / 10);
+                                let translatorLength = Math.ceil(d.length * (d.proportion / 10));
+                                if (translatorLength > 0) {
+                                    return d.length - translatorLength;
+                                } else {
+                                    return '';
+                                }
                             }
                         },
                         {
@@ -230,7 +255,7 @@
                             }
                         },
                         {field: 'finishDate', title: '完成日期', align: 'center', width: 120, edit: true},
-                        {fixed: 'right', title: '操作', align: 'center', width: 120, toolbar: '#barTpl'}
+                        {fixed: 'right', title: '操作', align: 'center', width: 108, toolbar: '#barTpl'}
                     ]],
                     id: 'subtitleTable',
                     done: function () {
@@ -256,7 +281,17 @@
         $('#addRecord').on('click', function () {
             let config = subtitleTable.config;
             let newData = [];
-            newData.push({id: 'new' + new Date().getTime()});
+            newData.push({
+                id: 'new' + new Date().getTime(),
+                title: '',
+                length: '',
+                translator: '',
+                jobDate: new Date().format("yyyy-MM-dd"),
+                proofreader: '',
+                proportion: '',
+                status: '已接活',
+                finishDate: ''
+            });
             $.each(config.data, function (index, item) {
                 newData.push(item);
             })
@@ -268,7 +303,11 @@
                 let tableData = table.cache["subtitleTable"]
                 let id = obj.data.id;
                 if (id > 0) {
-                    tableData[obj.data.id - 1]["status"] = data.value;
+                    $.each(tableData, function (index, item) {
+                        if (item.id === obj.data.id) {
+                            item.status = data.value;
+                        }
+                    })
                 } else {
                     let title = obj.data.title;
                     if (typeof title === 'undefined') {
@@ -350,8 +389,8 @@
                         let subtitleData = {};
                         subtitleData.id = data.id;
                         subtitleData.title = data.title;
-                        subtitleData.url = data.url;
                         subtitleData.length = data.length;
+                        subtitleData.translator = data.translator;
                         subtitleData.jobDate = data.jobDate;
                         subtitleData.proofreader = data.proofreader;
                         subtitleData.proportion = data.proportion;
@@ -393,8 +432,8 @@
                     }
                     let subtitleData = {};
                     subtitleData.title = data.title;
-                    subtitleData.url = data.url;
                     subtitleData.length = data.length;
+                    subtitleData.translator = data.translator;
                     subtitleData.jobDate = data.jobDate;
                     subtitleData.proofreader = data.proofreader;
                     subtitleData.proportion = data.proportion;

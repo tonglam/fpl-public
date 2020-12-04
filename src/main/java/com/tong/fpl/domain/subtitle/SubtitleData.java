@@ -10,14 +10,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SubtitleData {
 
-	private int id;
-	private String title;
-	private String url;
-	private int length;
-	private String jobDate;
-	private String proofreader;
-	private String proportion;
-	private String status;
-	private String finishDate;
+    private int id;
+    private String title;
+    private int length;
+    private String translator;
+    private String jobDate;
+    private String proofreader;
+    private String proportion;
+    private String status;
+    private String finishDate;
 
 }
