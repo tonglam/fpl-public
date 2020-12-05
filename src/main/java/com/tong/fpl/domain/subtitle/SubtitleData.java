@@ -12,6 +12,7 @@ public class SubtitleData {
 
     private int id;
     private String title;
+    private String chineseTitle;
     private int length;
     private String translator;
     private String jobDate;
