@@ -51,6 +51,9 @@ public class SubtitleServiceImpl implements ISubtitleService {
         }
         subtitleEntity = new SubtitleEntity();
         BeanUtil.copyProperties(subtitleData, subtitleEntity, CopyOptions.create().ignoreNullValue());
+        if (StringUtils.isEmpty(subtitleEntity.getFinishDate())) {
+            subtitleEntity.setFinishDate(null);
+        }
         this.subtitleService.save(subtitleEntity);
         subtitleEntity = this.subtitleService.getOne(new QueryWrapper<SubtitleEntity>().lambda()
                 .eq(SubtitleEntity::getTitle, subtitleData.getTitle()));
@@ -94,6 +97,7 @@ public class SubtitleServiceImpl implements ISubtitleService {
                 queryWrapper.eq(SubtitleEntity::getStatus, qryParam.getStatus());
             }
         }
+        queryWrapper.orderByAsc(SubtitleEntity::getCreateTime);
         return queryWrapper;
     }
 
