@@ -40,7 +40,7 @@
 
 <div class="layui-header header header-doc">
     <div class="layui-main">
-        <a class="logo" href="/subtitle">字幕</a>
+        <a class="logo">字幕</a>
     </div>
 </div>
 
@@ -58,13 +58,6 @@
                     </div>
                     <div class="layui-inline" style="width: 300px">
                         <input class="layui-input" name="title" type="text">
-                    </div>
-
-                    <div class="layui-inline">
-                        <label class="layui-form-label" style="margin-left: -60px;margin-right: -20px">翻译</label>
-                    </div>
-                    <div class="layui-inline" style="width: 100px">
-                        <input class="layui-input" name="translator" type="text">
                     </div>
 
                     <div class="layui-inline" style="width: 110px">
@@ -207,9 +200,9 @@
                         {field: 'title', title: '视频标题', align: 'center', width: 450, edit: true},
                         {field: 'chineseTitle', title: '中文标题', align: 'center', width: 450, edit: true, hide: true},
                         {field: 'length', title: '时长(s)', align: 'center', edit: true},
-                        {field: 'translator', title: '翻译', align: 'center', edit: true},
-                        {field: 'jobDate', title: '接活日期', align: 'center', width: 120, edit: true},
-                        {field: 'proofreader', title: '校对', align: 'center', edit: true},
+                        {field: 'translator', title: '翻译', align: 'center', edit: true, filter: true},
+                        {field: 'jobDate', title: '接活日期', align: 'center', width: 120, edit: true, filter: true},
+                        {field: 'proofreader', title: '校对', align: 'center', edit: true, filter: true},
                         {field: 'proportion', title: '占比', align: 'center', width: 60, edit: true},
                         {
                             field: 'translatorLength',
@@ -237,7 +230,12 @@
                             }
                         },
                         {
-                            field: 'status', title: '状态', align: 'center', width: 90, templet: function (d) {
+                            field: 'status',
+                            title: '状态',
+                            align: 'center',
+                            width: 90,
+                            filter: true,
+                            templet: function (d) {
                                 let select = "<select name='statusSelect' lay-filter='statusSelect'>";
                                 if (d.status != null) {
                                     select += "<option value=" + d.status + ">" + d.status + "</option>";
@@ -255,10 +253,14 @@
                                 return select;
                             }
                         },
-                        {field: 'finishDate', title: '完成日期', align: 'center', width: 120, edit: true},
+                        {field: 'finishDate', title: '完成日期', align: 'center', width: 120, edit: true, filter: true},
                         {fixed: 'right', title: '操作', align: 'center', width: 108, toolbar: '#barTpl'}
                     ]],
                     id: 'subtitleTable',
+                    filter: {
+                        items: ['data'],
+                        bottom: false
+                    },
                     done: function () {
                         soulTable.render(this);
                     }

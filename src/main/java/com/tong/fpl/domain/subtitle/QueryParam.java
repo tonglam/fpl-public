@@ -14,6 +14,7 @@ public class QueryParam {
 	private String mode;
 	private String startDay;
 	private String endDay;
+	private String translator;
 	private String status;
 
 
