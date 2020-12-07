@@ -176,11 +176,7 @@
                 },
                 {
                     field: 'chip', title: '开卡', align: 'center', width: 100, templet: function (d) {
-                        if (d.chip == null) {
-                            return "无";
-                        } else {
-                            return d.chip;
-                        }
+                        return showChip(d.chip);
                     }
                 }
             ]],
@@ -223,7 +219,7 @@
             let myFplEntry = 0;
             let entryInputDom = $("input[name=entryInput]");
             let entryInput = entryInputDom.val();
-            if ((entryInput != "")) {
+            if ((entryInput !== "")) {
                 if (!new RegExp("^[1-9]\\d*$").test(entryInput)) {
                     layer.msg('team_id需为正整数', {
                         offset: '100px',
@@ -291,9 +287,9 @@
                         align: 'center',
                         width: 200,
                         templet: function (d) {
-                            if (d.captain == true) {
+                            if (d.captain === true) {
                                 return d.webName + ' (c)';
-                            } else if (d.viceCaptain == true) {
+                            } else if (d.viceCaptain === true) {
                                 return d.webName + ' (vc)';
                             } else {
                                 return d.webName;

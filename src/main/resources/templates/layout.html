@@ -233,6 +233,19 @@
         return Math.floor(rank / 100000) / 10 + 'm';
     }
 
+    function showChip(chip) {
+        if (chip === 'wildcard') {
+            return "wc";
+        } else if (chip === '3xc') {
+            return "3c";
+        } else if (chip === 'bboost') {
+            return "bb";
+        } else if (chip === 'freehit') {
+            return "fh";
+        }
+        return "无"
+    }
+
 </script>
 
 <script th:fragment="entryInputLayer">

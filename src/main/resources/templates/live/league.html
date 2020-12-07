@@ -165,11 +165,7 @@
                                 width: 90,
                                 filter: true,
                                 templet: function (d) {
-                                    if (d.chip == null) {
-                                        return "无";
-                                    } else {
-                                        return d.chip;
-                                    }
+                                    return showChip(d.chip);
                                 }
                             }
                         ]],

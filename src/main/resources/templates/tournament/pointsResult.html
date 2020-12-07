@@ -391,19 +391,20 @@
                                     {field: 'cost', title: '剁手', align: 'center'},
                                     {field: 'netPoints', title: '净得分', align: 'center'},
                                     {field: 'benchPoints', title: '板凳得分', align: 'center'},
-                                    {field: 'chip', title: '开卡', align: 'center'},
+                                    {
+                                        field: 'chip',
+                                        title: '开卡',
+                                        align: 'center',
+                                        templet(d) {
+                                            return showChip(d.chip);
+                                        }
+                                    },
                                     {
                                         field: 'rank',
                                         title: '周排名',
                                         align: 'center',
                                         templet: function (d) {
-                                            if (d.rank < 1000) {
-                                                return d.rank;
-                                            } else if (d.rank < 100000) {
-                                                return Math.floor(parseInt(d.rank) / 100) / 10 + 'k';
-                                            } else {
-                                                return Math.floor(parseInt(d.rank) / 10000) / 100 + 'm';
-                                            }
+                                            return showOverallRank(d.rank);
                                         }
                                     },
                                 ]],
