@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>球探推荐-数据查询-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main" style="min-height: 900px">
+
+        <div style="margin-top: 20px"></div>
+
+        <h1 style="font-size: 28px">球探推荐</h1>
+
+        <div style="margin-top: 30px"></div>
+
+
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+            <legend> 身价规定：</legend>
+        </fieldset>
+
+        <div class="layui-col-md6">
+            <table class="layui-table" id="playerTable" lay-filter="playerTable"></table>
+        </div>
+
+        <div class="layui-col-md6">
+
+            <form class="layui-form">
+
+                <div class="layui-col-md-offset3" id="leftFund" style="font-size: 15px"
+                     th:text="'剩余资金:'+${fund}+'m'"></div>
+
+                <div style="margin-top: 30px"></div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">门将</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="gkp" type="text">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" id="gkpPrice">10.0m</div>
+                </div>
+
+                <div style="margin-top: 30px"></div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">后卫</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="def" type="text">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" id="defPrice">10.0m</div>
+                </div>
+
+                <div style="margin-top: 30px"></div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">中场</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="mid" type="text">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" id="midPrice">10.0m</div>
+                </div>
+
+                <div style="margin-top: 30px"></div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">前锋</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="fwd" type="text">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux" id="fwdPrice">10.0m</div>
+                </div>
+
+                <div style="margin-top: 30px"></div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">队长</label>
+                    <div class="layui-input-inline">
+                        <input class="layui-input" name="cap" type="text">
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px"></div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
+                                lay-submit="confirmButton" type="button">确定
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:inline="none">
+    layui.use(['form', 'table', 'layer', 'soulTable'], function () {
+
+        let $ = layui.jquery, form = layui.form, table = layui.table, soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        table.render({
+            elem: '#playerTable',
+            url: '/stat/qryPlayerList',
+            where: {
+                season: 2021
+            },
+            limit: 15,
+            limits: [15, 30, 50, 100],
+            loading: true,
+            page: true,
+            width: 550,
+            cols: [[
+                {field: 'webName', title: '名字', align: 'center'},
+                {
+                    field: 'elementTypeName',
+                    title: '位置',
+                    align: 'center',
+                    width: 120,
+                    filter: true,
+                    sort: true
+                },
+                {field: 'teamName', title: '球队', align: 'center', width: 120, filter: true, sort: true},
+                {field: 'price', title: '身价', align: 'center', width: 120, filter: true, sort: true}
+            ]],
+            id: 'playerTable',
+            filter: {
+                items: ['data'],
+                bottom: false
+            },
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+    });
+
+</script>
+
+</html>

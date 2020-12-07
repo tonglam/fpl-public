@@ -31,7 +31,7 @@ public class SubtitleController {
 		if (StringUtils.isEmpty(qryParam.getStartDay()) && StringUtils.isEmpty(qryParam.getEndDay())
 				&& StringUtils.isEmpty(qryParam.getTitle())
 				&& StringUtils.isEmpty(qryParam.getStatus())) {
-			qryParam.setStatus("已接活");
+			qryParam.setStatus("未完成");
 		}
 		return this.subtitleService.qrySubtitleList(qryParam);
 	}

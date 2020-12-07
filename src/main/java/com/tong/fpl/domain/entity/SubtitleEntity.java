@@ -12,20 +12,21 @@ import lombok.experimental.Accessors;
 @TableName(value = "subtitle")
 public class SubtitleEntity {
 
-	@TableId
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private String title;
-	private String url;
-	private Integer length;
-	private String jobDate;
-	private String proofreader;
-	private String proportion;
-	private String status;
-	private String finishDate;
-	@TableField(fill = FieldFill.INSERT)
-	private String createTime;
-	@TableField(fill = FieldFill.UPDATE)
-	private String updateTime;
+    @TableId
+    private Integer id;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private String title;
+    private String chineseTitle;
+    private Integer length;
+    private String translator;
+    private String jobDate;
+    private String proofreader;
+    private String proportion;
+    private String status;
+    private String finishDate;
+    @TableField(fill = FieldFill.INSERT)
+    private String createTime;
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateTime;
 
 }
