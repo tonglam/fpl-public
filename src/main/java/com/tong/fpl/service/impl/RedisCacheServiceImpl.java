@@ -649,7 +649,6 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 			List<EventLiveEntity> sortList = teamEventLiveMap.get(teamId)
 					.stream()
 					.sorted(Comparator.comparing(EventLiveEntity::getBps).reversed())
-					.limit(3)
 					.collect(Collectors.toList());
 			// set bounus points
 			Map<Integer, Integer> bonusMap = this.setBonusPoints(teamId, sortList);
@@ -662,30 +661,63 @@ public class RedisCacheServiceImpl implements IRedisCacheSerive {
 	}
 
 	private Map<Integer, Integer> setBonusPoints(int teamId, List<EventLiveEntity> sortList) {
+		int count = 0;
 		Map<Integer, Integer> bonusMap = Maps.newConcurrentMap();
+		// 最高分
 		EventLiveEntity first = sortList.get(0);
-		EventLiveEntity second = sortList.get(1);
-		EventLiveEntity third = sortList.get(2);
-		if (first.getBps().equals(second.getBps())) {
-			if (second.getBps().equals(third.getBps())) {
-				this.setbonusMap(teamId, first, 3, bonusMap);
-				this.setbonusMap(teamId, second, 3, bonusMap);
-				this.setbonusMap(teamId, third, 3, bonusMap);
-			} else {
-				this.setbonusMap(teamId, first, 3, bonusMap);
-				this.setbonusMap(teamId, second, 3, bonusMap);
-				this.setbonusMap(teamId, third, 1, bonusMap);
+		int highestBps = first.getBps();
+		this.setbonusMap(teamId, first, 3, bonusMap);
+		count += 1;
+		// bps同分
+		List<EventLiveEntity> firstList = sortList
+				.stream()
+				.filter(o -> !o.getElement().equals(first.getElement()))
+				.filter(o -> o.getBps() == highestBps)
+				.collect(Collectors.toList());
+		for (EventLiveEntity eventLiveEntity :
+				firstList) {
+			count += 1;
+			this.setbonusMap(teamId, eventLiveEntity, 3, bonusMap);
+		}
+		if (count >= 3) {
+			return bonusMap;
+		}
+		// 次高分
+		if (count < 2) {
+			EventLiveEntity second = sortList.get(count);
+			int runnerUpBps = second.getBps();
+			this.setbonusMap(teamId, second, 2, bonusMap);
+			count += 1;
+			// bps同分
+			List<EventLiveEntity> secondList = sortList
+					.stream()
+					.filter(o -> !o.getElement().equals(second.getElement()))
+					.filter(o -> o.getBps() == runnerUpBps)
+					.collect(Collectors.toList());
+			for (EventLiveEntity eventLiveEntity :
+					secondList) {
+				count += 1;
+				this.setbonusMap(teamId, eventLiveEntity, 2, bonusMap);
 			}
-		} else {
-			if (second.getBps().equals(third.getBps())) {
-				this.setbonusMap(teamId, first, 3, bonusMap);
-				this.setbonusMap(teamId, second, 2, bonusMap);
-				this.setbonusMap(teamId, third, 2, bonusMap);
-			} else {
-				this.setbonusMap(teamId, first, 3, bonusMap);
-				this.setbonusMap(teamId, second, 2, bonusMap);
-				this.setbonusMap(teamId, third, 1, bonusMap);
+			if (count >= 3) {
+				return bonusMap;
 			}
+		}
+		// 第三高分
+		EventLiveEntity third = sortList.get(count);
+		int secondRunnerUpBps = third.getBps();
+		this.setbonusMap(teamId, third, 1, bonusMap);
+		count += 1;
+		// bps同分
+		List<EventLiveEntity> thirdList = sortList
+				.stream()
+				.filter(o -> !o.getElement().equals(third.getElement()))
+				.filter(o -> o.getBps() == secondRunnerUpBps)
+				.collect(Collectors.toList());
+		for (EventLiveEntity eventLiveEntity :
+				thirdList) {
+			count += 1;
+			this.setbonusMap(teamId, eventLiveEntity, 1, bonusMap);
 		}
 		return bonusMap;
 	}

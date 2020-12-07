@@ -262,6 +262,16 @@ public class LiveService implements ILiveService {
 			if (!CollectionUtils.isEmpty(liveFixtureMap)) {
 				this.setMatchInfo(elementEventResultData, liveFixtureMap);
 				this.setMatchPlayStatus(elementEventResultData, liveFixtureMap);
+			} else {
+				Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+				elementEventResultData
+						.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
+						.setAgainstShortName("BLANK")
+						.setWasHome("")
+						.setScore("")
+						.setGwStarted(true)
+						.setGwFinished(true)
+						.setPlayStatus(MatchPlayStatus.Blank.getStatus());
 			}
 		}
 		return elementEventResultData;
