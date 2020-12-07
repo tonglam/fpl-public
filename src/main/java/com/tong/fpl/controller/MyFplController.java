@@ -72,13 +72,13 @@ public class MyFplController {
 	}
 
 	/**
-	 * @apiNote pick
-	 */
-	@RequestMapping("/qryPlayerDataList")
-	@ResponseBody
-	public TableData<PlayerInfoData> qryPlayerDataList(@RequestParam long page, @RequestParam long limit) {
-		return this.myFplApi.qryPlayerDataList(page, limit);
-	}
+     * @apiNote pick
+     */
+    @RequestMapping("/qryPlayerDataList")
+    @ResponseBody
+    public TableData<PlayerInfoData> qryPlayerDataList(@RequestParam int page, @RequestParam int limit) {
+        return this.myFplApi.qryPlayerDataList(page, limit);
+    }
 
 	/**
 	 * @apiNote league

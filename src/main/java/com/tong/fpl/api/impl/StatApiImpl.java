@@ -21,44 +21,44 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatApiImpl implements IStatApi {
 
-	private final IQuerySerivce querySerivce;
-	private final ITableQueryService tableQueryService;
+    private final IQuerySerivce querySerivce;
+    private final ITableQueryService tableQueryService;
 
-	/**
-	 * @implNote price
-	 */
-	@Override
-	public TableData<PlayerValueData> qryPriceChangeList() {
-		return this.tableQueryService.qryPriceChangeList();
-	}
+    /**
+     * @implNote price
+     */
+    @Override
+    public TableData<PlayerValueData> qryPriceChangeList() {
+        return this.tableQueryService.qryPriceChangeList();
+    }
 
-	/**
-	 * @implNote compare
-	 */
-	@Override
-	public TableData<PlayerInfoData> qryPlayerList(String season) {
-		return this.tableQueryService.qryPlayerList(season);
-	}
+    /**
+     * @implNote compare
+     */
+    @Override
+    public TableData<PlayerInfoData> qryPlayerList(String season) {
+        return this.tableQueryService.qryPlayerList(season);
+    }
 
-	/**
-	 * @implNote selected
-	 */
-	@Override
-	public List<String> qryTeamSelectStatList() {
-		return this.querySerivce.qryTeamSelectStatList();
-	}
+    /**
+     * @implNote selected
+     */
+    @Override
+    public List<String> qryTeamSelectStatList() {
+        return this.querySerivce.qryTeamSelectStatList();
+    }
 
-	@Override
-	public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
-		return this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
-	}
+    @Override
+    public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
+        return this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
+    }
 
-	/**
-	 * @implNote scout
-	 */
-	@Override
-	public TableData<PlayerData> qryScoutPlayerList(int elementType) {
-		return this.tableQueryService.qryScoutPlayerList(elementType);
-	}
+    /**
+     * @implNote scout
+     */
+    @Override
+    public TableData<PlayerData> qryPageScoutPlayerList(int elementType, int page, int limit) {
+        return this.tableQueryService.qryPageScoutPlayerList(elementType, page, limit);
+    }
 
 }

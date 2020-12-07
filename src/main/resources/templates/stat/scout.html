@@ -117,9 +117,17 @@
 
         table.render({
             elem: '#playerTable',
-            url: '/stat/qryPlayerList',
+            url: '/stat/qryScoutPlayerList',
             where: {
-                season: 2021
+                elementType: 1
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "msg": res.msg,
+                    "count": res.count,
+                    "data": res.data.infoData
+                };
             },
             limit: 15,
             limits: [15, 30, 50, 100],
@@ -153,6 +161,7 @@
             let elementType = obj.data.elementType;
             let webName = obj.data.webName;
             console.info(obj.data);
+
 
         });
 

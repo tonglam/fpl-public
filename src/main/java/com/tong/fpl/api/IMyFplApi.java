@@ -7,7 +7,6 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueEventReportData;
 import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
 
@@ -28,7 +27,7 @@ public interface IMyFplApi {
     /**
      * @apiNote pick
      */
-    TableData<PlayerInfoData> qryPlayerDataList(long page, long limit);
+    TableData<PlayerInfoData> qryPlayerDataList(int page, int limit);
 
     /**
      * @apiNote league

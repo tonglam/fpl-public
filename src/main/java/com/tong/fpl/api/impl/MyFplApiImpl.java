@@ -46,12 +46,12 @@ public class MyFplApiImpl implements IMyFplApi {
 	}
 
 	/**
-	 * @implNote pick
-	 */
-	@Override
-	public TableData<PlayerInfoData> qryPlayerDataList(long page, long limit) {
-		return this.tableQueryService.qryPagePlayerDataList(page, limit);
-	}
+     * @implNote pick
+     */
+    @Override
+    public TableData<PlayerInfoData> qryPlayerDataList(int page, int limit) {
+        return this.tableQueryService.qryPagePlayerDataList(page, limit);
+    }
 
 	/**
 	 * @implNote league
