@@ -139,7 +139,11 @@ public class QueryServiceImpl implements IQuerySerivce {
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
 		Map<String, List<PlayerFixtureData>> teamFixtureMap = this.getEventFixtureByTeamId(teamId);
 		List<PlayerFixtureData> teamFixtureList = Lists.newArrayList();
-		IntStream.rangeClosed(currentEvent - 1, currentEvent + 3).forEach(event -> teamFixtureList.addAll(teamFixtureMap.get(String.valueOf(event))));
+		IntStream.rangeClosed(currentEvent - 1, currentEvent + 3).forEach(event -> {
+			if (teamFixtureMap.containsKey(String.valueOf(event))) {
+				teamFixtureList.addAll(teamFixtureMap.get(String.valueOf(event)));
+			}
+		});
 		teamFixtureList.forEach(o -> {
 					o.setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())));
 					o.setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())));

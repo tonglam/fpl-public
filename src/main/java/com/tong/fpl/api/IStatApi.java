@@ -2,6 +2,7 @@ package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
+import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 
@@ -19,18 +20,20 @@ public interface IStatApi {
 
 	/**
 	 * @apiNote compare
-     */
-    TableData<PlayerInfoData> qryPlayerList(String season);
+	 */
+	TableData<PlayerInfoData> qryPlayerList(String season);
 
-    /**
-     * @apiNote selected
-     */
-    List<String> qryTeamSelectStatList();
+	/**
+	 * @apiNote selected
+	 */
+	List<String> qryTeamSelectStatList();
 
-    TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
 
-    /**
-     * @apiNote scout
-     */
+	TableData<PlayerData> qryScoutPlayerList(int elementType);
+
+	/**
+	 * @apiNote scout
+	 */
 
 }

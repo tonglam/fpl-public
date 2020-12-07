@@ -79,6 +79,8 @@
                     </div>
                 </div>
 
+                <div></div>
+
                 <div style="margin-top: 30px"></div>
                 <div class="layui-form-item">
                     <div class="layui-input-block">
@@ -145,6 +147,13 @@
             done: function () {
                 soulTable.render(this);
             }
+        });
+
+        table.on('row(playerTable)', function (obj) {
+            let elementType = obj.data.elementType;
+            let webName = obj.data.webName;
+            console.info(obj.data);
+
         });
 
     });

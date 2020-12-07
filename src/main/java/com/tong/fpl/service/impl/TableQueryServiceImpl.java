@@ -27,6 +27,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
+import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.tournament.*;
@@ -125,6 +126,16 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			}
 			list.add(playerValueData);
 		});
+		return new TableData<>(list);
+	}
+
+	//	@Cacheable(value = "qryScoutPlayerList", key = "#elementType")
+	@Override
+	public TableData<PlayerData> qryScoutPlayerList(int elementType) {
+		List<PlayerData> list = Lists.newArrayList();
+		this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+				.eq(PlayerEntity::getElementType, elementType))
+				.forEach(o -> list.add(this.queryService.qryPlayerData(o.getElement())));
 		return new TableData<>(list);
 	}
 

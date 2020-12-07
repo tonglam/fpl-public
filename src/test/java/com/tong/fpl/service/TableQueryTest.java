@@ -105,4 +105,11 @@ public class TableQueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"2"})
+	void qryScoutPlayerList(int element) {
+		this.tableQueryService.qryScoutPlayerList(element);
+		System.out.println(1);
+	}
+
 }

@@ -28,7 +28,8 @@ public class ScoutEntity {
     private Integer fwdPoints;
     private Integer captain;
     private Integer captainPoints;
-    private Integer eventPoints;
+	private String reason;
+	private Integer eventPoints;
     private Integer totalPoints;
 
 }
