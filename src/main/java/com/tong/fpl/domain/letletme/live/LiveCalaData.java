@@ -35,5 +35,6 @@ public class LiveCalaData {
 	private int liveTotalPoints;
 	private long played;
 	private long toPlay;
+	private String captainName;
 
 }

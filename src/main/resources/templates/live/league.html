@@ -122,7 +122,11 @@
                         limit: 200,
                         loading: true,
                         toolbar: '#toolbar',
-                        defaultToolbar: [{title: '筛选重置', layEvent: 'clearFilter', icon: 'layui-icon-refresh-3'}],
+                        defaultToolbar: ["filter", {
+                            title: '筛选重置',
+                            layEvent: 'clearFilter',
+                            icon: 'layui-icon-refresh-3'
+                        }],
                         cellMinWidth: 120,
                         cols: [[
                             {title: '排名', type: 'numbers'},
@@ -134,7 +138,8 @@
                                 templet: '#entryTpl'
                             },
                             {field: 'entryName', title: '队伍名称', align: 'center', width: 200, filter: true},
-                            {field: 'playerName', title: '玩家名称', align: 'center', width: 180, filter: true},
+                            {field: 'playerName', title: '玩家名称', align: 'center', width: 180, hide: true, filter: true},
+                            {field: 'captainName', title: '队长', align: 'center', width: 100, filter: true},
                             {
                                 field: 'liveTotalPoints',
                                 title: '实时总分',
