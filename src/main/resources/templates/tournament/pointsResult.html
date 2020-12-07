@@ -432,13 +432,7 @@
                         sort: true,
                         filter: true,
                         templet: function (d) {
-                            if (d.overallRank < 1000) {
-                                return d.overallRank;
-                            } else if (d.overallRank < 100000) {
-                                return Math.floor(parseInt(d.overallRank) / 100) / 10 + 'k';
-                            } else {
-                                return Math.floor(parseInt(d.overallRank) / 10000) / 100 + 'm';
-                            }
+                            return showOverallRank(d.overallRank);
                         }
                     },
                     {
