@@ -27,7 +27,7 @@
 
             <form class="layui-form">
 
-                <div class="layui-col-md-offset1" id="leftFund" style="font-size: 18px"
+                <div class="layui-col-md-offset2" id="leftFund" style="font-size: 18px"
                      th:text="'剩余资金:'+${fund}+'m'"></div>
 
                 <div class="layui-hide" id="fund" th:text="${fund}"></div>
@@ -89,6 +89,9 @@
                     <div class="layui-input-block">
                         <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
                                 lay-submit="confirmButton" type="button">提交
+                        </button>
+                        <button class="layui-btn" id="resetButton" lay-filter="confirmButton"
+                                lay-submit="resetButton" type="button">重置
                         </button>
                     </div>
                 </div>
@@ -320,7 +323,7 @@
                 defFund = defPrice.text().slice(0, defPrice.text().indexOf('m')),
                 midFund = midPrice.text().slice(0, midPrice.text().indexOf('m')),
                 fwdFund = fwdPrice.text().slice(0, fwdPrice.text().indexOf('m'));
-            let leftFund = fund - gkpFund - defFund - midFund - fwdFund;
+            let leftFund = numSub(fund, numAdd(numAdd(gkpFund, defFund), numAdd(midFund, fwdFund)));
             if (leftFund - obj.data.price < 0) {
                 layer.msg("钱不够啦！", {time: 1500});
                 return false;
@@ -358,6 +361,29 @@
             fwdFund = fwdPrice.text().slice(0, fwdPrice.text().indexOf('m'));
             leftFund = fund - gkpFund - defFund - midFund - fwdFund;
             $("#leftFund").text('剩余资金:' + leftFund + 'm');
+        });
+
+        $("#confirmButton").on('click', function () {
+
+        });
+
+        $("#resetButton").on('click', function () {
+            let fund = $("#fund").text();
+            $("#leftFund").text('剩余资金:' + fund + 'm');
+            // gkp
+            $("input[name=gkp]").val('');
+            $("#gkpPrice").text('');
+            // def
+            $("input[name=def]").val('');
+            $("#defPrice").text('');
+            // mid
+            $("input[name=mid]").val('');
+            $("#midPrice").text('');
+            // fwd
+            $("input[name=fwd]").val('');
+            $("#fwdPrice").text('');
+            // captain
+            $("input[name=cap]").val('');
         });
 
     });

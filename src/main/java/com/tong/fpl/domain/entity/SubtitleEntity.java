@@ -16,8 +16,8 @@ public class SubtitleEntity {
     private Integer id;
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
     private String title;
-    private String chineseTitle;
     private Integer length;
+    private Boolean automaticCaptions;
     private String translator;
     private String jobDate;
     private String proofreader;

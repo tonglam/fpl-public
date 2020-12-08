@@ -191,15 +191,33 @@
             .then(function (response) {
                 subtitleTable = table.render({
                     elem: '#subtitleTable',
+                    even: true,
                     data: response.data,
                     toolbar: true,
                     defaultToolbar: ["filter"],
                     limit: 100,
                     cellMinWidth: 80,
                     cols: [[
-                        {field: 'title', title: '视频标题', align: 'center', width: 450, edit: true},
-                        {field: 'chineseTitle', title: '中文标题', align: 'center', width: 450, edit: true, hide: true},
+                        {field: 'title', title: '视频标题', align: 'center', width: 400, edit: true},
                         {field: 'length', title: '时长(s)', align: 'center', edit: true},
+                        {
+                            field: 'automaticCaptions',
+                            title: '自动字幕',
+                            align: 'center',
+                            templet: function (d) {
+                                if (!d.automaticCaptions) {
+                                    return "<select name='captionsSelect' lay-filter='captionsSelect'>" +
+                                        "<option value='否'>否</option>" +
+                                        "<option value='是'>是</option>" +
+                                        "</select>";
+                                } else {
+                                    return "<select name='captionsSelect' lay-filter='captionsSelect'>" +
+                                        "<option value='是'>是</option>" +
+                                        "<option value='否'>否</option>" +
+                                        "</select>";
+                                }
+                            }
+                        },
                         {field: 'translator', title: '翻译', align: 'center', edit: true, filter: true},
                         {field: 'jobDate', title: '接活日期', align: 'center', width: 120, edit: true, filter: true},
                         {field: 'proofreader', title: '校对', align: 'center', edit: true, filter: true},
@@ -288,6 +306,7 @@
                 id: 'new' + new Date().getTime(),
                 title: '',
                 length: '',
+                automaticCaptions: '是',
                 translator: '',
                 jobDate: new Date().format("yyyy-MM-dd"),
                 proofreader: '',
@@ -302,6 +321,7 @@
         });
 
         table.on('row(subtitleTable)', function (obj) {
+
             form.on('select(statusSelect)', function (data) {
                 let tableData = table.cache["subtitleTable"]
                 let id = obj.data.id;
@@ -324,8 +344,32 @@
                         }
                     })
                 }
-                console.info(tableData);
             });
+
+            form.on('select(captionsSelect)', function (data) {
+                let tableData = table.cache["subtitleTable"]
+                let id = obj.data.id;
+                if (id > 0) {
+                    $.each(tableData, function (index, item) {
+                        if (item.id === obj.data.id) {
+                            item.automaticCaptions = data.value;
+                        }
+                    })
+                } else {
+                    let title = obj.data.title;
+                    if (typeof title === 'undefined') {
+                        layer.msg("先填标题！", {time: 1500});
+                        $("select[name=statusSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='是']").click();
+                        return false;
+                    }
+                    $.each(tableData, function (index, item) {
+                        if (item.title === title) {
+                            item.automaticCaptions = data.value;
+                        }
+                    })
+                }
+            });
+
         });
 
         table.on('edit(subtitleTable)', function (obj) {
@@ -393,6 +437,7 @@
                         subtitleData.id = data.id;
                         subtitleData.title = data.title;
                         subtitleData.length = data.length;
+                        subtitleData.automaticCaptions = data.automaticCaptions === '是';
                         subtitleData.translator = data.translator;
                         subtitleData.jobDate = data.jobDate;
                         subtitleData.proofreader = data.proofreader;
@@ -436,6 +481,7 @@
                     let subtitleData = {};
                     subtitleData.title = data.title;
                     subtitleData.length = data.length;
+                    subtitleData.automaticCaptions = data.automaticCaptions === '是';
                     subtitleData.translator = data.translator;
                     subtitleData.jobDate = data.jobDate;
                     subtitleData.proofreader = data.proofreader;

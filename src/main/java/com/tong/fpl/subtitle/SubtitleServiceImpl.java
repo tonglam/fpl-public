@@ -102,7 +102,7 @@ public class SubtitleServiceImpl implements ISubtitleService {
     }
 
     @Override
-    public void Mergeubtitles(String fileName, boolean engSub) {
+    public void mergeSubtitles(String fileName, boolean engSub) {
         String dir = "/Users/tonglam/Downloads/";
         try {
             StringBuilder builder = new StringBuilder();
