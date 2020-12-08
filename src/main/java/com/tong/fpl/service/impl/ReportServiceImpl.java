@@ -23,6 +23,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -338,6 +339,52 @@ public class ReportServiceImpl implements IReportService {
 				eventLiveEntity.getPenaltiesSaved() <= 0 &&
 				eventLiveEntity.getSaves() <= 3 &&
 				((eventLiveEntity.getElementType() != 1 && eventLiveEntity.getElementType() != 2) || eventLiveEntity.getCleanSheets() <= 0);
+	}
+
+	@Override
+	public Map<String, Object> calcEventStat(int event, int leagueId, String leagueType, int topNum) {
+		Map<String, Object> map = Maps.newHashMap();
+		List<LeagueEventReportEntity> list = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getEvent, event)
+				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType));
+		// 平均分
+		double average = list
+				.stream()
+				.mapToInt(LeagueEventReportEntity::getEventPoints)
+				.average()
+				.orElse(0);
+		map.put("average", average);
+		// top 平均分
+		double eliteAverage = list
+				.stream()
+				.sorted(Comparator.comparingInt(LeagueEventReportEntity::getEventPoints).reversed())
+				.limit(topNum)
+				.mapToInt(LeagueEventReportEntity::getEventPoints)
+				.average()
+				.orElse(0);
+		map.put("eliteAverage", eliteAverage);
+		// 破百
+		long above100Num = list
+				.stream()
+				.filter(o -> o.getEventPoints() >= 100)
+				.count();
+		map.put("above100Num", above100Num);
+		// max
+		LeagueEventReportEntity maxEntity = list
+				.stream()
+				.max(Comparator.comparingInt(LeagueEventReportEntity::getEventPoints))
+				.orElse(new LeagueEventReportEntity());
+		map.put("max", maxEntity.getEventPoints());
+		map.put("maxEntry", maxEntity.getEntry());
+		// min
+		LeagueEventReportEntity minEntity = list
+				.stream()
+				.min(Comparator.comparingInt(LeagueEventReportEntity::getEventPoints))
+				.orElse(new LeagueEventReportEntity());
+		map.put("min", minEntity.getEventPoints());
+		map.put("minEntry", minEntity.getEntry());
+		return map;
 	}
 
 }

@@ -8,6 +8,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
+import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
 import com.tong.fpl.domain.letletme.tournament.TournamentBattleGroupEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
@@ -18,98 +19,98 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class TableQueryTest extends FplApplicationTests {
 
-    @Autowired
-    private ITableQueryService tableQueryService;
+	@Autowired
+	private ITableQueryService tableQueryService;
 
-    @ParameterizedTest
-    @CsvSource({"1870"})
-    void qryEntryLivePoints(int entry) {
-        TableData<LiveCalaData> liveCalaDataTableData = this.tableQueryService.qryEntryLivePoints(entry);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"1870"})
+	void qryEntryLivePoints(int entry) {
+		TableData<LiveCalaData> liveCalaDataTableData = this.tableQueryService.qryEntryLivePoints(entry);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"Overall, 1"})
-    void qryTeamSelectStatByName(String leagueName, int event) {
-        TableData<LeagueStatData> leagueStatData = this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"Overall, 1"})
+	void qryTeamSelectStatByName(String leagueName, int event) {
+		TableData<LeagueStatData> leagueStatData = this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"4"})
-    void qryZjTournamentResultById(int tournamentId) {
-        TableData<ZjTournamentResultData> data = this.tableQueryService.qryZjTournamentResultById(tournamentId);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"4"})
+	void qryZjTournamentResultById(int tournamentId) {
+		TableData<ZjTournamentResultData> data = this.tableQueryService.qryZjTournamentResultById(tournamentId);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"4, 2"})
-    void qryZjTournamentPkPickableList(int tournamentId, int currentGroupId) {
-        TableData<TournamentGroupData> data = this.tableQueryService.qryZjTournamentPkPickableList(tournamentId, currentGroupId);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"4, 2"})
+	void qryZjTournamentPkPickableList(int tournamentId, int currentGroupId) {
+		TableData<TournamentGroupData> data = this.tableQueryService.qryZjTournamentPkPickableList(tournamentId, currentGroupId);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"1870"})
-    void qryEntryResultList(int entry) {
-        TableData<EntryEventResultData> data = this.tableQueryService.qryEntryResultList(entry);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"1870"})
+	void qryEntryResultList(int entry) {
+		TableData<EntryEventResultData> data = this.tableQueryService.qryEntryResultList(entry);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"8"})
-    void qryPointsGroupChampion(int tournamentId) {
-        TableData<TournamentGroupEventChampionData> data = this.tableQueryService.qryPointsGroupChampion(tournamentId);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"8"})
+	void qryPointsGroupChampion(int tournamentId) {
+		TableData<TournamentGroupEventChampionData> data = this.tableQueryService.qryPointsGroupChampion(tournamentId);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"5, 1, 1466060, 1, 20"})
-    void qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
-        TableData<TournamentBattleGroupEventResultData> data = this.tableQueryService.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"5, 1, 1466060, 1, 20"})
+	void qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit) {
+		TableData<TournamentBattleGroupEventResultData> data = this.tableQueryService.qryPageBattleGroupResult(tournamentId, groupId, entry, page, limit);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"0"})
-    void qryLiveMatchList(int statusId) {
-        TableData<LiveMatchTeamData> data = this.tableQueryService.qryLiveTeamDataList(statusId);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"0"})
+	void qryLiveMatchList(int statusId) {
+		TableData<LiveMatchTeamData> data = this.tableQueryService.qryLiveTeamDataList(statusId);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"3571, Classic"})
-    void qryLeagueReportStat(int leagueId, String leagueType) {
-        TableData<LeagueEventReportStatData> data = this.tableQueryService.qryLeagueReportStat(leagueId, leagueType);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"3571, Classic"})
+	void qryLeagueReportStat(int leagueId, String leagueType) {
+		TableData<LeagueEventReportStatData> data = this.tableQueryService.qryLeagueReportStat(leagueId, leagueType);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"3571, Classic, 8"})
-    void qryLeagueEventReportList(int leagueId, String leagueType, int event) {
-        TableData<LeagueEventReportData> data = this.tableQueryService.qryLeagueEventReportList(leagueId, leagueType, event);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"3571, Classic, 8"})
+	void qryLeagueEventReportList(int leagueId, String leagueType, int event) {
+		TableData<LeagueEventReportData> data = this.tableQueryService.qryLeagueEventReportList(leagueId, leagueType, event);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"3571, Classic, 1870"})
-    void qryEntryEventReportList(int leagueId, String leagueType, int entry) {
-        TableData<LeagueEventReportData> data = this.tableQueryService.qryEntryEventReportList(leagueId, leagueType, entry);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"3571, Classic, 1870"})
+	void qryEntryEventReportList(int leagueId, String leagueType, int entry) {
+		TableData<LeagueEventReportData> data = this.tableQueryService.qryEntryEventReportList(leagueId, leagueType, entry);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"8, 1"})
-    void qryGroupInfoListByGroupId(int tournamentId, int groupId) {
-        TableData<TournamentGroupData> data = this.tableQueryService.qryGroupInfoListByGroupId(tournamentId, groupId);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"8, 1"})
+	void qryGroupInfoListByGroupId(int tournamentId, int groupId) {
+		TableData<TournamentGroupData> data = this.tableQueryService.qryGroupInfoListByGroupId(tournamentId, groupId);
+		System.out.println(1);
+	}
 
-    @ParameterizedTest
-    @CsvSource({"2"})
-    void qryPageScoutPlayerList(int element) {
-        this.tableQueryService.qryPageScoutPlayerList(element, 1, 15);
-        System.out.println(1);
-    }
+	@ParameterizedTest
+	@CsvSource({"1"})
+	void qryPageScoutPlayerList(int element) {
+		TableData<ScoutPlayerData> data = this.tableQueryService.qryScoutPlayerList(element);
+		System.out.println(1);
+	}
 
 }

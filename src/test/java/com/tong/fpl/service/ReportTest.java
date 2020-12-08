@@ -5,6 +5,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
+
 public class ReportTest extends FplApplicationTests {
 
 	@Autowired
@@ -18,9 +20,16 @@ public class ReportTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"10, 314, Classic"})
+	@CsvSource({"11, 314, Classic"})
 	void updateLeagueEventResultStat(int event, int leagueId, String leagueType) {
 		this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"11, 314, Classic, 1000"})
+	void calcEventStat(int event, int leagueId, String leagueType, int topNum) {
+		Map<String, Object> map = this.reportService.calcEventStat(event, leagueId, leagueType, topNum);
 		System.out.println(1);
 	}
 

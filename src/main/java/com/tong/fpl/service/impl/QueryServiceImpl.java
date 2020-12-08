@@ -120,6 +120,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	@Override
 	public PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity) {
 		Map<String, String> teamNameMap = this.getTeamNameMap(season);
+		Map<String, String> teamShortNameMap = this.getTeamShortNameMap(season);
 		Map<String, String> positionMap = this.getPositionMap();
 		return new PlayerInfoData()
 				.setElement(playerEntity.getElement())
@@ -129,6 +130,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
 				.setTeamId(playerEntity.getTeamId())
 				.setTeamName(teamNameMap.get(String.valueOf(playerEntity.getTeamId())))
+				.setTeamShortName(teamShortNameMap.get(String.valueOf(playerEntity.getTeamId())))
 				.setPrice(NumberUtil.div(playerEntity.getPrice().intValue(), 10, 2));
 	}
 
@@ -141,7 +143,15 @@ public class QueryServiceImpl implements IQuerySerivce {
 		List<PlayerFixtureData> teamFixtureList = Lists.newArrayList();
 		IntStream.rangeClosed(currentEvent - 1, currentEvent + 3).forEach(event -> {
 			if (teamFixtureMap.containsKey(String.valueOf(event))) {
-				teamFixtureList.addAll(teamFixtureMap.get(String.valueOf(event)));
+				if (CollectionUtils.isEmpty(teamFixtureMap.get(String.valueOf(event)))) {
+					teamFixtureList.add(new PlayerFixtureData()
+							.setAgainstTeamId(0)
+							.setAgainstTeamName("BLANK")
+							.setAgainstTeamShortName("BLANK")
+					);
+				} else {
+					teamFixtureList.addAll(teamFixtureMap.get(String.valueOf(event)));
+				}
 			}
 		});
 		teamFixtureList.forEach(o -> {
