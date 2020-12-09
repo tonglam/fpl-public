@@ -13,6 +13,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
 
@@ -41,9 +42,17 @@ public interface IQuerySerivce {
 
 	int qryPlayerElementByWebName(String season, String webName) throws Exception;
 
+	default String qryPlayerWebNameByElement(int element) {
+		return this.qryPlayerWebNameByElement(CommonUtils.getCurrentSeason(), element);
+	}
+
+	String qryPlayerWebNameByElement(String season, int element);
+
 	PlayerData qryPlayerData(int element);
 
 	PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity);
+
+	List<PlayerFixtureData> setPlayerFixture(int teamId);
 
 	List<PlayerInfoData> qryAllPlayers(String season);
 
@@ -225,5 +234,10 @@ public interface IQuerySerivce {
 	Map<String, Map<String, Integer>> getLiveBonusCacheMap();
 
 	List<LiveMatchData> qryLiveMatchList(int statusId);
+
+	/**
+	 * @apiNote scout
+	 */
+	ScoutData qryScoutEntryEventData(int event, int entry);
 
 }

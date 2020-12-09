@@ -4,6 +4,7 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
 
 import java.util.List;
@@ -34,5 +35,9 @@ public interface IStatApi {
 	 * @apiNote scout
 	 */
 	TableData<ScoutPlayerData> qryScoutPlayerList(int elementType);
+
+	void upsertEventScout(ScoutData scoutData) throws Exception;
+
+	ScoutData qryScoutEntryEventData(int event, int entry);
 
 }

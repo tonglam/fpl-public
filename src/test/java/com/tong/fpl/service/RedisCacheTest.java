@@ -1,11 +1,12 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.entity.EventFixtureEntity;
+import com.tong.fpl.domain.entity.PlayerEntity;
+import com.tong.fpl.domain.entity.PlayerStatEntity;
+import com.tong.fpl.domain.entity.PlayerValueEntity;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
-import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.RedisUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Create by tong on 2020/8/22
@@ -200,8 +202,9 @@ public class RedisCacheTest extends FplApplicationTests {
 
 	@Test
 	void redis() {
-		String key = StringUtils.joinWith("::", TeamEntity.class.getSimpleName(), CommonUtils.getCurrentSeason(), "name");
-		Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
+		String key = "scoutEntry";
+		Map<Object, Object> map = RedisUtils.getHashByKey(key);
+		Set<Object> set = map.keySet();
 		System.out.println(1);
 	}
 

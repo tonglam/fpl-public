@@ -5,8 +5,10 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
 import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IScoutService;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ public class StatApiImpl implements IStatApi {
 
 	private final IQuerySerivce querySerivce;
 	private final ITableQueryService tableQueryService;
+	private final IScoutService scoutService;
 
 	/**
 	 * @implNote price
@@ -59,6 +62,16 @@ public class StatApiImpl implements IStatApi {
 	@Override
 	public TableData<ScoutPlayerData> qryScoutPlayerList(int elementType) {
 		return this.tableQueryService.qryScoutPlayerList(elementType);
+	}
+
+	@Override
+	public void upsertEventScout(ScoutData scoutData) throws Exception {
+		this.scoutService.upsertEventScout(scoutData);
+	}
+
+	@Override
+	public ScoutData qryScoutEntryEventData(int event, int entry) {
+		return this.querySerivce.qryScoutEntryEventData(event, entry);
 	}
 
 }

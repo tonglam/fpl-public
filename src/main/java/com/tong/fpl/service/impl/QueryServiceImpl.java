@@ -25,6 +25,7 @@ import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
 import com.tong.fpl.service.IRedisCacheSerive;
@@ -72,6 +73,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 	private final TournamentKnockoutResultService tournamentKnockoutResultService;
 	private final ZjTournamentCaptainService zjTournamentCaptainService;
 	private final LeagueEventReportService leagueEventReportService;
+	private final ScoutService scoutService;
 
 	/**
 	 * @implNote player
@@ -95,6 +97,14 @@ public class QueryServiceImpl implements IQuerySerivce {
 			throw new Exception("webName不止一个球员，请用element或code查询!");
 		}
 		return playerList.get(0) == null ? 0 : playerList.get(0).getElement();
+	}
+
+	@Override
+	public String qryPlayerWebNameByElement(String season, int element) {
+		MybatisPlusConfig.season.set(season);
+		PlayerEntity playerEntity = this.playerService.getById(element);
+		MybatisPlusConfig.season.remove();
+		return playerEntity == null ? "" : playerEntity.getWebName();
 	}
 
 	@Cacheable(value = "qryPlayerData", key = "#element", cacheManager = "apiCacheManager", unless = "#result == null")
@@ -134,7 +144,9 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.setPrice(NumberUtil.div(playerEntity.getPrice().intValue(), 10, 2));
 	}
 
-	private List<PlayerFixtureData> setPlayerFixture(int teamId) {
+	@Cacheable(value = "setPlayerFixture", key = "#teamId", unless = "#result == null")
+	@Override
+	public List<PlayerFixtureData> setPlayerFixture(int teamId) {
 		List<PlayerFixtureData> playerFixtureList = Lists.newArrayList();
 		int currentEvent = this.getCurrentEvent();
 		Map<String, String> teamNameMap = this.getTeamNameMap();
@@ -1388,6 +1400,42 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.stream()
 				.sorted(Comparator.comparing(LiveMatchData::getKickoffTime).reversed())
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public ScoutData qryScoutEntryEventData(int event, int entry) {
+		ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
+				.eq(ScoutEntity::getEvent, event)
+				.eq(ScoutEntity::getEntry, entry));
+		if (scoutEntity == null) {
+			return new ScoutData();
+		}
+		return new ScoutData()
+				.setEvent(event)
+				.setEntry(entry)
+				.setScoutName(scoutEntity.getScoutName())
+				.setGkp(scoutEntity.getGkp())
+				.setGkpName(this.qryPlayerWebNameByElement(scoutEntity.getGkp()))
+				.setGkpPrice(this.getElememtPrice(scoutEntity.getGkp()))
+				.setDef(scoutEntity.getDef())
+				.setDefName(this.qryPlayerWebNameByElement(scoutEntity.getDef()))
+				.setDefPrice(this.getElememtPrice(scoutEntity.getDef()))
+				.setMid(scoutEntity.getMid())
+				.setMidName(this.qryPlayerWebNameByElement(scoutEntity.getMid()))
+				.setMidPrice(this.getElememtPrice(scoutEntity.getMid()))
+				.setFwd(scoutEntity.getFwd())
+				.setFwdName(this.qryPlayerWebNameByElement(scoutEntity.getFwd()))
+				.setFwdPrice(this.getElememtPrice(scoutEntity.getFwd()))
+				.setCaptainName(this.qryPlayerWebNameByElement(scoutEntity.getCaptain()))
+				.setReason(scoutEntity.getReason());
+	}
+
+	private double getElememtPrice(int element) {
+		PlayerEntity playerEntity = this.getPlayerByElement(element);
+		if (playerEntity != null) {
+			return playerEntity.getPrice() / 10.0;
+		}
+		return 0;
 	}
 
 }

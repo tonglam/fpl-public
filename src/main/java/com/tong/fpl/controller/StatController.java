@@ -6,6 +6,7 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.RedisUtils;
@@ -14,11 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -54,10 +53,17 @@ public class StatController {
 	}
 
 	@GetMapping(value = "/scout")
-	public String scoutController(Model model) {
-		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+	public String scoutController(Model model, HttpSession session) {
+		int next = this.httpApi.getNextEvent();
+		int entry = 0;
+		if (session.getAttribute("entry") != null) {
+			entry = Integer.parseInt(session.getAttribute("entry").toString());
+		}
+		model.addAttribute("scoutEntryEventData", this.statApi.qryScoutEntryEventData(next, entry));
+		model.addAttribute("nextGw", next);
 		model.addAttribute("fund", RedisUtils.getValueByKey("scoutFund"));
 		model.addAttribute("deadline", RedisUtils.getValueByKey("scoutDeadline"));
+		model.addAttribute("scoutEntryList", RedisUtils.getHashByKey("scoutEntry").keySet());
 		return "stat/scout";
 	}
 
@@ -95,6 +101,17 @@ public class StatController {
 	@ResponseBody
 	public TableData<ScoutPlayerData> qryScoutPlayerList(@RequestParam int elementType) {
 		return this.statApi.qryScoutPlayerList(elementType);
+	}
+
+	@RequestMapping("/upsertEventScout")
+	@ResponseBody
+	public void upsertEventScout(@RequestBody ScoutData scoutData, HttpSession session) throws Exception {
+		int entry = Integer.parseInt(session.getAttribute("entry").toString());
+		scoutData
+				.setEvent(this.httpApi.getNextEvent())
+				.setEntry(entry)
+				.setScoutName((String) RedisUtils.getHashByKey("scoutEntry").get(String.valueOf(entry)));
+		this.statApi.upsertEventScout(scoutData);
 	}
 
 }

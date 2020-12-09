@@ -27,7 +27,6 @@ import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
-import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
@@ -144,7 +143,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.stream()
 				.map(o ->
 						CompletableFuture.supplyAsync(() ->
-								this.qryScoutPlayerData(o.getElement(), eventLiveMap)))
+								this.qryScoutPlayerData(o, eventLiveMap)))
 				.collect(Collectors.toList());
 		List<ScoutPlayerData> list = future
 				.stream()
@@ -157,16 +156,17 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		);
 	}
 
-	private ScoutPlayerData qryScoutPlayerData(int element, Multimap<Integer, EventLiveEntity> eventLiveMap) {
+	private ScoutPlayerData qryScoutPlayerData(PlayerEntity playerEntity, Multimap<Integer, EventLiveEntity> eventLiveMap) {
+		int element = playerEntity.getElement();
 		ScoutPlayerData scoutPlayerData = new ScoutPlayerData();
-		PlayerData playerData = this.queryService.qryPlayerData(element);
-		if (playerData == null) {
+		// player info
+		PlayerInfoData playerInfoData = this.queryService.initPlayerInfo(CommonUtils.getCurrentSeason(), playerEntity);
+		if (playerInfoData == null) {
 			return scoutPlayerData;
 		}
-		// player info
-		BeanUtil.copyProperties(playerData.getInfoData(), scoutPlayerData, CopyOptions.create().ignoreNullValue());
+		BeanUtil.copyProperties(playerInfoData, scoutPlayerData, CopyOptions.create().ignoreNullValue());
 		// fixture
-		List<PlayerFixtureData> fixtureDataList = playerData.getFixtureDataList();
+		List<PlayerFixtureData> fixtureDataList = this.queryService.setPlayerFixture(playerEntity.getTeamId());
 		if (fixtureDataList.size() >= 5) {
 			scoutPlayerData
 					.setFixtureEvent1(fixtureDataList.get(2).getEvent())

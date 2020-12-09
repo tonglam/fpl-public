@@ -12,98 +12,152 @@
 
 <div class="layui-fluid">
     <div class="layui-main">
+        <div class="site-content">
 
-        <div style="margin-top: 20px"></div>
+            <div style="margin-top: 20px"></div>
 
-        <h1 style="font-size: 28px" th:text="'球探推荐 - GW'+${currentGw}"></h1>
+            <h1 style="font-size: 28px">球探推荐</h1>
 
-        <div style="margin-top: 30px"></div>
+            <div class="layui-hide" id="nextGw" th:text="${nextGw}"></div>
+            <div class="layui-hide" id="deadline" th:text="${deadline}"></div>
 
-    </div>
+            <div style="margin-top: 30px"></div>
 
-    <div class="layui-row" style="padding-left: 200px;padding-right: 200px">
+            <div class="layui-tab layui-tab-brief" lay-filter="phaseTab">
 
-        <div class="layui-col-md3">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" lay-id="pick" th:text="'GW'+${nextGw}+'推荐'"></li>
+                    <li class="" lay-id="result">推荐结果</li>
+                    <li class="" lay-id="standings">积分榜</li>
+                </ul>
 
-            <form class="layui-form">
+                <div class="layui-tab-content">
 
-                <div class="layui-col-md-offset2" id="leftFund" style="font-size: 18px"
-                     th:text="'剩余资金:'+${fund}+'m'"></div>
+                    <div class="layui-tab-item layui-show">
 
-                <div class="layui-hide" id="fund" th:text="${fund}"></div>
+                        <div style="margin-top: 20px"></div>
 
-                <div style="margin-top: 30px"></div>
-                <div class="layui-form-item">
-                    <label class="layui-form-label">门将</label>
-                    <div class="layui-input-inline">
-                        <input class="layui-input" name="gkp" type="text">
+                        <div class="layui-row">
+
+                            <div class="layui-col-md4" style="margin-left: -50px;margin-top: 30px">
+
+                                <form class="layui-form">
+
+                                    <div class="layui-col-md-offset2" id="leftFund" style="font-size: 20px"></div>
+
+                                    <div class="layui-hide" id="fund" th:text="${fund}"></div>
+
+                                    <div style="margin-top: 30px"></div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">门将</label>
+                                        <div class="layui-input-inline">
+                                            <input class="layui-input" name="gkp"
+                                                   th:value="${scoutEntryEventData?.gkpName}"
+                                                   type="text">
+                                        </div>
+                                        <div class="layui-form-mid layui-word-aux" id="gkpPrice"
+                                             th:text="${scoutEntryEventData?.gkpPrice}+'m'"></div>
+                                    </div>
+                                    <div class="layui-input layui-hide" id="gkpElement"
+                                         th:value="${scoutEntryEventData?.gkp}"></div>
+
+                                    <div style="margin-top: 30px"></div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">后卫</label>
+                                        <div class="layui-input-inline">
+                                            <input class="layui-input" name="def"
+                                                   th:value="${scoutEntryEventData?.defName}"
+                                                   type="text">
+                                        </div>
+                                        <div class="layui-form-mid layui-word-aux" id="defPrice"
+                                             th:text="${scoutEntryEventData?.defPrice}+'m'"></div>
+                                    </div>
+                                    <div class="layui-input layui-hide" id="defElement"
+                                         th:value="${scoutEntryEventData?.def}"></div>
+
+                                    <div style="margin-top: 30px"></div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">中场</label>
+                                        <div class="layui-input-inline">
+                                            <input class="layui-input" name="mid"
+                                                   th:value="${scoutEntryEventData?.midName}"
+                                                   type="text">
+                                        </div>
+                                        <div class="layui-form-mid layui-word-aux" id="midPrice"
+                                             th:text="${scoutEntryEventData?.midPrice}+'m'"></div>
+                                    </div>
+                                    <div class="layui-input layui-hide" id="midElement"
+                                         th:value="${scoutEntryEventData?.mid}"></div>
+
+                                    <div style="margin-top: 30px"></div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">前锋</label>
+                                        <div class="layui-input-inline">
+                                            <input class="layui-input" name="fwd"
+                                                   th:value="${scoutEntryEventData?.fwdName}"
+                                                   type="text">
+                                        </div>
+                                        <div class="layui-form-mid layui-word-aux" id="fwdPrice"
+                                             th:text="${scoutEntryEventData?.fwdPrice}+'m'"></div>
+                                    </div>
+                                    <div class="layui-input layui-hide" id="fwdElement"
+                                         th:value="${scoutEntryEventData?.fwd}"></div>
+
+                                    <div style="margin-top: 30px"></div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">队长</label>
+                                        <div class="layui-input-inline">
+                                            <input class="layui-input" name="cap"
+                                                   th:value="${scoutEntryEventData?.captainName}"
+                                                   type="text">
+                                        </div>
+                                    </div>
+                                    <div class="layui-input layui-hide" id="capElement"
+                                         th:value="${scoutEntryEventData?.captain}"></div>
+
+                                    <div style="margin-top: 30px"></div>
+                                    <div class="layui-form-item layui-form-text">
+                                        <label class="layui-form-label">推荐理由</label>
+                                        <div class="layui-input-block">
+                                            <textarea class="layui-textarea" name="reason"
+                                                      placeholder="这个人很懒什么都没有留下还不肯打标点"
+                                                      th:value="${scoutEntryEventData?.reason}"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
+                                                    lay-submit="confirmButton" type="button">提交
+                                            </button>
+                                            <button class="layui-btn" id="resetButton" lay-filter="confirmButton"
+                                                    lay-submit="resetButton" type="button">重置
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="layui-col-md7 layui-col-sm-offset1">
+                                <table class="layui-table" id="playerTable" lay-filter="playerTable"></table>
+                            </div>
+
+                        </div>
+
                     </div>
-                    <div class="layui-form-mid layui-word-aux" id="gkpPrice"></div>
+
+                    <div class="layui-tab-item">
+                    </div>
+
+                    <div class="layui-tab-item">
+                    </div>
+
                 </div>
 
-                <div style="margin-top: 30px"></div>
-                <div class="layui-form-item">
-                    <label class="layui-form-label">后卫</label>
-                    <div class="layui-input-inline">
-                        <input class="layui-input" name="def" type="text">
-                    </div>
-                    <div class="layui-form-mid layui-word-aux" id="defPrice"></div>
-                </div>
+            </div>
 
-                <div style="margin-top: 30px"></div>
-                <div class="layui-form-item">
-                    <label class="layui-form-label">中场</label>
-                    <div class="layui-input-inline">
-                        <input class="layui-input" name="mid" type="text">
-                    </div>
-                    <div class="layui-form-mid layui-word-aux" id="midPrice"></div>
-                </div>
-
-                <div style="margin-top: 30px"></div>
-                <div class="layui-form-item">
-                    <label class="layui-form-label">前锋</label>
-                    <div class="layui-input-inline">
-                        <input class="layui-input" name="fwd" type="text">
-                    </div>
-                    <div class="layui-form-mid layui-word-aux" id="fwdPrice"></div>
-                </div>
-
-                <div style="margin-top: 30px"></div>
-                <div class="layui-form-item">
-                    <label class="layui-form-label">队长</label>
-                    <div class="layui-input-inline">
-                        <input class="layui-input" name="cap" type="text">
-                    </div>
-                </div>
-
-                <div style="margin-top: 30px"></div>
-                <div class="layui-form-item layui-form-text">
-                    <label class="layui-form-label">推荐理由</label>
-                    <div class="layui-input-block">
-                                <textarea class="layui-textarea" name="reason"
-                                          placeholder="这个人很懒什么都没有留下还不肯打标点"></textarea>
-                    </div>
-                </div>
-
-                <div class="layui-form-item">
-                    <div class="layui-input-block">
-                        <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
-                                lay-submit="confirmButton" type="button">提交
-                        </button>
-                        <button class="layui-btn" id="resetButton" lay-filter="confirmButton"
-                                lay-submit="resetButton" type="button">重置
-                        </button>
-                    </div>
-                </div>
-            </form>
         </div>
-
-        <div class="layui-col-md8 layui-col-sm-offset1">
-            <table class="layui-table" id="playerTable" lay-filter="playerTable"></table>
-        </div>
-
     </div>
-
 </div>
 
 <div th:replace="layout::footer"></div>
@@ -112,20 +166,105 @@
 
 <script th:replace="layout::baseScript"></script>
 
+<script th:inline="javascript">
+    layui.use(['layer'], function () {
+
+        let $ = layui.jquery, layer = layui.layer, check = false, entry = [[${session.entry}]],
+            scoutEntryList = [[${scoutEntryList}]];
+
+        $.each(scoutEntryList, function (index, item) {
+            if (entry === item) {
+                check = true;
+                let fund = numAdd(numAdd([[${scoutEntryEventData.gkpPrice}]], [[${scoutEntryEventData.defPrice}]]), numAdd([[${scoutEntryEventData.midPrice}]], [[${scoutEntryEventData.fwdPrice}]]));
+                let leftFund = numSub([[${fund}]], fund);
+                $("#leftFund").text("剩余资金：" + leftFund + "m");
+                return false;
+            }
+        });
+
+        if (check === false) {
+            layer.msg("不是球探不让进！", {icon: 2, time: 1500}, function () {
+                    layer.prompt({
+                        title: '球探team_id',
+                        offset: '100px',
+                        shade: 0.8,
+                        success: function (layero) {
+                            layer.setTop(layero);
+                            // 回车
+                            this.enterConfirm = function (event) {
+                                if (event.keyCode === 13) {
+                                    $(".layui-layer-btn0").click();
+                                    return false;
+                                }
+                            };
+                            // esc
+                            this.escQuit = function (event) {
+                                if (event.keyCode === 0x1B) {
+                                    layer.close(index);
+                                    return false;
+                                }
+                            }
+                            $(document).on('keyup', this.enterConfirm);
+                            $(document).on('keyup', this.escQuit);
+                            // 确认按钮
+                            $(".layui-layer-btn0").on("click", function () {
+                                // 校验
+                                let entry = layero.find("input").val();
+                                if (!new RegExp("^[1-9]\\d*$").test(entry)) {
+                                    layer.msg('team_id需为正整数', {
+                                        offset: '100px',
+                                        shade: 0,
+                                        shadeClose: true,
+                                        time: 1000
+                                    });
+                                    layero.find("input").val('');
+                                    return false;
+                                }
+                                // 保存
+                                axios.get('/saveSession?key=entry&&value=' + entry)
+                                    .then(function () {
+                                        layer.close();
+                                        // 刷新
+                                        window.location.reload();
+                                    })
+                                    .catch(function (error) {
+                                        console.info(error.message);
+                                    });
+                            });
+                            $(".layui-layer-btn1").on("click", function () {
+                                window.location.replace('/stat/scout');
+                            })
+                        },
+                        cancel: function () {
+                            window.location.reload('/stat/scout');
+                        },
+                        end: function () {
+                            $(document).off('keydown', this.enterConfirm);
+                            $(document).off('keydown', this.escQuit);
+                        }
+                    });
+                }
+            );
+        }
+
+    });
+</script>
+
 <script id="toolbar" type="text/html">
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm" lay-event="gkp">GKP</button>
         <button class="layui-btn layui-btn-sm" lay-event="def">DEF</button>
         <button class="layui-btn layui-btn-sm" lay-event="mid">MID</button>
         <button class="layui-btn layui-btn-sm" lay-event="fwd">FWD</button>
-
+        <button class="layui-btn layui-btn-sm" lay-event="clear">清除筛选条件</button>
     </div>
 </script>
 
 <script th:inline="none">
-    layui.use(['form', 'table', 'layer', 'soulTable'], function () {
+    layui.use(['table', 'layer', 'soulTable'], function () {
 
-        let $ = layui.jquery, form = layui.form, table = layui.table, soulTable = layui.soulTable;
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, loadIndex,
+            deadline = $("#deadline").text();
 
         soulTable.config({
             drag: false,
@@ -136,120 +275,132 @@
             }
         });
 
-        let loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+        $(document).ready(function () {
+            loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
 
-        axios.get('/stat/qryScoutPlayerList?elementType=1')
-            .then(function (response) {
-                layer.close(loadIndex);
-                let data = response.data;
-                table.render({
-                    elem: '#playerTable',
-                    toolbar: '#toolbar',
-                    defaultToolbar: false,
-                    size: 'sm',
-                    even: true,
-                    data: data,
-                    page: true,
-                    limit: 15,
-                    limits: [15, 30, 50, 100],
-                    cellMinWidth: 80,
-                    contextmenu: {
-                        body: [
-                            {
-                                name: '选为队长',
-                                icon: 'layui-icon layui-icon-template',
-                                click: function (obj) {
-                                    $("input[name=cap]").val(obj.row.webName);
+            axios.get('/stat/qryScoutPlayerList?elementType=0')
+                .then(function (response) {
+                    layer.close(loadIndex);
+                    let data = response.data;
+                    table.render({
+                        elem: '#playerTable',
+                        toolbar: '#toolbar',
+                        defaultToolbar: false,
+                        size: 'sm',
+                        even: true,
+                        data: data,
+                        page: true,
+                        width: 1032,
+                        limit: 15,
+                        limits: [15, 30, 50, 100],
+                        cellMinWidth: 80,
+                        contextmenu: {
+                            body: [
+                                {
+                                    name: '选为队长',
+                                    icon: 'layui-icon layui-icon-template',
+                                    click: function (obj) {
+                                        $("input[name=cap]").val(obj.row.webName);
+                                        $("#capElement").val(obj.row.element);
+                                    }
                                 }
-                            }
-                        ]
-                    },
-                    cols: [[
-                        {field: 'webName', title: '名字', align: 'center', filter: true, rowspan: 2},
-                        {field: 'elementTypeName', title: '位置', align: 'center', width: 80, filter: true, rowspan: 2},
-                        {field: 'teamShortName', title: '球队', align: 'center', width: 80, filter: true, rowspan: 2},
-                        {
-                            field: 'price',
-                            title: '身价(m)',
-                            align: 'center',
-                            width: 90,
-                            sort: true,
-                            filter: true,
-                            rowspan: 2
+                            ]
                         },
-                        {
-                            field: 'totalPoints',
-                            title: '总分',
-                            align: 'center',
-                            width: 80,
-                            sort: true,
-                            filter: true,
-                            rowspan: 2
-                        },
-                        {
-                            field: 'selectedByPercent',
-                            title: '持有率(%)',
-                            align: 'center',
-                            width: 100,
-                            sort: true,
-                            filter: true,
-                            rowspan: 2
-                        },
-                        {
-                            field: 'pointsPerGame',
-                            title: '场均得分',
-                            align: 'center',
-                            width: 80,
-                            rowspan: 2,
-                        },
-                        {field: '', title: '赛程', align: 'center', colspan: 3}
-                    ],
-                        [
+                        cols: [[
+                            {field: 'webName', title: '名字', align: 'center', width: 180, filter: true, rowspan: 2},
                             {
-                                field: '',
-                                title: '',
+                                field: 'elementTypeName',
+                                title: '位置',
                                 align: 'center',
-                                width: 110,
-                                templet: function (d) {
-                                    return showDifficulty(d.againstTeam1ShortName, d.difficulty1, d.fixtureEvent1);
-                                }
+                                width: 80,
+                                filter: true,
+                                rowspan: 2
+                            },
+                            {field: 'teamShortName', title: '球队', align: 'center', width: 80, filter: true, rowspan: 2},
+                            {
+                                field: 'price',
+                                title: '身价(m)',
+                                align: 'center',
+                                width: 90,
+                                sort: true,
+                                filter: true,
+                                rowspan: 2
                             },
                             {
-                                field: '',
-                                title: '',
+                                field: 'totalPoints',
+                                title: '总分',
                                 align: 'center',
-                                width: 110,
-                                templet: function (d) {
-                                    return showDifficulty(d.againstTeam2ShortName, d.difficulty2, d.fixtureEvent2);
-                                }
+                                width: 80,
+                                sort: true,
+                                filter: true,
+                                rowspan: 2
                             },
                             {
-                                field: '',
-                                title: '',
+                                field: 'selectedByPercent',
+                                title: '持有率(%)',
                                 align: 'center',
-                                width: 110,
-                                templet: function (d) {
-                                    return showDifficulty(d.againstTeam3ShortName, d.difficulty3, d.fixtureEvent3);
+                                width: 100,
+                                sort: true,
+                                filter: true,
+                                rowspan: 2
+                            },
+                            {
+                                field: 'pointsPerGame',
+                                title: '场均得分',
+                                align: 'center',
+                                width: 80,
+                                rowspan: 2,
+                            },
+                            {field: '', title: '赛程', align: 'center', colspan: 3}
+                        ],
+                            [
+                                {
+                                    field: '',
+                                    title: '',
+                                    align: 'center',
+                                    width: 110,
+                                    templet: function (d) {
+                                        return showDifficulty(d.againstTeam1ShortName, d.difficulty1, d.fixtureEvent1);
+                                    }
+                                },
+                                {
+                                    field: '',
+                                    title: '',
+                                    align: 'center',
+                                    width: 110,
+                                    templet: function (d) {
+                                        return showDifficulty(d.againstTeam2ShortName, d.difficulty2, d.fixtureEvent2);
+                                    }
+                                },
+                                {
+                                    field: '',
+                                    title: '',
+                                    align: 'center',
+                                    width: 110,
+                                    templet: function (d) {
+                                        return showDifficulty(d.againstTeam3ShortName, d.difficulty3, d.fixtureEvent3);
+                                    }
                                 }
-                            }
-                        ]
-                    ],
-                    id: 'playerTable',
-                    filter: {
-                        items: ['data'],
-                        bottom: false
-                    },
-                    done: function () {
-                        soulTable.render(this);
-                    }
+                            ]
+                        ],
+                        id: 'playerTable',
+                        filter: {
+                            items: ['data', 'condition'],
+                            bottom: false
+                        },
+                        done: function () {
+                            soulTable.render(this);
+                        }
+                    });
+                })
+                .catch(function (error) {
+                    layer.close(loadIndex);
+                    console.info(error.message);
                 });
-            })
-            .catch(function (error) {
-                layer.close(loadIndex);
-                console.info(error.message);
-            });
+        });
 
         table.on('toolbar(playerTable)', function (obj) {
+            soulTable.clearFilter('playerTable');
             switch (obj.event) {
                 case 'gkp': {
                     loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
@@ -307,47 +458,77 @@
                         });
                     break;
                 }
-                default:
-                    return false;
+                case 'clear': {
+                    break;
+                }
             }
         });
 
         table.on('row(playerTable)', function (obj) {
             let fundDom = $("#fund"), gkpPrice = $("#gkpPrice"), defPrice = $("#defPrice"), midPrice = $("#midPrice"),
                 fwdPrice = $("#fwdPrice");
-            let elementType = obj.data.elementType, webName = obj.data.webName,
-                price = obj.data.price + 'm';
-            // 校验
-            let fund = fundDom.text(),
-                gkpFund = gkpPrice.text().slice(0, gkpPrice.text().indexOf('m')),
-                defFund = defPrice.text().slice(0, defPrice.text().indexOf('m')),
-                midFund = midPrice.text().slice(0, midPrice.text().indexOf('m')),
-                fwdFund = fwdPrice.text().slice(0, fwdPrice.text().indexOf('m'));
-            let leftFund = numSub(fund, numAdd(numAdd(gkpFund, defFund), numAdd(midFund, fwdFund)));
-            if (leftFund - obj.data.price < 0) {
-                layer.msg("钱不够啦！", {time: 1500});
-                return false;
+            let elementType = obj.data.elementType, element = obj.data.element, webName = obj.data.webName,
+                value = parseFloat(obj.data.price), price = value + 'm';
+            let fund = 0, leftFund = 0, gkpFund = 0, defFund = 0, midFund = 0, fwdFund = 0;
+            if (fundDom.text() !== '') {
+                fund = parseFloat(fundDom.text());
+            }
+            if (gkpPrice.text() !== '') {
+                gkpFund = parseFloat(gkpPrice.text().slice(0, gkpPrice.text().indexOf('m')));
+            }
+            if (defPrice.text() !== '') {
+                defFund = parseFloat(defPrice.text().slice(0, defPrice.text().indexOf('m')));
+            }
+            if (midPrice.text() !== '') {
+                midFund = parseFloat(midPrice.text().slice(0, midPrice.text().indexOf('m')));
+            }
+            if (fwdPrice.text() !== '') {
+                fwdFund = parseFloat(fwdPrice.text().slice(0, fwdPrice.text().indexOf('m')));
             }
             // 填位置
             switch (elementType) {
                 case 1: {
+                    leftFund = numSub(fund, (value + defFund + midFund + fwdFund));
+                    if (leftFund < 0) {
+                        layer.msg("钱不够啦！", {time: 1500});
+                        return false;
+                    }
                     $("input[name=gkp]").val(webName);
                     gkpPrice.text(price);
+                    $("#gkpElement").val(element);
                     break;
                 }
                 case 2: {
+                    leftFund = numSub(fund, (gkpFund + value + midFund + fwdFund));
+                    if (leftFund < 0) {
+                        layer.msg("钱不够啦！", {time: 1500});
+                        return false;
+                    }
                     $("input[name=def]").val(webName);
                     defPrice.text(price);
+                    $("#defElement").val(element);
                     break;
                 }
                 case 3: {
+                    leftFund = numSub(fund, (gkpFund + defFund + value + fwdFund));
+                    if (leftFund < 0) {
+                        layer.msg("钱不够啦！", {time: 1500});
+                        return false;
+                    }
                     $("input[name=mid]").val(webName);
                     midPrice.text(price);
+                    $("#midElement").val(element);
                     break;
                 }
                 case 4: {
+                    leftFund = numSub(fund, (gkpFund + defFund + midFund + value));
+                    if (leftFund < 0) {
+                        layer.msg("钱不够啦！", {time: 1500});
+                        return false;
+                    }
                     $("input[name=fwd]").val(webName);
                     fwdPrice.text(price);
+                    $("#fwdElement").val(element);
                     break;
                 }
                 default:
@@ -359,12 +540,34 @@
             defFund = defPrice.text().slice(0, defPrice.text().indexOf('m'));
             midFund = midPrice.text().slice(0, midPrice.text().indexOf('m'));
             fwdFund = fwdPrice.text().slice(0, fwdPrice.text().indexOf('m'));
-            leftFund = fund - gkpFund - defFund - midFund - fwdFund;
+            leftFund = numSub(fund, numAdd(numAdd(gkpFund, defFund), numAdd(midFund, fwdFund)));
             $("#leftFund").text('剩余资金:' + leftFund + 'm');
         });
 
         $("#confirmButton").on('click', function () {
-
+            if (new Date().getTime() > getLocalTime(deadline)) {
+                layer.msg("死线已过，提交不了！", {icon: 2, time: 1500});
+                return false;
+            }
+            let data = {};
+            data.gkp = $("#gkpElement").val();
+            data.def = $("#defElement").val();
+            data.mid = $("#midElement").val();
+            data.fwd = $("#fwdElement").val();
+            data.captain = $("#capElement").val();
+            data.reason = $("textarea[name=reason]").val();
+            // 禁用提交按钮
+            $(this).attr("disabled", "");
+            // 提交
+            axios.post('/stat/upsertEventScout', data)
+                .then(function () {
+                    layer.msg('提交成功', {time: 1500});
+                    window.location.replace("/stat/scout");
+                })
+                .catch(function (error) {
+                    console.info(error.message);
+                    $(this).removeAttr("disabled");
+                });
         });
 
         $("#resetButton").on('click', function () {
@@ -385,6 +588,7 @@
             // captain
             $("input[name=cap]").val('');
         });
+
 
     });
 

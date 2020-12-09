@@ -358,7 +358,7 @@ public class ReportServiceImpl implements IReportService {
 		// top 平均分
 		double eliteAverage = list
 				.stream()
-				.sorted(Comparator.comparingInt(LeagueEventReportEntity::getEventPoints).reversed())
+				.sorted(Comparator.comparingInt(LeagueEventReportEntity::getOverallPoints).reversed())
 				.limit(topNum)
 				.mapToInt(LeagueEventReportEntity::getEventPoints)
 				.average()
