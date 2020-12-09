@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -14,30 +15,36 @@ import java.util.List;
  */
 public interface IStatApi {
 
-	/**
-	 * @apiNote price
-	 */
-	TableData<PlayerValueData> qryPriceChangeList();
+    /**
+     * @apiNote price
+     */
+    TableData<PlayerValueData> qryPriceChangeList();
 
-	/**
-	 * @apiNote compare
-	 */
-	TableData<PlayerInfoData> qryPlayerList(String season);
+    /**
+     * @apiNote compare
+     */
+    TableData<PlayerInfoData> qryPlayerList(String season);
 
-	/**
-	 * @apiNote selected
-	 */
-	List<String> qryTeamSelectStatList();
+    /**
+     * @apiNote selected
+     */
+    List<String> qryTeamSelectStatList();
 
-	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+    TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
 
-	/**
-	 * @apiNote scout
-	 */
-	TableData<ScoutPlayerData> qryScoutPlayerList(int elementType);
+    /**
+     * @apiNote scout
+     */
+    TableData<ScoutPlayerData> qryScoutPlayerList(int elementType);
 
-	void upsertEventScout(ScoutData scoutData) throws Exception;
+    void upsertEventScout(ScoutData scoutData) throws Exception;
 
-	ScoutData qryScoutEntryEventData(int event, int entry);
+    TableData<ScoutData> qryEventScoutPickList(int event);
+
+    ScoutData qryScoutEntryEventData(int event, int entry);
+
+    TableData<ScoutData> qryEventScoutList(int event);
+
+    List<DropdownData> getScoutEvent();
 
 }

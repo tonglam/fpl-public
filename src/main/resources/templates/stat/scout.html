@@ -23,12 +23,11 @@
 
             <div style="margin-top: 30px"></div>
 
-            <div class="layui-tab layui-tab-brief" lay-filter="phaseTab">
+            <div class="layui-tab layui-tab-brief" lay-filter="checkTab">
 
                 <ul class="layui-tab-title">
                     <li class="layui-this" lay-id="pick" th:text="'GW'+${nextGw}+'推荐'"></li>
                     <li class="" lay-id="result">推荐结果</li>
-                    <li class="" lay-id="standings">积分榜</li>
                 </ul>
 
                 <div class="layui-tab-content">
@@ -37,9 +36,13 @@
 
                         <div style="margin-top: 20px"></div>
 
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend th:text="'死线: '+${deadline}"></legend>
+                        </fieldset>
+
                         <div class="layui-row">
 
-                            <div class="layui-col-md4" style="margin-left: -50px;margin-top: 30px">
+                            <div class="layui-col-md4" style="margin-left: -50px;margin-top: 10px">
 
                                 <form class="layui-form">
 
@@ -144,12 +147,26 @@
 
                         </div>
 
+                        <div style="margin-top: 20px"></div>
+
+                        <div class="layui-hide" id="pickResult">
+
+                            <fieldset class="layui-elem-field layui-field-title">
+                                <legend>本轮推荐</legend>
+                            </fieldset>
+
+                            <div style="margin-top: 20px"></div>
+
+                            <table class="layui-table" id="pickTable" lay-filter="pickTable"></table>
+
+                        </div>
+
                     </div>
 
                     <div class="layui-tab-item">
-                    </div>
-
-                    <div class="layui-tab-item">
+                        <div style="margin-top: 20px"></div>
+                        <div id="checkGw" style="font-size: 20px"></div>
+                        <table class="layui-table" id="scoutTable" lay-filter="scoutTable"></table>
                     </div>
 
                 </div>
@@ -260,11 +277,16 @@
     </div>
 </script>
 
-<script th:inline="none">
-    layui.use(['table', 'layer', 'soulTable'], function () {
+<script id="checkToolbar" type="text/html">
+    <button class="layui-btn layui-btn-sm" lay-filter="checkEvent" id="checkEvent"><span>查看时间</span><i
+            class="layui-icon layui-icon-triangle-d"></i></button>
+</script>
 
-        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, loadIndex,
-            deadline = $("#deadline").text();
+<script th:inline="none">
+    layui.use(['element', 'table', 'layer', 'soulTable', 'dropdown'], function () {
+
+        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable,
+            dropdown = layui.dropdown, loadIndex, nextGw = $("#nextGw").text(), deadline = $("#deadline").text();
 
         soulTable.config({
             drag: false,
@@ -589,6 +611,164 @@
             $("input[name=cap]").val('');
         });
 
+        if (new Date().getTime() > getLocalTime(deadline)) {
+            $("#pickResult").removeClass("layui-hide");
+            table.render({
+                elem: '#pickTable',
+                even: true,
+                url: '/stat/qryEventScoutPickList',
+                where: {event: parseInt(nextGw) - 1},
+                width: 800,
+                cellMinWidth: 120,
+                cols: [[
+                    {field: 'scoutName', title: '球探', align: 'center', width: 200},
+                    {field: 'gkpName', title: '门将', align: 'center'},
+                    {field: 'defName', title: '后卫', align: 'center'},
+                    {field: 'midName', title: '中场', align: 'center'},
+                    {field: 'fwdName', title: '前锋', align: 'center'},
+                    {field: 'captainName', title: '队长', align: 'center'},
+                ]],
+                initSort: {
+                    field: 'scoutName',
+                    type: 'asc'
+                },
+                id: 'pickTable',
+                done: function () {
+                    soulTable.render(this);
+                }
+            });
+        }
+
+        element.on('tab(checkTab)', function (data) {
+            if (data.index === 1) {
+                // 当前周
+                $("#checkGw").text('GW' + (parseInt(nextGw) - 1) + '统计');
+                table.render({
+                    elem: '#scoutTable',
+                    even: true,
+                    toolbar: '#checkToolbar',
+                    defaultToolbar: false,
+                    url: '/stat/qryEventScoutList',
+                    where: {event: parseInt(nextGw) - 1},
+                    cellMinWidth: 60,
+                    cols: [[
+                        {title: '排名', type: 'numbers'},
+                        {field: 'scoutName', title: '球探', align: 'center', width: 200},
+                        {field: 'gkpName', title: '门将', align: 'center', width: 120},
+                        {field: 'gkpPoints', title: '得分', align: 'center'},
+                        {field: 'defName', title: '后卫', align: 'center', width: 120},
+                        {field: 'defPoints', title: '得分', align: 'center'},
+                        {field: 'midName', title: '中场', align: 'center', width: 120},
+                        {field: 'midPoints', title: '得分', align: 'center'},
+                        {field: 'fwdName', title: '前锋', align: 'center', width: 120},
+                        {field: 'fwdPoints', title: '得分', align: 'center'},
+                        {field: 'captainName', title: '队长', align: 'center', width: 120},
+                        {field: 'captainPoints', title: '得分', align: 'center'},
+                        {field: 'eventPoints', title: '周得分', align: 'center', width: 80},
+                        {field: 'totalPoints', title: '总得分', align: 'center', width: 80}
+                    ]],
+                    initSort: {
+                        field: 'eventPoints',
+                        type: 'desc'
+                    },
+                    id: 'scoutTable',
+                    done: function () {
+                        soulTable.render(this);
+                        // 下拉选项
+                        axios.get('/stat/getScoutEventList')
+                            .then(function (response) {
+                                dropdown.suite("#checkEvent", {
+                                    menus: response
+                                });
+                            })
+                    }
+                });
+            }
+        });
+
+        table.on('toolbar(scoutTable)', function () {
+            dropdown.onFilter("checkEvent", function (event) {
+                if (event == 0) {
+                    $("#checkGw").text('赛季统计');
+                    table.render({
+                        elem: '#scoutTable',
+                        even: true,
+                        url: '/stat/qryEventScoutList',
+                        where: {event: 0},
+                        toolbar: '#checkToolbar',
+                        defaultToolbar: false,
+                        cellMinWidth: 80,
+                        cols: [[
+                            {title: '排名', type: 'numbers'},
+                            {field: 'scoutName', title: '球探', align: 'center', width: 200},
+                            {field: 'gkpPoints', title: '门将', align: 'center'},
+                            {field: 'defPoints', title: '后卫', align: 'center'},
+                            {field: 'midPoints', title: '中场', align: 'center'},
+                            {field: 'fwdPoints', title: '前锋', align: 'center'},
+                            {field: 'captainPoints', title: '队长', align: 'center'},
+                            {field: 'totalPoints', title: '总分', align: 'center'}
+                        ]],
+                        initSort: {
+                            field: 'totalPoints',
+                            type: 'desc'
+                        },
+                        id: 'scoutTable',
+                        done: function () {
+                            soulTable.render(this);
+                            // 下拉选项
+                            axios.get('/stat/getScoutEventList')
+                                .then(function (response) {
+                                    dropdown.suite("#checkEvent", {
+                                        menus: response
+                                    });
+                                })
+                        }
+                    });
+                } else {
+                    $("#checkGw").text('GW' + event + '统计');
+                    table.render({
+                        elem: '#scoutTable',
+                        even: true,
+                        url: '/stat/qryEventScoutList',
+                        where: {event: event},
+                        toolbar: '#checkToolbar',
+                        defaultToolbar: false,
+                        cellMinWidth: 60,
+                        cols: [[
+                            {title: '排名', type: 'numbers'},
+                            {field: 'scoutName', title: '球探', align: 'center', width: 200},
+                            {field: 'gkpName', title: '门将', align: 'center', width: 120},
+                            {field: 'gkpPoints', title: '得分', align: 'center'},
+                            {field: 'defName', title: '后卫', align: 'center', width: 120},
+                            {field: 'defPoints', title: '得分', align: 'center'},
+                            {field: 'midName', title: '中场', align: 'center', width: 120},
+                            {field: 'midPoints', title: '得分', align: 'center'},
+                            {field: 'fwdName', title: '前锋', align: 'center', width: 120},
+                            {field: 'fwdPoints', title: '得分', align: 'center'},
+                            {field: 'captainName', title: '队长', align: 'center', width: 120},
+                            {field: 'captainPoints', title: '得分', align: 'center'},
+                            {field: 'eventPoints', title: '周得分', align: 'center', width: 80},
+                            {field: 'totalPoints', title: '总得分', align: 'center', width: 80}
+                        ]],
+                        initSort: {
+                            field: 'eventPoints',
+                            type: 'desc'
+                        },
+                        id: 'scoutTable',
+                        done: function () {
+                            soulTable.render(this);
+                            // 下拉选项
+                            axios.get('/stat/getScoutEventList')
+                                .then(function (response) {
+                                    dropdown.suite("#checkEvent", {
+                                        menus: response
+                                    });
+                                })
+                        }
+                    });
+                }
+            });
+        });
 
     });
 
