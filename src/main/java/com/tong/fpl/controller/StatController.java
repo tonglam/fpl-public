@@ -116,7 +116,7 @@ public class StatController {
 				.setEvent(this.httpApi.getNextEvent())
 				.setEntry(entry)
 				.setScoutName((String) RedisUtils.getHashByKey("scoutEntry").get(String.valueOf(entry)));
-//		this.statApi.upsertEventScout(scoutData);
+		this.statApi.upsertEventScout(scoutData);
 		return "提交成功";
 	}
 
