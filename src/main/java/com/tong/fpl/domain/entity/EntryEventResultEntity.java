@@ -24,9 +24,10 @@ public class EntryEventResultEntity {
 	private Integer eventNetPoints;
 	private Integer eventBenchPoints;
 	private Integer eventRank;
-	private Integer overallRank;
 	private String eventChip;
 	private String eventPicks;
+	private Integer overallPoints;
+	private Integer overallRank;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 

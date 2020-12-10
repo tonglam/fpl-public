@@ -231,7 +231,9 @@ public class ReportServiceImpl implements IReportService {
 					.setEventNetPoints(entryEventResultEntity.getEventNetPoints())
 					.setEventBenchPoints(entryEventResultEntity.getEventBenchPoints())
 					.setEventRank(entryEventResultEntity.getEventRank())
-					.setEventChip(entryEventResultEntity.getEventChip());
+					.setEventChip(entryEventResultEntity.getEventChip())
+					.setOverallPoints(entryEventResultEntity.getOverallPoints())
+					.setOverallRank(entryEventResultEntity.getOverallRank());
 		} else {
 			this.staticService.getUserPicks(event, entry)
 					.ifPresent(userPick -> leagueEventStatEntity
@@ -241,8 +243,9 @@ public class ReportServiceImpl implements IReportService {
 							.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
 							.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
 							.setEventRank(userPick.getEntryHistory().getRank())
-							.setOverallRank(userPick.getEntryHistory().getOverallRank())
-							.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip()));
+							.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
+							.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
+							.setOverallRank(userPick.getEntryHistory().getOverallRank()));
 		}
 		// captain
 		int captain = leagueEventStatEntity.getCaptain();

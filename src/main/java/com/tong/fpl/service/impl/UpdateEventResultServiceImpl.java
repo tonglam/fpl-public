@@ -179,9 +179,10 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
 				.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
 				.setEventRank(userPick.getEntryHistory().getRank())
-				.setOverallRank(userPick.getEntryHistory().getOverallRank())
 				.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
-				.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap));
+				.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap))
+				.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
+				.setOverallRank(userPick.getEntryHistory().getOverallRank());
 	}
 
 	@Override

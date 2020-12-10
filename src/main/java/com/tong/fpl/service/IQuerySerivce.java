@@ -1,5 +1,6 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
@@ -19,6 +20,7 @@ import com.tong.fpl.utils.CommonUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -101,6 +103,12 @@ public interface IQuerySerivce {
 	}
 
 	String getDeadlineByEvent(String season, int event);
+
+	default String getScoutDeadlineByEvent(int event) {
+		return LocalDateTime.parse(this.getDeadlineByEvent(event).replaceAll(" ", "T"))
+				.minusDays(1)
+				.format(DateTimeFormatter.ofPattern(Constant.DATETIME));
+	}
 
 	List<LocalDate> getMatchDayByEvent(int event);
 

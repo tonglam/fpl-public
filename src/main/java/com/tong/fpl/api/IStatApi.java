@@ -37,14 +37,16 @@ public interface IStatApi {
      */
     TableData<ScoutPlayerData> qryScoutPlayerList(int elementType);
 
-    void upsertEventScout(ScoutData scoutData) throws Exception;
+	void upsertEventScout(ScoutData scoutData) throws Exception;
 
-    TableData<ScoutData> qryEventScoutPickList(int event);
+	TableData<ScoutData> qryEventScoutPickList(int event);
 
-    ScoutData qryScoutEntryEventData(int event, int entry);
+	ScoutData qryScoutEntryEventData(int event, int entry);
 
-    TableData<ScoutData> qryEventScoutList(int event);
+	TableData<ScoutData> qryEventScoutList(int event);
 
-    List<DropdownData> getScoutEvent();
+	List<DropdownData> getScoutEvent();
+
+	String getScoutDeadline(int event);
 
 }

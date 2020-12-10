@@ -3,9 +3,12 @@ package com.tong.fpl;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import com.tong.fpl.constant.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +44,7 @@ public class CommonTest extends FplApplicationTests {
 	}
 
 	@Test
-	void test() {
+	void letters() {
 		String a = "owl, fox, rice, egg, wolf, pea, frog, duck, soup, milk";
 		List<String> letterList = Lists.newArrayList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
 		int count = 0;
@@ -63,6 +66,14 @@ public class CommonTest extends FplApplicationTests {
 		table.put(false, false, Lists.newArrayList(12, 15));
 		Collection<List<Integer>> a = table.values();
 		int b = a.stream().findFirst().orElse(Lists.newArrayList(0)).get(0);
+		System.out.println(1);
+	}
+
+	@Test
+	void test() {
+		String a = "2020-12-12 02:30:00";
+		LocalDateTime localDateTime = LocalDateTime.parse(a.replaceAll(" ", "T"));
+		String b = localDateTime.minusDays(1).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
 		System.out.println(1);
 	}
 

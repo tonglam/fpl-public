@@ -212,10 +212,42 @@ public class DBTest extends FplApplicationTests {
 								.setHighestScoreSelected(playerStatMap.get(o.getHighestScore()).getSelectedByPercent() + '%');
 						list.add(o);
 					});
-			// updateSubtitle
+			// update
 			this.leagueEventReportService.updateBatchById(list);
 			System.out.println("updateSubtitle leagueId:" + leagueId);
 		});
+	}
+
+	@Test
+	void fixStartPrice() {
+		List<PlayerEntity> list = Lists.newArrayList();
+		Map<Integer, Integer> startMap = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+				.eq(PlayerValueEntity::getChangeType, ValueChangeType.Start.name()))
+				.stream()
+				.collect(Collectors.toMap(PlayerValueEntity::getElement, PlayerValueEntity::getValue));
+		this.playerService.list().forEach(o -> list.add(o.setStartPrice(startMap.getOrDefault(o.getElement(), 0))));
+		this.playerService.updateBatchById(list);
+	}
+
+	@Test
+	void fixPrice() {
+		List<PlayerEntity> list = Lists.newArrayList();
+		Map<Integer, PlayerValueEntity> lastMap = Maps.newHashMap();
+		this.playerValueService.list()
+				.forEach(o -> {
+					int element = o.getElement();
+					if (!lastMap.containsKey(element)) {
+						lastMap.put(element, o);
+					} else {
+						PlayerValueEntity lastValue = lastMap.get(element);
+						if (LocalDateTime.parse(o.getUpdateTime().replaceAll(" ", "T"))
+								.isAfter(LocalDateTime.parse(lastValue.getUpdateTime().replaceAll(" ", "T")))) {
+							lastMap.put(element, o);
+						}
+					}
+				});
+		this.playerService.list().forEach(o -> list.add(o.setPrice(lastMap.getOrDefault(o.getElement(), new PlayerValueEntity()).getValue())));
+		this.playerService.updateBatchById(list);
 	}
 
 }
