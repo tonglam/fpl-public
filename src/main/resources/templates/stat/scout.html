@@ -553,10 +553,13 @@
                     {
                         field: 'entry',
                         title: 'team_id',
+                        even: true,
                         align: 'center',
                         icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                         childTitle: false,
-                        spread: true,
+                        isChild: function (d) {
+                            return d.reason !== '';
+                        },
                         children: [
                             {
                                 data: function (d) {
@@ -572,11 +575,11 @@
                         ]
                     },
                     {field: 'scoutName', title: '球探', align: 'center', width: 200},
-                    {field: 'gkpName', title: '门将', align: 'center'},
-                    {field: 'defName', title: '后卫', align: 'center'},
-                    {field: 'midName', title: '中场', align: 'center'},
-                    {field: 'fwdName', title: '前锋', align: 'center'},
-                    {field: 'captainName', title: '队长', align: 'center'},
+                    {field: 'gkpName', title: '门将', align: 'center', sort: true},
+                    {field: 'defName', title: '后卫', align: 'center', sort: true},
+                    {field: 'midName', title: '中场', align: 'center', sort: true},
+                    {field: 'fwdName', title: '前锋', align: 'center', sort: true},
+                    {field: 'captainName', title: '队长', align: 'center', sort: true},
                 ]],
                 initSort: {
                     field: 'scoutName',
