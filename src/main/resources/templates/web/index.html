@@ -111,7 +111,7 @@
 
 <script th:inline="javascript">
     let nextGw = [[${nextGw}]], deadline = getLocalTime([[${deadline}]]),
-        deadLineTime = "GW" + nextGw + " deadline：" + moment(deadline).format("YYYY/MM/DD HH:mm");
+        deadLineTime = "GW" + nextGw + " deadline：" + moment(deadline).format("YYYY/MM/DD HH:mm:ss");
     $("#deadlineTime").html(deadLineTime);
     $("#countdown").timeTo({
         timeTo: deadline,

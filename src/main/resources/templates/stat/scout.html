@@ -185,13 +185,11 @@
 <script th:inline="javascript">
     layui.use(['layer'], function () {
         let $ = layui.jquery,
-            deadline = [[${deadline}]],
+            deadline = moment(getLocalTime([[${deadline}]])).format("YYYY/MM/DD HH:mm:ss"),
             fund = numAdd(numAdd([[${scoutEntryEventData.gkpPrice}]], [[${scoutEntryEventData.defPrice}]]), numAdd([[${scoutEntryEventData.midPrice}]], [[${scoutEntryEventData.fwdPrice}]])),
             leftFund = numSub([[${fund}]], fund);
-        let localDeadline = getLocalTime(deadline);
-        $("#deadline").text(localDeadline);
-        let deadLineTime = "死线: " + localDeadline.toLocaleDateString() + " " + localDeadline.toLocaleTimeString()
-        $("#deadLineTime").text(deadLineTime);
+        $("#deadline").text(deadline);
+        $("#deadLineTime").text("死线: " + deadline);
         $("#leftFund").text("剩余资金：" + leftFund + "m");
     });
 </script>
