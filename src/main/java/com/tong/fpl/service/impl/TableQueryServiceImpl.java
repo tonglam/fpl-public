@@ -1610,12 +1610,14 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .forEach(o ->
                         list.add(new ScoutData()
                                 .setEvent(event)
+                                .setEntry(o.getEntry())
                                 .setScoutName(o.getScoutName())
                                 .setGkpName(this.queryService.qryPlayerWebNameByElement(o.getGkp()))
                                 .setDefName(this.queryService.qryPlayerWebNameByElement(o.getDef()))
                                 .setMidName(this.queryService.qryPlayerWebNameByElement(o.getMid()))
                                 .setFwdName(this.queryService.qryPlayerWebNameByElement(o.getFwd()))
                                 .setCaptainName(this.queryService.qryPlayerWebNameByElement(o.getCaptain()))
+                                .setReason(o.getReason())
                         ));
         return new TableData<>(list);
     }

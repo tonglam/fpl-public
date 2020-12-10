@@ -541,16 +541,36 @@
             $("#capElement").text('');
         });
 
-        if (new Date().getTime() > getLocalTime(deadline)) {
+        if (moment() < moment(deadline.split('/').join('-'))) {
             $("#pickResult").removeClass("layui-hide");
             table.render({
                 elem: '#pickTable',
-                even: true,
                 url: '/stat/qryEventScoutPickList',
-                where: {event: parseInt(nextGw) - 1},
-                width: 800,
+                where: {event: parseInt(nextGw)},
+                width: 920,
                 cellMinWidth: 120,
                 cols: [[
+                    {
+                        field: 'entry',
+                        title: 'team_id',
+                        align: 'center',
+                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                        childTitle: false,
+                        spread: true,
+                        children: [
+                            {
+                                data: function (d) {
+                                    return [d];
+                                },
+                                cols: [[
+                                    {field: 'reason', title: '', align: 'center'}
+                                ]],
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            }
+                        ]
+                    },
                     {field: 'scoutName', title: '球探', align: 'center', width: 200},
                     {field: 'gkpName', title: '门将', align: 'center'},
                     {field: 'defName', title: '后卫', align: 'center'},
