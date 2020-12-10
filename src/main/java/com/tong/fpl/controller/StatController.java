@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2020/8/15
@@ -64,7 +65,6 @@ public class StatController {
 		model.addAttribute("nextGw", next);
 		model.addAttribute("fund", RedisUtils.getValueByKey("scoutFund"));
 		model.addAttribute("deadline", this.statApi.getScoutDeadline(next));
-		model.addAttribute("scoutEntryList", RedisUtils.getHashByKey("scoutEntry").keySet());
 		return "stat/scout";
 	}
 
@@ -106,13 +106,18 @@ public class StatController {
 
 	@RequestMapping("/upsertEventScout")
 	@ResponseBody
-	public void upsertEventScout(@RequestBody ScoutData scoutData, HttpSession session) throws Exception {
+	public String upsertEventScout(@RequestBody ScoutData scoutData, HttpSession session) throws Exception {
 		int entry = Integer.parseInt(session.getAttribute("entry").toString());
+		Map<Object, Object> map = RedisUtils.getHashByKey("scoutEntry");
+		if (!map.containsKey(String.valueOf(entry))) {
+			return "请先加入让让群球探！";
+		}
 		scoutData
 				.setEvent(this.httpApi.getNextEvent())
 				.setEntry(entry)
 				.setScoutName((String) RedisUtils.getHashByKey("scoutEntry").get(String.valueOf(entry)));
-		this.statApi.upsertEventScout(scoutData);
+//		this.statApi.upsertEventScout(scoutData);
+		return "提交成功";
 	}
 
 	@RequestMapping("/qryEventScoutPickList")

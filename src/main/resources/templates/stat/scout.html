@@ -19,7 +19,7 @@
             <h1 style="font-size: 28px">球探推荐</h1>
 
             <div class="layui-hide" id="nextGw" th:text="${nextGw}"></div>
-            <div class="layui-hide" id="deadline" th:text="${deadline}"></div>
+            <div class="layui-hide" id="deadline"></div>
 
             <div style="margin-top: 30px"></div>
 
@@ -37,7 +37,7 @@
                         <div style="margin-top: 30px"></div>
 
                         <fieldset class="layui-elem-field layui-field-title">
-                            <legend th:text="'死线: (北京时间)'+${deadline}"></legend>
+                            <legend id="deadLineTime" th:text></legend>
                         </fieldset>
 
                         <div style="margin-top: 30px"></div>
@@ -180,87 +180,19 @@
 
 <script th:replace="layout::baseScript"></script>
 
+<script th:fragment="entryInputLayer"></script>
+
 <script th:inline="javascript">
     layui.use(['layer'], function () {
-
-        let $ = layui.jquery, layer = layui.layer, check = false, entry = [[${session.entry}]],
-            scoutEntryList = [[${scoutEntryList}]];
-
-        $.each(scoutEntryList, function (index, item) {
-            if (entry === item) {
-                check = true;
-                let fund = numAdd(numAdd([[${scoutEntryEventData.gkpPrice}]], [[${scoutEntryEventData.defPrice}]]), numAdd([[${scoutEntryEventData.midPrice}]], [[${scoutEntryEventData.fwdPrice}]]));
-                let leftFund = numSub([[${fund}]], fund);
-                $("#leftFund").text("剩余资金：" + leftFund + "m");
-                return false;
-            }
-        });
-
-        if (check === false) {
-            layer.msg("不是球探不让进！", {icon: 2, time: 1500}, function () {
-                    layer.prompt({
-                        title: '球探team_id',
-                        offset: '100px',
-                        shade: 0.8,
-                        success: function (layero) {
-                            layer.setTop(layero);
-                            // 回车
-                            this.enterConfirm = function (event) {
-                                if (event.keyCode === 13) {
-                                    $(".layui-layer-btn0").click();
-                                    return false;
-                                }
-                            };
-                            // esc
-                            this.escQuit = function (event) {
-                                if (event.keyCode === 0x1B) {
-                                    layer.close(index);
-                                    return false;
-                                }
-                            }
-                            $(document).on('keyup', this.enterConfirm);
-                            $(document).on('keyup', this.escQuit);
-                            // 确认按钮
-                            $(".layui-layer-btn0").on("click", function () {
-                                // 校验
-                                let entry = layero.find("input").val();
-                                if (!new RegExp("^[1-9]\\d*$").test(entry)) {
-                                    layer.msg('team_id需为正整数', {
-                                        offset: '100px',
-                                        shade: 0,
-                                        shadeClose: true,
-                                        time: 1000
-                                    });
-                                    layero.find("input").val('');
-                                    return false;
-                                }
-                                // 保存
-                                axios.get('/saveSession?key=entry&&value=' + entry)
-                                    .then(function () {
-                                        layer.close();
-                                        // 刷新
-                                        window.location.reload();
-                                    })
-                                    .catch(function (error) {
-                                        console.info(error.message);
-                                    });
-                            });
-                            $(".layui-layer-btn1").on("click", function () {
-                                window.location.replace('/stat/scout');
-                            })
-                        },
-                        cancel: function () {
-                            window.location.reload('/stat/scout');
-                        },
-                        end: function () {
-                            $(document).off('keydown', this.enterConfirm);
-                            $(document).off('keydown', this.escQuit);
-                        }
-                    });
-                }
-            );
-        }
-
+        let $ = layui.jquery,
+            deadline = [[${deadline}]],
+            fund = numAdd(numAdd([[${scoutEntryEventData.gkpPrice}]], [[${scoutEntryEventData.defPrice}]]), numAdd([[${scoutEntryEventData.midPrice}]], [[${scoutEntryEventData.fwdPrice}]])),
+            leftFund = numSub([[${fund}]], fund);
+        let localDeadline = getLocalTime(deadline);
+        $("#deadline").text(localDeadline);
+        let deadLineTime = "死线: " + localDeadline.toLocaleDateString() + " " + localDeadline.toLocaleTimeString()
+        $("#deadLineTime").text(deadLineTime);
+        $("#leftFund").text("剩余资金：" + leftFund + "m");
     });
 </script>
 
@@ -294,129 +226,127 @@
             }
         });
 
-        $(document).ready(function () {
-            loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+        loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
 
-            axios.get('/stat/qryScoutPlayerList?elementType=0')
-                .then(function (response) {
-                    layer.close(loadIndex);
-                    let data = response.data;
-                    table.render({
-                        elem: '#playerTable',
-                        toolbar: '#toolbar',
-                        defaultToolbar: false,
-                        size: 'sm',
-                        even: true,
-                        data: data,
-                        page: true,
-                        width: 1032,
-                        limit: 15,
-                        limits: [15, 30, 50, 100],
-                        cellMinWidth: 80,
-                        contextmenu: {
-                            body: [
-                                {
-                                    name: '选为队长',
-                                    icon: 'layui-icon layui-icon-template',
-                                    click: function (obj) {
-                                        $("input[name=cap]").val(obj.row.webName);
-                                        $("#capElement").text(obj.row.element);
-                                    }
+        axios.get('/stat/qryScoutPlayerList?elementType=0')
+            .then(function (response) {
+                layer.close(loadIndex);
+                let data = response.data;
+                table.render({
+                    elem: '#playerTable',
+                    toolbar: '#toolbar',
+                    defaultToolbar: false,
+                    size: 'sm',
+                    even: true,
+                    data: data,
+                    page: true,
+                    width: 1032,
+                    limit: 15,
+                    limits: [15, 30, 50, 100],
+                    cellMinWidth: 80,
+                    contextmenu: {
+                        body: [
+                            {
+                                name: '选为队长',
+                                icon: 'layui-icon layui-icon-template',
+                                click: function (obj) {
+                                    $("input[name=cap]").val(obj.row.webName);
+                                    $("#capElement").text(obj.row.element);
                                 }
-                            ]
+                            }
+                        ]
+                    },
+                    cols: [[
+                        {field: 'webName', title: '名字', align: 'center', width: 180, filter: true, rowspan: 2},
+                        {
+                            field: 'elementTypeName',
+                            title: '位置',
+                            align: 'center',
+                            width: 80,
+                            filter: true,
+                            rowspan: 2
                         },
-                        cols: [[
-                            {field: 'webName', title: '名字', align: 'center', width: 180, filter: true, rowspan: 2},
+                        {field: 'teamShortName', title: '球队', align: 'center', width: 80, filter: true, rowspan: 2},
+                        {
+                            field: 'price',
+                            title: '身价(m)',
+                            align: 'center',
+                            width: 90,
+                            sort: true,
+                            filter: true,
+                            rowspan: 2
+                        },
+                        {
+                            field: 'totalPoints',
+                            title: '总分',
+                            align: 'center',
+                            width: 80,
+                            sort: true,
+                            filter: true,
+                            rowspan: 2
+                        },
+                        {
+                            field: 'selectedByPercent',
+                            title: '持有率(%)',
+                            align: 'center',
+                            width: 100,
+                            sort: true,
+                            filter: true,
+                            rowspan: 2
+                        },
+                        {
+                            field: 'pointsPerGame',
+                            title: '场均得分',
+                            align: 'center',
+                            width: 80,
+                            rowspan: 2,
+                        },
+                        {field: '', title: '赛程', align: 'center', colspan: 3}
+                    ],
+                        [
                             {
-                                field: 'elementTypeName',
-                                title: '位置',
+                                field: '',
+                                title: '',
                                 align: 'center',
-                                width: 80,
-                                filter: true,
-                                rowspan: 2
-                            },
-                            {field: 'teamShortName', title: '球队', align: 'center', width: 80, filter: true, rowspan: 2},
-                            {
-                                field: 'price',
-                                title: '身价(m)',
-                                align: 'center',
-                                width: 90,
-                                sort: true,
-                                filter: true,
-                                rowspan: 2
-                            },
-                            {
-                                field: 'totalPoints',
-                                title: '总分',
-                                align: 'center',
-                                width: 80,
-                                sort: true,
-                                filter: true,
-                                rowspan: 2
-                            },
-                            {
-                                field: 'selectedByPercent',
-                                title: '持有率(%)',
-                                align: 'center',
-                                width: 100,
-                                sort: true,
-                                filter: true,
-                                rowspan: 2
-                            },
-                            {
-                                field: 'pointsPerGame',
-                                title: '场均得分',
-                                align: 'center',
-                                width: 80,
-                                rowspan: 2,
-                            },
-                            {field: '', title: '赛程', align: 'center', colspan: 3}
-                        ],
-                            [
-                                {
-                                    field: '',
-                                    title: '',
-                                    align: 'center',
-                                    width: 110,
-                                    templet: function (d) {
-                                        return showDifficulty(d.againstTeam1ShortName, d.difficulty1, d.fixtureEvent1);
-                                    }
-                                },
-                                {
-                                    field: '',
-                                    title: '',
-                                    align: 'center',
-                                    width: 110,
-                                    templet: function (d) {
-                                        return showDifficulty(d.againstTeam2ShortName, d.difficulty2, d.fixtureEvent2);
-                                    }
-                                },
-                                {
-                                    field: '',
-                                    title: '',
-                                    align: 'center',
-                                    width: 110,
-                                    templet: function (d) {
-                                        return showDifficulty(d.againstTeam3ShortName, d.difficulty3, d.fixtureEvent3);
-                                    }
+                                width: 110,
+                                templet: function (d) {
+                                    return showDifficulty(d.againstTeam1ShortName, d.difficulty1, d.fixtureEvent1);
                                 }
-                            ]
-                        ],
-                        id: 'playerTable',
-                        filter: {
-                            items: ['data', 'condition'],
-                            bottom: false
-                        },
-                        done: function () {
-                            soulTable.render(this);
-                        }
-                    });
-                })
-                .catch(function (error) {
-                    layer.close(loadIndex);
-                    console.info(error.message);
+                            },
+                            {
+                                field: '',
+                                title: '',
+                                align: 'center',
+                                width: 110,
+                                templet: function (d) {
+                                    return showDifficulty(d.againstTeam2ShortName, d.difficulty2, d.fixtureEvent2);
+                                }
+                            },
+                            {
+                                field: '',
+                                title: '',
+                                align: 'center',
+                                width: 110,
+                                templet: function (d) {
+                                    return showDifficulty(d.againstTeam3ShortName, d.difficulty3, d.fixtureEvent3);
+                                }
+                            }
+                        ]
+                    ],
+                    id: 'playerTable',
+                    filter: {
+                        items: ['data', 'condition'],
+                        bottom: false
+                    },
+                    done: function () {
+                        soulTable.render(this);
+                    }
                 });
-        });
+            })
+            .catch(function (error) {
+                layer.close(loadIndex);
+                console.info(error.message);
+            });
 
         table.on('toolbar(playerTable)', function (obj) {
             soulTable.clearFilter('playerTable');
@@ -579,8 +509,8 @@
             $(this).attr("disabled", "");
             // 提交
             axios.post('/stat/upsertEventScout', data)
-                .then(function () {
-                    layer.msg('提交成功', {time: 1500});
+                .then(function (response) {
+                    layer.msg(response, {time: 1500});
                     window.location.replace("/stat/scout");
                 })
                 .catch(function (error) {
@@ -690,7 +620,7 @@
 
         table.on('toolbar(scoutTable)', function () {
             dropdown.onFilter("checkEvent", function (event) {
-                if (event === 0) {
+                if (event === "0") {
                     $("#checkGw").text('赛季统计');
                     table.render({
                         elem: '#scoutTable',

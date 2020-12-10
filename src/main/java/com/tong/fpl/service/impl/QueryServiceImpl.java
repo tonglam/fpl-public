@@ -830,8 +830,14 @@ public class QueryServiceImpl implements IQuerySerivce {
 		List<ZjTournamentCaptainData> list = Lists.newArrayList();
 		this.zjTournamentCaptainService.list(new QueryWrapper<ZjTournamentCaptainEntity>().lambda()
 				.eq(ZjTournamentCaptainEntity::getTournamentId, tournamentId))
-				.forEach(o ->
-						list.add(BeanUtil.copyProperties(o, ZjTournamentCaptainData.class)));
+				.forEach(o -> {
+					ZjTournamentCaptainData zjTournamentCaptainData = new ZjTournamentCaptainData();
+					BeanUtil.copyProperties(o, zjTournamentCaptainData, CopyOptions.create().ignoreNullValue());
+					zjTournamentCaptainData
+							.setPhaseTwoDeadline(zjTournamentCaptainData.getPhaseTwoDeadline().replaceAll("-", "/"))
+							.setPkDeadline(zjTournamentCaptainData.getPkDeadline().replaceAll("-", "/"));
+					list.add(zjTournamentCaptainData);
+				});
 		return list;
 	}
 

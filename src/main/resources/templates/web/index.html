@@ -113,7 +113,7 @@
 
         let nextGw = [[${nextGw}]];
         let deadline = getLocalTime([[${deadline}]]);
-        let deadLineTime = "GW" + nextGw + " deadline：" + util.toDateString(deadline, "yyyy-MM-dd HH:mm:ss");
+        let deadLineTime = "GW" + nextGw + " deadline：" + util.toDateString(deadline, "yyyy/MM/dd HH:mm:ss");
         $("#deadlineTime").html(deadLineTime);
         $("#countdown").timeTo({
             timeTo: deadline,
