@@ -185,7 +185,7 @@
 <script th:inline="javascript">
     layui.use(['layer'], function () {
         let $ = layui.jquery,
-            deadline = moment(getLocalTime([[${deadline}]])).format("YYYY/MM/DD HH:mm:ss"),
+            deadline = getLocalTime([[${deadline}]]),
             fund = numAdd(numAdd([[${scoutEntryEventData.gkpPrice}]], [[${scoutEntryEventData.defPrice}]]), numAdd([[${scoutEntryEventData.midPrice}]], [[${scoutEntryEventData.fwdPrice}]])),
             leftFund = numSub([[${fund}]], fund);
         $("#deadline").text(deadline);

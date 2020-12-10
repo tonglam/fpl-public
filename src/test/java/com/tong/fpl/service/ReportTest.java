@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
-import java.util.stream.IntStream;
 
 public class ReportTest extends FplApplicationTests {
 
@@ -14,19 +13,17 @@ public class ReportTest extends FplApplicationTests {
 	private IReportService reportService;
 
 	@ParameterizedTest
-	@CsvSource({"8, 11316, Classic, 0"})
+	@CsvSource({"9, 65, Classic, 0"})
 	void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit) {
 		this.reportService.insertLeagueEventSelect(event, leagueId, leagueType, limit);
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"314, Classic"})
-	void updateLeagueEventResultStat(int leagueId, String leagueType) {
-		IntStream.rangeClosed(8, 11).forEach(event -> {
-			this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
-			System.out.println("event: " + event + ", update finished!");
-		});
+	@CsvSource({"9, 65, Classic"})
+	void updateLeagueEventResultStat(int event, int leagueId, String leagueType) {
+		this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
+		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest
