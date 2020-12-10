@@ -541,7 +541,7 @@
             $("#capElement").text('');
         });
 
-        if (moment() < moment(deadline.split('/').join('-'))) {
+        if (moment() > moment(deadline.split('/').join('-'))) {
             $("#pickResult").removeClass("layui-hide");
             table.render({
                 elem: '#pickTable',
