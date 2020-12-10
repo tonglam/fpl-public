@@ -17,6 +17,7 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -105,9 +106,9 @@ public interface IQuerySerivce {
 	String getDeadlineByEvent(String season, int event);
 
 	default String getScoutDeadlineByEvent(int event) {
-		return LocalDateTime.parse(this.getDeadlineByEvent(event).replaceAll(" ", "T"))
-				.minusDays(1)
-				.format(DateTimeFormatter.ofPattern(Constant.DATETIME));
+		return LocalDate.parse(StringUtils.substringBefore(this.getDeadlineByEvent(event), " "))
+				.format(DateTimeFormatter.ofPattern(Constant.DATE))
+				+ " 08:30:00";
 	}
 
 	List<LocalDate> getMatchDayByEvent(int event);
