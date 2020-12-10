@@ -78,6 +78,8 @@
                         <p class="layui-text"> 查看赛事 -> 浙江联赛-pk分组</p>
                         <p class="layui-text">2020.10.28</p>
                         <p class="layui-text"> 查看赛果 -> 增加冠军榜，完善积分榜</p>
+                        <p class="layui-text">2020.12.10</p>
+                        <p class="layui-text"> 数据查询 -> 球探推荐</p>
                     </div>
                 </div>
 
@@ -108,21 +110,16 @@
 <script th:replace="layout::baseScript"></script>
 
 <script th:inline="javascript">
-    layui.use('util', function () {
-        let util = layui.util;
-
-        let nextGw = [[${nextGw}]];
-        let deadline = getLocalTime([[${deadline}]]);
-        let deadLineTime = "GW" + nextGw + " deadline：" + util.toDateString(deadline, "yyyy/MM/dd HH:mm:ss");
-        $("#deadlineTime").html(deadLineTime);
-        $("#countdown").timeTo({
-            timeTo: deadline,
-            displayDays: 2,
-            displayCaptions: true,
-            fontSize: 48,
-            captionSize: 20,
-            lang: 'cn'
-        });
+    let nextGw = [[${nextGw}]], deadline = getLocalTime([[${deadline}]]),
+        deadLineTime = "GW" + nextGw + " deadline：" + moment(deadline).format("YYYY/MM/DD HH:mm");
+    $("#deadlineTime").html(deadLineTime);
+    $("#countdown").timeTo({
+        timeTo: deadline,
+        displayDays: 2,
+        displayCaptions: true,
+        fontSize: 48,
+        captionSize: 20,
+        lang: 'cn'
     });
 </script>
 
