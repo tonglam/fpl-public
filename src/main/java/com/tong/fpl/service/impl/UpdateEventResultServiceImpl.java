@@ -430,7 +430,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	private Map<String, Integer> sortPointsRaceGroupRank(List<TournamentGroupEntity> tournamentGroupEntityList) {
-		Map<String, Integer> groupRankMap = Maps.newHashMap(); // entry-> groupRank
+		Map<String, Integer> groupRankMap = Maps.newHashMap(); // entry -> groupRank
 		Map<String, Integer> groupRankCountMap = Maps.newLinkedHashMap();
 		tournamentGroupEntityList
 				.stream()

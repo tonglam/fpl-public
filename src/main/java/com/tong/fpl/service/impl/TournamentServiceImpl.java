@@ -1102,6 +1102,8 @@ public class TournamentServiceImpl implements ITournamentService {
 					.setDraw(0)
 					.setLose(0)
 					.setTotalPoints(0)
+					.setTotalTransfersCost(0)
+					.setTotalNetPoints(0)
 					.setQualified(false)
 					.setOverallRank(0)
 			);

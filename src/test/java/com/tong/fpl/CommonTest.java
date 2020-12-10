@@ -7,7 +7,7 @@ import com.tong.fpl.constant.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,8 +72,8 @@ public class CommonTest extends FplApplicationTests {
 	@Test
 	void test() {
 		String a = "2020-12-12 02:30:00";
-		LocalDateTime localDateTime = LocalDateTime.parse(a.replaceAll(" ", "T"));
-		String b = localDateTime.minusDays(1).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
+		LocalDate localDate = LocalDate.parse(StringUtils.substringBefore(a, " "));
+		String b = localDate.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
 		System.out.println(1);
 	}
 

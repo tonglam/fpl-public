@@ -177,10 +177,18 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
+	@CsvSource("12")
+	void getScoutDeadlineByEvent(int event) {
+		String a = this.querySerivce.getScoutDeadlineByEvent(event);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
 	@CsvSource({"65, Classic"})
 	void qryLeagueNameByIdAndType(int leagueId, String leagueType) {
 		String a = this.querySerivce.qryLeagueNameByIdAndType(leagueId, leagueType);
 		System.out.println(1);
 	}
+
 
 }

@@ -23,7 +23,7 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1"})
+	@CsvSource({"9"})
 	void updateTournamentEntryEventResult(int tournament) {
 		IntStream.rangeClosed(1, 11).forEach(event -> {
 			this.updateEventResultsService.updateTournamentEntryEventResult(event, tournament);
@@ -32,17 +32,21 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1, 11"})
-	void updatePointsRaceGroupResult(int tournamentId, int event) {
-		this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
-		System.out.println("event: " + event + ", update finished!");
+	@CsvSource({"2"})
+	void updatePointsRaceGroupResult(int tournamentId) {
+		IntStream.rangeClosed(1, 11).forEach(event -> {
+			this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
+			System.out.println("event: " + event + ", update finished!");
+		});
 	}
 
 	@ParameterizedTest
-	@CsvSource({"5, 8"})
-	void updateBattleRaceGroupResult(int tournamentId, int event) {
-		this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
-		System.out.println("event: " + event + ", update finished!");
+	@CsvSource({"5"})
+	void updateBattleRaceGroupResult(int tournamentId) {
+		IntStream.rangeClosed(1, 11).forEach(event -> {
+			this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
+			System.out.println("event: " + event + ", update finished!");
+		});
 	}
 
 	@ParameterizedTest
