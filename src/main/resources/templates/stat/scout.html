@@ -34,11 +34,13 @@
 
                     <div class="layui-tab-item layui-show">
 
-                        <div style="margin-top: 20px"></div>
+                        <div style="margin-top: 30px"></div>
 
                         <fieldset class="layui-elem-field layui-field-title">
                             <legend th:text="'死线: (北京时间)'+${deadline}"></legend>
                         </fieldset>
+
+                        <div style="margin-top: 30px"></div>
 
                         <div class="layui-row">
 
@@ -54,9 +56,8 @@
                                     <div class="layui-form-item">
                                         <label class="layui-form-label">门将</label>
                                         <div class="layui-input-inline">
-                                            <input class="layui-input" name="gkp"
-                                                   th:value="${scoutEntryEventData?.gkpName}"
-                                                   type="text">
+                                            <input class="layui-input" name="gkp" readonly
+                                                   th:value="${scoutEntryEventData?.gkpName}" type="text">
                                         </div>
                                         <div class="layui-form-mid layui-word-aux" id="gkpPrice"
                                              th:text="${scoutEntryEventData?.gkpPrice}+'m'"></div>
@@ -68,9 +69,8 @@
                                     <div class="layui-form-item">
                                         <label class="layui-form-label">后卫</label>
                                         <div class="layui-input-inline">
-                                            <input class="layui-input" name="def"
-                                                   th:value="${scoutEntryEventData?.defName}"
-                                                   readonly type="text">
+                                            <input class="layui-input" name="def" readonly
+                                                   th:value="${scoutEntryEventData?.defName}" type="text">
                                         </div>
                                         <div class="layui-form-mid layui-word-aux" id="defPrice"
                                              th:text="${scoutEntryEventData?.defPrice}+'m'"></div>
@@ -82,41 +82,38 @@
                                     <div class="layui-form-item">
                                         <label class="layui-form-label">中场</label>
                                         <div class="layui-input-inline">
-                                            <input class="layui-input" name="mid"
-                                                   th:value="${scoutEntryEventData?.midName}"
-                                                   readonly type="text">
+                                            <input class="layui-input" name="mid" readonly
+                                                   th:value="${scoutEntryEventData?.midName}" type="text">
                                         </div>
                                         <div class="layui-form-mid layui-word-aux" id="midPrice"
                                              th:text="${scoutEntryEventData?.midPrice}+'m'"></div>
                                     </div>
                                     <div class="layui-input layui-hide" id="midElement"
-                                         th:value="${scoutEntryEventData?.mid}"></div>
+                                         th:text="${scoutEntryEventData?.mid}"></div>
 
                                     <div style="margin-top: 30px"></div>
                                     <div class="layui-form-item">
                                         <label class="layui-form-label">前锋</label>
                                         <div class="layui-input-inline">
-                                            <input class="layui-input" name="fwd"
-                                                   th:value="${scoutEntryEventData?.fwdName}"
-                                                   readonly type="text">
+                                            <input class="layui-input" name="fwd" readonly
+                                                   th:value="${scoutEntryEventData?.fwdName}" type="text">
                                         </div>
                                         <div class="layui-form-mid layui-word-aux" id="fwdPrice"
                                              th:text="${scoutEntryEventData?.fwdPrice}+'m'"></div>
                                     </div>
                                     <div class="layui-input layui-hide" id="fwdElement"
-                                         th:value="${scoutEntryEventData?.fwd}"></div>
+                                         th:text="${scoutEntryEventData?.fwd}"></div>
 
                                     <div style="margin-top: 30px"></div>
                                     <div class="layui-form-item">
                                         <label class="layui-form-label">队长</label>
                                         <div class="layui-input-inline">
-                                            <input class="layui-input" name="cap"
-                                                   th:value="${scoutEntryEventData?.captainName}"
-                                                   readonly type="text">
+                                            <input class="layui-input" name="cap" readonly
+                                                   th:value="${scoutEntryEventData?.captainName}" type="text">
                                         </div>
                                     </div>
                                     <div class="layui-input layui-hide" id="capElement"
-                                         th:value="${scoutEntryEventData?.captain}"></div>
+                                         th:text="${scoutEntryEventData?.captain}"></div>
 
                                     <div style="margin-top: 30px"></div>
                                     <div class="layui-form-item layui-form-text">
@@ -124,7 +121,7 @@
                                         <div class="layui-input-block">
                                             <textarea class="layui-textarea" name="reason"
                                                       placeholder="这个人很懒什么都没有留下还不肯打标点"
-                                                      th:value="${scoutEntryEventData?.reason}"></textarea>
+                                                      th:text="${scoutEntryEventData?.reason}"></textarea>
                                         </div>
                                     </div>
 
@@ -323,7 +320,7 @@
                                     icon: 'layui-icon layui-icon-template',
                                     click: function (obj) {
                                         $("input[name=cap]").val(obj.row.webName);
-                                        $("#capElement").val(obj.row.element);
+                                        $("#capElement").text(obj.row.element);
                                     }
                                 }
                             ]
@@ -517,7 +514,7 @@
                     }
                     $("input[name=gkp]").val(webName);
                     gkpPrice.text(price);
-                    $("#gkpElement").val(element);
+                    $("#gkpElement").text(element);
                     break;
                 }
                 case 2: {
@@ -528,7 +525,7 @@
                     }
                     $("input[name=def]").val(webName);
                     defPrice.text(price);
-                    $("#defElement").val(element);
+                    $("#defElement").text(element);
                     break;
                 }
                 case 3: {
@@ -539,7 +536,7 @@
                     }
                     $("input[name=mid]").val(webName);
                     midPrice.text(price);
-                    $("#midElement").val(element);
+                    $("#midElement").text(element);
                     break;
                 }
                 case 4: {
@@ -550,7 +547,7 @@
                     }
                     $("input[name=fwd]").val(webName);
                     fwdPrice.text(price);
-                    $("#fwdElement").val(element);
+                    $("#fwdElement").text(element);
                     break;
                 }
                 default:
@@ -572,11 +569,11 @@
                 return false;
             }
             let data = {};
-            data.gkp = $("#gkpElement").val();
-            data.def = $("#defElement").val();
-            data.mid = $("#midElement").val();
-            data.fwd = $("#fwdElement").val();
-            data.captain = $("#capElement").val();
+            data.gkp = $("#gkpElement").text();
+            data.def = $("#defElement").text();
+            data.mid = $("#midElement").text();
+            data.fwd = $("#fwdElement").text();
+            data.captain = $("#capElement").text();
             data.reason = $("textarea[name=reason]").val();
             // 禁用提交按钮
             $(this).attr("disabled", "");
@@ -688,7 +685,7 @@
 
         table.on('toolbar(scoutTable)', function () {
             dropdown.onFilter("checkEvent", function (event) {
-                if (event == 0) {
+                if (event === 0) {
                     $("#checkGw").text('赛季统计');
                     table.render({
                         elem: '#scoutTable',

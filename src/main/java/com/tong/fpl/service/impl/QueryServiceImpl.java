@@ -1426,6 +1426,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.setFwd(scoutEntity.getFwd())
 				.setFwdName(this.qryPlayerWebNameByElement(scoutEntity.getFwd()))
 				.setFwdPrice(this.getElememtPrice(scoutEntity.getFwd()))
+				.setCaptain(scoutEntity.getCaptain())
 				.setCaptainName(this.qryPlayerWebNameByElement(scoutEntity.getCaptain()))
 				.setReason(scoutEntity.getReason());
 	}

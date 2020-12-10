@@ -56,8 +56,6 @@ public class ScoutServiceImpl implements IScoutService {
                     .setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason());
             this.scoutService.updateById(scoutEntity);
         }
-
-
     }
 
     @Override
