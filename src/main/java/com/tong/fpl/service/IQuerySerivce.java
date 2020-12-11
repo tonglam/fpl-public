@@ -107,6 +107,7 @@ public interface IQuerySerivce {
 
 	default String getScoutDeadlineByEvent(int event) {
 		return LocalDate.parse(StringUtils.substringBefore(this.getDeadlineByEvent(event), " "))
+				.minusDays(1)
 				.format(DateTimeFormatter.ofPattern(Constant.DATE))
 				+ " 08:30:00";
 	}
