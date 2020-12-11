@@ -104,22 +104,44 @@
 
             <fieldset class="layui-elem-field layui-field-title site-title"
                       style="margin-top: 30px">
-                <legend><a>合成字幕</a></legend>
+                <legend><a>合成字幕（将上传的字幕合成为拉轴所需格式）</a></legend>
             </fieldset>
+
+            <div class="layui-upload-drag" id="upload" style="margin-left: 80px">
+                <p>限制：格式：txt；最大1M</p>
+                <i class="layui-icon"></i>
+                <p>点击或拖拽上传已翻译字幕</p>
+            </div>
+
+            <div style="margin-top: 20px"></div>
 
             <form class="layui-form">
                 <div class="layui-form-item">
 
-                    <div class="layui-inline">
-                        <input class="layui-input" name="uploadFile" type="text">
+                    <label class="layui-form-label">文件名</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="on" class="layui-input" name="fileName" type="text">
                     </div>
 
+                    <label class="layui-form-label">包括英文</label>
+                    <input checked="" lay-filter="engSub" lay-skin="switch" lay-text="是|否" name="engSub"
+                           type="checkbox">
+
+                    <button class="layui-btn layui-btn-sm" id="mergeSub" style="margin-left:50px;margin-top: 6px"
+                            type="button">合成字幕
+                    </button>
+
+                    <button class="layui-btn layui-btn-sm" id="download" style="margin-left:20px;margin-top: 6px"
+                            type="button">下载
+                    </button>
+
                 </div>
+
             </form>
 
             <fieldset class="layui-elem-field layui-field-title site-title"
                       style="margin-top: 30px">
-                <legend><a>网站</a></legend>
+                <legend><a>网站（常用工具网站）</a></legend>
             </fieldset>
 
             <a href="https://clipconverter.io/" style="font-size: 15px" target="_blank">视频下载</a>
@@ -151,10 +173,10 @@
 </script>
 
 <script th:inline="none">
-    layui.use(['form', 'layer', 'laydate', 'table', 'soulTable'], function () {
+    layui.use(['form', 'layer', 'laydate', 'table', 'soulTable', 'upload'], function () {
 
         let $ = layui.$, form = layui.form, layer = layui.layer, laydate = layui.laydate, table = layui.table,
-            soulTable = layui.soulTable;
+            soulTable = layui.soulTable, upload = layui.upload;
 
         laydate.render({
             elem: 'input[name=startDay]',
@@ -511,6 +533,75 @@
                     break;
                 }
             }
+        });
+
+        upload.render({
+            elem: '#upload',
+            url: '/subtitle/uploadSubtitleFile',
+            accept: 'file',
+            exts: 'txt',
+            size: 1024,
+            done: function (response) {
+                let message = response.data;
+                layer.msg(message, {time: 1500});
+                let index = message.search(":");
+                if (index > 0) {
+                    $("input[name=fileName]").val(message.slice(index + 1, message.length));
+                }
+            }
+        });
+
+        form.on('switch(engSub)', function (data) {
+            if (data.elem.checked) {
+                $("input[name=engSub]").val("on");
+            } else {
+                $("input[name=engSub]").val("off");
+            }
+        });
+
+        $("#mergeSub").on('click', function () {
+            let fileName = $("input[name=fileName]").val(), engSub = $("input[name=engSub]").val() === 'on';
+            if (fileName === '') {
+                layer.msg("文件名不能为空！", {time: 1500});
+                return false;
+            }
+            if (fileName.indexOf(".txt") < 0) {
+                fileName += ".txt";
+            }
+            axios.get('/subtitle/mergeSubtitle', {
+                params: {
+                    fileName: fileName,
+                    engSub: engSub
+                }
+            })
+                .then(function (response) {
+                    layer.msg(response, {time: 1500});
+                })
+                .catch(function (error) {
+                    layer.msg(error.message, {time: 1500});
+                });
+        });
+
+        $("#download").on('click', function () {
+            let fileName = $("input[name=fileName]").val();
+            if (fileName === '') {
+                layer.msg("文件名不能为空！", {time: 1500});
+                return false;
+            }
+            if (fileName.indexOf(".txt") < 0) {
+                fileName += ".txt";
+            }
+            axios.get('/subtitle/downloadSubtitleFile', {
+                params: {
+                    fileName: fileName
+                }
+            })
+                .then(function (response) {
+                    layer.msg(response, {time: 1500});
+                })
+                .catch(function (error) {
+                    layer.msg(error.message, {time: 1500});
+                });
         });
 
     });

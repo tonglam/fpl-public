@@ -17,6 +17,6 @@ public interface ISubtitleService {
 
     void removeSubtitle(int id);
 
-    void mergeSubtitles(String fileName, boolean engSub);
+    void mergeSubtitle(String fileName, boolean engSub) throws Exception;
 
 }

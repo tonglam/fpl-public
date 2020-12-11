@@ -1,14 +1,28 @@
 package com.tong.fpl.controller;
 
+import com.tong.fpl.constant.Constant;
+import com.tong.fpl.domain.letletme.global.ResponseData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.subtitle.QueryParam;
 import com.tong.fpl.domain.subtitle.SubtitleData;
 import com.tong.fpl.subtitle.ISubtitleService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Create by tong on 2020/12/2
@@ -25,8 +39,8 @@ public class SubtitleController {
 		return "subtitle/subtitle";
 	}
 
-	@RequestMapping(value = "/qrySubtitleList")
 	@ResponseBody
+	@RequestMapping(value = "/qrySubtitleList")
 	public TableData<SubtitleData> qrySubtitleList(@RequestBody QueryParam qryParam) {
 		if (StringUtils.isEmpty(qryParam.getStartDay()) && StringUtils.isEmpty(qryParam.getEndDay())
 				&& StringUtils.isEmpty(qryParam.getTitle())
@@ -54,6 +68,58 @@ public class SubtitleController {
 	public String removeSubtitle(@RequestParam int id) {
 		this.subtitleService.removeSubtitle(id);
 		return "删除成功！";
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/uploadSubtitleFile")
+	public ResponseData<String> uploadSubtitleFile(@RequestParam MultipartFile file) {
+		try {
+			String fileName = file.getOriginalFilename();
+			Path path = Paths.get(Constant.SUBTITLE_FILE_LOCATION + fileName);
+			if (Files.exists(path)) {
+				Files.delete(path);
+			}
+			file.transferTo(path);
+			return ResponseData.success("上传成功:" + fileName);
+		} catch (IOException e) {
+			return ResponseData.success("上传失败!" + e.getMessage());
+		}
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/mergeSubtitle")
+	public String mergeSubtitle(@RequestParam String fileName, @RequestParam boolean engSub) {
+		try {
+			this.subtitleService.mergeSubtitle(fileName, engSub);
+			return "合成字幕成功！";
+		} catch (Exception e) {
+			return "合成失败：" + e.getMessage();
+		}
+	}
+
+	@RequestMapping(value = "/downloadSubtitleFile")
+	public void downloadSubtitleFile(@RequestParam String fileName, HttpServletResponse response) {
+		fileName = Constant.SUBTITLE_FILE_LOCATION + "(New)" + fileName;
+		Path path = Paths.get(fileName);
+		if (Files.notExists(path)) {
+			return;
+		}
+		File file = new File(fileName);
+		response.reset();
+		response.setContentType("application/octet-stream");
+		response.setCharacterEncoding("utf-8");
+		response.setContentLength((int) file.length());
+		response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
+		// 输出
+		FileInputStream fis = null;
+		ServletOutputStream os = null;
+		try {
+			InputStream myStream = new FileInputStream(file);
+			IOUtils.copy(myStream, response.getOutputStream());
+			response.flushBuffer();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

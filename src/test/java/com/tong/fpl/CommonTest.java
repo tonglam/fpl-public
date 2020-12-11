@@ -1,12 +1,19 @@
 package com.tong.fpl;
 
+import cn.hutool.core.io.CharsetDetector;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.tong.fpl.constant.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -75,6 +82,17 @@ public class CommonTest extends FplApplicationTests {
 		LocalDate localDate = LocalDate.parse(StringUtils.substringBefore(a, " "));
 		String b = localDate.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
 		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource("E://hold_large_epay_2018-12-27.txt")
+	void charset(String fileName) {
+		try {
+			Charset charset = CharsetDetector.detect(Files.newInputStream(Paths.get(fileName)), Charset.forName("GBK"));
+			System.out.println(1);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
