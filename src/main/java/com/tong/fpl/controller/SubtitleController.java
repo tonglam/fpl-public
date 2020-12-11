@@ -8,7 +8,6 @@ import com.tong.fpl.domain.subtitle.SubtitleData;
 import com.tong.fpl.subtitle.ISubtitleService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -111,12 +109,19 @@ public class SubtitleController {
 		response.setContentLength((int) file.length());
 		response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
 		// 输出
-		FileInputStream fis = null;
-		ServletOutputStream os = null;
+		FileInputStream fis;
+		ServletOutputStream os;
 		try {
-			InputStream myStream = new FileInputStream(file);
-			IOUtils.copy(myStream, response.getOutputStream());
-			response.flushBuffer();
+			fis = new FileInputStream(file);
+			byte[] bytes = new byte[1024];
+
+			os = response.getOutputStream();
+			int i = fis.read(bytes);
+			while (i != -1) {
+				os.write(bytes);
+				i = fis.read(bytes);
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
