@@ -109,7 +109,7 @@ public interface IQuerySerivce {
 		return LocalDate.parse(StringUtils.substringBefore(this.getDeadlineByEvent(event), " "))
 				.minusDays(1)
 				.format(DateTimeFormatter.ofPattern(Constant.DATE))
-				+ " 10:30:00";
+				+ " 08:30:00";
 	}
 
 	List<LocalDate> getMatchDayByEvent(int event);
