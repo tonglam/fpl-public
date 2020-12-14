@@ -21,10 +21,10 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
-	private final IReportService reportService;
 	private final IQuerySerivce querySerivce;
+	private final IReportService reportService;
 
-	@Scheduled(cron = "0 0/5 * * * *")
+	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
 	public void insertLeagueEventSelectStat() {
 		int current = this.querySerivce.getCurrentEvent();
 		if (!isNotSelectTime(current)) {
@@ -72,6 +72,24 @@ public class ReportTask {
 		// Overall top 10k
 		table.put(314, "Classic", 10000);
 		return table;
+	}
+
+	@Scheduled(cron = "0 0 9/10 * * *")
+	public void updatePointsRaceGroupResult() {
+		int event = this.querySerivce.getCurrentEvent();
+		if (!this.querySerivce.isMatchDay(event)) {
+			return;
+		}
+		Table<Integer, String, Integer> leagueTable = this.getLeagueMap(); // league_id -> league_type -> limit
+		leagueTable.rowKeySet().forEach(leagueId -> {
+			String leagueType = leagueTable.row(leagueId).keySet()
+					.stream()
+					.findFirst()
+					.orElse("");
+			this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
+		});
+
+
 	}
 
 }

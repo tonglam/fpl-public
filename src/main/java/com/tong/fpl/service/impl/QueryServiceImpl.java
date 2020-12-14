@@ -834,14 +834,14 @@ public class QueryServiceImpl implements IQuerySerivce {
 					ZjTournamentCaptainData zjTournamentCaptainData = new ZjTournamentCaptainData();
 					BeanUtil.copyProperties(o, zjTournamentCaptainData, CopyOptions.create().ignoreNullValue());
 					zjTournamentCaptainData
-							.setPhaseTwoDeadline(zjTournamentCaptainData.getPhaseTwoDeadline().replaceAll("-", "/"))
-							.setPkDeadline(zjTournamentCaptainData.getPkDeadline().replaceAll("-", "/"));
+							.setPhaseTwoDeadline(zjTournamentCaptainData.getPhaseTwoDeadline())
+							.setPkDeadline(zjTournamentCaptainData.getPkDeadline());
 					list.add(zjTournamentCaptainData);
 				});
 		return list;
 	}
 
-	//	@Cacheable(value = "qryZjTournamentGroupNameMap", key = "#tournamentId")
+	@Cacheable(value = "qryZjTournamentGroupNameMap", key = "#tournamentId")
 	@Override
 	public Map<String, String> qryZjTournamentGroupNameMap(int tournamentId) {
 		Map<String, String> groupNameMap = Maps.newHashMap();

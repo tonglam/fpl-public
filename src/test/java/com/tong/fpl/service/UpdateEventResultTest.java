@@ -6,8 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.stream.IntStream;
-
 /**
  * Create by tong on 2020/7/15
  */
@@ -23,30 +21,24 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"9"})
-	void updateTournamentEntryEventResult(int tournament) {
-		IntStream.rangeClosed(1, 11).forEach(event -> {
-			this.updateEventResultsService.updateTournamentEntryEventResult(event, tournament);
-			System.out.println("event: " + event + ", update finished!");
-		});
+	@CsvSource({"12, 9"})
+	void updateTournamentEntryEventResult(int event, int tournament) {
+		this.updateEventResultsService.updateTournamentEntryEventResult(event, tournament);
+		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2"})
-	void updatePointsRaceGroupResult(int tournamentId) {
-		IntStream.rangeClosed(1, 11).forEach(event -> {
-			this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
-			System.out.println("event: " + event + ", update finished!");
-		});
+	@CsvSource({"12, 9"})
+	void updatePointsRaceGroupResult(int event, int tournamentId) {
+		this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
+		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest
-	@CsvSource({"5"})
-	void updateBattleRaceGroupResult(int tournamentId) {
-		IntStream.rangeClosed(1, 11).forEach(event -> {
-			this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
-			System.out.println("event: " + event + ", update finished!");
-		});
+	@CsvSource({"12, 5"})
+	void updateBattleRaceGroupResult(int event, int tournamentId) {
+		this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
+		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest

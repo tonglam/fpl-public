@@ -5,9 +5,7 @@ import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.TournamentMode;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import com.tong.fpl.log.TaskLog;
-import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IRedisCacheSerive;
-import com.tong.fpl.service.IUpdateEventResultService;
+import com.tong.fpl.service.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,9 @@ public class MatchDayTask {
 
 	private final IQuerySerivce querySerivce;
 	private final IRedisCacheSerive redisCacheSerive;
+	private final ITournamentService tournamentService;
 	private final IUpdateEventResultService updateEventResultsService;
+	private final IScoutService scoutService;
 
 	@Scheduled(cron = "0 0/5 0-7,19-23 * * *")
 	public void insertEventLiveCache() {
@@ -51,7 +51,7 @@ public class MatchDayTask {
 		this.redisCacheSerive.insertEventLive(event);
 	}
 
-	@Scheduled(cron = "0 35 6 * * *")
+	@Scheduled(cron = "0 35 6/8 * * *")
 	public void insertEvent() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -61,12 +61,13 @@ public class MatchDayTask {
 		this.redisCacheSerive.insertEvent();
 	}
 
-	@Scheduled(cron = "0 0 7 * * *")
+	@Scheduled(cron = "0 0 7/9 * * *")
 	public void updateTournamentResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
 			return;
 		}
+		this.redisCacheSerive.insertEventLive(event);
 		this.querySerivce.qryAllTournamentList()
 				.stream()
 				.map(TournamentInfoEntity::getId)
@@ -75,16 +76,18 @@ public class MatchDayTask {
 
 	private void updateSingleTournamentResult(int event, int tournamentId) {
 		try {
-			TaskLog.info("start updateSubtitle tournament result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("start add tournament new entry, event:{}, tournament:{}", event, tournamentId);
+			this.tournamentService.addTournamentNewEntry(tournamentId);
+			TaskLog.info("start update tournament result, event:{}, tournament:{}", event, tournamentId);
 			this.updateEventResultsService.updateTournamentEntryEventResult(event, tournamentId);
-			TaskLog.info("end updateSubtitle tournament result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("end update tournament result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TaskLog.error("updateSubtitle tournament result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
+			TaskLog.error("update tournament result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
 		}
 	}
 
-	@Scheduled(cron = "0 5 8 * * *")
+	@Scheduled(cron = "0 5 8/9 * * *")
 	public void updatePointsRaceGroupResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -101,16 +104,16 @@ public class MatchDayTask {
 
 	private void updateSinglePointsRaceGroupResult(int event, int tournamentId) {
 		try {
-			TaskLog.info("start updateSubtitle points_race group result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("start update points_race group result, event:{}, tournament:{}", event, tournamentId);
 			this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
-			TaskLog.info("end updateSubtitle points_race group result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("end update points_race group result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TaskLog.error("updateSubtitle points_race group result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
+			TaskLog.error("update points_race group result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
 		}
 	}
 
-	@Scheduled(cron = "0 10 8 * * *")
+	@Scheduled(cron = "0 10 8/9 * * *")
 	public void updateBattleRaceGroupResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -127,16 +130,16 @@ public class MatchDayTask {
 
 	private void updateSingleBattleRaceGroupResult(int event, int tournamentId) {
 		try {
-			TaskLog.info("start updateSubtitle battle_race group result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("start update battle_race group result, event:{}, tournament:{}", event, tournamentId);
 			this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
-			TaskLog.info("end updateSubtitle battle_race group result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("end update battle_race group result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TaskLog.error("updateSubtitle battle_race group result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
+			TaskLog.error("update battle_race group result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
 		}
 	}
 
-	@Scheduled(cron = "0 15 8 * * *")
+	@Scheduled(cron = "0 15 8/9 * * *")
 	public void updateKnockoutResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -153,13 +156,22 @@ public class MatchDayTask {
 
 	private void updateSingleKnockoutResult(int event, int tournamentId) {
 		try {
-			TaskLog.info("start updateSubtitle knockout result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("start update knockout result, event:{}, tournament:{}", event, tournamentId);
 			this.updateEventResultsService.updateKnockoutResult(event, tournamentId);
-			TaskLog.info("end updateSubtitle knockout result, event:{}, tournament:{}", event, tournamentId);
+			TaskLog.info("end update knockout result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
-			TaskLog.error("updateSubtitle knockout result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
+			TaskLog.error("update knockout result error:{}, event:{}, tournament:{}", e.getMessage(), event, tournamentId);
 		}
+	}
+
+	@Scheduled(cron = "0 20 8/9 * * *")
+	public void updateScoutResult() {
+		int event = this.querySerivce.getCurrentEvent();
+		if (!this.querySerivce.isMatchDay(event)) {
+			return;
+		}
+		this.scoutService.updateEventScoutResult(event);
 	}
 
 }

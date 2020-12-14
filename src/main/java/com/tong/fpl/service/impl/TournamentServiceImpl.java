@@ -975,15 +975,17 @@ public class TournamentServiceImpl implements ITournamentService {
 	}
 
 	@Override
-	public String addTournamentNewEntry(int tournamentId) {
+	public void addTournamentNewEntry(int tournamentId) {
 		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
-			return "赛事不存在！";
+			log.error("赛事不存在！");
+			return;
 		}
 		if (!StringUtils.equals(tournamentInfoEntity.getTournamentMode(), TournamentMode.Normal.name()) ||
 				!StringUtils.equals(tournamentInfoEntity.getGroupMode(), GroupMode.Points_race.name()) ||
 				!StringUtils.equals(tournamentInfoEntity.getKnockoutMode(), KnockoutMode.No_knockout.name())) {
-			return "只有纯积分赛模式能更新！";
+			log.error("赛事：{}，只有纯积分赛模式能更新！", tournamentId);
+			return;
 		}
 		String leagueType = tournamentInfoEntity.getLeagueType();
 		int leagueId = tournamentInfoEntity.getLeagueId();
@@ -992,7 +994,8 @@ public class TournamentServiceImpl implements ITournamentService {
 		// save new entry_info
 		List<EntryInfoData> newEntryInfoList = this.saveTournamentNewEntryInfo(tournamentId, tournamentInfoEntity, leagueType, leagueId);
 		if (CollectionUtils.isEmpty(newEntryInfoList)) {
-			return "没有新增的队伍！";
+			log.info("赛事：{}，没有新增的队伍", tournamentId);
+			return;
 		}
 		// create new tournament group and tournament_group_result
 		this.createTournamentNewGroupData(tournamentId, groupStartGw, groupEndGw, newEntryInfoList);
@@ -1005,7 +1008,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		// update tournament points group result
 		this.updateTournamentPointsGroupResult(tournamentId, groupStartGw, groupEndGw);
 		// return
-		return "更新联赛队伍成功，新增队伍数量：" + newEntryInfoList.size();
+		log.info("赛事：{}，更新联赛队伍成功，新增队伍数量:{}，更新名单：{}", tournamentId, newEntryInfoList.size(), newEntryInfoList.toString());
 	}
 
 	private List<EntryInfoData> saveTournamentNewEntryInfo(int tournamentId, TournamentInfoEntity tournamentInfoEntity, String leagueType, int leagueId) {

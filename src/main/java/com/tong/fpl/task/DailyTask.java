@@ -38,7 +38,6 @@ public class DailyTask {
 		} catch (Exception e) {
 			e.printStackTrace();
 			TaskLog.error(e.getMessage());
-			this.refreshPlayerValue();
 		}
 	}
 
