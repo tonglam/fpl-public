@@ -28,6 +28,7 @@
                 <ul class="layui-tab-title">
                     <li class="layui-this" lay-id="pick" th:text="'GW'+${nextGw}+'推荐'"></li>
                     <li class="" lay-id="result">推荐结果</li>
+                    <li class="" lay-id="offiaccount">公号阵容</li>
                 </ul>
 
                 <div class="layui-tab-content">
@@ -166,6 +167,10 @@
                         <table class="layui-table" id="scoutTable" lay-filter="scoutTable"></table>
                     </div>
 
+                    <div class="layui-tab-item">
+                        <table class="layui-table" id="offiaccountTable" lay-filter="offiaccountTable"></table>
+                    </div>
+
                 </div>
 
             </div>
@@ -223,6 +228,8 @@
                 total: true
             }
         });
+
+        <!-- pick -->
 
         loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
 
@@ -592,6 +599,8 @@
             });
         }
 
+        <!-- result -->
+
         element.on('tab(checkTab)', function (data) {
             if (data.index === 1) {
                 // 当前周
@@ -721,6 +730,39 @@
                     });
                 }
             });
+        });
+
+        <!-- offiaccount -->
+        table.render({
+            elem: '#offiaccountTable',
+            even: true,
+            url: '/stat/qryEventScoutList',
+            where: {event: 0},
+            cellMinWidth: 60,
+            cols: [[
+                {title: '排名', type: 'numbers'},
+                {field: 'scoutName', title: '球探', align: 'center', width: 200},
+                {field: 'gkpName', title: '门将', align: 'center', width: 120},
+                {field: 'gkpPoints', title: '得分', align: 'center'},
+                {field: 'defName', title: '后卫', align: 'center', width: 120},
+                {field: 'defPoints', title: '得分', align: 'center'},
+                {field: 'midName', title: '中场', align: 'center', width: 120},
+                {field: 'midPoints', title: '得分', align: 'center'},
+                {field: 'fwdName', title: '前锋', align: 'center', width: 120},
+                {field: 'fwdPoints', title: '得分', align: 'center'},
+                {field: 'captainName', title: '队长', align: 'center', width: 120},
+                {field: 'captainPoints', title: '得分', align: 'center'},
+                {field: 'eventPoints', title: '周得分', align: 'center', width: 80},
+                {field: 'totalPoints', title: '总得分', align: 'center', width: 80}
+            ]],
+            initSort: {
+                field: 'eventPoints',
+                type: 'desc'
+            },
+            id: 'offiaccountTable',
+            done: function () {
+                soulTable.render(this);
+            }
         });
 
     });
