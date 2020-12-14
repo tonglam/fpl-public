@@ -6,6 +6,7 @@ import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userHistory.Current;
@@ -41,6 +42,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	private final IQuerySerivce queryService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
+	private final EntryEventTransferService entryEventTransferService;
 	private final EntryInfoService entryInfoService;
 	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
@@ -129,6 +131,66 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		}
 	}
 
+	private EntryEventResultEntity calcEntryEventPoints(int event, int entry, UserPicksRes userPick, Map<Integer, Integer> elementPointsMap) {
+		return new EntryEventResultEntity()
+				.setEntry(entry)
+				.setEvent(event)
+				.setEventPoints(userPick.getEntryHistory().getPoints())
+				.setEventTransfers(userPick.getEntryHistory().getEventTransfers())
+				.setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
+				.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
+				.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
+				.setEventRank(userPick.getEntryHistory().getRank())
+				.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
+				.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap))
+				.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
+				.setOverallRank(userPick.getEntryHistory().getOverallRank());
+	}
+
+	@Override
+	public void updateEntryEventTransfer(int entry) {
+		if (entry <= 0) {
+			return;
+		}
+		List<TransferRes> transferResList = this.queryService.getTransfer(entry);
+		if (CollectionUtils.isEmpty(transferResList)) {
+			return;
+		}
+		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		// get data from transfer
+		List<EntryEventTransferEntity> entryEventTransferList = this.getEntryEventTransfer(transferResList);
+		if (CollectionUtils.isEmpty(entryEventTransferList)) {
+			return;
+		}
+		// insert or update
+		Map<String, EntryEventTransferEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
+				.eq(EntryEventTransferEntity::getEntry, entry))
+				.stream()
+				.collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEvent(), k.getEntry(), k.getElementIn(), k.getElementOut(), k.getTime()), o -> o));
+		entryEventTransferList.forEach(o -> {
+			if (!entryEventTransferMap.containsKey(StringUtils.joinWith("-", o.getEvent(), o.getEntry(), o.getElementIn(), o.getElementOut(), o.getTime()))) {
+				list.add(o);
+			}
+		});
+		this.entryEventTransferService.saveBatch(list);
+	}
+
+	private List<EntryEventTransferEntity> getEntryEventTransfer(List<TransferRes> transferResList) {
+		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		transferResList.forEach(o ->
+				list.add(
+						new EntryEventTransferEntity()
+								.setEntry(o.getEntry())
+								.setEvent(o.getEvent())
+								.setElementIn(o.getElementIn())
+								.setElementInCost(o.getElementInCost())
+								.setElementOut(o.getElementOut())
+								.setElementOutCost(o.getElementOutCost())
+								.setTime(o.getTime())
+				));
+		return list;
+	}
+
 	@Override
 	public void updateTournamentEntryEventResult(int event, int tournamentId) {
 		// get entry_list
@@ -169,20 +231,35 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		this.entryEventResultService.updateBatchById(updateEventResultList);
 	}
 
-	private EntryEventResultEntity calcEntryEventPoints(int event, int entry, UserPicksRes userPick, Map<Integer, Integer> elementPointsMap) {
-		return new EntryEventResultEntity()
-				.setEntry(entry)
-				.setEvent(event)
-				.setEventPoints(userPick.getEntryHistory().getPoints())
-				.setEventTransfers(userPick.getEntryHistory().getEventTransfers())
-				.setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
-				.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
-				.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
-				.setEventRank(userPick.getEntryHistory().getRank())
-				.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
-				.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap))
-				.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
-				.setOverallRank(userPick.getEntryHistory().getOverallRank());
+	@Override
+	public void updateTournamentEntryEventTransfer(int tournamentId) {
+		// get entry_list
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
+		Map<String, EntryEventTransferEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
+				.in(EntryEventTransferEntity::getEntry, entryList))
+				.stream()
+				.collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEvent(), k.getEntry(), k.getElementIn(), k.getElementOut(), k.getTime()), o -> o));
+		// upsert entry_event_transfer
+		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		entryList.forEach(entry -> {
+			if (entry <= 0) {
+				return;
+			}
+			List<TransferRes> transferResList = this.queryService.getTransfer(entry);
+			if (CollectionUtils.isEmpty(transferResList)) {
+				return;
+			}
+			List<EntryEventTransferEntity> entryEventTransferList = this.getEntryEventTransfer(transferResList);
+			if (CollectionUtils.isEmpty(entryEventTransferList)) {
+				return;
+			}
+			entryEventTransferList.forEach(o -> {
+				if (!entryEventTransferMap.containsKey(StringUtils.joinWith("-", o.getEvent(), o.getEntry(), o.getElementIn(), o.getElementOut(), o.getTime()))) {
+					list.add(o);
+				}
+			});
+		});
+		this.entryEventTransferService.saveBatch(list);
 	}
 
 	@Override

@@ -34,12 +34,16 @@ public interface IMyFplApi {
      */
     TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
-    String qryLeagueNameByIdAndType(int leagueId, String leagueType);
+	String qryLeagueNameByIdAndType(int leagueId, String leagueType);
 
-    TableData<LeagueEventReportStatData> qryLeagueReportStat(int leagueId, String leagueType);
+	TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
 
-    TableData<LeagueEventReportData> qryLeagueEventReportList(int leagueId, String leagueType, int event);
+	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event);
 
 	TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry);
+
+	TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType);
+
+	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event);
 
 }

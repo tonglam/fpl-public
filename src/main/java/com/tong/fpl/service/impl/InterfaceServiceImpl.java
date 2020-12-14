@@ -142,4 +142,17 @@ public class InterfaceServiceImpl implements IInterfaceService {
 		return Optional.empty();
 	}
 
+	@Override
+	public Optional<List<TransferRes>> getTransfer(int entry) {
+		try {
+			String result = HttpUtils.httpGet(String.format(Constant.TRANSFER, entry)).orElse("");
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+			return Optional.of(mapper.readValue(result, new TypeReference<List<TransferRes>>() {}));
+		} catch (IOException e) {
+			log.error("getTransfer error: " + e.getMessage());
+		}
+		return Optional.empty();
+	}
+
 }

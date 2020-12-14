@@ -73,24 +73,28 @@ public interface ITableQueryService {
 
     TableData<EntryEventResultData> qryEntryResultList(int entry);
 
-    TableData<ElementEventResultData> qryElementEventResult(int event, int element);
+	TableData<ElementEventResultData> qryElementEventResult(int event, int element);
 
-    /**
-     * @apiNote report
-     */
-    TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+	/**
+	 * @apiNote report
+	 */
+	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
 
-    TableData<LeagueEventReportStatData> qryLeagueReportStat(int leagueId, String leagueType);
+	TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry);
 
-    TableData<LeagueEventReportData> qryLeagueEventReportList(int leagueId, String leagueType, int event);
+	TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
 
-    TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry);
+	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event);
 
-    /**
-     * @apiNote scout
-     */
-    TableData<ScoutData> qryEventScoutPickList(int event);
+	TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType);
 
-    TableData<ScoutData> qryEventScoutList(int event);
+	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event);
+
+	/**
+	 * @apiNote scout
+	 */
+	TableData<ScoutData> qryEventScoutPickList(int event);
+
+	TableData<ScoutData> qryEventScoutList(int event);
 
 }

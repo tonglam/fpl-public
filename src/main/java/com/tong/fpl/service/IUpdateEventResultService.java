@@ -9,20 +9,24 @@ public interface IUpdateEventResultService {
 
 	void updateEntryEventResult(int event, int entry);
 
+	void updateEntryEventTransfer(int entry);
+
 	void updateTournamentEntryEventResult(int event, int tournamentId);
+
+	void updateTournamentEntryEventTransfer(int tournamentId);
 
 	void updatePointsRaceGroupResult(int event, int tournamentId);
 
-    void updateBattleRaceGroupResult(int event, int tournamentId);
+	void updateBattleRaceGroupResult(int event, int tournamentId);
 
-    void updateKnockoutResult(int event, int tournamentId);
+	void updateKnockoutResult(int event, int tournamentId);
 
-    void updateZjPhaseOneResult(int event, int tournamentId);
+	void updateZjPhaseOneResult(int event, int tournamentId);
 
-    void updateZjPhaseTwoResult(int event, int tournamentId);
+	void updateZjPhaseTwoResult(int event, int tournamentId);
 
-    void updateZjPkResult(int event, int tournamentId);
+	void updateZjPkResult(int event, int tournamentId);
 
-    void updateZjTournamentResult(int tournamentId);
+	void updateZjTournamentResult(int tournamentId);
 
 }

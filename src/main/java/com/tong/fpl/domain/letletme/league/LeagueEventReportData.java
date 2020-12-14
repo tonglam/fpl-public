@@ -1,7 +1,10 @@
 package com.tong.fpl.domain.letletme.league;
 
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * Create by tong on 2020/9/2
@@ -46,6 +49,11 @@ public class LeagueEventReportData {
 	private String highestScoreSelected;
 	private String highestScoreSelectedInLeague;
 	private String highestScorePointsByPercent;
-
+	private String earnings;
+	private int transferInTotalPoints;
+	private int transferInTotalValue;
+	private int transferOutTotalPoints;
+	private int transferOutTotalValue;
+	private List<ElementEventResultData> transferElementList;
 
 }

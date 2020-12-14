@@ -3,7 +3,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="layout::header(~{::title},~{})">
-    <title>队长统计-我的fpl-letletme</title>
+    <title>转会统计-我的fpl-letletme</title>
 </head>
 
 <body>
@@ -107,7 +107,7 @@
 
         table.render({
             elem: '#leagueReportStatTable',
-            url: '/my_fpl/qryLeagueCaptainReportStat',
+            url: '/my_fpl/qryLeagueTransferReportStat',
             where: {
                 leagueId: leagueId,
                 leagueType: leagueType
@@ -288,7 +288,7 @@
                 $("#leagueReportStat").removeClass("layui-hide");
                 $("#leagueEventReport").addClass("layui-hide");
                 table.reload('leagueReportStatTable', {
-                    url: '/my_fpl/qryLeagueCaptainReportStat',
+                    url: '/my_fpl/qryLeagueTransferReportStat',
                     where: {
                         leagueId: leagueId,
                         leagueType: leagueType
@@ -299,7 +299,7 @@
                 $("#leagueEventReport").removeClass("layui-hide");
                 table.render({
                     elem: '#leagueEventReportTable',
-                    url: '/my_fpl/qryLeagueCaptainEventReportList',
+                    url: '/my_fpl/qryLeagueTransferEventReportList',
                     where: {
                         leagueId: leagueId,
                         leagueType: leagueType,

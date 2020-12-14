@@ -11,6 +11,7 @@ import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
@@ -279,6 +280,12 @@ public class QueryServiceImpl implements IQuerySerivce {
 				.stream()
 				.map(TournamentEntryEntity::getTournamentId)
 				.collect(Collectors.toList());
+	}
+
+	//	@Cacheable(value = "getTransfer", key = "#entry", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Override
+	public List<TransferRes> getTransfer(int entry) {
+		return this.staticService.getTransfer(entry).orElse(null);
 	}
 
 	/**

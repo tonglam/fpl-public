@@ -18,5 +18,6 @@ public class LeagueEventReportStatData {
 	private int teamValue;
 	private int bank;
 	private LeagueEventCaptainData captainData;
+	private LeagueEventTransferData transferData;
 
 }

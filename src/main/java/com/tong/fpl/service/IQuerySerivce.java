@@ -2,6 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
@@ -89,6 +90,8 @@ public interface IQuerySerivce {
 	UserHistoryRes getUserHistory(int entry);
 
 	List<Integer> qryEntryTournamentList(int entry);
+
+	List<TransferRes> getTransfer(int entry);
 
 	/**
 	 * @apiNote event

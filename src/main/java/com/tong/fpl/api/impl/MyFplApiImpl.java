@@ -62,23 +62,33 @@ public class MyFplApiImpl implements IMyFplApi {
 	}
 
 	@Override
+	public TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry) {
+		return this.tableQueryService.qryEntryEventReportList(leagueId, leagueType, entry);
+	}
+
+	@Override
 	public String qryLeagueNameByIdAndType(int leagueId, String leagueType) {
 		return this.querySerivce.qryLeagueNameByIdAndType(leagueId, leagueType);
 	}
 
 	@Override
-	public TableData<LeagueEventReportStatData> qryLeagueReportStat(int leagueId, String leagueType) {
-		return this.tableQueryService.qryLeagueReportStat(leagueId, leagueType);
+	public TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType) {
+		return this.tableQueryService.qryLeagueCaptainReportStat(leagueId, leagueType);
 	}
 
 	@Override
-	public TableData<LeagueEventReportData> qryLeagueEventReportList(int leagueId, String leagueType, int event) {
-		return this.tableQueryService.qryLeagueEventReportList(leagueId, leagueType, event);
+	public TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event) {
+		return this.tableQueryService.qryLeagueCaptainEventReportList(leagueId, leagueType, event);
 	}
 
 	@Override
-	public TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry) {
-		return this.tableQueryService.qryEntryEventReportList(leagueId, leagueType, entry);
+	public TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType) {
+		return this.tableQueryService.qryLeagueTransferReportStat(leagueId, leagueType);
+	}
+
+	@Override
+	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event) {
+		return this.tableQueryService.qryLeagueTransferEventReportList(leagueId, leagueType, event);
 	}
 
 }

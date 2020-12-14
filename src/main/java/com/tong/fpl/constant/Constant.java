@@ -10,8 +10,8 @@ public class Constant {
 	public static final String DATE = "yyyy-MM-dd";
 	public static final String SHORTDAY = "yyyyMMdd";
 
-    // url
-    public static final String LOGIN = "https://users.premierleague.com/accounts/login/";
+	public static final String LOGIN = "https://users.premierleague.com/accounts/login/";
+	// url
 	private static final String PREFIX = "https://fantasy.premierleague.com/api/";
 	public static final String BOOTSTRAP_STATIC = PREFIX + "bootstrap-static/";
 	public static final String ENTRY = PREFIX + "entry/%s/";
@@ -22,6 +22,7 @@ public class Constant {
 	public static final String EVENT_LIVE = PREFIX + "event/%s/live/";
 	public static final String EVENT_FIXTURES = PREFIX + "fixtures/?event=%s";
 	public static final String ELEMENT = PREFIX + "element-summary/%s/";
+	public static final String TRANSFER = PREFIX + "entry/%s/transfers/";
 
 	// location
 	public static final String SUBTITLE_FILE_LOCATION = "/home/workspace/subtitle/";

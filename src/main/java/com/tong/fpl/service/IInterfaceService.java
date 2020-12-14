@@ -30,4 +30,6 @@ public interface IInterfaceService {
 
 	Optional<ElementSummaryRes> getElementSummary(int element);
 
+	Optional<List<TransferRes>> getTransfer(int entry);
+
 }

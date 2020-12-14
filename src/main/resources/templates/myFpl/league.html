@@ -199,6 +199,8 @@
             let event = obj.event, leagueId = obj.data.leagueId, leagueType = obj.data.leagueType;
             if (event === 'captain') {
                 window.location.replace('/my_fpl/leagueCaptainReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+            } else if (event === 'transfer') {
+                window.location.replace('/my_fpl/leagueTransferReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
             }
         });
 
