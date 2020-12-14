@@ -364,7 +364,7 @@ public class QueryServiceImpl implements IQuerySerivce {
 		if (start == null) {
 			return false;
 		}
-		return LocalDateTime.now().isAfter(start) && LocalDateTime.now().isBefore(last);
+		return LocalDateTime.now().isAfter(start) && LocalDateTime.now().minusHours(2).isBefore(last);
 	}
 
 	@Override
