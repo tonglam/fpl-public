@@ -53,14 +53,14 @@
 
                         <div style="margin-top: 20px"></div>
 
-                        <div id="leagueReportStat">
-                            <table class="layui-table" id="leagueReportStatTable"
-                                   lay-filter="leagueReportStatTable"></table>
+                        <div id="leagueCaptainReportStat">
+                            <table class="layui-table" id="leagueCaptainReportStatTable"
+                                   lay-filter="leagueCaptainReportStatTable"></table>
                         </div>
 
-                        <div id="leagueEventReport">
-                            <table class="layui-table" id="leagueEventReportTable"
-                                   lay-filter="leagueEventReportTable"></table>
+                        <div id="leagueCaptainEventReport">
+                            <table class="layui-table" id="leagueCaptainEventReportTable"
+                                   lay-filter="leagueCaptainEventReportTable"></table>
                         </div>
 
                     </div>
@@ -106,7 +106,7 @@
         });
 
         table.render({
-            elem: '#leagueReportStatTable',
+            elem: '#leagueCaptainReportStatTable',
             url: '/my_fpl/qryLeagueCaptainReportStat',
             where: {
                 leagueId: leagueId,
@@ -269,7 +269,7 @@
                 items: ['data'],
                 bottom: false
             },
-            id: 'leagueReportStatTable',
+            id: 'leagueCaptainReportStatTable',
             initSort: {
                 field: 'captainTotalPoints',
                 type: 'desc'
@@ -285,8 +285,8 @@
             // 渲染
             let event = data.value;
             if (event === '0') {
-                $("#leagueReportStat").removeClass("layui-hide");
-                $("#leagueEventReport").addClass("layui-hide");
+                $("#leagueCaptainReportStat").removeClass("layui-hide");
+                $("#leagueCaptainEventReport").addClass("layui-hide");
                 table.reload('leagueReportStatTable', {
                     url: '/my_fpl/qryLeagueCaptainReportStat',
                     where: {
@@ -295,10 +295,10 @@
                     },
                 })
             } else {
-                $("#leagueReportStat").addClass("layui-hide");
-                $("#leagueEventReport").removeClass("layui-hide");
+                $("#leagueCaptainReportStat").addClass("layui-hide");
+                $("#leagueCaptainEventReport").removeClass("layui-hide");
                 table.render({
-                    elem: '#leagueEventReportTable',
+                    elem: '#leagueCaptainEventReportTable',
                     url: '/my_fpl/qryLeagueCaptainEventReportList',
                     where: {
                         leagueId: leagueId,
@@ -453,7 +453,7 @@
                             }
                         ]
                     ],
-                    id: 'leagueEventReportTable',
+                    id: 'leagueCaptainEventReportTable',
                     filter: {
                         items: ['data'],
                         bottom: false
@@ -465,12 +465,12 @@
             }
         });
 
-        table.on('row(leagueReportStatTable)', function (obj) {
+        table.on('row(leagueCaptainReportStatTable)', function (obj) {
             let entry = obj.data.entry, entryName = obj.data.entryName;
             initEntryTab(entry, entryName);
         });
 
-        table.on('row(leagueEventReportTable)', function (obj) {
+        table.on('row(leagueCaptainEventReportTable)', function (obj) {
             let entry = obj.data.entry, entryName = obj.data.entryName;
             initEntryTab(entry, entryName);
         });
