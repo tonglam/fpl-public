@@ -1584,7 +1584,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
-	//	@Cacheable(value = "qryLeagueTransferReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
+	@Cacheable(value = "qryLeagueTransferReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType) {
 		// prepare
