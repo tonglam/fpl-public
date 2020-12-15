@@ -131,6 +131,8 @@
    </button>
 
 
+
+
 </script>
 
 <script th:inline="none">
@@ -147,49 +149,52 @@
             }
         });
 
+        table.render({
+            elem: '#tournamentTable',
+            method: 'post',
+            contentType: 'application/json',
+            url: '/my_fpl/qryTournamenList',
+            loading: true,
+            cellMinWidth: 80,
+            cols: [[
+                {field: 'name', title: '名字', align: 'center', width: 300},
+                {field: 'creator', title: '创建者', align: 'center', width: 120},
+                {field: 'season', title: '赛季', align: 'center'},
+                {field: 'leagueType', title: '类型', align: 'center'},
+                {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100},
+                {field: 'createTime', title: '创建时间', align: 'center', width: 120},
+                {
+                    fixed: 'right',
+                    title: '操作',
+                    align: 'center',
+                    width: 125,
+                    toolbar: '#checkbar'
+                }
+            ]],
+            id: 'tournamentTable',
+            done: function (res) {
+                soulTable.render(this);
+                // 在表格渲染完成后进行下拉框渲染
+                for (let i = 0; i < res.data.length; i++) {
+                    dropdown.suite("#check_" + res.data[i].id, {
+                        data: res.data[i]
+                    });
+                }
+            }
+        });
+
         $("#searchTournamentButton").on('click', function () {
             let leagueId = $("input[name=leagueId]").val();
             let name = $("input[name=name]").val();
             let creator = $("input[name=creator]").val();
             let season = $("select[name=season]").val();
 
-            table.render({
-                elem: '#tournamentTable',
-                method: 'post',
-                contentType: 'application/json',
-                url: '/my_fpl/qryTournamenList',
+            table.reload('tournamentTable', {
                 where: {
                     name: name,
                     creator: creator,
                     leagueId: leagueId,
                     season: season
-                },
-                loading: true,
-                cellMinWidth: 80,
-                cols: [[
-                    {field: 'name', title: '名字', align: 'center', width: 300},
-                    {field: 'creator', title: '创建者', align: 'center', width: 120},
-                    {field: 'season', title: '赛季', align: 'center'},
-                    {field: 'leagueType', title: '类型', align: 'center'},
-                    {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100},
-                    {field: 'createTime', title: '创建时间', align: 'center', width: 120},
-                    {
-                        fixed: 'right',
-                        title: '操作',
-                        align: 'center',
-                        width: 125,
-                        toolbar: '#checkbar'
-                    }
-                ]],
-                id: 'tournamenTable',
-                done: function (res) {
-                    soulTable.render(this);
-                    // 在表格渲染完成后进行下拉框渲染
-                    for (let i = 0; i < res.data.length; i++) {
-                        dropdown.suite("#check_" + res.data[i].id, {
-                            data: res.data[i]
-                        });
-                    }
                 }
             });
 
