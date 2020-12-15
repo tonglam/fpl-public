@@ -10,17 +10,21 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ScoutPlayerData {
 
-	private int element;
-	private String webName;
-	private int elementType;
-	private String elementTypeName;
-	private int teamId;
-	private String teamName;
-	private String teamShortName;
-	private double price;
-	private int fixtureEvent1;
-	private String againstTeam1ShortName;
-	private int difficulty1;
+    private int element;
+    private int position;
+    private int multiplier;
+    private boolean isCaptain;
+    private boolean isViceCaptain;
+    private String webName;
+    private int elementType;
+    private String elementTypeName;
+    private int teamId;
+    private String teamName;
+    private String teamShortName;
+    private double price;
+    private int fixtureEvent1;
+    private String againstTeam1ShortName;
+    private int difficulty1;
 	private boolean wasHome1;
 	private int fixtureEvent2;
 	private String againstTeam2ShortName;

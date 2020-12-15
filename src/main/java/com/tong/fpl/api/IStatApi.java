@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
@@ -39,14 +40,16 @@ public interface IStatApi {
 
 	void upsertEventScout(ScoutData scoutData) throws Exception;
 
-	TableData<ScoutData> qryEventScoutPickList(int event);
+    TableData<ScoutData> qryEventScoutPickList(int event);
 
-	ScoutData qryScoutEntryEventData(int event, int entry);
+    ScoutData qryScoutEntryEventData(int event, int entry);
 
-	TableData<ScoutData> qryEventScoutList(int event);
+    TableData<ScoutData> qryEventScoutList(int event);
 
-	List<DropdownData> getScoutEvent();
+    List<DropdownData> getScoutEvent();
 
-	String getScoutDeadline(int event);
+    String getScoutDeadline(int event);
+
+    TableData<EntryPickData> qryOffiaccountPickList();
 
 }
