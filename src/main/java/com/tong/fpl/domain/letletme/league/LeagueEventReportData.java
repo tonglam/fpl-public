@@ -13,6 +13,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class LeagueEventReportData {
 
+	private int rank;
 	private int entry;
 	private String entryName;
 	private String playerName;
@@ -50,10 +51,12 @@ public class LeagueEventReportData {
 	private String highestScoreSelectedInLeague;
 	private String highestScorePointsByPercent;
 	private int transferInTotalPoints;
-	private int transferInTotalValue;
 	private int transferOutTotalPoints;
-	private int transferOutTotalValue;
+	private int transferPoints;
 	private int transferNetPoints;
+	private int transferInTotalValue;
+	private int transferOutTotalValue;
+	private int transferValue;
 	private List<EntryEventTransferData> entryEventTransferList;
 
 }

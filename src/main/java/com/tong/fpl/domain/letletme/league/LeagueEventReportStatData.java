@@ -17,6 +17,8 @@ public class LeagueEventReportStatData {
 	private int overallRank;
 	private int teamValue;
 	private int bank;
+	private int transfers;
+	private int transfersCost;
 	private LeagueEventCaptainData captainData;
 	private LeagueEventTransferData transferData;
 

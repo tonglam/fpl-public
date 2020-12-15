@@ -101,12 +101,9 @@ public class MyFplController {
 		return this.myFplApi.qryTournamenList(param);
 	}
 
-	@RequestMapping("/qryEntryEventReportList")
-	@ResponseBody
-	public TableData<LeagueEventReportData> qryEntryEventReportList(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
-		return this.myFplApi.qryEntryEventReportList(leagueId, leagueType, entry);
-	}
-
+	/**
+	 * @apiNote leagueCaptain
+	 */
 	@RequestMapping("/qryLeagueCaptainReportStat")
 	@ResponseBody
 	public TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(@RequestParam int leagueId, @RequestParam String leagueType) {
@@ -119,6 +116,15 @@ public class MyFplController {
 		return this.myFplApi.qryLeagueCaptainEventReportList(leagueId, leagueType, event);
 	}
 
+	@RequestMapping("/qryEntryCaptainEventReportList")
+	@ResponseBody
+	public TableData<LeagueEventReportData> qryEntryCaptainEventReportList(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+		return this.myFplApi.qryEntryCaptainEventReportList(leagueId, leagueType, entry);
+	}
+
+	/**
+	 * @apiNote leagueTransfer
+	 */
 	@RequestMapping("/qryLeagueTransferReportStat")
 	@ResponseBody
 	public TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(@RequestParam int leagueId, @RequestParam String leagueType) {
@@ -129,6 +135,12 @@ public class MyFplController {
 	@ResponseBody
 	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int event) {
 		return this.myFplApi.qryLeagueTransferEventReportList(leagueId, leagueType, event);
+	}
+
+	@RequestMapping("/qryEntryTransferEventReportList")
+	@ResponseBody
+	public TableData<LeagueEventReportData> qryEntryTransferEventReportList(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+		return this.myFplApi.qryEntryTransferEventReportList(leagueId, leagueType, entry);
 	}
 
 }

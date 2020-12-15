@@ -10,12 +10,12 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class LeagueEventTransferData {
 
-    private int elementIn;
-    private String elementInName;
-    private int elementInCost;
-    private int elementOut;
-    private String elementOutName;
-    private int elementOutCost;
-    private String time;
+    private int transferInTotalPoints;
+    private int transferOutTotalPoints;
+    private int transferPoints;
+    private int transferNetPoints;
+    private int transferInTotalValue;
+    private int transferOutTotalValue;
+    private int transferValue;
 
 }

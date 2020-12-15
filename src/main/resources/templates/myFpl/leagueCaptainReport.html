@@ -151,6 +151,7 @@
                         title: '球队名称',
                         align: 'center',
                         width: 200,
+                        event: 'entryEvent',
                         rowspan: 2,
                         templet: '#entryNameTpl',
                         filter: true
@@ -319,6 +320,7 @@
                                 title: '球队名称',
                                 align: 'center',
                                 width: 200,
+                                event: 'entryEvent',
                                 rowspan: 2,
                                 templet: '#entryNameTpl',
                                 filter: true
@@ -465,14 +467,18 @@
             }
         });
 
-        table.on('row(leagueCaptainReportStatTable)', function (obj) {
-            let entry = obj.data.entry, entryName = obj.data.entryName;
-            initEntryTab(entry, entryName);
+        table.on('tool(leagueCaptainReportStatTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
         });
 
-        table.on('row(leagueCaptainEventReportTable)', function (obj) {
-            let entry = obj.data.entry, entryName = obj.data.entryName;
-            initEntryTab(entry, entryName);
+        table.on('tool(leagueCaptainEventReportTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
         });
 
         function initEntryTab(entry, entryName) {
@@ -494,7 +500,7 @@
             // 渲染
             table.render({
                 elem: '#' + tableId,
-                url: '/my_fpl/qryEntryEventReportList',
+                url: '/my_fpl/qryEntryCaptainEventReportList',
                 where: {
                     leagueId: leagueId,
                     leagueType: leagueType,
@@ -532,17 +538,7 @@
                             align: 'center',
                             rowspan: 2,
                             templet: function (d) {
-                                if (d.eventChip === 'wildcard') {
-                                    return 'wc';
-                                } else if (d.eventChip === '3xc') {
-                                    return '3c';
-                                } else if (d.eventChip === 'bboost') {
-                                    return 'bb';
-                                } else if (d.eventChip === 'freehit') {
-                                    return 'fh';
-                                } else {
-                                    return d.eventChip;
-                                }
+                                return showChip(d.eventChip);
                             }
                         },
                         {title: '队长', align: 'center', colspan: 5},

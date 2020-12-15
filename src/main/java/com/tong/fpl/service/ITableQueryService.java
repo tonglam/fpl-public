@@ -80,15 +80,17 @@ public interface ITableQueryService {
 	 */
 	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
 
-	TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry);
-
 	TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
 
 	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event);
 
+	TableData<LeagueEventReportData> qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry);
+
 	TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType);
 
 	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event);
+
+	TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry);
 
 	/**
 	 * @apiNote scout

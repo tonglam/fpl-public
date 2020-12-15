@@ -29,21 +29,29 @@ public interface IMyFplApi {
      */
     TableData<PlayerInfoData> qryPlayerDataList(int page, int limit);
 
-    /**
-     * @apiNote league
-     */
-    TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+	/**
+	 * @apiNote league
+	 */
+	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
 
 	String qryLeagueNameByIdAndType(int leagueId, String leagueType);
 
+	/**
+	 * @apiNote leagueCaptain
+	 */
 	TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
 
 	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event);
 
-	TableData<LeagueEventReportData> qryEntryEventReportList(int leagueId, String leagueType, int entry);
+	TableData<LeagueEventReportData> qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry);
 
+	/**
+	 * @apiNote leagueTransfer
+	 */
 	TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType);
 
 	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event);
+
+	TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry);
 
 }

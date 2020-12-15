@@ -105,179 +105,190 @@
             window.location.replace("/my_fpl/league");
         });
 
-        // table.render({
-        //     elem: '#leagueTransferReportStatTable',
-        //     url: '/my_fpl/qryLeagueTransferReportStat',
-        //     where: {
-        //         leagueId: leagueId,
-        //         leagueType: leagueType
-        //     },
-        //     parseData: function (res) {
-        //         let data = [];
-        //         $.each(res.data, function (index, item) {
-        //             item.captainTotalPoints = item.captainData.totalPoints;
-        //             item.captainTotalPointsByPercent = item.captainData.totalPointsByPercent;
-        //             item.captainMaxPointsEvent = item.captainData.maxPointsEvent;
-        //             item.captainMaxPoints = item.captainData.maxPoints;
-        //             item.captainMaxPointsWebName = item.captainData.maxPointsWebName;
-        //             item.captainMinPointsEvent = item.captainData.minPointsEvent;
-        //             item.captainMinPoints = item.captainData.minPoints;
-        //             item.captainMinPointsWebName = item.captainData.minPointsWebName;
-        //             item.mostSelectedCaptain = item.captainData.mostSelected;
-        //             item.mostSelectedCaptainWebName = item.captainData.mostSelectedWebName;
-        //             item.mostSelectedCaptainTimes = item.captainData.mostSelectedtimes;
-        //             item.captainBlankTimes = item.captainData.blankTimes;
-        //             item.captainHitTimes = item.captainData.hitTimes;
-        //             data.push(item);
-        //         });
-        //         return {
-        //             "code": res.code,
-        //             "msg": res.message,
-        //             "count": res.count,
-        //             "data": data
-        //         };
-        //     },
-        //     toolbar: true,
-        //     defaultToolbar: ['filter'],
-        //     loading: true,
-        //     even: true,
-        //     limit: 200,
-        //     cellMinWidth: 80,
-        //     cols: [
-        //         [
-        //             {title: '排名', type: 'numbers', width: 50, rowspan: 2},
-        //             {
-        //                 field: 'entryName',
-        //                 title: '球队名称',
-        //                 align: 'center',
-        //                 width: 200,
-        //                 rowspan: 2,
-        //                 templet: '#entryNameTpl',
-        //                 filter: true
-        //             },
-        //             {
-        //                 field: 'overallPoints',
-        //                 title: '总得分',
-        //                 align: 'center',
-        //                 width: 90,
-        //                 rowspan: 2,
-        //                 sort: true,
-        //                 filter: true
-        //             },
-        //             {
-        //                 field: 'overallRank',
-        //                 title: '总排名',
-        //                 align: 'center',
-        //                 width: 90,
-        //                 rowspan: 2,
-        //                 sort: true,
-        //                 filter: true,
-        //                 templet: function (d) {
-        //                     return showOverallRank(d.overallRank);
-        //                 }
-        //             },
-        //             {title: '队长', align: 'center', colspan: 9}
-        //         ],
-        //         [
-        //             {
-        //                 field: 'captainTotalPoints',
-        //                 title: '加权总分',
-        //                 align: 'center',
-        //                 width: 110,
-        //                 style: 'background-color: #5FB878; color: #fff;',
-        //                 sort: true,
-        //                 filter: true
-        //             },
-        //             {
-        //                 field: 'captainTotalPointsByPercent',
-        //                 title: '得分占比',
-        //                 align: 'center',
-        //                 width: 110,
-        //                 style: 'background-color: #5FB878; color: #fff;',
-        //                 sort: true,
-        //                 filter: true
-        //             },
-        //             {
-        //                 field: 'captainMaxPoints',
-        //                 title: '最高分',
-        //                 align: 'center',
-        //                 width: 100,
-        //                 style: 'background-color: #5FB878; color: #fff;',
-        //                 templet: function (d) {
-        //                     return d.captainMaxPoints + '  (GW' + d.captainMaxPointsEvent + ') ';
-        //                 },
-        //                 sort: true,
-        //                 filter: true
-        //             },
-        //             {
-        //                 field: 'captainMaxPointsWebName',
-        //                 title: '球员',
-        //                 align: 'center',
-        //                 width: 120,
-        //                 style: 'background-color: #5FB878; color: #fff;',
-        //                 filter: true
-        //             },
-        //             {
-        //                 field: 'captainMinPoints',
-        //                 title: '最低分',
-        //                 align: 'center',
-        //                 width: 100,
-        //                 style: 'background-color: #5FB878; color: #fff;',
-        //                 templet: function (d) {
-        //                     return d.captainMinPoints + ' (GW' + d.captainMaxPointsEvent + ') ';
-        //                 },
-        //                 sort: true,
-        //                 filter: true
-        //             },
-        //             {
-        //                 field: 'mostSelectedCaptainWebName',
-        //                 title: '最多选择',
-        //                 align: 'center',
-        //                 width: 150,
-        //                 style: 'background-color: #5FB878; color: #fff;',
-        //                 templet: function (d) {
-        //                     return d.mostSelectedCaptainWebName + " (" + d.mostSelectedCaptainTimes + '次) ';
-        //                 },
-        //                 filter: true
-        //             },
-        //             {
-        //                 field: 'captainBlankTimes',
-        //                 title: 'blank',
-        //                 align: 'center',
-        //                 style: 'background-color: #5FB878; color: #fff;',
-        //                 sort: true,
-        //                 filter: true,
-        //                 templet: function (d) {
-        //                     return d.captainBlankTimes + '次';
-        //                 }
-        //             },
-        //             {
-        //                 field: 'captainHitTimes',
-        //                 title: '命中最高分',
-        //                 align: 'center',
-        //                 width: 120,
-        //                 style: 'background-color: #5FB878; color: #fff;',
-        //                 sort: true,
-        //                 filter: true,
-        //                 templet: function (d) {
-        //                     return d.captainHitTimes + '次';
-        //                 }
-        //             }
-        //         ]
-        //     ],
-        //     filter: {
-        //         items: ['data'],
-        //         bottom: false
-        //     },
-        //     id: 'leagueTransferReportStatTable',
-        //     initSort: {
-        //         field: 'captainTotalPoints',
-        //         type: 'desc'
-        //     },
-        //     done: function () {
-        //         soulTable.render(this);
-        //     }
-        // });
+        table.render({
+            elem: '#leagueTransferReportStatTable',
+            url: '/my_fpl/qryLeagueTransferReportStat',
+            where: {
+                leagueId: leagueId,
+                leagueType: leagueType
+            },
+            parseData: function (res) {
+                let data = [];
+                $.each(res.data, function (index, item) {
+                    item.transferInTotalPoints = item.transferData.transferInTotalPoints;
+                    item.transferOutTotalPoints = item.transferData.transferOutTotalPoints;
+                    item.transferPoints = item.transferData.transferPoints;
+                    item.transferNetPoints = item.transferData.transferNetPoints;
+                    item.transferInTotalValue = item.transferData.transferInTotalValue;
+                    item.transferOutTotalValue = item.transferData.transferOutTotalValue;
+                    item.transferValue = item.transferData.transferValue;
+                    data.push(item);
+                });
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.count,
+                    "data": data
+                };
+            },
+            loading: true,
+            even: true,
+            limit: 200,
+            cellMinWidth: 80,
+            cols: [
+                [
+                    {title: '排名', type: 'numbers', width: 50, rowspan: 2},
+                    {
+                        field: 'entryName',
+                        title: '球队名称',
+                        align: 'center',
+                        width: 200,
+                        event: 'entryEvent',
+                        rowspan: 2,
+                        templet: '#entryNameTpl',
+                        filter: true
+                    },
+                    {
+                        field: 'overallPoints',
+                        title: '总得分',
+                        align: 'center',
+                        width: 90,
+                        rowspan: 2,
+                        sort: true,
+                        filter: true
+                    },
+                    {
+                        field: 'overallRank',
+                        title: '总排名',
+                        align: 'center',
+                        width: 90,
+                        rowspan: 2,
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            return showOverallRank(d.overallRank);
+                        }
+                    },
+                    {
+                        field: 'transfers',
+                        title: '总转会',
+                        align: 'center',
+                        width: 90,
+                        rowspan: 2,
+                        sort: true,
+                        filter: true
+                    },
+                    {
+                        field: 'transfersCost',
+                        title: '总剁手',
+                        align: 'center',
+                        width: 90,
+                        rowspan: 2,
+                        sort: true,
+                        filter: true
+                    },
+                    {title: '转会总分', align: 'center', colspan: 4},
+                    {title: '转会总身价', align: 'center', colspan: 3}
+                ],
+                [
+                    {
+                        field: 'transferInTotalPoints',
+                        title: '转入',
+                        align: 'center',
+                        sort: true,
+                        filter: true
+                    },
+                    {
+                        field: 'transferOutTotalPoints',
+                        title: '转出',
+                        align: 'center',
+                        sort: true,
+                        filter: true
+                    },
+                    {
+                        field: 'transferPoints',
+                        title: '收益',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                        }
+                    },
+                    {
+                        field: 'transferNetPoints',
+                        title: '净收益',
+                        align: 'center',
+                        width: 90,
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            if (d.transferNetPoints > 0) {
+                                return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                            } else if (d.transferNetPoints < 0) {
+                                return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                            } else {
+                                return '<div style="background-color: #2F4056;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                            }
+                        }
+                    },
+                    {
+                        field: 'transferInTotalValue',
+                        title: '转入',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            if (d.transferInTotalValue > 0) {
+                                return parseInt(d.transferInTotalValue) / 10 + 'm';
+                            } else {
+                                return 0;
+                            }
+                        }
+                    },
+                    {
+                        field: 'transferOutTotalValue',
+                        title: '转出',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            if (d.transferOutTotalValue > 0) {
+                                return parseInt(d.transferOutTotalValue) / 10 + 'm';
+                            } else {
+                                return 0;
+                            }
+                        }
+                    },
+                    {
+                        field: 'transferValue',
+                        title: '差值',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            if (d.transferValue === 0) {
+                                return 0;
+                            } else {
+                                return parseInt(d.transferValue) / 10 + 'm';
+                            }
+                        }
+                    }
+                ]
+            ],
+            filter: {
+                items: ['data'],
+                bottom: false
+            },
+            id: 'leagueTransferReportStatTable',
+            initSort: {
+                field: 'transferNetPoints',
+                type: 'desc'
+            },
+            done: function () {
+                soulTable.render(this);
+            }
+        });
 
         form.on('select(gwSelect)', function (data) {
             // 切换tab
@@ -285,15 +296,17 @@
             // 渲染
             let event = data.value;
             if (event === '0') {
-                // $("#leagueTransferReportStat").removeClass("layui-hide");
-                // $("#leagueTransferEventReport").addClass("layui-hide");
-                // table.reload('leagueReportStatTable', {
-                //     url: '/my_fpl/qryLeagueTransferReportStat',
-                //     where: {
-                //         leagueId: leagueId,
-                //         leagueType: leagueType
-                //     },
-                // })
+                $("#leagueTransferReportStat").removeClass("layui-hide");
+                $("#leagueTransferEventReport").addClass("layui-hide");
+                table.reload('leagueTransferReportStatTable', {
+                    url: '/my_fpl/qryLeagueTransferReportStat',
+                    where: {
+                        leagueId: leagueId,
+                        leagueType: leagueType
+                    },
+                })
+            } else if (event === '1') {
+                layer.msg("GW1没有转会的好么！", {time: 1500});
             } else {
                 $("#leagueTransferReportStat").addClass("layui-hide");
                 $("#leagueTransferEventReport").removeClass("layui-hide");
@@ -305,243 +318,477 @@
                         leagueType: leagueType,
                         event: event
                     },
-                    toolbar: true,
-                    defaultToolbar: ['filter'],
                     loading: true,
                     limit: 200,
                     even: true,
                     cellMinWidth: 80,
-                    cols: [[
-                        {title: '排名', type: 'numbers', rowspan: 2},
-                        {
-                            field: 'entryName',
-                            title: '球队名称',
-                            align: 'center',
-                            width: 200,
-                            templet: '#entryNameTpl',
-                            filter: true
-                        },
-                        {
-                            field: 'eventPoints',
-                            title: '得分',
-                            align: 'center',
-                            templet: function (d) {
-                                if (d.eventChip === 'wildcard') {
-                                    return d.eventPoints + " (wc) ";
-                                } else if (d.eventChip === '3xc') {
-                                    return d.eventPoints + " (3c) ";
-                                } else if (d.eventChip === 'bboost') {
-                                    return d.eventPoints + " (bb) ";
-                                } else if (d.eventChip === 'freehit') {
-                                    return d.eventPoints + " (fh) ";
-                                } else {
-                                    return d.eventPoints;
+                    cols: [
+                        [
+                            {
+                                field: 'rank',
+                                title: '排名',
+                                width: 70,
+                                align: 'center',
+                                rowspan: 2,
+                                icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                                childTitle: false,
+                                isChild: function (d) {
+                                    return d.eventTransfers !== 0;
+                                },
+                                children: [
+                                    {
+                                        data: function (d) {
+                                            return d.entryEventTransferList;
+                                        },
+                                        width: 970,
+                                        limit: 100,
+                                        cols: [
+                                            [
+                                                {field: '', title: '转入', align: 'center', colspan: 4},
+                                                {field: '', title: '转出', align: 'center', colspan: 4},
+                                                {field: 'time', title: '交易时间', align: 'center', width: 180, rowspan: 2}
+                                            ],
+                                            [
+                                                {field: 'elementInName', title: '球员', align: 'center', width: 180},
+                                                {field: 'elementInTypeName', title: '位置', align: 'center', width: 70},
+                                                {
+                                                    field: 'elementInCost',
+                                                    title: '身价',
+                                                    align: 'center',
+                                                    width: 80,
+                                                    templet: function (d) {
+                                                        if (d.elementInCost > 0) {
+                                                            return parseInt(d.elementInCost) / 10 + 'm';
+                                                        } else {
+                                                            return 0;
+                                                        }
+                                                    }
+                                                },
+                                                {field: 'elementInPoints', title: '得分', align: 'center', width: 60},
+                                                {field: 'elementOutName', title: '球员', align: 'center', width: 180},
+                                                {field: 'elementOutTypeName', title: '位置', align: 'center', width: 70},
+                                                {
+                                                    field: 'elementOutCost',
+                                                    title: '身价',
+                                                    align: 'center',
+                                                    width: 80,
+                                                    templet: function (d) {
+                                                        if (d.elementOutCost > 0) {
+                                                            return parseInt(d.elementOutCost) / 10 + 'm';
+                                                        } else {
+                                                            return 0;
+                                                        }
+                                                    }
+                                                },
+                                                {field: 'elementOutPoints', title: '得分', align: 'center', width: 60},
+                                            ]
+                                        ],
+                                        done: function () {
+                                            soulTable.render(this);
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                field: 'entryName',
+                                title: '球队名称',
+                                align: 'center',
+                                width: 200,
+                                event: 'entryEvent',
+                                rowspan: 2,
+                                templet: '#entryNameTpl',
+                                filter: true
+                            },
+                            {field: 'eventPoints', title: '得分', align: 'center', rowspan: 2, sort: true, filter: true},
+                            {
+                                field: 'eventChip',
+                                title: '开卡',
+                                align: 'center',
+                                rowspan: 2,
+                                filter: true,
+                                templet: function (d) {
+                                    return showChip(d.eventChip);
                                 }
                             },
-                            sort: true,
-                            filter: true
-                        },
-                        {field: 'eventTransfers', title: '转会数', align: 'center'},
-                        {field: 'eventTransfersCost', title: '剁手', align: 'center'},
-                        {field: 'transferInTotalPoints', title: '转入总分', align: 'center', width: 100},
-                        {field: 'transferInTotalValue', title: '转入总价', align: 'center', width: 100},
-                        {field: 'transferOutTotalPoints', title: '转出总分', align: 'center', width: 100},
-                        {field: 'transferOutTotalValue', title: '转出总价', align: 'center', width: 100},
-                        {field: 'transferNetPoints', title: '净收益', align: 'center'},
-                    ]],
-                    id: 'leagueTransferEventReportTable', x``
+                            {
+                                field: 'eventTransfers',
+                                title: '转会',
+                                align: 'center',
+                                rowspan: 2,
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'eventTransfersCost',
+                                title: '剁手',
+                                align: 'center',
+                                rowspan: 2,
+                                sort: true,
+                                filter: true
+                            },
+                            {title: '转会总分', align: 'center', colspan: 4},
+                            {title: '转会总身价', align: 'center', colspan: 3}
+                        ],
+                        [
+                            {
+                                field: 'transferInTotalPoints',
+                                title: '转入',
+                                align: 'center',
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'transferOutTotalPoints',
+                                title: '转出',
+                                align: 'center',
+                                sort: true,
+                                filter: true
+                            },
+                            {
+                                field: 'transferPoints',
+                                title: '收益',
+                                align: 'center',
+                                sort: true,
+                                filter: true,
+                                templet: function (d) {
+                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                                }
+                            },
+                            {
+                                field: 'transferNetPoints',
+                                title: '净收益',
+                                align: 'center',
+                                width: 90,
+                                sort: true,
+                                filter: true,
+                                templet: function (d) {
+                                    if (d.transferNetPoints > 0) {
+                                        return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                    } else if (d.transferNetPoints < 0) {
+                                        return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                    } else {
+                                        return '<div style="background-color: #2F4056;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                    }
+                                }
+                            },
+                            {
+                                field: 'transferInTotalValue',
+                                title: '转入',
+                                align: 'center',
+                                sort: true,
+                                filter: true,
+                                templet: function (d) {
+                                    if (d.transferInTotalValue > 0) {
+                                        return parseInt(d.transferInTotalValue) / 10 + 'm';
+                                    } else {
+                                        return 0;
+                                    }
+                                }
+                            },
+                            {
+                                field: 'transferOutTotalValue',
+                                title: '转出',
+                                align: 'center',
+                                sort: true,
+                                filter: true,
+                                templet: function (d) {
+                                    if (d.transferOutTotalValue > 0) {
+                                        return parseInt(d.transferOutTotalValue) / 10 + 'm';
+                                    } else {
+                                        return 0;
+                                    }
+                                }
+                            },
+                            {
+                                field: 'transferValue',
+                                title: '差值',
+                                align: 'center',
+                                sort: true,
+                                filter: true,
+                                templet: function (d) {
+                                    if (d.transferValue === 0) {
+                                        return 0;
+                                    } else {
+                                        return parseInt(d.transferValue) / 10 + 'm';
+                                    }
+                                }
+                            }
+                        ]
+                    ],
+                    id: 'leagueTransferEventReportTable',
                     filter: {
                         items: ['data'],
                         bottom: false
                     },
-                    done: function () {
+                    done: function (res) {
                         soulTable.render(this);
+                        let that = this.elem.next();
+                        res.data.forEach(function (d, index) {
+                            if (d.eventChip !== 'n/a') {
+                                setTableRowColor(that, index, "#FFB800");
+                            }
+                        });
                     }
                 });
             }
         });
 
-        // table.on('row(leagueTransferReportStatTable)', function (obj) {
-        //     let entry = obj.data.entry, entryName = obj.data.entryName;
-        //     initEntryTab(entry, entryName);
-        // });
-        //
-        // table.on('row(leagueTransferEventReportTable)', function (obj) {
-        //     let entry = obj.data.entry, entryName = obj.data.entryName;
-        //     initEntryTab(entry, entryName);
-        // });
-        //
-        // function initEntryTab(entry, entryName) {
-        //     // 是否存在
-        //     if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
-        //         //选项卡已经存在
-        //         element.tabChange('entryTab', entry);
-        //         return false;
-        //     }
-        //     // 增加标签页
-        //     let tableId = entry + 'Table';
-        //     element.tabAdd('entryTab', {
-        //         title: entryName,
-        //         content: '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
-        //         id: entry
-        //     });
-        //     // 切换
-        //     element.tabChange('entryTab', entry);
-        //     // 渲染
-        //     table.render({
-        //         elem: '#' + tableId,
-        //         url: '/my_fpl/qryEntryEventReportList',
-        //         where: {
-        //             leagueId: leagueId,
-        //             leagueType: leagueType,
-        //             entry: entry
-        //         },
-        //         limit: 40,
-        //         loading: true,
-        //         cellMinWidth: 60,
-        //         cols: [
-        //             [
-        //                 {
-        //                     field: 'event',
-        //                     title: 'GW',
-        //                     align: 'center',
-        //                     width: 60,
-        //                     rowspan: 2
-        //                 },
-        //                 {
-        //                     field: 'eventNetPoints',
-        //                     title: '净得分',
-        //                     align: 'center',
-        //                     width: 80,
-        //                     rowspan: 2,
-        //                     templet: function (d) {
-        //                         if (d.eventTransfersCost > 0) {
-        //                             return d.eventNetPoints + '(-' + d.eventTransfersCost + ')';
-        //                         } else {
-        //                             return d.eventNetPoints;
-        //                         }
-        //                     }
-        //                 },
-        //                 {
-        //                     field: 'eventChip',
-        //                     title: '开卡',
-        //                     align: 'center',
-        //                     rowspan: 2,
-        //                     templet: function (d) {
-        //                         if (d.eventChip === 'wildcard') {
-        //                             return 'wc';
-        //                         } else if (d.eventChip === '3xc') {
-        //                             return '3c';
-        //                         } else if (d.eventChip === 'bboost') {
-        //                             return 'bb';
-        //                         } else if (d.eventChip === 'freehit') {
-        //                             return 'fh';
-        //                         } else {
-        //                             return d.eventChip;
-        //                         }
-        //                     }
-        //                 },
-        //                 {title: '队长', align: 'center', colspan: 5},
-        //                 {title: '副队长', align: 'center', colspan: 4},
-        //                 {title: '最高分', align: 'center', colspan: 3}
-        //             ],
-        //             [
-        //                 {
-        //                     field: 'captainWebName',
-        //                     title: '名称',
-        //                     align: 'center',
-        //                     width: 140,
-        //                     style: 'background-color: #5FB878; color: #fff;',
-        //                     filter: true
-        //                 },
-        //                 {
-        //                     field: 'captainPoints',
-        //                     title: '加权分',
-        //                     align: 'center',
-        //                     width: 100,
-        //                     templet: function (d) {
-        //                         if (d.captainBlank) {
-        //                             return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
-        //                         } else {
-        //                             return '<div style="background-color: #FFB800;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
-        //                         }
-        //                     },
-        //                     sort: true,
-        //                     filter: true
-        //                 },
-        //                 {
-        //                     field: 'captainSelected',
-        //                     title: '持有率',
-        //                     align: 'center',
-        //                     width: 80,
-        //                     style: 'background-color: #5FB878; color: #fff;'
-        //                 },
-        //                 {
-        //                     field: 'captainPointsByPercent',
-        //                     title: '得分占比',
-        //                     align: 'center',
-        //                     width: 100,
-        //                     style: 'background-color: #5FB878; color: #fff;'
-        //                 },
-        //                 {
-        //                     field: 'captainSelectedInLeague',
-        //                     title: '联赛选择',
-        //                     align: 'center',
-        //                     width: 100,
-        //                     style: 'background-color: #5FB878; color: #fff;'
-        //                 },
-        //                 {
-        //                     field: 'viceCaptainWebName',
-        //                     title: '名称',
-        //                     align: 'center',
-        //                     width: 140,
-        //                     filter: true
-        //                 },
-        //                 {
-        //                     field: 'viceCaptainPoints',
-        //                     title: '得分',
-        //                     align: 'center'
-        //                 },
-        //                 {
-        //                     field: 'viceCaptainBlank',
-        //                     title: 'blank',
-        //                     align: 'center',
-        //                     width: 80,
-        //                     templet: function (d) {
-        //                         if (d.viceCaptainBlank) {
-        //                             return '是';
-        //                         } else {
-        //                             return '否';
-        //                         }
-        //                     }
-        //                 },
-        //                 {
-        //                     field: 'viceCaptainSelected',
-        //                     title: '持有率',
-        //                     align: 'center',
-        //                     width: 80,
-        //                     hide: true
-        //                 },
-        //                 {field: 'highestScoreWebName', title: '名称', align: 'center', width: 140, filter: true},
-        //                 {field: 'highestScorePoints', title: '得分', align: 'center'},
-        //                 {
-        //                     field: 'highestScoreSelectedInLeague',
-        //                     title: '联赛选择',
-        //                     align: 'center',
-        //                     width: 100
-        //                 }
-        //             ]
-        //         ],
-        //         filter: {
-        //             items: ['data'],
-        //             bottom: false
-        //         },
-        //         done: function () {
-        //             soulTable.render(this);
-        //         },
-        //         id: tableId
-        //     });
-        // }
+        table.on('tool(leagueTransferReportStatTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
+        });
+
+        table.on('tool(leagueTransferEventReportTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
+        });
+
+        function initEntryTab(entry, entryName) {
+            // 是否存在
+            if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
+                //选项卡已经存在
+                element.tabChange('entryTab', entry);
+                return false;
+            }
+            // 增加标签页
+            let tableId = entry + 'Table';
+            element.tabAdd('entryTab', {
+                title: entryName,
+                content: '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
+                id: entry
+            });
+            // 切换
+            element.tabChange('entryTab', entry);
+            // 渲染
+            table.render({
+                elem: '#' + tableId,
+                url: '/my_fpl/qryEntryTransferEventReportList',
+                where: {
+                    leagueId: leagueId,
+                    leagueType: leagueType,
+                    entry: entry
+                },
+                limit: 40,
+                loading: true,
+                cellMinWidth: 80,
+                totalRow: true,
+                cols: [
+                    [
+                        {
+                            field: 'event',
+                            title: 'GW',
+                            align: 'center',
+                            width: 70,
+                            rowspan: 2,
+                            totalRowText: '合计',
+                            icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                            childTitle: false,
+                            isChild: function (d) {
+                                return d.eventTransfers !== 0;
+                            },
+                            children: [
+                                {
+                                    data: function (d) {
+                                        return d.entryEventTransferList;
+                                    },
+                                    width: 970,
+                                    limit: 100,
+                                    cols: [
+                                        [
+                                            {field: '', title: '转入', align: 'center', colspan: 4},
+                                            {field: '', title: '转出', align: 'center', colspan: 4},
+                                            {field: 'time', title: '交易时间', align: 'center', width: 180, rowspan: 2}
+                                        ],
+                                        [
+                                            {field: 'elementInName', title: '球员', align: 'center', width: 180},
+                                            {field: 'elementInTypeName', title: '位置', align: 'center', width: 70},
+                                            {
+                                                field: 'elementInCost',
+                                                title: '身价',
+                                                align: 'center',
+                                                width: 80,
+                                                templet: function (d) {
+                                                    if (d.elementInCost > 0) {
+                                                        return parseInt(d.elementInCost) / 10 + 'm';
+                                                    } else {
+                                                        return 0;
+                                                    }
+                                                }
+                                            },
+                                            {field: 'elementInPoints', title: '得分', align: 'center', width: 60},
+                                            {field: 'elementOutName', title: '球员', align: 'center', width: 180},
+                                            {field: 'elementOutTypeName', title: '位置', align: 'center', width: 70},
+                                            {
+                                                field: 'elementOutCost',
+                                                title: '身价',
+                                                align: 'center',
+                                                width: 80,
+                                                templet: function (d) {
+                                                    if (d.elementOutCost > 0) {
+                                                        return parseInt(d.elementOutCost) / 10 + 'm';
+                                                    } else {
+                                                        return 0;
+                                                    }
+                                                }
+                                            },
+                                            {field: 'elementOutPoints', title: '得分', align: 'center', width: 60},
+                                        ]
+                                    ],
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            field: 'eventPoints',
+                            title: '得分',
+                            align: 'center',
+                            rowspan: 2
+                        },
+                        {
+                            field: 'eventChip',
+                            title: '开卡',
+                            align: 'center',
+                            rowspan: 2,
+                            templet: function (d) {
+                                return showChip(d.eventChip);
+                            }
+                        },
+                        {
+                            field: 'eventTransfers',
+                            title: '转会',
+                            align: 'center',
+                            rowspan: 2,
+                            totalRow: true,
+                            sort: true,
+                            filter: true
+                        },
+                        {
+                            field: 'eventTransfersCost',
+                            title: '剁手',
+                            align: 'center',
+                            rowspan: 2,
+                            totalRow: true,
+                            sort: true,
+                            filter: true
+                        },
+                        {title: '转会总分', align: 'center', colspan: 4},
+                        {title: '转会总身价', align: 'center', colspan: 3}
+                    ],
+                    [
+                        {
+                            field: 'transferInTotalPoints',
+                            title: '转入',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            filter: true
+                        },
+                        {
+                            field: 'transferOutTotalPoints',
+                            title: '转出',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            filter: true
+                        },
+                        {
+                            field: 'transferPoints',
+                            title: '收益',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            filter: true,
+                            templet: function (d) {
+                                return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                            }
+                        },
+                        {
+                            field: 'transferNetPoints',
+                            title: '净收益',
+                            align: 'center',
+                            width: 90,
+                            totalRow: true,
+                            sort: true,
+                            filter: true,
+                            templet: function (d) {
+                                if (d.transferNetPoints > 0) {
+                                    return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                } else if (d.transferNetPoints < 0) {
+                                    return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                } else {
+                                    return '<div style="background-color: #2F4056;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                }
+                            }
+                        },
+                        {
+                            field: 'transferInTotalValue',
+                            title: '转入',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            filter: true,
+                            templet: function (d) {
+                                if (d.transferInTotalValue > 0) {
+                                    return parseInt(d.transferInTotalValue) / 10 + 'm';
+                                } else {
+                                    return 0;
+                                }
+                            }
+                        },
+                        {
+                            field: 'transferOutTotalValue',
+                            title: '转出',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            filter: true,
+                            templet: function (d) {
+                                if (d.transferOutTotalValue > 0) {
+                                    return parseInt(d.transferOutTotalValue) / 10 + 'm';
+                                } else {
+                                    return 0;
+                                }
+                            }
+                        },
+                        {
+                            field: 'transferValue',
+                            title: '差值',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            filter: true,
+                            templet: function (d) {
+                                if (d.transferValue === 0) {
+                                    return 0;
+                                } else {
+                                    return parseInt(d.transferValue) / 10 + 'm';
+                                }
+                            }
+                        }
+                    ]
+                ],
+                filter: {
+                    items: ['data'],
+                    bottom: false
+                },
+                done: function (res) {
+                    soulTable.render(this);
+                    let that = this.elem.next();
+                    res.data.forEach(function (d, index) {
+                        if (d.eventChip !== 'n/a') {
+                            setTableRowColor(that, index, "#FFB800");
+                        }
+                    });
+                },
+                id: tableId
+            });
+        }
 
     });
 </script>

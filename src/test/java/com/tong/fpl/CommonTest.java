@@ -4,7 +4,6 @@ import cn.hutool.core.io.CharsetDetector;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.constant.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,8 +13,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -78,9 +76,8 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		String a = "2020-12-12 02:30:00";
-		LocalDate localDate = LocalDate.parse(StringUtils.substringBefore(a, " "));
-		String b = localDate.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
+		String a = "2020-09-15T00:43:17.293599Z";
+		LocalDateTime localDateTime = LocalDateTime.parse(StringUtils.substringBefore(a, "."));
 		System.out.println(1);
 	}
 
