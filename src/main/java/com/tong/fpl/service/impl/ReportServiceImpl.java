@@ -71,7 +71,7 @@ public class ReportServiceImpl implements IReportService {
 				.collect(Collectors.toList());
 		// save
 		this.leagueEventReportService.saveBatch(leagueEventStatEntityList);
-		log.info("insert league_event_stat size:{}!", leagueEventStatEntityList.size());
+		log.info("insert league_event_report size:{}!", leagueEventStatEntityList.size());
 	}
 
 	private LeagueInfoData getLeagueDataByTypeAndId(int leagueId, String leagueType, int limit) {
@@ -205,7 +205,7 @@ public class ReportServiceImpl implements IReportService {
 				.collect(Collectors.toList());
 		// update
 		this.leagueEventReportService.updateBatchById(leagueEventStatEntityList);
-		log.info("update league_event_stat size:{}!", leagueEventStatEntityList.size());
+		log.info("update league_event_report size:{}!", leagueEventStatEntityList.size());
 	}
 
 	private LeagueEventReportEntity updateEntryEventResultStat(int event, LeagueEventReportEntity leagueEventStatEntity, Map<Integer, PlayerStatEntity> playerStatMap, Map<Integer, EventLiveEntity> eventLiveMap, Map<Integer, EntryEventResultEntity> entryEventResultMap) {

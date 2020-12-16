@@ -67,10 +67,6 @@ public class ReportTask {
 				table.put(o.getLeagueId(), o.getLeagueType(), 0);
 			}
 		});
-		// China
-		table.put(65, "Classic", 0);
-		// Overall top 10k
-		table.put(314, "Classic", 10000);
 		return table;
 	}
 
