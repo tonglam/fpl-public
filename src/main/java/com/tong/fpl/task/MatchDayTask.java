@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MatchDayTask {
 
-	private final IQuerySerivce querySerivce;
-	private final IRedisCacheSerive redisCacheSerive;
+	private final IQueryService querySerivce;
+	private final IRedisCacheService redisCacheSerive;
 	private final ITournamentService tournamentService;
 	private final IUpdateEventResultService updateEventResultsService;
 	private final IScoutService scoutService;

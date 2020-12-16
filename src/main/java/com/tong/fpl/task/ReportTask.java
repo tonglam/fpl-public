@@ -4,7 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.tong.fpl.constant.enums.TournamentMode;
 import com.tong.fpl.log.TaskLog;
-import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IReportService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
-	private final IQuerySerivce querySerivce;
+	private final IQueryService querySerivce;
 	private final IReportService reportService;
 
 	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")

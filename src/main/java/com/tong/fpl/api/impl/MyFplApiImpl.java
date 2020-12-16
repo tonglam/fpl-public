@@ -11,7 +11,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
-import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MyFplApiImpl implements IMyFplApi {
 
-	private final IQuerySerivce querySerivce;
+	private final IQueryService querySerivce;
 	private final ITableQueryService tableQueryService;
 
 	/**

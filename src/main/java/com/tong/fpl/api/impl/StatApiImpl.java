@@ -10,7 +10,7 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
-import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IScoutService;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatApiImpl implements IStatApi {
 
-    private final IQuerySerivce querySerivce;
+    private final IQueryService querySerivce;
     private final ITableQueryService tableQueryService;
     private final IScoutService scoutService;
 

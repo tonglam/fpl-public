@@ -22,7 +22,7 @@ import java.util.Set;
 public class RedisCacheTest extends FplApplicationTests {
 
 	@Autowired
-	private IRedisCacheSerive redisCacheSerive;
+	private IRedisCacheService redisCacheSerive;
 
 	@Test
 	void insertTeam() {

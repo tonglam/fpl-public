@@ -19,7 +19,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.service.IInterfaceService;
-import com.tong.fpl.service.IRedisCacheSerive;
+import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
@@ -46,7 +46,7 @@ import java.util.stream.IntStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class RedisCacheServiceImpl implements IRedisCacheSerive {
+public class RedisCacheServiceImpl implements IRedisCacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final IInterfaceService interfaceService;

@@ -1,7 +1,7 @@
 package com.tong.fpl.task;
 
 import com.tong.fpl.log.TaskLog;
-import com.tong.fpl.service.IRedisCacheSerive;
+import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.IUpdateEventResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DailyTask {
 
-	private final IRedisCacheSerive redisCacheSerive;
+	private final IRedisCacheService redisCacheSerive;
 	private final IUpdateEventResultService updateEventResultsService;
 
 	@Scheduled(cron = "0 35 9 * * *")

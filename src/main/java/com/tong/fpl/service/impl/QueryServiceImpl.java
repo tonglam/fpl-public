@@ -25,9 +25,9 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
-import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IRedisCacheSerive;
-import com.tong.fpl.service.IStaticSerive;
+import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
@@ -55,10 +55,10 @@ import java.util.stream.IntStream;
 @Valid
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class QueryServiceImpl implements IQuerySerivce {
+public class QueryServiceImpl implements IQueryService {
 
-	private final IRedisCacheSerive redisCacheService;
-	private final IStaticSerive staticService;
+	private final IRedisCacheService redisCacheService;
+	private final IStaticService staticService;
 	private final PlayerService playerService;
 	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;

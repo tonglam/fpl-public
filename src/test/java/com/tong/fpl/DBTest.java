@@ -9,7 +9,7 @@ import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
-import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.*;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class DBTest extends FplApplicationTests {
 	@Autowired
 	private EntryEventResultService entryEventResultService;
 	@Autowired
-	private IQuerySerivce querySerivce;
+	private IQueryService querySerivce;
 	@Autowired
 	private TournamentKnockoutService tournamentKnockoutService;
 	@Autowired

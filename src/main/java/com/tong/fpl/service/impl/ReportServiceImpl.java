@@ -12,7 +12,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.service.IReportService;
-import com.tong.fpl.service.IStaticSerive;
+import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.db.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportServiceImpl implements IReportService {
 
-	private final IStaticSerive staticService;
+	private final IStaticService staticService;
 	private final PlayerStatService playerStatService;
 	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;

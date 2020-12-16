@@ -7,7 +7,7 @@ import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
-import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.ITournamentService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentApiImpl implements ITournamentApi {
 
-	private final IQuerySerivce querySerivce;
+	private final IQueryService querySerivce;
 	private final ITableQueryService tableQueryService;
 	private final ITournamentService tournamentService;
 

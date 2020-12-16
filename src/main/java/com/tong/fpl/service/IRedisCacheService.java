@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Create by tong on 2020/8/23
  */
-public interface IRedisCacheSerive {
+public interface IRedisCacheService {
 
     void insertTeam();
 

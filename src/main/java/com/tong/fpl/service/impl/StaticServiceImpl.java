@@ -12,7 +12,7 @@ import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.service.IInterfaceService;
-import com.tong.fpl.service.IStaticSerive;
+import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.db.EntryEventResultService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class StaticServiceImpl implements IStaticSerive {
+public class StaticServiceImpl implements IStaticService {
 
 	private final IInterfaceService interfaceService;
 	private final EntryEventResultService entryEventResultService;

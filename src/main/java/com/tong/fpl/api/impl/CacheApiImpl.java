@@ -1,7 +1,7 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.ICacheApi;
-import com.tong.fpl.service.IRedisCacheSerive;
+import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CacheApiImpl implements ICacheApi {
 
-    private final IRedisCacheSerive redisCacheSerive;
+    private final IRedisCacheService redisCacheSerive;
 
     @Override
     public void insertTeam() {

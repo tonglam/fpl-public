@@ -15,7 +15,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
-import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IUpdateEventResultService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.JsonUtils;
@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 
-	private final IQuerySerivce queryService;
+	private final IQueryService queryService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
 	private final EntryEventTransferService entryEventTransferService;

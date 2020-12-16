@@ -16,8 +16,8 @@ import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.ZjTournamentCreateData;
 import com.tong.fpl.domain.letletme.tournament.ZjTournamentGroupData;
-import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IStaticSerive;
+import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.ITournamentService;
 import com.tong.fpl.service.IUpdateEventResultService;
 import com.tong.fpl.service.db.*;
@@ -48,8 +48,8 @@ import java.util.stream.IntStream;
 public class TournamentServiceImpl implements ITournamentService {
 
 	private final ApplicationContext context;
-	private final IStaticSerive staticService;
-	private final IQuerySerivce queryService;
+	private final IStaticService staticService;
+	private final IQueryService queryService;
 	private final IUpdateEventResultService updateEventResultService;
 	private final EntryInfoService entryInfoService;
 	private final TournamentInfoService tournamentInfoService;

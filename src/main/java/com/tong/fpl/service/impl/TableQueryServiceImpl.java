@@ -30,8 +30,8 @@ import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.ILiveService;
-import com.tong.fpl.service.IQuerySerivce;
-import com.tong.fpl.service.IRedisCacheSerive;
+import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -59,8 +59,8 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TableQueryServiceImpl implements ITableQueryService {
 
-    private final IQuerySerivce queryService;
-    private final IRedisCacheSerive redisCacheService;
+    private final IQueryService queryService;
+    private final IRedisCacheService redisCacheService;
     private final ILiveService liveService;
     private final PlayerService playerService;
     private final PlayerValueService playerValueService;

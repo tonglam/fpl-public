@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * Create by tong on 2020/7/31
  */
-public interface IQuerySerivce {
+public interface IQueryService {
 
 	/**
 	 * @apiNote player

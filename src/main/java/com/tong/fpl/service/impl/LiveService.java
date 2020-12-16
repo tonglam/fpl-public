@@ -20,7 +20,7 @@ import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.service.ILiveService;
-import com.tong.fpl.service.IQuerySerivce;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.EntryInfoService;
 import com.tong.fpl.service.db.PlayerService;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveService implements ILiveService {
 
-    private final IQuerySerivce queryService;
+    private final IQueryService queryService;
     private final EntryInfoService entryInfoService;
     private final PlayerService playerService;
 

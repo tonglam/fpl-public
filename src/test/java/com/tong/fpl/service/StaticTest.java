@@ -17,7 +17,7 @@ import java.util.Optional;
 public class StaticTest extends FplApplicationTests {
 
 	@Autowired
-	private IStaticSerive staticSerive;
+	private IStaticService staticSerive;
 
 	@ParameterizedTest
 	@CsvSource({"3571"})

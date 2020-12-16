@@ -23,7 +23,7 @@ import java.util.Map;
 public class QueryTest extends FplApplicationTests {
 
 	@Autowired
-	private IQuerySerivce querySerivce;
+	private IQueryService querySerivce;
 
 	@ParameterizedTest
 	@CsvSource({"2021, 1, 1870"})

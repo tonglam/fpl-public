@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Create by tong on 2020/6/29
  */
-public interface IStaticSerive {
+public interface IStaticService {
 
 	void insertAverageEventResult(int event, StaticRes staticRes);
 
