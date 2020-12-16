@@ -1,9 +1,9 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
+import com.tong.fpl.domain.letletme.player.PickPlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
@@ -50,6 +50,6 @@ public interface IStatApi {
 
     String getScoutDeadline(int event);
 
-    TableData<EntryPickData> qryOffiaccountPickList();
+    PickPlayerData qryOffiaccountPickList();
 
 }

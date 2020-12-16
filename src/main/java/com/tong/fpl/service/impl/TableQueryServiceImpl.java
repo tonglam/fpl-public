@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.*;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.constant.enums.FollowAccount;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.entity.*;
@@ -2014,25 +2013,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
             list.add(scoutData);
         });
         return new TableData<>(list);
-    }
-
-
-    //    @Cacheable(value = "qryOffiaccounPickList")
-    @Override
-    public TableData<EntryPickData> qryOffiaccountPickList() {
-        int entry = FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason());
-        int event = this.queryService.getCurrentEvent();
-        EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEntry, entry)
-                .eq(EntryEventResultEntity::getEvent, event));
-        if (entryEventResultEntity == null) {
-            return new TableData<>();
-        }
-        List<EntryPickData> list = this.queryService.qryPickListFromPicks(entryEventResultEntity.getEventPicks());
-        return new TableData<>(list
-                .stream()
-                .sorted(Comparator.comparing(EntryPickData::getPosition))
-                .collect(Collectors.toList()));
     }
 
 }

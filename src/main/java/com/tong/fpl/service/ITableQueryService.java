@@ -99,6 +99,4 @@ public interface ITableQueryService {
 
     TableData<ScoutData> qryEventScoutList(int event);
 
-    TableData<EntryPickData> qryOffiaccountPickList();
-
 }

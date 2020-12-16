@@ -204,3 +204,92 @@ h1, h2, h3 {
 .site-tree .layui-tree .layui-this .layui-icon {
     color: #01AAED;
 }
+
+.gu-mirror {
+    position: fixed !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    opacity: 0.8;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+    filter: alpha(opacity=80);
+}
+
+.gu-hide {
+    display: none !important;
+}
+
+.gu-unselectable {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+
+.gu-transit {
+    opacity: 0.2;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    filter: alpha(opacity=20);
+}
+
+/* custom CSS */
+.pitch {
+    background: #5d9634 linear-gradient(
+            to bottom,
+            #5d9634,
+            #5d9634 50%,
+            #538c2b 50%,
+            #538c2b
+    );
+    background-size: 100% 20vmin;
+    padding: 1px;
+    width: 300px;
+    height: 400px;
+}
+
+.bench {
+    background-color: #2E6530;
+    padding: 1px;
+    width: 300px;
+    height: 100px;
+}
+
+.container {
+    display: flex;
+    width: 280px;
+    height: 70px;
+    justify-content: space-around;
+    list-style: none;
+    margin: 30px 10px;
+}
+
+.container li,
+.gu-mirror {
+    cursor: move;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    cursor: grab;
+    height: 50px;
+    width: 50px;
+    list-style: none;
+    position: relative;
+}
+
+.gu-mirror {
+    cursor: move;
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+    cursor: grabbing;
+}
+
+.container li .name,
+.gu-mirror .name {
+    bottom: 0;
+    color: #fff;
+    font-size: 15px;
+    position: absolute;
+    left: -25px;
+    top: 50px;
+    text-align: center;
+    width: 105px;
+    height: 15px;
+}

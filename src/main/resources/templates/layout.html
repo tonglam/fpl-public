@@ -94,6 +94,44 @@
     </div>
 </div>
 
+<div th:fragment="pick(pickPlayerData)">
+    <div class="pitch">
+        <ol class="container" id="fwds">
+            <li th:each="item,stat:${pickPlayerData.fwds}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <span class="name" th:text="${item.webName}"></span>
+            </li>
+        </ol>
+        <ol class="container" id="mids">
+            <li th:each="item,stat:${pickPlayerData.mids}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <span class="name" th:text="${item.webName}"></span>
+            </li>
+        </ol>
+        <ol class="container" id="defs">
+            <li th:each="item,stat:${pickPlayerData.defs}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <span class="name" th:text="${item.webName}"></span>
+            </li>
+        </ol>
+        <ul class="container" id="gkps">
+            <li th:each="item,stat:${pickPlayerData.gkps}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <span class="name" th:text="${item.webName}"></span>
+            </li>
+        </ul>
+    </div>
+    <div class="bench">
+        <ul class="container" id="subs">
+            <li th:each="item,stat:${pickPlayerData.subs}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <span class="name" th:text="${item.webName}"></span>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
 </body>
 
 <script th:fragment="baseScript" th:inline="javascript">
@@ -368,9 +406,9 @@
 <script th:fragment="drag">
     let drake = dragula({
         containers: [
-            document.querySelector('#defence'),
-            document.querySelector('#midfield'),
-            document.querySelector('#attack'),
+            document.querySelector('#defs'),
+            document.querySelector('#mids'),
+            document.querySelector('#fwds'),
             document.querySelector('#subs')
         ],
         revertOnSpill: true,
@@ -388,24 +426,24 @@
             drake.cancel();
         }
         // defender -> 3-5
-        if (source.id === 'defence' && source.children.length < 3) {
+        if (source.id === 'defs' && source.children.length < 3) {
             drake.cancel();
         }
-        if (target.id === 'defence' && target.children.length > 5) {
+        if (target.id === 'defs' && target.children.length > 5) {
             drake.cancel();
         }
         // midfielder -> 2-5
-        if (source.id === 'midfield' && source.children.length < 2) {
+        if (source.id === 'mids' && source.children.length < 2) {
             drake.cancel();
         }
-        if (target.id === 'midfield' && target.children.length > 5) {
+        if (target.id === 'mids' && target.children.length > 5) {
             drake.cancel();
         }
         // attacker 1-3
-        if (source.id === 'attack' && source.children.length < 1) {
+        if (source.id === 'fwds' && source.children.length < 1) {
             drake.cancel();
         }
-        if (target.id === 'attack' && target.children.length > 3) {
+        if (target.id === 'fwds' && target.children.length > 3) {
             drake.cancel();
         }
     });

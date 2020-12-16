@@ -13,10 +13,10 @@ import java.util.List;
 @Accessors(chain = true)
 public class PickPlayerData {
 
-	private List<EntryPickData> gkp;
-	private List<EntryPickData> def;
-	private List<EntryPickData> mid;
-	private List<EntryPickData> fwd;
-	private List<EntryPickData> sub;
+    private List<EntryPickData> gkps;
+    private List<EntryPickData> defs;
+    private List<EntryPickData> mids;
+    private List<EntryPickData> fwds;
+    private List<EntryPickData> subs;
 
 }

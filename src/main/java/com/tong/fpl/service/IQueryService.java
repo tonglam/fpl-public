@@ -251,13 +251,15 @@ public interface IQueryService {
 
 	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
-	Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+    Map<String, Map<String, Integer>> getLiveBonusCacheMap();
 
-	List<LiveMatchData> qryLiveMatchList(int statusId);
+    List<LiveMatchData> qryLiveMatchList(int statusId);
 
-	/**
-	 * @apiNote scout
-	 */
-	ScoutData qryScoutEntryEventData(int event, int entry);
+    /**
+     * @apiNote scout
+     */
+    ScoutData qryScoutEntryEventData(int event, int entry);
+
+    PickPlayerData qryOffiaccountPickList();
 
 }

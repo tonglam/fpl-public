@@ -1,6 +1,7 @@
 package com.tong.fpl.controller;
 
 import com.tong.fpl.api.IHttpApi;
+import com.tong.fpl.api.IStatApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,31 +20,26 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class WebPageController {
 
-	private final IHttpApi httpApi;
+    private final IHttpApi httpApi;
+    private final IStatApi statApi;
 
-	@GetMapping(value = {"", "/"})
-	public String indexController(Model model) {
-		int nextEvent = this.httpApi.getNextEvent();
-		model.addAttribute("nextGw", nextEvent);
-		model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(nextEvent));
-		return "web/index";
-	}
+    @GetMapping(value = {"", "/"})
+    public String indexController(Model model) {
+        int nextEvent = this.httpApi.getNextEvent();
+        model.addAttribute("nextGw", nextEvent);
+        model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(nextEvent));
+        return "web/index";
+    }
 
-	@GetMapping(value = "/404")
-	public String errorController() {
-		return "web/error";
-	}
+    @GetMapping(value = "/404")
+    public String errorController() {
+        return "web/error";
+    }
 
-	@GetMapping(value = "/test")
-	public String testController(Model model) {
-		model.addAttribute("name", "SOU");
-		return "web/test";
-	}
-
-	@RequestMapping(value = "/saveSession")
-	@ResponseBody
-	public void saveEntry(@RequestParam String key, @RequestParam Object value, HttpSession session) {
-		session.setAttribute(key, value);
-	}
+    @RequestMapping(value = "/saveSession")
+    @ResponseBody
+    public void saveEntry(@RequestParam String key, @RequestParam Object value, HttpSession session) {
+        session.setAttribute(key, value);
+    }
 
 }

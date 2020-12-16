@@ -2,7 +2,6 @@ package com.tong.fpl.controller;
 
 import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.IStatApi;
-import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
@@ -66,6 +65,7 @@ public class StatController {
         model.addAttribute("nextGw", next);
         model.addAttribute("fund", RedisUtils.getValueByKey("scoutFund"));
         model.addAttribute("deadline", this.statApi.getScoutDeadline(next));
+        model.addAttribute("pickPlayerData", this.statApi.qryOffiaccountPickList());
         return "stat/scout";
     }
 
@@ -137,12 +137,6 @@ public class StatController {
     @ResponseBody
     public List<DropdownData> getScoutEvent() {
         return this.statApi.getScoutEvent();
-    }
-
-    @RequestMapping("/qryOffiaccountPickList")
-    @ResponseBody
-    public TableData<EntryPickData> qryOffiaccountPickList() {
-        return this.statApi.qryOffiaccountPickList();
     }
 
 }

@@ -38,14 +38,14 @@
             <div class="layui-tab layui-tab-brief" lay-filter="checkTab">
 
                 <ul class="layui-tab-title">
-                    <li class="layui-this" lay-id="pick" th:text="'GW'+${nextGw}+'推荐'"></li>
+                    <li class="" lay-id="pick" th:text="'GW'+${nextGw}+'推荐'"></li>
                     <li class="" lay-id="result">推荐结果</li>
-                    <li class="" lay-id="offiaccount">公号阵容</li>
+                    <li class="layui-this" lay-id="offiaccount">公号阵容</li>
                 </ul>
 
                 <div class="layui-tab-content">
 
-                    <div class="layui-tab-item layui-show">
+                    <div class="layui-tab-item">
 
                         <div style="margin-top: 30px"></div>
 
@@ -179,9 +179,10 @@
                         <table class="layui-table" id="scoutTable" lay-filter="scoutTable"></table>
                     </div>
 
-                    <div class="layui-tab-item">
+                    <div class="layui-tab-item layui-show">
                         <div class="layui-row">
                             <div class="layui-col-md4" style="margin-left: -50px;margin-top: 10px">
+                                <div th:replace="layout::pick(${pickPlayerData})"></div>
                             </div>
                             <div class="layui-col-md7 layui-col-sm-offset1">
                                 <table class="layui-table" id="pickPlayerTable" lay-filter="pickPlayerTable"></table>
