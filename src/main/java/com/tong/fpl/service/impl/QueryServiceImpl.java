@@ -22,10 +22,7 @@ import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.player.PlayerData;
-import com.tong.fpl.domain.letletme.player.PlayerDetailData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.IQuerySerivce;
@@ -603,6 +600,55 @@ public class QueryServiceImpl implements IQuerySerivce {
 			}
 		});
 		return pickList;
+	}
+
+	//	@Cacheable(value = "qryPickListByPosition", key = "#season+'::'+#picks", unless = "#result == null")
+	@Override
+	public PickPlayerData qryPickListByPosition(String season, String picks) {
+		List<EntryPickData> pickList = JsonUtils.json2Collection(picks, List.class, EntryPickData.class);
+		if (CollectionUtils.isEmpty(pickList)) {
+			return new PickPlayerData();
+		}
+		Map<String, String> teamShortNameMap = this.getTeamShortNameMap(season);
+		// collect
+		List<EntryPickData> gkpList = Lists.newArrayList();
+		List<EntryPickData> defList = Lists.newArrayList();
+		List<EntryPickData> midList = Lists.newArrayList();
+		List<EntryPickData> fwdList = Lists.newArrayList();
+		List<EntryPickData> subList = Lists.newArrayList();
+		pickList.forEach(pick -> {
+			PlayerEntity playerEntity = this.getPlayerByElement(season, pick.getElement());
+			if (playerEntity != null) {
+				pick
+						.setElementType(playerEntity.getElementType())
+						.setTeamId(playerEntity.getTeamId());
+			}
+			pick.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(pick.getTeamId()), ""));
+			// add into list
+			if (pick.getPosition() <= 11) {
+				switch (pick.getElementType()) {
+					case 1: {
+						gkpList.add(pick);
+						break;
+					}
+					case 2: {
+						defList.add(pick);
+						break;
+					}
+					case 3: {
+						midList.add(pick);
+						break;
+					}
+					case 4: {
+						fwdList.add(pick);
+						break;
+					}
+				}
+			} else {
+				subList.add(pick);
+			}
+		});
+		return new PickPlayerData().setGkp(gkpList).setDef(defList).setMid(midList).setFwd(fwdList).setSub(subList);
 	}
 
 	/**

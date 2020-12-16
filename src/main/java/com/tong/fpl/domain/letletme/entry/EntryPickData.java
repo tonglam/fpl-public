@@ -12,11 +12,15 @@ public class EntryPickData {
 
 	private int element;
 	private int position;
+	private int elementType;
 	private String elementTypeName;
 	private String webName;
 	private int multiplier;
 	private boolean isCaptain;
 	private boolean isViceCaptain;
 	private int points;
+	private int teamId;
+	private String teamName;
+	private String teamShortName;
 
 }

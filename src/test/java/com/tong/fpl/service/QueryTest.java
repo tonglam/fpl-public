@@ -3,6 +3,7 @@ package com.tong.fpl.service;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
+import com.tong.fpl.domain.letletme.player.PickPlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
@@ -187,6 +188,13 @@ public class QueryTest extends FplApplicationTests {
 	@CsvSource({"65, Classic"})
 	void qryLeagueNameByIdAndType(int leagueId, String leagueType) {
 		String a = this.querySerivce.qryLeagueNameByIdAndType(leagueId, leagueType);
+		System.out.println(1);
+	}
+
+	@Test
+	void qryPickListByPosition() {
+		String picks = "[{\"element\":383,\"position\":1,\"multiplier\":1,\"points\":3,\"captain\":false,\"viceCaptain\":false},{\"element\":375,\"position\":2,\"multiplier\":1,\"points\":1,\"captain\":false,\"viceCaptain\":false},{\"element\":259,\"position\":3,\"multiplier\":1,\"points\":1,\"captain\":false,\"viceCaptain\":false},{\"element\":353,\"position\":4,\"multiplier\":1,\"points\":0,\"captain\":false,\"viceCaptain\":false},{\"element\":200,\"position\":5,\"multiplier\":1,\"points\":3,\"captain\":false,\"viceCaptain\":false},{\"element\":254,\"position\":6,\"multiplier\":1,\"points\":20,\"captain\":false,\"viceCaptain\":false},{\"element\":338,\"position\":7,\"multiplier\":1,\"points\":3,\"captain\":false,\"viceCaptain\":false},{\"element\":390,\"position\":8,\"multiplier\":1,\"points\":2,\"captain\":false,\"viceCaptain\":true},{\"element\":500,\"position\":9,\"multiplier\":1,\"points\":2,\"captain\":false,\"viceCaptain\":false},{\"element\":4,\"position\":10,\"multiplier\":2,\"points\":7,\"captain\":true,\"viceCaptain\":false},{\"element\":506,\"position\":11,\"multiplier\":1,\"points\":8,\"captain\":false,\"viceCaptain\":false},{\"element\":35,\"position\":12,\"multiplier\":0,\"points\":0,\"captain\":false,\"viceCaptain\":false},{\"element\":262,\"position\":13,\"multiplier\":0,\"points\":0,\"captain\":false,\"viceCaptain\":false},{\"element\":27,\"position\":14,\"multiplier\":0,\"points\":0,\"captain\":false,\"viceCaptain\":false},{\"element\":50,\"position\":15,\"multiplier\":0,\"points\":0,\"captain\":false,\"viceCaptain\":false}]";
+		PickPlayerData playerData = this.querySerivce.qryPickListByPosition(picks);
 		System.out.println(1);
 	}
 
