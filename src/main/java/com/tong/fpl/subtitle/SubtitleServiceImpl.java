@@ -18,12 +18,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Create by tong on 2020/12/2
@@ -104,37 +107,75 @@ public class SubtitleServiceImpl implements ISubtitleService {
 	}
 
 	@Override
-	public void mergeSubtitle(String fileName, boolean engSub) throws Exception {
+	public String mergeSubtitle(String fileName, boolean engSub) {
 		if (StringUtils.isBlank(fileName)) {
-			throw new Exception("文件名不能为空！");
+			return "文件名不能为空！";
 		}
-		Path path = Paths.get(Constant.SUBTITLE_FILE_LOCATION + fileName);
-		if (Files.notExists(path)) {
-			throw new Exception("文件不存在！");
-		}
-		if (Files.size(path) == 0) {
-			throw new Exception("文件为空！");
-		}
-		Charset charset = CharsetDetector.detect(Files.newInputStream(path), StandardCharsets.UTF_8);
-		if (charset == null) {
-			charset = CharsetDetector.detect(Files.newInputStream(path), Charset.forName("GBK"));
-			if (StringUtils.equals("GBK", charset.name())) {
-				throw new Exception("只支持UTF或者GBK编码文件！");
+		try {
+			Path path = Paths.get(Constant.SUBTITLE_FILE_LOCATION + fileName);
+			if (Files.notExists(path)) {
+				return "文件不存在！";
 			}
-		}
-		StringBuilder builder = new StringBuilder();
-		List<String> list = Files.readAllLines(path, StandardCharsets.UTF_8);
-		for (int i = 0; i < list.size(); i++) {
-			String line = list.get(i).trim();
-			if (i % 2 == 0) {
-				if (engSub) {
-					builder.append(line).append("\\N");
+			if (Files.size(path) == 0) {
+				return "文件为空！";
+			}
+			Charset charset = CharsetDetector.detect(Files.newInputStream(path), StandardCharsets.UTF_8);
+			if (charset == null) {
+				charset = CharsetDetector.detect(Files.newInputStream(path), Charset.forName("GBK"));
+				if (StringUtils.equals("GBK", charset.name())) {
+					return "只支持UTF或者GBK编码文件！";
 				}
-			} else {
-				builder.append(line).append("\n");
 			}
+			StringBuilder builder = new StringBuilder();
+			Files.lines(path, StandardCharsets.UTF_8).forEach(line -> {
+				if (StringUtils.isBlank(line)) {
+					return;
+				}
+				line = StringUtils.trim(line);
+				if (this.englishSubLine(line) && engSub) {
+					this.processEnglishSubLine(builder, line);
+				} else {
+					this.processChineseSubLine(builder, line);
+				}
+			});
+			Files.write(Paths.get(Constant.SUBTITLE_FILE_LOCATION + "(New)" + fileName), builder.substring(0, builder.length() - 1).getBytes());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "合成失败！";
 		}
-		Files.write(Paths.get(Constant.SUBTITLE_FILE_LOCATION + "(New)" + fileName), builder.substring(0, builder.length() - 1).getBytes());
+		return "合成成功!";
+	}
+
+	private boolean englishSubLine(String line) {
+		Pattern pattern = Pattern.compile("[\\u4e00-\\u9fa5]");
+		Matcher matcher = pattern.matcher(line);
+		return !matcher.find();
+	}
+
+	private void processEnglishSubLine(StringBuilder builder, String line) {
+		// 半角符号
+		line = line.replaceAll("‘", "'");
+		// 去掉句尾标点
+		int length = line.length();
+		String last = StringUtils.substring(line, length - 1, length);
+		Pattern pattern = Pattern.compile("[,.!?]");
+		Matcher matcher = pattern.matcher(line);
+		if (matcher.find()) {
+			line = StringUtils.substringBefore(line, last);
+		}
+		builder.append(line).append("\\N");
+	}
+
+	private void processChineseSubLine(StringBuilder builder, String line) {
+		// 去掉句尾标点
+		int length = line.length();
+		String last = StringUtils.substring(line, length - 1, length);
+		Pattern pattern = Pattern.compile("[，。！？]");
+		Matcher matcher = pattern.matcher(line);
+		if (matcher.find()) {
+			line = StringUtils.substringBefore(line, last);
+		}
+		builder.append(line).append("\n");
 	}
 
 }

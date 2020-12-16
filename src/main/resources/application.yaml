@@ -1,4 +1,13 @@
 spring:
+  web:
+    resources:
+      cache:
+        period: 518400
+      static-locations: classpath:/static
+      chain:
+        compressed: true
+        cache: true
+        enabled: true
   servlet:
     multipart:
       enabled: true

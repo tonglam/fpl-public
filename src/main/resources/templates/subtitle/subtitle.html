@@ -591,17 +591,7 @@
             if (fileName.indexOf(".txt") < 0) {
                 fileName += ".txt";
             }
-            axios.get('/subtitle/downloadSubtitleFile', {
-                params: {
-                    fileName: fileName
-                }
-            })
-                .then(function (response) {
-                    layer.msg(response, {time: 1500});
-                })
-                .catch(function (error) {
-                    layer.msg(error.message, {time: 1500});
-                });
+            window.location = "/subtitle/downloadSubtitleFile?fileName=" + fileName;
         });
 
     });

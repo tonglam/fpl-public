@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -87,12 +88,7 @@ public class SubtitleController {
 	@ResponseBody
 	@RequestMapping(value = "/mergeSubtitle")
 	public String mergeSubtitle(@RequestParam String fileName, @RequestParam boolean engSub) {
-		try {
-			this.subtitleService.mergeSubtitle(fileName, engSub);
-			return "合成字幕成功！";
-		} catch (Exception e) {
-			return "合成失败：" + e.getMessage();
-		}
+		return this.subtitleService.mergeSubtitle(fileName, engSub);
 	}
 
 	@RequestMapping(value = "/downloadSubtitleFile")
@@ -103,11 +99,15 @@ public class SubtitleController {
 			return;
 		}
 		File file = new File(fileName);
+		fileName = StringUtils.substringAfter(fileName, Constant.SUBTITLE_FILE_LOCATION);
 		response.reset();
-		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + new String(fileName.getBytes(), StandardCharsets.ISO_8859_1));
+		response.setHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+		response.setHeader("Pragma", "no-cache");
+		response.setHeader("Cache-Expires", "0");
+		response.setContentType("application/txt");
 		response.setCharacterEncoding("utf-8");
 		response.setContentLength((int) file.length());
-		response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
 		// 输出
 		FileInputStream fis;
 		ServletOutputStream os;
