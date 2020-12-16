@@ -90,13 +90,15 @@ public interface ITableQueryService {
 
 	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event);
 
-	TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry);
+    TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry);
 
-	/**
-	 * @apiNote scout
-	 */
-	TableData<ScoutData> qryEventScoutPickList(int event);
+    /**
+     * @apiNote scout
+     */
+    TableData<ScoutData> qryEventScoutPickList(int event);
 
-	TableData<ScoutData> qryEventScoutList(int event);
+    TableData<ScoutData> qryEventScoutList(int event);
+
+    TableData<EntryPickData> qryOffiaccountPickList();
 
 }
