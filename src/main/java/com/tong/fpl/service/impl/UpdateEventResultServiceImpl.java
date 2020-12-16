@@ -195,6 +195,10 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	public void updateTournamentEntryEventResult(int event, int tournamentId) {
 		// get entry_list
 		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			return;
+		}
 		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
 				.eq(EntryEventResultEntity::getEvent, event)
 				.in(EntryEventResultEntity::getEntry, entryList))
@@ -235,6 +239,10 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	public void updateTournamentEntryEventTransfer(int tournamentId) {
 		// get entry_list
 		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			return;
+		}
 		Map<String, EntryEventTransferEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
 				.in(EntryEventTransferEntity::getEntry, entryList))
 				.stream()

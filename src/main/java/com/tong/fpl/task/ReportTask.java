@@ -27,7 +27,7 @@ public class ReportTask {
 	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
 	public void insertLeagueEventSelectStat() {
 		int current = this.querySerivce.getCurrentEvent();
-		if (!isNotSelectTime(current)) {
+		if (!this.isNotSelectTime(current)) {
 			return;
 		}
 		Table<Integer, String, Integer> leagueTable = this.getLeagueMap(); // league_id -> league_type -> limit

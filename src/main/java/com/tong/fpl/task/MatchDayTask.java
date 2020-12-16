@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 /**
  * Create by tong on 2020/7/21
  */
@@ -172,6 +174,25 @@ public class MatchDayTask {
 			return;
 		}
 		this.scoutService.updateEventScoutResult(event);
+	}
+
+	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
+	public void insertEventTransfer() {
+		int current = this.querySerivce.getCurrentEvent();
+		if (!this.isNotSelectTime(current)) {
+			return;
+		}
+		TaskLog.info("start true insertEventTransfer task");
+		this.querySerivce.qryAllTournamentList()
+				.stream()
+				.map(TournamentInfoEntity::getId)
+				.distinct()
+				.forEach(this.updateEventResultsService::updateTournamentEntryEventTransfer);
+	}
+
+	private boolean isNotSelectTime(int event) {
+		LocalDateTime localDateTime = LocalDateTime.parse(this.querySerivce.getDeadlineByEvent(event).replace(" ", "T"));
+		return LocalDateTime.now().equals(localDateTime);
 	}
 
 }
