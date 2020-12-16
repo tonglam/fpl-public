@@ -35,7 +35,8 @@ public class WebPageController {
 	}
 
 	@GetMapping(value = "/test")
-	public String testController() {
+	public String testController(Model model) {
+		model.addAttribute("name", "SOU");
 		return "web/test";
 	}
 
