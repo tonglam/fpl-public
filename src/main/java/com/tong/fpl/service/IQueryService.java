@@ -110,10 +110,12 @@ public interface IQueryService {
 	String getDeadlineByEvent(String season, int event);
 
 	default String getScoutDeadlineByEvent(int event) {
-		return LocalDate.parse(StringUtils.substringBefore(this.getDeadlineByEvent(event), " "))
-				.minusDays(1)
-				.format(DateTimeFormatter.ofPattern(Constant.DATE))
-				+ " 08:30:00";
+		String deadline = this.getDeadlineByEvent(event);
+		String checkTime = StringUtils.substringBefore(deadline, " ") + "T08:30:00";
+		return LocalDateTime.parse(deadline.replaceAll(" ", "T")).isAfter(LocalDateTime.parse(checkTime)) ?
+				LocalDateTime.parse(checkTime).format(DateTimeFormatter.ofPattern(Constant.DATETIME)) :
+				LocalDate.parse(StringUtils.substringBefore(this.getDeadlineByEvent(event), " ")).minusDays(1)
+						.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
 	}
 
 	List<LocalDate> getMatchDayByEvent(int event);
@@ -251,15 +253,15 @@ public interface IQueryService {
 
 	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
-    Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+	Map<String, Map<String, Integer>> getLiveBonusCacheMap();
 
-    List<LiveMatchData> qryLiveMatchList(int statusId);
+	List<LiveMatchData> qryLiveMatchList(int statusId);
 
-    /**
-     * @apiNote scout
-     */
-    ScoutData qryScoutEntryEventData(int event, int entry);
+	/**
+	 * @apiNote scout
+	 */
+	ScoutData qryScoutEntryEventData(int event, int entry);
 
-    PickPlayerData qryOffiaccountPickList();
+	PickPlayerData qryOffiaccountPickList();
 
 }

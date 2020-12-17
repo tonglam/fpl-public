@@ -178,7 +178,7 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource("12")
+	@CsvSource("15")
 	void getScoutDeadlineByEvent(int event) {
 		String a = this.querySerivce.getScoutDeadlineByEvent(event);
 		System.out.println(1);

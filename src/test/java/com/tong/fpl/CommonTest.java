@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
@@ -76,8 +77,11 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		String a = "2020-09-15T00:43:17.293599Z";
-		LocalDateTime localDateTime = LocalDateTime.parse(StringUtils.substringBefore(a, "."));
+		String a = "2020-12-19 02:00:00";
+		LocalDateTime localDateTime = LocalDateTime.parse(a.replaceAll(" ", "T"));
+		LocalDate localDate = LocalDate.parse(StringUtils.substringBefore(a, " "));
+		String checkTime = StringUtils.substringBefore(a, " ") + "T08:30:00";
+		System.out.println(localDateTime.isAfter(LocalDateTime.parse(checkTime)));
 		System.out.println(1);
 	}
 

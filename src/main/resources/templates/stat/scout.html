@@ -38,14 +38,14 @@
             <div class="layui-tab layui-tab-brief" lay-filter="checkTab">
 
                 <ul class="layui-tab-title">
-                    <li class="" lay-id="pick" th:text="'GW'+${nextGw}+'推荐'"></li>
+                    <li class="layui-this" lay-id="pick" th:text="'GW'+${nextGw}+'推荐'"></li>
                     <li class="" lay-id="result">推荐结果</li>
-                    <li class="layui-this" lay-id="offiaccount">公号阵容</li>
+                    <li class="" lay-id="offiaccount">公号阵容</li>
                 </ul>
 
                 <div class="layui-tab-content">
 
-                    <div class="layui-tab-item">
+                    <div class="layui-tab-item layui-show">
 
                         <div style="margin-top: 30px"></div>
 
@@ -179,13 +179,12 @@
                         <table class="layui-table" id="scoutTable" lay-filter="scoutTable"></table>
                     </div>
 
-                    <div class="layui-tab-item layui-show">
+                    <div class="layui-tab-item ">
                         <div class="layui-row">
-                            <div class="layui-col-md4" style="margin-left: -50px;margin-top: 10px">
+                            <div class="layui-col-md54" style="margin-left: -50px;margin-top: 10px">
                                 <div th:replace="layout::pick(${pickPlayerData})"></div>
                             </div>
-                            <div class="layui-col-md7 layui-col-sm-offset1">
-                                <table class="layui-table" id="pickPlayerTable" lay-filter="pickPlayerTable"></table>
+                            <div class="layui-col-md7">
                             </div>
 
                         </div>
@@ -205,7 +204,9 @@
 
 <script th:replace="layout::baseScript"></script>
 
-<script th:fragment="entryInputLayer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.1/dragula.min.js"></script>
+
+<script th:replace="layout::drag"></script>
 
 <script th:inline="javascript">
     layui.use(['layer'], function () {
@@ -754,190 +755,191 @@
 
         <!-- offiaccount -->
 
-        axios.get('/stat/qryScoutPlayerList?elementType=0')
-            .then(function (response) {
-                layer.close(loadIndex);
-                let data = response.data;
-                table.render({
-                    elem: '#pickPlayerTable',
-                    toolbar: '#toolbar',
-                    defaultToolbar: false,
-                    size: 'sm',
-                    even: true,
-                    data: data,
-                    page: true,
-                    width: 1032,
-                    limit: 15,
-                    limits: [15, 30, 50, 100],
-                    cellMinWidth: 80,
-                    contextmenu: {
-                        body: [
-                            {
-                                name: '选为队长',
-                                icon: 'layui-icon layui-icon-template',
-                                click: function (obj) {
-                                    $("input[name=cap]").val(obj.row.webName);
-                                    $("#capElement").text(obj.row.element);
-                                }
-                            }
-                        ]
-                    },
-                    cols: [[
-                        {field: 'webName', title: '名字', align: 'center', width: 180, filter: true, rowspan: 2},
-                        {
-                            field: 'elementTypeName',
-                            title: '位置',
-                            align: 'center',
-                            width: 80,
-                            filter: true,
-                            rowspan: 2
-                        },
-                        {field: 'teamShortName', title: '球队', align: 'center', width: 80, filter: true, rowspan: 2},
-                        {
-                            field: 'price',
-                            title: '身价(m)',
-                            align: 'center',
-                            width: 90,
-                            sort: true,
-                            filter: true,
-                            rowspan: 2
-                        },
-                        {
-                            field: 'totalPoints',
-                            title: '总分',
-                            align: 'center',
-                            width: 80,
-                            sort: true,
-                            filter: true,
-                            rowspan: 2
-                        },
-                        {
-                            field: 'selectedByPercent',
-                            title: '持有率(%)',
-                            align: 'center',
-                            width: 100,
-                            sort: true,
-                            filter: true,
-                            rowspan: 2
-                        },
-                        {
-                            field: 'pointsPerGame',
-                            title: '场均得分',
-                            align: 'center',
-                            width: 80,
-                            rowspan: 2,
-                        },
-                        {field: '', title: '赛程', align: 'center', colspan: 3}
-                    ],
-                        [
-                            {
-                                field: '',
-                                title: '',
-                                align: 'center',
-                                width: 110,
-                                templet: function (d) {
-                                    return showDifficulty(d.againstTeam1ShortName, d.difficulty1, d.fixtureEvent1);
-                                }
-                            },
-                            {
-                                field: '',
-                                title: '',
-                                align: 'center',
-                                width: 110,
-                                templet: function (d) {
-                                    return showDifficulty(d.againstTeam2ShortName, d.difficulty2, d.fixtureEvent2);
-                                }
-                            },
-                            {
-                                field: '',
-                                title: '',
-                                align: 'center',
-                                width: 110,
-                                templet: function (d) {
-                                    return showDifficulty(d.againstTeam3ShortName, d.difficulty3, d.fixtureEvent3);
-                                }
-                            }
-                        ]
-                    ],
-                    id: 'pickPlayerTable',
-                    filter: {
-                        items: ['data', 'condition'],
-                        bottom: false
-                    },
-                    done: function () {
-                        soulTable.render(this);
-                    }
-                });
-            })
-            .catch(function (error) {
-                layer.close(loadIndex);
-                console.info(error.message);
-            });
+        // axios.get('/stat/qryScoutPlayerList?elementType=0')
+        //     .then(function (response) {
+        //         layer.close(loadIndex);
+        //         let data = response.data;
+        //         table.render({
+        //             elem: '#pickPlayerTable',
+        //             toolbar: '#toolbar',
+        //             defaultToolbar: false,
+        //             size: 'sm',
+        //             even: true,
+        //             data: data,
+        //             page: true,
+        //             width: 1032,
+        //             limit: 15,
+        //             limits: [15, 30, 50, 100],
+        //             cellMinWidth: 80,
+        //             contextmenu: {
+        //                 body: [
+        //                     {
+        //                         name: '选为队长',
+        //                         icon: 'layui-icon layui-icon-template',
+        //                         click: function (obj) {
+        //                             $("input[name=cap]").val(obj.row.webName);
+        //                             $("#capElement").text(obj.row.element);
+        //                         }
+        //                     }
+        //                 ]
+        //             },
+        //             cols: [[
+        //                 {field: 'webName', title: '名字', align: 'center', width: 180, filter: true, rowspan: 2},
+        //                 {
+        //                     field: 'elementTypeName',
+        //                     title: '位置',
+        //                     align: 'center',
+        //                     width: 80,
+        //                     filter: true,
+        //                     rowspan: 2
+        //                 },
+        //                 {field: 'teamShortName', title: '球队', align: 'center', width: 80, filter: true, rowspan: 2},
+        //                 {
+        //                     field: 'price',
+        //                     title: '身价(m)',
+        //                     align: 'center',
+        //                     width: 90,
+        //                     sort: true,
+        //                     filter: true,
+        //                     rowspan: 2
+        //                 },
+        //                 {
+        //                     field: 'totalPoints',
+        //                     title: '总分',
+        //                     align: 'center',
+        //                     width: 80,
+        //                     sort: true,
+        //                     filter: true,
+        //                     rowspan: 2
+        //                 },
+        //                 {
+        //                     field: 'selectedByPercent',
+        //                     title: '持有率(%)',
+        //                     align: 'center',
+        //                     width: 100,
+        //                     sort: true,
+        //                     filter: true,
+        //                     rowspan: 2
+        //                 },
+        //                 {
+        //                     field: 'pointsPerGame',
+        //                     title: '场均得分',
+        //                     align: 'center',
+        //                     width: 80,
+        //                     rowspan: 2,
+        //                 },
+        //                 {field: '', title: '赛程', align: 'center', colspan: 3}
+        //             ],
+        //                 [
+        //                     {
+        //                         field: '',
+        //                         title: '',
+        //                         align: 'center',
+        //                         width: 110,
+        //                         templet: function (d) {
+        //                             return showDifficulty(d.againstTeam1ShortName, d.difficulty1, d.fixtureEvent1);
+        //                         }
+        //                     },
+        //                     {
+        //                         field: '',
+        //                         title: '',
+        //                         align: 'center',
+        //                         width: 110,
+        //                         templet: function (d) {
+        //                             return showDifficulty(d.againstTeam2ShortName, d.difficulty2, d.fixtureEvent2);
+        //                         }
+        //                     },
+        //                     {
+        //                         field: '',
+        //                         title: '',
+        //                         align: 'center',
+        //                         width: 110,
+        //                         templet: function (d) {
+        //                             return showDifficulty(d.againstTeam3ShortName, d.difficulty3, d.fixtureEvent3);
+        //                         }
+        //                     }
+        //                 ]
+        //             ],
+        //             id: 'pickPlayerTable',
+        //             filter: {
+        //                 items: ['data', 'condition'],
+        //                 bottom: false
+        //             },
+        //             done: function () {
+        //                 soulTable.render(this);
+        //             }
+        //         });
+        //     })
+        //     .catch(function (error) {
+        //         layer.close(loadIndex);
+        //         console.info(error.message);
+        //     });
 
-        table.on('toolbar(pickPlayerTable)', function (obj) {
-            soulTable.clearFilter('pickPlayerTable');
-            switch (obj.event) {
-                case 'gkp': {
-                    loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
-                    axios.get('/stat/qryScoutPlayerList?elementType=1')
-                        .then(function (response) {
-                            layer.close(loadIndex);
-                            let data = response.data;
-                            table.reload('pickPlayerTable', {data: data});
-                        })
-                        .catch(function (error) {
-                            layer.close(loadIndex);
-                            console.info(error.message);
-                        });
-                    break;
-                }
-                case 'def': {
-                    loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
-                    axios.get('/stat/qryScoutPlayerList?elementType=2')
-                        .then(function (response) {
-                            layer.close(loadIndex);
-                            let data = response.data;
-                            table.reload('pickPlayerTable', {data: data});
-                        })
-                        .catch(function (error) {
-                            layer.close(loadIndex);
-                            console.info(error.message);
-                        });
-                    break;
-                }
-                case 'mid': {
-                    loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
-                    axios.get('/stat/qryScoutPlayerList?elementType=3')
-                        .then(function (response) {
-                            layer.close(loadIndex);
-                            let data = response.data;
-                            table.reload('pickPlayerTable', {data: data});
-                        })
-                        .catch(function (error) {
-                            layer.close(loadIndex);
-                            console.info(error.message);
-                        });
-                    break;
-                }
-                case 'fwd': {
-                    loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
-                    axios.get('/stat/qryScoutPlayerList?elementType=4')
-                        .then(function (response) {
-                            layer.close(loadIndex);
-                            let data = response.data;
-                            table.reload('pickPlayerTable', {data: data});
-                        })
-                        .catch(function (error) {
-                            layer.close(loadIndex);
-                            console.info(error.message);
-                        });
-                    break;
-                }
-                case 'clear': {
-                    break;
-                }
-            }
-        });
+
+        // table.on('toolbar(pickPlayerTable)', function (obj) {
+        //     soulTable.clearFilter('pickPlayerTable');
+        //     switch (obj.event) {
+        //         case 'gkp': {
+        //             loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+        //             axios.get('/stat/qryScoutPlayerList?elementType=1')
+        //                 .then(function (response) {
+        //                     layer.close(loadIndex);
+        //                     let data = response.data;
+        //                     table.reload('pickPlayerTable', {data: data});
+        //                 })
+        //                 .catch(function (error) {
+        //                     layer.close(loadIndex);
+        //                     console.info(error.message);
+        //                 });
+        //             break;
+        //         }
+        //         case 'def': {
+        //             loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+        //             axios.get('/stat/qryScoutPlayerList?elementType=2')
+        //                 .then(function (response) {
+        //                     layer.close(loadIndex);
+        //                     let data = response.data;
+        //                     table.reload('pickPlayerTable', {data: data});
+        //                 })
+        //                 .catch(function (error) {
+        //                     layer.close(loadIndex);
+        //                     console.info(error.message);
+        //                 });
+        //             break;
+        //         }
+        //         case 'mid': {
+        //             loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+        //             axios.get('/stat/qryScoutPlayerList?elementType=3')
+        //                 .then(function (response) {
+        //                     layer.close(loadIndex);
+        //                     let data = response.data;
+        //                     table.reload('pickPlayerTable', {data: data});
+        //                 })
+        //                 .catch(function (error) {
+        //                     layer.close(loadIndex);
+        //                     console.info(error.message);
+        //                 });
+        //             break;
+        //         }
+        //         case 'fwd': {
+        //             loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+        //             axios.get('/stat/qryScoutPlayerList?elementType=4')
+        //                 .then(function (response) {
+        //                     layer.close(loadIndex);
+        //                     let data = response.data;
+        //                     table.reload('pickPlayerTable', {data: data});
+        //                 })
+        //                 .catch(function (error) {
+        //                     layer.close(loadIndex);
+        //                     console.info(error.message);
+        //                 });
+        //             break;
+        //         }
+        //         case 'clear': {
+        //             break;
+        //         }
+        //     }
+        // });
 
     });
 

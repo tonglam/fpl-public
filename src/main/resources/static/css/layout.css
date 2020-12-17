@@ -240,33 +240,31 @@ h1, h2, h3 {
             #538c2b 50%,
             #538c2b
     );
-    background-size: 100% 20vmin;
+    background-size: 100% 120px;
     padding: 1px;
-    width: 300px;
-    height: 400px;
+    width: 420px;
+    height: 560px;
 }
 
 .bench {
     background-color: #2E6530;
     padding: 1px;
-    width: 300px;
-    height: 100px;
+    width: 420px;
+    height: 120px;
 }
 
 .container {
     display: flex;
-    width: 280px;
+    width: 350px;
     height: 70px;
     justify-content: space-around;
     list-style: none;
-    margin: 30px 10px;
+    margin-top: 40px;
+    margin-bottom: 30px;
 }
 
 .container li,
 .gu-mirror {
-    cursor: move;
-    cursor: -webkit-grab;
-    cursor: -moz-grab;
     cursor: grab;
     height: 50px;
     width: 50px;
@@ -275,9 +273,6 @@ h1, h2, h3 {
 }
 
 .gu-mirror {
-    cursor: move;
-    cursor: -webkit-grabbing;
-    cursor: -moz-grabbing;
     cursor: grabbing;
 }
 
