@@ -3,11 +3,11 @@ package com.tong.fpl.api;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
-import com.tong.fpl.domain.letletme.player.PickPlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerPickData;
+import com.tong.fpl.domain.letletme.player.PlayerShowData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
-import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public interface IStatApi {
     /**
      * @apiNote scout
      */
-    TableData<ScoutPlayerData> qryScoutPlayerList(int elementType);
+    TableData<PlayerShowData> qryScoutPlayerList(int elementType);
 
 	void upsertEventScout(ScoutData scoutData) throws Exception;
 
@@ -50,6 +50,8 @@ public interface IStatApi {
 
     String getScoutDeadline(int event);
 
-    PickPlayerData qryOffiaccountPickList();
+    TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
+
+    PlayerPickData qryOffiaccountPickList();
 
 }

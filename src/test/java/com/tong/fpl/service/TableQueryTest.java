@@ -8,7 +8,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
-import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
+import com.tong.fpl.domain.letletme.player.PlayerShowData;
 import com.tong.fpl.domain.letletme.tournament.TournamentBattleGroupEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
@@ -122,9 +122,17 @@ public class TableQueryTest extends FplApplicationTests {
 
 	@ParameterizedTest
 	@CsvSource({"1"})
-	void qryPageScoutPlayerList(int element) {
-		TableData<ScoutPlayerData> data = this.tableQueryService.qryScoutPlayerList(element);
+	void qryPlayerShowListByElementType(int element) {
+		TableData<PlayerShowData> data = this.tableQueryService.qryPlayerShowListByElementType(element);
 		System.out.println(1);
 	}
+
+	@ParameterizedTest
+	@CsvSource({"13, 4074865"})
+	void qryEntryPlayerShowList(int event, int entry) {
+		TableData<PlayerShowData> data = this.tableQueryService.qryEntryEventPlayerShowList(event, entry);
+		System.out.println(1);
+	}
+
 
 }

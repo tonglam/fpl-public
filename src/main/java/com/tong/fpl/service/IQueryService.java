@@ -1,5 +1,8 @@
 package com.tong.fpl.service;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.TransferRes;
@@ -12,10 +15,7 @@ import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.player.PickPlayerData;
-import com.tong.fpl.domain.letletme.player.PlayerData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -59,6 +59,10 @@ public interface IQueryService {
 
 	List<PlayerFixtureData> setPlayerFixture(int teamId);
 
+	PlayerDetailData setSeasonData(String season, int code);
+
+	List<PlayerDetailData> setHistorySeasonData(int code);
+
 	List<PlayerInfoData> qryAllPlayers(String season);
 
 	default PlayerEntity getPlayerByElement(int element) {
@@ -74,6 +78,13 @@ public interface IQueryService {
 	PlayerStatEntity getPlayerStatByElement(String season, int element);
 
 	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
+
+	default PlayerShowData qryPlayerShowData(int element) {
+		return this.qryPlayerShowData(element, Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap(), HashMultimap.create());
+	}
+
+	PlayerShowData qryPlayerShowData(int element, Map<String, String> positionMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
+	                                 Map<Integer, PlayerEntity> playerMap, Multimap<Integer, EventLiveEntity> eventLiveMap);
 
 	/**
 	 * @apiNote entry
@@ -177,11 +188,11 @@ public interface IQueryService {
 
 	List<EntryPickData> qryPickListFromPicks(String season, String picks);
 
-	default PickPlayerData qryPickListByPosition(String picks) {
+	default PlayerPickData qryPickListByPosition(String picks) {
 		return this.qryPickListByPosition(CommonUtils.getCurrentSeason(), picks);
 	}
 
-	PickPlayerData qryPickListByPosition(String season, String picks);
+	PlayerPickData qryPickListByPosition(String season, String picks);
 
 	/**
 	 * @apiNote event_result
@@ -193,6 +204,8 @@ public interface IQueryService {
 	}
 
 	EntryEventResultData qryEntryEventResult(String season, int event, int entry);
+
+	PlayerPickData qryEntryPickData(int entry);
 
 	/**
 	 * @apiNote tournament
@@ -261,7 +274,5 @@ public interface IQueryService {
 	 * @apiNote scout
 	 */
 	ScoutData qryScoutEntryEventData(int event, int entry);
-
-	PickPlayerData qryOffiaccountPickList();
 
 }

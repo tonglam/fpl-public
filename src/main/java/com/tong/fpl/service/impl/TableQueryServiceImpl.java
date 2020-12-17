@@ -22,11 +22,10 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.*;
 import com.tong.fpl.domain.letletme.live.LiveCalaData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerShowData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
-import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQueryService;
@@ -130,74 +129,94 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
-	@Cacheable(value = "qryScoutPlayerList", key = "#elementType")
-	public TableData<ScoutPlayerData> qryScoutPlayerList(int elementType) {
+	@Cacheable(value = "qryPlayerShowListByElementType", key = "#elementType")
+	public TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType) {
 		// event_live
+		Map<String, String> positionMap = this.queryService.getPositionMap();
+		Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
 		Multimap<Integer, EventLiveEntity> eventLiveMap = HashMultimap.create();
 		this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
 		// player_data
 		List<PlayerEntity> playerEntityList = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
 				.eq(PlayerEntity::getElementType, elementType));
-		List<CompletableFuture<ScoutPlayerData>> future = playerEntityList
+		Map<Integer, PlayerEntity> playerMap = playerEntityList
 				.stream()
-				.map(o ->
-						CompletableFuture.supplyAsync(() ->
-								this.qryScoutPlayerData(o, eventLiveMap)))
+				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+		List<CompletableFuture<PlayerShowData>> future = playerEntityList
+				.stream()
+				.map(o -> CompletableFuture.supplyAsync(() ->
+						this.queryService.qryPlayerShowData(o.getElement(), positionMap, teamNameMap, teamShortNameMap, playerMap, eventLiveMap)))
 				.collect(Collectors.toList());
-		List<ScoutPlayerData> list = future
+		List<PlayerShowData> list = future
 				.stream()
 				.map(CompletableFuture::join)
 				.collect(Collectors.toList());
 		return new TableData<>(list
 				.stream()
-				.sorted(Comparator.comparing(ScoutPlayerData::getTotalPoints).reversed())
+				.sorted(Comparator.comparing(PlayerShowData::getTotalPoints).reversed())
 				.collect(Collectors.toList())
 		);
 	}
 
-	private ScoutPlayerData qryScoutPlayerData(PlayerEntity playerEntity, Multimap<Integer, EventLiveEntity> eventLiveMap) {
-		int element = playerEntity.getElement();
-		ScoutPlayerData scoutPlayerData = new ScoutPlayerData();
-		// player info
-		PlayerInfoData playerInfoData = this.queryService.initPlayerInfo(CommonUtils.getCurrentSeason(), playerEntity);
-		if (playerInfoData == null) {
-			return scoutPlayerData;
+	@Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry")
+	@Override
+	public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry) {
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, entry)
+				.eq(EntryEventResultEntity::getEvent, event));
+		if (entryEventResultEntity == null) {
+			return new TableData<>();
 		}
-		BeanUtil.copyProperties(playerInfoData, scoutPlayerData, CopyOptions.create().ignoreNullValue());
-		// fixture
-		List<PlayerFixtureData> fixtureDataList = this.queryService.setPlayerFixture(playerEntity.getTeamId());
-		if (fixtureDataList.size() >= 5) {
-			scoutPlayerData
-					.setFixtureEvent1(fixtureDataList.get(2).getEvent())
-					.setAgainstTeam1ShortName(fixtureDataList.get(2).getAgainstTeamShortName())
-					.setDifficulty1(fixtureDataList.get(2).getDifficulty())
-					.setWasHome1(fixtureDataList.get(2).isWasHome())
-					.setFixtureEvent2(fixtureDataList.get(3).getEvent())
-					.setAgainstTeam2ShortName(fixtureDataList.get(3).getAgainstTeamShortName())
-					.setDifficulty2(fixtureDataList.get(3).getDifficulty())
-					.setWasHome2(fixtureDataList.get(3).isWasHome())
-					.setFixtureEvent3(fixtureDataList.get(4).getEvent())
-					.setAgainstTeam3ShortName(fixtureDataList.get(4).getAgainstTeamShortName())
-					.setDifficulty3(fixtureDataList.get(4).getDifficulty())
-					.setWasHome3(fixtureDataList.get(4).isWasHome());
-		}
-		// event_live
-		if (!eventLiveMap.containsKey(element)) {
-			return scoutPlayerData;
-		}
-		scoutPlayerData.setTotalPoints(eventLiveMap.get(element)
+		Map<Integer, EntryPickData> pickMap = this.queryService.qryPickListFromPicks(entryEventResultEntity.getEventPicks())
 				.stream()
-				.mapToInt(EventLiveEntity::getTotalPoints)
-				.sum()
-		);
-		// player_stat
-		PlayerStatEntity playerStatEntity = this.queryService.getPlayerStatByElement(element);
-		if (playerStatEntity != null) {
-			scoutPlayerData
-					.setSelectedByPercent(playerStatEntity.getSelectedByPercent())
-					.setPointsPerGame(playerStatEntity.getPointsPerGame());
+				.collect(Collectors.toMap(EntryPickData::getElement, o -> o));
+		if (CollectionUtils.isEmpty(pickMap)) {
+			return new TableData<>();
 		}
-		return scoutPlayerData;
+		// prepare
+		Map<String, String> positionMap = this.queryService.getPositionMap();
+		Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+		Multimap<Integer, EventLiveEntity> eventLiveMap = HashMultimap.create();
+		this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
+		// collect
+		List<CompletableFuture<PlayerShowData>> future = pickMap.keySet()
+				.stream()
+				.map(o -> CompletableFuture.supplyAsync(() ->
+						this.queryService.qryPlayerShowData(o, positionMap, teamNameMap, teamShortNameMap, playerMap, eventLiveMap)))
+				.collect(Collectors.toList());
+		List<PlayerShowData> playerShowDataList = future
+				.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
+		playerShowDataList.forEach(data -> {
+			EntryPickData entryPickData = pickMap.get(data.getElement());
+			if (entryPickData == null) {
+				return;
+			}
+			data
+					.setPosition(entryPickData.getPosition())
+					.setMultiplier(entryPickData.getMultiplier())
+					.setCaptain(entryPickData.isCaptain())
+					.setViceCaptain(entryPickData.isViceCaptain());
+		});
+		List<PlayerShowData> list = Lists.newArrayList();
+		list.addAll(playerShowDataList
+				.stream()
+				.filter(o -> o.getPosition() < 12)
+				.sorted(Comparator.comparing(PlayerShowData::getElementType).reversed()
+						.thenComparing(PlayerShowData::getPosition))
+				.collect(Collectors.toList()));
+		list.addAll(playerShowDataList
+				.stream()
+				.filter(o -> o.getPosition() > 11)
+				.sorted(Comparator.comparing(PlayerShowData::getPosition))
+				.collect(Collectors.toList()));
+		return new TableData<>(list);
 	}
 
 	/**

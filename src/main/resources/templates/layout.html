@@ -338,6 +338,27 @@
         }
     }
 
+    function showDifficulty(shortName, difficulty, event) {
+        switch (difficulty) {
+            case 1:
+            case 2: {
+                return '<div style="background-color: #00FF86;color: white">' + shortName + ' (GW' + event + ')' + '</div>';
+            }
+            case 3: {
+                return '<div style="background-color: gray;color: white">' + shortName + ' (GW' + event + ')' + '</div>';
+            }
+            case 4: {
+                return '<div style="background-color: #FF005A;color: white">' + shortName + ' (GW' + event + ')' + '</div>';
+            }
+            case 5: {
+                return '<div style="background-color: #861D46;color: white">' + shortName + ' (GW' + event + ')' + '</div>';
+            }
+            default: {
+                return d.shortName + ' (GW' + event + ')';
+            }
+        }
+    }
+
 </script>
 
 <script th:fragment="entryInputLayer">

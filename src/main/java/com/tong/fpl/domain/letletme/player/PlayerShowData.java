@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.letletme.scout;
+package com.tong.fpl.domain.letletme.player;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -8,17 +8,17 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class ScoutPlayerData {
+public class PlayerShowData {
 
-    private int element;
-    private int position;
-    private int multiplier;
-    private boolean isCaptain;
-    private boolean isViceCaptain;
-    private String webName;
-    private int elementType;
-    private String elementTypeName;
-    private int teamId;
+	private int element;
+	private int position;
+	private int multiplier;
+	private boolean isCaptain;
+	private boolean isViceCaptain;
+	private String webName;
+	private int elementType;
+	private String elementTypeName;
+	private int teamId;
     private String teamName;
     private String teamShortName;
     private double price;

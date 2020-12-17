@@ -11,12 +11,12 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class PickPlayerData {
+public class PlayerPickData {
 
-    private List<EntryPickData> gkps;
-    private List<EntryPickData> defs;
-    private List<EntryPickData> mids;
-    private List<EntryPickData> fwds;
-    private List<EntryPickData> subs;
+	private List<EntryPickData> gkps;
+	private List<EntryPickData> defs;
+	private List<EntryPickData> mids;
+	private List<EntryPickData> fwds;
+	private List<EntryPickData> subs;
 
 }

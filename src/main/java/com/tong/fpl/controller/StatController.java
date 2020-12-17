@@ -6,9 +6,9 @@ import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerShowData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
-import com.tong.fpl.domain.letletme.scout.ScoutPlayerData;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
@@ -101,7 +101,7 @@ public class StatController {
 	 */
 	@RequestMapping("/qryScoutPlayerList")
 	@ResponseBody
-	public TableData<ScoutPlayerData> qryScoutPlayerList(@RequestParam int elementType) {
+	public TableData<PlayerShowData> qryScoutPlayerList(@RequestParam int elementType) {
 		if (elementType == 0) {
 			return new TableData<>();
 		}
@@ -140,6 +140,12 @@ public class StatController {
 	@ResponseBody
 	public List<DropdownData> getScoutEvent() {
 		return this.statApi.getScoutEvent();
+	}
+
+	@RequestMapping("/qryOffiaccountPlayerShowList")
+	@ResponseBody
+	public TableData<PlayerShowData> qryOffiaccountPlayerShowList(@RequestParam int event) {
+		return this.statApi.qryOffiaccountPlayerShowList(event);
 	}
 
 }
