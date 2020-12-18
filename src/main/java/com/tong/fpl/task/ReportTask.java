@@ -70,8 +70,8 @@ public class ReportTask {
 		return table;
 	}
 
-	@Scheduled(cron = "0 0 9/10 * * *")
-	public void updatePointsRaceGroupResult() {
+	@Scheduled(cron = "0 0 9,12 * * *")
+	public void updateLeagueEventResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
 			return;

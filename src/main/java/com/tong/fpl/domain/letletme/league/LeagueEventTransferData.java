@@ -11,8 +11,10 @@ import lombok.experimental.Accessors;
 public class LeagueEventTransferData {
 
     private int transferInTotalPoints;
+    private int transferInPlayedTotalPoints;
     private int transferOutTotalPoints;
     private int transferPoints;
+    private int transferPlayedPoints;
     private int transferNetPoints;
     private int transferInTotalValue;
     private int transferOutTotalValue;

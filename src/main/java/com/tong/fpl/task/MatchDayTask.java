@@ -81,7 +81,7 @@ public class MatchDayTask {
 			TaskLog.info("start add tournament new entry, event:{}, tournament:{}", event, tournamentId);
 			this.tournamentService.addTournamentNewEntry(tournamentId);
 			TaskLog.info("start update tournament result, event:{}, tournament:{}", event, tournamentId);
-			this.updateEventResultsService.updateTournamentEntryEventResult(event, tournamentId);
+			this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournamentId);
 			TaskLog.info("end update tournament result, event:{}, tournament:{}", event, tournamentId);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -176,6 +176,21 @@ public class MatchDayTask {
 		this.scoutService.updateEventScoutResult(event);
 	}
 
+	@Scheduled(cron = "0 25 9,12 * * *")
+	public void updateTournamentEventTransferPlayed() {
+		int event = this.querySerivce.getCurrentEvent();
+		if (!this.querySerivce.isMatchDay(event)) {
+			return;
+		}
+		this.querySerivce.qryAllTournamentList()
+				.stream()
+				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
+				.filter(o -> !StringUtils.equals(o.getKnockoutMode(), KnockoutMode.No_knockout.name()))
+				.filter(o -> o.getKnockoutStartGw() <= event && o.getKnockoutEndGw() >= event)
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> this.updateEventResultsService.updateEntryEventTransferPlayed(event, tournamentId));
+	}
+
 	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
 	public void insertEventTransfer() {
 		int current = this.querySerivce.getCurrentEvent();
@@ -187,7 +202,7 @@ public class MatchDayTask {
 				.stream()
 				.map(TournamentInfoEntity::getId)
 				.distinct()
-				.forEach(this.updateEventResultsService::updateTournamentEntryEventTransfer);
+				.forEach(this.updateEventResultsService::insertTournamentEntryEventTransfer);
 	}
 
 	private boolean isNotSelectTime(int event) {

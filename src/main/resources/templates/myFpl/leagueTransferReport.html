@@ -107,6 +107,7 @@
 
         table.render({
             elem: '#leagueTransferReportStatTable',
+            size: 'sm',
             url: '/my_fpl/qryLeagueTransferReportStat',
             where: {
                 leagueId: leagueId,
@@ -116,8 +117,10 @@
                 let data = [];
                 $.each(res.data, function (index, item) {
                     item.transferInTotalPoints = item.transferData.transferInTotalPoints;
+                    item.transferInPlayedTotalPoints = item.transferData.transferInPlayedTotalPoints;
                     item.transferOutTotalPoints = item.transferData.transferOutTotalPoints;
                     item.transferPoints = item.transferData.transferPoints;
+                    item.transferPlayedPoints = item.transferData.transferPlayedPoints;
                     item.transferNetPoints = item.transferData.transferNetPoints;
                     item.transferInTotalValue = item.transferData.transferInTotalValue;
                     item.transferOutTotalValue = item.transferData.transferOutTotalValue;
@@ -131,18 +134,19 @@
                     "data": data
                 };
             },
+            toolbar: true,
+            defaultToolbar: ['filter'],
             loading: true,
             even: true,
-            limit: 200,
-            cellMinWidth: 80,
+            limit: 1000,
             cols: [
                 [
-                    {title: '排名', type: 'numbers', width: 50, rowspan: 2},
+                    {title: '排名', type: 'numbers', rowspan: 2},
+                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                     {
                         field: 'entryName',
                         title: '球队名称',
                         align: 'center',
-                        width: 200,
                         event: 'entryEvent',
                         rowspan: 2,
                         templet: '#entryNameTpl',
@@ -152,19 +156,15 @@
                         field: 'overallPoints',
                         title: '总得分',
                         align: 'center',
-                        width: 90,
                         rowspan: 2,
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
                     {
                         field: 'overallRank',
                         title: '总排名',
                         align: 'center',
-                        width: 90,
                         rowspan: 2,
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             return showOverallRank(d.overallRank);
                         }
@@ -173,21 +173,17 @@
                         field: 'transfers',
                         title: '总转会',
                         align: 'center',
-                        width: 90,
                         rowspan: 2,
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
                     {
                         field: 'transfersCost',
                         title: '总剁手',
                         align: 'center',
-                        width: 90,
                         rowspan: 2,
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
-                    {title: '转会总分', align: 'center', colspan: 4},
+                    {title: '转会总分', align: 'center', colspan: 6},
                     {title: '转会总身价', align: 'center', colspan: 3}
                 ],
                 [
@@ -195,33 +191,43 @@
                         field: 'transferInTotalPoints',
                         title: '转入',
                         align: 'center',
-                        sort: true,
-                        filter: true
+                        sort: true
+                    },
+                    {
+                        field: 'transferInPlayedTotalPoints',
+                        title: '转入上场',
+                        align: 'center',
+                        sort: true
                     },
                     {
                         field: 'transferOutTotalPoints',
                         title: '转出',
                         align: 'center',
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
                     {
                         field: 'transferPoints',
                         title: '收益',
                         align: 'center',
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                        }
+                    },
+                    {
+                        field: 'transferPlayedPoints',
+                        title: '上场收益',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPlayedPoints + '</div>';
                         }
                     },
                     {
                         field: 'transferNetPoints',
                         title: '净收益',
                         align: 'center',
-                        width: 90,
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             if (d.transferNetPoints > 0) {
                                 return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
@@ -237,7 +243,6 @@
                         title: '转入',
                         align: 'center',
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             if (d.transferInTotalValue > 0) {
                                 return parseInt(d.transferInTotalValue) / 10 + 'm';
@@ -251,7 +256,6 @@
                         title: '转出',
                         align: 'center',
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             if (d.transferOutTotalValue > 0) {
                                 return parseInt(d.transferOutTotalValue) / 10 + 'm';
@@ -265,7 +269,6 @@
                         title: '差值',
                         align: 'center',
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             if (d.transferValue === 0) {
                                 return 0;
@@ -279,6 +282,9 @@
             filter: {
                 items: ['data'],
                 bottom: false
+            },
+            autoColumnWidth: {
+                init: true
             },
             id: 'leagueTransferReportStatTable',
             initSort: {
@@ -417,7 +423,13 @@
                                 align: 'center',
                                 rowspan: 2,
                                 sort: true,
-                                filter: true
+                            },
+                            {
+                                field: 'eventTransfersPlayed',
+                                title: '转会且上场',
+                                align: 'center',
+                                rowspan: 2,
+                                sort: true,
                             },
                             {
                                 field: 'eventTransfersCost',
@@ -427,7 +439,7 @@
                                 sort: true,
                                 filter: true
                             },
-                            {title: '转会总分', align: 'center', colspan: 4},
+                            {title: '转会总分', align: 'center', colspan: 5},
                             {title: '转会总身价', align: 'center', colspan: 3}
                         ],
                         [
@@ -436,21 +448,33 @@
                                 title: '转入',
                                 align: 'center',
                                 sort: true,
-                                filter: true
+                            },
+                            {
+                                field: 'transferInPlayedTotalPoints',
+                                title: '转入且上场',
+                                align: 'center',
+                                sort: true,
                             },
                             {
                                 field: 'transferOutTotalPoints',
                                 title: '转出',
                                 align: 'center',
                                 sort: true,
-                                filter: true
                             },
                             {
                                 field: 'transferPoints',
                                 title: '收益',
                                 align: 'center',
                                 sort: true,
-                                filter: true,
+                                templet: function (d) {
+                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                                }
+                            },
+                            {
+                                field: 'transferPlayedPoints',
+                                title: '上场收益',
+                                align: 'center',
+                                sort: true,
                                 templet: function (d) {
                                     return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
                                 }
@@ -461,7 +485,6 @@
                                 align: 'center',
                                 width: 90,
                                 sort: true,
-                                filter: true,
                                 templet: function (d) {
                                     if (d.transferNetPoints > 0) {
                                         return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
@@ -477,7 +500,6 @@
                                 title: '转入',
                                 align: 'center',
                                 sort: true,
-                                filter: true,
                                 templet: function (d) {
                                     if (d.transferInTotalValue > 0) {
                                         return parseInt(d.transferInTotalValue) / 10 + 'm';
@@ -491,7 +513,6 @@
                                 title: '转出',
                                 align: 'center',
                                 sort: true,
-                                filter: true,
                                 templet: function (d) {
                                     if (d.transferOutTotalValue > 0) {
                                         return parseInt(d.transferOutTotalValue) / 10 + 'm';
@@ -505,7 +526,6 @@
                                 title: '差值',
                                 align: 'center',
                                 sort: true,
-                                filter: true,
                                 templet: function (d) {
                                     if (d.transferValue === 0) {
                                         return 0;
@@ -667,8 +687,14 @@
                             align: 'center',
                             rowspan: 2,
                             totalRow: true,
-                            sort: true,
-                            filter: true
+                            sort: true
+                        },
+                        {
+                            field: 'eventTransfersPlayed',
+                            title: '转会且上场',
+                            align: 'center',
+                            rowspan: 2,
+                            sort: true
                         },
                         {
                             field: 'eventTransfersCost',
@@ -676,8 +702,7 @@
                             align: 'center',
                             rowspan: 2,
                             totalRow: true,
-                            sort: true,
-                            filter: true
+                            sort: true
                         },
                         {title: '转会总分', align: 'center', colspan: 4},
                         {title: '转会总身价', align: 'center', colspan: 3}
@@ -688,16 +713,20 @@
                             title: '转入',
                             align: 'center',
                             totalRow: true,
-                            sort: true,
-                            filter: true
+                            sort: true
+                        },
+                        {
+                            field: 'transferInPlayedTotalPoints',
+                            title: '转入且上场',
+                            align: 'center',
+                            sort: true
                         },
                         {
                             field: 'transferOutTotalPoints',
                             title: '转出',
                             align: 'center',
                             totalRow: true,
-                            sort: true,
-                            filter: true
+                            sort: true
                         },
                         {
                             field: 'transferPoints',
@@ -705,7 +734,15 @@
                             align: 'center',
                             totalRow: true,
                             sort: true,
-                            filter: true,
+                            templet: function (d) {
+                                return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                            }
+                        },
+                        {
+                            field: 'transferPlayedPoints',
+                            title: '上场收益',
+                            align: 'center',
+                            sort: true,
                             templet: function (d) {
                                 return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
                             }
@@ -717,7 +754,6 @@
                             width: 90,
                             totalRow: true,
                             sort: true,
-                            filter: true,
                             templet: function (d) {
                                 if (d.transferNetPoints > 0) {
                                     return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
@@ -734,7 +770,6 @@
                             align: 'center',
                             totalRow: true,
                             sort: true,
-                            filter: true,
                             templet: function (d) {
                                 if (d.transferInTotalValue > 0) {
                                     return parseInt(d.transferInTotalValue) / 10 + 'm';
@@ -749,7 +784,6 @@
                             align: 'center',
                             totalRow: true,
                             sort: true,
-                            filter: true,
                             templet: function (d) {
                                 if (d.transferOutTotalValue > 0) {
                                     return parseInt(d.transferOutTotalValue) / 10 + 'm';
@@ -764,7 +798,6 @@
                             align: 'center',
                             totalRow: true,
                             sort: true,
-                            filter: true,
                             templet: function (d) {
                                 if (d.transferValue === 0) {
                                     return 0;

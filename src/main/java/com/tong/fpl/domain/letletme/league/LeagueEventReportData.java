@@ -25,6 +25,7 @@ public class LeagueEventReportData {
 	private int eventPoints;
 	private int eventTransfers;
 	private int eventTransfersCost;
+	private int eventTransfersPlayed;
 	private int eventNetPoints;
 	private int eventBenchPoints;
 	private int eventRank;
@@ -51,8 +52,10 @@ public class LeagueEventReportData {
 	private String highestScoreSelectedInLeague;
 	private String highestScorePointsByPercent;
 	private int transferInTotalPoints;
+	private int transferInPlayedTotalPoints;
 	private int transferOutTotalPoints;
 	private int transferPoints;
+	private int transferPlayedPoints;
 	private int transferNetPoints;
 	private int transferInTotalValue;
 	private int transferOutTotalValue;

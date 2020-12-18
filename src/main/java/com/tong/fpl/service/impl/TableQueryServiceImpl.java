@@ -1657,6 +1657,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
 								.mapToInt(LeagueEventReportEntity::getEventTransfers)
 								.sum()
 				)
+				.setTransfersPlayed((int) entryEventTransferEntities
+						.stream()
+						.filter(EntryEventTransferEntity::getElementInPlayed)
+						.count()
+				)
 				.setTransfersCost(
 						leagueEventReportEntities
 								.stream()
@@ -1666,6 +1671,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		// data
 		LeagueEventTransferData data = new LeagueEventTransferData()
 				.setTransferInTotalPoints(this.sumSeasonElementPoints(elementPointsTable, entryEventTransferEntities, "in"))
+				.setTransferInPlayedTotalPoints(this.sumSeasonElementPoints(elementPointsTable, entryEventTransferEntities, "played"))
 				.setTransferOutTotalPoints(this.sumSeasonElementPoints(elementPointsTable, entryEventTransferEntities, "out"))
 				.setTransferInTotalValue(
 						entryEventTransferEntities
@@ -1681,26 +1687,36 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				);
 		data
 				.setTransferPoints(data.getTransferInTotalPoints() - data.getTransferOutTotalPoints())
-				.setTransferNetPoints(data.getTransferInTotalPoints() - data.getTransferOutTotalPoints() - leagueEventReportStatData.getTransfersCost())
+				.setTransferPlayedPoints(data.getTransferInPlayedTotalPoints() - data.getTransferOutTotalPoints())
+				.setTransferNetPoints(data.getTransferPlayedPoints() - leagueEventReportStatData.getTransfersCost())
 				.setTransferValue(data.getTransferInTotalValue() - data.getTransferOutTotalValue());
 		leagueEventReportStatData.setTransferData(data);
 		return leagueEventReportStatData;
 	}
 
 	private int sumSeasonElementPoints(Table<Integer, Integer, Integer> elementPointsTable, Collection<EntryEventTransferEntity> entryEventTransferEntities, String type) {
-		if (StringUtils.equals("in", type)) {
-			return entryEventTransferEntities
-					.stream()
-					.mapToInt(o -> elementPointsTable.get(o.getElementIn(), o.getEvent()))
-					.sum();
-		} else if (StringUtils.equals("out", type)) {
-			return entryEventTransferEntities
-					.stream()
-					.mapToInt(o -> elementPointsTable.get(o.getElementOut(), o.getEvent()))
-					.sum();
-		} else {
-			return 0;
+		switch (type) {
+			case "in": {
+				return entryEventTransferEntities
+						.stream()
+						.mapToInt(o -> elementPointsTable.get(o.getElementIn(), o.getEvent()))
+						.sum();
+			}
+			case "played": {
+				return entryEventTransferEntities
+						.stream()
+						.filter(EntryEventTransferEntity::getElementInPlayed)
+						.mapToInt(o -> elementPointsTable.get(o.getElementIn(), o.getEvent()))
+						.sum();
+			}
+			case "out": {
+				return entryEventTransferEntities
+						.stream()
+						.mapToInt(o -> elementPointsTable.get(o.getElementOut(), o.getEvent()))
+						.sum();
+			}
 		}
+		return 0;
 	}
 
 	@Cacheable(value = "qryLeagueTransferEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#event", unless = "#result==null")
@@ -1749,6 +1765,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 									.map(EntryEventTransferEntity::getElementIn)
 									.collect(Collectors.toList())
 					))
+					.setTransferInPlayedTotalPoints(this.sumElementPoints(elementPointsMap,
+							entryEventTransferEntities
+									.stream()
+									.filter(EntryEventTransferEntity::getElementInPlayed)
+									.map(EntryEventTransferEntity::getElementIn)
+									.collect(Collectors.toList())
+					))
 					.setTransferOutTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
@@ -1761,7 +1784,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
 									.mapToInt(EntryEventTransferEntity::getElementInCost)
 									.sum()
 					)
-
 					.setTransferOutTotalValue(
 							entryEventTransferEntities
 									.stream()
@@ -1770,12 +1792,14 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					);
 			data
 					.setTransferPoints(data.getTransferInTotalPoints() - data.getTransferOutTotalPoints())
-					.setTransferNetPoints(data.getTransferInTotalPoints() - data.getTransferOutTotalPoints() - data.getEventTransfersCost())
+					.setTransferPlayedPoints(data.getTransferInPlayedTotalPoints() - data.getTransferOutTotalPoints())
+					.setTransferNetPoints(data.getTransferPlayedPoints() - data.getEventTransfersCost())
 					.setTransferValue(data.getTransferInTotalValue() - data.getTransferOutTotalValue())
 					.setEntryEventTransferList(this.setEntryTransferList(entryEventTransferEntities, playerMap, positionMap, elementPointsMap));
 			if (StringUtils.equals(data.getEventChip(), Chip.WC.getValue()) || StringUtils.equals(data.getEventChip(), Chip.FH.getValue())) {
 				data
 						.setEventTransfers(entryEventTransferEntities.size())
+						.setEventTransfersPlayed(11)
 						.setTransferInTotalValue(0)
 						.setTransferOutTotalValue(0)
 						.setTransferValue(0);
@@ -1881,6 +1905,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 									.map(EntryEventTransferEntity::getElementIn)
 									.collect(Collectors.toList())
 					))
+					.setTransferInPlayedTotalPoints(this.sumElementPoints(elementPointsMap,
+							entryEventTransferEntities
+									.stream()
+									.filter(EntryEventTransferEntity::getElementInPlayed)
+									.map(EntryEventTransferEntity::getElementIn)
+									.collect(Collectors.toList())
+					))
 					.setTransferOutTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
@@ -1902,12 +1933,14 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					);
 			data
 					.setTransferPoints(data.getTransferInTotalPoints() - data.getTransferOutTotalPoints())
-					.setTransferNetPoints(data.getTransferInTotalPoints() - data.getTransferOutTotalPoints() - data.getEventTransfersCost())
+					.setTransferPlayedPoints(data.getTransferInPlayedTotalPoints() - data.getTransferOutTotalPoints())
+					.setTransferNetPoints(data.getTransferPlayedPoints() - data.getEventTransfersCost())
 					.setTransferValue(data.getTransferInTotalValue() - data.getTransferOutTotalValue())
 					.setEntryEventTransferList(this.setEntryTransferList(entryEventTransferEntities, playerMap, positionMap, elementPointsMap));
 			if (StringUtils.equals(data.getEventChip(), Chip.WC.getValue()) || StringUtils.equals(data.getEventChip(), Chip.FH.getValue())) {
 				data
 						.setEventTransfers(entryEventTransferEntities.size())
+						.setEventTransfersPlayed(11)
 						.setTransferInTotalValue(0)
 						.setTransferOutTotalValue(0)
 						.setTransferValue(0);

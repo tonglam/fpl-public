@@ -116,11 +116,11 @@ public class QueryServiceImpl implements IQueryService {
 		// info
 		playerData.setInfoData(this.initPlayerInfo(CommonUtils.getCurrentSeason(), playerEntity));
 		// fixture, next 5 gw
-		playerData.setFixtureDataList(this.setPlayerFixture(playerEntity.getTeamId()));
+		playerData.setFixtureDataList(this.qryPlayerFixture(playerEntity.getTeamId()));
 		// current season data
-		playerData.setCurrentSeason(this.setSeasonData(CommonUtils.getCurrentSeason(), playerEntity.getCode()));
+		playerData.setCurrentSeason(this.qrySeasonData(CommonUtils.getCurrentSeason(), playerEntity.getCode()));
 		// history season data（use code as unique index）
-		playerData.setHistorySeasonList(this.setHistorySeasonData(playerEntity.getCode()));
+		playerData.setHistorySeasonList(this.qryHistorySeasonData(playerEntity.getCode()));
 		return playerData;
 	}
 
@@ -144,7 +144,7 @@ public class QueryServiceImpl implements IQueryService {
 
 	@Cacheable(value = "setPlayerFixture", key = "#teamId", unless = "#result == null")
 	@Override
-	public List<PlayerFixtureData> setPlayerFixture(int teamId) {
+	public List<PlayerFixtureData> qryPlayerFixture(int teamId) {
 		List<PlayerFixtureData> playerFixtureList = Lists.newArrayList();
 		int currentEvent = this.getCurrentEvent();
 		Map<String, String> teamNameMap = this.getTeamNameMap();
@@ -179,7 +179,7 @@ public class QueryServiceImpl implements IQueryService {
 
 	@Cacheable(value = "setSeasonData", key = "#season+'::'+#code", unless = "#result == null")
 	@Override
-	public PlayerDetailData setSeasonData(String season, int code) {
+	public PlayerDetailData qrySeasonData(String season, int code) {
 		int element = this.qryPlayerElementByCode(season, code);
 		PlayerDetailData playerDetailData = new PlayerDetailData().setSeason(season);
 		PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(season, element);
@@ -192,10 +192,10 @@ public class QueryServiceImpl implements IQueryService {
 
 	@Cacheable(value = "setHistorySeasonData", key = "#code", unless = "#result == null")
 	@Override
-	public List<PlayerDetailData> setHistorySeasonData(int code) {
+	public List<PlayerDetailData> qryHistorySeasonData(int code) {
 		List<PlayerDetailData> historySeasonList = Lists.newArrayList();
 		Arrays.stream(HistorySeason.values()).forEach(o ->
-				historySeasonList.add(this.setSeasonData(o.getSeason(), code)));
+				historySeasonList.add(this.qrySeasonData(o.getSeason(), code)));
 		return historySeasonList;
 	}
 
@@ -223,6 +223,91 @@ public class QueryServiceImpl implements IQueryService {
 	@Override
 	public List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay) {
 		return this.redisCacheService.getPlayerValueByChangeDay(changeDay);
+	}
+
+	@Cacheable(value = "qryPlayerShowData", key = "#element")
+	@Override
+	public PlayerShowData qryPlayerShowData(int element, Map<String, String> positionMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
+	                                        Map<Integer, PlayerEntity> playerMap, Multimap<Integer, EventLiveEntity> eventLiveMap) {
+		PlayerShowData data = new PlayerShowData().setElement(element);
+		// prepare
+		if (CollectionUtils.isEmpty(positionMap)) {
+			positionMap = this.getPositionMap();
+		}
+		if (CollectionUtils.isEmpty(teamNameMap)) {
+			teamNameMap = this.getTeamNameMap();
+		}
+		if (CollectionUtils.isEmpty(teamShortNameMap)) {
+			teamShortNameMap = this.getTeamShortNameMap();
+		}
+		if (eventLiveMap.size() == 0) {
+			this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+					.eq(EventLiveEntity::getElement, element))
+					.forEach(o -> eventLiveMap.put(o.getElement(), o));
+		}
+		// player
+		PlayerEntity playerEntity = playerMap.getOrDefault(element, null);
+		if (playerEntity == null) {
+			playerEntity = this.getPlayerByElement(element);
+			if (playerEntity == null) {
+				return data;
+			}
+		}
+		int teamId = playerEntity.getTeamId();
+		data
+				.setElementType(playerEntity.getElementType())
+				.setElementTypeName(positionMap.getOrDefault(String.valueOf(playerEntity.getElementType()), ""))
+				.setWebName(playerEntity.getWebName())
+				.setTeamId(teamId)
+				.setTeamName(teamNameMap.getOrDefault(String.valueOf(teamId), ""))
+				.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
+				.setPrice(playerEntity.getPrice() / 10.0);
+		// fixture
+		List<PlayerFixtureData> fixtureDataList = this.qryPlayerFixture(teamId);
+		if (fixtureDataList.size() > 3) {
+			fixtureDataList = fixtureDataList
+					.stream()
+					.skip(2)
+					.collect(Collectors.toList());
+			PlayerFixtureData fixture1 = fixtureDataList.get(0);
+			data
+					.setFixtureEvent1(fixture1.getEvent())
+					.setAgainstTeam1ShortName(fixture1.getAgainstTeamShortName())
+					.setDifficulty1(fixture1.getDifficulty())
+					.setWasHome1(fixture1.isWasHome());
+			if (fixtureDataList.size() > 1) {
+				PlayerFixtureData fixture2 = fixtureDataList.get(1);
+				data
+						.setFixtureEvent2(fixture2.getEvent())
+						.setAgainstTeam2ShortName(fixture2.getAgainstTeamShortName())
+						.setDifficulty2(fixture2.getDifficulty())
+						.setWasHome2(fixture2.isWasHome());
+			}
+			if (fixtureDataList.size() > 2) {
+				PlayerFixtureData fixture3 = fixtureDataList.get(2);
+				data
+						.setFixtureEvent3(fixture3.getEvent())
+						.setAgainstTeam3ShortName(fixture3.getAgainstTeamShortName())
+						.setDifficulty3(fixture3.getDifficulty())
+						.setWasHome3(fixture3.isWasHome());
+			}
+		}
+		// event_live
+		if (eventLiveMap.containsKey(element)) {
+			data.setTotalPoints(eventLiveMap.get(element)
+					.stream()
+					.mapToInt(EventLiveEntity::getTotalPoints)
+					.sum()
+			);
+		}
+		// player_stat
+		PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(element);
+		if (playerStatEntity != null) {
+			data
+					.setSelectedByPercent(playerStatEntity.getSelectedByPercent())
+					.setPointsPerGame(playerStatEntity.getPointsPerGame());
+		}
+		return data;
 	}
 
 	/**
@@ -287,7 +372,7 @@ public class QueryServiceImpl implements IQueryService {
 				.collect(Collectors.toList());
 	}
 
-	//	@Cacheable(value = "getTransfer", key = "#entry", cacheManager = "apiCacheManager", unless = "#result == null")
+	@Cacheable(value = "getTransfer", key = "#entry", cacheManager = "apiCacheManager", unless = "#result == null")
 	@Override
 	public List<TransferRes> getTransfer(int entry) {
 		return this.staticService.getTransfer(entry).orElse(null);
@@ -427,7 +512,7 @@ public class QueryServiceImpl implements IQueryService {
 		return this.redisCacheService.getEventFixtureByTeamId(season, teamId);
 	}
 
-	//	@Cacheable(value = "qryGroupFixtureListById", key = "#tournamentId", unless = "#result.size() eq 0")
+	@Cacheable(value = "qryGroupFixtureListById", key = "#tournamentId", unless = "#result.size() eq 0")
 	@Override
 	public List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId) {
 		List<TournamentGroupFixtureData> list = Lists.newArrayList();
@@ -722,91 +807,6 @@ public class QueryServiceImpl implements IQueryService {
 				.setChip(entryEventResultEntity.getEventChip())
 				.setPicks(this.qryPickListFromPicks(entryEventResultEntity.getEventPicks()));
 		return entryEventResultData;
-	}
-
-	@Cacheable(value = "qryPlayerShowData", key = "#element")
-	@Override
-	public PlayerShowData qryPlayerShowData(int element, Map<String, String> positionMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
-	                                        Map<Integer, PlayerEntity> playerMap, Multimap<Integer, EventLiveEntity> eventLiveMap) {
-		PlayerShowData data = new PlayerShowData().setElement(element);
-		// prepare
-		if (CollectionUtils.isEmpty(positionMap)) {
-			positionMap = this.getPositionMap();
-		}
-		if (CollectionUtils.isEmpty(teamNameMap)) {
-			teamNameMap = this.getTeamNameMap();
-		}
-		if (CollectionUtils.isEmpty(teamShortNameMap)) {
-			teamShortNameMap = this.getTeamShortNameMap();
-		}
-		if (eventLiveMap.size() == 0) {
-			this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-					.eq(EventLiveEntity::getElement, element))
-					.forEach(o -> eventLiveMap.put(o.getElement(), o));
-		}
-		// player
-		PlayerEntity playerEntity = playerMap.getOrDefault(element, null);
-		if (playerEntity == null) {
-			playerEntity = this.getPlayerByElement(element);
-			if (playerEntity == null) {
-				return data;
-			}
-		}
-		int teamId = playerEntity.getTeamId();
-		data
-				.setElementType(playerEntity.getElementType())
-				.setElementTypeName(positionMap.getOrDefault(String.valueOf(playerEntity.getElementType()), ""))
-				.setWebName(playerEntity.getWebName())
-				.setTeamId(teamId)
-				.setTeamName(teamNameMap.getOrDefault(String.valueOf(teamId), ""))
-				.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
-				.setPrice(playerEntity.getPrice() / 10.0);
-		// fixture
-		List<PlayerFixtureData> fixtureDataList = this.setPlayerFixture(teamId);
-		if (fixtureDataList.size() > 3) {
-			fixtureDataList = fixtureDataList
-					.stream()
-					.skip(2)
-					.collect(Collectors.toList());
-			PlayerFixtureData fixture1 = fixtureDataList.get(0);
-			data
-					.setFixtureEvent1(fixture1.getEvent())
-					.setAgainstTeam1ShortName(fixture1.getAgainstTeamShortName())
-					.setDifficulty1(fixture1.getDifficulty())
-					.setWasHome1(fixture1.isWasHome());
-			if (fixtureDataList.size() > 1) {
-				PlayerFixtureData fixture2 = fixtureDataList.get(1);
-				data
-						.setFixtureEvent2(fixture2.getEvent())
-						.setAgainstTeam2ShortName(fixture2.getAgainstTeamShortName())
-						.setDifficulty2(fixture2.getDifficulty())
-						.setWasHome2(fixture2.isWasHome());
-			}
-			if (fixtureDataList.size() > 2) {
-				PlayerFixtureData fixture3 = fixtureDataList.get(2);
-				data
-						.setFixtureEvent3(fixture3.getEvent())
-						.setAgainstTeam3ShortName(fixture3.getAgainstTeamShortName())
-						.setDifficulty3(fixture3.getDifficulty())
-						.setWasHome3(fixture3.isWasHome());
-			}
-		}
-		// event_live
-		if (eventLiveMap.containsKey(element)) {
-			data.setTotalPoints(eventLiveMap.get(element)
-					.stream()
-					.mapToInt(EventLiveEntity::getTotalPoints)
-					.sum()
-			);
-		}
-		// player_stat
-		PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(element);
-		if (playerStatEntity != null) {
-			data
-					.setSelectedByPercent(playerStatEntity.getSelectedByPercent())
-					.setPointsPerGame(playerStatEntity.getPointsPerGame());
-		}
-		return data;
 	}
 
 	@Override

@@ -633,7 +633,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		int current = this.queryService.getCurrentEvent();
 		IntStream.rangeClosed(current, current).forEach(event -> {
 			// entry_event_result
-			this.updateEventResultService.updateTournamentEntryEventResult(event, tournamentId);
+			this.updateEventResultService.upsertTournamentEntryEventResult(event, tournamentId);
 			// points_group_result
 			this.updateEventResultService.updatePointsRaceGroupResult(event, tournamentId);
 			// battle_group_result
@@ -1139,7 +1139,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		}
 		IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event ->
 				newEntryList.forEach(entry ->
-						this.updateEventResultService.updateEntryEventResult(event, entry)));
+						this.updateEventResultService.upsertEntryEventResult(event, entry)));
 		log.info("update tournament:{} new entry event result success!", tournamentId);
 	}
 

@@ -7,13 +7,17 @@ public interface IUpdateEventResultService {
 
 	void updateEntryInfo();
 
-	void updateEntryEventResult(int event, int entry);
+	void upsertEntryEventResult(int event, int entry);
 
-	void updateEntryEventTransfer(int entry);
+	void insertEntryEventTransfer(int entry);
 
-	void updateTournamentEntryEventResult(int event, int tournamentId);
+	void updateEntryEventTransferPlayed(int event, int entry);
 
-	void updateTournamentEntryEventTransfer(int tournamentId);
+	void upsertTournamentEntryEventResult(int event, int tournamentId);
+
+	void insertTournamentEntryEventTransfer(int tournamentId);
+
+	void updateTournamentEventTransferPlayed(int event, int tournamentId);
 
 	void updatePointsRaceGroupResult(int event, int tournamentId);
 

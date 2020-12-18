@@ -101,7 +101,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	@Override
-	public void updateEntryEventResult(int event, int entry) {
+	public void upsertEntryEventResult(int event, int entry) {
 		if (entry <= 0) {
 			return;
 		}
@@ -148,7 +148,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	@Override
-	public void updateEntryEventTransfer(int entry) {
+	public void insertEntryEventTransfer(int entry) {
 		if (entry <= 0) {
 			return;
 		}
@@ -175,6 +175,40 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		this.entryEventTransferService.saveBatch(list);
 	}
 
+	@Override
+	public void updateEntryEventTransferPlayed(int event, int entry) {
+		if (entry <= 0) {
+			return;
+		}
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEvent, event)
+				.eq(EntryEventResultEntity::getEntry, entry));
+		if (entryEventResultEntity == null) {
+			return;
+		}
+		List<Integer> pickElementList = this.queryService.qryPickListFromPicks(entryEventResultEntity.getEventPicks())
+				.stream()
+				.map(EntryPickData::getElement)
+				.collect(Collectors.toList());
+		if (CollectionUtils.isEmpty(pickElementList)) {
+			return;
+		}
+		List<EntryEventTransferEntity> entryEventTransferEntityList = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
+				.eq(EntryEventTransferEntity::getEvent, event)
+				.eq(EntryEventTransferEntity::getEntry, entry));
+		if (CollectionUtils.isEmpty(entryEventTransferEntityList)) {
+			return;
+		}
+		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		entryEventTransferEntityList.forEach(o -> {
+			o.setElementInPlayed(StringUtils.equals(Chip.BB.getValue(), entryEventResultEntity.getEventChip()) ?
+					pickElementList.contains(o.getElementIn()) : pickElementList.subList(0, 11).contains(o.getElementIn())
+			);
+			list.add(o);
+		});
+		this.entryEventTransferService.updateBatchById(list);
+	}
+
 	private List<EntryEventTransferEntity> getEntryEventTransfer(List<TransferRes> transferResList) {
 		List<EntryEventTransferEntity> list = Lists.newArrayList();
 		transferResList.forEach(o ->
@@ -183,6 +217,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 								.setEntry(o.getEntry())
 								.setEvent(o.getEvent())
 								.setElementIn(o.getElementIn())
+								.setElementInPlayed(false)
 								.setElementInCost(o.getElementInCost())
 								.setElementOut(o.getElementOut())
 								.setElementOutCost(o.getElementOutCost())
@@ -192,7 +227,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	@Override
-	public void updateTournamentEntryEventResult(int event, int tournamentId) {
+	public void upsertTournamentEntryEventResult(int event, int tournamentId) {
 		// get entry_list
 		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		if (CollectionUtils.isEmpty(entryList)) {
@@ -236,7 +271,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	@Override
-	public void updateTournamentEntryEventTransfer(int tournamentId) {
+	public void insertTournamentEntryEventTransfer(int tournamentId) {
 		// get entry_list
 		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		if (CollectionUtils.isEmpty(entryList)) {
@@ -268,6 +303,53 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			});
 		});
 		this.entryEventTransferService.saveBatch(list);
+	}
+
+	@Override
+	public void updateTournamentEventTransferPlayed(int event, int tournamentId) {
+		// get entry_list
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			return;
+		}
+		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEvent, event)
+				.in(EntryEventResultEntity::getEntry, entryList))
+				.stream()
+				.collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
+		if (CollectionUtils.isEmpty(entryEventResultMap)) {
+			return;
+		}
+		Multimap<Integer, EntryEventTransferEntity> entryEventTransferMap = HashMultimap.create();
+		this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
+				.eq(EntryEventTransferEntity::getEvent, event)
+				.in(EntryEventTransferEntity::getEntry, entryList))
+				.forEach(o -> entryEventTransferMap.put(o.getEntry(), o));
+		if (entryEventTransferMap.size() == 0) {
+			return;
+		}
+		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		entryList.forEach(entry -> {
+			EntryEventResultEntity entryEventResultEntity = entryEventResultMap.getOrDefault(entry, null);
+			if (entryEventResultEntity == null) {
+				return;
+			}
+			List<Integer> pickElementList = this.queryService.qryPickListFromPicks(entryEventResultEntity.getEventPicks())
+					.stream()
+					.map(EntryPickData::getElement)
+					.collect(Collectors.toList());
+			if (CollectionUtils.isEmpty(pickElementList)) {
+				return;
+			}
+			entryEventTransferMap.get(entry).forEach(o -> {
+				o.setElementInPlayed(StringUtils.equals(Chip.BB.getValue(), entryEventResultEntity.getEventChip()) ?
+						pickElementList.contains(o.getElementIn()) : pickElementList.subList(0, 11).contains(o.getElementIn())
+				);
+				list.add(o);
+			});
+		});
+		this.entryEventTransferService.updateBatchById(list);
 	}
 
 	@Override

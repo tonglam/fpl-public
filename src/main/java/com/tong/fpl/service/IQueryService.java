@@ -57,11 +57,11 @@ public interface IQueryService {
 
 	PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity);
 
-	List<PlayerFixtureData> setPlayerFixture(int teamId);
+	List<PlayerFixtureData> qryPlayerFixture(int teamId);
 
-	PlayerDetailData setSeasonData(String season, int code);
+	PlayerDetailData qrySeasonData(String season, int code);
 
-	List<PlayerDetailData> setHistorySeasonData(int code);
+	List<PlayerDetailData> qryHistorySeasonData(int code);
 
 	List<PlayerInfoData> qryAllPlayers(String season);
 
