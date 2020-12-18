@@ -35,9 +35,9 @@ public class MatchDayTask {
 		}
 		TaskLog.info("start true insertEventLiveCache task");
 		this.redisCacheSerive.insertEventLiveCache(event);
-		this.redisCacheSerive.insertLiveBonusCache();
 		this.redisCacheSerive.insertSingleEventFixtureCache(event);
 		this.redisCacheSerive.insertLiveFixtureCache();
+		this.redisCacheSerive.insertLiveBonusCache();
 	}
 
 	@Scheduled(cron = "0 30 6 * * *")
