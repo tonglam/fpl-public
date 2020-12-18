@@ -19,7 +19,7 @@ public class LiveTest extends FplApplicationTests {
 	private ILiveService liveCalcService;
 
 	@ParameterizedTest
-	@CsvSource({"7, 1327348"})
+	@CsvSource({"13, 87075"})
 	void calcLivePoints(int event, int entry) {
 		LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
 		System.out.println("points: " + liveCalaData.getLivePoints());
