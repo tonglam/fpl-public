@@ -36279,7 +36279,6 @@ function write_cc(data, name:string, opts) {
     XLSX.SSF = SSF;
     XLSX.CFB = CFB;
 }
-
 /*global define */
 if (typeof exports !== 'undefined') make_xlsx_lib(exports);
 else if (typeof module !== 'undefined' && module.exports) make_xlsx_lib(module.exports);

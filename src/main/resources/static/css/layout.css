@@ -255,8 +255,8 @@ h1, h2, h3 {
 
 .container {
     display: flex;
-    width: 350px;
-    height: 70px;
+    width: 420px;
+    height: 100px;
     justify-content: space-around;
     list-style: none;
     margin-top: 40px;
