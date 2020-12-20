@@ -31,100 +31,100 @@ import java.nio.file.Paths;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SubtitleController {
 
-	private final ISubtitleService subtitleService;
+    private final ISubtitleService subtitleService;
 
-	@GetMapping(value = {"", "/"})
-	public String subtitleController() {
-		return "subtitle/subtitle";
-	}
+    @GetMapping(value = {"", "/"})
+    public String subtitleController() {
+        return "subtitle/subtitle";
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/qrySubtitleList")
-	public TableData<SubtitleData> qrySubtitleList(@RequestBody QueryParam qryParam) {
-		if (StringUtils.isEmpty(qryParam.getStartDay()) && StringUtils.isEmpty(qryParam.getEndDay())
-				&& StringUtils.isEmpty(qryParam.getTitle())
-				&& StringUtils.isEmpty(qryParam.getStatus())) {
-			qryParam.setStatus("未完成");
-		}
-		return this.subtitleService.qrySubtitleList(qryParam);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/qrySubtitleList")
+    public TableData<SubtitleData> qrySubtitleList(@RequestBody QueryParam qryParam) {
+        if (StringUtils.isEmpty(qryParam.getStartDay()) && StringUtils.isEmpty(qryParam.getEndDay())
+                && StringUtils.isEmpty(qryParam.getTitle())
+                && StringUtils.isEmpty(qryParam.getStatus())) {
+            qryParam.setStatus("未完成");
+        }
+        return this.subtitleService.qrySubtitleList(qryParam);
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/addSubtitle")
-	public SubtitleData addSubtitle(@RequestBody SubtitleData subtitleData) throws Exception {
-		return this.subtitleService.addSubtitle(subtitleData);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/addSubtitle")
+    public SubtitleData addSubtitle(@RequestBody SubtitleData subtitleData) throws Exception {
+        return this.subtitleService.addSubtitle(subtitleData);
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/updateSubtitle")
-	public String updateSubtitle(@RequestBody SubtitleData subtitleData) throws Exception {
-		this.subtitleService.updateSubtitle(subtitleData);
-		return "修改成功！";
-	}
+    @ResponseBody
+    @RequestMapping(value = "/updateSubtitle")
+    public String updateSubtitle(@RequestBody SubtitleData subtitleData) throws Exception {
+        this.subtitleService.updateSubtitle(subtitleData);
+        return "修改成功！";
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/removeSubtitle")
-	public String removeSubtitle(@RequestParam int id) {
-		this.subtitleService.removeSubtitle(id);
-		return "删除成功！";
-	}
+    @ResponseBody
+    @RequestMapping(value = "/removeSubtitle")
+    public String removeSubtitle(@RequestParam int id) {
+        this.subtitleService.removeSubtitle(id);
+        return "删除成功！";
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/uploadSubtitleFile")
-	public ResponseData<String> uploadSubtitleFile(@RequestParam MultipartFile file) {
-		try {
-			String fileName = file.getOriginalFilename();
-			Path path = Paths.get(Constant.SUBTITLE_FILE_LOCATION + fileName);
-			if (Files.exists(path)) {
-				Files.delete(path);
-			}
-			file.transferTo(path);
-			return ResponseData.success("上传成功:" + fileName);
-		} catch (IOException e) {
-			return ResponseData.success("上传失败!" + e.getMessage());
-		}
-	}
+    @ResponseBody
+    @RequestMapping(value = "/uploadSubtitleFile")
+    public ResponseData<String> uploadSubtitleFile(@RequestParam MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            Path path = Paths.get(Constant.SUBTITLE_FILE_LOCATION + fileName);
+            if (Files.exists(path)) {
+                Files.delete(path);
+            }
+            file.transferTo(path);
+            return ResponseData.success("上传成功:" + fileName);
+        } catch (IOException e) {
+            return ResponseData.success("上传失败!" + e.getMessage());
+        }
+    }
 
-	@ResponseBody
-	@RequestMapping(value = "/mergeSubtitle")
-	public String mergeSubtitle(@RequestParam String fileName, @RequestParam boolean engSub) {
-		return this.subtitleService.mergeSubtitle(fileName, engSub);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/mergeSubtitle")
+    public String mergeSubtitle(@RequestParam String fileName, @RequestParam boolean engSub) {
+        return this.subtitleService.mergeSubtitle(fileName, engSub);
+    }
 
-	@RequestMapping(value = "/downloadSubtitleFile")
-	public void downloadSubtitleFile(@RequestParam String fileName, HttpServletResponse response) {
-		fileName = Constant.SUBTITLE_FILE_LOCATION + "(New)" + fileName;
-		Path path = Paths.get(fileName);
-		if (Files.notExists(path)) {
-			return;
-		}
-		File file = new File(fileName);
-		fileName = StringUtils.substringAfter(fileName, Constant.SUBTITLE_FILE_LOCATION);
-		response.reset();
-		response.setHeader("Content-Disposition", "attachment; filename=" + new String(fileName.getBytes(), StandardCharsets.ISO_8859_1));
-		response.setHeader("Cache-Control", "no-cache,no-store,must-revalidate");
-		response.setHeader("Pragma", "no-cache");
-		response.setHeader("Cache-Expires", "0");
-		response.setContentType("application/txt");
-		response.setCharacterEncoding("utf-8");
-		response.setContentLength((int) file.length());
-		// 输出
-		FileInputStream fis;
-		ServletOutputStream os;
-		try {
-			fis = new FileInputStream(file);
-			byte[] bytes = new byte[1024];
+    @RequestMapping(value = "/downloadSubtitleFile")
+    public void downloadSubtitleFile(@RequestParam String fileName, HttpServletResponse response) {
+        fileName = Constant.SUBTITLE_FILE_LOCATION + "(New)" + fileName + ".txt";
+        Path path = Paths.get(fileName);
+        if (Files.notExists(path)) {
+            return;
+        }
+        File file = new File(fileName);
+        fileName = StringUtils.substringAfter(fileName, Constant.SUBTITLE_FILE_LOCATION);
+        response.reset();
+        response.setHeader("Content-Disposition", "attachment; filename=" + new String(fileName.getBytes(), StandardCharsets.ISO_8859_1));
+        response.setHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Expires", "0");
+        response.setContentType("application/txt");
+        response.setCharacterEncoding("utf-8");
+        response.setContentLength((int) file.length());
+        // 输出
+        FileInputStream fis;
+        ServletOutputStream os;
+        try {
+            fis = new FileInputStream(file);
+            byte[] bytes = new byte[1024];
 
-			os = response.getOutputStream();
-			int i = fis.read(bytes);
-			while (i != -1) {
-				os.write(bytes);
-				i = fis.read(bytes);
-			}
+            os = response.getOutputStream();
+            int i = fis.read(bytes);
+            while (i != -1) {
+                os.write(bytes);
+                i = fis.read(bytes);
+            }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
