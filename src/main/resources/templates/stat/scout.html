@@ -801,7 +801,6 @@
                             page: true,
                             limit: 15,
                             limits: [15, 30, 50, 100],
-                            cellMinWidth: 80,
                             contextmenu: {
                                 body: [
                                     {
@@ -819,16 +818,14 @@
                                     field: 'elementTypeName',
                                     title: '位置',
                                     align: 'center',
-                                    width: 80,
                                     filter: true,
                                     rowspan: 2
                                 },
-                                {field: 'webName', title: '名字', align: 'center', width: 180, filter: true, rowspan: 2},
+                                {field: 'webName', title: '名字', align: 'center', filter: true, rowspan: 2},
                                 {
                                     field: 'teamShortName',
                                     title: '球队',
                                     align: 'center',
-                                    width: 80,
                                     filter: true,
                                     rowspan: 2
                                 },
@@ -836,7 +833,6 @@
                                     field: 'price',
                                     title: '身价(m)',
                                     align: 'center',
-                                    width: 90,
                                     sort: true,
                                     filter: true,
                                     rowspan: 2
@@ -845,7 +841,6 @@
                                     field: 'totalPoints',
                                     title: '总分',
                                     align: 'center',
-                                    width: 80,
                                     sort: true,
                                     filter: true,
                                     rowspan: 2
@@ -854,7 +849,6 @@
                                     field: 'selectedByPercent',
                                     title: '持有率(%)',
                                     align: 'center',
-                                    width: 100,
                                     sort: true,
                                     filter: true,
                                     rowspan: 2
@@ -863,7 +857,6 @@
                                     field: 'pointsPerGame',
                                     title: '场均得分',
                                     align: 'center',
-                                    width: 80,
                                     rowspan: 2,
                                 },
                                 {field: '', title: '赛程', align: 'center', colspan: 3}
@@ -873,7 +866,6 @@
                                         field: '',
                                         title: '',
                                         align: 'center',
-                                        width: 110,
                                         templet: function (d) {
                                             return showDifficulty(d.againstTeam1ShortName, d.difficulty1, d.fixtureEvent1, d.wasHome1);
                                         }
@@ -882,7 +874,6 @@
                                         field: '',
                                         title: '',
                                         align: 'center',
-                                        width: 110,
                                         templet: function (d) {
                                             return showDifficulty(d.againstTeam2ShortName, d.difficulty2, d.fixtureEvent2, d.wasHome2);
                                         }
@@ -891,7 +882,6 @@
                                         field: '',
                                         title: '',
                                         align: 'center',
-                                        width: 110,
                                         templet: function (d) {
                                             return showDifficulty(d.againstTeam3ShortName, d.difficulty3, d.fixtureEvent3, d.wasHome3);
                                         }

@@ -56,7 +56,7 @@ public class StatController {
 
 	@GetMapping(value = "/scout")
 	public String scoutController(Model model, HttpSession session) {
-		int next = this.httpApi.getNextEvent() - 1;
+		int next = this.httpApi.getNextEvent();
 		int entry = 0;
 		if (session.getAttribute("entry") != null) {
 			entry = Integer.parseInt(session.getAttribute("entry").toString());
