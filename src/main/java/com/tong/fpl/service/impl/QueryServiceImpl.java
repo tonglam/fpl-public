@@ -1590,6 +1590,7 @@ public class QueryServiceImpl implements IQueryService {
 
 	@Override
 	public ScoutData qryScoutEntryEventData(int event, int entry) {
+		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
 		ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
 				.eq(ScoutEntity::getEvent, event)
 				.eq(ScoutEntity::getEntry, entry));

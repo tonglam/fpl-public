@@ -3,10 +3,12 @@ package com.tong.fpl.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
 import com.tong.fpl.domain.entity.EventLiveEntity;
+import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.ScoutEntity;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.service.IScoutService;
 import com.tong.fpl.service.db.EventLiveService;
+import com.tong.fpl.service.db.PlayerService;
 import com.tong.fpl.service.db.ScoutService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +28,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ScoutServiceImpl implements IScoutService {
 
+	private final PlayerService playerService;
 	private final EventLiveService eventLiveService;
 	private final ScoutService scoutService;
 
 	@Override
 	public void upsertEventScout(ScoutData scoutData) {
+		Map<Integer, Integer> elementTeamMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getTeamId));
+		// upsert
 		ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
 				.eq(ScoutEntity::getEvent, scoutData.getEvent())
 				.eq(ScoutEntity::getEntry, scoutData.getEntry()));
@@ -40,14 +47,19 @@ public class ScoutServiceImpl implements IScoutService {
 					.setEntry(scoutData.getEntry())
 					.setScoutName(scoutData.getScoutName())
 					.setGkp(scoutData.getGkp())
+					.setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getGkp(), 0))
 					.setGkpPoints(0)
 					.setDef(scoutData.getDef())
+					.setDefTeamId(elementTeamMap.getOrDefault(scoutData.getDef(), 0))
 					.setDefPoints(0)
 					.setMid(scoutData.getMid())
+					.setMidTeamId(elementTeamMap.getOrDefault(scoutData.getMid(), 0))
 					.setMidPoints(0)
 					.setFwd(scoutData.getFwd())
+					.setFwdTeamId(elementTeamMap.getOrDefault(scoutData.getFwd(), 0))
 					.setFwdPoints(0)
 					.setCaptain(scoutData.getCaptain())
+					.setCaptainTeamId(elementTeamMap.getOrDefault(scoutData.getCaptain(), 0))
 					.setCaptainPoints(0)
 					.setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason())
 					.setEventPoints(0)
@@ -56,9 +68,13 @@ public class ScoutServiceImpl implements IScoutService {
 		} else {
 			scoutEntity
 					.setGkp(scoutData.getGkp())
+					.setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getGkp(), 0))
 					.setDef(scoutData.getDef())
+					.setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getDef(), 0))
 					.setMid(scoutData.getMid())
+					.setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getMid(), 0))
 					.setFwd(scoutData.getFwd())
+					.setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getFwd(), 0))
 					.setCaptain(scoutData.getCaptain())
 					.setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason());
 			this.scoutService.updateById(scoutEntity);

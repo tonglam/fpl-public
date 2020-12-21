@@ -1,4 +1,4 @@
-package com.tong.fpl.subtitle;
+package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.subtitle.QueryParam;

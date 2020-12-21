@@ -53,7 +53,7 @@ public class MatchDayTask {
 		this.redisCacheSerive.insertEventLive(event);
 	}
 
-	@Scheduled(cron = "0 35 6/8 * * *")
+	@Scheduled(cron = "0 35 6,12 * * *")
 	public void insertEvent() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -63,7 +63,7 @@ public class MatchDayTask {
 		this.redisCacheSerive.insertEvent();
 	}
 
-	@Scheduled(cron = "0 0 7/9 * * *")
+	@Scheduled(cron = "0 0 7,12 * * *")
 	public void updateTournamentResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -89,7 +89,7 @@ public class MatchDayTask {
 		}
 	}
 
-	@Scheduled(cron = "0 5 8/9 * * *")
+	@Scheduled(cron = "0 5 8,12 * * *")
 	public void updatePointsRaceGroupResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -115,7 +115,7 @@ public class MatchDayTask {
 		}
 	}
 
-	@Scheduled(cron = "0 10 8/9 * * *")
+	@Scheduled(cron = "0 10 8,12 * * *")
 	public void updateBattleRaceGroupResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -141,7 +141,7 @@ public class MatchDayTask {
 		}
 	}
 
-	@Scheduled(cron = "0 15 8/9 * * *")
+	@Scheduled(cron = "0 15 8,12 * * *")
 	public void updateKnockoutResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {
@@ -167,7 +167,7 @@ public class MatchDayTask {
 		}
 	}
 
-	@Scheduled(cron = "0 20 8/9 * * *")
+	@Scheduled(cron = "0 20 8,12 * * *")
 	public void updateScoutResult() {
 		int event = this.querySerivce.getCurrentEvent();
 		if (!this.querySerivce.isMatchDay(event)) {

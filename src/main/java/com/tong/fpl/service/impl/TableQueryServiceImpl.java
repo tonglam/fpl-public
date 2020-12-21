@@ -1972,6 +1972,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	@Cacheable(value = "qryEventScoutPickList", key = "#event")
 	@Override
 	public TableData<ScoutData> qryEventScoutPickList(int event) {
+		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
 		List<ScoutData> list = Lists.newArrayList();
 		this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
 				.eq(ScoutEntity::getEvent, event))
@@ -1981,10 +1982,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 								.setEntry(o.getEntry())
 								.setScoutName(o.getScoutName())
 								.setGkpName(this.queryService.qryPlayerWebNameByElement(o.getGkp()))
+								.setGkpTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getGkpTeamId()), ""))
 								.setDefName(this.queryService.qryPlayerWebNameByElement(o.getDef()))
+								.setDefTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getDefTeamId()), ""))
 								.setMidName(this.queryService.qryPlayerWebNameByElement(o.getMid()))
+								.setMidTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getMidTeamId()), ""))
 								.setFwdName(this.queryService.qryPlayerWebNameByElement(o.getFwd()))
+								.setFwdTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getFwdTeamId()), ""))
 								.setCaptainName(this.queryService.qryPlayerWebNameByElement(o.getCaptain()))
+								.setCaptainTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getCaptainTeamId()), ""))
 								.setReason(o.getReason())
 						));
 		return new TableData<>(list);
@@ -1996,6 +2002,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (event == 0) {
 			return this.qrySeasonScoutList();
 		}
+		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
 		List<ScoutData> list = Lists.newArrayList();
 		this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
 				.eq(ScoutEntity::getEvent, event))
@@ -2005,14 +2012,19 @@ public class TableQueryServiceImpl implements ITableQueryService {
 								.setEntry(o.getEntry())
 								.setScoutName(o.getScoutName())
 								.setGkpName(this.queryService.qryPlayerWebNameByElement(o.getGkp()))
+								.setGkpTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getGkpTeamId()), ""))
 								.setGkpPoints(o.getGkpPoints())
 								.setDefName(this.queryService.qryPlayerWebNameByElement(o.getDef()))
+								.setDefTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getDefTeamId()), ""))
 								.setDefPoints(o.getDefPoints())
 								.setMidName(this.queryService.qryPlayerWebNameByElement(o.getMid()))
+								.setMidTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getMidTeamId()), ""))
 								.setMidPoints(o.getMidPoints())
 								.setFwdName(this.queryService.qryPlayerWebNameByElement(o.getFwd()))
+								.setFwdTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getFwdTeamId()), ""))
 								.setFwdPoints(o.getFwdPoints())
 								.setCaptainName(this.queryService.qryPlayerWebNameByElement(o.getCaptain()))
+								.setCaptainTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getCaptainTeamId()), ""))
 								.setCaptainPoints(o.getCaptainPoints())
 								.setEventPoints(o.getEventPoints())
 								.setTotalPoints(o.getTotalPoints())

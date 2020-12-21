@@ -45,6 +45,8 @@ public class DBTest extends FplApplicationTests {
 	private TournamentKnockoutService tournamentKnockoutService;
 	@Autowired
 	private LeagueEventReportService leagueEventReportService;
+	@Autowired
+	private ScoutService scoutService;
 
 	@Test
 	void test() {
@@ -248,6 +250,25 @@ public class DBTest extends FplApplicationTests {
 				});
 		this.playerService.list().forEach(o -> list.add(o.setPrice(lastMap.getOrDefault(o.getElement(), new PlayerValueEntity()).getValue())));
 		this.playerService.updateBatchById(list);
+	}
+
+	@Test
+	void fixScoutTeamId() {
+		Map<Integer, Integer> elementTeamMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getTeamId));
+		List<ScoutEntity> list = Lists.newArrayList();
+		this.scoutService.list()
+				.forEach(o -> {
+					o
+							.setGkpTeamId(elementTeamMap.getOrDefault(o.getGkp(), 0))
+							.setDefTeamId(elementTeamMap.getOrDefault(o.getDef(), 0))
+							.setMidTeamId(elementTeamMap.getOrDefault(o.getMid(), 0))
+							.setFwdTeamId(elementTeamMap.getOrDefault(o.getFwd(), 0))
+							.setCaptainTeamId(elementTeamMap.getOrDefault(o.getCaptain(), 0));
+					list.add(o);
+				});
+		this.scoutService.updateBatchById(list);
 	}
 
 }
