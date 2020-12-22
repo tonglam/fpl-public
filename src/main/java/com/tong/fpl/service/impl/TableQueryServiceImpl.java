@@ -1506,9 +1506,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		Map<Integer, String> webNameMap = this.playerService.list()
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
-		Map<Integer, String> captainCountMap = this.getLeagueEventCaptainCountMap(leagueEventReportEntityList);
-		Map<Integer, String> viceCaptainCountMap = this.getLeagueEventViceCaptainCountMap(leagueEventReportEntityList);
-		Map<Integer, String> highestScoreCountMap = this.getLeagueEventHighestScoreCountMap(leagueEventReportEntityList);
+		Map<Integer, Integer> captainEoMap = this.getLeagueEventCaptainEoMap(leagueEventReportEntityList);
+		Map<Integer, Integer> viceCaptainEoMap = this.getLeagueEventViceCaptainEoMap(leagueEventReportEntityList);
+		Map<Integer, Integer> highestScoreEoMap = this.getLeagueEventHighestScoreEoMap(leagueEventReportEntityList);
 		// collect
 		leagueEventReportEntityList.forEach(o -> {
 			LeagueEventReportData data = new LeagueEventReportData();
@@ -1516,13 +1516,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			data.setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * o.getCaptainPoints() : 2 * o.getCaptainPoints());
 			data
 					.setCaptainWebName(webNameMap.getOrDefault(o.getCaptain(), ""))
-					.setCaptainSelectedInLeague(captainCountMap.getOrDefault(o.getCaptain(), "0"))
+					.setCaptainEffectiveOwnerShipRate(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ?
+							NumberUtil.formatPercent(captainEoMap.getOrDefault(o.getCaptain(), 0) * 3.0, 1) :
+							NumberUtil.formatPercent(captainEoMap.getOrDefault(o.getCaptain(), 0) * 2.0, 1))
 					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
 					.setViceCaptainWebName(webNameMap.getOrDefault(o.getViceCaptain(), ""))
-					.setViceCaptainSelectedInLeague(viceCaptainCountMap.getOrDefault(o.getViceCaptain(), "0"))
+					.setViceCaptainEffectiveOwnerShipRate(NumberUtil.formatPercent(viceCaptainEoMap.getOrDefault(o.getCaptain(), 0), 1))
 					.setViceCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getViceCaptainPoints(), data.getEventPoints()), 1))
 					.setHighestScoreWebName(webNameMap.getOrDefault(o.getHighestScore(), ""))
-					.setHighestScoreSelectedInLeague(highestScoreCountMap.getOrDefault(o.getHighestScore(), "0"))
+					.setHighestScoreEffectiveOwnerShipRate(NumberUtil.formatPercent(highestScoreEoMap.getOrDefault(o.getCaptain(), 0), 1))
 					.setHighestScorePointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getHighestScorePoints(), data.getEventPoints()), 1));
 			list.add(data);
 		});
@@ -1535,36 +1537,33 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		);
 	}
 
-	private Map<Integer, String> getLeagueEventCaptainCountMap(List<LeagueEventReportEntity> leagueEventReportEntityList) {
+	private Map<Integer, Integer> getLeagueEventCaptainEoMap(List<LeagueEventReportEntity> leagueEventReportEntityList) {
 		int size = leagueEventReportEntityList.size();
 		Map<Integer, Long> selectMap = leagueEventReportEntityList
 				.stream()
 				.collect(Collectors.groupingBy(LeagueEventReportEntity::getCaptain, Collectors.counting()));
-		Map<Integer, String> map = Maps.newHashMap();
-		selectMap.forEach((element, count) ->
-				map.put(element, NumberUtil.formatPercent(NumberUtil.div(count.intValue(), size), 1)));
+		Map<Integer, Integer> map = Maps.newHashMap();
+		selectMap.forEach((element, count) -> map.put(element, (int) NumberUtil.div(count.intValue(), size)));
 		return map;
 	}
 
-	private Map<Integer, String> getLeagueEventViceCaptainCountMap(List<LeagueEventReportEntity> leagueEventReportEntityList) {
+	private Map<Integer, Integer> getLeagueEventViceCaptainEoMap(List<LeagueEventReportEntity> leagueEventReportEntityList) {
 		int size = leagueEventReportEntityList.size();
 		Map<Integer, Long> selectMap = leagueEventReportEntityList
 				.stream()
 				.collect(Collectors.groupingBy(LeagueEventReportEntity::getViceCaptain, Collectors.counting()));
-		Map<Integer, String> map = Maps.newHashMap();
-		selectMap.forEach((element, count) ->
-				map.put(element, NumberUtil.formatPercent(NumberUtil.div(count.intValue(), size), 1)));
+		Map<Integer, Integer> map = Maps.newHashMap();
+		selectMap.forEach((element, count) -> map.put(element, (int) NumberUtil.div(count.intValue(), size)));
 		return map;
 	}
 
-	private Map<Integer, String> getLeagueEventHighestScoreCountMap(List<LeagueEventReportEntity> leagueEventReportEntityList) {
+	private Map<Integer, Integer> getLeagueEventHighestScoreEoMap(List<LeagueEventReportEntity> leagueEventReportEntityList) {
 		int size = leagueEventReportEntityList.size();
 		Map<Integer, Long> selectMap = leagueEventReportEntityList
 				.stream()
 				.collect(Collectors.groupingBy(LeagueEventReportEntity::getHighestScore, Collectors.counting()));
-		Map<Integer, String> map = Maps.newHashMap();
-		selectMap.forEach((element, count) ->
-				map.put(element, NumberUtil.formatPercent(NumberUtil.div(count.intValue(), size), 1)));
+		Map<Integer, Integer> map = Maps.newHashMap();
+		selectMap.forEach((element, count) -> map.put(element, (int) NumberUtil.div(count.intValue(), size)));
 		return map;
 	}
 
@@ -1584,9 +1583,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		Map<Integer, String> webNameMap = this.playerService.list()
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
-		Map<Integer, String> captainCountMap = this.getLeagueEventCaptainCountMap(leagueEventReportEntityList);
-		Map<Integer, String> viceCaptainCountMap = this.getLeagueEventViceCaptainCountMap(leagueEventReportEntityList);
-		Map<Integer, String> highestScoreCountMap = this.getLeagueEventHighestScoreCountMap(leagueEventReportEntityList);
+		Map<Integer, Integer> captainEoMap = this.getLeagueEventCaptainEoMap(leagueEventReportEntityList);
+		Map<Integer, Integer> viceCaptainEoMap = this.getLeagueEventViceCaptainEoMap(leagueEventReportEntityList);
+		Map<Integer, Integer> highestScoreEoMap = this.getLeagueEventHighestScoreEoMap(leagueEventReportEntityList);
 		// collect
 		leagueEventReportEntityList.forEach(o -> {
 			LeagueEventReportData data = new LeagueEventReportData();
@@ -1594,13 +1593,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			data.setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * o.getCaptainPoints() : 2 * o.getCaptainPoints());
 			data
 					.setCaptainWebName(webNameMap.getOrDefault(o.getCaptain(), ""))
-					.setCaptainSelectedInLeague(captainCountMap.getOrDefault(o.getCaptain(), "0"))
+					.setCaptainEffectiveOwnerShipRate(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ?
+							NumberUtil.formatPercent(captainEoMap.getOrDefault(o.getCaptain(), 0) * 3.0, 1) :
+							NumberUtil.formatPercent(captainEoMap.getOrDefault(o.getCaptain(), 0) * 2.0, 1))
 					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
 					.setViceCaptainWebName(webNameMap.getOrDefault(o.getViceCaptain(), ""))
-					.setViceCaptainSelectedInLeague(viceCaptainCountMap.getOrDefault(o.getViceCaptain(), "0"))
+					.setViceCaptainEffectiveOwnerShipRate(NumberUtil.formatPercent(viceCaptainEoMap.getOrDefault(o.getCaptain(), 0), 1))
 					.setViceCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getViceCaptainPoints(), data.getEventPoints()), 1))
 					.setHighestScoreWebName(webNameMap.getOrDefault(o.getHighestScore(), ""))
-					.setHighestScoreSelectedInLeague(highestScoreCountMap.getOrDefault(o.getHighestScore(), "0"))
+					.setHighestScoreEffectiveOwnerShipRate(NumberUtil.formatPercent(highestScoreEoMap.getOrDefault(o.getCaptain(), 0), 1))
 					.setHighestScorePointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getHighestScorePoints(), data.getEventPoints()), 1));
 			list.add(data);
 		});
