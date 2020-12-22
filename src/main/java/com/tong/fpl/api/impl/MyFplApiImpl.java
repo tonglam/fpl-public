@@ -46,12 +46,12 @@ public class MyFplApiImpl implements IMyFplApi {
 	}
 
 	/**
-     * @implNote pick
-     */
-    @Override
-    public TableData<PlayerInfoData> qryPlayerDataList(int page, int limit) {
-        return this.tableQueryService.qryPagePlayerDataList(page, limit);
-    }
+	 * @implNote pick
+	 */
+	@Override
+	public TableData<PlayerInfoData> qryPlayerDataList(int page, int limit) {
+		return this.tableQueryService.qryPagePlayerDataList(page, limit);
+	}
 
 	/**
 	 * @implNote league
@@ -75,8 +75,8 @@ public class MyFplApiImpl implements IMyFplApi {
 	}
 
 	@Override
-	public TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event) {
-		return this.tableQueryService.qryLeagueCaptainEventReportList(leagueId, leagueType, event);
+	public TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int event, int leagueId, String leagueType) {
+		return this.tableQueryService.qryLeagueCaptainEventReportList(event, leagueId, leagueType);
 	}
 
 	@Override
@@ -93,8 +93,8 @@ public class MyFplApiImpl implements IMyFplApi {
 	}
 
 	@Override
-	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event) {
-		return this.tableQueryService.qryLeagueTransferEventReportList(leagueId, leagueType, event);
+	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int event, int leagueId, String leagueType) {
+		return this.tableQueryService.qryLeagueTransferEventReportList(event, leagueId, leagueType);
 	}
 
 	@Override

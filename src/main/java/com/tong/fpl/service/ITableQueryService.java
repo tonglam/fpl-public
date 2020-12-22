@@ -45,60 +45,60 @@ public interface ITableQueryService {
 
 	TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
 
-    TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId);
+	TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId);
 
-    TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+	TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-    TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-    TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
+	TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
 
-    TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
+	TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
 
-    TableData<StepsData> qryZjTournamentPkPickSteps(int tournamentId);
+	TableData<StepsData> qryZjTournamentPkPickSteps(int tournamentId);
 
-    TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
+	TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
 
-    /**
-     * @apiNote live
-     */
-    TableData<LiveCalaData> qryEntryLivePoints(int entry);
+	/**
+	 * @apiNote live
+	 */
+	TableData<LiveCalaData> qryEntryLivePoints(int entry);
 
-    TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId);
+	TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId);
 
-    TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
+	TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
 
-    /**
-     * @apiNote entry_result
-     */
-    TableData<EntryPickData> qryEntryEventResult(int event, int entry);
+	/**
+	 * @apiNote entry_result
+	 */
+	TableData<EntryPickData> qryEntryEventResult(int event, int entry);
 
-    TableData<EntryEventResultData> qryEntryResultList(int entry);
+	TableData<EntryEventResultData> qryEntryResultList(int entry);
 
 	TableData<ElementEventResultData> qryElementEventResult(int event, int element);
 
 	/**
 	 * @apiNote report
 	 */
-	TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+	TableData<LeagueStatData> qryTeamSelectStatByName(int event, String leagueName);
 
 	TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event);
+	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int event, int leagueId, String leagueType);
 
 	TableData<LeagueEventReportData> qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry);
 
 	TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event);
+	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int event, int leagueId, String leagueType);
 
-    TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry);
+	TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry);
 
-    /**
-     * @apiNote scout
-     */
-    TableData<ScoutData> qryEventScoutPickList(int event);
+	/**
+	 * @apiNote scout
+	 */
+	TableData<ScoutData> qryEventScoutPickList(int event);
 
-    TableData<ScoutData> qryEventScoutList(int event);
+	TableData<ScoutData> qryEventScoutList(int event);
 
 }

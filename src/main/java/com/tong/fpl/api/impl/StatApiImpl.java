@@ -58,8 +58,8 @@ public class StatApiImpl implements IStatApi {
 	}
 
 	@Override
-	public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
-		return this.tableQueryService.qryTeamSelectStatByName(leagueName, event);
+	public TableData<LeagueStatData> qryTeamSelectStatByName(int event, String leagueName) {
+		return this.tableQueryService.qryTeamSelectStatByName(event, leagueName);
 	}
 
 	/**

@@ -125,13 +125,10 @@
 <div th:replace="layout::entryInputLayer"></div>
 
 <script id="checkbar" type="text/plain">
-   <button class="layui-btn layui-btn-sm" id="check_{{d.id}}" lay-dropdown="{menus: [{txt: '队长统计', event:'captain'}, {txt: '转会统计', event:'transfer'}]}"}>
+   <button class="layui-btn layui-btn-sm" id="check_{{d.id}}" lay-dropdown="{menus: [{txt: '队长统计', event:'captain'}, {txt: '转会统计', event:'transfer'}, {txt: '得分构成', event:'scoring'}]}"}>
    <span>查看类型</span>
    <i class="layui-icon layui-icon-triangle-d" style="display: inline-block"></i>
    </button>
-
-
-
 
 </script>
 
@@ -202,10 +199,18 @@
 
         table.on('tool(tournamentTable)', function (obj) {
             let event = obj.event, leagueId = obj.data.leagueId, leagueType = obj.data.leagueType;
-            if (event === 'captain') {
-                window.location.replace('/my_fpl/leagueCaptainReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
-            } else if (event === 'transfer') {
-                window.location.replace('/my_fpl/leagueTransferReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+            switch (event) {
+                case 'captain': {
+                    window.location.replace('/my_fpl/leagueCaptainReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+                    break;
+                }
+                case 'transfer': {
+                    window.location.replace('/my_fpl/leagueTransferReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+                    break;
+                }
+                case 'scoring': {
+                    break;
+                }
             }
         });
 

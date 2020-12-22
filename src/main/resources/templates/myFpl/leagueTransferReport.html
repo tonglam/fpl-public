@@ -141,7 +141,7 @@
             limit: 1000,
             cols: [
                 [
-                    {title: '排名', type: 'numbers', rowspan: 2},
+                    {title: '', type: 'numbers', rowspan: 2},
                     {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                     {
                         field: 'entryName',
@@ -318,22 +318,21 @@
                 $("#leagueTransferEventReport").removeClass("layui-hide");
                 table.render({
                     elem: '#leagueTransferEventReportTable',
+                    size: 'sm',
                     url: '/my_fpl/qryLeagueTransferEventReportList',
                     where: {
+                        event: event,
                         leagueId: leagueId,
-                        leagueType: leagueType,
-                        event: event
+                        leagueType: leagueType
                     },
                     loading: true,
                     limit: 200,
                     even: true,
-                    cellMinWidth: 80,
                     cols: [
                         [
                             {
                                 field: 'rank',
-                                title: '排名',
-                                width: 70,
+                                title: '',
                                 align: 'center',
                                 rowspan: 2,
                                 icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
@@ -347,22 +346,20 @@
                                         data: function (d) {
                                             return d.entryEventTransferList;
                                         },
-                                        width: 970,
                                         limit: 100,
                                         cols: [
                                             [
                                                 {field: '', title: '转入', align: 'center', colspan: 4},
                                                 {field: '', title: '转出', align: 'center', colspan: 4},
-                                                {field: 'time', title: '交易时间', align: 'center', width: 180, rowspan: 2}
+                                                {field: 'time', title: '交易时间', align: 'center', rowspan: 2}
                                             ],
                                             [
-                                                {field: 'elementInName', title: '球员', align: 'center', width: 180},
-                                                {field: 'elementInTypeName', title: '位置', align: 'center', width: 70},
+                                                {field: 'elementInName', title: '球员', align: 'center'},
+                                                {field: 'elementInTypeName', title: '位置', align: 'center'},
                                                 {
                                                     field: 'elementInCost',
                                                     title: '身价',
                                                     align: 'center',
-                                                    width: 80,
                                                     templet: function (d) {
                                                         if (d.elementInCost > 0) {
                                                             return parseInt(d.elementInCost) / 10 + 'm';
@@ -371,14 +368,13 @@
                                                         }
                                                     }
                                                 },
-                                                {field: 'elementInPoints', title: '得分', align: 'center', width: 60},
-                                                {field: 'elementOutName', title: '球员', align: 'center', width: 180},
-                                                {field: 'elementOutTypeName', title: '位置', align: 'center', width: 70},
+                                                {field: 'elementInPoints', title: '得分', align: 'center'},
+                                                {field: 'elementOutName', title: '球员', align: 'center'},
+                                                {field: 'elementOutTypeName', title: '位置', align: 'center'},
                                                 {
                                                     field: 'elementOutCost',
                                                     title: '身价',
                                                     align: 'center',
-                                                    width: 80,
                                                     templet: function (d) {
                                                         if (d.elementOutCost > 0) {
                                                             return parseInt(d.elementOutCost) / 10 + 'm';
@@ -387,7 +383,7 @@
                                                         }
                                                     }
                                                 },
-                                                {field: 'elementOutPoints', title: '得分', align: 'center', width: 60},
+                                                {field: 'elementOutPoints', title: '得分', align: 'center'},
                                             ]
                                         ],
                                         done: function () {
@@ -400,7 +396,6 @@
                                 field: 'entryName',
                                 title: '球队名称',
                                 align: 'center',
-                                width: 200,
                                 event: 'entryEvent',
                                 rowspan: 2,
                                 templet: '#entryNameTpl',
@@ -483,7 +478,6 @@
                                 field: 'transferNetPoints',
                                 title: '净收益',
                                 align: 'center',
-                                width: 90,
                                 sort: true,
                                 templet: function (d) {
                                     if (d.transferNetPoints > 0) {
@@ -541,6 +535,9 @@
                         items: ['data'],
                         bottom: false
                     },
+                    autoColumnWidth: {
+                        init: true
+                    },
                     done: function (res) {
                         soulTable.render(this);
                         let that = this.elem.next();
@@ -587,6 +584,7 @@
             // 渲染
             table.render({
                 elem: '#' + tableId,
+                size: 'sm',
                 url: '/my_fpl/qryEntryTransferEventReportList',
                 where: {
                     leagueId: leagueId,
@@ -595,7 +593,6 @@
                 },
                 limit: 40,
                 loading: true,
-                cellMinWidth: 80,
                 totalRow: true,
                 cols: [
                     [
@@ -603,7 +600,6 @@
                             field: 'event',
                             title: 'GW',
                             align: 'center',
-                            width: 70,
                             rowspan: 2,
                             totalRowText: '合计',
                             icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
@@ -617,22 +613,20 @@
                                     data: function (d) {
                                         return d.entryEventTransferList;
                                     },
-                                    width: 970,
                                     limit: 100,
                                     cols: [
                                         [
                                             {field: '', title: '转入', align: 'center', colspan: 4},
                                             {field: '', title: '转出', align: 'center', colspan: 4},
-                                            {field: 'time', title: '交易时间', align: 'center', width: 180, rowspan: 2}
+                                            {field: 'time', title: '交易时间', align: 'center', rowspan: 2}
                                         ],
                                         [
-                                            {field: 'elementInName', title: '球员', align: 'center', width: 180},
-                                            {field: 'elementInTypeName', title: '位置', align: 'center', width: 70},
+                                            {field: 'elementInName', title: '球员', align: 'center'},
+                                            {field: 'elementInTypeName', title: '位置', align: 'center'},
                                             {
                                                 field: 'elementInCost',
                                                 title: '身价',
                                                 align: 'center',
-                                                width: 80,
                                                 templet: function (d) {
                                                     if (d.elementInCost > 0) {
                                                         return parseInt(d.elementInCost) / 10 + 'm';
@@ -641,14 +635,13 @@
                                                     }
                                                 }
                                             },
-                                            {field: 'elementInPoints', title: '得分', align: 'center', width: 60},
-                                            {field: 'elementOutName', title: '球员', align: 'center', width: 180},
-                                            {field: 'elementOutTypeName', title: '位置', align: 'center', width: 70},
+                                            {field: 'elementInPoints', title: '得分', align: 'center'},
+                                            {field: 'elementOutName', title: '球员', align: 'center'},
+                                            {field: 'elementOutTypeName', title: '位置', align: 'center'},
                                             {
                                                 field: 'elementOutCost',
                                                 title: '身价',
                                                 align: 'center',
-                                                width: 80,
                                                 templet: function (d) {
                                                     if (d.elementOutCost > 0) {
                                                         return parseInt(d.elementOutCost) / 10 + 'm';
@@ -751,7 +744,6 @@
                             field: 'transferNetPoints',
                             title: '净收益',
                             align: 'center',
-                            width: 90,
                             totalRow: true,
                             sort: true,
                             templet: function (d) {
@@ -811,6 +803,9 @@
                 filter: {
                     items: ['data'],
                     bottom: false
+                },
+                autoColumnWidth: {
+                    init: true
                 },
                 done: function (res) {
                     soulTable.render(this);

@@ -92,8 +92,8 @@ public class StatController {
 	 */
 	@RequestMapping("/qryTeamSelectStatByName")
 	@ResponseBody
-	public TableData<LeagueStatData> qryTeamSelectStatByName(@RequestParam String leagueName, @RequestParam int event) {
-		return this.statApi.qryTeamSelectStatByName(leagueName, event);
+	public TableData<LeagueStatData> qryTeamSelectStatByName(@RequestParam int event, @RequestParam String leagueName) {
+		return this.statApi.qryTeamSelectStatByName(event, leagueName);
 	}
 
 	/**

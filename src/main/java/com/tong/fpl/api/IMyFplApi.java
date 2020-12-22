@@ -15,19 +15,19 @@ import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
  */
 public interface IMyFplApi {
 
-    /**
-     * @apiNote entry
-     */
-    EntryInfoData qryEntryInfo(int entry);
+	/**
+	 * @apiNote entry
+	 */
+	EntryInfoData qryEntryInfo(int entry);
 
-    TableData<EntryEventResultData> qryEntryResultList(int entry);
+	TableData<EntryEventResultData> qryEntryResultList(int entry);
 
-    TableData<EntryPickData> qryEntryEventResult(int event, int entry);
+	TableData<EntryPickData> qryEntryEventResult(int event, int entry);
 
-    /**
-     * @apiNote pick
-     */
-    TableData<PlayerInfoData> qryPlayerDataList(int page, int limit);
+	/**
+	 * @apiNote pick
+	 */
+	TableData<PlayerInfoData> qryPlayerDataList(int page, int limit);
 
 	/**
 	 * @apiNote league
@@ -41,7 +41,7 @@ public interface IMyFplApi {
 	 */
 	TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event);
+	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int event, int leagueId, String leagueType);
 
 	TableData<LeagueEventReportData> qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry);
 
@@ -50,7 +50,7 @@ public interface IMyFplApi {
 	 */
 	TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event);
+	TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int event, int leagueId, String leagueType);
 
 	TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry);
 

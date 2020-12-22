@@ -1070,9 +1070,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	/**
 	 * @apiNote report
 	 */
-	@Cacheable(value = "qryTeamSelectStatByName", key = "#leagueName+'::'+#event", unless = "#result==null")
+	@Cacheable(value = "qryTeamSelectStatByName", key = "#event+'::'+#leagueName", unless = "#result==null")
 	@Override
-	public TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event) {
+	public TableData<LeagueStatData> qryTeamSelectStatByName(int event, String leagueName) {
 		LeagueStatData leagueStatData = new LeagueStatData().setName(leagueName).setEvent(event);
 		// player info
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
@@ -1491,9 +1491,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 						.sum();
 	}
 
-	@Cacheable(value = "qryLeagueCaptainEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#event", unless = "#result==null")
+	//	@Cacheable(value = "qryLeagueCaptainEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
-	public TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int leagueId, String leagueType, int event) {
+	public TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int event, int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
 				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
 				.eq(LeagueEventReportEntity::getLeagueType, leagueType)
@@ -1719,9 +1719,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return 0;
 	}
 
-	@Cacheable(value = "qryLeagueTransferEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#event", unless = "#result==null")
+	@Cacheable(value = "qryLeagueTransferEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
-	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int leagueId, String leagueType, int event) {
+	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int event, int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
 				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
 				.eq(LeagueEventReportEntity::getLeagueType, leagueType)

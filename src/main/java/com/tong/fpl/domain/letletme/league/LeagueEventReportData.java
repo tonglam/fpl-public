@@ -37,6 +37,7 @@ public class LeagueEventReportData {
 	private String captainSelected;
 	private String captainSelectedInLeague;
 	private String captainPointsByPercent;
+	private String captaineffectiveOwnerShipRate;
 	private int viceCaptain;
 	private String viceCaptainWebName;
 	private int viceCaptainPoints;

@@ -16,42 +16,42 @@ import java.util.List;
  */
 public interface IStatApi {
 
-    /**
-     * @apiNote price
-     */
-    TableData<PlayerValueData> qryPriceChangeList();
+	/**
+	 * @apiNote price
+	 */
+	TableData<PlayerValueData> qryPriceChangeList();
 
-    /**
-     * @apiNote compare
-     */
-    TableData<PlayerInfoData> qryPlayerList(String season);
+	/**
+	 * @apiNote compare
+	 */
+	TableData<PlayerInfoData> qryPlayerList(String season);
 
-    /**
-     * @apiNote selected
-     */
-    List<String> qryTeamSelectStatList();
+	/**
+	 * @apiNote selected
+	 */
+	List<String> qryTeamSelectStatList();
 
-    TableData<LeagueStatData> qryTeamSelectStatByName(String leagueName, int event);
+	TableData<LeagueStatData> qryTeamSelectStatByName(int event, String leagueName);
 
-    /**
-     * @apiNote scout
-     */
-    TableData<PlayerShowData> qryScoutPlayerList(int elementType);
+	/**
+	 * @apiNote scout
+	 */
+	TableData<PlayerShowData> qryScoutPlayerList(int elementType);
 
 	void upsertEventScout(ScoutData scoutData) throws Exception;
 
-    TableData<ScoutData> qryEventScoutPickList(int event);
+	TableData<ScoutData> qryEventScoutPickList(int event);
 
-    ScoutData qryScoutEntryEventData(int event, int entry);
+	ScoutData qryScoutEntryEventData(int event, int entry);
 
-    TableData<ScoutData> qryEventScoutList(int event);
+	TableData<ScoutData> qryEventScoutList(int event);
 
-    List<DropdownData> getScoutEvent();
+	List<DropdownData> getScoutEvent();
 
-    String getScoutDeadline(int event);
+	String getScoutDeadline(int event);
 
-    TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
+	TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
 
-    PlayerPickData qryOffiaccountPickList();
+	PlayerPickData qryOffiaccountPickList();
 
 }
