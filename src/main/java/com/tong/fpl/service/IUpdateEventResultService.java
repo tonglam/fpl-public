@@ -11,13 +11,13 @@ public interface IUpdateEventResultService {
 
 	void insertEntryEventTransfer(int entry);
 
-	void updateEntryEventTransferPlayed(int event, int entry);
+	void updateEntryEventTransfersPlayed(int event, int entry);
 
 	void upsertTournamentEntryEventResult(int event, int tournamentId);
 
-	void insertTournamentEntryEventTransfer(int tournamentId);
+	void insertTournamentEntryEventTransfers(int tournamentId);
 
-	void updateTournamentEventTransferPlayed(int event, int tournamentId);
+	void updateTournamentEventTransfersPlayed(int event, int tournamentId);
 
 	void updatePointsRaceGroupResult(int event, int tournamentId);
 
@@ -32,5 +32,7 @@ public interface IUpdateEventResultService {
 	void updateZjPkResult(int event, int tournamentId);
 
 	void updateZjTournamentResult(int tournamentId);
+
+	void updateAllEventResult(int event);
 
 }

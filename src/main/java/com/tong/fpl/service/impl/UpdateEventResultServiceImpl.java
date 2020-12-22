@@ -5,6 +5,7 @@ import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
+import com.tong.fpl.constant.enums.TournamentMode;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
@@ -16,9 +17,12 @@ import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.IUpdateEventResultService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.JsonUtils;
+import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +44,8 @@ import java.util.stream.IntStream;
 public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 
 	private final IQueryService queryService;
+	private final IRedisCacheService redisCacheService;
+	private final IReportService reportService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
 	private final EntryEventTransferService entryEventTransferService;
@@ -176,7 +182,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	@Override
-	public void updateEntryEventTransferPlayed(int event, int entry) {
+	public void updateEntryEventTransfersPlayed(int event, int entry) {
 		if (entry <= 0) {
 			return;
 		}
@@ -271,7 +277,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	@Override
-	public void insertTournamentEntryEventTransfer(int tournamentId) {
+	public void insertTournamentEntryEventTransfers(int tournamentId) {
 		// get entry_list
 		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		if (CollectionUtils.isEmpty(entryList)) {
@@ -306,7 +312,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 	}
 
 	@Override
-	public void updateTournamentEventTransferPlayed(int event, int tournamentId) {
+	public void updateTournamentEventTransfersPlayed(int event, int tournamentId) {
 		// get entry_list
 		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		if (CollectionUtils.isEmpty(entryList)) {
@@ -335,7 +341,11 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			if (entryEventResultEntity == null) {
 				return;
 			}
-			List<Integer> pickElementList = this.queryService.qryPickListFromPicks(entryEventResultEntity.getEventPicks())
+			List<EntryPickData> pickList = JsonUtils.json2Collection(entryEventResultEntity.getEventPicks(), List.class, EntryPickData.class);
+			if (CollectionUtils.isEmpty(pickList)) {
+				return;
+			}
+			List<Integer> pickElementList = pickList
 					.stream()
 					.map(EntryPickData::getElement)
 					.collect(Collectors.toList());
@@ -1385,5 +1395,99 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		return map;
 	}
 
+	@Override
+	public void updateAllEventResult(int event) {
+		log.info("start refresh all event:{} result!", event);
+		List<TournamentInfoEntity> tournamentInfoEntityList = this.queryService.qryAllTournamentList();
+		// base data
+		this.redisCacheService.insertSingleEventFixture(event);
+		this.redisCacheService.insertEventLive(event);
+		this.redisCacheService.insertLiveFixtureCache();
+		this.redisCacheService.insertLiveBonusCache();
+		log.info("refresh base data success!");
+		// update
+		this.updateEntryInfo();
+		tournamentInfoEntityList
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> {
+					this.upsertTournamentEntryEventResult(event, tournamentId);
+					log.info("tournament:{} event:{}, update tournament entry event result success!", tournamentId, event);
+					this.updateTournamentEventTransfersPlayed(event, tournamentId);
+					log.info("tournament:{} event:{} update tournament event transfers played success!", tournamentId, event);
+				});
+		tournamentInfoEntityList
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
+				.filter(o -> StringUtils.equals(GroupMode.Points_race.name(), o.getGroupMode()))
+				.filter(o -> event >= o.getGroupStartGw() && event <= o.getGroupEndGw())
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> {
+					this.updatePointsRaceGroupResult(event, tournamentId);
+					log.info("tournament:{} ,event:{}, update points_race group result success!", tournamentId, event);
+				});
+		tournamentInfoEntityList
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
+				.filter(o -> StringUtils.equals(GroupMode.Battle_race.name(), o.getGroupMode()))
+				.filter(o -> event >= o.getGroupStartGw() && event <= o.getGroupEndGw())
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> {
+					this.updateBattleRaceGroupResult(event, tournamentId);
+					log.info("tournament:{} ,event:{}, update battle_race group result success!", tournamentId, event);
+				});
+		tournamentInfoEntityList
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
+				.filter(o -> (StringUtils.equals(KnockoutMode.Single_round.name(), o.getGroupMode()) ||
+						StringUtils.equals(KnockoutMode.Home_away.name(), o.getGroupMode())))
+				.filter(o -> event >= o.getKnockoutStartGw() && event <= o.getKnockoutEndGw())
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> {
+					this.updateKnockoutResult(event, tournamentId);
+					log.info("tournament:{} ,event:{}, update knockout result success!", tournamentId, event);
+				});
+		tournamentInfoEntityList
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Zj.name(), o.getTournamentMode()))
+				.filter(o -> event >= o.getGroupStartGw() && event <= o.getGroupEndGw())
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> {
+					this.updateZjPhaseOneResult(event, tournamentId);
+					log.info("tournament:{} ,event:{}, update zj phase one result success!", tournamentId, event);
+					this.updateZjPhaseTwoResult(event, tournamentId);
+					log.info("tournament:{} ,event:{}, update zj phase two result success!", tournamentId, event);
+				});
+		tournamentInfoEntityList
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Zj.name(), o.getTournamentMode()))
+				.filter(o -> event >= o.getKnockoutStartGw() && event <= o.getKnockoutEndGw())
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> {
+					this.updateZjPkResult(event, tournamentId);
+					log.info("tournament:{} ,event:{}, update zj pk result success!", tournamentId, event);
+				});
+		tournamentInfoEntityList
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Zj.name(), o.getTournamentMode()))
+				.filter(o -> event >= o.getGroupStartGw() && event <= o.getGroupEndGw())
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> {
+					this.updateZjTournamentResult(tournamentId);
+					log.info("event:{}, update zj tournament result success!", event);
+				});
+		// report
+		tournamentInfoEntityList
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
+				.collect(Collectors.toMap(TournamentInfoEntity::getLeagueId, TournamentInfoEntity::getLeagueType))
+				.forEach((leagueId, leagueType) -> {
+					this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
+					log.info("leagueId:{}, leagueType:{}, event:{}, update league event result success!", leagueId, leagueType, event);
+				});
+		// clear cache
+		RedisUtils.removeCacheByKey("qry");
+	}
 
 }

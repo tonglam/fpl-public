@@ -103,6 +103,16 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
+	@RequestMapping("/updateAllEventResult")
+	@ResponseBody
+	public void updateAllEventResult(@RequestParam String token, @RequestParam int event) {
+		if (this.checkToken(token)) {
+			return;
+		}
+		this.cacheApi.updateAllEventResult(event);
+	}
+
+	@TraceHttpCall
 	@RequestMapping("/deleteKeys")
 	@ResponseBody
 	public void deleteKeys(@RequestParam String token, @RequestParam String pattern) {

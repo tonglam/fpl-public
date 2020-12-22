@@ -21,12 +21,12 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
-	private final IQueryService querySerivce;
+	private final IQueryService queryService;
 	private final IReportService reportService;
 
 	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
 	public void insertLeagueEventSelectStat() {
-		int current = this.querySerivce.getCurrentEvent();
+		int current = this.queryService.getCurrentEvent();
 		if (!this.isNotSelectTime(current)) {
 			return;
 		}
@@ -56,13 +56,13 @@ public class ReportTask {
 	}
 
 	private boolean isNotSelectTime(int event) {
-		LocalDateTime localDateTime = LocalDateTime.parse(this.querySerivce.getDeadlineByEvent(event).replace(" ", "T"));
+		LocalDateTime localDateTime = LocalDateTime.parse(this.queryService.getDeadlineByEvent(event).replace(" ", "T"));
 		return LocalDateTime.now().equals(localDateTime);
 	}
 
 	private Table<Integer, String, Integer> getLeagueMap() {
 		Table<Integer, String, Integer> table = HashBasedTable.create();
-		this.querySerivce.qryAllTournamentList().forEach(o -> {
+		this.queryService.qryAllTournamentList().forEach(o -> {
 			if (StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()) && !table.containsRow(o.getLeagueId())) {
 				table.put(o.getLeagueId(), o.getLeagueType(), 0);
 			}
@@ -72,8 +72,8 @@ public class ReportTask {
 
 	@Scheduled(cron = "0 0 9,12 * * *")
 	public void updateLeagueEventResult() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
 		Table<Integer, String, Integer> leagueTable = this.getLeagueMap(); // league_id -> league_type -> limit

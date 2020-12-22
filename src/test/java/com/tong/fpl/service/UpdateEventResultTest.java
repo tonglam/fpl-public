@@ -6,8 +6,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.stream.IntStream;
-
 /**
  * Create by tong on 2020/7/15
  */
@@ -23,37 +21,35 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"7, 9"})
-	void upsertTournamentEntryEventResult(int event, int tournament) {
-		this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournament);
+	@CsvSource({"14, 9"})
+	void upsertTournamentEntryEventResult(int event, int tournamentId) {
+		this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest
 	@CsvSource({"9"})
-	void insertTournamentEntryEventTransfer(int tournament) {
-		this.updateEventResultsService.insertTournamentEntryEventTransfer(tournament);
+	void insertTournamentEntryEventTransfer(int tournamentId) {
+		this.updateEventResultsService.insertTournamentEntryEventTransfers(tournamentId);
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"9"})
-	void updateTournamentEventTransferPlayed(int tournament) {
-		IntStream.rangeClosed(1, 13).forEach(event -> {
-			this.updateEventResultsService.updateTournamentEventTransferPlayed(event, tournament);
-			System.out.println("event: " + event + ", update finished!");
-		});
+	@CsvSource({"14, 8"})
+	void updateTournamentEventTransferPlayed(int event, int tournamentId) {
+		this.updateEventResultsService.updateTournamentEventTransfersPlayed(event, tournamentId);
+		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest
-	@CsvSource({"7, 9"})
+	@CsvSource({"14, 3"})
 	void updatePointsRaceGroupResult(int event, int tournamentId) {
 		this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest
-	@CsvSource({"7, 5"})
+	@CsvSource({"14, 5"})
 	void updateBattleRaceGroupResult(int event, int tournamentId) {
 		this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");

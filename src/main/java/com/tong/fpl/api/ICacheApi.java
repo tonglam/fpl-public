@@ -5,22 +5,24 @@ package com.tong.fpl.api;
  */
 public interface ICacheApi {
 
-    void insertTeam();
+	void insertTeam();
 
-    void insertEvent();
+	void insertEvent();
 
-    void insertEventFixture();
+	void insertEventFixture();
 
-    void insertSingleEventFixture(int event);
+	void insertSingleEventFixture(int event);
 
-    void insertPlayer();
+	void insertPlayer();
 
-    void insertPlayerStat();
+	void insertPlayerStat();
 
-    void insertPlayerValue();
+	void insertPlayerValue();
 
-    void insertEventLive(int event);
+	void insertEventLive(int event);
 
-    void deleteKeys(String pattern);
+	void updateAllEventResult(int event);
+
+	void deleteKeys(String pattern);
 
 }
