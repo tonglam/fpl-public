@@ -10,11 +10,12 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TournamentGroupChampionCountData {
 
-	private int entry;
-	private String entryName;
-	private String playerName;
-	private int championNum;
-	private int runnerUpNum;
-	private int secondRunnerUpNum;
+    private int rank;
+    private int entry;
+    private String entryName;
+    private String playerName;
+    private int championNum;
+    private int runnerUpNum;
+    private int secondRunnerUpNum;
 
 }

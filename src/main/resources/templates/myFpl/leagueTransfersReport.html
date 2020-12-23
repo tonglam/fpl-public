@@ -53,10 +53,40 @@
 
                         <div style="margin-top: 20px"></div>
 
+                        <fieldset class="layui-elem-field" id="reportStatExplain">
+                            <div class="layui-field-box">
+                                <span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员数量总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-转入上场：</strong></span><span>转入且在当轮上场球员数量总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员数量总和； </span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分总和减去转出球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分总和减去转出球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减去剁手扣分总和； </span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减去转出球员身价总和； </span>
+                            </div>
+                        </fieldset>
+
                         <div id="leagueTransferReportStat">
                             <table class="layui-table" id="leagueTransferReportStatTable"
                                    lay-filter="leagueTransferReportStatTable"></table>
                         </div>
+
+                        <fieldset class="layui-elem-field layui-hide" id="eventReportExplain">
+                            <div class="layui-field-box">
+                                <span style="color: #FF5722"><strong>转会上场：</strong></span><span>转入且在当轮上场球员数量； </span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-转入上场：</strong></span><span>转入且在当轮上场球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员得分总和； </span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分减去转出球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分减去转出球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减去剁手扣分总和； </span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减去转出球员身价总和； </span>
+                            </div>
+                        </fieldset>
 
                         <div id="leagueTransferEventReport">
                             <table class="layui-table" id="leagueTransferEventReportTable"
@@ -108,7 +138,7 @@
         table.render({
             elem: '#leagueTransferReportStatTable',
             size: 'sm',
-            url: '/my_fpl/qryLeagueTransferReportStat',
+            url: '/my_fpl/qryLeagueTransfersReportStat',
             where: {
                 leagueId: leagueId,
                 leagueType: leagueType
@@ -141,7 +171,7 @@
             limit: 1000,
             cols: [
                 [
-                    {title: '', type: 'numbers', rowspan: 2},
+                    {field: 'rank', title: '', align: 'center', rowspan: 2},
                     {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                     {
                         field: 'entryName',
@@ -152,6 +182,7 @@
                         templet: '#entryNameTpl',
                         filter: true
                     },
+                    {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
                     {
                         field: 'overallPoints',
                         title: '总得分',
@@ -304,8 +335,10 @@
             if (event === '0') {
                 $("#leagueTransferReportStat").removeClass("layui-hide");
                 $("#leagueTransferEventReport").addClass("layui-hide");
+                $("#reportStatExplain").removeClass("layui-hide");
+                $("#eventReportExplain").addClass("layui-hide");
                 table.reload('leagueTransferReportStatTable', {
-                    url: '/my_fpl/qryLeagueTransferReportStat',
+                    url: '/my_fpl/qryLeagueTransfersReportStat',
                     where: {
                         leagueId: leagueId,
                         leagueType: leagueType
@@ -316,10 +349,12 @@
             } else {
                 $("#leagueTransferReportStat").addClass("layui-hide");
                 $("#leagueTransferEventReport").removeClass("layui-hide");
+                $("#eventReportExplain").removeClass("layui-hide");
+                $("#reportStatExplain").addClass("layui-hide");
                 table.render({
                     elem: '#leagueTransferEventReportTable',
                     size: 'sm',
-                    url: '/my_fpl/qryLeagueTransferEventReportList',
+                    url: '/my_fpl/qryLeagueTransfersEventReportList',
                     where: {
                         event: event,
                         leagueId: leagueId,
@@ -408,6 +443,7 @@
                                     }
                                 ]
                             },
+                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                             {
                                 field: 'entryName',
                                 title: '球队名称',
@@ -417,6 +453,7 @@
                                 templet: '#entryNameTpl',
                                 filter: true
                             },
+                            {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
                             {field: 'eventPoints', title: '得分', align: 'center', rowspan: 2, sort: true, filter: true},
                             {
                                 field: 'eventChip',
@@ -592,7 +629,23 @@
             let tableId = entry + 'Table';
             element.tabAdd('entryTab', {
                 title: entryName,
-                content: '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
+                content:
+                    '<fieldset class="layui-elem-field">' +
+                    '<div class="layui-field-box">' +
+                    '<span style="color: #FF5722"><strong>转会上场：</strong></span><span>转入且在当轮上场球员数量； </span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员得分总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总分-转入上场：</strong></span><span>转入且在当轮上场球员得分总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员得分总和； </span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分减去转出球员得分总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分减去转出球员得分总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减去剁手扣分总和； </span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减去转出球员身价总和； </span>' +
+                    '</div>' +
+                    '</fieldset>' +
+                    '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
                 id: entry
             });
             // 切换
@@ -600,8 +653,7 @@
             // 渲染
             table.render({
                 elem: '#' + tableId,
-                size: 'sm',
-                url: '/my_fpl/qryEntryTransferEventReportList',
+                url: '/my_fpl/qryEntryTransfersEventReportList',
                 where: {
                     leagueId: leagueId,
                     leagueType: leagueType,
@@ -614,10 +666,18 @@
                     [
                         {
                             field: 'event',
-                            title: 'GW',
+                            title: '',
                             align: 'center',
                             rowspan: 2,
-                            totalRowText: '合计',
+                            totalRowText: 'TOTAL',
+                            templet: function (d) {
+                                let chip = showChip(d.eventChip);
+                                if (chip === '无') {
+                                    return 'GW' + d.event;
+                                } else {
+                                    return 'GW' + d.event + '(' + chip + ')';
+                                }
+                            },
                             icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                             childTitle: false,
                             isChild: function (d) {
@@ -693,29 +753,22 @@
                             field: 'eventPoints',
                             title: '得分',
                             align: 'center',
+                            totalRow: true,
                             rowspan: 2
-                        },
-                        {
-                            field: 'eventChip',
-                            title: '开卡',
-                            align: 'center',
-                            rowspan: 2,
-                            templet: function (d) {
-                                return showChip(d.eventChip);
-                            }
                         },
                         {
                             field: 'eventTransfers',
                             title: '转会',
                             align: 'center',
-                            rowspan: 2,
                             totalRow: true,
+                            rowspan: 2,
                             sort: true
                         },
                         {
                             field: 'eventTransfersPlayed',
-                            title: '转会且上场',
+                            title: '转会上场',
                             align: 'center',
+                            totalRow: true,
                             rowspan: 2,
                             sort: true
                         },
@@ -723,8 +776,8 @@
                             field: 'eventTransfersCost',
                             title: '剁手',
                             align: 'center',
-                            rowspan: 2,
                             totalRow: true,
+                            rowspan: 2,
                             sort: true
                         },
                         {title: '转会总分', align: 'center', colspan: 6},
@@ -740,8 +793,9 @@
                         },
                         {
                             field: 'transferInPlayedTotalPoints',
-                            title: '转入且上场',
+                            title: '转入上场',
                             align: 'center',
+                            totalRow: true,
                             sort: true
                         },
                         {
@@ -765,6 +819,7 @@
                             field: 'transferPlayedPoints',
                             title: '上场收益',
                             align: 'center',
+                            totalRow: true,
                             sort: true,
                             templet: function (d) {
                                 return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPlayedPoints + '</div>';

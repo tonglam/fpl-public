@@ -85,21 +85,21 @@ public class MyFplApiImpl implements IMyFplApi {
 	}
 
 	/**
-	 * @apiNote leagueTransfer
+	 * @apiNote leagueTransfers
 	 */
 	@Override
-	public TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType) {
-		return this.tableQueryService.qryLeagueTransferReportStat(leagueId, leagueType);
+	public TableData<LeagueEventReportStatData> qryLeagueTransfersReportStat(int leagueId, String leagueType) {
+		return this.tableQueryService.qryLeagueTransfersReportStat(leagueId, leagueType);
 	}
 
 	@Override
-	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int event, int leagueId, String leagueType) {
-		return this.tableQueryService.qryLeagueTransferEventReportList(event, leagueId, leagueType);
+	public TableData<LeagueEventReportData> qryLeagueTransfersEventReportList(int event, int leagueId, String leagueType) {
+		return this.tableQueryService.qryLeagueTransfersEventReportList(event, leagueId, leagueType);
 	}
 
 	@Override
-	public TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry) {
-		return this.tableQueryService.qryEntryTransferEventReportList(leagueId, leagueType, entry);
+	public TableData<LeagueEventReportData> qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry) {
+		return this.tableQueryService.qryEntryTransfersEventReportList(leagueId, leagueType, entry);
 	}
 
 }

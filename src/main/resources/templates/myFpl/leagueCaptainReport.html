@@ -55,7 +55,7 @@
 
                         <fieldset class="layui-elem-field" id="reportStatExplain">
                             <div class="layui-field-box">
-                                <span style="color: #FF5722"><strong>队长总得分：</strong></span><span style="font-size: 8px">队长得分加权（正常二倍，TC三倍）； </span>
+                                <span style="color: #FF5722"><strong>总得分：</strong></span><span>队长得分加权（正常二倍，TC三倍）； </span>
                                 <span style="color: #FF5722"><strong>得分比：</strong></span><span>得分占周得分的百分比； </span>
                                 <span style="color: #FF5722"><strong>blank：</strong></span><span>无扑救、零封、助攻、进球、BOUNS任一项； </span>
                                 <span style="color: #FF5722"><strong>命中最高分：</strong></span><span>选中的队长恰好是阵容的最高分球员； </span>
@@ -69,9 +69,9 @@
 
                         <fieldset class="layui-elem-field layui-hide" id="eventReportExplain">
                             <div class="layui-field-box">
-                                <span style="color: #FF5722"><strong>队长总得分：</strong></span><span style="font-size: 8px">队长得分加权（正常二倍，TC三倍）； </span>
+                                <span style="color: #FF5722"><strong>队长-总得分：</strong></span><span>队长得分加权（正常二倍，TC三倍）； </span>
                                 <span style="color: #FF5722"><strong>持有：</strong></span><span>球员的Overall持有率； </span>
-                                <span style="color: #FF5722"><strong>得分占比：</strong></span><span>得分占周得分的百分比； </span>
+                                <span style="color: #FF5722"><strong>得分比：</strong></span><span>得分占周得分的百分比； </span>
                                 <span style="color: #FF5722"><strong>有效持有：</strong></span><span>球员在联赛中首发选择数（队长二倍，TC三倍） / 联赛人数； </span>
                             </div>
                         </fieldset>
@@ -162,7 +162,8 @@
             limit: 200,
             cols: [
                 [
-                    {field: 'rank', title: '', rowspan: 2},
+                    {field: 'rank', title: '', align: 'center', rowspan: 2},
+                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                     {
                         field: 'entryName',
                         title: '球队',
@@ -172,13 +173,13 @@
                         templet: '#entryNameTpl',
                         filter: true
                     },
+                    {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
                     {
                         field: 'overallPoints',
                         title: '总分',
                         align: 'center',
                         rowspan: 2,
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
                     {
                         field: 'overallRank',
@@ -186,7 +187,6 @@
                         align: 'center',
                         rowspan: 2,
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             return showOverallRank(d.overallRank);
                         }
@@ -199,16 +199,14 @@
                         title: '总得分',
                         align: 'center',
                         style: 'background-color: #5FB878; color: #fff;',
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
                     {
                         field: 'captainTotalPointsByPercent',
                         title: '得分比',
                         align: 'center',
                         style: 'background-color: #5FB878; color: #fff;',
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
                     {
                         field: 'captainMaxPoints',
@@ -217,8 +215,7 @@
                         templet: function (d) {
                             return d.captainMaxPoints + '  (GW' + d.captainMaxPointsEvent + ') ';
                         },
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
                     {
                         field: 'captainMaxPointsWebName',
@@ -233,8 +230,7 @@
                         templet: function (d) {
                             return d.captainMinPoints + ' (GW' + d.captainMaxPointsEvent + ') ';
                         },
-                        sort: true,
-                        filter: true
+                        sort: true
                     },
                     {
                         field: 'mostSelectedCaptainWebName',
@@ -250,7 +246,6 @@
                         title: 'blank',
                         align: 'center',
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             return d.captainBlankTimes + '次';
                         }
@@ -260,7 +255,6 @@
                         title: '命中最高分',
                         align: 'center',
                         sort: true,
-                        filter: true,
                         templet: function (d) {
                             return d.captainHitTimes + '次';
                         }
@@ -317,7 +311,8 @@
                     even: true,
                     cols: [
                         [
-                            {field: 'rank', title: '', rowspan: 2},
+                            {field: 'rank', title: '', align: 'center', rowspan: 2},
+                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                             {
                                 field: 'entryName',
                                 title: '球队',
@@ -327,6 +322,7 @@
                                 templet: '#entryNameTpl',
                                 filter: true
                             },
+                            {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
                             {
                                 field: 'eventPoints',
                                 title: '得分',
@@ -473,7 +469,7 @@
                 content:
                     '<fieldset class="layui-elem-field">' +
                     '<div class="layui-field-box">' +
-                    '<span style="color: #FF5722"><strong>队长总得分：</strong></span><span style="font-size: 8px">队长得分加权（正常二倍，TC三倍）； </span>' +
+                    '<span style="color: #FF5722"><strong>队长-总得分：</strong></span><span>队长得分加权（正常二倍，TC三倍）； </span>' +
                     '<span style="color: #FF5722"><strong>持有：</strong></span><span>球员的Overall持有率； </span>' +
                     '<span style="color: #FF5722"><strong>得分比：</strong></span><span>得分占周得分的百分比； </span>' +
                     '<span style="color: #FF5722"><strong>有效持有：</strong></span><span>球员在联赛中首发选择数（队长二倍，TC三倍） / 联赛人数； </span>' +
@@ -497,20 +493,21 @@
                 toolbar: true,
                 defaultToolbar: ['filter'],
                 loading: true,
-                even: true,
+                totalRow: true,
                 cols: [
                     [
                         {
                             field: 'event',
-                            title: 'GW',
+                            title: '',
                             align: 'center',
                             rowspan: 2,
+                            totalRowText: 'TOTAL',
                             templet: function (d) {
                                 let chip = showChip(d.eventChip);
                                 if (chip === '无') {
-                                    return d.event;
+                                    return 'GW' + d.event;
                                 } else {
-                                    return d.event + '(' + chip + ')';
+                                    return 'GW' + d.event + '(' + chip + ')';
                                 }
                             }
                         },
@@ -518,6 +515,7 @@
                             field: 'eventNetPoints',
                             title: '得分',
                             align: 'center',
+                            totalRow: true,
                             rowspan: 2,
                             templet: function (d) {
                                 if (d.eventTransfersCost > 0) {
@@ -542,6 +540,7 @@
                             field: 'captainPoints',
                             title: '总得分',
                             align: 'center',
+                            totalRow: true,
                             templet: function (d) {
                                 if (d.captainBlank) {
                                     return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
@@ -576,7 +575,8 @@
                         {
                             field: 'viceCaptainPoints',
                             title: '得分',
-                            align: 'center'
+                            align: 'center',
+                            totalRow: true
                         },
                         {
                             field: 'viceCaptainSelected',
@@ -590,7 +590,7 @@
                             align: 'center'
                         },
                         {field: 'highestScoreWebName', title: '名称', align: 'center'},
-                        {field: 'highestScorePoints', title: '得分', align: 'center'},
+                        {field: 'highestScorePoints', title: '得分', align: 'center', totalRow: true},
                         {
                             field: 'highestScoreEffectiveOwnerShipRate',
                             title: '有效持有',

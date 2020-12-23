@@ -221,11 +221,6 @@
     </div>
 </script>
 
-<script id="entryTpl" type="text/html">
-    <a href="https://fantasy.premierleague.com/entry/{{d.entry}}/event/{{d.event}}" target="_blank"
-       title="查看官网分数" class="layui-table-link">{{d.entry}}</a>
-</script>
-
 <script th:inline="none">
     layui.use(['table', 'soulTable'], function () {
         let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
@@ -253,19 +248,25 @@
                     toolbar: '#championToolbar',
                     defaultToolbar: false,
                     loading: true,
-                    page: true,
+                    page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
                     limit: 10,
                     limits: [10, 20, 30],
+                    width: 525,
+                    cellMinWidth: 80,
                     cols: [[
-                        {field: 'event', title: 'GW', align: 'center'},
-                        {field: 'entryName', title: '周冠军', align: 'center'},
+                        {
+                            field: 'event',
+                            title: '',
+                            align: 'center',
+                            templet(d) {
+                                return 'GW' + d.event;
+                            }
+                        },
+                        {field: 'entryName', title: '周冠军', align: 'center', width: 200},
                         {field: 'points', title: '得分', align: 'center'},
-                        {field: 'cost', title: '扣分', align: 'center'},
-                        {field: 'netPoints', title: '净得分', align: 'center'}
+                        {field: 'cost', title: '剁手', align: 'center'},
+                        {field: 'netPoints', title: '净得分', align: 'center'},
                     ]],
-                    autoColumnWidth: {
-                        init: true
-                    },
                     id: 'championTable',
                     done: function () {
                         soulTable.render(this);
@@ -276,23 +277,22 @@
                     elem: '#championCountTable',
                     data: eventChampionData.championCountList,
                     loading: true,
-                    page: true,
+                    page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
                     limit: 10,
                     limits: [10, 20, 30],
+                    width: 505,
+                    cellMinWidth: 100,
                     cols: [[
-                        {field: 'entryName', title: '队伍', align: 'center'},
-                        {field: 'championNum', title: '周冠军', align: 'center', sort: true, filter: true},
-                        {field: 'runnerUpNum', title: '周亚军', align: 'center', sort: true, filter: true},
-                        {field: 'secondRunnerUpNum', title: '周季军', align: 'center', sort: true, filter: true}
+                        {field: 'entryName', title: '队伍', align: 'center', width: 200},
+                        {field: 'championNum', title: '周冠军', align: 'center', sort: true},
+                        {field: 'runnerUpNum', title: '周亚军', align: 'center', sort: true},
+                        {field: 'secondRunnerUpNum', title: '周季军', align: 'center', sort: true}
                     ]],
-                    id: 'championCountTable',
                     filter: {
                         items: ['data'],
                         bottom: false
                     },
-                    autoColumnWidth: {
-                        init: true
-                    },
+                    id: 'championCountTable',
                     done: function () {
                         soulTable.render(this);
                     }
@@ -309,11 +309,17 @@
                     table.reload('championTable', {
                         data: eventChampionData.eventChampionResultList,
                         cols: [[
-                            {field: 'event', title: 'GW', align: 'center'},
-                            {field: 'entryName', title: '周冠军', align: 'center'},
+                            {
+                                field: 'event',
+                                title: '',
+                                align: 'center',
+                                templet(d) {
+                                    return 'GW' + d.event;
+                                }
+                            },
+                            {field: 'entryName', title: '周冠军', align: 'center', width: 200},
                             {field: 'points', title: '得分', align: 'center'},
-                            {field: 'cost', title: '扣分', align: 'center'},
-                            {field: 'netPoints', title: '净得分', align: 'center'}
+                            {field: 'cost', title: '剁手', align: 'center'}
                         ]]
                     })
                     break;
@@ -322,8 +328,15 @@
                     table.reload('championTable', {
                         data: eventChampionData.eventRunnerUpResultList,
                         cols: [[
-                            {field: 'event', title: 'GW', align: 'center'},
-                            {field: 'entryName', title: '周亚军', align: 'center'},
+                            {
+                                field: 'event',
+                                title: '',
+                                align: 'center',
+                                templet(d) {
+                                    return 'GW' + d.event;
+                                }
+                            },
+                            {field: 'entryName', title: '周亚军', align: 'center', width: 200},
                             {field: 'points', title: '得分', align: 'center'},
                             {field: 'cost', title: '扣分', align: 'center'},
                             {field: 'netPoints', title: '净得分', align: 'center'}
@@ -335,8 +348,15 @@
                     table.reload('championTable', {
                         data: eventChampionData.eventSecondRunnerUpResultList,
                         cols: [[
-                            {field: 'event', title: 'GW', align: 'center'},
-                            {field: 'entryName', title: '周季军', align: 'center'},
+                            {
+                                field: 'event',
+                                title: '',
+                                align: 'center',
+                                templet(d) {
+                                    return 'GW' + d.event;
+                                }
+                            },
+                            {field: 'entryName', title: '周季军', align: 'center', width: 200},
                             {field: 'points', title: '得分', align: 'center'},
                             {field: 'cost', title: '扣分', align: 'center'},
                             {field: 'netPoints', title: '净得分', align: 'center'}
@@ -417,11 +437,24 @@
                             }]
                         }
                     },
-                    {field: 'entry', title: 'team_id', align: 'center', templet: "#entryTpl"},
-                    {field: 'entryName', title: '队名', align: 'center'},
+                    {
+                        field: 'entryName',
+                        title: '队名',
+                        align: 'center',
+                        templet: function (d) {
+                            return '<a href="https://fantasy.premierleague.com/entry/' + d.entry + '/event/' + d.event + '/" target="_blank" title="查看官网分数" class="layui-table-link">' + d.entryName + '</a>';
+                        }
+                    },
                     {field: 'playerName', title: '玩家', align: 'center'},
                     {field: 'region', title: '地区', align: 'center'},
-                    {field: 'startedEvent', title: '开始时间', align: 'center'},
+                    {
+                        field: 'startedEvent',
+                        title: '开始时间',
+                        align: 'center',
+                        templet(d) {
+                            return 'GW' + d.startedEvent;
+                        }
+                    },
                     {
                         field: 'totalNetPoints',
                         title: '总得分',
