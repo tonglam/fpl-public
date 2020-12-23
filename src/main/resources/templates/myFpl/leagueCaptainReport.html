@@ -72,7 +72,7 @@
                                 <span style="color: #FF5722"><strong>队长总得分：</strong></span><span style="font-size: 8px">队长得分加权（正常二倍，TC三倍）； </span>
                                 <span style="color: #FF5722"><strong>持有：</strong></span><span>球员的Overall持有率； </span>
                                 <span style="color: #FF5722"><strong>得分占比：</strong></span><span>得分占周得分的百分比； </span>
-                                <span style="color: #FF5722"><strong>有效持有：</strong></span><span>球员在联赛中首发选择数（队长二倍，TC三倍）/联赛人数； </span>
+                                <span style="color: #FF5722"><strong>有效持有：</strong></span><span>球员在联赛中首发选择数（队长二倍，TC三倍） / 联赛人数； </span>
                             </div>
                         </fieldset>
 
@@ -125,7 +125,6 @@
 
         table.render({
             elem: '#leagueCaptainReportStatTable',
-            size: 'sm',
             url: '/my_fpl/qryLeagueCaptainReportStat',
             where: {
                 leagueId: leagueId,
@@ -175,7 +174,7 @@
                     },
                     {
                         field: 'overallPoints',
-                        title: '总得分',
+                        title: '总分',
                         align: 'center',
                         rowspan: 2,
                         sort: true,
@@ -305,7 +304,6 @@
                 $("#reportStatExplain").addClass("layui-hide");
                 table.render({
                     elem: '#leagueCaptainEventReportTable',
-                    size: 'sm',
                     url: '/my_fpl/qryLeagueCaptainEventReportList',
                     where: {
                         event: event,
@@ -478,7 +476,7 @@
                     '<span style="color: #FF5722"><strong>队长总得分：</strong></span><span style="font-size: 8px">队长得分加权（正常二倍，TC三倍）； </span>' +
                     '<span style="color: #FF5722"><strong>持有：</strong></span><span>球员的Overall持有率； </span>' +
                     '<span style="color: #FF5722"><strong>得分比：</strong></span><span>得分占周得分的百分比； </span>' +
-                    '<span style="color: #FF5722"><strong>有效持有：</strong></span><span>球员在联赛中首发选择数（队长二倍，TC三倍）/联赛人数； </span>' +
+                    '<span style="color: #FF5722"><strong>有效持有：</strong></span><span>球员在联赛中首发选择数（队长二倍，TC三倍） / 联赛人数； </span>' +
                     '</div>' +
                     '</fieldset>' +
                     '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
@@ -489,7 +487,6 @@
             // 渲染
             table.render({
                 elem: '#' + tableId,
-                size: 'sm',
                 url: '/my_fpl/qryEntryCaptainEventReportList',
                 where: {
                     leagueId: leagueId,
