@@ -350,7 +350,7 @@
                                         limit: 100,
                                         cols: [
                                             [
-                                                {field: '', title: '转入', align: 'center', colspan: 4},
+                                                {field: '', title: '转入', align: 'center', colspan: 5},
                                                 {field: '', title: '转出', align: 'center', colspan: 4},
                                                 {field: 'time', title: '交易时间', align: 'center', rowspan: 2}
                                             ],
@@ -370,6 +370,18 @@
                                                     }
                                                 },
                                                 {field: 'elementInPoints', title: '得分', align: 'center'},
+                                                {
+                                                    field: 'elementInPlayed',
+                                                    title: '上场',
+                                                    align: 'center',
+                                                    templet: function (d) {
+                                                        if (d.elementInPlayed) {
+                                                            return '是';
+                                                        } else {
+                                                            return '否';
+                                                        }
+                                                    }
+                                                },
                                                 {field: 'elementOutName', title: '球员', align: 'center'},
                                                 {field: 'elementOutTypeName', title: '位置', align: 'center'},
                                                 {
@@ -475,7 +487,7 @@
                                 align: 'center',
                                 sort: true,
                                 templet: function (d) {
-                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPlayedPoints + '</div>';
                                 }
                             },
                             {
@@ -619,7 +631,7 @@
                                     limit: 100,
                                     cols: [
                                         [
-                                            {field: '', title: '转入', align: 'center', colspan: 4},
+                                            {field: '', title: '转入', align: 'center', colspan: 5},
                                             {field: '', title: '转出', align: 'center', colspan: 4},
                                             {field: 'time', title: '交易时间', align: 'center', rowspan: 2}
                                         ],
@@ -639,6 +651,18 @@
                                                 }
                                             },
                                             {field: 'elementInPoints', title: '得分', align: 'center'},
+                                            {
+                                                field: 'elementInPlayed',
+                                                title: '上场',
+                                                align: 'center',
+                                                templet: function (d) {
+                                                    if (d.elementInPlayed) {
+                                                        return '是';
+                                                    } else {
+                                                        return '否';
+                                                    }
+                                                }
+                                            },
                                             {field: 'elementOutName', title: '球员', align: 'center'},
                                             {field: 'elementOutTypeName', title: '位置', align: 'center'},
                                             {
@@ -703,7 +727,7 @@
                             totalRow: true,
                             sort: true
                         },
-                        {title: '转会总分', align: 'center', colspan: 4},
+                        {title: '转会总分', align: 'center', colspan: 6},
                         {title: '转会总身价', align: 'center', colspan: 3}
                     ],
                     [
@@ -743,7 +767,7 @@
                             align: 'center',
                             sort: true,
                             templet: function (d) {
-                                return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                                return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPlayedPoints + '</div>';
                             }
                         },
                         {

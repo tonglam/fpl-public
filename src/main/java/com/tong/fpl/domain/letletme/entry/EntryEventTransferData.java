@@ -18,6 +18,7 @@ public class EntryEventTransferData {
     private String elementInTypeName;
     private int elementInCost;
     private int elementInPoints;
+    private boolean elementInPlayed;
     private int elementOut;
     private String elementOutName;
     private int elementOutType;

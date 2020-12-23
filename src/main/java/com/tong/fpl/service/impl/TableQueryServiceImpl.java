@@ -1608,7 +1608,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
-	@Cacheable(value = "qryLeagueTransferReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
+	//	@Cacheable(value = "qryLeagueTransferReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType) {
 		// prepare
@@ -1720,7 +1720,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return 0;
 	}
 
-	@Cacheable(value = "qryLeagueTransferEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
+	//	@Cacheable(value = "qryLeagueTransferEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int event, int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -1760,6 +1760,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			BeanUtil.copyProperties(o, data);
 			Collection<EntryEventTransferEntity> entryEventTransferEntities = entryEventTransferMap.get(entry);
 			data
+					.setEventTransfersPlayed((int)
+							entryEventTransferEntities
+									.stream()
+									.filter(EntryEventTransferEntity::getElementInPlayed)
+									.count()
+					)
 					.setTransferInTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
@@ -1800,7 +1806,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			if (StringUtils.equals(data.getEventChip(), Chip.WC.getValue()) || StringUtils.equals(data.getEventChip(), Chip.FH.getValue())) {
 				data
 						.setEventTransfers(entryEventTransferEntities.size())
-						.setEventTransfersPlayed(entryEventTransferEntities.size())
 						.setTransferInTotalValue(0)
 						.setTransferOutTotalValue(0)
 						.setTransferValue(0);
@@ -1836,6 +1841,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setElementIn(o.getElementIn())
 					.setElementInCost(o.getElementInCost())
 					.setElementInPoints(elementPointsMap.getOrDefault(o.getElementIn(), 0))
+					.setElementInPlayed(o.getElementInPlayed())
 					.setElementOut(o.getElementOut())
 					.setElementOutCost(o.getElementOutCost())
 					.setElementOutPoints(elementPointsMap.getOrDefault(o.getElementOut(), 0))
@@ -1864,7 +1870,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.collect(Collectors.toList());
 	}
 
-	@Cacheable(value = "qryEntryTransferEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	//	@Cacheable(value = "qryEntryTransferEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryEntryTransferEventReportList(int leagueId, String leagueType, int entry) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -1900,6 +1906,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			BeanUtil.copyProperties(o, data);
 			Collection<EntryEventTransferEntity> entryEventTransferEntities = entryEventTransferMap.get(event);
 			data
+					.setEventTransfersPlayed((int)
+							entryEventTransferEntities
+									.stream()
+									.filter(EntryEventTransferEntity::getElementInPlayed)
+									.count()
+					)
 					.setTransferInTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
@@ -1941,7 +1953,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			if (StringUtils.equals(data.getEventChip(), Chip.WC.getValue()) || StringUtils.equals(data.getEventChip(), Chip.FH.getValue())) {
 				data
 						.setEventTransfers(entryEventTransferEntities.size())
-						.setEventTransfersPlayed(entryEventTransferEntities.size())
 						.setTransferInTotalValue(0)
 						.setTransferOutTotalValue(0)
 						.setTransferValue(0);
