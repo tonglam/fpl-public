@@ -1608,7 +1608,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
-	//	@Cacheable(value = "qryLeagueTransferReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
+	@Cacheable(value = "qryLeagueTransferReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportStatData> qryLeagueTransferReportStat(int leagueId, String leagueType) {
 		// prepare
@@ -1720,7 +1720,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return 0;
 	}
 
-	//	@Cacheable(value = "qryLeagueTransferEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
+	@Cacheable(value = "qryLeagueTransferEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryLeagueTransferEventReportList(int event, int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
