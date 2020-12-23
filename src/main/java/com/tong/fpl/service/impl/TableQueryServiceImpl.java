@@ -1800,7 +1800,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			if (StringUtils.equals(data.getEventChip(), Chip.WC.getValue()) || StringUtils.equals(data.getEventChip(), Chip.FH.getValue())) {
 				data
 						.setEventTransfers(entryEventTransferEntities.size())
-						.setEventTransfersPlayed(11)
+						.setEventTransfersPlayed(entryEventTransferEntities.size())
 						.setTransferInTotalValue(0)
 						.setTransferOutTotalValue(0)
 						.setTransferValue(0);
@@ -1941,7 +1941,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			if (StringUtils.equals(data.getEventChip(), Chip.WC.getValue()) || StringUtils.equals(data.getEventChip(), Chip.FH.getValue())) {
 				data
 						.setEventTransfers(entryEventTransferEntities.size())
-						.setEventTransfersPlayed(11)
+						.setEventTransfersPlayed(entryEventTransferEntities.size())
 						.setTransferInTotalValue(0)
 						.setTransferOutTotalValue(0)
 						.setTransferValue(0);

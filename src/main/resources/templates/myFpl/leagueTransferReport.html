@@ -325,6 +325,8 @@
                         leagueId: leagueId,
                         leagueType: leagueType
                     },
+                    toolbar: true,
+                    defaultToolbar: ['filter'],
                     loading: true,
                     limit: 200,
                     even: true,
@@ -336,7 +338,6 @@
                                 align: 'center',
                                 rowspan: 2,
                                 icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
-                                childWidth: 'full',
                                 childTitle: false,
                                 isChild: function (d) {
                                     return d.eventTransfers !== 0;
@@ -386,6 +387,9 @@
                                                 {field: 'elementOutPoints', title: '得分', align: 'center'},
                                             ]
                                         ],
+                                        autoColumnWidth: {
+                                            init: true
+                                        },
                                         done: function () {
                                             soulTable.render(this);
                                         }
@@ -421,7 +425,7 @@
                             },
                             {
                                 field: 'eventTransfersPlayed',
-                                title: '转会且上场',
+                                title: '转会上场',
                                 align: 'center',
                                 rowspan: 2,
                                 sort: true,
@@ -434,7 +438,7 @@
                                 sort: true,
                                 filter: true
                             },
-                            {title: '转会总分', align: 'center', colspan: 5},
+                            {title: '转会总分', align: 'center', colspan: 6},
                             {title: '转会总身价', align: 'center', colspan: 3}
                         ],
                         [
@@ -446,7 +450,7 @@
                             },
                             {
                                 field: 'transferInPlayedTotalPoints',
-                                title: '转入且上场',
+                                title: '转入上场',
                                 align: 'center',
                                 sort: true,
                             },
@@ -604,7 +608,6 @@
                             totalRowText: '合计',
                             icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                             childTitle: false,
-                            childWidth: 'full',
                             isChild: function (d) {
                                 return d.eventTransfers !== 0;
                             },
@@ -653,6 +656,9 @@
                                             {field: 'elementOutPoints', title: '得分', align: 'center', width: 60},
                                         ]
                                     ],
+                                    autoColumnWidth: {
+                                        init: true
+                                    },
                                     done: function () {
                                         soulTable.render(this);
                                     }
