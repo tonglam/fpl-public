@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class LeagueEventReportStatData {
 
+	private int rank;
 	private int entry;
 	private String entryName;
 	private String playerName;
@@ -20,6 +21,7 @@ public class LeagueEventReportStatData {
 	private int transfers;
 	private int transfersPlayed;
 	private int transfersCost;
+	private int captainTotalPoints;
 	private LeagueEventCaptainData captainData;
 	private LeagueEventTransferData transferData;
 

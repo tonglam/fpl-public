@@ -27,7 +27,7 @@ public class ReportTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"14, 65, Classic, 100"})
+	@CsvSource({"14, 3571, Classic, 10"})
 	void calcEventStat(int event, int leagueId, String leagueType, int topNum) {
 		Map<String, Object> map = this.reportService.calcEventStat(event, leagueId, leagueType, topNum);
 		System.out.println(1);

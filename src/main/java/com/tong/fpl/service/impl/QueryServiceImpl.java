@@ -1525,9 +1525,49 @@ public class QueryServiceImpl implements IQueryService {
 		return leagueInfoData.getName();
 	}
 
+	@Cacheable(value = "qryTeamSelectStatList")
 	@Override
 	public List<String> qryTeamSelectStatList() {
 		return this.leagueEventReportService.getBaseMapper().qryLeagueNameList();
+	}
+
+	//	@Cacheable(value = "qryLeagueEventEoMap", key = "#leagueId+'::'+#leagueType")
+	@Override
+	public Map<Integer, String> qryLeagueEventEoMap(int event, int leagueId, String leagueType) {
+		Map<Integer, String> map = Maps.newHashMap();
+		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType)
+				.eq(LeagueEventReportEntity::getEvent, event));
+		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+			return map;
+		}
+		int size = leagueEventReportEntityList.size();
+		List<Integer> elementList = Lists.newArrayList();
+		leagueEventReportEntityList.forEach(o -> {
+			elementList.add(o.getPosition1());
+			elementList.add(o.getPosition2());
+			elementList.add(o.getPosition3());
+			elementList.add(o.getPosition4());
+			elementList.add(o.getPosition5());
+			elementList.add(o.getPosition6());
+			elementList.add(o.getPosition7());
+			elementList.add(o.getPosition8());
+			elementList.add(o.getPosition9());
+			elementList.add(o.getPosition10());
+			elementList.add(o.getPosition11());
+			if (StringUtils.equals(Chip.TC.getValue(), o.getEventChip())) {
+				elementList.add(o.getCaptain());
+				elementList.add(o.getCaptain());
+			} else {
+				elementList.add(o.getCaptain());
+			}
+		});
+		Map<Integer, Long> countMap = elementList
+				.stream()
+				.collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
+		countMap.forEach((element, count) -> map.put(element, NumberUtil.formatPercent(NumberUtil.div(count.doubleValue(), size), 1)));
+		return map;
 	}
 
 	/**

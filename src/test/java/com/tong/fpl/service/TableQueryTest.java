@@ -93,6 +93,13 @@ public class TableQueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
+	@CsvSource({"3571, Classic, 1870"})
+	void qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry) {
+		TableData<LeagueEventReportData> data = this.tableQueryService.qryEntryCaptainEventReportList(leagueId, leagueType, entry);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
 	@CsvSource({"3571, Classic"})
 	void qryLeagueTransferReportStat(int leagueId, String leagueType) {
 		TableData<LeagueEventReportStatData> data = this.tableQueryService.qryLeagueTransferReportStat(leagueId, leagueType);
@@ -103,13 +110,6 @@ public class TableQueryTest extends FplApplicationTests {
 	@CsvSource({"14, 3571, Classic"})
 	void qryLeagueTransferEventReportList(int event, int leagueId, String leagueType) {
 		TableData<LeagueEventReportData> data = this.tableQueryService.qryLeagueTransferEventReportList(event, leagueId, leagueType);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@CsvSource({"3571, Classic, 1870"})
-	void qryEntryEventReportList(int leagueId, String leagueType, int entry) {
-		TableData<LeagueEventReportData> data = this.tableQueryService.qryEntryCaptainEventReportList(leagueId, leagueType, entry);
 		System.out.println(1);
 	}
 
