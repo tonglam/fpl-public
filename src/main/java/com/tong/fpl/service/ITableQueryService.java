@@ -10,6 +10,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
+import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerShowData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
@@ -33,6 +34,8 @@ public interface ITableQueryService {
 	TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
 
 	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry);
+
+	TableData<PlayerDetailData> qryPlayerDetailData(int element);
 
 	/**
 	 * @apiNote tournament

@@ -3,10 +3,7 @@ package com.tong.fpl.service;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
-import com.tong.fpl.domain.letletme.player.PlayerData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.player.PlayerPickData;
-import com.tong.fpl.domain.letletme.player.PlayerShowData;
+import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutEventFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
@@ -37,6 +34,13 @@ public class QueryTest extends FplApplicationTests {
 	@CsvSource({"483"})
 	void qryPlayerData(int element) {
 		PlayerData playerData = this.querySerivce.qryPlayerData(element);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"16, 0, 5"})
+	void qryPlayerFixtureList(int teamId, int previous, int next) {
+		List<PlayerFixtureData> list = this.querySerivce.qryPlayerFixtureList(teamId, previous, next);
 		System.out.println(1);
 	}
 
@@ -200,7 +204,7 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"272"})
+	@CsvSource({"363"})
 	void qryPlayerShowData(int element) {
 		PlayerShowData data = this.querySerivce.qryPlayerShowData(element);
 		System.out.println(1);

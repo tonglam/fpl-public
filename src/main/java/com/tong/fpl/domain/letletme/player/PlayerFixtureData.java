@@ -10,16 +10,18 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PlayerFixtureData {
 
-    private int teamId;
-    private int event;
-    private int againstTeamId;
-    private String againstTeamName;
-    private String againstTeamShortName;
-    private int difficulty;
-    private String kickoffTime;
-    private boolean started;
-    private boolean finished;
-    private boolean wasHome;
-    private String score;
+	private int teamId;
+	private int event;
+	private int againstTeamId;
+	private String againstTeamName;
+	private String againstTeamShortName;
+	private int difficulty;
+	private String kickoffTime;
+	private boolean started;
+	private boolean finished;
+	private boolean wasHome;
+	private String score;
+	private boolean bgw;
+	private boolean dgw;
 
 }

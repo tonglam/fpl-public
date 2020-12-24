@@ -116,9 +116,9 @@ public class QueryServiceImpl implements IQueryService {
 		// info
 		playerData.setInfoData(this.initPlayerInfo(CommonUtils.getCurrentSeason(), playerEntity));
 		// fixture, next 5 gw
-		playerData.setFixtureDataList(this.qryPlayerFixture(playerEntity.getTeamId()));
+		playerData.setFixtureDataList(this.qryPlayerFixtureList(playerEntity.getTeamId(), 2, 3));
 		// current season data
-		playerData.setCurrentSeason(this.qrySeasonData(CommonUtils.getCurrentSeason(), playerEntity.getCode()));
+		playerData.setCurrentSeason(this.qryPlayerDetailData(CommonUtils.getCurrentSeason(), playerEntity.getElement()));
 		// history season data（use code as unique index）
 		playerData.setHistorySeasonList(this.qryHistorySeasonData(playerEntity.getCode()));
 		return playerData;
@@ -142,45 +142,71 @@ public class QueryServiceImpl implements IQueryService {
 				.setPrice(NumberUtil.div(playerEntity.getPrice().intValue(), 10, 2));
 	}
 
-	@Cacheable(value = "setPlayerFixture", key = "#teamId", unless = "#result == null")
+	@Cacheable(value = "qryPlayerFixtureList", key = "#teamId+'::'+#previous+'::'+#next", unless = "#result == null")
 	@Override
-	public List<PlayerFixtureData> qryPlayerFixture(int teamId) {
-		List<PlayerFixtureData> playerFixtureList = Lists.newArrayList();
+	public List<PlayerFixtureData> qryPlayerFixtureList(int teamId, int previous, int next) {
+		List<PlayerFixtureData> list = Lists.newArrayList();
+		// prepare
 		int currentEvent = this.getCurrentEvent();
 		Map<String, String> teamNameMap = this.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
 		Map<String, List<PlayerFixtureData>> teamFixtureMap = this.getEventFixtureByTeamId(teamId);
-		int lastEvent = currentEvent + 3;
-		if (lastEvent > 38) {
-			lastEvent = 38;
+		// calc event
+		int startEvent = currentEvent - previous + 1;
+		if (startEvent < 1) {
+			startEvent = 1;
 		}
-		List<PlayerFixtureData> teamFixtureList = Lists.newArrayList();
-		IntStream.rangeClosed(currentEvent - 1, lastEvent).forEach(event -> {
+		int endEvent = currentEvent + next;
+		if (endEvent > 38) {
+			endEvent = 38;
+		}
+		// fixture
+		IntStream.rangeClosed(startEvent, endEvent).forEach(event -> {
 			if (teamFixtureMap.containsKey(String.valueOf(event))) {
-				if (CollectionUtils.isEmpty(teamFixtureMap.get(String.valueOf(event)))) {
-					teamFixtureList.add(new PlayerFixtureData()
-							.setAgainstTeamId(0)
-							.setAgainstTeamName("BLANK")
-							.setAgainstTeamShortName("BLANK")
-					);
+				List<PlayerFixtureData> eventFixtureList = teamFixtureMap.get(String.valueOf(event));
+				if (eventFixtureList.size() == 1) {
+					eventFixtureList.forEach(o -> {
+						o.
+								setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())))
+								.setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())))
+								.setBgw(false)
+								.setDgw(false);
+						list.add(o);
+					});
 				} else {
-					teamFixtureList.addAll(teamFixtureMap.get(String.valueOf(event)));
+					eventFixtureList.forEach(o -> {
+						o.
+								setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())))
+								.setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())))
+								.setBgw(false)
+								.setDgw(true);
+						list.add(o);
+					});
 				}
+			} else {
+				list.add(new PlayerFixtureData()
+						.setTeamId(teamId)
+						.setEvent(event)
+						.setAgainstTeamId(0)
+						.setAgainstTeamName("BLANK")
+						.setAgainstTeamShortName("BLANK")
+						.setDifficulty(0)
+						.setKickoffTime("")
+						.setStarted(false)
+						.setFinished(false)
+						.setWasHome(false)
+						.setScore("")
+						.setBgw(true)
+						.setDgw(false)
+				);
 			}
 		});
-		teamFixtureList.forEach(o -> {
-					o.setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())));
-					o.setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())));
-					playerFixtureList.add(o);
-				}
-		);
-		return playerFixtureList;
+		return list;
 	}
 
-	@Cacheable(value = "setSeasonData", key = "#season+'::'+#code", unless = "#result == null")
+	@Cacheable(value = "qryPlayerDetailData", key = "#season+'::'+#element", unless = "#result == null")
 	@Override
-	public PlayerDetailData qrySeasonData(String season, int code) {
-		int element = this.qryPlayerElementByCode(season, code);
+	public PlayerDetailData qryPlayerDetailData(String season, int element) {
 		PlayerDetailData playerDetailData = new PlayerDetailData().setSeason(season);
 		PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(season, element);
 		if (playerStatEntity == null) {
@@ -190,12 +216,12 @@ public class QueryServiceImpl implements IQueryService {
 		return playerDetailData;
 	}
 
-	@Cacheable(value = "setHistorySeasonData", key = "#code", unless = "#result == null")
+	@Cacheable(value = "qryHistorySeasonData", key = "#code", unless = "#result == null")
 	@Override
 	public List<PlayerDetailData> qryHistorySeasonData(int code) {
 		List<PlayerDetailData> historySeasonList = Lists.newArrayList();
 		Arrays.stream(HistorySeason.values()).forEach(o ->
-				historySeasonList.add(this.qrySeasonData(o.getSeason(), code)));
+				historySeasonList.add(this.qryPlayerDetailData(o.getSeason(), code)));
 		return historySeasonList;
 	}
 
@@ -263,35 +289,29 @@ public class QueryServiceImpl implements IQueryService {
 				.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
 				.setPrice(playerEntity.getPrice() / 10.0);
 		// fixture
-		List<PlayerFixtureData> fixtureDataList = this.qryPlayerFixture(teamId);
-		if (fixtureDataList.size() > 3) {
-			fixtureDataList = fixtureDataList
-					.stream()
-					.skip(2)
-					.collect(Collectors.toList());
-			PlayerFixtureData fixture1 = fixtureDataList.get(0);
-			data
-					.setFixtureEvent1(fixture1.getEvent())
-					.setAgainstTeam1ShortName(fixture1.getAgainstTeamShortName())
-					.setDifficulty1(fixture1.getDifficulty())
-					.setWasHome1(fixture1.isWasHome());
-			if (fixtureDataList.size() > 1) {
-				PlayerFixtureData fixture2 = fixtureDataList.get(1);
-				data
-						.setFixtureEvent2(fixture2.getEvent())
-						.setAgainstTeam2ShortName(fixture2.getAgainstTeamShortName())
-						.setDifficulty2(fixture2.getDifficulty())
-						.setWasHome2(fixture2.isWasHome());
+		List<PlayerShowFixtureData> fixtureList = Lists.newArrayList();
+		Map<Integer, PlayerShowFixtureData> fixtureDataMap = Maps.newHashMap();
+		this.qryPlayerFixtureList(teamId, 0, 5).forEach(o -> {
+			int event = o.getEvent();
+			if (!fixtureDataMap.containsKey(event)) {
+				PlayerShowFixtureData playerShowFixtureData = new PlayerShowFixtureData()
+						.setEvent(o.getEvent())
+						.setAgainstTeamShortName(o.getAgainstTeamShortName())
+						.setDifficulty(o.getDifficulty())
+						.setWasHome(String.valueOf(o.isWasHome()))
+						.setBgw(o.isBgw())
+						.setDgw(o.isDgw());
+				fixtureDataMap.put(event, playerShowFixtureData);
+			} else { // dgw
+				fixtureDataMap.put(event, this.mergeFixtureData(fixtureDataMap.get(event), o));
 			}
-			if (fixtureDataList.size() > 2) {
-				PlayerFixtureData fixture3 = fixtureDataList.get(2);
-				data
-						.setFixtureEvent3(fixture3.getEvent())
-						.setAgainstTeam3ShortName(fixture3.getAgainstTeamShortName())
-						.setDifficulty3(fixture3.getDifficulty())
-						.setWasHome3(fixture3.isWasHome());
-			}
-		}
+		});
+		fixtureList.addAll(fixtureDataMap.values());
+		fixtureList = fixtureList
+				.stream()
+				.sorted(Comparator.comparing(PlayerShowFixtureData::getEvent))
+				.collect(Collectors.toList());
+		data.setFixtureList(fixtureList);
 		// event_live
 		if (eventLiveMap.containsKey(element)) {
 			data.setTotalPoints(eventLiveMap.get(element)
@@ -305,9 +325,21 @@ public class QueryServiceImpl implements IQueryService {
 		if (playerStatEntity != null) {
 			data
 					.setSelectedByPercent(playerStatEntity.getSelectedByPercent())
-					.setPointsPerGame(playerStatEntity.getPointsPerGame());
+					.setPointsPerGame(playerStatEntity.getPointsPerGame())
+					.setForm(playerStatEntity.getForm())
+					.setInDreamteam(playerStatEntity.getInDreamteam());
 		}
 		return data;
+	}
+
+	private PlayerShowFixtureData mergeFixtureData(PlayerShowFixtureData oldData, PlayerFixtureData newData) {
+		return new PlayerShowFixtureData()
+				.setEvent(oldData.getEvent())
+				.setAgainstTeamShortName(oldData.getAgainstTeamShortName() + "||" + newData.getAgainstTeamShortName())
+				.setDifficulty(-1)
+				.setWasHome(oldData.getWasHome() + "||" + newData.isWasHome())
+				.setBgw(false)
+				.setDgw(true);
 	}
 
 	/**

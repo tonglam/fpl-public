@@ -3,10 +3,7 @@ package com.tong.fpl.api;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.player.PlayerPickData;
-import com.tong.fpl.domain.letletme.player.PlayerShowData;
-import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 
 import java.util.List;
@@ -53,5 +50,7 @@ public interface IStatApi {
 	TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
 
 	PlayerPickData qryOffiaccountPickList();
+
+	TableData<PlayerDetailData> qryPlayerDetailData(int element);
 
 }

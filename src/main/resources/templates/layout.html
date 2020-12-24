@@ -340,33 +340,62 @@
 
     function showDifficulty(shortName, difficulty, event, wasHome) {
         switch (difficulty) {
+            case -1: {
+                let wasHomeSet = wasHome.split("||");
+                let shortNameSet = shortName.split("||");
+                if (wasHomeSet[0] === 'true' && wasHomeSet[1] === 'true') {
+                    return '<div style="background-color: #FF5722;color: white"><strong>' + shortNameSet[0] + ' (GW' + event + ')' + '</strong>' +
+                        ' && ' +
+                        '<strong>' + shortNameSet[1] + ' (GW' + event + ')' + '</strong>' +
+                        '</div>';
+                } else if (wasHomeSet[0] === 'true' && wasHomeSet[1] === 'false') {
+                    return '<div style="background-color: #FF5722;color: white"><strong>' + shortNameSet[0] + ' (GW' + event + ')' + '</strong>' +
+                        ' && ' +
+                        '<u><i>' + shortNameSet[1] + ' (GW' + event + ')' + '</u></i>' +
+                        '</div>';
+                } else if (wasHomeSet[0] === 'false' && wasHomeSet[1] === 'true') {
+                    return '<div style="background-color: #FF5722;color: white"><u><i>' + shortNameSet[0] + ' (GW' + event + ')' + '</u></i>' +
+                        ' && ' +
+                        '<strong>' + shortNameSet[1] + ' (GW' + event + ')' + '</strong>' +
+                        '</div>';
+                } else if (wasHomeSet[0] === 'false' && wasHomeSet[1] === 'false') {
+                    return '<div style="background-color: #FF5722;color: white"><u><i>' + shortNameSet[0] + ' (GW' + event + ')' + '</u></i>' +
+                        ' && ' +
+                        '<u><i>' + shortNameSet[1] + ' (GW' + event + ')' + '</u></i>' +
+                        '</div>';
+                }
+                break;
+            }
+            case 0: {
+                return '';
+            }
             case 1:
             case 2: {
-                if (wasHome) {
+                if (wasHome === 'true') {
                     return '<div style="background-color: #00FF86;color: white"><strong>' + shortName + ' (GW' + event + ')' + '</strong></div>';
                 } else {
-                    return '<div style="background-color: #00FF86;color: white">' + shortName + ' (GW' + event + ')' + '</div>';
+                    return '<div style="background-color: #00FF86;color: white"><u><i>' + shortName + ' (GW' + event + ')' + '</u></i></div>';
                 }
             }
             case 3: {
-                if (wasHome) {
+                if (wasHome === 'true') {
                     return '<div style="background-color: gray;color: white"><strong>' + shortName + ' (GW' + event + ')' + '</strong></div>';
                 } else {
-                    return '<div style="background-color: gray;color: white">' + shortName + ' (GW' + event + ')' + '</div>';
+                    return '<div style="background-color: gray;color: white"><u><i>' + shortName + ' (GW' + event + ')' + '</u></i></div>';
                 }
             }
             case 4: {
-                if (wasHome) {
+                if (wasHome === 'true') {
                     return '<div style="background-color: #FF005A;color: white"><strong>' + shortName + ' (GW' + event + ')' + '</strong></div>';
                 } else {
-                    return '<div style="background-color: #FF005A;color: white">' + shortName + ' (GW' + event + ')' + '</div>';
+                    return '<div style="background-color: #FF005A;color: white"><u><i>' + shortName + ' (GW' + event + ')' + '</u></i></div>';
                 }
             }
             case 5: {
-                if (wasHome) {
-                    return '<div style="background-color: #861D46;color: white"><b>' + shortName + ' (GW' + event + ')' + '</b></div>';
+                if (wasHome === 'true') {
+                    return '<div style="background-color: #861D46;color: white"><strong>' + shortName + ' (GW' + event + ')' + '</strong></div>';
                 } else {
-                    return '<div style="background-color: #861D46;color: white">' + shortName + ' (GW' + event + ')' + '</div>';
+                    return '<div style="background-color: #861D46;color: white"><u><i>' + shortName + ' (GW' + event + ')' + '</u></i></div>';
                 }
             }
         }

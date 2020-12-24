@@ -5,6 +5,7 @@ import com.tong.fpl.api.IStatApi;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
+import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerShowData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
@@ -146,6 +147,12 @@ public class StatController {
 	@ResponseBody
 	public TableData<PlayerShowData> qryOffiaccountPlayerShowList(@RequestParam int event) {
 		return this.statApi.qryOffiaccountPlayerShowList(event);
+	}
+
+	@RequestMapping("/qryPlayerDetailData")
+	@ResponseBody
+	public TableData<PlayerDetailData> qryPlayerDetailData(@RequestParam int element) {
+		return this.statApi.qryPlayerDetailData(element);
 	}
 
 }

@@ -3,6 +3,8 @@ package com.tong.fpl.domain.letletme.player;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * Create by tong on 2020/12/8
  */
@@ -19,23 +21,14 @@ public class PlayerShowData {
 	private int elementType;
 	private String elementTypeName;
 	private int teamId;
-    private String teamName;
-    private String teamShortName;
-    private double price;
-    private int fixtureEvent1;
-    private String againstTeam1ShortName;
-    private int difficulty1;
-	private boolean wasHome1;
-	private int fixtureEvent2;
-	private String againstTeam2ShortName;
-	private int difficulty2;
-	private boolean wasHome2;
-	private int fixtureEvent3;
-	private String againstTeam3ShortName;
-	private int difficulty3;
-	private boolean wasHome3;
+	private String teamName;
+	private String teamShortName;
+	private double price;
 	private int totalPoints;
-	private String pointsPerGame;
 	private String selectedByPercent;
+	private String pointsPerGame;
+	private String form;
+	private boolean inDreamteam;
+	private List<PlayerShowFixtureData> fixtureList;
 
 }

@@ -57,9 +57,13 @@ public interface IQueryService {
 
 	PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity);
 
-	List<PlayerFixtureData> qryPlayerFixture(int teamId);
+	List<PlayerFixtureData> qryPlayerFixtureList(int teamId, int previous, int next);
 
-	PlayerDetailData qrySeasonData(String season, int code);
+	default PlayerDetailData qryPlayerDetailData(int element) {
+		return this.qryPlayerDetailData(CommonUtils.getCurrentSeason(), element);
+	}
+
+	PlayerDetailData qryPlayerDetailData(String season, int element);
 
 	List<PlayerDetailData> qryHistorySeasonData(int code);
 
