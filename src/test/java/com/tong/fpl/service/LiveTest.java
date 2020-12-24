@@ -2,7 +2,7 @@ package com.tong.fpl.service;
 
 import com.google.common.collect.Maps;
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class LiveTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"13, 87075"})
 	void calcLivePoints(int event, int entry) {
-		LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
+		LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
 		System.out.println("points: " + liveCalaData.getLivePoints());
 	}
 
@@ -40,7 +40,7 @@ public class LiveTest extends FplApplicationTests {
 		map.put(9, 117);
 		map.put(10, 377);
 		map.put(11, 506);
-		LiveCalaData liveCalaData = this.liveCalcService.calcLivePointsByElementList(event, map, "n/a", 254, 4);
+		LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByElementList(event, map, "n/a", 254, 4);
 		System.out.println("points: " + liveCalaData.getLivePoints());
 		liveCalaData.getPickList().forEach(o -> System.out.println(o.getWebName() + "-" + o.getTotalPoints()));
 	}
@@ -49,7 +49,7 @@ public class LiveTest extends FplApplicationTests {
 	@CsvSource({"1, 2"})
 	void calcLivePointsByTournament(int event, int tournamentId) {
 		long start = System.currentTimeMillis();
-		List<LiveCalaData> list = this.liveCalcService.calcLivePointsByTournament(event, tournamentId);
+		List<LiveCalcData> list = this.liveCalcService.calcLivePointsByTournament(event, tournamentId);
 		long end = System.currentTimeMillis();
 		System.out.println("escape: " + ((end - start) / 1000) + "s!");
 		System.out.println(1);

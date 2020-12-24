@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EntryInfoService extends ServiceImpl<EntryInfoMapper, EntryInfoEntity> implements IService<EntryInfoEntity> {
+
 }

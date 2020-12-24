@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SubtitleService extends ServiceImpl<SubtitleMapper, SubtitleEntity> implements IService<SubtitleEntity> {
+
 }

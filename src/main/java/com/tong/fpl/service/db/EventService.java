@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EventService extends ServiceImpl<EventMapper, EventEntity> implements IService<EventEntity> {
+
 }

@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 /**
- * input: ElementLiveData(element_type, isGwStarted, isplayed)
+ * input: ElementLiveData(element_type, isGwStarted, isPlayed)
  * accumulate: map-> key:element_type, value:dataList
  * return: map->key:element_type, value:table->row(active), column(start), value(dataList)
  * <p>
@@ -65,6 +66,9 @@ public class ElementLiveCollector implements Collector<ElementEventResultData, M
 					boolean active = !o.isGwStarted() || (o.isGwStarted() && o.isPlayed());
 					boolean start = o.getPosition() < 12;
 					List<ElementEventResultData> list = table.get(active, start);
+					if (CollectionUtils.isEmpty(list)) {
+						list = Lists.newArrayList();
+					}
 					list.add(o);
 					table.put(active, start, list);
 				});

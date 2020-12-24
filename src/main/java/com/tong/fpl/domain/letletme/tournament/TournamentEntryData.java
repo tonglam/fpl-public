@@ -10,17 +10,17 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TournamentEntryData {
 
-    private int entry;
-    private int tournamentId;
-    private String name;
-    private String creator;
-    private String season;
-    private String leagueType;
-    private int leagueId;
-    private String tournamentMode;
-    private String groupMode;
-    private String knockoutMode;
-	private String stadge;
+	private int entry;
+	private int tournamentId;
+	private String name;
+	private String creator;
+	private String season;
+	private String leagueType;
+	private int leagueId;
+	private String tournamentMode;
+	private String groupMode;
+	private String knockoutMode;
+	private String stage;
 	private String createTime;
 
 }

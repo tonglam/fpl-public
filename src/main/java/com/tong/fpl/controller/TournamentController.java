@@ -213,8 +213,8 @@ public class TournamentController {
 	 * @apiNote result
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/qryEntryTournamenList")
-	public TableData<TournamentEntryData> qryEntryTournamenList(HttpSession session) {
+	@RequestMapping(value = "/qryEntryTournamentList")
+	public TableData<TournamentEntryData> qryEntryTournamentList(HttpSession session) {
 		int entry = 0;
 		if (session.getAttribute("entry") != null) {
 			entry = Integer.parseInt(session.getAttribute("entry").toString());
@@ -345,14 +345,14 @@ public class TournamentController {
 	}
 
 	@ResponseBody
-	@RequestMapping(value = "/qryTournamenList")
-	public TableData<TournamentInfoData> qryTournamenList(@RequestBody TournamentQueryParam param, HttpSession session) {
+	@RequestMapping(value = "/qryTournamentList")
+	public TableData<TournamentInfoData> qryTournamentList(@RequestBody TournamentQueryParam param, HttpSession session) {
 		int entry;
 		if (session.getAttribute("entry") != null) {
 			entry = Integer.parseInt(session.getAttribute("entry").toString());
 			param.setEntry(entry);
 		}
-		return this.tournamentApi.qryTournamenList(param);
+		return this.tournamentApi.qryTournamentList(param);
 	}
 
 	@ResponseBody

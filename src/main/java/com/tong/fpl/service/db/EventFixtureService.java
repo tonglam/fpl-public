@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EventFixtureService extends ServiceImpl<EventFixtureMapper, EventFixtureEntity> implements IService<EventFixtureEntity> {
+
 }

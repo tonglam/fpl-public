@@ -8,7 +8,7 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueEventReportData;
 import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
-import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerShowData;
@@ -62,9 +62,9 @@ public interface ITableQueryService {
 	/**
 	 * @apiNote live
 	 */
-	TableData<LiveCalaData> qryEntryLivePoints(int entry);
+	TableData<LiveCalcData> qryEntryLivePoints(int entry);
 
-	TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId);
+	TableData<LiveCalcData> qryTournamentLivePoints(int tournamentId);
 
 	TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
 

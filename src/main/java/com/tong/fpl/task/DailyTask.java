@@ -15,15 +15,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DailyTask {
 
-	private final IRedisCacheService redisCacheSerive;
+	private final IRedisCacheService redisCacheService;
 	private final IUpdateEventResultService updateEventResultsService;
 
 	@Scheduled(cron = "0 35 9 * * *")
 	public void refreshPlayerValue() {
 		try {
-			this.redisCacheSerive.insertPlayer();
-			this.redisCacheSerive.insertPlayerStat();
-			this.redisCacheSerive.insertPlayerValue();
+			this.redisCacheService.insertPlayer();
+			this.redisCacheService.insertPlayerStat();
+			this.redisCacheService.insertPlayerValue();
 		} catch (Exception e) {
 			e.printStackTrace();
 			TaskLog.error(e.getMessage());

@@ -124,11 +124,12 @@
 
 <div th:replace="layout::entryInputLayer"></div>
 
-<script id="checkbar" type="text/plain">
+<script id="checkBar" type="text/plain">
    <button class="layui-btn layui-btn-sm" id="check_{{d.id}}" lay-dropdown="{menus: [{txt: '队长统计', event:'captain'}, {txt: '转会统计', event:'transfer'}, {txt: '得分构成', event:'scoring'}]}"}>
    <span>查看类型</span>
    <i class="layui-icon layui-icon-triangle-d" style="display: inline-block"></i>
    </button>
+
 
 </script>
 
@@ -150,7 +151,7 @@
             elem: '#tournamentTable',
             method: 'post',
             contentType: 'application/json',
-            url: '/my_fpl/qryTournamenList',
+            url: '/my_fpl/qryTournamentList',
             loading: true,
             cellMinWidth: 80,
             cols: [[

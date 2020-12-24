@@ -91,14 +91,14 @@ public class MyFplController {
 	 * @apiNote league
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/qryTournamenList")
-	public TableData<TournamentInfoData> qryTournamenList(@RequestBody TournamentQueryParam param, HttpSession session) {
+	@RequestMapping(value = "/qryTournamentList")
+	public TableData<TournamentInfoData> qryTournamentList(@RequestBody TournamentQueryParam param, HttpSession session) {
 		int entry;
 		if (session.getAttribute("entry") != null) {
 			entry = Integer.parseInt(session.getAttribute("entry").toString());
 			param.setEntry(entry);
 		}
-		return this.myFplApi.qryTournamenList(param);
+		return this.myFplApi.qryTournamentList(param);
 	}
 
 	/**

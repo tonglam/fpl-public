@@ -13,7 +13,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class LiveMatchTeamData {
 
-	List<ElementEventResultData> elementEventResulList;
+	List<ElementEventResultData> elementEventResultList;
 	private int teamId;
 
 }

@@ -3,7 +3,7 @@ package com.tong.fpl.controller;
 import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.ILiveApi;
 import com.tong.fpl.domain.letletme.global.TableData;
-import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +53,8 @@ public class LiveController {
 		model.addAttribute("matchList", this.liveApi.qryLiveMatchList(statusId));
 		if (statusId == 0) {
 			return "live/match::playingContent";
-		} else {
-			return "live/match::finishedContent";
 		}
+		return "live/match::finishedContent";
 	}
 
 	/**
@@ -63,7 +62,7 @@ public class LiveController {
 	 */
 	@RequestMapping("/qryEntryLivePoints")
 	@ResponseBody
-	public TableData<LiveCalaData> qryEntryLivePoints(@RequestParam int entry) {
+	public TableData<LiveCalcData> qryEntryLivePoints(@RequestParam int entry) {
 		if (entry <= 0) {
 			return new TableData<>();
 		}
@@ -75,7 +74,7 @@ public class LiveController {
 	 */
 	@RequestMapping("/qryTournamentLivePoints")
 	@ResponseBody
-	public TableData<LiveCalaData> qryTournamentLivePoints(@RequestParam int tournamentId) {
+	public TableData<LiveCalcData> qryTournamentLivePoints(@RequestParam int tournamentId) {
 		return this.liveApi.qryTournamentLivePoints(tournamentId);
 	}
 

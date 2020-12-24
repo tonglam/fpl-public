@@ -95,7 +95,7 @@
                                 </div>
 
                                 <div class="layui-inline" style="margin-left:20px">
-                                    <button class="layui-btn" id="disClostButton" type="button">揭牌</button>
+                                    <button class="layui-btn" id="disCloseButton" type="button">揭牌</button>
                                 </div>
 
                             </div>
@@ -197,8 +197,7 @@
     layui.use(['element', 'layer'], function () {
         let $ = layui.jquery, element = layui.element, layer = layui.layer;
 
-        let check = false, entry = [[${session.entry}]], captainDataList = [[${captainDataList}]],
-            tabId = [[${manageZjTabId}]];
+        let check = false, captainDataList = [[${captainDataList}]], tabId = [[${manageZjTabId}]];
 
         element.tabChange('phaseTab', tabId);
 
@@ -208,7 +207,7 @@
         });
 
         $.each(captainDataList, function (index, item) {
-            if (entry === item.captainEntry) {
+            if ([[${session.entry}]] === item.captainEntry) {
                 check = true;
                 $("#currentGroupId").val(item.groupId);
                 // phase two deadline
@@ -395,7 +394,7 @@
                 });
         });
 
-        $("#disClostButton").on('click', function () {
+        $("#disCloseButton").on('click', function () {
             let entry = $("select[name=disCloseEntryName]").val();
             if (entry === '') {
                 layer.msg("请选择要揭牌的队员！", {time: 1500});

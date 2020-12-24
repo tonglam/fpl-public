@@ -21,7 +21,7 @@ public class TournamentKnockoutResultEntity {
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer matchId;
 	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer playAginstId;
+	private Integer playAgainstId;
 	private Integer homeEntry;
 	private Integer homeEntryNetPoints;
 	private Integer homeEntryRank;

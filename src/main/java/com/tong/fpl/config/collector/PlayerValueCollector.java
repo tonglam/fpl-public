@@ -57,7 +57,7 @@ public class PlayerValueCollector implements Collector<PlayerValueEntity, Map<In
 		return elementValuesMap -> {
 			Map<Integer, PlayerValueEntity> valueMap = Maps.newHashMap();
 			elementValuesMap.keySet().forEach(element -> {
-				// sort by changDate, first record is the lastest one
+				// sort by changDate, first record is the last one
 				Map<String, PlayerValueEntity> sortedMap = Maps.newLinkedHashMap();
 				elementValuesMap.get(element).entrySet()
 						.stream()

@@ -20,7 +20,7 @@ import com.tong.fpl.domain.letletme.global.StepDetailData;
 import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.*;
-import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerShowData;
@@ -301,7 +301,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                                 .setTournamentMode(o.getTournamentMode())
                                 .setGroupMode(groupModeMap.get(o.getGroupMode()).getModeName())
                                 .setKnockoutMode(knockModeMap.get(o.getKnockoutMode()).getModeName())
-                                .setStadge(this.setCurrentStage(currentEvent, groupModeMap.get(o.getGroupMode()), o))
+                                .setStage(this.setCurrentStage(currentEvent, groupModeMap.get(o.getGroupMode()), o))
                                 .setCreateTime(StringUtils.substringBefore(o.getCreateTime(), " "))
                         ));
         return new TableData<>(list);
@@ -897,19 +897,19 @@ public class TableQueryServiceImpl implements ITableQueryService {
      * @apiNote live
      */
     @Override
-    public TableData<LiveCalaData> qryEntryLivePoints(int entry) {
+    public TableData<LiveCalcData> qryEntryLivePoints(int entry) {
         int event = this.queryService.getCurrentEvent();
-        LiveCalaData liveCalaData = this.liveService.calcLivePointsByEntry(event, entry);
-        return new TableData<>(liveCalaData);
+        LiveCalcData liveCalcData = this.liveService.calcLivePointsByEntry(event, entry);
+        return new TableData<>(liveCalcData);
     }
 
     @Override
-    public TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId) {
+    public TableData<LiveCalcData> qryTournamentLivePoints(int tournamentId) {
         int event = this.queryService.getCurrentEvent();
-        List<LiveCalaData> liveCalcList = this.liveService.calcLivePointsByTournament(event, tournamentId);
+        List<LiveCalcData> liveCalcList = this.liveService.calcLivePointsByTournament(event, tournamentId);
         return new TableData<>(liveCalcList
                 .stream()
-                .sorted(Comparator.comparing(LiveCalaData::getLivePoints).reversed())
+                .sorted(Comparator.comparing(LiveCalcData::getLivePoints).reversed())
                 .collect(Collectors.toList())
         );
     }
@@ -972,7 +972,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
             teamDataList.add(elementEventResultData);
         });
         data
-                .setElementEventResulList(teamDataList
+                .setElementEventResultList(teamDataList
                         .stream()
                         .sorted(Comparator.comparing(ElementEventResultData::getTotalPoints)
                                 .thenComparing(ElementEventResultData::getBps).reversed())
@@ -1474,7 +1474,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .setMinPointsWebName(webNameMap.getOrDefault(captainMin.getCaptain(), ""))
                 .setMostSelected(mostSelectedCaptain)
                 .setMostSelectedWebName(webNameMap.getOrDefault(mostSelectedCaptain, ""))
-                .setMostSelectedtimes(captainSelectMap.get(mostSelectedCaptain).intValue())
+                .setMostSelectedTimes(captainSelectMap.get(mostSelectedCaptain).intValue())
                 .setBlankTimes((int) leagueEventReportEntities
                         .stream()
                         .filter(LeagueEventReportEntity::getCaptainBlank)

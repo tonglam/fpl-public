@@ -617,7 +617,7 @@ public class TournamentServiceImpl implements ITournamentService {
 						.setTournamentId(roundMatchEntity.getTournamentId())
 						.setEvent(roundMatchEntity.getStartGw() - 1 + i)
 						.setMatchId(roundMatchEntity.getMatchId())
-						.setPlayAginstId(i)
+						.setPlayAgainstId(i)
 						.setHomeEntry(i % 2 == 1 ? roundMatchEntity.getHomeEntry() : roundMatchEntity.getAwayEntry())
 						.setHomeEntryNetPoints(0)
 						.setHomeEntryRank(0)
@@ -1273,7 +1273,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		TournamentKnockoutResultEntity tournamentKnockoutResultEntity = this.tournamentKnockoutResultService.getOne(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
 				.eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
 				.eq(TournamentKnockoutResultEntity::getMatchId, pickMatchId)
-				.eq(TournamentKnockoutResultEntity::getPlayAginstId, 1));
+				.eq(TournamentKnockoutResultEntity::getPlayAgainstId, 1));
 		if (tournamentKnockoutResultEntity != null) {
 			tournamentKnockoutResultEntity.setHomeEntry(entry).setAwayEntry(pkEntry);
 			this.tournamentKnockoutResultService.updateById(tournamentKnockoutResultEntity);

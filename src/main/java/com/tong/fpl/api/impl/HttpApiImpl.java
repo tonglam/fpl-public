@@ -28,28 +28,28 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class HttpApiImpl implements IHttpApi {
 
-	private final IQueryService querySerivce;
+	private final IQueryService queryService;
 
 	@Override
 	public EntryEventData qryEntryResult(String season, int entry) {
 		EntryEventData entryEventData = new EntryEventData();
-		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(season, entry);
+		EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(season, entry);
 		if (entryInfoEntity == null) {
 			return entryEventData;
 		}
 		BeanUtil.copyProperties(entryInfoEntity, entryEventData, CopyOptions.create().ignoreNullValue());
-		entryEventData.setEventResultList(this.querySerivce.qryEntryResult(season, entry));
+		entryEventData.setEventResultList(this.queryService.qryEntryResult(season, entry));
 		return entryEventData;
 	}
 
 	@Override
 	public EntryEventData qryEntryEventResult(String season, int event, int entry) {
 		EntryEventData entryEventData = new EntryEventData();
-		EntryInfoEntity entryInfoEntity = this.querySerivce.qryEntryInfo(season, entry);
+		EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(season, entry);
 		if (entryInfoEntity == null) {
 			return entryEventData;
 		}
-		EntryEventResultData entryEventResultData = this.querySerivce.qryEntryEventResult(season, event, entry);
+		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(season, event, entry);
 		if (entryEventResultData != null) {
 			entryEventData.setEventResultList(Lists.newArrayList(entryEventResultData));
 		}
@@ -58,12 +58,12 @@ public class HttpApiImpl implements IHttpApi {
 
 	@Override
 	public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
-		return this.querySerivce.qryEventLiveAll(season, element);
+		return this.queryService.qryEventLiveAll(season, element);
 	}
 
 	@Override
 	public List<EventLiveEntity> qryEventLive(String season, int event, int element) {
-		return this.querySerivce.qryEventLive(season, event, element);
+		return this.queryService.qryEventLive(season, event, element);
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class HttpApiImpl implements IHttpApi {
 		if (element == 0) {
 			return new PlayerData();
 		}
-		return this.querySerivce.qryPlayerData(element);
+		return this.queryService.qryPlayerData(element);
 	}
 
 	private int getElementByQueryParam(PlayerQueryParam queryParam) throws Exception {
@@ -80,32 +80,32 @@ public class HttpApiImpl implements IHttpApi {
 			return queryParam.getElement();
 		}
 		if (queryParam.getCode() > 0) {
-			return this.querySerivce.qryPlayerElementByCode(queryParam.getCode());
+			return this.queryService.qryPlayerElementByCode(queryParam.getCode());
 		}
 		if (StringUtils.isNoneBlank(queryParam.getWebName())) {
-			return this.querySerivce.qryPlayerElementByWebName(queryParam.getWebName());
+			return this.queryService.qryPlayerElementByWebName(queryParam.getWebName());
 		}
 		return 0;
 	}
 
 	@Override
 	public List<PlayerInfoData> qryAllPlayers(String season) {
-		return this.querySerivce.qryAllPlayers(season);
+		return this.queryService.qryAllPlayers(season);
 	}
 
 	@Override
 	public String qryDeadlineByEvent(int event) {
-		return this.querySerivce.getDeadlineByEvent(event);
+		return this.queryService.getDeadlineByEvent(event);
 	}
 
 	@Override
 	public int getCurrentEvent() {
-		return this.querySerivce.getCurrentEvent();
+		return this.queryService.getCurrentEvent();
 	}
 
 	@Override
 	public int getNextEvent() {
-		return this.querySerivce.getNextEvent();
+		return this.queryService.getNextEvent();
 	}
 
 }

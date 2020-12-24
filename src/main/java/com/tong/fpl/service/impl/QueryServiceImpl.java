@@ -210,7 +210,7 @@ public class QueryServiceImpl implements IQueryService {
 	@Cacheable(value = "getPlayerByElement", key = "#season+'::'+#element", unless = "#result == null")
 	@Override
 	public PlayerEntity getPlayerByElement(String season, int element) {
-		return this.redisCacheService.getPlayerByElememt(season, element);
+		return this.redisCacheService.getPlayerByElement(season, element);
 	}
 
 	@Cacheable(value = "getPlayerStatByElement", key = "#season+'::'+#element", unless = "#result == null")
@@ -945,7 +945,7 @@ public class QueryServiceImpl implements IQueryService {
 					.setTournamentId(tournamentId)
 					.setRound(knockoutMap.get(o.getMatchId()).getRound())
 					.setEvent(o.getEvent())
-					.setPlayAgainstId(o.getPlayAginstId())
+					.setPlayAgainstId(o.getPlayAgainstId())
 					.setMatchId(o.getMatchId())
 					.setHomeEntry(o.getHomeEntry())
 					.setAwayEntry(o.getAwayEntry())
@@ -1630,7 +1630,6 @@ public class QueryServiceImpl implements IQueryService {
 
 	@Override
 	public ScoutData qryScoutEntryEventData(int event, int entry) {
-		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
 		ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
 				.eq(ScoutEntity::getEvent, event)
 				.eq(ScoutEntity::getEntry, entry));
@@ -1643,22 +1642,22 @@ public class QueryServiceImpl implements IQueryService {
 				.setScoutName(scoutEntity.getScoutName())
 				.setGkp(scoutEntity.getGkp())
 				.setGkpName(this.qryPlayerWebNameByElement(scoutEntity.getGkp()))
-				.setGkpPrice(this.getElememtPrice(scoutEntity.getGkp()))
+				.setGkpPrice(this.getElementPrice(scoutEntity.getGkp()))
 				.setDef(scoutEntity.getDef())
 				.setDefName(this.qryPlayerWebNameByElement(scoutEntity.getDef()))
-				.setDefPrice(this.getElememtPrice(scoutEntity.getDef()))
+				.setDefPrice(this.getElementPrice(scoutEntity.getDef()))
 				.setMid(scoutEntity.getMid())
 				.setMidName(this.qryPlayerWebNameByElement(scoutEntity.getMid()))
-				.setMidPrice(this.getElememtPrice(scoutEntity.getMid()))
+				.setMidPrice(this.getElementPrice(scoutEntity.getMid()))
 				.setFwd(scoutEntity.getFwd())
 				.setFwdName(this.qryPlayerWebNameByElement(scoutEntity.getFwd()))
-				.setFwdPrice(this.getElememtPrice(scoutEntity.getFwd()))
+				.setFwdPrice(this.getElementPrice(scoutEntity.getFwd()))
 				.setCaptain(scoutEntity.getCaptain())
 				.setCaptainName(this.qryPlayerWebNameByElement(scoutEntity.getCaptain()))
 				.setReason(scoutEntity.getReason());
 	}
 
-	private double getElememtPrice(int element) {
+	private double getElementPrice(int element) {
 		PlayerEntity playerEntity = this.getPlayerByElement(element);
 		if (playerEntity != null) {
 			return playerEntity.getPrice() / 10.0;

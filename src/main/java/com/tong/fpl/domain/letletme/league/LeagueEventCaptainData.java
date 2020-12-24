@@ -20,7 +20,7 @@ public class LeagueEventCaptainData {
 	private String minPointsWebName;
 	private int mostSelected;
 	private String mostSelectedWebName;
-	private int mostSelectedtimes;
+	private int mostSelectedTimes;
 	private int blankTimes;
 	private int hitTimes;
 

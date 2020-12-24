@@ -32,7 +32,7 @@ public interface IMyFplApi {
 	/**
 	 * @apiNote league
 	 */
-	TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param);
+	TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
 
 	String qryLeagueNameByIdAndType(int leagueId, String leagueType);
 

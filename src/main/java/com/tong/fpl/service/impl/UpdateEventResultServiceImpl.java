@@ -715,7 +715,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 					int matchWinner = this.getMatchWinner(homeEntry, awayEntry, homeEventResult, awayEventResult);
 					knockoutResultDataMap.put(knockoutResult.getMatchId(), new TournamentKnockoutResultData()
 							.setEvent(event)
-							.setPlayAgainstId(knockoutResult.getPlayAginstId())
+							.setPlayAgainstId(knockoutResult.getPlayAgainstId())
 							.setMatchId(knockoutResult.getMatchId())
 							.setMatchWinner(matchWinner)
 							.setWinnerRank(matchWinner == homeEntry ? homeEventResult.getOverallRank() : awayEventResult.getOverallRank())

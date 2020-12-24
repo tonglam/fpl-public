@@ -149,7 +149,7 @@ public class RedisCacheTest extends FplApplicationTests {
 	@CsvSource({"2021, 211"})
 	void getPlayerByElememt(String season, int element) {
 		long startTime = System.currentTimeMillis();
-		PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElememt(season, element);
+		PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElement(season, element);
 		long endTime = System.currentTimeMillis();
 		System.out.println("escape: " + (endTime - startTime) + "ms");
 		System.out.println(1);

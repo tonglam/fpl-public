@@ -21,56 +21,56 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MatchDayTask {
 
-	private final IQueryService querySerivce;
-	private final IRedisCacheService redisCacheSerive;
+	private final IQueryService queryService;
+	private final IRedisCacheService redisCacheService;
 	private final ITournamentService tournamentService;
 	private final IUpdateEventResultService updateEventResultsService;
 	private final IScoutService scoutService;
 
 	@Scheduled(cron = "0 0/5 0-7,19-23 * * *")
 	public void insertEventLiveCache() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDayTime(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDayTime(event)) {
 			return;
 		}
 		TaskLog.info("start true insertEventLiveCache task");
-		this.redisCacheSerive.insertEventLiveCache(event);
-		this.redisCacheSerive.insertSingleEventFixtureCache(event);
-		this.redisCacheSerive.insertLiveFixtureCache();
-		this.redisCacheSerive.insertLiveBonusCache();
+		this.redisCacheService.insertEventLiveCache(event);
+		this.redisCacheService.insertSingleEventFixtureCache(event);
+		this.redisCacheService.insertLiveFixtureCache();
+		this.redisCacheService.insertLiveBonusCache();
 	}
 
 	@Scheduled(cron = "0 30 6 * * *")
 	public void insertEventLive() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
 		TaskLog.info("start true insertEventLive task");
-		this.redisCacheSerive.insertSingleEventFixture(event);
-		this.redisCacheSerive.insertLiveFixtureCache();
-		this.redisCacheSerive.insertLiveBonusCache();
-		this.redisCacheSerive.insertEventLive(event);
+		this.redisCacheService.insertSingleEventFixture(event);
+		this.redisCacheService.insertLiveFixtureCache();
+		this.redisCacheService.insertLiveBonusCache();
+		this.redisCacheService.insertEventLive(event);
 	}
 
 	@Scheduled(cron = "0 35 6,12 * * *")
 	public void insertEvent() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
 		TaskLog.info("start true insertEvent task");
-		this.redisCacheSerive.insertEvent();
+		this.redisCacheService.insertEvent();
 	}
 
 	@Scheduled(cron = "0 0 8,12 * * *")
 	public void updateTournamentResult() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
-		this.redisCacheSerive.insertEventLive(event);
-		this.querySerivce.qryAllTournamentList()
+		this.redisCacheService.insertEventLive(event);
+		this.queryService.qryAllTournamentList()
 				.stream()
 				.map(TournamentInfoEntity::getId)
 				.forEach(tournamentId -> {
@@ -94,11 +94,11 @@ public class MatchDayTask {
 
 	@Scheduled(cron = "0 5 8,12 * * *")
 	public void updatePointsRaceGroupResult() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
-		this.querySerivce.qryAllTournamentList()
+		this.queryService.qryAllTournamentList()
 				.stream()
 				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
 				.filter(o -> StringUtils.equals(o.getGroupMode(), GroupMode.Points_race.name()))
@@ -120,11 +120,11 @@ public class MatchDayTask {
 
 	@Scheduled(cron = "0 10 8,12 * * *")
 	public void updateBattleRaceGroupResult() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
-		this.querySerivce.qryAllTournamentList()
+		this.queryService.qryAllTournamentList()
 				.stream()
 				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
 				.filter(o -> StringUtils.equals(o.getGroupMode(), GroupMode.Battle_race.name()))
@@ -146,11 +146,11 @@ public class MatchDayTask {
 
 	@Scheduled(cron = "0 15 8,12 * * *")
 	public void updateKnockoutResult() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
-		this.querySerivce.qryAllTournamentList()
+		this.queryService.qryAllTournamentList()
 				.stream()
 				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
 				.filter(o -> !StringUtils.equals(o.getKnockoutMode(), KnockoutMode.No_knockout.name()))
@@ -172,8 +172,8 @@ public class MatchDayTask {
 
 	@Scheduled(cron = "0 20 8,12 * * *")
 	public void updateScoutResult() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
 		this.scoutService.updateEventScoutResult(event);
@@ -181,11 +181,11 @@ public class MatchDayTask {
 
 	@Scheduled(cron = "0 25 9,12 * * *")
 	public void updateTournamentEventTransferPlayed() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
-		this.querySerivce.qryAllTournamentList()
+		this.queryService.qryAllTournamentList()
 				.stream()
 				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
 				.filter(o -> !StringUtils.equals(o.getKnockoutMode(), KnockoutMode.No_knockout.name()))
@@ -196,8 +196,8 @@ public class MatchDayTask {
 
 	@Scheduled(cron = "0 30 9,11 * * *")
 	public void updateAllEventResult() {
-		int event = this.querySerivce.getCurrentEvent();
-		if (!this.querySerivce.isMatchDay(event)) {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
 		this.updateEventResultsService.updateAllEventResult(event);
@@ -205,12 +205,12 @@ public class MatchDayTask {
 
 	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
 	public void insertEventTransfer() {
-		int current = this.querySerivce.getCurrentEvent();
+		int current = this.queryService.getCurrentEvent();
 		if (!this.isNotSelectTime(current)) {
 			return;
 		}
 		TaskLog.info("start true insertEventTransfer task");
-		this.querySerivce.qryAllTournamentList()
+		this.queryService.qryAllTournamentList()
 				.stream()
 				.map(TournamentInfoEntity::getId)
 				.distinct()
@@ -218,7 +218,7 @@ public class MatchDayTask {
 	}
 
 	private boolean isNotSelectTime(int event) {
-		LocalDateTime localDateTime = LocalDateTime.parse(this.querySerivce.getDeadlineByEvent(event).replace(" ", "T"));
+		LocalDateTime localDateTime = LocalDateTime.parse(this.queryService.getDeadlineByEvent(event).replace(" ", "T"));
 		return LocalDateTime.now().equals(localDateTime);
 	}
 

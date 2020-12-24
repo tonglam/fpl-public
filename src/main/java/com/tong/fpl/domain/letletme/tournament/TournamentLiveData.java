@@ -1,6 +1,6 @@
 package com.tong.fpl.domain.letletme.tournament;
 
-import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class TournamentLiveData {
 
-    private int tournamentId;
-    private List<LiveCalaData> liveList;
+	private int tournamentId;
+	private List<LiveCalcData> liveList;
 
 }

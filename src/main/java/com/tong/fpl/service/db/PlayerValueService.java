@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class PlayerValueService extends ServiceImpl<PlayerValueMapper, PlayerValueEntity> implements IService<PlayerValueEntity> {
+
 }

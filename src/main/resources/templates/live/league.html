@@ -65,7 +65,7 @@
             elem: '#tournamentTable',
             method: 'post',
             contentType: 'application/json',
-            url: '/tournament/qryTournamenList',
+            url: '/tournament/qryTournamentList',
             loading: true,
             cellMinWidth: 80,
             cols: [[
@@ -85,7 +85,7 @@
                 field: 'name',
                 type: 'asc'
             },
-            id: 'tournamenTable',
+            id: 'tournamentTable',
             done: function () {
                 soulTable.render(this);
             }

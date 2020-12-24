@@ -2,12 +2,13 @@ package com.tong.fpl.utils;
 
 import com.google.common.collect.Maps;
 import com.tong.fpl.constant.Constant;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
@@ -17,11 +18,6 @@ public class CommonUtils {
 
 	public static String getCapitalLetterFromNum(int number) {
 		return (char) (number + 64) + "";
-	}
-
-	public static int getRealGw(String inputGw) {
-		return inputGw.contains("GW") ? Integer.parseInt(StringUtils.substringAfter(inputGw, "GW"))
-				: Integer.parseInt(inputGw);
 	}
 
 	public static String setRealGw(int gw) {

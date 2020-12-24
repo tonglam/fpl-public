@@ -1,6 +1,5 @@
 package com.tong.fpl.utils;
 
-import com.tong.fpl.constant.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
@@ -13,7 +12,6 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -57,22 +55,6 @@ public class HttpUtils {
 		return Optional.empty();
 	}
 
-	public static Optional<String> httpGetWithHeader(String url, String profile) throws IOException {
-		HttpGet httpGet = new HttpGet(url);
-		httpGet.addHeader("PL_PROFILE", profile);
-		try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-			if (response.getStatusLine().getStatusCode() == 200) {
-				String result = EntityUtils.toString(response.getEntity(), "UTF-8");
-				return Optional.of(result);
-			}
-		} catch (Exception e) {
-			throw new ExportException(e.getMessage());
-		} finally {
-			httpclient.close();
-		}
-		return Optional.empty();
-	}
-
 	/**
 	 * http post
 	 *
@@ -101,31 +83,6 @@ public class HttpUtils {
 			httpclient.close();
 		}
 		return Optional.empty();
-	}
-
-	public static String httpLogin(String username, String password) throws IOException {
-		String url = Constant.LOGIN;
-		HttpClientContext httpClientContext = HttpClientContext.create();
-		HttpPost httpPost = new HttpPost(url);
-		List<NameValuePair> parameters = new ArrayList<>(0);
-		parameters.add(new BasicNameValuePair("login", username));
-		parameters.add(new BasicNameValuePair("password", password));
-		parameters.add(new BasicNameValuePair("app", "plfpl-web"));
-		parameters.add(new BasicNameValuePair("redirect_uri", "https://fantasy.premierleague.com/"));
-		UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters);
-		httpPost.setEntity(formEntity);
-		httpPost.setHeader("User-Agent",
-				"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
-		try (CloseableHttpResponse response = httpclient.execute(httpPost, httpClientContext)) {
-			String setCookie = response.getFirstHeader("Set-Cookie").getValue();
-			String plProfile = setCookie.substring("pl_profile=".length(), setCookie.indexOf(";"));
-			cookieStore.addCookie(new BasicClientCookie("pl_profile", plProfile));
-			return plProfile;
-		} catch (Exception e) {
-			throw new ExportException(e.getMessage());
-		} finally {
-			httpclient.close();
-		}
 	}
 
 	/**

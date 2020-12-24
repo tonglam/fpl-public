@@ -30,7 +30,7 @@ public interface ITournamentService {
      * 2.draw groups
      * 3.draw points group result
      * 4.draw battle group result
-     * 5.drow knockouts
+     * 5.draw knockouts
      * 6.create knockout result records
      */
     void createNewTournamentBackground(String tournamentName);
@@ -43,17 +43,17 @@ public interface ITournamentService {
 
     boolean checkTournamentName(String name);
 
-    /**
-     * update tournament info
-     * editable: creator, adminir_entry
-     */
+	/**
+	 * update tournament info
+	 * editable: creator, adminer_entry
+	 */
     String updateTournamentInfo(TournamentCreateData tournamentCreateData);
 
     String deleteTournamentByName(String name);
 
 	/**
 	 * exist tournament add new entry
-	 * only use for normal tournamet which group mode is points race and no knoutkout
+	 * only use for normal tournament which group mode is points race and no knockout
 	 * 1.save new entry_info
 	 * 2.save new tournament group and tournament_group_result
 	 * 3.update tournament points group result

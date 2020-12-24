@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class MyFplApiImpl implements IMyFplApi {
 
-	private final IQueryService querySerivce;
+	private final IQueryService queryService;
 	private final ITableQueryService tableQueryService;
 
 	/**
@@ -32,7 +32,7 @@ public class MyFplApiImpl implements IMyFplApi {
 	 */
 	@Override
 	public EntryInfoData qryEntryInfo(int entry) {
-		return BeanUtil.copyProperties(this.querySerivce.qryEntryInfo(entry), EntryInfoData.class);
+		return BeanUtil.copyProperties(this.queryService.qryEntryInfo(entry), EntryInfoData.class);
 	}
 
 	@Override
@@ -57,13 +57,13 @@ public class MyFplApiImpl implements IMyFplApi {
 	 * @implNote league
 	 */
 	@Override
-	public TableData<TournamentInfoData> qryTournamenList(TournamentQueryParam param) {
+	public TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param) {
 		return this.tableQueryService.qryTournamentList(param);
 	}
 
 	@Override
 	public String qryLeagueNameByIdAndType(int leagueId, String leagueType) {
-		return this.querySerivce.qryLeagueNameByIdAndType(leagueId, leagueType);
+		return this.queryService.qryLeagueNameByIdAndType(leagueId, leagueType);
 	}
 
 	/**

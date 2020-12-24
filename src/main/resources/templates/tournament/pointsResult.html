@@ -190,11 +190,11 @@
         $.each(resultsData, function (index, roundResultsData) {
             let roundResult = [];
             $.each(roundResultsData, function (index, item) {
-                let rusult = [];
-                rusult.push(item.homeEntryNetPoint);
-                rusult.push(item.awayEntryNetPoint);
-                rusult.push(item.matchInfo);
-                roundResult.push(rusult);
+                let result = [];
+                result.push(item.homeEntryNetPoint);
+                result.push(item.awayEntryNetPoint);
+                result.push(item.matchInfo);
+                roundResult.push(result);
             })
             results.push(roundResult);
         });
@@ -217,7 +217,7 @@
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm" lay-event="checkEventChampion">周冠军榜</button>
         <button class="layui-btn layui-btn-sm" lay-event="checkEventRunnerUp">周亚军榜</button>
-        <button class="layui-btn layui-btn-sm" lay-event="checkEventSecondRunerUp">周季军榜</button>
+        <button class="layui-btn layui-btn-sm" lay-event="checkEventSecondRunnerUp">周季军榜</button>
     </div>
 </script>
 
@@ -344,7 +344,7 @@
                     })
                     break;
                 }
-                case 'checkEventSecondRunerUp': {
+                case 'checkEventSecondRunnerUp': {
                     table.reload('championTable', {
                         data: eventChampionData.eventSecondRunnerUpResultList,
                         cols: [[
@@ -524,8 +524,7 @@
         $(document).ready(function () {
             let bracketDom = $("#bracket");
             // 无小组赛关闭小组赛tab
-            let groupNum = [[${tournamentInfo?.getGroupNum()}]];
-            if (groupNum == 0) {
+            if ([[${tournamentInfo?.getGroupNum()}]] === 0) {
                 element.tabDelete('stageTab', 'groupTab');
                 // 渲染对阵图
                 bracketDom.removeClass("layui-hide");
@@ -534,8 +533,7 @@
             }
             bracketDom.addClass("layui-hide");
             // 无淘汰赛关闭淘汰赛tab
-            let knockoutNum = [[${tournamentInfo?.getKnockoutTeam()}]];
-            if (knockoutNum === 0) {
+            if ([[${tournamentInfo?.getKnockoutTeam()}]] === 0) {
                 element.tabDelete('stageTab', 'knockoutTab');
             }
         });
@@ -578,9 +576,8 @@
         });
 
         function initKnockoutResult() {
-            let currentGw = [[${currentGw}]];
             let knockoutStartGw = [[${tournamentInfo?.getKnockoutStartGw()}]];
-            if (knockoutStartGw > currentGw) {
+            if (knockoutStartGw > [[${currentGw}]]) {
                 layer.msg("淘汰赛开始时间：GW" + knockoutStartGw, {time: 1500});
             }
             let index = layer.load(2);

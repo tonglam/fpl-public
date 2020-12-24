@@ -2,7 +2,7 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.ILiveApi;
 import com.tong.fpl.domain.letletme.global.TableData;
-import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.service.IQueryService;
@@ -22,14 +22,14 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveApiImpl implements ILiveApi {
 
-	private final IQueryService querySerivce;
+	private final IQueryService queryService;
 	private final ITableQueryService tableQueryService;
 
 	/**
 	 * @implNote entry
 	 */
 	@Override
-	public TableData<LiveCalaData> qryEntryLivePoints(int entry) {
+	public TableData<LiveCalcData> qryEntryLivePoints(int entry) {
 		return this.tableQueryService.qryEntryLivePoints(entry);
 	}
 
@@ -37,7 +37,7 @@ public class LiveApiImpl implements ILiveApi {
 	 * @implNote league
 	 */
 	@Override
-	public TableData<LiveCalaData> qryTournamentLivePoints(int tournamentId) {
+	public TableData<LiveCalcData> qryTournamentLivePoints(int tournamentId) {
 		return this.tableQueryService.qryTournamentLivePoints(tournamentId);
 	}
 
@@ -46,7 +46,7 @@ public class LiveApiImpl implements ILiveApi {
 	 */
 	@Override
 	public List<LiveMatchData> qryLiveMatchList(int statusId) {
-		return this.querySerivce.qryLiveMatchList(statusId);
+		return this.queryService.qryLiveMatchList(statusId);
 	}
 
 	@Override

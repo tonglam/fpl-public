@@ -655,7 +655,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                     .stream()
                     .sorted(Comparator.comparing(EventLiveEntity::getBps).reversed())
                     .collect(Collectors.toList());
-            // set bounus points
+            // set bonus points
             Map<Integer, Integer> bonusMap = this.setBonusPoints(teamId, sortList);
             if (!CollectionUtils.isEmpty(bonusMap)) {
                 valueMap.put(String.valueOf(teamId), bonusMap);
@@ -671,7 +671,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         // 最高分
         EventLiveEntity first = sortList.get(0);
         int highestBps = first.getBps();
-        this.setbonusMap(teamId, first, 3, bonusMap);
+        this.setBonusMap(teamId, first, 3, bonusMap);
         count += 1;
         // bps同分
         List<EventLiveEntity> firstList = sortList
@@ -682,7 +682,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         for (EventLiveEntity eventLiveEntity :
                 firstList) {
             count += 1;
-            this.setbonusMap(teamId, eventLiveEntity, 3, bonusMap);
+            this.setBonusMap(teamId, eventLiveEntity, 3, bonusMap);
         }
         if (count >= 3) {
             return bonusMap;
@@ -691,7 +691,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         if (count < 2) {
             EventLiveEntity second = sortList.get(count);
             int runnerUpBps = second.getBps();
-            this.setbonusMap(teamId, second, 2, bonusMap);
+            this.setBonusMap(teamId, second, 2, bonusMap);
             count += 1;
             // bps同分
             List<EventLiveEntity> secondList = sortList
@@ -702,7 +702,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             for (EventLiveEntity eventLiveEntity :
                     secondList) {
                 count += 1;
-                this.setbonusMap(teamId, eventLiveEntity, 2, bonusMap);
+                this.setBonusMap(teamId, eventLiveEntity, 2, bonusMap);
             }
             if (count >= 3) {
                 return bonusMap;
@@ -711,7 +711,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         // 第三高分
         EventLiveEntity third = sortList.get(count);
         int secondRunnerUpBps = third.getBps();
-        this.setbonusMap(teamId, third, 1, bonusMap);
+        this.setBonusMap(teamId, third, 1, bonusMap);
         count += 1;
         // bps同分
         List<EventLiveEntity> thirdList = sortList
@@ -722,12 +722,12 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         for (EventLiveEntity eventLiveEntity :
                 thirdList) {
             count += 1;
-            this.setbonusMap(teamId, eventLiveEntity, 1, bonusMap);
+            this.setBonusMap(teamId, eventLiveEntity, 1, bonusMap);
         }
         return bonusMap;
     }
 
-    private void setbonusMap(int teamId, EventLiveEntity eventLiveEntity, int bonus, Map<Integer, Integer> bonusMap) {
+    private void setBonusMap(int teamId, EventLiveEntity eventLiveEntity, int bonus, Map<Integer, Integer> bonusMap) {
         if (teamId != eventLiveEntity.getTeamId()) {
             return;
         }
@@ -869,7 +869,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public PlayerEntity getPlayerByElememt(String season, int element) {
+    public PlayerEntity getPlayerByElement(String season, int element) {
         String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), season);
         Set<Object> set = this.redisTemplate.opsForZSet().rangeByScore(key, element, element);
         if (CollectionUtils.isEmpty(set)) {

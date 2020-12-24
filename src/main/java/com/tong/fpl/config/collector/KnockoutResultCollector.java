@@ -55,7 +55,7 @@ public class KnockoutResultCollector implements Collector<TournamentKnockoutResu
 					TournamentKnockoutEventFixtureData knockoutEventFixtureData = new TournamentKnockoutEventFixtureData();
 					knockoutEventFixtureData
 							.setMatchId(o.getMatchId())
-							.setPlayAgainstId(o.getPlayAginstId())
+							.setPlayAgainstId(o.getPlayAgainstId())
 							.setHomeEntry(o.getHomeEntry())
 							.setHomeEntryPoints(o.getHomeEntryNetPoints())
 							.setHomeEntryRank(o.getHomeEntryRank())

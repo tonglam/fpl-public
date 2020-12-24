@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StatApiImpl implements IStatApi {
 
-	private final IQueryService querySerivce;
+	private final IQueryService queryService;
 	private final ITableQueryService tableQueryService;
 	private final IScoutService scoutService;
 
@@ -54,7 +54,7 @@ public class StatApiImpl implements IStatApi {
 	 */
 	@Override
 	public List<String> qryTeamSelectStatList() {
-		return this.querySerivce.qryTeamSelectStatList();
+		return this.queryService.qryTeamSelectStatList();
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class StatApiImpl implements IStatApi {
 
 	@Override
 	public ScoutData qryScoutEntryEventData(int event, int entry) {
-		return this.querySerivce.qryScoutEntryEventData(event, entry);
+		return this.queryService.qryScoutEntryEventData(event, entry);
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class StatApiImpl implements IStatApi {
 						.setTxt("赛季")
 						.setEvent("0")
 		);
-		int currentGw = this.querySerivce.getCurrentEvent();
+		int currentGw = this.queryService.getCurrentEvent();
 		IntStream.rangeClosed(4, currentGw).forEachOrdered(event -> {
 			String gw = String.valueOf(event);
 			list.add(
@@ -112,7 +112,7 @@ public class StatApiImpl implements IStatApi {
 
 	@Override
 	public String getScoutDeadline(int event) {
-		return this.querySerivce.getScoutDeadlineByEvent(event);
+		return this.queryService.getScoutDeadlineByEvent(event);
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class StatApiImpl implements IStatApi {
 
 	@Override
 	public PlayerPickData qryOffiaccountPickList() {
-		return this.querySerivce.qryEntryPickData(FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+		return this.queryService.qryEntryPickData(FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
 	}
 
 }

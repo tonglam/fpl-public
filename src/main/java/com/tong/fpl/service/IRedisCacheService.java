@@ -77,27 +77,27 @@ public interface IRedisCacheService {
         return this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event);
     }
 
-    List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
+	List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
 
-    default Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(int teamId) {
-        return this.getEventFixtureByTeamId(CommonUtils.getCurrentSeason(), teamId);
-    }
+	default Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(int teamId) {
+		return this.getEventFixtureByTeamId(CommonUtils.getCurrentSeason(), teamId);
+	}
 
-    Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
+	Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
 
-    Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
+	Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
 
-    default PlayerEntity getPlayerByElememt(int element) {
-        return this.getPlayerByElememt(CommonUtils.getCurrentSeason(), element);
-    }
+	default PlayerEntity getPlayerByElement(int element) {
+		return this.getPlayerByElement(CommonUtils.getCurrentSeason(), element);
+	}
 
-    PlayerEntity getPlayerByElememt(String season, int element);
+	PlayerEntity getPlayerByElement(String season, int element);
 
-    default PlayerStatEntity getPlayerStatByElement(int element) {
-        return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
-    }
+	default PlayerStatEntity getPlayerStatByElement(int element) {
+		return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
+	}
 
-    PlayerStatEntity getPlayerStatByElement(String season, int element);
+	PlayerStatEntity getPlayerStatByElement(String season, int element);
 
     List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 

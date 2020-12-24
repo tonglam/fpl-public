@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CacheController {
 
-	private final String acessToken = Base64.encode("letletguanlaoshi");
+	private final String accessToken = Base64.encode("letletguanlaoshi");
 	private final ICacheApi cacheApi;
 
 	@TraceHttpCall
@@ -83,7 +83,7 @@ public class CacheController {
 	}
 
 	@TraceHttpCall
-	@RequestMapping("/insertplayerValue")
+	@RequestMapping("/insertPlayerValue")
 	@ResponseBody
 	public void insertPlayerValue(@RequestParam String token) {
 		if (this.checkToken(token)) {
@@ -123,7 +123,7 @@ public class CacheController {
 	}
 
 	private boolean checkToken(String token) {
-		return !StringUtils.equals(token, acessToken);
+		return !StringUtils.equals(token, accessToken);
 	}
 
 }

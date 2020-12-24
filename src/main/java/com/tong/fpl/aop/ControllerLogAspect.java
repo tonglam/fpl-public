@@ -55,7 +55,7 @@ public class ControllerLogAspect {
 	}
 
 	@AfterReturning(returning = "obj", pointcut = "controllerLog()")
-	public void doAfterReturnig(Object obj) {
+	public void doAfterReturning(Object obj) {
 		stringBuffer.append(", response:{data}");
 		stringBuffer.append(", elapsed time:").append(System.currentTimeMillis() - startTime.get()).append("ms!");
 		ControllerLog.info(stringBuffer.toString());

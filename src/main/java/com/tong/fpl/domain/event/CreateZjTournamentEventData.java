@@ -13,11 +13,13 @@ import org.springframework.context.ApplicationEvent;
 @Setter
 public class CreateZjTournamentEventData extends ApplicationEvent {
 
-    private ZjTournamentCreateData zjTournamentCreateData;
+	private static final long serialVersionUID = 4873448717525533426L;
 
-    public CreateZjTournamentEventData(Object source, ZjTournamentCreateData zjTournamentCreateData) {
-        super(source);
-        this.zjTournamentCreateData = zjTournamentCreateData;
-    }
+	private ZjTournamentCreateData zjTournamentCreateData;
+
+	public CreateZjTournamentEventData(Object source, ZjTournamentCreateData zjTournamentCreateData) {
+		super(source);
+		this.zjTournamentCreateData = zjTournamentCreateData;
+	}
 
 }

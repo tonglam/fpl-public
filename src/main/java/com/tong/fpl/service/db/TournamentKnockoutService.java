@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TournamentKnockoutService extends ServiceImpl<TournamentKnockoutMapper, TournamentKnockoutEntity> implements IService<TournamentKnockoutEntity> {
+
 }

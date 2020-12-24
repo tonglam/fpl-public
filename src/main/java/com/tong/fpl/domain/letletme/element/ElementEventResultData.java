@@ -48,8 +48,8 @@ public class ElementEventResultData {
 	private int bonus;
 	private int bps;
 	private int totalPoints;
-	private boolean pickAvtive;
-	private boolean autosub;
+	private boolean pickActive;
+	private boolean autoSub;
 
 	@Override
 	public boolean equals(Object o) {

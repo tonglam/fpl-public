@@ -1,6 +1,6 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.letletme.live.LiveCalaData;
+import com.tong.fpl.domain.letletme.live.LiveCalcData;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,7 @@ public interface ILiveService {
 	 * @param event event
 	 * @param entry entry
 	 */
-	LiveCalaData calcLivePointsByEntry(int event, int entry);
+	LiveCalcData calcLivePointsByEntry(int event, int entry);
 
 	/**
 	 * calculate entry live points(do not has entry)
@@ -27,7 +27,7 @@ public interface ILiveService {
 	 * @param captain     captain
 	 * @param viceCaptain viceCaptain
 	 */
-	LiveCalaData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, String chip, int captain, int viceCaptain);
+	LiveCalcData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, String chip, int captain, int viceCaptain);
 
 	/**
 	 * calculate entry live points in the tournament
@@ -35,6 +35,6 @@ public interface ILiveService {
 	 * @param event        event
 	 * @param tournamentId tournamentId
 	 */
-	List<LiveCalaData> calcLivePointsByTournament(int event, int tournamentId);
+	List<LiveCalcData> calcLivePointsByTournament(int event, int tournamentId);
 
 }

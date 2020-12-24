@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Data
 @Accessors(chain = true)
-public class LiveCalaData {
+public class LiveCalcData {
 
 	private int event;
 	private int entry;
