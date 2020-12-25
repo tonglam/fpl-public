@@ -538,8 +538,7 @@
                     axios.get('/stat/qryScoutPlayerList?elementType=4')
                         .then(function (response) {
                             layer.close(loadIndex);
-                            let data = response.data;
-                            table.reload('playerTable', {data: data});
+                            table.reload('playerTable', {data: parsePlayerTableData(response.data)});
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
