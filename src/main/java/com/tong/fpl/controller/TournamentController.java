@@ -40,8 +40,21 @@ public class TournamentController {
 	private final IHttpApi httpApi;
 
 	@GetMapping(value = "/create")
-	public String createController(Model model, HttpSession session) {
-		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+	public String zjRealodController(Model model, HttpSession session) {
+		model.addAttribute("gwMap", CommonUtils.createGwMapStartFromCurrentForOption(this.httpApi.getNextEvent()));
+		// input entry
+		int inputGroupNum = 4;
+		if (session.getAttribute("inputGroupNum") != null) {
+			inputGroupNum = Integer.parseInt(session.getAttribute("inputGroupNum").toString());
+		}
+		model.addAttribute("inputGroupNum", inputGroupNum);
+		model.addAttribute("inputShowNum", (int) Math.ceil(inputGroupNum * 1.0 / 2));
+		int inputTeamPerGroup = 4;
+		if (session.getAttribute("inputTeamPerGroup") != null) {
+			inputTeamPerGroup = Integer.parseInt(session.getAttribute("inputTeamPerGroup").toString());
+		}
+		model.addAttribute("inputTeamPerGroup", inputTeamPerGroup);
+		// zj input entry
 		int zjGroupNum = 4;
 		if (session.getAttribute("zjGroupNum") != null) {
 			zjGroupNum = Integer.parseInt(session.getAttribute("zjGroupNum").toString());
@@ -61,8 +74,15 @@ public class TournamentController {
 		return "tournament/create";
 	}
 
-	@GetMapping(value = "/create/reload")
-	public String createController(@RequestParam int zjGroupNum, @RequestParam int zjTeamPerGroup, HttpSession session) {
+	@GetMapping(value = "/create/inputReload")
+	public String inputRealodController(@RequestParam int inputGroupNum, @RequestParam int inputTeamPerGroup, HttpSession session) {
+		session.setAttribute("inputGroupNum", inputGroupNum);
+		session.setAttribute("inputTeamPerGroup", inputTeamPerGroup);
+		return "redirect:/tournament/create";
+	}
+
+	@GetMapping(value = "/create/zjReload")
+	public String zjRealodController(@RequestParam int zjGroupNum, @RequestParam int zjTeamPerGroup, HttpSession session) {
 		session.setAttribute("zjGroupNum", zjGroupNum);
 		session.setAttribute("zjTeamPerGroup", zjTeamPerGroup);
 		return "redirect:/tournament/create";
@@ -188,7 +208,8 @@ public class TournamentController {
 				.setLeagueId(Integer.parseInt(StringUtils.substringBetween(tournamentCreateData.getUrl(), "https://fantasy.premierleague.com/leagues/", "/standings")))
 				.setGroupMode(GroupMode.getGroupModeByValue(tournamentCreateData.getGroupMode()).name())
 				.setKnockoutMode(KnockoutMode.getKnockoutModeByValue(tournamentCreateData.getKnockoutMode()).name());
-		return this.tournamentApi.createNewTournament(tournamentCreateData);
+		return "";
+//		return this.tournamentApi.createNewTournament(tournamentCreateData);
 	}
 
 	@ResponseBody

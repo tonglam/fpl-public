@@ -11,45 +11,45 @@ import java.util.List;
  */
 public interface ITournamentService {
 
-    /**
-     * create a new tournament_info record
-     * 1.group stage: group number depends on total team and team per group
-     * a.no group stage input: mode, group_fill_average==false, draw knockout state immediately
-     * b.point_race input: mode, team in group, group_fill_average==false, group_qualifiers, group_start_gw, group_end_gw
-     * c.single_round and double_round input: mode, team in group, group_fill_average, group_qualifiers, group_start_gw, rounds would be decided by team in group
-     * 2.knockout stage
-     * a.single round
-     * b.home_away
-     * c.no knockout(must have group stage)
-     */
-    String createNewTournament(TournamentCreateData tournamentCreateData);
+	/**
+	 * create a new tournament_info record
+	 * 1.group stage: group number depends on total team and team per group
+	 * a.no group stage input: mode, group_fill_average==false, draw knockout state immediately
+	 * b.point_race input: mode, team in group, group_fill_average==false, group_qualifiers, group_start_gw, group_end_gw
+	 * c.single_round and double_round input: mode, team in group, group_fill_average, group_qualifiers, group_start_gw, rounds would be decided by team in group
+	 * 2.knockout stage
+	 * a.single round
+	 * b.home_away
+	 * c.no knockout(must have group stage)
+	 */
+	String createNewTournament(TournamentCreateData tournamentCreateData);
 
-    /**
-     * new tournament async methods
-     * 1.save entry
-     * 2.draw groups
-     * 3.draw points group result
-     * 4.draw battle group result
-     * 5.draw knockouts
-     * 6.create knockout result records
-     */
-    void createNewTournamentBackground(String tournamentName);
+	/**
+	 * new tournament async methods
+	 * 1.save entry
+	 * 2.draw groups
+	 * 3.draw points group result
+	 * 4.draw battle group result
+	 * 5.draw knockouts
+	 * 6.create knockout result records
+	 */
+	void createNewTournamentBackground(String tournamentName, List<Integer> inputEntryList);
 
-    String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
+	String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
 
-    void createNewZjTournamentBackground(ZjTournamentCreateData zjTournamentCreateData);
+	void createNewZjTournamentBackground(ZjTournamentCreateData zjTournamentCreateData);
 
-    int countTournamentLeagueTeams(String url);
+	int countTournamentLeagueTeams(String url);
 
-    boolean checkTournamentName(String name);
+	boolean checkTournamentName(String name);
 
 	/**
 	 * update tournament info
 	 * editable: creator, adminer_entry
 	 */
-    String updateTournamentInfo(TournamentCreateData tournamentCreateData);
+	String updateTournamentInfo(TournamentCreateData tournamentCreateData);
 
-    String deleteTournamentByName(String name);
+	String deleteTournamentByName(String name);
 
 	/**
 	 * exist tournament add new entry
@@ -60,8 +60,8 @@ public interface ITournamentService {
 	 */
 	void addTournamentNewEntry(int tournamentId);
 
-    String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
+	String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry);
 
-    String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry);
+	String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry);
 
 }

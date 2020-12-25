@@ -46,6 +46,13 @@ public class CommonUtils {
 		return map;
 	}
 
+	public static Map<String, String> createGwMapStartFromCurrentForOption(int currentGw) {
+		Map<String, String> map = Maps.newLinkedHashMap();
+		map.put("", "请选择");
+		IntStream.rangeClosed(currentGw, 38).forEachOrdered(i -> map.put(String.valueOf(i), "GW" + i));
+		return map;
+	}
+
 	public static LinkedHashMap<String, String> createSeasonMapForOption() {
 		Map<Integer, String> seasonMap = Maps.newLinkedHashMap();
 		LocalDate startYear = LocalDate.of(2019, 1, 1);

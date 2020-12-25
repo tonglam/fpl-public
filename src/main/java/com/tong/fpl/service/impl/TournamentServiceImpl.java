@@ -87,7 +87,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		// save
 		this.tournamentInfoService.save(tournamentInfoEntity);
 		// publish event
-		context.publishEvent(new CreateTournamentEventData(this, tournamentCreateData.getTournamentName()));
+		context.publishEvent(new CreateTournamentEventData(this, tournamentCreateData.getTournamentName(), tournamentCreateData.getInputEntryList()));
 		return "创建成功！";
 	}
 
@@ -167,7 +167,7 @@ public class TournamentServiceImpl implements ITournamentService {
 	}
 
 	@Override
-	public void createNewTournamentBackground(String tournamentName) {
+	public void createNewTournamentBackground(String tournamentName, List<Integer> inputEntryList) {
 		TournamentInfoEntity tournamentInfo = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
 				.eq(TournamentInfoEntity::getName, tournamentName)
 				.eq(TournamentInfoEntity::getState, 1));
@@ -181,7 +181,7 @@ public class TournamentServiceImpl implements ITournamentService {
 		int groupStartGw = tournamentInfo.getGroupStartGw();
 		int groupEndGw = tournamentInfo.getGroupEndGw();
 		// save entry_info
-		this.saveTournamentEntryInfo(tournamentId, tournamentInfo.getLeagueType(), tournamentInfo.getLeagueId(), tournamentInfo.getGroupFillAverage());
+		this.saveTournamentEntryInfo(tournamentId, tournamentInfo.getLeagueType(), tournamentInfo.getLeagueId(), inputEntryList, tournamentInfo.getGroupFillAverage());
 		// draw groups
 		this.drawGroups(tournamentId, groupMode, tournamentInfo.getTeamPerGroup(), tournamentInfo.getGroupFillAverage(), groupNum, groupStartGw, groupEndGw);
 		// create points_group_result
@@ -197,9 +197,18 @@ public class TournamentServiceImpl implements ITournamentService {
 		this.updateGwResult(tournamentId);
 	}
 
-	private void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, boolean groupFillAverage) {
+	private void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, List<Integer> inputEntryList, boolean groupFillAverage) {
 		// save entry_info
-		List<EntryInfoEntity> entryInfoEntityList = this.saveEntryInfoFromFplServer(leagueType, leagueId);
+		List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
+		if (CollectionUtils.isEmpty(inputEntryList)) {
+			entryInfoEntityList = this.saveEntryInfoFromFplServer(leagueType, leagueId);
+		} else {
+			List<EntryInfoEntity> inputEntryInfoList = inputEntryList
+					.stream()
+					.map(this.queryService::qryEntryInfo)
+					.collect(Collectors.toList());
+			entryInfoEntityList.addAll(inputEntryInfoList);
+		}
 		// save tournament_entry (add average)
 		this.saveTournamentEntry(tournamentId, leagueId, groupFillAverage, entryInfoEntityList);
 		log.info("save tournament:{} entry info success!", tournamentId);

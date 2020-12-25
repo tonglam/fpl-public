@@ -1,5 +1,6 @@
 package com.tong.fpl.config.event;
 
+import com.google.common.collect.Lists;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.event.CreateZjTournamentEventData;
 import com.tong.fpl.service.ITournamentService;
@@ -20,18 +21,18 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentEventLister {
 
-    private final ITournamentService tournamentService;
+	private final ITournamentService tournamentService;
 
-    @Async("eventExecutor")
-    @EventListener
-    public void onApplicationEvent(CreateTournamentEventData createTournamentEvent) {
-        this.tournamentService.createNewTournamentBackground(createTournamentEvent.getTournamentName());
-    }
+	@Async("eventExecutor")
+	@EventListener
+	public void onApplicationEvent(CreateTournamentEventData createTournamentEvent) {
+		this.tournamentService.createNewTournamentBackground(createTournamentEvent.getTournamentName(), Lists.newArrayList());
+	}
 
-    @Async("eventExecutor")
-    @EventListener
-    public void onApplicationEvent(CreateZjTournamentEventData createZjTournamentEvent) {
-        this.tournamentService.createNewZjTournamentBackground(createZjTournamentEvent.getZjTournamentCreateData());
-    }
+	@Async("eventExecutor")
+	@EventListener
+	public void onApplicationEvent(CreateZjTournamentEventData createZjTournamentEvent) {
+		this.tournamentService.createNewZjTournamentBackground(createZjTournamentEvent.getZjTournamentCreateData());
+	}
 
 }
