@@ -111,6 +111,30 @@
 
         let refreshTimeout = setTimeout(refresh, 300000);
 
+        let col = [[
+            {field: 'webName', title: '姓名', align: 'center', width: 150},
+            {
+                field: 'totalPoints',
+                title: '分数',
+                align: 'center',
+                style: 'background-color: #5FB878; color: #fff;'
+            },
+            {field: 'bonus', title: 'bonus', align: 'center', width: 70, templet: '#bonusTpl'},
+            {field: 'bps', title: 'bps', align: 'center'},
+            {field: 'elementTypeName', title: '位置', align: 'center', width: 70},
+            {field: 'minutes', title: '时间', align: 'center'},
+            {field: 'goalsScored', title: '进球', align: 'center'},
+            {field: 'assists', title: '助攻', align: 'center'},
+            {field: 'cleanSheets', title: '零封', align: 'center'},
+            {field: 'goalsConceded', title: '丢球', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'yellowCards', title: '黄牌', align: 'center'},
+            {field: 'redCards', title: '红牌', align: 'center'},
+            {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+            {field: 'penaltiesMissed', title: '丢点', align: 'center'},
+            {field: 'saves', title: '扑救', align: 'center', width: 70}
+        ]];
+
         soulTable.config({
             drag: false,
             overflow: {
@@ -150,30 +174,8 @@
                             even: true,
                             limit: 15,
                             cellMinWidth: 60,
-                            width: 1085,
-                            cols: [[
-                                {field: 'webName', title: '姓名', align: 'center', width: 150},
-                                {
-                                    field: 'totalPoints',
-                                    title: '分数',
-                                    align: 'center',
-                                    style: 'background-color: #5FB878; color: #fff;'
-                                },
-                                {field: 'bonus', title: 'bonus', align: 'center', width: 70, templet: '#bonusTpl'},
-                                {field: 'bps', title: 'bps', align: 'center'},
-                                {field: 'elementTypeName', title: '位置', align: 'center', width: 70},
-                                {field: 'minutes', title: '时间', align: 'center'},
-                                {field: 'goalsScored', title: '进球', align: 'center'},
-                                {field: 'assists', title: '助攻', align: 'center'},
-                                {field: 'cleanSheets', title: '零封', align: 'center'},
-                                {field: 'goalsConceded', title: '丢球', align: 'center'},
-                                {field: 'ownGoals', title: '乌龙', align: 'center'},
-                                {field: 'yellowCards', title: '黄牌', align: 'center'},
-                                {field: 'redCards', title: '红牌', align: 'center'},
-                                {field: 'penaltiesSaved', title: '扑点', align: 'center'},
-                                {field: 'penaltiesMissed', title: '丢点', align: 'center'},
-                                {field: 'saves', title: '扑救', align: 'center', width: 70}
-                            ]],
+                            width: 1095,
+                            cols: col,
                             id: tableId,
                             done: function () {
                                 soulTable.render(this);
@@ -246,30 +248,8 @@
                             even: true,
                             limit: 15,
                             cellMinWidth: 60,
-                            width: 1085,
-                            cols: [[
-                                {field: 'webName', title: '姓名', align: 'center', width: 150},
-                                {
-                                    field: 'totalPoints',
-                                    title: '分数',
-                                    align: 'center',
-                                    style: 'background-color: #5FB878; color: #fff;'
-                                },
-                                {field: 'bonus', title: 'bonus', align: 'center', width: 70, templet: '#bonusTpl'},
-                                {field: 'bps', title: 'bps', align: 'center'},
-                                {field: 'elementTypeName', title: '位置', align: 'center', width: 70},
-                                {field: 'minutes', title: '时间', align: 'center'},
-                                {field: 'goalsScored', title: '进球', align: 'center'},
-                                {field: 'assists', title: '助攻', align: 'center'},
-                                {field: 'cleanSheets', title: '零封', align: 'center'},
-                                {field: 'goalsConceded', title: '丢球', align: 'center'},
-                                {field: 'ownGoals', title: '乌龙', align: 'center'},
-                                {field: 'yellowCards', title: '黄牌', align: 'center'},
-                                {field: 'redCards', title: '红牌', align: 'center'},
-                                {field: 'penaltiesSaved', title: '扑点', align: 'center'},
-                                {field: 'penaltiesMissed', title: '丢点', align: 'center'},
-                                {field: 'saves', title: '扑救', align: 'center'}
-                            ]],
+                            width: 1095,
+                            cols: col,
                             id: tableId,
                             done: function () {
                                 soulTable.render(this);
