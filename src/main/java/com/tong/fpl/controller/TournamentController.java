@@ -207,9 +207,12 @@ public class TournamentController {
                 .setGroupMode(GroupMode.getGroupModeByValue(tournamentCreateData.getGroupMode()).name())
                 .setKnockoutMode(KnockoutMode.getKnockoutModeByValue(tournamentCreateData.getKnockoutMode()).name());
         if (StringUtils.isNotBlank(tournamentCreateData.getUrl())) {
+            tournamentCreateData.setLeagueType(tournamentCreateData.getUrl().contains("/standings/c") ? LeagueType.Classic.name() : LeagueType.H2h.name());
+            tournamentCreateData.setLeagueId(CommonUtils.getLeagueIdByType(tournamentCreateData.getUrl(), tournamentCreateData.getLeagueType()));
+        } else {
             tournamentCreateData
-                    .setLeagueType(tournamentCreateData.getUrl().contains("/standings/c") ? LeagueType.Classic.name() : LeagueType.H2h.name())
-                    .setLeagueId(Integer.parseInt(StringUtils.substringBetween(tournamentCreateData.getUrl(), "https://fantasy.premierleague.com/leagues/", "/standings")));
+                    .setLeagueType(LeagueType.Custom.name())
+                    .setLeagueId(0);
         }
         return this.tournamentApi.createNewTournament(tournamentCreateData);
     }

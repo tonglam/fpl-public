@@ -13,7 +13,7 @@ public class ReportTest extends FplApplicationTests {
 	private IReportService reportService;
 
 	@ParameterizedTest
-	@CsvSource({"14, 65, Classic, 0"})
+	@CsvSource({"15, 314, Classic, 10000"})
 	void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit) {
 		this.reportService.insertLeagueEventSelect(event, leagueId, leagueType, limit);
 		System.out.println(1);

@@ -21,71 +21,75 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportTask {
 
-	private final IQueryService queryService;
-	private final IReportService reportService;
+    private final IQueryService queryService;
+    private final IReportService reportService;
 
-	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
-	public void insertLeagueEventSelectStat() {
-		int current = this.queryService.getCurrentEvent();
-		if (!this.isNotSelectTime(current)) {
-			return;
-		}
-		Table<Integer, String, Integer> leagueTable = this.getLeagueMap(); // league_id -> league_type -> limit
-		leagueTable.rowKeySet().forEach(leagueId -> {
-			String leagueType = leagueTable.row(leagueId).keySet()
-					.stream()
-					.findFirst()
-					.orElse("");
-			if (StringUtils.isEmpty(leagueType)) {
-				return;
-			}
-			int limit = leagueTable.row(leagueId).values()
-					.stream()
-					.findFirst()
-					.orElse(0);
-			try {
-				TaskLog.info("start league:{}", leagueId);
-				this.reportService.insertLeagueEventSelect(current, leagueId, leagueType, limit);
-				TaskLog.info("end league:{}", leagueId);
-			} catch (Exception e) {
-				e.printStackTrace();
-				TaskLog.error("league:{}, error:{}", leagueId, e.getMessage());
-				this.insertLeagueEventSelectStat();
-			}
-		});
-	}
+    @Scheduled(cron = "0 0/5 0-4,18-23 * * *")
+    public void insertLeagueEventSelectStat() {
+        int current = this.queryService.getCurrentEvent();
+        if (!this.isNotSelectTime(current)) {
+            return;
+        }
+        Table<Integer, String, Integer> leagueTable = this.getLeagueMap(); // league_id -> league_type -> limit
+        leagueTable.rowKeySet().forEach(leagueId -> {
+            String leagueType = leagueTable.row(leagueId).keySet()
+                    .stream()
+                    .findFirst()
+                    .orElse("");
+            if (StringUtils.isEmpty(leagueType)) {
+                return;
+            }
+            int limit = leagueTable.row(leagueId).values()
+                    .stream()
+                    .findFirst()
+                    .orElse(0);
+            try {
+                TaskLog.info("start league:{}", leagueId);
+                this.reportService.insertLeagueEventSelect(current, leagueId, leagueType, limit);
+                TaskLog.info("end league:{}", leagueId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                TaskLog.error("league:{}, error:{}", leagueId, e.getMessage());
+                this.insertLeagueEventSelectStat();
+            }
+        });
+    }
 
-	private boolean isNotSelectTime(int event) {
-		LocalDateTime localDateTime = LocalDateTime.parse(this.queryService.getDeadlineByEvent(event).replace(" ", "T"));
-		return LocalDateTime.now().equals(localDateTime);
-	}
+    private boolean isNotSelectTime(int event) {
+        LocalDateTime localDateTime = LocalDateTime.parse(this.queryService.getDeadlineByEvent(event).replace(" ", "T"));
+        return LocalDateTime.now().equals(localDateTime);
+    }
 
-	private Table<Integer, String, Integer> getLeagueMap() {
-		Table<Integer, String, Integer> table = HashBasedTable.create();
-		this.queryService.qryAllTournamentList().forEach(o -> {
-			if (StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()) && !table.containsRow(o.getLeagueId())) {
-				table.put(o.getLeagueId(), o.getLeagueType(), 0);
-			}
-		});
-		return table;
-	}
+    private Table<Integer, String, Integer> getLeagueMap() {
+        Table<Integer, String, Integer> table = HashBasedTable.create();
+        this.queryService.qryAllTournamentList()
+                .stream()
+                .filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
+                .filter(o -> o.getLeagueId() > 0)
+                .forEach(o -> {
+                    if (!table.containsRow(o.getLeagueId())) {
+                        table.put(o.getLeagueId(), o.getLeagueType(), 0);
+                    }
+                });
+        return table;
+    }
 
-	@Scheduled(cron = "0 0 9,12 * * *")
-	public void updateLeagueEventResult() {
-		int event = this.queryService.getCurrentEvent();
-		if (!this.queryService.isMatchDay(event)) {
-			return;
-		}
-		Table<Integer, String, Integer> leagueTable = this.getLeagueMap(); // league_id -> league_type -> limit
-		leagueTable.rowKeySet().forEach(leagueId -> {
-			String leagueType = leagueTable.row(leagueId).keySet()
-					.stream()
-					.findFirst()
-					.orElse("");
-			this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
-		});
+    @Scheduled(cron = "0 0 9,12 * * *")
+    public void updateLeagueEventResult() {
+        int event = this.queryService.getCurrentEvent();
+        if (!this.queryService.isMatchDay(event)) {
+            return;
+        }
+        Table<Integer, String, Integer> leagueTable = this.getLeagueMap(); // league_id -> league_type -> limit
+        leagueTable.rowKeySet().forEach(leagueId -> {
+            String leagueType = leagueTable.row(leagueId).keySet()
+                    .stream()
+                    .findFirst()
+                    .orElse("");
+            this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
+        });
 
 
-	}
+    }
 
 }
