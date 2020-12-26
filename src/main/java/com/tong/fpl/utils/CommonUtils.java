@@ -2,6 +2,8 @@ package com.tong.fpl.utils;
 
 import com.google.common.collect.Maps;
 import com.tong.fpl.constant.Constant;
+import com.tong.fpl.constant.enums.LeagueType;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -94,6 +96,17 @@ public class CommonUtils {
 			startIndex = startIndex + batchCount;
 		}
 		return returnList;
+	}
+
+	public static int getLeagueIdByType(String url, String leagueType) {
+		switch (LeagueType.valueOf(leagueType)) {
+			case Classic:
+				return Integer.parseInt(StringUtils.substringBetween(url, "https://fantasy.premierleague.com/leagues/", "/standings/c"));
+			case H2h:
+				return Integer.parseInt(StringUtils.substringBetween(url, "https://fantasy.premierleague.com/leagues/", "/standings/h"));
+			default:
+				return 0;
+		}
 	}
 
 }

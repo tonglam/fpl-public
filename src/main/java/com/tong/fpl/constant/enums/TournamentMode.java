@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TournamentMode {
-    Normal("0", "普通联赛"), Zj("1", "浙江联赛");
+    Normal("0", "普通联赛"), Zj("1", "浙江联赛"), Manual("2", "制定联赛");
 
     private final String value;
     private final String modeName;

@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -918,25 +917,6 @@ public class TournamentServiceImpl implements ITournamentService {
 						));
 		this.zjTournamentResultService.saveBatch(zjTournamentResultEntityList);
 		log.info("save zj tournament:{} result success!", tournamentId);
-	}
-
-	@Cacheable(value = "qryCountTournamentLeagueTeams")
-	@Override
-	public int countTournamentLeagueTeams(String url) {
-		return url.contains("/standings/c") ?
-				this.staticService.getEntryInfoListFromClassic(this.getLeagueIdByType(url, LeagueType.Classic.name())).size()
-				: this.staticService.getEntryInfoListFromH2h(this.getLeagueIdByType(url, LeagueType.H2h.name())).size();
-	}
-
-	private int getLeagueIdByType(String url, String leagueType) {
-		switch (LeagueType.valueOf(leagueType)) {
-			case Classic:
-				return Integer.parseInt(StringUtils.substringBetween(url, "https://fantasy.premierleague.com/leagues/", "/standings/c"));
-			case H2h:
-				return Integer.parseInt(StringUtils.substringBetween(url, "https://fantasy.premierleague.com/leagues/", "/standings/h"));
-			default:
-				return 0;
-		}
 	}
 
 	@Override

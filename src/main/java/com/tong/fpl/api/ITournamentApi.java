@@ -14,24 +14,26 @@ import java.util.Map;
  */
 public interface ITournamentApi {
 
-	/**
-	 * @apiNote create
-	 */
-	String createNewTournament(TournamentCreateData tournamentCreateData);
+    /**
+     * @apiNote create
+     */
+    String createNewTournament(TournamentCreateData tournamentCreateData);
 
-	String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
+    String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData);
 
-	int countTournamentLeagueTeams(String url);
+    int countTournamentLeagueTeams(String url);
 
-	boolean checkTournamentName(String name);
+    TableData<EntryInfoData> qryLeagueEntryList(String url);
 
-	/**
-	 * @apiNote result
-	 */
-	TableData<TournamentEntryData> qryEntryTournamentList(int entry);
+    boolean checkTournamentName(String name);
 
-	/**
-	 * @apiNote fixture
+    /**
+     * @apiNote result
+     */
+    TableData<TournamentEntryData> qryEntryTournamentList(int entry);
+
+    /**
+     * @apiNote fixture
 	 */
 	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
 

@@ -39,8 +39,6 @@ public interface ITournamentService {
 
 	void createNewZjTournamentBackground(ZjTournamentCreateData zjTournamentCreateData);
 
-	int countTournamentLeagueTeams(String url);
-
 	boolean checkTournamentName(String name);
 
 	/**

@@ -530,7 +530,7 @@ public class QueryServiceImpl implements IQueryService {
 	}
 
 	/**
-	 * @apiNote fixture
+	 * @implNote fixture
 	 */
 	@Cacheable(value = "getEventFixtureByEvent", key = "#season+'::'+#event", unless = "#result == null")
 	@Override
@@ -853,7 +853,18 @@ public class QueryServiceImpl implements IQueryService {
 	}
 
 	/**
-	 * @apiNote tournament
+	 * @implNote league
+	 */
+	@Cacheable(value = "qryCountTournamentLeagueTeams")
+	@Override
+	public int qryCountTournamentLeagueTeams(String url) {
+		return url.contains("/standings/c") ?
+				this.staticService.getEntryInfoListFromClassic(CommonUtils.getLeagueIdByType(url, LeagueType.Classic.name())).size()
+				: this.staticService.getEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name())).size();
+	}
+
+	/**
+	 * @implNote tournament
 	 */
 	@Override
 	public List<TournamentInfoEntity> qryAllTournamentList() {
@@ -1533,7 +1544,7 @@ public class QueryServiceImpl implements IQueryService {
 	}
 
 	/**
-	 * @apiNote report
+	 * @implNote report
 	 */
 	@Cacheable(value = "qryLeagueNameByIdAndType", key = "#leagueId+'::'+#leagueType")
 	@Override

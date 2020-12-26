@@ -201,24 +201,29 @@ public interface IQueryService {
 	/**
 	 * @apiNote event_result
 	 */
-	List<EntryEventResultData> qryEntryResult(String season, int entry);
+    List<EntryEventResultData> qryEntryResult(String season, int entry);
 
-	default EntryEventResultData qryEntryEventResult(int event, int entry) {
-		return this.qryEntryEventResult(CommonUtils.getCurrentSeason(), event, entry);
-	}
+    default EntryEventResultData qryEntryEventResult(int event, int entry) {
+        return this.qryEntryEventResult(CommonUtils.getCurrentSeason(), event, entry);
+    }
 
-	EntryEventResultData qryEntryEventResult(String season, int event, int entry);
+    EntryEventResultData qryEntryEventResult(String season, int event, int entry);
 
-	PlayerPickData qryEntryPickData(int entry);
+    PlayerPickData qryEntryPickData(int entry);
 
-	/**
-	 * @apiNote tournament
-	 */
-	List<TournamentInfoEntity> qryAllTournamentList();
+    /**
+     * @apiNote league
+     */
+    int qryCountTournamentLeagueTeams(String url);
 
-	TournamentInfoData qryTournamentDataById(int tournamentId);
+    /**
+     * @apiNote tournament
+     */
+    List<TournamentInfoEntity> qryAllTournamentList();
 
-	TournamentInfoEntity qryTournamentInfoById(int tournamentId);
+    TournamentInfoData qryTournamentDataById(int tournamentId);
+
+    TournamentInfoEntity qryTournamentInfoById(int tournamentId);
 
 	List<Integer> qryEntryListByTournament(int tournamentId);
 

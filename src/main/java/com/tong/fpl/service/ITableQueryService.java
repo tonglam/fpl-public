@@ -2,6 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
@@ -27,24 +28,29 @@ public interface ITableQueryService {
 	 */
 	TableData<PlayerInfoData> qryPlayerList(String season);
 
-	TableData<PlayerInfoData> qryPagePlayerDataList(int page, int limit);
+    TableData<PlayerInfoData> qryPagePlayerDataList(int page, int limit);
 
-	TableData<PlayerValueData> qryPriceChangeList();
+    TableData<PlayerValueData> qryPriceChangeList();
 
-	TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
+    TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
 
-	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry);
+    TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry);
 
-	TableData<PlayerDetailData> qryPlayerDetailData(int element);
+    TableData<PlayerDetailData> qryPlayerDetailData(int element);
 
-	/**
-	 * @apiNote tournament
-	 */
-	TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
+    /**
+     * @apiNote league
+     */
+    TableData<EntryInfoData> qryLeagueEntryList(String url);
 
-	TableData<TournamentEntryData> qryEntryTournamentList(int entry);
+    /**
+     * @apiNote tournament
+     */
+    TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
 
-	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+    TableData<TournamentEntryData> qryEntryTournamentList(int entry);
+
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
 	TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
 
