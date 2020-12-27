@@ -387,11 +387,13 @@
                 url: '/tournament/qryGroupInfoListByGroupId',
                 where: {tournamentId: tournamentId, groupId: i},
                 loading: true,
+                cellMinWidth: 90,
                 cols: [[
                     {
                         field: 'groupRank',
                         title: '',
                         align: 'center',
+                        width: 60,
                         icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                         collapse: true,
                         lazy: true,
@@ -404,6 +406,7 @@
                                 loading: true,
                                 limit: 5,
                                 limits: [5, 10, 15],
+                                cellMinWidth: 80,
                                 cols: [[
                                     {field: 'event', title: 'GW', align: 'center'},
                                     {field: 'groupRank', title: '周小组排名', align: 'center'},
@@ -437,24 +440,8 @@
                             }]
                         }
                     },
-                    {
-                        field: 'entryName',
-                        title: '队名',
-                        align: 'center',
-                        templet: function (d) {
-                            return '<a href="https://fantasy.premierleague.com/entry/' + d.entry + '/event/' + d.event + '/" target="_blank" title="查看官网分数" class="layui-table-link">' + d.entryName + '</a>';
-                        }
-                    },
-                    {field: 'playerName', title: '玩家', align: 'center'},
-                    {field: 'region', title: '地区', align: 'center'},
-                    {
-                        field: 'startedEvent',
-                        title: '开始时间',
-                        align: 'center',
-                        templet(d) {
-                            return 'GW' + d.startedEvent;
-                        }
-                    },
+                    {field: 'entryName', title: '队名', align: 'center', width: 180},
+                    {field: 'playerName', title: '玩家', align: 'center', width: 180},
                     {
                         field: 'totalNetPoints',
                         title: '总得分',
@@ -478,6 +465,7 @@
                         field: 'teamValue',
                         title: '阵容身价',
                         align: 'center',
+                        width: 110,
                         sort: true,
                         filter: true,
                         templet: function (d) {
@@ -499,14 +487,11 @@
                         }
                     }
                 ]],
+                id: id,
                 filter: {
                     items: ['data'],
                     bottom: false
                 },
-                autoColumnWidth: {
-                    init: true
-                },
-                id: id,
                 done: function () {
                     soulTable.render(this);
                 }

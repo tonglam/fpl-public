@@ -14,7 +14,7 @@ public class SubtitleTest extends FplApplicationTests {
 	private ISubtitleService subtitleService;
 
 	@ParameterizedTest
-	@CsvSource({"How to Speak with Power and Charisma  -  Julian Treasure.txt, true"})
+	@CsvSource({"fight back Motivational Speech Video by Walter Bond.txt, false"})
 	void mergeSubtitle(String fileName, boolean engSub) {
 		this.subtitleService.mergeSubtitle(fileName, engSub);
 		System.out.println(1);
