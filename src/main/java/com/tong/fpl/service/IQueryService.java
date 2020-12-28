@@ -19,7 +19,6 @@ import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.utils.CommonUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -126,11 +125,7 @@ public interface IQueryService {
 
 	default String getScoutDeadlineByEvent(int event) {
 		String deadline = this.getDeadlineByEvent(event);
-		String checkTime = StringUtils.substringBefore(deadline, " ") + "T08:30:00";
-		return LocalDateTime.parse(deadline.replaceAll(" ", "T")).isAfter(LocalDateTime.parse(checkTime)) ?
-				LocalDateTime.parse(checkTime).format(DateTimeFormatter.ofPattern(Constant.DATETIME)) :
-				LocalDate.parse(StringUtils.substringBefore(this.getDeadlineByEvent(event), " ")).minusDays(1)
-						.format(DateTimeFormatter.ofPattern(Constant.DATE));
+		return LocalDateTime.parse(deadline.replaceAll(" ", "T")).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
 	}
 
 	List<LocalDate> getMatchDayByEvent(int event);
@@ -201,29 +196,29 @@ public interface IQueryService {
 	/**
 	 * @apiNote event_result
 	 */
-    List<EntryEventResultData> qryEntryResult(String season, int entry);
+	List<EntryEventResultData> qryEntryResult(String season, int entry);
 
-    default EntryEventResultData qryEntryEventResult(int event, int entry) {
-        return this.qryEntryEventResult(CommonUtils.getCurrentSeason(), event, entry);
-    }
+	default EntryEventResultData qryEntryEventResult(int event, int entry) {
+		return this.qryEntryEventResult(CommonUtils.getCurrentSeason(), event, entry);
+	}
 
-    EntryEventResultData qryEntryEventResult(String season, int event, int entry);
+	EntryEventResultData qryEntryEventResult(String season, int event, int entry);
 
-    PlayerPickData qryEntryPickData(int entry);
+	PlayerPickData qryEntryPickData(int entry);
 
-    /**
-     * @apiNote league
-     */
-    int qryCountTournamentLeagueTeams(String url);
+	/**
+	 * @apiNote league
+	 */
+	int qryCountTournamentLeagueTeams(String url);
 
-    /**
-     * @apiNote tournament
-     */
-    List<TournamentInfoEntity> qryAllTournamentList();
+	/**
+	 * @apiNote tournament
+	 */
+	List<TournamentInfoEntity> qryAllTournamentList();
 
-    TournamentInfoData qryTournamentDataById(int tournamentId);
+	TournamentInfoData qryTournamentDataById(int tournamentId);
 
-    TournamentInfoEntity qryTournamentInfoById(int tournamentId);
+	TournamentInfoEntity qryTournamentInfoById(int tournamentId);
 
 	List<Integer> qryEntryListByTournament(int tournamentId);
 

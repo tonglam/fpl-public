@@ -251,6 +251,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.stream()
 				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
 		// upsert entry_event_result
+		RedisUtils.removeCacheByKey("get");
 		List<EntryEventResultEntity> insertEventResultList = Lists.newArrayList();
 		List<EntryEventResultEntity> updateEventResultList = Lists.newArrayList();
 		entryList.forEach(entry -> {

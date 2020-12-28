@@ -62,8 +62,7 @@ public class LiveService implements ILiveService {
         EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity != null) {
 	        BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
-	        liveCalcData
-			        .setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
+	        liveCalcData.setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
         }
 		return liveCalcData;
     }
