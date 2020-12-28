@@ -379,14 +379,154 @@
             // 渲染
             let id = "group" + i + "Table";
             let elem = "#" + id;
+            // 根据小组数量
+            if (groupNum === '1') {
+                oneGroup(elem, id, tournamentId, i);
+            } else {
+                multiGroup(elem, id, tournamentId, i);
+            }
+        }
+
+        function oneGroup(elem, id, tournamentId, i) {
             table.render({
                 elem: elem,
                 size: 'sm',
-                even: true,
-                method: 'get',
                 url: '/tournament/qryGroupInfoListByGroupId',
-                where: {tournamentId: tournamentId, groupId: i},
+                where: {
+                    tournamentId: tournamentId,
+                    groupId: i
+                },
+                toolbar: true,
+                defaultToolbar: ['filter'],
                 loading: true,
+                even: true,
+                cols: [[
+                    {
+                        field: 'groupRank',
+                        title: '',
+                        align: 'center',
+                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                        collapse: true,
+                        lazy: true,
+                        children: function (d) {
+                            return [{
+                                title: "每轮赛果",
+                                url: '/tournament/qryPointsGroupResult',
+                                where: {
+                                    tournamentId: tournamentId,
+                                    groupId: i,
+                                    entry: d.entry
+                                },
+                                page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
+                                loading: true,
+                                limit: 5,
+                                limits: [5, 10, 15],
+                                cols: [[
+                                    {field: 'event', title: 'GW', align: 'center'},
+                                    {field: 'groupRank', title: '周小组排名', align: 'center'},
+                                    {field: 'points', title: '得分', align: 'center'},
+                                    {field: 'cost', title: '剁手', align: 'center'},
+                                    {field: 'netPoints', title: '净得分', align: 'center'},
+                                    {field: 'benchPoints', title: '板凳得分', align: 'center'},
+                                    {
+                                        field: 'chip',
+                                        title: '开卡',
+                                        align: 'center',
+                                        templet(d) {
+                                            return showChip(d.chip);
+                                        }
+                                    },
+                                    {
+                                        field: 'rank',
+                                        title: '周排名',
+                                        align: 'center',
+                                        templet: function (d) {
+                                            return showOverallRank(d.rank);
+                                        }
+                                    },
+                                ]],
+                                autoColumnWidth: {
+                                    init: true
+                                },
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            }]
+                        }
+                    },
+                    {field: 'entryName', title: '队名', align: 'center'},
+                    {field: 'playerName', title: '玩家', align: 'center'},
+                    {
+                        field: 'totalNetPoints',
+                        title: '总得分',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        style: 'background-color: #5FB878; color: #fff;'
+                    },
+                    {field: 'totalTransfersCost', title: '总剁手', align: 'center', sort: true, filter: true},
+                    {
+                        field: 'overallRank',
+                        title: '总排名',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            return showOverallRank(d.overallRank);
+                        }
+                    },
+                    {
+                        field: 'teamValue',
+                        title: '阵容身价',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            return parseInt(d.teamValue) / 10 + 'm';
+                        }
+                    },
+                    {
+                        field: 'bank',
+                        title: '余额',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            if (d.bank > 0) {
+                                return parseInt(d.bank) / 10 + 'm';
+                            } else {
+                                return 0;
+                            }
+                        }
+                    }
+                ]],
+                filter: {
+                    items: ['data'],
+                    bottom: false
+                },
+                autoColumnWidth: {
+                    init: true
+                },
+                id: id,
+                done: function () {
+                    soulTable.render(this);
+                }
+            });
+        }
+
+        function multiGroup(elem, id, tournamentId, i) {
+            table.render({
+                elem: elem,
+                size: 'sm',
+                url: '/tournament/qryGroupInfoListByGroupId',
+                where: {
+                    tournamentId: tournamentId,
+                    groupId: i
+                },
+                toolbar: true,
+                defaultToolbar: ['filter'],
+                loading: true,
+                even: true,
                 cellMinWidth: 90,
                 cols: [[
                     {
@@ -401,7 +541,11 @@
                             return [{
                                 title: "每轮赛果",
                                 url: '/tournament/qryPointsGroupResult',
-                                where: {tournamentId: tournamentId, groupId: i, entry: d.entry},
+                                where: {
+                                    tournamentId: tournamentId,
+                                    groupId: i,
+                                    entry: d.entry
+                                },
                                 page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
                                 loading: true,
                                 limit: 5,
@@ -446,15 +590,16 @@
                         field: 'totalNetPoints',
                         title: '总得分',
                         align: 'center',
+                        style: 'background-color: #5FB878; color: #fff;',
                         sort: true,
                         filter: true,
-                        style: 'background-color: #5FB878; color: #fff;'
                     },
-                    {field: 'totalTransfersCost', title: '总剁手', align: 'center', sort: true, filter: true},
+                    {field: 'totalTransfersCost', title: '总剁手', align: 'center', hide: true, sort: true, filter: true},
                     {
                         field: 'overallRank',
                         title: '总排名',
                         align: 'center',
+                        hide: true,
                         sort: true,
                         filter: true,
                         templet: function (d) {
@@ -466,6 +611,7 @@
                         title: '阵容身价',
                         align: 'center',
                         width: 110,
+                        hide: true,
                         sort: true,
                         filter: true,
                         templet: function (d) {
@@ -476,6 +622,7 @@
                         field: 'bank',
                         title: '余额',
                         align: 'center',
+                        hide: true,
                         sort: true,
                         filter: true,
                         templet: function (d) {
@@ -487,16 +634,15 @@
                         }
                     }
                 ]],
-                id: id,
                 filter: {
                     items: ['data'],
                     bottom: false
                 },
+                id: id,
                 done: function () {
                     soulTable.render(this);
                 }
             });
-
         }
 
     });

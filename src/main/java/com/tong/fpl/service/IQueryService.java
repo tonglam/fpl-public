@@ -125,6 +125,8 @@ public interface IQueryService {
 	String getDeadlineByEvent(String season, int event);
 
 	default String getScoutDeadlineByEvent(int event) {
+		String deadline = this.getDeadlineByEvent(event);
+		String checkTime = StringUtils.substringBefore(deadline, " ") + "T08:30:00";
 		return LocalDate.parse(StringUtils.substringBefore(this.getDeadlineByEvent(event), " "))
 				.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 18:00:00";
 	}
