@@ -336,8 +336,13 @@
             }
         });
 
-        let tournamentId = getUrlParam("id"), currentGroupId = $("#currentGroupId").val(),
-            groupNum = parseInt($("#groupNum").text()), teamPerGroup = parseInt($("#teamPerGroup").text());
+        let tournamentId = getUrlParam("id"),
+            currentGroupIdDom = $("#currentGroupId"),
+            groupNumDom = $("#groupNum"),
+            teamPerGroupDom = $("#teamPerGroup"),
+            currentGroupId = currentGroupIdDom.val() === '' ? 0 : parseInt(currentGroupIdDom.val()),
+            groupNum = groupNumDom.text() === '' ? 0 : parseInt(groupNumDom.text()),
+            teamPerGroup = teamPerGroupDom.text() === '' ? 0 : parseInt(teamPerGroupDom.text());
 
         <!-- 揭牌 -->
         axios.get('/tournament/qryZjTournamentPhaseOneRankByGroupId', {
@@ -447,6 +452,9 @@
         })
             .then(function (response) {
                 let data = response.data;
+                if (data.length === 0) {
+                    return false;
+                }
                 // 回填组名
                 $("#currentGroupName").text(data[0].groupName);
                 $("#phaseTwoGroupName").text('当前小组 - ' + data[0].groupName + '组');

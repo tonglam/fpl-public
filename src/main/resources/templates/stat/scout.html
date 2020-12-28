@@ -576,8 +576,8 @@
             // 填位置
             switch (elementType) {
                 case 1: {
-                    leftFund = numSub(fund, (value + defFund + midFund + fwdFund));
-                    if (leftFund < 0) {
+                    leftFund = numSub(fund, numAdd((numAdd(value + defFund) + numAdd(midFund + fwdFund))));
+                    if (numAdd(leftFund, gkpPrice) < 0) {
                         layer.msg("钱不够啦！", {time: 1500});
                         return false;
                     }
@@ -587,8 +587,8 @@
                     break;
                 }
                 case 2: {
-                    leftFund = numSub(fund, (gkpFund + value + midFund + fwdFund));
-                    if (leftFund < 0) {
+                    leftFund = numSub(fund, numAdd((numAdd(gkpFund + value) + numAdd(midFund + fwdFund))));
+                    if (numAdd(leftFund, defPrice) < 0) {
                         layer.msg("钱不够啦！", {time: 1500});
                         return false;
                     }
@@ -598,8 +598,8 @@
                     break;
                 }
                 case 3: {
-                    leftFund = numSub(fund, (gkpFund + defFund + value + fwdFund));
-                    if (leftFund < 0) {
+                    leftFund = numSub(fund, numAdd((numAdd(gkpFund + defFund) + numAdd(value + fwdFund))));
+                    if (numAdd(leftFund, midPrice) < 0) {
                         layer.msg("钱不够啦！", {time: 1500});
                         return false;
                     }
@@ -609,8 +609,8 @@
                     break;
                 }
                 case 4: {
-                    leftFund = numSub(fund, (gkpFund + defFund + midFund + value));
-                    if (leftFund < 0) {
+                    leftFund = numSub(fund, numAdd((numAdd(gkpFund + defFund) + numAdd(midFund + value))));
+                    if (numAdd(leftFund, fwdPrice) < 0) {
                         layer.msg("钱不够啦！", {time: 1500});
                         return false;
                     }
