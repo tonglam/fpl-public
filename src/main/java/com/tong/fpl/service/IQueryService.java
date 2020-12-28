@@ -130,7 +130,7 @@ public interface IQueryService {
 		return LocalDateTime.parse(deadline.replaceAll(" ", "T")).isAfter(LocalDateTime.parse(checkTime)) ?
 				LocalDateTime.parse(checkTime).format(DateTimeFormatter.ofPattern(Constant.DATETIME)) :
 				LocalDate.parse(StringUtils.substringBefore(this.getDeadlineByEvent(event), " ")).minusDays(1)
-						.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
+						.format(DateTimeFormatter.ofPattern(Constant.DATE));
 	}
 
 	List<LocalDate> getMatchDayByEvent(int event);
