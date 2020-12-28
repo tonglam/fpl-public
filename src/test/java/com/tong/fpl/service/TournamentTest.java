@@ -85,7 +85,7 @@ public class TournamentTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2"})
+	@CsvSource({"1"})
 	void addTournamentNewEntry(int tournamentId) {
 		this.tournamentService.addTournamentNewEntry(tournamentId);
 		System.out.println(1);

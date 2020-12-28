@@ -601,13 +601,32 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		});
 		Map<Integer, Map<String, Integer>> map = Maps.newHashMap();
 		groupEntityMap.keySet().forEach(groupId -> {
-			Map<String, Integer> groupRankMap = this.sortPointsRaceGroupRank(groupEntityMap.get(groupId));
+			Map<String, Integer> groupRankMap = this.sortPointsRaceEachGroupRank(groupEntityMap.get(groupId));
 			map.put(groupId, groupRankMap);
 		});
 		return map;
 	}
 
 	private Map<String, Integer> sortPointsRaceGroupRank(List<TournamentGroupEntity> tournamentGroupEntityList) {
+		Map<Integer, List<TournamentGroupEntity>> groupEntityMap = Maps.newHashMap();
+		tournamentGroupEntityList.forEach(o -> {
+			int groupId = o.getGroupId();
+			List<TournamentGroupEntity> list = Lists.newArrayList();
+			if (groupEntityMap.containsKey(groupId)) {
+				list = groupEntityMap.get(groupId);
+			}
+			list.add(o);
+			groupEntityMap.put(groupId, list);
+		});
+		Map<String, Integer> map = Maps.newHashMap();
+		groupEntityMap.keySet().forEach(groupId -> {
+			Map<String, Integer> groupRankMap = this.sortPointsRaceEachGroupRank(groupEntityMap.get(groupId));
+			map.putAll(groupRankMap);
+		});
+		return map;
+	}
+
+	private Map<String, Integer> sortPointsRaceEachGroupRank(List<TournamentGroupEntity> tournamentGroupEntityList) {
 		Map<String, Integer> groupRankMap = Maps.newHashMap(); // entry -> groupRank
 		Map<String, Integer> groupRankCountMap = Maps.newLinkedHashMap();
 		tournamentGroupEntityList

@@ -220,7 +220,7 @@
     });
 
     function getLocalTime(time) {
-        return moment(time).utcOffset(moment().utcOffset() / 60).format('YYYY/MM/DD HH:mm:ss');
+        return moment(moment(time).utcOffset(-480)).local().format('YYYY/MM/DD HH:mm:ss');
     }
 
     function getUrlParam(name) {

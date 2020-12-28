@@ -197,7 +197,7 @@ public class LiveService implements ILiveService {
         List<ElementEventResultData> pickList = this.getPickList(elementEventResultDataList);
         // calc live points
         int livePoints = this.calcActivePoints(Chip.getChipFromValue(userPicksRes.getActiveChip()), pickList);
-        // sortPickList
+        // sort pick list
         List<ElementEventResultData> sortedPickList = this.sortPickList(pickList);
 		return new LiveCalcData()
 				.setEntry(entry)

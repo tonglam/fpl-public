@@ -342,9 +342,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				int groupStartGw = tournamentInfoEntity.getGroupStartGw();
 				int knockoutStartGw = tournamentInfoEntity.getKnockoutStartGw();
 				int knockoutEndGw = tournamentInfoEntity.getKnockoutEndGw();
-				if (groupStartGw > 0 && currentEvent > groupStartGw) {
+				if (groupStartGw > 0 && currentEvent >= groupStartGw) {
 					return "小组赛";
-				} else if (knockoutStartGw > 0 && currentEvent > knockoutStartGw) {
+				} else if (knockoutStartGw > 0 && currentEvent >= knockoutStartGw) {
 					return "淘汰赛";
 				} else if (knockoutEndGw > 0 && currentEvent > knockoutEndGw) {
 					return "已结束";

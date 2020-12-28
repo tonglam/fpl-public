@@ -207,17 +207,17 @@
         });
 
         $.each(captainDataList, function (index, item) {
-            if ([[${session.entry}]] === item.captainEntry) {
+            if (parseInt([[${session.entry}]]) === item.captainEntry) {
                 check = true;
                 $("#currentGroupId").val(item.groupId);
                 // phase two deadline
                 let phaseTwoDeadline = getLocalTime(item.phaseTwoDeadline);
                 $("#phaseTwoDeadline").val(phaseTwoDeadline);
-                $("#phaseTwoCommitDeadline").text('提交死线 - ' + phaseTwoDeadline.toLocaleDateString() + " " + phaseTwoDeadline.toLocaleTimeString());
+                $("#phaseTwoCommitDeadline").text('提交死线 - ' + phaseTwoDeadline);
                 // pk deadline
                 let pkDeadline = getLocalTime(item.pkDeadline);
                 $("#pkDeadline").val(pkDeadline);
-                $("#pkCommitDeadline").text('提交死线 - ' + pkDeadline.toLocaleDateString() + " " + pkDeadline.toLocaleTimeString());
+                $("#pkCommitDeadline").text('提交死线 - ' + pkDeadline);
                 return false;
             }
         });
@@ -292,7 +292,7 @@
 
         let phaseTwoDeadline = $("#phaseTwoDeadline").val();
         $("#phaseTwoCountdown").timeTo({
-            timeTo: phaseTwoDeadline,
+            timeTo: new Date(getLocalTime(phaseTwoDeadline)),
             displayDays: 2,
             displayCaptions: true,
             fontSize: 48,
@@ -302,7 +302,7 @@
 
         let pkDeadline = $("#pkDeadline").val();
         $("#pkCountdown").timeTo({
-            timeTo: pkDeadline,
+            timeTo: new Date(getLocalTime(pkDeadline)),
             displayDays: 2,
             displayCaptions: true,
             fontSize: 48,
