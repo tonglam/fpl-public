@@ -56,12 +56,11 @@ public class LeagueEventReportEntity {
 	private Integer captainPoints;
 	private Boolean captainBlank;
 	private String captainSelected;
-	private Boolean captainPlayed;
 	private Integer viceCaptain;
 	private Integer viceCaptainPoints;
 	private Boolean viceCaptainBlank;
 	private String viceCaptainSelected;
-	private Boolean viceCaptainPlayed;
+	private int playedCaptain;
 	private Integer highestScore;
 	private Integer highestScorePoints;
 	private Boolean highestScoreBlank;

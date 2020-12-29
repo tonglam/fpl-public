@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 /**
  * Create by tong on 2020/7/21
  */
@@ -61,6 +59,18 @@ public class MatchDayTask {
 		}
 		TaskLog.info("start true insertEvent task");
 		this.redisCacheService.insertEvent();
+	}
+
+	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
+	public void insertEntryEventTransfer() {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isSelectTime(event)) {
+			return;
+		}
+		this.queryService.qryAllTournamentList()
+				.stream()
+				.map(TournamentInfoEntity::getId)
+				.forEach(this.updateEventResultsService::insertTournamentEntryEventTransfers);
 	}
 
 	@Scheduled(cron = "0 0 8,12 * * *")
@@ -187,9 +197,6 @@ public class MatchDayTask {
 		}
 		this.queryService.qryAllTournamentList()
 				.stream()
-				.filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
-				.filter(o -> !StringUtils.equals(o.getKnockoutMode(), KnockoutMode.No_knockout.name()))
-				.filter(o -> o.getKnockoutStartGw() <= event && o.getKnockoutEndGw() >= event)
 				.map(TournamentInfoEntity::getId)
 				.forEach(tournamentId -> this.updateEventResultsService.updateEntryEventTransfersPlayed(event, tournamentId));
 	}
@@ -201,25 +208,6 @@ public class MatchDayTask {
 			return;
 		}
 		this.updateEventResultsService.updateAllEventResult(event);
-	}
-
-	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
-	public void insertEventTransfer() {
-		int current = this.queryService.getCurrentEvent();
-		if (!this.isNotSelectTime(current)) {
-			return;
-		}
-		TaskLog.info("start true insertEventTransfer task");
-		this.queryService.qryAllTournamentList()
-				.stream()
-				.map(TournamentInfoEntity::getId)
-				.distinct()
-				.forEach(this.updateEventResultsService::insertTournamentEntryEventTransfers);
-	}
-
-	private boolean isNotSelectTime(int event) {
-		LocalDateTime localDateTime = LocalDateTime.parse(this.queryService.getDeadlineByEvent(event).replace(" ", "T"));
-		return LocalDateTime.now().equals(localDateTime);
 	}
 
 }

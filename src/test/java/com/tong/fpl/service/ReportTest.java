@@ -21,9 +21,9 @@ public class ReportTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"65, Classic"})
+	@CsvSource({"314, Classic"})
 	void updateLeagueEventResultStat(int leagueId, String leagueType) {
-		IntStream.rangeClosed(1, 15).forEach(event -> {
+		IntStream.rangeClosed(8, 16).forEach(event -> {
 			this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
 			System.out.println("event: " + event + ", update finished!");
 		});

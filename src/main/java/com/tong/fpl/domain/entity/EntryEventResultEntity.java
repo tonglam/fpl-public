@@ -28,6 +28,8 @@ public class EntryEventResultEntity {
 	private String eventPicks;
 	private Integer overallPoints;
 	private Integer overallRank;
+	private Integer teamValue;
+	private Integer bank;
 	@TableField(fill = FieldFill.INSERT_UPDATE)
 	private String updateTime;
 

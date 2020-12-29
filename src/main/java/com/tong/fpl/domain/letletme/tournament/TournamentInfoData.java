@@ -16,9 +16,9 @@ public class TournamentInfoData {
     private String creator;
     private int adminerEntry;
     private String season;
-    private String leagueType;
     private int leagueId;
-    private String tournamentMode;
+	private String leagueType;
+	private String tournamentMode;
     private String groupMode;
     private String groupModeName;
     private int teamPerGroup;

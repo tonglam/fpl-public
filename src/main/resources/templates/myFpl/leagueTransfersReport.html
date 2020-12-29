@@ -59,11 +59,11 @@
                                 <span style="color: #FF5722"><strong>转会总分-转入上场：</strong></span><span>转入且在当轮上场球员数量总和； </span>
                                 <span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员数量总和； </span>
                                 <br>
-                                <span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分总和减去转出球员得分总和； </span>
-                                <span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分总和减去转出球员得分总和； </span>
-                                <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减去剁手扣分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分总和减转出球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分总和减转出球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减剁手扣分总和； </span>
                                 <br>
-                                <span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减去转出球员身价总和； </span>
+                                <span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减转出球员身价总和； </span>
                             </div>
                         </fieldset>
 
@@ -74,17 +74,16 @@
 
                         <fieldset class="layui-elem-field layui-hide" id="eventReportExplain">
                             <div class="layui-field-box">
-                                <span style="color: #FF5722"><strong>转会上场：</strong></span><span>转入且在当轮上场球员数量； </span>
+                                <span style="color: #FF5722"><strong>转会：</strong></span><span>转入球员数量， 括号内为转入且在当轮上场球员数量； </span>
                                 <br>
-                                <span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员得分总和； </span>
-                                <span style="color: #FF5722"><strong>转会总分-转入上场：</strong></span><span>转入且在当轮上场球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员得分总和，括号内为转入且在上场球员得分总和； </span>
                                 <span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员得分总和； </span>
                                 <br>
-                                <span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分减去转出球员得分总和； </span>
-                                <span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分减去转出球员得分总和； </span>
-                                <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减去剁手扣分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分减转出球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分减转出球员得分总和； </span>
+                                <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减剁手扣分总和； </span>
                                 <br>
-                                <span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减去转出球员身价总和； </span>
+                                <span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减转出球员身价总和； </span>
                             </div>
                         </fieldset>
 
@@ -454,29 +453,35 @@
                                 filter: true
                             },
                             {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
-                            {field: 'eventPoints', title: '得分', align: 'center', rowspan: 2, sort: true, filter: true},
                             {
-                                field: 'eventChip',
-                                title: '开卡',
+                                field: 'eventPoints',
+                                title: '得分',
                                 align: 'center',
                                 rowspan: 2,
-                                filter: true,
                                 templet: function (d) {
-                                    return showChip(d.eventChip);
-                                }
+                                    if (d.eventChip === 'wildcard') {
+                                        return d.eventPoints + " (wc) ";
+                                    } else if (d.eventChip === '3xc') {
+                                        return d.eventPoints + " (3c) ";
+                                    } else if (d.eventChip === 'bboost') {
+                                        return d.eventPoints + " (bb) ";
+                                    } else if (d.eventChip === 'freehit') {
+                                        return d.eventPoints + " (fh) ";
+                                    } else {
+                                        return d.eventPoints;
+                                    }
+                                },
+                                sort: true,
+                                filter: true
                             },
                             {
                                 field: 'eventTransfers',
                                 title: '转会',
                                 align: 'center',
                                 rowspan: 2,
-                                sort: true,
-                            },
-                            {
-                                field: 'eventTransfersPlayed',
-                                title: '转会上场',
-                                align: 'center',
-                                rowspan: 2,
+                                templet: function (d) {
+                                    return d.eventTransfers + " (" + d.eventTransfersPlayed + ") ";
+                                },
                                 sort: true,
                             },
                             {
@@ -495,12 +500,9 @@
                                 field: 'transferInTotalPoints',
                                 title: '转入',
                                 align: 'center',
-                                sort: true,
-                            },
-                            {
-                                field: 'transferInPlayedTotalPoints',
-                                title: '转入上场',
-                                align: 'center',
+                                templet: function (d) {
+                                    return d.transferInTotalPoints + " (" + d.transferInPlayedTotalPoints + ") ";
+                                },
                                 sort: true,
                             },
                             {
@@ -632,17 +634,16 @@
                 content:
                     '<fieldset class="layui-elem-field">' +
                     '<div class="layui-field-box">' +
-                    '<span style="color: #FF5722"><strong>转会上场：</strong></span><span>转入且在当轮上场球员数量； </span>' +
+                    '<span style="color: #FF5722"><strong>转会：</strong></span><span>转入球员数量， 括号内为转入且在当轮上场球员数量； </span>' +
                     '<br>' +
-                    '<span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员得分总和； </span>' +
-                    '<span style="color: #FF5722"><strong>转会总分-转入上场：</strong></span><span>转入且在当轮上场球员得分总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员得分总和，括号内为转入且在当轮上场球员得分总和； </span>' +
                     '<span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员得分总和； </span>' +
                     '<br>' +
-                    '<span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分减去转出球员得分总和； </span>' +
-                    '<span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分减去转出球员得分总和； </span>' +
-                    '<span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减去剁手扣分总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分减转出球员得分总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在上场球员得分减转出球员得分总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减剁手扣分总和； </span>' +
                     '<br>' +
-                    '<span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减去转出球员身价总和； </span>' +
+                    '<span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减转出球员身价总和； </span>' +
                     '</div>' +
                     '</fieldset>' +
                     '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
@@ -760,16 +761,10 @@
                             field: 'eventTransfers',
                             title: '转会',
                             align: 'center',
-                            totalRow: true,
                             rowspan: 2,
-                            sort: true
-                        },
-                        {
-                            field: 'eventTransfersPlayed',
-                            title: '转会上场',
-                            align: 'center',
-                            totalRow: true,
-                            rowspan: 2,
+                            templet: function (d) {
+                                return d.eventTransfers + " (" + d.eventTransfersPlayed + ") ";
+                            },
                             sort: true
                         },
                         {
@@ -788,21 +783,15 @@
                             field: 'transferInTotalPoints',
                             title: '转入',
                             align: 'center',
-                            totalRow: true,
-                            sort: true
-                        },
-                        {
-                            field: 'transferInPlayedTotalPoints',
-                            title: '转入上场',
-                            align: 'center',
-                            totalRow: true,
+                            templet: function (d) {
+                                return d.transferInTotalPoints + " (" + d.transferInPlayedTotalPoints + ") ";
+                            },
                             sort: true
                         },
                         {
                             field: 'transferOutTotalPoints',
                             title: '转出',
                             align: 'center',
-                            totalRow: true,
                             sort: true
                         },
                         {
@@ -845,7 +834,6 @@
                             field: 'transferInTotalValue',
                             title: '转入',
                             align: 'center',
-                            totalRow: true,
                             sort: true,
                             templet: function (d) {
                                 if (d.transferInTotalValue > 0) {
@@ -859,7 +847,6 @@
                             field: 'transferOutTotalValue',
                             title: '转出',
                             align: 'center',
-                            totalRow: true,
                             sort: true,
                             templet: function (d) {
                                 if (d.transferOutTotalValue > 0) {

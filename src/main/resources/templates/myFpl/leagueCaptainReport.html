@@ -191,7 +191,7 @@
                             return showOverallRank(d.overallRank);
                         }
                     },
-                    {title: '队长', align: 'center', colspan: 9}
+                    {title: '队长', align: 'center', colspan: 8}
                 ],
                 [
                     {
@@ -222,15 +222,6 @@
                         title: '球员',
                         align: 'center',
                         filter: true
-                    },
-                    {
-                        field: 'captainMinPoints',
-                        title: '最低分',
-                        align: 'center',
-                        templet: function (d) {
-                            return d.captainMinPoints + ' (GW' + d.captainMaxPointsEvent + ') ';
-                        },
-                        sort: true
                     },
                     {
                         field: 'mostSelectedCaptainWebName',
@@ -345,7 +336,6 @@
                                 filter: true
                             },
                             {title: '队长', align: 'center', colspan: 5},
-                            {title: '副队长', align: 'center', colspan: 4},
                             {title: '最高分', align: 'center', colspan: 3}
                         ],
                         [
@@ -388,32 +378,6 @@
                                 title: '有效持有',
                                 align: 'center',
                                 style: 'background-color: #5FB878; color: #fff;',
-                                sort: true
-                            },
-                            {
-                                field: 'viceCaptainWebName',
-                                title: '名称',
-                                align: 'center',
-                                filter: true
-                            },
-                            {
-                                field: 'viceCaptainPoints',
-                                title: '得分',
-                                align: 'center',
-                                sort: true
-                            },
-                            {
-                                field: 'viceCaptainSelected',
-                                title: '持有',
-                                align: 'center',
-                                hide: true,
-                                sort: true
-                            },
-                            {
-                                field: 'viceCaptainEffectiveOwnerShipRate',
-                                title: '有效持有',
-                                align: 'center',
-                                hide: true,
                                 sort: true
                             },
                             {field: 'highestScoreWebName', title: '名称', align: 'center', filter: true},
@@ -493,6 +457,7 @@
                 toolbar: true,
                 defaultToolbar: ['filter'],
                 loading: true,
+                even: true,
                 totalRow: true,
                 cols: [
                     [
@@ -526,8 +491,7 @@
                             }
                         },
                         {title: '队长', align: 'center', colspan: 5},
-                        {title: '副队长', align: 'center', colspan: 4},
-                        {title: '最高分', align: 'center', colspan: 3}
+                        {title: '最高分', align: 'center', colspan: 5}
                     ],
                     [
                         {
@@ -567,30 +531,18 @@
                             align: 'center',
                             style: 'background-color: #5FB878; color: #fff;'
                         },
-                        {
-                            field: 'viceCaptainWebName',
-                            title: '名称',
-                            align: 'center'
-                        },
-                        {
-                            field: 'viceCaptainPoints',
-                            title: '得分',
-                            align: 'center',
-                            totalRow: true
-                        },
-                        {
-                            field: 'viceCaptainSelected',
-                            title: '持有',
-                            align: 'center',
-                            hide: true
-                        },
-                        {
-                            field: 'viceCaptainEffectiveOwnerShipRate',
-                            title: '有效持有',
-                            align: 'center'
-                        },
                         {field: 'highestScoreWebName', title: '名称', align: 'center'},
                         {field: 'highestScorePoints', title: '得分', align: 'center', totalRow: true},
+                        {
+                            field: 'highestScoreSelected',
+                            title: '持有',
+                            align: 'center'
+                        },
+                        {
+                            field: 'highestScorePointsByPercent',
+                            title: '得分比',
+                            align: 'center'
+                        },
                         {
                             field: 'highestScoreEffectiveOwnerShipRate',
                             title: '有效持有',

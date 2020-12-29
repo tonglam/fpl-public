@@ -53,8 +53,9 @@ public interface ITournamentService {
 	 * exist tournament add new entry
 	 * only use for normal tournament which group mode is points race and no knockout
 	 * 1.save new entry_info
-	 * 2.save new tournament group and tournament_group_result
-	 * 3.update tournament points group result
+	 * 2.save new tournament_group and tournament_group_result
+	 * 3.update tournament_points_group_result
+	 * 4.update league_event_report
 	 */
 	void addTournamentNewEntry(int tournamentId);
 

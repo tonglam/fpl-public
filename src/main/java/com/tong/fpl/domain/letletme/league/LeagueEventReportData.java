@@ -37,13 +37,6 @@ public class LeagueEventReportData {
 	private String captainSelected;
 	private String captainEffectiveOwnerShipRate;
 	private String captainPointsByPercent;
-	private int viceCaptain;
-	private String viceCaptainWebName;
-	private int viceCaptainPoints;
-	private boolean viceCaptainBlank;
-	private String viceCaptainSelected;
-	private String viceCaptainEffectiveOwnerShipRate;
-	private String viceCaptainPointsByPercent;
 	private int highestScore;
 	private String highestScoreWebName;
 	private int highestScorePoints;

@@ -396,7 +396,7 @@ public class QueryServiceImpl implements IQueryService {
 	}
 
 	@Override
-	public List<Integer> qryEntryTournamentList(int entry) {
+	public List<Integer> qryEntryTournamentEntryList(int entry) {
 		return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
 				.eq(TournamentEntryEntity::getEntry, entry))
 				.stream()
@@ -408,6 +408,13 @@ public class QueryServiceImpl implements IQueryService {
 	@Override
 	public List<TransferRes> getTransfer(int entry) {
 		return this.staticService.getTransfer(entry).orElse(null);
+	}
+
+	@Cacheable(value = "qryEntryAllTournamentList", key = "#entry", unless = "#result == null")
+	@Override
+	public List<TournamentInfoEntity> qryEntryAllTournamentList(int entry) {
+		return this.tournamentInfoService.list(new QueryWrapper<TournamentInfoEntity>().lambda()
+				.in(TournamentInfoEntity::getId, this.qryEntryTournamentEntryList(entry)));
 	}
 
 	/**
@@ -506,6 +513,11 @@ public class QueryServiceImpl implements IQueryService {
 			return false;
 		}
 		return eventLastDay.isEqual(LocalDate.now());
+	}
+
+	@Override
+	public boolean isSelectTime(int event) {
+		return this.isMatchDay(event) && LocalDateTime.now().isAfter(LocalDateTime.parse(this.getDeadlineByEvent(event).replace(" ", "T")));
 	}
 
 	/**
@@ -861,6 +873,18 @@ public class QueryServiceImpl implements IQueryService {
 		return url.contains("/standings/c") ?
 				this.staticService.getEntryInfoListFromClassic(CommonUtils.getLeagueIdByType(url, LeagueType.Classic.name())).size()
 				: this.staticService.getEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name())).size();
+	}
+
+	@Cacheable(value = "qryLeagueMap", key = "#event")
+	@Override
+	public Map<String, String> qryLeagueMap(int event) {
+		return this.qryAllTournamentList()
+				.stream()
+				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
+				.filter(o -> StringUtils.equals(GroupMode.Points_race.name(), o.getGroupMode()) && StringUtils.equals(KnockoutMode.No_knockout.name(), o.getKnockoutMode()))
+				.filter(o -> event >= o.getGroupStartGw() && event <= o.getGroupEndGw())
+				.filter(o -> o.getLeagueId() > 0)
+				.collect(Collectors.toMap(k -> String.valueOf(k.getLeagueId()), TournamentInfoEntity::getLeagueType, (v1, v2) -> v1));
 	}
 
 	/**
@@ -1541,6 +1565,29 @@ public class QueryServiceImpl implements IQueryService {
 					list.add(data);
 				});
 		return list;
+	}
+
+	@Cacheable(value = "qryTournamentUpdateNeeded", key = "#event+'::'+#tournamentId")
+	@Override
+	public boolean qryTournamentUpdateNeeded(int event, int tournamentId) {
+		TournamentInfoEntity tournamentInfoEntity = this.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return false;
+		}
+		switch (TournamentMode.getTournamentModeByName(tournamentInfoEntity.getTournamentMode())) {
+			case Normal: {
+				if (StringUtils.equals(GroupMode.No_group.name(), tournamentInfoEntity.getGroupMode())) {
+					return event >= tournamentInfoEntity.getKnockoutStartGw() && event <= tournamentInfoEntity.getKnockoutEndGw();
+				} else if (StringUtils.equals(KnockoutMode.No_knockout.name(), tournamentInfoEntity.getKnockoutMode())) {
+					return event >= tournamentInfoEntity.getGroupStartGw() && event <= tournamentInfoEntity.getGroupEndGw();
+				}
+				return event >= tournamentInfoEntity.getGroupStartGw() && event <= tournamentInfoEntity.getKnockoutEndGw();
+			}
+			case Zj: {
+				return event >= tournamentInfoEntity.getGroupStartGw() && event <= tournamentInfoEntity.getKnockoutEndGw();
+			}
+		}
+		return false;
 	}
 
 	/**

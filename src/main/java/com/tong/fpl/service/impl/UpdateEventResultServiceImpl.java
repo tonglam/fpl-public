@@ -91,6 +91,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		});
 		// update
 		this.entryInfoService.updateBatchById(updateEntryInfoList);
+		log.info("update entry info size:{}!", updateEntryInfoList.size());
 	}
 
 	private Current getUserLastCurrent(int entry) {
@@ -150,7 +151,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
 				.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap))
 				.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
-				.setOverallRank(userPick.getEntryHistory().getOverallRank());
+				.setOverallRank(userPick.getEntryHistory().getOverallRank())
+				.setTeamValue(userPick.getEntryHistory().getValue())
+				.setBank(userPick.getEntryHistory().getBank());
 	}
 
 	@Override
@@ -237,7 +240,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// get entry_list
 		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
 		if (CollectionUtils.isEmpty(entryList)) {
-			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
 			return;
 		}
 		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
@@ -274,7 +277,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			}
 		});
 		this.entryEventResultService.saveBatch(insertEventResultList);
+		log.info("tournament:{}, event:{}, insert tournament entry event result size:{}!", tournamentId, event, insertEventResultList.size());
 		this.entryEventResultService.updateBatchById(updateEventResultList);
+		log.info("tournament:{}, event:{}, update tournament entry event result size:{}!", tournamentId, event, updateEventResultList.size());
 	}
 
 	@Override
@@ -310,6 +315,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			});
 		});
 		this.entryEventTransferService.saveBatch(list);
+		log.info("tournament:{}, insert tournament entry event transfers size:{}!", tournamentId, list.size());
 	}
 
 	@Override
@@ -361,6 +367,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			});
 		});
 		this.entryEventTransferService.updateBatchById(list);
+		log.info("tournament:{}, update tournament entry event transfers size:{}", tournamentId, list.size());
 	}
 
 	@Override
@@ -368,18 +375,18 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
-			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
 			return;
 		}
 		if (!StringUtils.equals(GroupMode.Points_race.name(), tournamentInfoEntity.getGroupMode())) {
-			log.error("not points group, tournament:{}!", tournamentId);
+			log.error("tournament:{}, not points group!", tournamentId);
 			return;
 		}
 		// check gw
 		int groupStartGw = tournamentInfoEntity.getGroupStartGw();
 		int groupEndGw = tournamentInfoEntity.getGroupEndGw();
 		if (event > groupEndGw) {
-			log.error("group stage passed,current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, group stage passed,current event:{}!", event, tournamentId);
 			return;
 		}
 		// entry list
@@ -387,7 +394,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// entry_event_result
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
-			log.error("event_result not updated, event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, event_result not updated!", event, tournamentId);
 			return;
 		}
 		// tournament_group
@@ -395,7 +402,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.in(TournamentGroupEntity::getEntry, entryList));
 		if (CollectionUtils.isEmpty(tournamentGroupEntityList)) {
-			log.error("tournament_group not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_group not exists!", tournamentId);
 			return;
 		}
 		Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
@@ -411,7 +418,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			int entry = tournamentGroupEntity.getEntry();
 			EntryEventResultEntity entryEventResultEntity = eventResultMap.getOrDefault(entry, null);
 			if (entryEventResultEntity == null) {
-				log.error("event_result not updated, event:{}, tournament:{}, entry:{}!", event, tournamentId, entry);
+				log.error("tournament:{}, event:{}, entry:{}, event_result not updated!", event, tournamentId, entry);
 				return;
 			}
 			tournamentGroupEntity
@@ -448,9 +455,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		});
 		// update
 		this.tournamentGroupService.updateBatchById(updateGroupList);
-		log.info("event:{}, tournament:{}, update tournament group success!", event, tournamentId);
+		log.info("tournament:{}, event:{}, update tournament group!", tournamentId, event);
 		this.tournamentPointsGroupResultService.updateBatchById(updateGroupPointsResultList);
-		log.info("event:{}, tournament:{}, update tournament points group result success!", event, tournamentId);
+		log.info("tournament:{}, event:{}, update tournament points group result!", tournamentId, event);
 	}
 
 	private Map<Integer, EntryEventResultEntity> getEntryEventResultByEvent(int event, List<Integer> entryList) {
@@ -466,18 +473,18 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
-			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
 			return;
 		}
 		if (!StringUtils.equals(GroupMode.Battle_race.name(), tournamentInfoEntity.getGroupMode())) {
-			log.error("not battle group, tournament:{}!", tournamentId);
+			log.error("tournament:{}, not battle group!", tournamentId);
 			return;
 		}
 		// check gw
 		int groupStartGw = tournamentInfoEntity.getGroupStartGw();
 		int groupEndGw = tournamentInfoEntity.getGroupEndGw();
 		if (event > groupEndGw) {
-			log.error("group stage passed,current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, group stage passed!", tournamentId, event);
 			return;
 		}
 		// tournament_entry
@@ -485,7 +492,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// entry_event_result
 		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(entryEventResultMap)) {
-			log.error("event_result not update, event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, event_result not update!", tournamentId, event);
 			return;
 		}
 		// tournament_group_battle_result
@@ -683,17 +690,17 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
-			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
 			return;
 		}
 		if (StringUtils.equals(KnockoutMode.No_knockout.name(), tournamentInfoEntity.getKnockoutMode())) {
-			log.error("no knockout, tournament:{}!", tournamentId);
+			log.error("tournament:{}, no knockout!", tournamentId);
 			return;
 		}
 		// check gw
 		int knockoutEndGw = tournamentInfoEntity.getKnockoutEndGw();
 		if (event > knockoutEndGw) {
-			log.error("knockout stage passed,current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, knockout stage passed!", tournamentId, event);
 			return;
 		}
 		// get entry_list by tournament
@@ -701,7 +708,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// get event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
-			log.error("event_result not update, event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, event_result not update!", tournamentId, event);
 			return;
 		}
 		// tournament_knockout_result
@@ -748,6 +755,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 							.setMatchWinner(matchWinner));
 				});
 		this.tournamentKnockoutResultService.updateBatchById(tournamentKnockoutResultList);
+		log.info("tournament:{}, event:{}, update tournament knockout result!", tournamentId, event);
 		return knockoutResultDataMap;
 	}
 
@@ -779,6 +787,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				})
 		);
 		this.tournamentKnockoutService.updateBatchById(tournamentKnockoutList);
+		log.info("tournament:{}, event:{}, update tournament knockout info!", tournamentId, event);
 		return nextKnockoutMap;
 	}
 
@@ -810,7 +819,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 						.setAwayEntry(nextKnockoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundAwayEntry())));
 		this.tournamentKnockoutService.updateBatchById(tournamentKnockoutEntityList);
 		this.tournamentKnockoutResultService.updateBatchById(tournamentKnockoutResultList);
-		log.info("1");
+		log.info("tournament:{}, update tournament next knockout info!", tournamentId);
 	}
 
 	private String setUserPicks(List<Pick> picks, Map<Integer, Integer> elementPointsMap) {
@@ -910,7 +919,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
-			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
 			return;
 		}
 		int groupNum = tournamentInfoEntity.getGroupNum();
@@ -922,7 +931,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// entry_event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
-			log.error("event_result not updated, event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, event_result not updated!", tournamentId, event);
 			return;
 		}
 		// tournament_group
@@ -930,7 +939,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.in(TournamentGroupEntity::getGroupId, groupIdList));
 		if (CollectionUtils.isEmpty(tournamentGroupEntityList)) {
-			log.error("tournament_group not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_group not exists!", tournamentId);
 			return;
 		}
 		Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
@@ -942,12 +951,12 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// phase one params
 		int phaseOneStartGw = tournamentGroupEntityList.get(0).getStartGw();
 		if (event < phaseOneStartGw) {
-			log.error("phase one not start, current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, phase one not start!", tournamentId, event);
 			return;
 		}
 		int phaseOneEndGw = tournamentGroupEntityList.get(0).getEndGw();
 		if (event > phaseOneEndGw) {
-			log.error("phase one passed, current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, phase one passed!", tournamentId, event);
 			return;
 		}
 		// update phase one result
@@ -958,7 +967,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			int entry = tournamentGroupEntity.getEntry();
 			EntryEventResultEntity entryEventResultEntity = eventResultMap.getOrDefault(tournamentGroupEntity.getEntry(), null);
 			if (entryEventResultEntity == null) {
-				log.error("event_result not updated, event:{}, tournament:{}, entry:{}!", event, tournamentId, entry);
+				log.error("tournament:{}, event:{}, entry:{}, event_result not updated!", tournamentId, event, entry);
 				return;
 			}
 			tournamentGroupEntity
@@ -997,9 +1006,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 
 		// update
 		this.tournamentGroupService.updateBatchById(updateGroupList);
-		log.info("event:{}, tournament:{}, update tournament group success!", event, tournamentId);
+		log.info("tournament:{}, event:{}, update tournament group!", tournamentId, event);
 		this.tournamentPointsGroupResultService.updateBatchById(updateGroupPointsResultList);
-		log.info("event:{}, tournament:{}, update tournament points group result success!", event, tournamentId);
+		log.info("tournament:{}, event:{}, update tournament points group result!", tournamentId, event);
 	}
 
 	@Override
@@ -1007,7 +1016,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
-			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
 			return;
 		}
 		int groupNum = tournamentInfoEntity.getGroupNum();
@@ -1020,7 +1029,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// entry_event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
-			log.error("event_result not updated, event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, event_result not updated!", tournamentId, event);
 			return;
 		}
 		// tournament_group
@@ -1028,7 +1037,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.eq(TournamentGroupEntity::getTournamentId, tournamentId)
 				.in(TournamentGroupEntity::getGroupId, groupIdList));
 		if (CollectionUtils.isEmpty(tournamentGroupEntityList)) {
-			log.error("tournament_group not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_group not exists!", tournamentId);
 			return;
 		}
 		Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
@@ -1040,12 +1049,12 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// phase two params
 		int phaseTwoStartGw = tournamentGroupEntityList.get(0).getStartGw();
 		if (event < phaseTwoStartGw) {
-			log.error("phase two not start, current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, phase two not start!", tournamentId, event);
 			return;
 		}
 		int phaseTwoEndGw = tournamentGroupEntityList.get(0).getEndGw();
 		if (event > phaseTwoEndGw) {
-			log.error("phase two passed, current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, phase two passed!", tournamentId, event);
 			return;
 		}
 		// update phase one result
@@ -1056,7 +1065,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			int entry = tournamentGroupEntity.getEntry();
 			EntryEventResultEntity entryEventResultEntity = eventResultMap.getOrDefault(tournamentGroupEntity.getEntry(), null);
 			if (entryEventResultEntity == null) {
-				log.error("event_result not updated, event:{}, tournament:{}, entry:{}!", event, tournamentId, entry);
+				log.error("tournament:{}, event:{}, entry:{}, event_result not updated!", tournamentId, event, entry);
 				return;
 			}
 			tournamentGroupEntity
@@ -1096,9 +1105,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		});
 		// update
 		this.tournamentGroupService.updateBatchById(updateGroupList);
-		log.info("event:{}, tournament:{}, update tournament group success!", event, tournamentId);
+		log.info("tournament:{}, event:{}, update tournament group success!", tournamentId, event);
 		this.tournamentPointsGroupResultService.updateBatchById(updateGroupPointsResultList);
-		log.info("event:{}, tournament:{}, update tournament points group result success!", event, tournamentId);
+		log.info("tournament:{}, event:{}, update tournament points group result success!", tournamentId, event);
 	}
 
 	private Map<String, Map<Integer, Integer>> qryZjTournamentPhaseTwoGroupRankMapByGroupList(List<TournamentGroupEntity> tournamentGroupEntityList) {
@@ -1158,18 +1167,18 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
-			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
 			return;
 		}
 		// check gw
 		int pkStartGw = tournamentInfoEntity.getKnockoutStartGw();
 		if (event < pkStartGw) {
-			log.error("pk not start, current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, pk not start!", tournamentId, event);
 			return;
 		}
 		int pkEndGw = tournamentInfoEntity.getKnockoutEndGw();
 		if (event > pkEndGw) {
-			log.error("pk passed, current event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, pk passed!", tournamentId, event);
 			return;
 		}
 		// get entry_list by tournament
@@ -1177,7 +1186,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// get event_result list
 		Map<Integer, EntryEventResultEntity> eventResultMap = this.getEntryEventResultByEvent(event, entryList);
 		if (CollectionUtils.isEmpty(eventResultMap)) {
-			log.error("event_result not update, event:{}, tournament:{}!", event, tournamentId);
+			log.error("tournament:{}, event:{}, event_result not update!", tournamentId, event);
 			return;
 		}
 		// tournament_knockout_result
@@ -1202,7 +1211,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 					tournamentKnockoutResultList.add(tournamentKnockoutResultEntity);
 				});
 		this.tournamentKnockoutResultService.updateBatchById(tournamentKnockoutResultList);
-		log.info("event:{}, tournament:{}, update zj tournament pk knockout success!", event, tournamentId);
+		log.info("tournament:{}, event:{}, update zj tournament pk knockout success!", tournamentId, event);
 		// tournament_knockout
 		List<TournamentKnockoutEntity> tournamentKnockoutList = Lists.newArrayList();
 		matchWinnerMap.keySet().forEach(matchId -> {
@@ -1213,7 +1222,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 			tournamentKnockoutList.add(tournamentKnockoutEntity);
 		});
 		this.tournamentKnockoutService.updateBatchById(tournamentKnockoutList);
-		log.info("event:{}, tournament:{}, update zj tournament pk knockout result success!", event, tournamentId);
+		log.info("tournament:{}, event:{}, update zj tournament pk knockout result success!", tournamentId, event);
 	}
 
 	@Override
@@ -1221,7 +1230,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		// tournament_info
 		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
 		if (tournamentInfoEntity == null) {
-			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
 			return;
 		}
 		// tournament_entry
@@ -1312,7 +1321,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		zjTournamentResultEntityList.forEach(o -> o.setTournamentRank(tournamentRankMap.getOrDefault(String.valueOf(o.getGroupId()), 0)));
 		// update
 		this.zjTournamentResultService.updateBatchById(zjTournamentResultEntityList);
-		log.info("tournament:{}, update zj tournament result success!", tournamentId);
+		log.info("tournament:{}, update zj tournament result!", tournamentId);
 	}
 
 	private Map<String, Integer> setPhaseOneTotalGroupPoints(Map<String, Integer> phaseOneRankMap) {
@@ -1417,25 +1426,25 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 
 	@Override
 	public void updateAllEventResult(int event) {
-		log.info("start refresh all event:{} result!", event);
-		List<TournamentInfoEntity> tournamentInfoEntityList = this.queryService.qryAllTournamentList();
+		List<TournamentInfoEntity> tournamentInfoEntityList = this.queryService.qryAllTournamentList()
+				.stream()
+				.filter(o -> this.queryService.qryTournamentUpdateNeeded(event, o.getId()))
+				.collect(Collectors.toList());
 		// base data
 		this.redisCacheService.insertSingleEventFixture(event);
 		this.redisCacheService.insertEventLive(event);
 		this.redisCacheService.insertLiveFixtureCache();
 		this.redisCacheService.insertLiveBonusCache();
 		log.info("refresh base data success!");
+		// clear cache
+		RedisUtils.removeCacheByKey("get");
 		// update
-		this.updateEntryInfo();
 		tournamentInfoEntityList
 				.stream()
-				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
 				.map(TournamentInfoEntity::getId)
 				.forEach(tournamentId -> {
 					this.upsertTournamentEntryEventResult(event, tournamentId);
-					log.info("tournament:{} event:{}, update tournament entry event result success!", tournamentId, event);
 					this.updateTournamentEventTransfersPlayed(event, tournamentId);
-					log.info("tournament:{} event:{} update tournament event transfers played success!", tournamentId, event);
 				});
 		tournamentInfoEntityList
 				.stream()
@@ -1443,20 +1452,14 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.filter(o -> StringUtils.equals(GroupMode.Points_race.name(), o.getGroupMode()))
 				.filter(o -> event >= o.getGroupStartGw() && event <= o.getGroupEndGw())
 				.map(TournamentInfoEntity::getId)
-				.forEach(tournamentId -> {
-					this.updatePointsRaceGroupResult(event, tournamentId);
-					log.info("tournament:{} ,event:{}, update points_race group result success!", tournamentId, event);
-				});
+				.forEach(tournamentId -> this.updatePointsRaceGroupResult(event, tournamentId));
 		tournamentInfoEntityList
 				.stream()
 				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
 				.filter(o -> StringUtils.equals(GroupMode.Battle_race.name(), o.getGroupMode()))
 				.filter(o -> event >= o.getGroupStartGw() && event <= o.getGroupEndGw())
 				.map(TournamentInfoEntity::getId)
-				.forEach(tournamentId -> {
-					this.updateBattleRaceGroupResult(event, tournamentId);
-					log.info("tournament:{} ,event:{}, update battle_race group result success!", tournamentId, event);
-				});
+				.forEach(tournamentId -> this.updateBattleRaceGroupResult(event, tournamentId));
 		tournamentInfoEntityList
 				.stream()
 				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
@@ -1464,10 +1467,7 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 						StringUtils.equals(KnockoutMode.Home_away.name(), o.getGroupMode())))
 				.filter(o -> event >= o.getKnockoutStartGw() && event <= o.getKnockoutEndGw())
 				.map(TournamentInfoEntity::getId)
-				.forEach(tournamentId -> {
-					this.updateKnockoutResult(event, tournamentId);
-					log.info("tournament:{} ,event:{}, update knockout result success!", tournamentId, event);
-				});
+				.forEach(tournamentId -> this.updateKnockoutResult(event, tournamentId));
 		tournamentInfoEntityList
 				.stream()
 				.filter(o -> StringUtils.equals(TournamentMode.Zj.name(), o.getTournamentMode()))
@@ -1475,37 +1475,25 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.map(TournamentInfoEntity::getId)
 				.forEach(tournamentId -> {
 					this.updateZjPhaseOneResult(event, tournamentId);
-					log.info("tournament:{} ,event:{}, update zj phase one result success!", tournamentId, event);
 					this.updateZjPhaseTwoResult(event, tournamentId);
-					log.info("tournament:{} ,event:{}, update zj phase two result success!", tournamentId, event);
 				});
 		tournamentInfoEntityList
 				.stream()
 				.filter(o -> StringUtils.equals(TournamentMode.Zj.name(), o.getTournamentMode()))
 				.filter(o -> event >= o.getKnockoutStartGw() && event <= o.getKnockoutEndGw())
 				.map(TournamentInfoEntity::getId)
-				.forEach(tournamentId -> {
-					this.updateZjPkResult(event, tournamentId);
-					log.info("tournament:{} ,event:{}, update zj pk result success!", tournamentId, event);
-				});
-		tournamentInfoEntityList
-				.stream()
-				.filter(o -> StringUtils.equals(TournamentMode.Zj.name(), o.getTournamentMode()))
-				.filter(o -> event >= o.getGroupStartGw() && event <= o.getGroupEndGw())
-				.map(TournamentInfoEntity::getId)
-				.forEach(tournamentId -> {
+				.forEach(tournamentId -> this.updateZjPkResult(event, tournamentId));
+		for (TournamentInfoEntity o : tournamentInfoEntityList) {
+			if (StringUtils.equals(TournamentMode.Zj.name(), o.getTournamentMode())) {
+				if (event >= o.getGroupStartGw() && event <= o.getGroupEndGw()) {
+					Integer tournamentId = o.getId();
 					this.updateZjTournamentResult(tournamentId);
-					log.info("event:{}, update zj tournament result success!", event);
-				});
+				}
+			}
+		}
 		// report
-		tournamentInfoEntityList
-				.stream()
-				.filter(o -> StringUtils.equals(TournamentMode.Normal.name(), o.getTournamentMode()))
-				.collect(Collectors.toMap(TournamentInfoEntity::getLeagueId, TournamentInfoEntity::getLeagueType))
-				.forEach((leagueId, leagueType) -> {
-					this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
-					log.info("leagueId:{}, leagueType:{}, event:{}, update league event result success!", leagueId, leagueType, event);
-				});
+		this.queryService.qryLeagueMap(event).forEach((leagueId, leagueType) ->
+				this.reportService.updateLeagueEventResult(event, Integer.parseInt(leagueId), leagueType));
 		// clear cache
 		RedisUtils.removeCacheByKey("qry");
 	}

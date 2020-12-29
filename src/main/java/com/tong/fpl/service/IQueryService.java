@@ -105,9 +105,11 @@ public interface IQueryService {
 
 	UserHistoryRes getUserHistory(int entry);
 
-	List<Integer> qryEntryTournamentList(int entry);
+	List<Integer> qryEntryTournamentEntryList(int entry);
 
 	List<TransferRes> getTransfer(int entry);
+
+	List<TournamentInfoEntity> qryEntryAllTournamentList(int entry);
 
 	/**
 	 * @apiNote event
@@ -142,6 +144,8 @@ public interface IQueryService {
 	boolean isMatchDayTime(int event);
 
 	boolean isLastMatchDay(int event);
+
+	boolean isSelectTime(int event);
 
 	/**
 	 * @apiNote team
@@ -216,6 +220,8 @@ public interface IQueryService {
 	 */
 	int qryCountTournamentLeagueTeams(String url);
 
+	Map<String, String> qryLeagueMap(int event);
+
 	/**
 	 * @apiNote tournament
 	 */
@@ -260,6 +266,8 @@ public interface IQueryService {
 	TournamentGroupData qryDiscloseGroupData(int tournamentId, int entry, int currentGroupId);
 
 	List<TournamentKnockoutEventFixtureData> qryZjPkPickListById(int tournamentId);
+
+	boolean qryTournamentUpdateNeeded(int event, int tournamentId);
 
 	/**
 	 * @apiNote report

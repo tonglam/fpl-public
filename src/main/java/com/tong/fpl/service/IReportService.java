@@ -7,7 +7,15 @@ import java.util.Map;
  */
 public interface IReportService {
 
+	boolean entryEvenLeagueEventExists(int event, int leagueId, String leagueType, int entry);
+
+	boolean evenLeagueEventExists(int event, int leagueId, String leagueType);
+
+	void insertEntryLeagueEventSelect(int event, int leagueId, String leagueType, int entry);
+
 	void insertLeagueEventSelect(int event, int leagueId, String leagueType, int limit);
+
+	void updateEntryLeagueEventResult(int event, int leagueId, String leagueType, int entry);
 
 	void updateLeagueEventResult(int event, int leagueId, String leagueType);
 
