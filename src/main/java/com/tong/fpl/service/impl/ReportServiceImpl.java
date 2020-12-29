@@ -133,7 +133,9 @@ public class ReportServiceImpl implements IReportService {
 						.orElse(0)
 				)
 				.setCaptainPoints(0)
-				.setCaptainBlank(true);
+				.setCaptainBlank(true)
+				.setCaptainSelected("")
+				.setCaptainPlayed(false);
 		// vice captain
 		leagueEventReportEntity
 				.setViceCaptain(picks
@@ -144,12 +146,15 @@ public class ReportServiceImpl implements IReportService {
 						.orElse(0)
 				)
 				.setViceCaptainPoints(0)
-				.setViceCaptainBlank(true);
+				.setViceCaptainBlank(true)
+				.setViceCaptainSelected("")
+				.setViceCaptainPlayed(false);
 		// highest score
 		leagueEventReportEntity
 				.setHighestScore(0)
 				.setHighestScorePoints(0)
-				.setHighestScoreBlank(true);
+				.setHighestScoreBlank(true)
+				.setHighestScoreSelected("");
 		return leagueEventReportEntity;
 	}
 
@@ -217,9 +222,7 @@ public class ReportServiceImpl implements IReportService {
 					.setEntryName(entryInfoEntity.getEntryName())
 					.setPlayerName(entryInfoEntity.getPlayerName())
 					.setOverallPoints(entryInfoEntity.getOverallPoints())
-					.setOverallRank(entryInfoEntity.getOverallRank())
-					.setTeamValue(entryInfoEntity.getTeamValue())
-					.setBank(entryInfoEntity.getBank());
+					.setOverallRank(entryInfoEntity.getOverallRank());
 		}
 		// entry_event_result
 		if (entryEventResultMap.containsKey(entry)) {
@@ -254,7 +257,8 @@ public class ReportServiceImpl implements IReportService {
 			leagueEventStatEntity
 					.setCaptainPoints(captainEventLiveEntity.getTotalPoints())
 					.setCaptainBlank(this.setElementBlank(captainEventLiveEntity))
-					.setCaptainSelected(playerStatMap.getOrDefault(captain, new PlayerStatEntity()).getSelectedByPercent() + "%");
+					.setCaptainSelected(playerStatMap.getOrDefault(captain, new PlayerStatEntity()).getSelectedByPercent() + "%")
+					.setCaptainPlayed(captainEventLiveEntity.getMinutes() > 0);
 		}
 		// vice captain
 		int viceCaptain = leagueEventStatEntity.getViceCaptain();
@@ -263,7 +267,8 @@ public class ReportServiceImpl implements IReportService {
 			leagueEventStatEntity
 					.setViceCaptainPoints(viceCaptainEventLiveEntity.getTotalPoints())
 					.setViceCaptainBlank(this.setElementBlank(viceCaptainEventLiveEntity))
-					.setViceCaptainSelected(playerStatMap.getOrDefault(viceCaptain, new PlayerStatEntity()).getSelectedByPercent() + "%");
+					.setViceCaptainSelected(playerStatMap.getOrDefault(viceCaptain, new PlayerStatEntity()).getSelectedByPercent() + "%")
+					.setViceCaptainPlayed(viceCaptainEventLiveEntity.getMinutes() > 0);
 		}
 		// highest score
 		int highestElement = this.getHighestScoreElement(leagueEventStatEntity, eventLiveMap);

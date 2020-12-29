@@ -2084,7 +2084,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.limit(limit)
 				.collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
 		result.forEach((k, v) ->
-				map.put(playerMap.get(k).getWebName(), NumberUtil.decimalFormat("#.##%", NumberUtil.div(v.intValue(), teamSize))));
+				map.put(playerMap.get(k).getWebName(), NumberUtil.formatPercent(NumberUtil.div(v.intValue(), teamSize), 1)));
 		return map;
 	}
 
