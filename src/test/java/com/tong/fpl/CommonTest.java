@@ -4,7 +4,6 @@ import cn.hutool.core.io.CharsetDetector;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
-import com.tong.fpl.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,6 +13,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -93,8 +93,8 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		List<String> list = Lists.newArrayList();
-		System.out.println(JsonUtils.obj2json(list));
+		System.out.println(LocalDate.parse("2021-09-01").getMonth().getValue());
+		System.out.println("1");
 	}
 
 	@ParameterizedTest
