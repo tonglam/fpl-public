@@ -42,19 +42,6 @@ public class TournamentController {
     @GetMapping(value = "/create")
     public String zjRealodController(Model model, HttpSession session) {
         model.addAttribute("gwMap", CommonUtils.createGwMapStartFromCurrentForOption(this.httpApi.getNextEvent()));
-        // input entry
-        int inputGroupNum = 4;
-        if (session.getAttribute("inputGroupNum") != null) {
-            inputGroupNum = Integer.parseInt(session.getAttribute("inputGroupNum").toString());
-        }
-        model.addAttribute("inputGroupNum", inputGroupNum);
-        model.addAttribute("inputShowNum", (int) Math.ceil(inputGroupNum * 1.0 / 2));
-        int inputTeamPerGroup = 4;
-        if (session.getAttribute("inputTeamPerGroup") != null) {
-            inputTeamPerGroup = Integer.parseInt(session.getAttribute("inputTeamPerGroup").toString());
-        }
-        model.addAttribute("inputTeamPerGroup", inputTeamPerGroup);
-        // zj input entry
         int zjGroupNum = 4;
         if (session.getAttribute("zjGroupNum") != null) {
             zjGroupNum = Integer.parseInt(session.getAttribute("zjGroupNum").toString());
@@ -72,13 +59,6 @@ public class TournamentController {
         }
         model.addAttribute("createTabId", createTabId);
         return "tournament/create";
-    }
-
-    @GetMapping(value = "/create/inputReload")
-    public String inputRealodController(@RequestParam int inputGroupNum, @RequestParam int inputTeamPerGroup, HttpSession session) {
-        session.setAttribute("inputGroupNum", inputGroupNum);
-        session.setAttribute("inputTeamPerGroup", inputTeamPerGroup);
-        return "redirect:/tournament/create";
     }
 
     @GetMapping(value = "/create/zjReload")

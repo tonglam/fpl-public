@@ -761,6 +761,7 @@
                             title: '周得分',
                             align: 'center',
                             style: 'background-color: #5FB878; color: #fff;',
+                            sort: true
                         },
                         {
                             field: 'gkpName',
@@ -770,7 +771,7 @@
                                 return d.gkpName + "(" + d.gkpTeamShortName + ")";
                             }
                         },
-                        {field: 'gkpPoints', title: '得分', align: 'center'},
+                        {field: 'gkpPoints', title: '得分', align: 'center', sort: true},
                         {
                             field: 'defName',
                             title: '后卫',
@@ -779,7 +780,7 @@
                                 return d.defName + "(" + d.defTeamShortName + ")";
                             }
                         },
-                        {field: 'defPoints', title: '得分', align: 'center'},
+                        {field: 'defPoints', title: '得分', align: 'center', sort: true},
                         {
                             field: 'midName',
                             title: '中场',
@@ -788,7 +789,7 @@
                                 return d.midName + "(" + d.midTeamShortName + ")";
                             }
                         },
-                        {field: 'midPoints', title: '得分', align: 'center'},
+                        {field: 'midPoints', title: '得分', align: 'center', sort: true},
                         {
                             field: 'fwdName',
                             title: '前锋',
@@ -797,7 +798,7 @@
                                 return d.fwdName + "(" + d.fwdTeamShortName + ")";
                             }
                         },
-                        {field: 'fwdPoints', title: '得分', align: 'center'},
+                        {field: 'fwdPoints', title: '得分', align: 'center', sort: true},
                         {
                             field: 'captainName',
                             title: '队长',
@@ -806,7 +807,7 @@
                                 return d.captainName + "(" + d.captainTeamShortName + ")";
                             }
                         },
-                        {field: 'captainPoints', title: '得分', align: 'center'}
+                        {field: 'captainPoints', title: '得分', align: 'center', sort: true}
                     ]],
                     autoColumnWidth: {
                         init: true
@@ -1227,12 +1228,13 @@
                                 title: '总分',
                                 align: 'center',
                                 style: 'background-color: #5FB878; color: #fff;',
+                                sort: true
                             },
-                            {field: 'gkpPoints', title: '门将', align: 'center'},
-                            {field: 'defPoints', title: '后卫', align: 'center'},
-                            {field: 'midPoints', title: '中场', align: 'center'},
-                            {field: 'fwdPoints', title: '前锋', align: 'center'},
-                            {field: 'captainPoints', title: '队长', align: 'center'}
+                            {field: 'gkpPoints', title: '门将', align: 'center', sort: true},
+                            {field: 'defPoints', title: '后卫', align: 'center', sort: true},
+                            {field: 'midPoints', title: '中场', align: 'center', sort: true},
+                            {field: 'fwdPoints', title: '前锋', align: 'center', sort: true},
+                            {field: 'captainPoints', title: '队长', align: 'center', sort: true}
                         ]],
                         autoColumnWidth: {
                             init: true

@@ -23,9 +23,11 @@ public class EntryEventResultEntity {
 	private Integer eventTransfersCost;
 	private Integer eventNetPoints;
 	private Integer eventBenchPoints;
+	private Integer eventAutoSubPoints;
 	private Integer eventRank;
 	private String eventChip;
 	private String eventPicks;
+	private String eventAutoSubs;
 	private Integer overallPoints;
 	private Integer overallRank;
 	private Integer teamValue;

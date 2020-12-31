@@ -50,8 +50,9 @@ public class StatController {
 		if (!CollectionUtils.isEmpty(leagueList)) {
 			model.addAttribute("leagueList", leagueList);
 		}
-		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
-		model.addAttribute("gwMap", CommonUtils.createGwMapForOption());
+		int current = this.httpApi.getCurrentEvent();
+		model.addAttribute("currentGw", current);
+		model.addAttribute("gwMap", CommonUtils.createCurrentGwMapForOption(current));
 		return "stat/selected";
 	}
 

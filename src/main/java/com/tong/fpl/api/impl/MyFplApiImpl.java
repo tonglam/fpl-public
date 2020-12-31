@@ -67,7 +67,7 @@ public class MyFplApiImpl implements IMyFplApi {
 	}
 
 	/**
-	 * @apiNote leagueCaptain
+	 * @implNote leagueCaptain
 	 */
 	@Override
 	public TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType) {
@@ -85,7 +85,7 @@ public class MyFplApiImpl implements IMyFplApi {
 	}
 
 	/**
-	 * @apiNote leagueTransfers
+	 * @implNote leagueTransfers
 	 */
 	@Override
 	public TableData<LeagueEventReportStatData> qryLeagueTransfersReportStat(int leagueId, String leagueType) {
@@ -100,6 +100,24 @@ public class MyFplApiImpl implements IMyFplApi {
 	@Override
 	public TableData<LeagueEventReportData> qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry) {
 		return this.tableQueryService.qryEntryTransfersEventReportList(leagueId, leagueType, entry);
+	}
+
+	/**
+	 * @implNote leagueScoring
+	 */
+	@Override
+	public TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType) {
+		return this.tableQueryService.qryLeagueScoringReportStat(leagueId, leagueType);
+	}
+
+	@Override
+	public TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType) {
+		return this.tableQueryService.qryLeagueScoringEventReportList(event, leagueId, leagueType);
+	}
+
+	@Override
+	public TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
+		return this.tableQueryService.qryEntryScoringEventReportList(leagueId, leagueType, entry);
 	}
 
 }

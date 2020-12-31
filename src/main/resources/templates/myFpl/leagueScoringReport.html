@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>得分统计-我的fpl-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <form class="layui-form">
+
+                <div class="layui-form-item">
+
+                    <div class="layui-input-inline" style="margin-top: 5px">
+                        <button class="layui-btn layui-btn-primary layui-btn-sm" id="returnButton" type="button">
+                            <i class="layui-icon layui-icon-return"></i>
+                        </button>
+                    </div>
+
+                    <div class="layui-input-inline" style="margin-left: -140px">
+                        <h1 style="font-size: 28px">得分统计 - </h1>
+                    </div>
+
+                    <div class="layui-input-inline" style="width: 100px;margin-left: -60px;margin-top: 2px">
+                        <select class="layui-select" lay-filter="gwSelect" lay-search="" name="gwSelect">
+                            <option value="0">赛季</option>
+                            <option th:each="item,userStat:${gwMap}"
+                                    th:if="${userStat.current.key} != ''"
+                                    th:text="${userStat.current.value}"
+                                    th:value="${userStat.current.key}"></option>
+                        </select>
+                    </div>
+                </div>
+
+            </form>
+
+            <div style="margin-top: 40px"></div>
+
+            <div class="layui-tab" lay-allowClose="true" lay-filter="entryTab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" id="base" th:text="${leagueName}"></li>
+                </ul>
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 20px"></div>
+
+                        <div id="leagueScoringReportStat">
+                            <table class="layui-table" id="leagueScoringReportStatTable"
+                                   lay-filter="leagueScoringReportStatTable"></table>
+                        </div>
+
+                        <div id="leagueScoringEventReport">
+                            <table class="layui-table" id="leagueScoringEventReportTable"
+                                   lay-filter="leagueScoringEventReportTable"></table>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<div th:replace="layout::entryInputLayer"></div>
+
+<script id="entryNameTpl" type="text/html">
+    <a href="javascript:void(0);" class="layui-table-link">{{d.entryName}}</a>
+</script>
+
+<script th:inline="none">
+    layui.use(['element', 'form', 'table', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, form = layui.form, table = layui.table,
+            soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        let leagueId = getUrlParam("leagueId"), leagueType = getUrlParam("leagueType");
+
+        $("#returnButton").on('click', function () {
+            window.location.replace("/my_fpl/league");
+        });
+
+        table.render({
+            elem: '#leagueTransferScoringStatTable',
+            size: 'sm',
+            url: '/my_fpl/qryLeagueScoringReportStat',
+            where: {
+                leagueId: leagueId,
+                leagueType: leagueType
+            },
+            parseData: function (res) {
+                let data = [];
+                $.each(res.data, function (index, item) {
+                    data.push(item);
+                });
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.count,
+                    "data": data
+                };
+            },
+            toolbar: true,
+            defaultToolbar: ['filter'],
+            loading: true,
+            even: true,
+            limit: 1000,
+            cols: [
+                [
+                    {field: 'rank', title: '', align: 'center', rowspan: 2},
+                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
+                    {
+                        field: 'entryName',
+                        title: '球队名称',
+                        align: 'center',
+                        event: 'entryEvent',
+                        rowspan: 2,
+                        templet: '#entryNameTpl',
+                        filter: true
+                    },
+                    {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
+                    {
+                        field: 'overallPoints',
+                        title: '总得分',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true
+                    },
+                    {
+                        field: 'overallRank',
+                        title: '总排名',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true,
+                        templet: function (d) {
+                            return showOverallRank(d.overallRank);
+                        }
+                    },
+                ],
+                []
+            ],
+            filter: {
+                items: ['data'],
+                bottom: false
+            },
+            autoColumnWidth: {
+                init: true
+            },
+            id: 'leagueScoringReportStatTable',
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        form.on('select(gwSelect)', function (data) {
+            // 切换tab
+            element.tabChange('entryTab', 'base');
+            // 渲染
+            let event = data.value;
+            if (event === '0') {
+                $("#leagueScoringReportStat").removeClass("layui-hide");
+                $("#leagueScoringEventReport").addClass("layui-hide");
+                $("#reportStatExplain").removeClass("layui-hide");
+                $("#eventReportExplain").addClass("layui-hide");
+                table.reload('leagueTransferReportStatTable', {
+                    url: '/my_fpl/qryLeagueScoringReportStat',
+                    where: {
+                        leagueId: leagueId,
+                        leagueType: leagueType
+                    },
+                })
+            } else {
+                $("#leagueScoringReportStat").addClass("layui-hide");
+                $("#leagueScoringEventReport").removeClass("layui-hide");
+                $("#eventReportExplain").removeClass("layui-hide");
+                $("#reportStatExplain").addClass("layui-hide");
+                table.render({
+                    elem: '#leagueScoringEventReportTable',
+                    size: 'sm',
+                    url: '/my_fpl/qryLeagueScoringEventReportList',
+                    where: {
+                        event: event,
+                        leagueId: leagueId,
+                        leagueType: leagueType
+                    },
+                    toolbar: true,
+                    defaultToolbar: ['filter'],
+                    loading: true,
+                    limit: 200,
+                    even: true,
+                    cols: [
+                        [
+                            {
+                                field: 'rank',
+                                title: '',
+                                align: 'center',
+                                rowspan: 2,
+                                icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                                childTitle: false,
+                                isChild: function (d) {
+                                    return d.eventTransfers !== 0;
+                                },
+                                children: [
+                                    {
+                                        data: function (d) {
+                                            return d.entryEventTransferList;
+                                        },
+                                        limit: 100,
+                                        cols: [],
+                                        autoColumnWidth: {
+                                            init: true
+                                        },
+                                        done: function () {
+                                            soulTable.render(this);
+                                        }
+                                    }
+                                ]
+                            },
+                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
+                            {
+                                field: 'entryName',
+                                title: '球队名称',
+                                align: 'center',
+                                event: 'entryEvent',
+                                rowspan: 2,
+                                templet: '#entryNameTpl',
+                                filter: true
+                            },
+                            {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
+                            {
+                                field: 'eventPoints',
+                                title: '得分',
+                                align: 'center',
+                                rowspan: 2,
+                                templet: function (d) {
+                                    if (d.eventChip === 'wildcard') {
+                                        return d.eventPoints + " (wc) ";
+                                    } else if (d.eventChip === '3xc') {
+                                        return d.eventPoints + " (3c) ";
+                                    } else if (d.eventChip === 'bboost') {
+                                        return d.eventPoints + " (bb) ";
+                                    } else if (d.eventChip === 'freehit') {
+                                        return d.eventPoints + " (fh) ";
+                                    } else {
+                                        return d.eventPoints;
+                                    }
+                                },
+                                sort: true,
+                                filter: true
+                            }
+                        ]
+                    ],
+                    id: 'leagueTransferEventReportTable',
+                    filter: {
+                        items: ['data'],
+                        bottom: false
+                    },
+                    autoColumnWidth: {
+                        init: true
+                    },
+                    done: function (res) {
+                        soulTable.render(this);
+                        let that = this.elem.next();
+                        res.data.forEach(function (d, index) {
+                            if (d.eventChip !== 'n/a') {
+                                setTableRowColor(that, index, "#FFB800");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        table.on('tool(leagueScoringReportStatTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
+        });
+
+        table.on('tool(leagueScoringEventReportTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
+        });
+
+        function initEntryTab(entry, entryName) {
+            // 是否存在
+            if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
+                //选项卡已经存在
+                element.tabChange('entryTab', entry);
+                return false;
+            }
+            // 增加标签页
+            let tableId = entry + 'Table';
+            element.tabAdd('entryTab', {
+                title: entryName,
+                content:
+                    '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
+                id: entry
+            });
+            // 切换
+            element.tabChange('entryTab', entry);
+            // 渲染
+            table.render({
+                elem: '#' + tableId,
+                url: '/my_fpl/qryEntryScoringEventReportList',
+                where: {
+                    leagueId: leagueId,
+                    leagueType: leagueType,
+                    entry: entry
+                },
+                limit: 40,
+                loading: true,
+                totalRow: true,
+                cols: [
+                    []
+                ],
+                filter: {
+                    items: ['data'],
+                    bottom: false
+                },
+                autoColumnWidth: {
+                    init: true
+                },
+                done: function (res) {
+                    soulTable.render(this);
+                    let that = this.elem.next();
+                    res.data.forEach(function (d, index) {
+                        if (d.eventChip !== 'n/a') {
+                            setTableRowColor(that, index, "#FFB800");
+                        }
+                    });
+                },
+                id: tableId
+            });
+        }
+
+    });
+</script>
+
+</html>

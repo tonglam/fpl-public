@@ -28,9 +28,12 @@ public class LeagueEventReportData {
 	private int eventTransfersPlayed;
 	private int eventNetPoints;
 	private int eventBenchPoints;
+	private int eventAutoSubPoints;
 	private int eventRank;
 	private String eventChip;
+	// captain
 	private int captain;
+	private int playedCaptain;
 	private String captainWebName;
 	private int captainPoints;
 	private boolean captainBlank;
@@ -44,6 +47,7 @@ public class LeagueEventReportData {
 	private String highestScoreSelected;
 	private String highestScoreEffectiveOwnerShipRate;
 	private String highestScorePointsByPercent;
+	// transfers
 	private int transferInTotalPoints;
 	private int transferInPlayedTotalPoints;
 	private int transferOutTotalPoints;
@@ -54,5 +58,12 @@ public class LeagueEventReportData {
 	private int transferOutTotalValue;
 	private int transferValue;
 	private List<EntryEventTransferData> entryEventTransferList;
+	// scoring
+	private int gkpPoints;
+	private int defPoints;
+	private int midPoints;
+	private int fwdPoints;
+	private int playedNum;
+	private int autoSubNum;
 
 }

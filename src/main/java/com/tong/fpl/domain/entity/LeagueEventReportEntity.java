@@ -35,6 +35,7 @@ public class LeagueEventReportEntity {
 	private Integer eventTransfersCost;
 	private Integer eventNetPoints;
 	private Integer eventBenchPoints;
+	private Integer eventAutoSubPoints;
 	private Integer eventRank;
 	private String eventChip;
 	private Integer position1;

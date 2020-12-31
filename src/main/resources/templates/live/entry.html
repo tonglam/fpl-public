@@ -302,7 +302,11 @@
                                 },
                             },
                             {
-                                field: 'price', title: '身价', align: 'center', templet(d) {
+                                field: 'price',
+                                title: '身价',
+                                align: 'center',
+                                sort: true,
+                                templet(d) {
                                     return parseInt(d.price) / 10 + 'm';
                                 }
                             },
@@ -323,16 +327,16 @@
                             {field: 'againstShortName', title: '对手', align: 'center'},
                             {field: 'wasHome', title: '主场', align: 'center', filter: true},
                             {field: 'score', title: '比分', align: 'center'},
-                            {field: 'minutes', title: '时间', align: 'center', filter: true},
+                            {field: 'minutes', title: '时间', align: 'center', sort: true},
                             {
                                 field: 'totalPoints',
                                 title: '分数',
                                 align: 'center',
-                                filter: true,
-                                style: 'background-color: #5FB878; color: #fff;'
+                                style: 'background-color: #5FB878; color: #fff;',
+                                sort: true
                             },
-                            {field: 'bps', title: 'bps', align: 'center', filter: true},
-                            {field: 'bonus', title: 'bonus', align: 'center', width: 90, filter: true},
+                            {field: 'bps', title: 'bps', align: 'center', sort: true},
+                            {field: 'bonus', title: 'bonus', align: 'center', width: 90, sort: true},
                             {
                                 field: 'playStatus',
                                 title: '状态',
@@ -353,11 +357,11 @@
                                 }
                             }
                         ]],
-                        id: "liveElementTable",
                         filter: {
                             items: ['data'],
                             bottom: false
                         },
+                        id: "liveElementTable",
                         done: function (res) {
                             soulTable.render(this);
                             let that = this.elem.next();

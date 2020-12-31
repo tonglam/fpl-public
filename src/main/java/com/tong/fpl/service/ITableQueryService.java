@@ -28,29 +28,29 @@ public interface ITableQueryService {
 	 */
 	TableData<PlayerInfoData> qryPlayerList(String season);
 
-    TableData<PlayerInfoData> qryPagePlayerDataList(int page, int limit);
+	TableData<PlayerInfoData> qryPagePlayerDataList(int page, int limit);
 
-    TableData<PlayerValueData> qryPriceChangeList();
+	TableData<PlayerValueData> qryPriceChangeList();
 
-    TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
+	TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
 
-    TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry);
+	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry);
 
-    TableData<PlayerDetailData> qryPlayerDetailData(int element);
+	TableData<PlayerDetailData> qryPlayerDetailData(int element);
 
-    /**
-     * @apiNote league
-     */
-    TableData<EntryInfoData> qryLeagueEntryList(String url);
+	/**
+	 * @apiNote league
+	 */
+	TableData<EntryInfoData> qryLeagueEntryList(String url);
 
-    /**
-     * @apiNote tournament
-     */
-    TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
+	/**
+	 * @apiNote tournament
+	 */
+	TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
 
-    TableData<TournamentEntryData> qryEntryTournamentList(int entry);
+	TableData<TournamentEntryData> qryEntryTournamentList(int entry);
 
-    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
 	TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
 
@@ -103,11 +103,18 @@ public interface ITableQueryService {
 
 	TableData<LeagueEventReportData> qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry);
 
+	TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType);
+
+	TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType);
+
+	TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry);
+
 	/**
 	 * @apiNote scout
 	 */
 	TableData<ScoutData> qryEventScoutPickList(int event);
 
 	TableData<ScoutData> qryEventScoutList(int event);
+
 
 }

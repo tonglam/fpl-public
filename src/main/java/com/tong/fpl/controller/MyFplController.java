@@ -61,6 +61,13 @@ public class MyFplController {
 		return "myFpl/leagueTransfersReport";
 	}
 
+	@GetMapping(value = "/leagueScoringReport")
+	public String leagueScoringReport(@RequestParam int leagueId, @RequestParam String leagueType, Model model) {
+		model.addAttribute("leagueName", this.myFplApi.qryLeagueNameByIdAndType(leagueId, leagueType));
+		model.addAttribute("gwMap", CommonUtils.createCurrentGwMapForOption(this.httpApi.getCurrentEvent()));
+		return "myFpl/leagueScoringReport";
+	}
+
 	/**
 	 * @apiNote entry
 	 */
@@ -141,6 +148,27 @@ public class MyFplController {
 	@ResponseBody
 	public TableData<LeagueEventReportData> qryEntryTransfersEventReportList(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
 		return this.myFplApi.qryEntryTransfersEventReportList(leagueId, leagueType, entry);
+	}
+
+	/**
+	 * @apiNote leagueScoring
+	 */
+	@RequestMapping("/qryLeagueScoringReportStat")
+	@ResponseBody
+	public TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(@RequestParam int leagueId, @RequestParam String leagueType) {
+		return this.myFplApi.qryLeagueScoringReportStat(leagueId, leagueType);
+	}
+
+	@RequestMapping("/qryLeagueScoringEventReportList")
+	@ResponseBody
+	public TableData<LeagueEventReportData> qryLeagueScoringEventReportList(@RequestParam int event, @RequestParam int leagueId, @RequestParam String leagueType) {
+		return this.myFplApi.qryLeagueScoringEventReportList(event, leagueId, leagueType);
+	}
+
+	@RequestMapping("/qryEntryScoringEventReportList")
+	@ResponseBody
+	public TableData<LeagueEventReportData> qryEntryScoringEventReportList(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+		return this.myFplApi.qryEntryScoringEventReportList(leagueId, leagueType, entry);
 	}
 
 }

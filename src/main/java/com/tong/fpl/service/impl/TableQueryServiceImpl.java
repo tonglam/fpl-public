@@ -940,19 +940,20 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		// prepare
 		int event = this.queryService.getCurrentEvent();
 		Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
-		Map<Integer, String> playerMap = this.getPlayerMap();
+		Map<Integer, PlayerEntity> playerMap = this.getPlayerMap();
 		Map<Integer, String> positionMap = this.getPositionMap();
+		Map<Integer, String> teamShortNameMap = this.getTeamShortNameMap();
 		// live element event result
 		List<Integer> teamIdList = Lists.newArrayList();
 		this.queryService.qryLiveMatchList(statusId).forEach(o -> {
 			teamIdList.add(o.getHomeTeamId());
 			teamIdList.add(o.getAwayTeamId());
 		});
-		teamIdList.forEach(teamId -> list.add(this.qryLiveTeamData(teamId, eventLiveList, playerMap, positionMap)));
+		teamIdList.forEach(teamId -> list.add(this.qryLiveTeamData(teamId, eventLiveList, playerMap, positionMap, teamShortNameMap)));
 		return new TableData<>(list);
 	}
 
-	private LiveMatchTeamData qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, String> playerMap, Map<Integer, String> positionMap) {
+	private LiveMatchTeamData qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, PlayerEntity> playerMap, Map<Integer, String> positionMap, Map<Integer, String> teamShortNameMap) {
 		LiveMatchTeamData data = new LiveMatchTeamData().setTeamId(teamId);
 		List<ElementEventResultData> teamDataList = Lists.newArrayList();
 		// team data
@@ -965,9 +966,10 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			elementEventResultData
 					.setEvent(o.getEvent())
 					.setElement(o.getElement())
-					.setWebName(playerMap.getOrDefault(o.getElement(), ""))
+					.setWebName(playerMap.containsKey(o.getElement()) ? playerMap.get(o.getElement()).getWebName() : "")
 					.setElementType(o.getElementType())
 					.setElementTypeName(positionMap.getOrDefault(o.getElementType(), ""))
+					.setTeamId(playerMap.containsKey(o.getElement()) ? playerMap.get(o.getElement()).getTeamId() : 0)
 					.setMinutes(o.getMinutes())
 					.setGoalsScored(o.getGoalsScored())
 					.setAssists(o.getAssists())
@@ -989,6 +991,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 						.setBonus(liveBonusMap.getOrDefault(o.getElement(), 0))
 						.setTotalPoints(elementEventResultData.getTotalPoints() + elementEventResultData.getBonus());
 			}
+			elementEventResultData.setTeamShortName(teamShortNameMap.getOrDefault(elementEventResultData.getTeamId(), ""));
 			teamDataList.add(elementEventResultData);
 		});
 		data
@@ -1001,15 +1004,21 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return data;
 	}
 
-	private Map<Integer, String> getPlayerMap() {
+	private Map<Integer, PlayerEntity> getPlayerMap() {
 		return this.playerService.list()
 				.stream()
-				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
 	}
 
 	private Map<Integer, String> getPositionMap() {
 		Map<Integer, String> map = Maps.newHashMap();
 		this.queryService.getPositionMap().forEach((k, v) -> map.put(Integer.valueOf(k), v));
+		return map;
+	}
+
+	private Map<Integer, String> getTeamShortNameMap() {
+		Map<Integer, String> map = Maps.newHashMap();
+		this.queryService.getTeamShortNameMap().forEach((k, v) -> map.put(Integer.valueOf(k), v));
 		return map;
 	}
 
@@ -1584,6 +1593,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			int captain = o.getPlayedCaptain();
 			int captainPoints = captain == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints();
 			data
+					.setPlayedCaptain(captain)
 					.setCaptainWebName(webNameMap.getOrDefault(captain, ""))
 					.setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * captainPoints : 2 * captainPoints)
 					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
@@ -2084,6 +2094,51 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			list.add(data);
 		});
 		return new TableData<>(list);
+	}
+
+	//	@Cacheable(value = "qryLeagueScoringReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
+	@Override
+	public TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType) {
+		return null;
+	}
+
+	//	@Cacheable(value = "qryLeagueScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	@Override
+	public TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType) {
+		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType)
+				.eq(LeagueEventReportEntity::getEvent, event));
+		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+			return new TableData<>();
+		}
+		List<Integer> entryList = leagueEventReportEntityList
+				.stream()
+				.map(LeagueEventReportEntity::getEntry)
+				.collect(Collectors.toList());
+		List<LeagueEventReportData> list = Lists.newArrayList();
+		// prepare
+		Map<Integer, String> playerMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+		Map<Integer, String> positionMap = Maps.newHashMap();
+		this.queryService.getPositionMap().forEach((k, v) -> positionMap.put(Integer.valueOf(k), v));
+		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+		// collect
+		leagueEventReportEntityList.forEach(o -> {
+
+
+		});
+		return null;
+	}
+
+	//	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	@Override
+	public TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
+		return null;
 	}
 
 	private LinkedHashMap<String, String> collectSelectedMap(List<Integer> elementList, int teamSize, int limit, Map<Integer, PlayerEntity> playerMap) {

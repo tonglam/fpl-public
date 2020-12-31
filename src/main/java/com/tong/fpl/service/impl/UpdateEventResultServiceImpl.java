@@ -11,8 +11,10 @@ import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userHistory.Current;
+import com.tong.fpl.domain.data.userpick.AutoSubs;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.entry.EntryAutoSubData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
@@ -147,13 +149,53 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				.setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
 				.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
 				.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
+				.setEventAutoSubPoints(userPick.getAutomaticSubs().size() == 0 ? 0 : this.calcAutoSubPoints(userPick.getAutomaticSubs(), elementPointsMap))
 				.setEventRank(userPick.getEntryHistory().getRank())
 				.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
 				.setEventPicks(this.setUserPicks(userPick.getPicks(), elementPointsMap))
+				.setEventAutoSubs(this.setAutoSubs(userPick.getAutomaticSubs(), elementPointsMap))
 				.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
 				.setOverallRank(userPick.getEntryHistory().getOverallRank())
 				.setTeamValue(userPick.getEntryHistory().getValue())
 				.setBank(userPick.getEntryHistory().getBank());
+	}
+
+	private int calcAutoSubPoints(List<AutoSubs> automaticSubs, Map<Integer, Integer> elementPointsMap) {
+		return automaticSubs
+				.stream()
+				.mapToInt(o -> elementPointsMap.getOrDefault(o.getElementIn(), 0))
+				.sum();
+	}
+
+	private String setUserPicks(List<Pick> picks, Map<Integer, Integer> elementPointsMap) {
+		List<EntryPickData> pickList = Lists.newArrayList();
+		picks.forEach(o -> pickList.add(
+				new EntryPickData()
+						.setElement(o.getElement())
+						.setPosition(o.getPosition())
+						.setMultiplier(o.getMultiplier())
+						.setCaptain(o.isCaptain())
+						.setViceCaptain(o.isViceCaptain())
+						.setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
+				)
+		);
+		return JsonUtils.obj2json(pickList);
+	}
+
+	private String setAutoSubs(List<AutoSubs> autoSubs, Map<Integer, Integer> elementPointsMap) {
+		if (CollectionUtils.isEmpty(autoSubs)) {
+			return "";
+		}
+		List<EntryAutoSubData> autoSubList = Lists.newArrayList();
+		autoSubs.forEach(o -> autoSubList.add(
+				new EntryAutoSubData()
+						.setElementIn(o.getElementIn())
+						.setElementInPoints(elementPointsMap.getOrDefault(o.getElementIn(), 0))
+						.setElementOut(o.getElementOut())
+						.setElementOutPoints(elementPointsMap.getOrDefault(o.getElementOut(), 0))
+				)
+		);
+		return JsonUtils.obj2json(autoSubList);
 	}
 
 	@Override
@@ -820,19 +862,6 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		this.tournamentKnockoutService.updateBatchById(tournamentKnockoutEntityList);
 		this.tournamentKnockoutResultService.updateBatchById(tournamentKnockoutResultList);
 		log.info("tournament:{}, update tournament next knockout info!", tournamentId);
-	}
-
-	private String setUserPicks(List<Pick> picks, Map<Integer, Integer> elementPointsMap) {
-		List<EntryPickData> pickList = Lists.newArrayList();
-		picks.forEach(o -> pickList.add(new EntryPickData()
-				.setElement(o.getElement())
-				.setPosition(o.getPosition())
-				.setMultiplier(o.getMultiplier())
-				.setCaptain(o.isCaptain())
-				.setViceCaptain(o.isViceCaptain())
-				.setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
-		));
-		return JsonUtils.obj2json(pickList);
 	}
 
 	private int getMatchWinner(int homeEntry, int awayEntry, EntryEventResultEntity homeEntryResult, EntryEventResultEntity awayEntryResult) {

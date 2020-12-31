@@ -1020,17 +1020,19 @@ public class QueryServiceImpl implements IQueryService {
 					.setAwayEntryGroupId(awayGroupId)
 					.setHomeEntryGroupName(homeGroupName)
 					.setAwayEntryGroupName(awayGroupName)
-					.setHomeEntryName(this.getKnockoutResultEntryName(o.getHomeEntry()))
-					.setAwayEntryName(this.getKnockoutResultEntryName(o.getAwayEntry()))
+					.setHomeEntryName(o.getHomeEntry() == 0 ? "" : this.getKnockoutResultEntryName(o.getHomeEntry()))
+					.setAwayEntryName(o.getHomeEntry() == 0 ? "" : this.getKnockoutResultEntryName(o.getAwayEntry()))
 					.setHomeEntryNetPoint(this.calcKnockoutResultDataNetPoint(knockoutResultList, "home"))
 					.setAwayEntryNetPoint(this.calcKnockoutResultDataNetPoint(knockoutResultList, "away"))
 					.setHomeEntryRank(o.getHomeEntryRank())
 					.setAwayEntryRank(o.getAwayEntryRank())
 					.setMatchWinner(o.getMatchWinner());
 			// match information
-			Map<Integer, String> entryNameMap = ImmutableMap.of(knockoutResultData.getHomeEntry(), knockoutResultData.getHomeEntryName(),
-					knockoutResultData.getAwayEntry(), knockoutResultData.getAwayEntryName());
-			knockoutResultData.setMatchInfo(this.setRoundMatchInformation(knockoutResultList, entryNameMap));
+			if (knockoutResultData.getHomeEntry() != 0 && knockoutResultData.getAwayEntry() != 0) {
+				Map<Integer, String> entryNameMap = ImmutableMap.of(knockoutResultData.getHomeEntry(), knockoutResultData.getHomeEntryName(),
+						knockoutResultData.getAwayEntry(), knockoutResultData.getAwayEntryName());
+				knockoutResultData.setMatchInfo(this.setRoundMatchInformation(knockoutResultList, entryNameMap));
+			}
 			knockoutResultDataList.add(knockoutResultData);
 		});
 		return knockoutResultDataList;
@@ -1057,8 +1059,7 @@ public class QueryServiceImpl implements IQueryService {
 		return 0;
 	}
 
-	private String setRoundMatchInformation
-			(List<TournamentKnockoutResultEntity> knockoutResultList, Map<Integer, String> entryNameMap) {
+	private String setRoundMatchInformation(List<TournamentKnockoutResultEntity> knockoutResultList, Map<Integer, String> entryNameMap) {
 		StringBuilder builder = new StringBuilder();
 		knockoutResultList.forEach(o ->
 				builder

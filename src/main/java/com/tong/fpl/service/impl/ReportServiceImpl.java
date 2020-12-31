@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.domain.data.response.UserPicksRes;
+import com.tong.fpl.domain.data.userpick.AutoSubs;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
@@ -143,6 +144,7 @@ public class ReportServiceImpl implements IReportService {
 				.setEventTransfersCost(0)
 				.setEventNetPoints(0)
 				.setEventBenchPoints(0)
+				.setEventAutoSubPoints(0)
 				.setEventRank(0)
 				.setEventChip("")
 				.setPosition1(picks.get(0).getElement())
@@ -311,6 +313,7 @@ public class ReportServiceImpl implements IReportService {
 					.setEventTransfersCost(entryEventResultEntity.getEventTransfersCost())
 					.setEventNetPoints(entryEventResultEntity.getEventNetPoints())
 					.setEventBenchPoints(entryEventResultEntity.getEventBenchPoints())
+					.setEventAutoSubPoints(entryEventResultEntity.getEventAutoSubPoints())
 					.setEventRank(entryEventResultEntity.getEventRank())
 					.setEventChip(entryEventResultEntity.getEventChip())
 					.setOverallPoints(entryEventResultEntity.getOverallPoints())
@@ -326,6 +329,7 @@ public class ReportServiceImpl implements IReportService {
 									.setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
 									.setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
 									.setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
+									.setEventAutoSubPoints(userPick.getAutomaticSubs().size() == 0 ? 0 : this.calcAutoSubPoints(userPick.getAutomaticSubs(), eventLiveMap))
 									.setEventRank(userPick.getEntryHistory().getRank())
 									.setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
 									.setOverallPoints(userPick.getEntryHistory().getTotalPoints())
@@ -371,6 +375,13 @@ public class ReportServiceImpl implements IReportService {
 			leagueEventStatEntity.setPlayedCaptain(leagueEventStatEntity.getCaptain());
 		}
 		return leagueEventStatEntity;
+	}
+
+	private int calcAutoSubPoints(List<AutoSubs> automaticSubs, Map<Integer, EventLiveEntity> eventLiveMap) {
+		return automaticSubs
+				.stream()
+				.mapToInt(o -> eventLiveMap.containsKey(o.getElementIn()) ? eventLiveMap.get(o.getElementIn()).getTotalPoints() : 0)
+				.sum();
 	}
 
 	private int getHighestScoreElement(LeagueEventReportEntity leagueEventStatEntity, Map<Integer, EventLiveEntity> eventLiveMap) {

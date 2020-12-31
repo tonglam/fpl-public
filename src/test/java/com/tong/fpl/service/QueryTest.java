@@ -167,7 +167,7 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"6"})
+	@CsvSource({"11"})
 	void qryKnockoutBracketResultByTournament(int tournamentId) {
 		KnockoutBracketData knockoutBracketData = this.querySerivce.qryKnockoutBracketResultByTournament(tournamentId);
 		System.out.println(1);

@@ -54,4 +54,13 @@ public interface IMyFplApi {
 
 	TableData<LeagueEventReportData> qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry);
 
+	/**
+	 * @apiNote leagueScoring
+	 */
+	TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType);
+
+	TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType);
+
+	TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry);
+
 }

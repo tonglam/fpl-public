@@ -37,11 +37,12 @@
                     <div class="layui-input-inline">
                         <select lay-filter="gwSelect" name="gwSelect">
                             <option th:each="item,stat:${gwMap}" th:text="${stat.current.value}"
+                                    th:selected="${stat.current.key}==${currentGw}"
                                     th:value="${stat.current.key}"></option>
                         </select>
                     </div>
-                    <div class="layui-input-inline" style="margin-left: 20px">
-                        <button class="layui-btn" id="checkButton" type="button">开始</button>
+                    <div class="layui-input-inline" style="margin-left: 50px">
+                        <button class="layui-btn" id="checkButton" type="button">查看</button>
                     </div>
                 </div>
 
@@ -50,26 +51,15 @@
             <div style="margin-top: 50px"></div>
 
             <div class="layui-row layui-col-space30">
-
                 <div class="layui-col-md6">
                     <h2 class="layui-hide" id="captainSelected">最多队长选择</h2>
                     <table class="layui-table" id="captainSelectTable" lay-filter="captainSelectTable"></table>
                 </div>
-
                 <div class="layui-col-md6">
                     <h2 class="layui-hide" id="viceCaptainSelected">最多副队长选择</h2>
                     <table class="layui-table" id="viceCaptainSelectTable" lay-filter="viceCaptainSelectTable"></table>
                 </div>
-
             </div>
-
-            <!--            <div style="margin-top: 20px"></div>-->
-            <!--            <h2 class="layui-hide" id="transferIn">最多转入</h2>-->
-            <!--            <table class="layui-table" id="transferInTable" lay-filter="transferInTable"></table>-->
-
-            <!--            <div style="margin-top: 20px"></div>-->
-            <!--            <h2 class="layui-hide" id="transferOut">最多转出</h2>-->
-            <!--            <table class="layui-table" id="transferOutTable" lay-filter="transferOutTable"></table>-->
 
             <div style="margin-top: 20px"></div>
             <h2 class="layui-hide" id="topSelectedPlayer">最多选择球员</h2>
@@ -101,13 +91,6 @@
                 total: true
             }
         });
-
-        $(document).ready(function () {
-            let event = $("#currentGw").html();
-            let optionValue = "dd[lay-value=" + event + "]";
-            $("select[name=gwSelect]").siblings("div.layui-form-select").find("dl").find(optionValue).click();
-        })
-
 
         $("#checkButton").on('click', function () {
 
@@ -172,56 +155,6 @@
                             soulTable.render(this);
                         }
                     });
-
-                    // // transfer in
-                    // let transferInData = [];
-                    // $.each(data[0].mostTransferInMap, function (index, value) {
-                    //     let elementData = {};
-                    //     elementData.webName = index;
-                    //     elementData.percent = value;
-                    //     transferInData.push(elementData);
-                    // })
-                    //
-                    // table.render({
-                    //     elem: '#transferInTable',
-                    //     data: transferInData,
-                    //     cellMinWidth: 50,
-                    //     cols: [[
-                    //         {title: '排名', type: 'numbers'},
-                    //         {field: 'webName', title: '球员', align: 'center'},
-                    //         {field: 'percent', title: '比例', align: 'center'}
-                    //     ]],
-                    //     id: 'transferInTable',
-                    //     done: function () {
-                    //         $("#transferIn").removeClass("layui-hide");
-                    //         soulTable.render(this);
-                    //     }
-                    // });
-                    //
-                    // // transfer out
-                    // let transferOutData = [];
-                    // $.each(data[0].mostTransferOutMap, function (index, value) {
-                    //     let elementData = {};
-                    //     elementData.webName = index;
-                    //     elementData.percent = value;
-                    //     transferOutData.push(elementData);
-                    // })
-                    //
-                    // table.render({
-                    //     elem: '#transferOutTable',
-                    //     data: transferOutData,
-                    //     cellMinWidth: 50,
-                    //     cols: [[
-                    //         {title: '排名', type: 'numbers'},
-                    //         {field: 'webName', title: '球员', align: 'center'},
-                    //         {field: 'percent', title: '比例', align: 'center'}
-                    //     ]],
-                    //     id: 'transferOutTable',
-                    //     done: function () {
-                    //         $("#transferOut").removeClass("layui-hide");
-                    //         soulTable.render(this);
-                    //     }
-                    // });
 
                     // topSelectedPlayer
                     let topSelectedPlayerData = [];

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpSession;
+
 /**
  * Create by tong on 2020/6/23
  */
@@ -43,8 +45,13 @@ public class LiveController {
 	}
 
 	@GetMapping(value = "/match")
-	public String matchController(Model model) {
+	public String matchController(Model model, HttpSession session) {
 		model.addAttribute("matchList", this.liveApi.qryLiveMatchList(0));
+		int mode = 0;
+		if (session.getAttribute("liveMatchMode") != null) {
+			mode = Integer.parseInt(session.getAttribute("liveMatchMode").toString());
+		}
+		model.addAttribute("checkMode", mode);
 		return "live/match";
 	}
 

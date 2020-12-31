@@ -125,7 +125,7 @@
 <div th:replace="layout::entryInputLayer"></div>
 
 <script id="checkBar" type="text/plain">
-   <button class="layui-btn layui-btn-sm" id="check_{{d.id}}" lay-dropdown="{menus: [{txt: '队长统计', event:'captain'}, {txt: '转会统计', event:'transfer'}, {txt: '得分构成', event:'scoring'}]}"}>
+   <button class="layui-btn layui-btn-sm" id="check_{{d.id}}" lay-dropdown="{menus: [{txt: '队长统计', event:'captain'}, {txt: '转会统计', event:'transfer'}, {txt: '得分统计', event:'scoring'}]}"}>
    <span>查看类型</span>
    <i class="layui-icon layui-icon-triangle-d" style="display: inline-block"></i>
    </button>
@@ -210,6 +210,7 @@
                     break;
                 }
                 case 'scoring': {
+                    window.location.replace('/my_fpl/leagueScoringReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
                     break;
                 }
             }
