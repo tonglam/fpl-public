@@ -633,10 +633,10 @@
         });
 
         $("#confirmButton").on('click', function () {
-            if (moment() > moment(deadline.split('/').join('-'))) {
-                layer.msg("死线已过，提交不了！", {icon: 2, time: 1500});
-                return false;
-            }
+            // if (moment() > moment(deadline.split('/').join('-'))) {
+            //     layer.msg("死线已过，提交不了！", {icon: 2, time: 1500});
+            //     return false;
+            // }
             let data = {};
             data.gkp = $("#gkpElement").text();
             data.def = $("#defElement").text();
