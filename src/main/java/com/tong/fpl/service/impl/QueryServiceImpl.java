@@ -855,9 +855,14 @@ public class QueryServiceImpl implements IQueryService {
 
 	@Override
 	public PlayerPickData qryEntryPickData(int entry) {
+		return this.qryEntryPickData(this.getCurrentEvent(), entry);
+	}
+
+	@Override
+	public PlayerPickData qryEntryPickData(int event, int entry) {
 		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
 				.eq(EntryEventResultEntity::getEntry, entry)
-				.eq(EntryEventResultEntity::getEvent, this.getCurrentEvent()));
+				.eq(EntryEventResultEntity::getEvent, event));
 		if (entryEventResultEntity == null) {
 			return new PlayerPickData();
 		}

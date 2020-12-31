@@ -215,6 +215,8 @@ public interface IQueryService {
 
 	PlayerPickData qryEntryPickData(int entry);
 
+	PlayerPickData qryEntryPickData(int event, int entry);
+
 	/**
 	 * @apiNote league
 	 */

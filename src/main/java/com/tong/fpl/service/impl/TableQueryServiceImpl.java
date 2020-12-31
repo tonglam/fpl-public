@@ -24,10 +24,7 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.*;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
-import com.tong.fpl.domain.letletme.player.PlayerDetailData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.player.PlayerShowData;
-import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.service.*;
@@ -2116,23 +2113,31 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.stream()
 				.map(LeagueEventReportEntity::getEntry)
 				.collect(Collectors.toList());
-		List<LeagueEventReportData> list = Lists.newArrayList();
 		// prepare
-		Map<Integer, String> playerMap = this.playerService.list()
-				.stream()
-				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
-		Map<Integer, String> positionMap = Maps.newHashMap();
-		this.queryService.getPositionMap().forEach((k, v) -> positionMap.put(Integer.valueOf(k), v));
-		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-				.eq(EventLiveEntity::getEvent, event))
-				.stream()
-				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+		List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.in(EntryEventResultEntity::getEntry, entryList));
+		Multimap<Integer, PlayerPickData> entryEventResultMap = HashMultimap.create();
+		entryEventResultEntityList.forEach(o -> entryEventResultMap.put(o.getEntry(), this.queryService.qryEntryPickData(o.getEvent(), o.getEntry())));
+		List<LeagueEventReportData> list = Lists.newArrayList();
 		// collect
 		leagueEventReportEntityList.forEach(o -> {
-
-
+			int entry = o.getEntry();
+			LeagueEventReportData data = new LeagueEventReportData();
+			BeanUtil.copyProperties(o, data);
+			data
+					.setGkpPoints(0)
+					.setDefPoints(0)
+					.setMidPoints(0)
+					.setFwdPoints(0)
+					.setCaptainPoints(0)
+					.setPlayedNum(0)
+					.setAutoSubNum(0);
 		});
-		return null;
+		return new TableData<>(list
+				.stream()
+				.sorted(Comparator.comparing(LeagueEventReportData::getEventPoints))
+				.collect(Collectors.toList())
+		);
 	}
 
 	//	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
