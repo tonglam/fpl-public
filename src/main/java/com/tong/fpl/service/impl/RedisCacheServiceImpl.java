@@ -602,7 +602,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 	@Override
 	public void insertLiveBonusCache() {
 		// get playing fixtures
-		String liveStatus = MatchPlayStatus.Finished.name();
+		String liveStatus = MatchPlayStatus.Playing.name();
 		Map<Integer, Integer> livePlayingMap = Maps.newHashMap(); // key:team -> value:against_team
 		this.getEventLiveFixtureMap().forEach((teamIdStr, map) -> {
 			int teamId = Integer.parseInt(teamIdStr);
