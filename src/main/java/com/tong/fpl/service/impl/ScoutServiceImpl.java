@@ -67,17 +67,32 @@ public class ScoutServiceImpl implements IScoutService {
                     .setCaptainTeamId(elementTeamMap.getOrDefault(scoutData.getCaptain(), 0));
             this.scoutService.save(scoutEntity);
         } else {
-            scoutEntity
-                    .setGkp(scoutData.getGkp())
-                    .setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getGkp(), 0))
-                    .setDef(scoutData.getDef())
-                    .setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getDef(), 0))
-                    .setMid(scoutData.getMid())
-                    .setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getMid(), 0))
-                    .setFwd(scoutData.getFwd())
-                    .setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getFwd(), 0))
-                    .setCaptain(scoutData.getCaptain())
-                    .setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason());
+            if (scoutData.getGkp() > 0) {
+                scoutEntity
+                        .setGkp(scoutData.getGkp())
+                        .setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getGkp(), 0));
+            }
+            if (scoutData.getDef() > 0) {
+                scoutEntity
+                        .setDef(scoutData.getDef())
+                        .setDefTeamId(elementTeamMap.getOrDefault(scoutData.getDef(), 0));
+            }
+            if (scoutData.getMid() > 0) {
+                scoutEntity
+                        .setMid(scoutData.getMid())
+                        .setMidTeamId(elementTeamMap.getOrDefault(scoutData.getMid(), 0));
+            }
+            if (scoutData.getFwd() > 0) {
+                scoutEntity
+                        .setFwd(scoutData.getFwd())
+                        .setFwdTeamId(elementTeamMap.getOrDefault(scoutData.getFwd(), 0));
+            }
+            if (scoutData.getCaptain() > 0) {
+                scoutEntity
+                        .setCaptain(scoutData.getCaptain())
+                        .setCaptainTeamId(elementTeamMap.getOrDefault(scoutData.getCaptain(), 0));
+            }
+            scoutEntity.setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason());
             this.scoutService.updateById(scoutEntity);
         }
     }
