@@ -116,5 +116,4 @@ public interface ITableQueryService {
 
 	TableData<ScoutData> qryEventScoutList(int event);
 
-
 }

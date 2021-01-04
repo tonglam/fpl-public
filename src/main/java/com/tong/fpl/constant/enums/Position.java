@@ -11,13 +11,13 @@ import java.util.Arrays;
 @Getter
 @AllArgsConstructor
 public enum Position {
-	GKP(1), DEF(2), MID(3), FWD(4);
+	GKP(1), DEF(2), MID(3), FWD(4), SUB(5);
 
-	private final int position;
+	private final int elementType;
 
 	public static Position getNameFromElementType(int elementType) {
 		return Arrays.stream(Position.values())
-				.filter(o -> o.getPosition() == elementType)
+				.filter(o -> o.getElementType() == elementType)
 				.findFirst()
 				.orElse(null);
 	}

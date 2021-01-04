@@ -101,15 +101,43 @@ public class TableQueryTest extends FplApplicationTests {
 
 	@ParameterizedTest
 	@CsvSource({"3571, Classic"})
-	void qryLeagueTransferReportStat(int leagueId, String leagueType) {
+	void qryLeagueTransfersReportStat(int leagueId, String leagueType) {
 		TableData<LeagueEventReportStatData> data = this.tableQueryService.qryLeagueTransfersReportStat(leagueId, leagueType);
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
 	@CsvSource({"14, 3571, Classic"})
-	void qryLeagueTransferEventReportList(int event, int leagueId, String leagueType) {
+	void qryLeagueTransfersEventReportList(int event, int leagueId, String leagueType) {
 		TableData<LeagueEventReportData> data = this.tableQueryService.qryLeagueTransfersEventReportList(event, leagueId, leagueType);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"3571, Classic, 1870"})
+	void qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry) {
+		TableData<LeagueEventReportData> data = this.tableQueryService.qryEntryTransfersEventReportList(leagueId, leagueType, entry);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"3571, Classic"})
+	void qryLeagueScoringReportStat(int leagueId, String leagueType) {
+		TableData<LeagueEventReportStatData> data = this.tableQueryService.qryLeagueScoringReportStat(leagueId, leagueType);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"16, 3571, Classic"})
+	void qryLeagueScoringEventReportList(int event, int leagueId, String leagueType) {
+		TableData<LeagueEventReportData> data = this.tableQueryService.qryLeagueScoringEventReportList(event, leagueId, leagueType);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"3571, Classic, 1870"})
+	void qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
+		TableData<LeagueEventReportData> data = this.tableQueryService.qryEntryScoringEventReportList(leagueId, leagueType, entry);
 		System.out.println(1);
 	}
 

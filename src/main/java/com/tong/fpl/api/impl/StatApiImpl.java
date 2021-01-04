@@ -119,7 +119,7 @@ public class StatApiImpl implements IStatApi {
 
 	@Override
 	public PlayerPickData qryOffiaccountPickList() {
-		return this.queryService.qryEntryPickData(FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+		return this.queryService.qryEntryPickData(this.queryService.getCurrentEvent(), FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
 	}
 
 	@Override

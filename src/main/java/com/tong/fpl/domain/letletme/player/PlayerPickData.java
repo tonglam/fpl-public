@@ -13,6 +13,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class PlayerPickData {
 
+	private int entry;
+	private int event;
 	private List<EntryPickData> gkps;
 	private List<EntryPickData> defs;
 	private List<EntryPickData> mids;

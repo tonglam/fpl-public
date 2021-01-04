@@ -18,9 +18,10 @@ public class EntryPickData {
 	private int multiplier;
 	private boolean isCaptain;
 	private boolean isViceCaptain;
-	private int points;
 	private int teamId;
 	private String teamName;
 	private String teamShortName;
+	private int minutes;
+	private int points;
 
 }

@@ -25,6 +25,7 @@ import com.tong.fpl.service.db.EntryInfoService;
 import com.tong.fpl.service.db.PlayerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -210,11 +211,11 @@ public class LiveService implements ILiveService {
 				.setLiveTotalPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost())
 				.setToPlay(pickList
 						.stream()
-						.filter(o -> o.isPickActive() && !o.isPlayed() && o.getAgainstId() != 0)
+						.filter(o -> o.isPickActive() && !o.isPlayed() && !StringUtils.equals("BLANK", o.getTeamShortName()))
 						.count())
 				.setPlayed(pickList
 						.stream()
-						.filter(o -> o.isPickActive() && (o.isPlayed() || o.getAgainstId() == 0))
+						.filter(o -> o.isPickActive() && (o.isPlayed() || StringUtils.equals("BLANK", o.getTeamShortName())))
 						.count())
 				.setCaptainName(pickList
 						.stream()
@@ -263,6 +264,7 @@ public class LiveService implements ILiveService {
 					.setWebName(playerEntity.getWebName());
 			// event fixture
 			int teamId = playerEntity.getTeamId();
+			elementEventResultData.setTeamId(teamId);
 			Map<String, List<LiveFixtureData>> liveFixtureMap = teamLiveFixtureMap.get(teamId);
 			if (!CollectionUtils.isEmpty(liveFixtureMap)) {
 				this.setMatchInfo(elementEventResultData, liveFixtureMap);
@@ -270,7 +272,9 @@ public class LiveService implements ILiveService {
 			} else {
 				Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
 				elementEventResultData
+						.setTeamId(teamId)
 						.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
+						.setAgainstId(0)
 						.setAgainstShortName("BLANK")
 						.setWasHome("")
 						.setScore("")
@@ -377,45 +381,45 @@ public class LiveService implements ILiveService {
 		// element_type -> active -> start
 		Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>> map = elementEventResultDataList.stream().collect(new ElementLiveCollector());
 		// gkp
-		List<ElementEventResultData> gkps = this.createSteam(map.get(Position.GKP.getPosition()).get(true, true),
-				map.get(Position.GKP.getPosition()).get(true, false),
-				map.get(Position.GKP.getPosition()).get(false, true))
+		List<ElementEventResultData> gkps = this.createSteam(map.get(Position.GKP.getElementType()).get(true, true),
+				map.get(Position.GKP.getElementType()).get(true, false),
+				map.get(Position.GKP.getElementType()).get(false, true))
 				.flatMap(Collection::stream)
 				.limit(PositionRule.MIN_NUM_GKP.getNum())
 				.collect(Collectors.toList());
 		// active defs
-		List<ElementEventResultData> defs = this.createSteam(map.get(Position.DEF.getPosition()).get(true, true))
+		List<ElementEventResultData> defs = this.createSteam(map.get(Position.DEF.getElementType()).get(true, true))
 				.flatMap(Collection::stream)
 				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.collect(Collectors.toList());
 		// def rule, at least 3
 		if (defs.size() < PositionRule.MIN_NUM_DEF.getNum()) {
 			defs = this.createSteam(defs,
-					map.get(Position.DEF.getPosition()).get(true, false),
-					map.get(Position.DEF.getPosition()).get(false, true))
+					map.get(Position.DEF.getElementType()).get(true, false),
+					map.get(Position.DEF.getElementType()).get(false, true))
 					.flatMap(Collection::stream)
 					.limit(PositionRule.MIN_NUM_DEF.getNum())
 					.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 					.collect(Collectors.toList());
 		}
 		// active fwds
-		List<ElementEventResultData> fwds = this.createSteam(map.get(Position.FWD.getPosition()).get(true, true))
+		List<ElementEventResultData> fwds = this.createSteam(map.get(Position.FWD.getElementType()).get(true, true))
 				.flatMap(Collection::stream)
 				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.collect(Collectors.toList());
 		// fwd rule, at least 1
 		if (fwds.size() < PositionRule.MIN_NUM_FWD.getNum()) {
 			fwds = this.createSteam(fwds,
-					map.get(Position.FWD.getPosition()).get(true, false),
-					map.get(Position.FWD.getPosition()).get(false, true))
+					map.get(Position.FWD.getElementType()).get(true, false),
+					map.get(Position.FWD.getElementType()).get(false, true))
 					.flatMap(Collection::stream)
 					.limit(PositionRule.MIN_NUM_FWD.getNum())
 					.collect(Collectors.toList());
 		}
 		// mids
 		int maxMidNum = PositionRule.MIN_PLAYERS.getNum() - gkps.size() - defs.size() - fwds.size();
-		List<ElementEventResultData> mids = this.createSteam(map.get(Position.MID.getPosition()).get(true, true),
-				map.get(Position.MID.getPosition()).get(true, false))
+		List<ElementEventResultData> mids = this.createSteam(map.get(Position.MID.getElementType()).get(true, true),
+				map.get(Position.MID.getElementType()).get(true, false))
 				.flatMap(Collection::stream)
 				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.limit(maxMidNum)
@@ -427,12 +431,12 @@ public class LiveService implements ILiveService {
 						.thenComparing(ElementEventResultData::getPosition))
 				.collect(Collectors.toList());
 		List<ElementEventResultData> standByList = this.createSteam(
-				map.get(Position.DEF.getPosition()).get(true, false),
-				map.get(Position.MID.getPosition()).get(true, false),
-				map.get(Position.FWD.getPosition()).get(true, false),
-				map.get(Position.DEF.getPosition()).get(false, true),
-				map.get(Position.MID.getPosition()).get(false, true),
-				map.get(Position.FWD.getPosition()).get(false, true))
+				map.get(Position.DEF.getElementType()).get(true, false),
+				map.get(Position.MID.getElementType()).get(true, false),
+				map.get(Position.FWD.getElementType()).get(true, false),
+				map.get(Position.DEF.getElementType()).get(false, true),
+				map.get(Position.MID.getElementType()).get(false, true),
+				map.get(Position.FWD.getElementType()).get(false, true))
 				.flatMap(Collection::stream)
 				.filter(o -> !activeList.contains(o))
 				.sorted(Comparator.comparing(ElementEventResultData::getTotalPoints).reversed()

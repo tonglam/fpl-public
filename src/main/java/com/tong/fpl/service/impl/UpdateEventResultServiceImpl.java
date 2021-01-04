@@ -14,7 +14,7 @@ import com.tong.fpl.domain.data.userHistory.Current;
 import com.tong.fpl.domain.data.userpick.AutoSubs;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
-import com.tong.fpl.domain.letletme.entry.EntryAutoSubData;
+import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
@@ -186,9 +186,9 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 		if (CollectionUtils.isEmpty(autoSubs)) {
 			return "";
 		}
-		List<EntryAutoSubData> autoSubList = Lists.newArrayList();
+		List<EntryEventAutoSubsData> autoSubList = Lists.newArrayList();
 		autoSubs.forEach(o -> autoSubList.add(
-				new EntryAutoSubData()
+				new EntryEventAutoSubsData()
 						.setElementIn(o.getElementIn())
 						.setElementInPoints(elementPointsMap.getOrDefault(o.getElementIn(), 0))
 						.setElementOut(o.getElementOut())

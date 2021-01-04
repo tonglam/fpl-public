@@ -754,7 +754,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 	public void insertPosition() {
 		String key = StringUtils.joinWith("::", Position.class.getSimpleName());
 		Map<String, Object> valueMap = Arrays.stream(Position.values())
-				.collect(Collectors.toMap(k -> String.valueOf(k.getPosition()), Position::name));
+				.collect(Collectors.toMap(k -> String.valueOf(k.getElementType()), Position::name));
 		RedisUtils.removeCacheByKey(key);
 		Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
 		cacheMap.put(key, valueMap);

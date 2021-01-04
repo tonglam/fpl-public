@@ -1,6 +1,9 @@
 package com.tong.fpl.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.domain.entity.EntryEventResultEntity;
+import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.player.*;
@@ -8,6 +11,7 @@ import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutEventFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
+import com.tong.fpl.service.db.EntryEventResultService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -22,6 +26,8 @@ public class QueryTest extends FplApplicationTests {
 
 	@Autowired
 	private IQueryService querySerivce;
+	@Autowired
+	private EntryEventResultService entryEventResultService;
 
 	@ParameterizedTest
 	@CsvSource({"2021, 1, 1870"})
@@ -211,9 +217,9 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"4074865"})
-	void qryEntryPickData(int entry) {
-		PlayerPickData data = this.querySerivce.qryEntryPickData(entry);
+	@CsvSource({"16, 4074865"})
+	void qryEntryPickData(int event, int entry) {
+		PlayerPickData data = this.querySerivce.qryEntryPickData(event, entry);
 		System.out.println(1);
 	}
 
@@ -221,6 +227,22 @@ public class QueryTest extends FplApplicationTests {
 	@CsvSource({"14, 3571, Classic"})
 	void qryLeagueEventEoMap(int event, int leagueId, String leagueType) {
 		Map<Integer, String> map = this.querySerivce.qryLeagueEventEoMap(event, leagueId, leagueType);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"16, 3571, Classic"})
+	void qryLeaguePickDataList(int event, int leagueId, String leagueType) {
+		List<PlayerPickData> list = this.querySerivce.qryLeagueEventPickDataList(event, leagueId, leagueType);
+		System.out.println(1);
+	}
+
+	@Test
+	void qryAutoSubListFromAutoSubs() {
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, 1870)
+				.eq(EntryEventResultEntity::getEvent, 16));
+		List<EntryEventAutoSubsData> list = this.querySerivce.qryAutoSubListFromAutoSubs(entryEventResultEntity.getEventAutoSubs());
 		System.out.println(1);
 	}
 

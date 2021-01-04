@@ -4,27 +4,30 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * Create by tong on 2020/12/31
+ * Create by tong on 2020/11/10
  */
 @Data
 @Accessors(chain = true)
-public class EntryAutoSubData {
+public class EntryEventAutoSubsData {
 
+	private int entry;
+	private int event;
 	private int elementIn;
+	private String elementInWebName;
 	private int elementInType;
 	private String elementInTypeName;
-	private String elementInWebName;
-	private int elementInPoints;
 	private int elementInTeamId;
 	private String elementInTeamName;
 	private String elementInTeamShortName;
+	private int elementInPoints;
+	private boolean elementInPlayed;
 	private int elementOut;
+	private String elementOutWebName;
 	private int elementOutType;
 	private String elementOutTypeName;
-	private String elementOutWebName;
-	private int elementOutPoints;
 	private int elementOutTeamId;
 	private String elementOutTeamName;
 	private String elementOutTeamShortName;
+	private int elementOutPoints;
 
 }

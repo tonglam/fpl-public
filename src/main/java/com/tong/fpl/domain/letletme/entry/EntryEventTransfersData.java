@@ -8,17 +8,17 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class EntryEventTransferData {
+public class EntryEventTransfersData {
 
-    private int entry;
-    private int event;
-    private int elementIn;
-    private String elementInName;
-    private int elementInType;
-    private String elementInTypeName;
-    private int elementInCost;
-    private int elementInPoints;
-    private boolean elementInPlayed;
+	private int entry;
+	private int event;
+	private int elementIn;
+	private String elementInName;
+	private int elementInType;
+	private String elementInTypeName;
+	private int elementInCost;
+	private int elementInPoints;
+	private boolean elementInPlayed;
     private int elementOut;
     private String elementOutName;
     private int elementOutType;

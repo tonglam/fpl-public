@@ -195,10 +195,6 @@
 
 <script th:replace="layout::entryInputLayer"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.1/dragula.min.js"></script>
-
-<script th:replace="layout::drag"></script>
-
 <script th:inline="javascript">
     layui.use(['layer'], function () {
         let $ = layui.jquery,
@@ -633,10 +629,6 @@
         });
 
         $("#confirmButton").on('click', function () {
-            // if (moment() > moment(deadline.split('/').join('-'))) {
-            //     layer.msg("死线已过，提交不了！", {icon: 2, time: 1500});
-            //     return false;
-            // }
             let data = {};
             data.gkp = $("#gkpElement").text();
             data.def = $("#defElement").text();

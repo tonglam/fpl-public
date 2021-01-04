@@ -1,6 +1,7 @@
 package com.tong.fpl.domain.letletme.league;
 
-import com.tong.fpl.domain.letletme.entry.EntryEventTransferData;
+import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
+import com.tong.fpl.domain.letletme.entry.EntryEventTransfersData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -57,7 +58,7 @@ public class LeagueEventReportData {
 	private int transferInTotalValue;
 	private int transferOutTotalValue;
 	private int transferValue;
-	private List<EntryEventTransferData> entryEventTransferList;
+	private List<EntryEventTransfersData> entryEventTransferList;
 	// scoring
 	private int gkpPoints;
 	private int defPoints;
@@ -65,5 +66,7 @@ public class LeagueEventReportData {
 	private int fwdPoints;
 	private int playedNum;
 	private int autoSubNum;
+	private String formation;
+	private List<EntryEventAutoSubsData> entryEventAutoSubsList;
 
 }

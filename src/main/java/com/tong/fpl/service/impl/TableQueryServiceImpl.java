@@ -8,16 +8,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.*;
 import com.tong.fpl.constant.Constant;
-import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.constant.enums.GroupMode;
-import com.tong.fpl.constant.enums.KnockoutMode;
-import com.tong.fpl.constant.enums.LeagueType;
+import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
-import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
-import com.tong.fpl.domain.letletme.entry.EntryEventTransferData;
-import com.tong.fpl.domain.letletme.entry.EntryInfoData;
-import com.tong.fpl.domain.letletme.entry.EntryPickData;
+import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.global.StepDetailData;
 import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
@@ -1936,10 +1930,10 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.sum();
 	}
 
-	private List<EntryEventTransferData> setEntryTransferList(Collection<EntryEventTransferEntity> entryEventTransferEntities, Map<Integer, PlayerEntity> playerMap, Map<Integer, String> positionMap, Map<Integer, Integer> elementPointsMap) {
-		List<EntryEventTransferData> list = Lists.newArrayList();
+	private List<EntryEventTransfersData> setEntryTransferList(Collection<EntryEventTransferEntity> entryEventTransferEntities, Map<Integer, PlayerEntity> playerMap, Map<Integer, String> positionMap, Map<Integer, Integer> elementPointsMap) {
+		List<EntryEventTransfersData> list = Lists.newArrayList();
 		entryEventTransferEntities.forEach(o -> {
-			EntryEventTransferData entryEventTransferData = new EntryEventTransferData();
+			EntryEventTransfersData entryEventTransferData = new EntryEventTransfersData();
 			entryEventTransferData
 					.setEntry(o.getEntry())
 					.setEvent(o.getEvent())
@@ -1971,7 +1965,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		});
 		return list
 				.stream()
-				.sorted(Comparator.comparing(EntryEventTransferData::getTime))
+				.sorted(Comparator.comparing(EntryEventTransfersData::getTime))
 				.collect(Collectors.toList());
 	}
 
@@ -2099,7 +2093,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return null;
 	}
 
-	//	@Cacheable(value = "qryLeagueScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	@Cacheable(value = "qryLeagueScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -2109,41 +2103,201 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
 			return new TableData<>();
 		}
-		List<Integer> entryList = leagueEventReportEntityList
-				.stream()
-				.map(LeagueEventReportEntity::getEntry)
-				.collect(Collectors.toList());
 		// prepare
-		List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-				.in(EntryEventResultEntity::getEntry, entryList));
-		Multimap<Integer, PlayerPickData> entryEventResultMap = HashMultimap.create();
-		entryEventResultEntityList.forEach(o -> entryEventResultMap.put(o.getEntry(), this.queryService.qryEntryPickData(o.getEvent(), o.getEntry())));
-		List<LeagueEventReportData> list = Lists.newArrayList();
+		List<PlayerPickData> pickDataList = this.queryService.qryLeagueEventPickDataList(event, leagueId, leagueType);
+		Table<Integer, Integer, List<EntryPickData>> eventEventPickTable = HashBasedTable.create(); // entry -> element -> List<EntryPickData>
+		pickDataList.forEach(o -> {
+			eventEventPickTable.put(o.getEntry(), Position.GKP.getElementType(), o.getGkps());
+			eventEventPickTable.put(o.getEntry(), Position.DEF.getElementType(), o.getDefs());
+			eventEventPickTable.put(o.getEntry(), Position.MID.getElementType(), o.getMids());
+			eventEventPickTable.put(o.getEntry(), Position.FWD.getElementType(), o.getFwds());
+			eventEventPickTable.put(o.getEntry(), Position.SUB.getElementType(), o.getFwds());
+		});
+		Multimap<Integer, EntryEventAutoSubsData> eventEventAutoSubMap = HashMultimap.create();
+		this.queryService.qryLeagueEventAutoSubDataList(event, leagueId, leagueType).forEach(o -> eventEventAutoSubMap.put(o.getEntry(), o));
 		// collect
+		List<LeagueEventReportData> list = Lists.newArrayList();
 		leagueEventReportEntityList.forEach(o -> {
 			int entry = o.getEntry();
 			LeagueEventReportData data = new LeagueEventReportData();
 			BeanUtil.copyProperties(o, data);
+			if (!eventEventPickTable.containsRow(entry)) {
+				return;
+			}
 			data
-					.setGkpPoints(0)
-					.setDefPoints(0)
-					.setMidPoints(0)
-					.setFwdPoints(0)
-					.setCaptainPoints(0)
-					.setPlayedNum(0)
-					.setAutoSubNum(0);
+					.setGkpPoints(this.calcEntryEventElementTypePoints(entry, Position.GKP.getElementType(), eventEventPickTable))
+					.setDefPoints(this.calcEntryEventElementTypePoints(entry, Position.DEF.getElementType(), eventEventPickTable))
+					.setMidPoints(this.calcEntryEventElementTypePoints(entry, Position.MID.getElementType(), eventEventPickTable))
+					.setFwdPoints(this.calcEntryEventElementTypePoints(entry, Position.FWD.getElementType(), eventEventPickTable))
+					.setCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
+					.setPlayedNum(
+							(int) Objects.requireNonNull(eventEventPickTable.get(entry, Position.GKP.getElementType()))
+									.stream()
+									.filter(pickData -> pickData.getMinutes() > 0)
+									.count() +
+									(int) Objects.requireNonNull(eventEventPickTable.get(entry, Position.DEF.getElementType()))
+											.stream()
+											.filter(pickData -> pickData.getMinutes() > 0)
+											.count() +
+									(int) Objects.requireNonNull(eventEventPickTable.get(entry, Position.MID.getElementType()))
+											.stream()
+											.filter(pickData -> pickData.getMinutes() > 0)
+											.count() +
+									(int) Objects.requireNonNull(eventEventPickTable.get(entry, Position.FWD.getElementType()))
+											.stream()
+											.filter(pickData -> pickData.getMinutes() > 0)
+											.count()
+					)
+
+					.setFormation(
+							StringUtils.joinWith(
+									"-",
+									Objects.requireNonNull(eventEventPickTable.get(entry, Position.DEF.getElementType())).size(),
+									Objects.requireNonNull(eventEventPickTable.get(entry, Position.MID.getElementType())).size(),
+									Objects.requireNonNull(eventEventPickTable.get(entry, Position.FWD.getElementType())).size()
+							)
+					);
+			// autoSubs
+			List<EntryEventAutoSubsData> entryEventAutoSubsList = Lists.newArrayList();
+			if (eventEventAutoSubMap.containsKey(entry) && !CollectionUtils.isEmpty(eventEventAutoSubMap.get(entry))) {
+				entryEventAutoSubsList.addAll(eventEventAutoSubMap.get(entry));
+			}
+			data
+					.setAutoSubNum(eventEventAutoSubMap.containsKey(entry) ? eventEventAutoSubMap.get(entry).size() : 0)
+					.setEntryEventAutoSubsList(entryEventAutoSubsList);
+			list.add(data);
 		});
+		// sort
+		Map<Integer, Integer> rankMap = this.sortLeagueScoringEventRank(list);
+		if (!CollectionUtils.isEmpty(rankMap)) {
+			list.forEach(o -> o.setRank(rankMap.get(o.getOverallRank())));
+		}
 		return new TableData<>(list
 				.stream()
-				.sorted(Comparator.comparing(LeagueEventReportData::getEventPoints))
+				.sorted(Comparator.comparing(LeagueEventReportData::getRank))
 				.collect(Collectors.toList())
 		);
+	}
+
+	private int calcEntryEventElementTypePoints(int entry, int elementType, Table<Integer, Integer, List<EntryPickData>> eventEventPickTable) {
+		if (!eventEventPickTable.contains(entry, elementType) || CollectionUtils.isEmpty(eventEventPickTable.get(entry, elementType))) {
+			return 0;
+		}
+		return Objects.requireNonNull(eventEventPickTable.get(entry, elementType))
+				.stream()
+				.filter(o -> o.getElementType() == elementType)
+				.mapToInt(EntryPickData::getPoints)
+				.sum();
+	}
+
+	private Map<Integer, Integer> sortLeagueScoringEventRank(List<LeagueEventReportData> leagueEventReportDataList) {
+		Map<Integer, Integer> rankMap = Maps.newHashMap();
+		Map<Integer, Integer> rankCountMap = Maps.newLinkedHashMap();
+		leagueEventReportDataList
+				.stream()
+				.sorted(Comparator.comparing(LeagueEventReportData::getOverallRank))
+				.forEachOrdered(o -> {
+					int key = o.getOverallRank();
+					if (rankCountMap.containsKey(key)) {
+						rankCountMap.put(key, rankCountMap.get(key) + 1);
+					} else {
+						rankCountMap.put(key, 1);
+					}
+				});
+		int index = 1;
+		for (int key : rankCountMap.keySet()) {
+			rankMap.put(key, index);
+			index += rankCountMap.get(key);
+		}
+		return rankMap;
 	}
 
 	//	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
-		return null;
+		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType)
+				.eq(LeagueEventReportEntity::getEntry, entry)
+				.orderByAsc(LeagueEventReportEntity::getEvent));
+		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+			return new TableData<>();
+		}
+		// collect
+		List<LeagueEventReportData> list = Lists.newArrayList();
+		leagueEventReportEntityList.forEach(o -> {
+			int event = o.getEvent();
+			LeagueEventReportData data = new LeagueEventReportData();
+			BeanUtil.copyProperties(o, data);
+			PlayerPickData pickData = this.queryService.qryEntryPickData(event, entry);
+			if (pickData == null) {
+				return;
+			}
+			data
+					.setGkpPoints(
+							pickData.getGkps()
+									.stream()
+									.mapToInt(EntryPickData::getPoints)
+									.sum()
+					)
+					.setDefPoints(
+							pickData.getDefs()
+									.stream()
+									.mapToInt(EntryPickData::getPoints)
+									.sum()
+					)
+					.setMidPoints(
+							pickData.getMids()
+									.stream()
+									.mapToInt(EntryPickData::getPoints)
+									.sum()
+					)
+					.setFwdPoints(
+							pickData.getFwds()
+									.stream()
+									.mapToInt(EntryPickData::getPoints)
+									.sum()
+					)
+					.setCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
+					.setPlayedNum(
+							(int) pickData.getGkps()
+									.stream()
+									.filter(pick -> pick.getMinutes() > 0)
+									.count() +
+									(int) pickData.getDefs()
+											.stream()
+											.filter(pick -> pick.getMinutes() > 0)
+											.count() +
+									(int) pickData.getMids()
+											.stream()
+											.filter(pick -> pick.getMinutes() > 0)
+											.count() +
+									(int) pickData.getFwds()
+											.stream()
+											.filter(pick -> pick.getMinutes() > 0)
+											.count()
+					)
+
+					.setFormation(
+							StringUtils.joinWith(
+									"-",
+									pickData.getDefs().size(),
+									pickData.getMids().size(),
+									pickData.getFwds().size()
+							)
+					);
+			// autoSubs
+			List<EntryEventAutoSubsData> entryEventAutoSubsList = this.queryService.qryEntryAutoSubDataList(event, entry);
+			data
+					.setAutoSubNum(entryEventAutoSubsList.size())
+					.setEntryEventAutoSubsList(entryEventAutoSubsList);
+			list.add(data);
+		});
+		return new TableData<>(list
+				.stream()
+				.sorted(Comparator.comparing(LeagueEventReportData::getEvent))
+				.collect(Collectors.toList())
+		);
 	}
 
 	private LinkedHashMap<String, String> collectSelectedMap(List<Integer> elementList, int teamSize, int limit, Map<Integer, PlayerEntity> playerMap) {

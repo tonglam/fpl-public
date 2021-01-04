@@ -9,6 +9,7 @@ import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -190,6 +191,17 @@ public interface IQueryService {
 
 	List<EventLiveEntity> qryEventLive(String season, int event, int element);
 
+	/**
+	 * @apiNote event_result
+	 */
+	List<EntryEventResultData> qryEntryResult(String season, int entry);
+
+	default EntryEventResultData qryEntryEventResult(int event, int entry) {
+		return this.qryEntryEventResult(CommonUtils.getCurrentSeason(), event, entry);
+	}
+
+	EntryEventResultData qryEntryEventResult(String season, int event, int entry);
+
 	default List<EntryPickData> qryPickListFromPicks(String picks) {
 		return this.qryPickListFromPicks(CommonUtils.getCurrentSeason(), picks);
 	}
@@ -202,20 +214,23 @@ public interface IQueryService {
 
 	PlayerPickData qryPickListByPosition(String season, String picks);
 
-	/**
-	 * @apiNote event_result
-	 */
-	List<EntryEventResultData> qryEntryResult(String season, int entry);
+	PlayerPickData qryEntryPickData(int event, int entry);
 
-	default EntryEventResultData qryEntryEventResult(int event, int entry) {
-		return this.qryEntryEventResult(CommonUtils.getCurrentSeason(), event, entry);
+	List<PlayerPickData> qryLeagueEventPickDataList(int event, int leagueId, String leagueType);
+
+	default List<EntryEventAutoSubsData> qryEntryAutoSubDataList(int event, int entry) {
+		return this.qryEntryAutoSubDataList(CommonUtils.getCurrentSeason(), event, entry);
 	}
 
-	EntryEventResultData qryEntryEventResult(String season, int event, int entry);
+	List<EntryEventAutoSubsData> qryEntryAutoSubDataList(String season, int event, int entry);
 
-	PlayerPickData qryEntryPickData(int entry);
+	default List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String autoSubs) {
+		return this.qryAutoSubListFromAutoSubs(CommonUtils.getCurrentSeason(), autoSubs);
+	}
 
-	PlayerPickData qryEntryPickData(int event, int entry);
+	List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String season, String autoSubs);
+
+	List<EntryEventAutoSubsData> qryLeagueEventAutoSubDataList(int event, int leagueId, String leagueType);
 
 	/**
 	 * @apiNote league
