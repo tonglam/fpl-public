@@ -9,4 +9,17 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class LeagueEventScoringData {
+
+	private int benchTotalPoints;
+	private int autoSubsTotalPoints;
+	private int mostSelectedGkp;
+	private int gkpTotalPoints;
+	private int mostSelectedDef;
+	private int defTotalPoints;
+	private int mostSelectedMid;
+	private int midTotalPoints;
+	private int mostSelectedFwd;
+	private int fwdTotalPoints;
+	private String mostSelectedFormation;
+
 }

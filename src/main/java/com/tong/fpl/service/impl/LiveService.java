@@ -209,20 +209,20 @@ public class LiveService implements ILiveService {
 				.setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
 				.setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost())
 				.setLiveTotalPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost())
-				.setToPlay(pickList
-						.stream()
-						.filter(o -> o.isPickActive() && !o.isPlayed() && !StringUtils.equals("BLANK", o.getTeamShortName()))
-						.count())
-				.setPlayed(pickList
-						.stream()
-						.filter(o -> o.isPickActive() && (o.isPlayed() || StringUtils.equals("BLANK", o.getTeamShortName())))
-						.count())
-				.setCaptainName(pickList
-						.stream()
-						.filter(ElementEventResultData::isCaptain)
-						.map(ElementEventResultData::getWebName)
-						.findFirst()
-						.orElse(""));
+				.setPlayed(
+						(int) pickList
+								.stream()
+								.filter(o -> o.isPickActive() && (o.isPlayed() || StringUtils.equals("BLANK", o.getAgainstShortName()) || o.isGwFinished()))
+								.count()
+				)
+				.setCaptainName(
+						pickList
+								.stream()
+								.filter(ElementEventResultData::isCaptain)
+								.map(ElementEventResultData::getWebName)
+								.findFirst()
+								.orElse("")
+				);
 	}
 
 	public List<ElementEventResultData> qryEntryLiveStaticData(int event, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<Integer, String> positionMap,

@@ -27,14 +27,14 @@ public class LiveCalcData {
 	private int lastOverallPoints;
 	private int lastOverallRank;
 	private int lastTeamValue;
-	private List<ElementEventResultData> pickList;
 	private String chip;
 	private int livePoints;
 	private int transferCost;
 	private int liveNetPoints;
 	private int liveTotalPoints;
-	private long played;
-	private long toPlay;
+	private int played;
+	private int toPlay;
 	private String captainName;
+	private List<ElementEventResultData> pickList;
 
 }

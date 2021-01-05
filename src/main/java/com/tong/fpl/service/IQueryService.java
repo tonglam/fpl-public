@@ -216,6 +216,8 @@ public interface IQueryService {
 
 	PlayerPickData qryEntryPickData(int event, int entry);
 
+	List<PlayerPickData> qryLeaguePickDataList(int leagueId, String leagueType);
+
 	List<PlayerPickData> qryLeagueEventPickDataList(int event, int leagueId, String leagueType);
 
 	default List<EntryEventAutoSubsData> qryEntryAutoSubDataList(int event, int entry) {

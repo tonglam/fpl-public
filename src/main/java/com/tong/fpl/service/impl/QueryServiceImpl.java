@@ -46,6 +46,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -916,6 +918,136 @@ public class QueryServiceImpl implements IQueryService {
 		return playerPickData;
 	}
 
+	@Cacheable(value = "qryLeaguePickDataList", key = "#leagueId+'::'+#leagueType", unless = "#result.size() == 0")
+	@Override
+	public List<PlayerPickData> qryLeaguePickDataList(int leagueId, String leagueType) {
+		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType));
+		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+			return Lists.newArrayList();
+		}
+		List<Integer> entryList = leagueEventReportEntityList
+				.stream()
+				.map(LeagueEventReportEntity::getEntry)
+				.collect(Collectors.toList());
+		List<Integer> eventList = leagueEventReportEntityList
+				.stream()
+				.map(LeagueEventReportEntity::getEvent)
+				.collect(Collectors.toList());
+		// prepare
+		Multimap<Integer, EntryEventResultEntity> entryEventResultMap = HashMultimap.create();
+		this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.in(EntryEventResultEntity::getEntry, entryList))
+				.forEach(o -> entryEventResultMap.put(o.getEntry(), o));
+		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+		Map<String, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.in(EventLiveEntity::getEvent, eventList))
+				.stream()
+				.collect(Collectors.toMap(k -> k.getEvent() + "-" + k.getElement(), o -> o));
+		// collect
+		List<PlayerPickData> list = Lists.newArrayList();
+		List<CompletableFuture<PlayerPickData>> future = entryList.stream()
+				.map(o -> CompletableFuture.supplyAsync(() -> this.calcEntryPickDataList(o, entryEventResultMap, playerMap, teamShortNameMap, eventLiveMap), new ForkJoinPool(10)))
+				.collect(Collectors.toList());
+		return future
+				.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
+	}
+
+	private PlayerPickData calcEntryPickDataList(int entry, Multimap<Integer, EntryEventResultEntity> entryEventResultMap, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap, Map<String, EventLiveEntity> eventLiveMap) {
+		List<EntryPickData> gkpList = Lists.newArrayList();
+		List<EntryPickData> defList = Lists.newArrayList();
+		List<EntryPickData> midList = Lists.newArrayList();
+		List<EntryPickData> fwdList = Lists.newArrayList();
+		List<EntryPickData> subList = Lists.newArrayList();
+		entryEventResultMap.get(entry).forEach(entryEventResult -> {
+			int event = entryEventResult.getEvent();
+			// pick
+			List<EntryPickData> pickList = JsonUtils.json2Collection(entryEventResult.getEventPicks(), List.class, EntryPickData.class);
+			if (CollectionUtils.isEmpty(pickList)) {
+				return;
+			}
+			pickList.forEach(pick -> {
+				int element = pick.getElement();
+				// player
+				PlayerEntity playerEntity = playerMap.get(element);
+				if (playerEntity != null) {
+					pick
+							.setWebName(playerEntity.getWebName())
+							.setElementType(playerEntity.getElementType())
+							.setTeamId(playerEntity.getTeamId());
+				}
+				pick.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(pick.getTeamId()), ""));
+				// element live
+				String key = event + "-" + element;
+				EventLiveEntity eventLiveEntity = eventLiveMap.get(key);
+				if (eventLiveEntity != null) {
+					pick.setMinutes(eventLiveEntity.getMinutes());
+				}
+				// add into list
+				if (pick.getPosition() <= 11) {
+					switch (pick.getElementType()) {
+						case 1: {
+							gkpList.add(pick);
+							break;
+						}
+						case 2: {
+							defList.add(pick);
+							break;
+						}
+						case 3: {
+							midList.add(pick);
+							break;
+						}
+						case 4: {
+							fwdList.add(pick);
+							break;
+						}
+					}
+				} else {
+					subList.add(pick);
+				}
+			});
+		});
+		return new PlayerPickData()
+				.setEntry(entry)
+				.setGkps(
+						gkpList
+								.stream()
+								.sorted(Comparator.comparing(EntryPickData::getPosition))
+								.collect(Collectors.toList())
+				)
+				.setDefs(
+						defList
+								.stream()
+								.sorted(Comparator.comparing(EntryPickData::getPosition))
+								.collect(Collectors.toList())
+				)
+				.setMids(
+						midList
+								.stream()
+								.sorted(Comparator.comparing(EntryPickData::getPosition))
+								.collect(Collectors.toList())
+				)
+				.setFwds(
+						fwdList
+								.stream()
+								.sorted(Comparator.comparing(EntryPickData::getPosition))
+								.collect(Collectors.toList())
+				)
+				.setSubs(
+						subList
+								.stream()
+								.sorted(Comparator.comparing(EntryPickData::getPosition))
+								.collect(Collectors.toList())
+				);
+	}
+
 	@Cacheable(value = "qryLeagueEventPickDataList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result.size() == 0")
 	@Override
 	public List<PlayerPickData> qryLeagueEventPickDataList(int event, int leagueId, String leagueType) {
@@ -1084,7 +1216,7 @@ public class QueryServiceImpl implements IQueryService {
 		return autoSubList;
 	}
 
-	//	@Cacheable(value = "qryLeagueEventAutoSubDataList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result.size() == 0")
+	@Cacheable(value = "qryLeagueEventAutoSubDataList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result.size() == 0")
 	@Override
 	public List<EntryEventAutoSubsData> qryLeagueEventAutoSubDataList(int event, int leagueId, String leagueType) {
 		List<Integer> entryList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -1113,6 +1245,9 @@ public class QueryServiceImpl implements IQueryService {
 		List<EntryEventAutoSubsData> list = Lists.newArrayList();
 		entryEventResultMap.keySet().forEach(entry -> {
 			EntryEventResultEntity entryEventResultEntity = entryEventResultMap.get(entry);
+			if (StringUtils.isBlank(entryEventResultEntity.getEventAutoSubs())) {
+				return;
+			}
 			List<EntryEventAutoSubsData> autoSubList = JsonUtils.json2Collection(entryEventResultEntity.getEventAutoSubs(), List.class, EntryEventAutoSubsData.class);
 			if (CollectionUtils.isEmpty(autoSubList)) {
 				return;

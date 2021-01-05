@@ -2090,10 +2090,38 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	//	@Cacheable(value = "qryLeagueScoringReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType) {
-		return null;
+		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType));
+		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+			return new TableData<>();
+		}
+		// prepare
+		List<PlayerPickData> pickDataList = this.queryService.qryLeaguePickDataList(leagueId, leagueType);
+		Table<Integer, Integer, List<EntryPickData>> eventEventPickTable = HashBasedTable.create(); // entry -> element -> List<EntryPickData>
+		pickDataList.forEach(o -> {
+			eventEventPickTable.put(o.getEntry(), Position.GKP.getElementType(), o.getGkps());
+			eventEventPickTable.put(o.getEntry(), Position.DEF.getElementType(), o.getDefs());
+			eventEventPickTable.put(o.getEntry(), Position.MID.getElementType(), o.getMids());
+			eventEventPickTable.put(o.getEntry(), Position.FWD.getElementType(), o.getFwds());
+			eventEventPickTable.put(o.getEntry(), Position.SUB.getElementType(), o.getFwds());
+		});
+		// collect
+		List<LeagueEventReportStatData> list = Lists.newArrayList();
+		leagueEventReportEntityList.forEach(o -> {
+			int entry = o.getEntry();
+			LeagueEventReportStatData data = new LeagueEventReportStatData();
+			BeanUtil.copyProperties(o, data);
+			if (!eventEventPickTable.containsRow(entry)) {
+				return;
+			}
+			list.add(data);
+		});
+
+		return new TableData<>(list);
 	}
 
-	@Cacheable(value = "qryLeagueScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	@Cacheable(value = "qryLeagueScoringEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -2212,7 +2240,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return rankMap;
 	}
 
-	//	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()

@@ -231,8 +231,15 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
+	@CsvSource({"3571, Classic"})
+	void qryLeaguePickDataList(int leagueId, String leagueType) {
+		List<PlayerPickData> list = this.querySerivce.qryLeaguePickDataList(leagueId, leagueType);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
 	@CsvSource({"16, 3571, Classic"})
-	void qryLeaguePickDataList(int event, int leagueId, String leagueType) {
+	void qryLeagueEventPickDataList(int event, int leagueId, String leagueType) {
 		List<PlayerPickData> list = this.querySerivce.qryLeagueEventPickDataList(event, leagueId, leagueType);
 		System.out.println(1);
 	}
