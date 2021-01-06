@@ -85,10 +85,10 @@ public interface IQueryService {
 	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 
 	default PlayerShowData qryPlayerShowData(int element) {
-		return this.qryPlayerShowData(element, Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap(), HashMultimap.create());
+		return this.qryPlayerShowData(element, Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap(), HashMultimap.create());
 	}
 
-	PlayerShowData qryPlayerShowData(int element, Map<String, String> positionMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
+	PlayerShowData qryPlayerShowData(int element, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
 	                                 Map<Integer, PlayerEntity> playerMap, Multimap<Integer, EventLiveEntity> eventLiveMap);
 
 	/**
@@ -162,8 +162,6 @@ public interface IQueryService {
 	}
 
 	Map<String, String> getTeamShortNameMap(String season);
-
-	Map<String, String> getPositionMap();
 
 	/**
 	 * @apiNote fixture

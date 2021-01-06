@@ -119,11 +119,6 @@ public class RedisCacheTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
-	@Test
-	void insertPosition() {
-		this.redisCacheSerive.insertPosition();
-	}
-
 	@ParameterizedTest
 	@CsvSource({"2021"})
 	void getTeamNameMap(String season) {

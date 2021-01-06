@@ -15,9 +15,10 @@ public enum Position {
 
 	private final int elementType;
 
-	public static Position getNameFromElementType(int elementType) {
+	public static String getNameFromElementType(int elementType) {
 		return Arrays.stream(Position.values())
 				.filter(o -> o.getElementType() == elementType)
+				.map(Position::name)
 				.findFirst()
 				.orElse(null);
 	}

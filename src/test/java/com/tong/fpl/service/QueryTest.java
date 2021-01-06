@@ -233,7 +233,10 @@ public class QueryTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"3571, Classic"})
 	void qryLeaguePickDataList(int leagueId, String leagueType) {
+		long start = System.currentTimeMillis();
 		List<PlayerPickData> list = this.querySerivce.qryLeaguePickDataList(leagueId, leagueType);
+		long end = System.currentTimeMillis();
+		System.out.println("escaped: " + (end - start));
 		System.out.println(1);
 	}
 

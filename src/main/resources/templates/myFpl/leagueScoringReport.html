@@ -106,7 +106,7 @@
         });
 
         table.render({
-            elem: '#leagueTransferScoringStatTable',
+            elem: '#leagueScoringReportStatTable',
             size: 'sm',
             url: '/my_fpl/qryLeagueScoringReportStat',
             where: {
@@ -116,6 +116,26 @@
             parseData: function (res) {
                 let data = [];
                 $.each(res.data, function (index, item) {
+                    item.benchTotalPoints = item.scoringData.benchTotalPoints;
+                    item.benchTotalPointsByPercent = item.scoringData.benchTotalPointsByPercent;
+                    item.autoSubsTotalPoints = item.scoringData.autoSubsTotalPoints;
+                    item.autoSubsTotalPointsByPercent = item.scoringData.autoSubsTotalPointsByPercent;
+                    item.gkpTotalPoints = item.scoringData.gkpTotalPoints;
+                    item.gkpTotalPointsByPercent = item.scoringData.gkpTotalPointsByPercent;
+                    item.defTotalPoints = item.scoringData.defTotalPoints;
+                    item.defTotalPointsByPercent = item.scoringData.defTotalPointsByPercent;
+                    item.midTotalPoints = item.scoringData.midTotalPoints;
+                    item.midTotalPointsByPercent = item.scoringData.midTotalPointsByPercent;
+                    item.fwdTotalPoints = item.scoringData.fwdTotalPoints;
+                    item.fwdTotalPointsByPercent = item.scoringData.fwdTotalPointsByPercent;
+                    item.captainTotalPoints = item.scoringData.captainTotalPoints;
+                    item.captainTotalPointsByPercent = item.scoringData.captainTotalPointsByPercent;
+                    item.mostSelectedGkpName = item.scoringData.mostSelectedGkpName;
+                    item.mostSelectedDefName = item.scoringData.mostSelectedDefName;
+                    item.mostSelectedMidName = item.scoringData.mostSelectedMidName;
+                    item.mostSelectedFwdName = item.scoringData.mostSelectedFwdName;
+                    item.mostSelectedCaptainName = item.scoringData.mostSelectedCaptainName;
+                    item.mostSelectedFormation = item.scoringData.mostSelectedFormation;
                     data.push(item);
                 });
                 return {
@@ -152,17 +172,155 @@
                         sort: true
                     },
                     {
-                        field: 'overallRank',
-                        title: '总排名',
+                        field: 'transfersCost',
+                        title: '总剁手',
                         align: 'center',
                         rowspan: 2,
-                        sort: true,
-                        templet: function (d) {
-                            return showOverallRank(d.overallRank);
-                        }
+                        sort: true
+                    },
+                    {title: '板凳', align: 'center', colspan: 2},
+                    {title: '自动替补', align: 'center', colspan: 2},
+                    {title: '队长', align: 'center', colspan: 3},
+                    {title: '门将', align: 'center', colspan: 3},
+                    {title: '后卫', align: 'center', colspan: 3},
+                    {title: '中场', align: 'center', colspan: 3},
+                    {title: '前锋', align: 'center', colspan: 3},
+                    {
+                        field: 'mostSelectedFormation',
+                        title: '最多阵型',
+                        align: 'center',
+                        rowspan: 2,
+                        filter: true
                     },
                 ],
-                []
+                [
+                    {
+                        field: 'benchTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'benchTotalPointsByPercent',
+                        title: '占比',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'autoSubsTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'autoSubsTotalPointsByPercent',
+                        title: '占比',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'captainTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'captainTotalPointsByPercent',
+                        title: '占比',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'mostSelectedCaptainName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'gkpTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'gkpTotalPointsByPercent',
+                        title: '占比',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'mostSelectedGkpName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'defTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'defTotalPointsByPercent',
+                        title: '占比',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'mostSelectedDefName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'midTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'midTotalPointsByPercent',
+                        title: '占比',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'mostSelectedMidName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'fwdTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'fwdTotalPointsByPercent',
+                        title: '占比',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    },
+                    {
+                        field: 'mostSelectedFwdName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true,
+                        hide: true
+                    }
+                ]
             ],
             filter: {
                 items: ['data'],
@@ -187,7 +345,7 @@
                 $("#leagueScoringEventReport").addClass("layui-hide");
                 $("#reportStatExplain").removeClass("layui-hide");
                 $("#eventReportExplain").addClass("layui-hide");
-                table.reload('leagueTransferReportStatTable', {
+                table.reload('leagueScoringReportStatTable', {
                     url: '/my_fpl/qryLeagueScoringReportStat',
                     where: {
                         leagueId: leagueId,
@@ -275,7 +433,7 @@
                             }
                         ]
                     ],
-                    id: 'leagueTransferEventReportTable',
+                    id: 'leagueScoringEventReportTable',
                     filter: {
                         items: ['data'],
                         bottom: false

@@ -47,8 +47,6 @@ public interface IRedisCacheService {
 
     void insertLiveBonusCache();
 
-    void insertPosition();
-
     void insertDiscloseCache(int tournamentId, int captainGroupId, int entry);
 
     int getCurrentEvent();

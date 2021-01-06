@@ -29,7 +29,9 @@ public class LeagueEventReportData {
 	private int eventTransfersPlayed;
 	private int eventNetPoints;
 	private int eventBenchPoints;
+	private String eventBenchByPercent;
 	private int eventAutoSubPoints;
+	private String eventAutoSubByPercent;
 	private int eventRank;
 	private String eventChip;
 	// captain
@@ -61,9 +63,13 @@ public class LeagueEventReportData {
 	private List<EntryEventTransfersData> entryEventTransferList;
 	// scoring
 	private int gkpPoints;
+	private String gkpPointsByPercent;
 	private int defPoints;
+	private String defPointsByPercent;
 	private int midPoints;
+	private String midPointsByPercent;
 	private int fwdPoints;
+	private String fwdPointsByPercent;
 	private int playedNum;
 	private int autoSubNum;
 	private String formation;

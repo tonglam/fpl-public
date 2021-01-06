@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
 import com.tong.fpl.config.collector.BattleGroupResultCollector;
 import com.tong.fpl.config.collector.KnockoutResultCollector;
+import com.tong.fpl.config.collector.PlayerPickDataCollector;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.*;
@@ -132,13 +133,12 @@ public class QueryServiceImpl implements IQueryService {
 	public PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity) {
 		Map<String, String> teamNameMap = this.getTeamNameMap(season);
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap(season);
-		Map<String, String> positionMap = this.getPositionMap();
 		return new PlayerInfoData()
 				.setElement(playerEntity.getElement())
 				.setCode(playerEntity.getCode())
 				.setWebName(playerEntity.getWebName())
 				.setElementType(playerEntity.getElementType())
-				.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
+				.setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
 				.setTeamId(playerEntity.getTeamId())
 				.setTeamName(teamNameMap.get(String.valueOf(playerEntity.getTeamId())))
 				.setTeamShortName(teamShortNameMap.get(String.valueOf(playerEntity.getTeamId())))
@@ -256,13 +256,10 @@ public class QueryServiceImpl implements IQueryService {
 
 	@Cacheable(value = "qryPlayerShowData", key = "#element")
 	@Override
-	public PlayerShowData qryPlayerShowData(int element, Map<String, String> positionMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
+	public PlayerShowData qryPlayerShowData(int element, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
 	                                        Map<Integer, PlayerEntity> playerMap, Multimap<Integer, EventLiveEntity> eventLiveMap) {
 		PlayerShowData data = new PlayerShowData().setElement(element);
 		// prepare
-		if (CollectionUtils.isEmpty(positionMap)) {
-			positionMap = this.getPositionMap();
-		}
 		if (CollectionUtils.isEmpty(teamNameMap)) {
 			teamNameMap = this.getTeamNameMap();
 		}
@@ -285,7 +282,7 @@ public class QueryServiceImpl implements IQueryService {
 		int teamId = playerEntity.getTeamId();
 		data
 				.setElementType(playerEntity.getElementType())
-				.setElementTypeName(positionMap.getOrDefault(String.valueOf(playerEntity.getElementType()), ""))
+				.setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
 				.setWebName(playerEntity.getWebName())
 				.setTeamId(teamId)
 				.setTeamName(teamNameMap.getOrDefault(String.valueOf(teamId), ""))
@@ -542,12 +539,6 @@ public class QueryServiceImpl implements IQueryService {
 		return this.redisCacheService.getTeamShortNameMap(season);
 	}
 
-	@Cacheable(value = "getPositionMap")
-	@Override
-	public Map<String, String> getPositionMap() {
-		return this.redisCacheService.getPositionMap();
-	}
-
 	/**
 	 * @implNote fixture
 	 */
@@ -779,7 +770,6 @@ public class QueryServiceImpl implements IQueryService {
 		if (CollectionUtils.isEmpty(pickList)) {
 			return Lists.newArrayList();
 		}
-		Map<String, String> positionMap = this.getPositionMap();
 		Map<String, String> teamNameMap = this.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
@@ -789,7 +779,7 @@ public class QueryServiceImpl implements IQueryService {
 			PlayerEntity playerEntity = playerMap.getOrDefault(pick.getElement(), null);
 			if (playerEntity != null) {
 				pick
-						.setElementTypeName(positionMap.get(String.valueOf(playerEntity.getElementType())))
+						.setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
 						.setWebName(playerEntity.getWebName())
 						.setTeamId(playerEntity.getTeamId())
 						.setTeamName(teamNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
@@ -918,23 +908,18 @@ public class QueryServiceImpl implements IQueryService {
 		return playerPickData;
 	}
 
-	@Cacheable(value = "qryLeaguePickDataList", key = "#leagueId+'::'+#leagueType", unless = "#result.size() == 0")
+	// 此数据结构不适合springboot的cache
 	@Override
 	public List<PlayerPickData> qryLeaguePickDataList(int leagueId, String leagueType) {
-		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+		List<Integer> entryList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
 				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
-				.eq(LeagueEventReportEntity::getLeagueType, leagueType));
-		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
-			return Lists.newArrayList();
-		}
-		List<Integer> entryList = leagueEventReportEntityList
+				.eq(LeagueEventReportEntity::getLeagueType, leagueType))
 				.stream()
 				.map(LeagueEventReportEntity::getEntry)
 				.collect(Collectors.toList());
-		List<Integer> eventList = leagueEventReportEntityList
-				.stream()
-				.map(LeagueEventReportEntity::getEvent)
-				.collect(Collectors.toList());
+		if (CollectionUtils.isEmpty(entryList)) {
+			return Lists.newArrayList();
+		}
 		// prepare
 		Multimap<Integer, EntryEventResultEntity> entryEventResultMap = HashMultimap.create();
 		this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
@@ -944,108 +929,61 @@ public class QueryServiceImpl implements IQueryService {
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
-		Map<String, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-				.in(EventLiveEntity::getEvent, eventList))
-				.stream()
-				.collect(Collectors.toMap(k -> k.getEvent() + "-" + k.getElement(), o -> o));
-		// collect
-		List<PlayerPickData> list = Lists.newArrayList();
-		List<CompletableFuture<PlayerPickData>> future = entryList.stream()
-				.map(o -> CompletableFuture.supplyAsync(() -> this.calcEntryPickDataList(o, entryEventResultMap, playerMap, teamShortNameMap, eventLiveMap), new ForkJoinPool(10)))
-				.collect(Collectors.toList());
-		return future
-				.stream()
-				.map(CompletableFuture::join)
-				.collect(Collectors.toList());
-	}
-
-	private PlayerPickData calcEntryPickDataList(int entry, Multimap<Integer, EntryEventResultEntity> entryEventResultMap, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap, Map<String, EventLiveEntity> eventLiveMap) {
-		List<EntryPickData> gkpList = Lists.newArrayList();
-		List<EntryPickData> defList = Lists.newArrayList();
-		List<EntryPickData> midList = Lists.newArrayList();
-		List<EntryPickData> fwdList = Lists.newArrayList();
-		List<EntryPickData> subList = Lists.newArrayList();
-		entryEventResultMap.get(entry).forEach(entryEventResult -> {
-			int event = entryEventResult.getEvent();
-			// pick
+		// pick list
+		Multimap<Integer, EntryPickData> pickMap = HashMultimap.create(); // event -> entryPickData
+		entryEventResultMap.forEach((entry, entryEventResult) -> {
 			List<EntryPickData> pickList = JsonUtils.json2Collection(entryEventResult.getEventPicks(), List.class, EntryPickData.class);
 			if (CollectionUtils.isEmpty(pickList)) {
 				return;
 			}
-			pickList.forEach(pick -> {
-				int element = pick.getElement();
-				// player
-				PlayerEntity playerEntity = playerMap.get(element);
-				if (playerEntity != null) {
-					pick
-							.setWebName(playerEntity.getWebName())
-							.setElementType(playerEntity.getElementType())
-							.setTeamId(playerEntity.getTeamId());
-				}
-				pick.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(pick.getTeamId()), ""));
-				// element live
-				String key = event + "-" + element;
-				EventLiveEntity eventLiveEntity = eventLiveMap.get(key);
-				if (eventLiveEntity != null) {
-					pick.setMinutes(eventLiveEntity.getMinutes());
-				}
-				// add into list
-				if (pick.getPosition() <= 11) {
-					switch (pick.getElementType()) {
-						case 1: {
-							gkpList.add(pick);
-							break;
-						}
-						case 2: {
-							defList.add(pick);
-							break;
-						}
-						case 3: {
-							midList.add(pick);
-							break;
-						}
-						case 4: {
-							fwdList.add(pick);
-							break;
-						}
-					}
-				} else {
-					subList.add(pick);
-				}
+			int event = entryEventResult.getEvent();
+			pickList.forEach(o -> {
+				o.setEvent(event).setEntry(entry);
+				pickMap.put(event, o);
 			});
 		});
-		return new PlayerPickData()
-				.setEntry(entry)
-				.setGkps(
-						gkpList
-								.stream()
-								.sorted(Comparator.comparing(EntryPickData::getPosition))
-								.collect(Collectors.toList())
-				)
-				.setDefs(
-						defList
-								.stream()
-								.sorted(Comparator.comparing(EntryPickData::getPosition))
-								.collect(Collectors.toList())
-				)
-				.setMids(
-						midList
-								.stream()
-								.sorted(Comparator.comparing(EntryPickData::getPosition))
-								.collect(Collectors.toList())
-				)
-				.setFwds(
-						fwdList
-								.stream()
-								.sorted(Comparator.comparing(EntryPickData::getPosition))
-								.collect(Collectors.toList())
-				)
-				.setSubs(
-						subList
-								.stream()
-								.sorted(Comparator.comparing(EntryPickData::getPosition))
-								.collect(Collectors.toList())
-				);
+		// data
+		List<CompletableFuture<List<EntryPickData>>> future = pickMap.keySet()
+				.stream()
+				.map(event -> CompletableFuture.supplyAsync(() ->
+						this.initEventLeagueEntryPickData(event, pickMap, playerMap, teamShortNameMap), new ForkJoinPool(4)))
+				.collect(Collectors.toList());
+		List<EntryPickData> pickDataList = Lists.newArrayList();
+		future
+				.stream()
+				.map(CompletableFuture::join)
+				.forEach(pickDataList::addAll);
+		// collect
+		return pickDataList
+				.stream()
+				.collect(new PlayerPickDataCollector());
+	}
+
+	private List<EntryPickData> initEventLeagueEntryPickData(int event, Multimap<Integer, EntryPickData> pickMap, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+		List<EntryPickData> list = Lists.newArrayList();
+		Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+		pickMap.get(event).forEach(pick -> {
+			int element = pick.getElement();
+			// player
+			PlayerEntity playerEntity = playerMap.get(element);
+			if (playerEntity != null) {
+				pick
+						.setWebName(playerEntity.getWebName())
+						.setElementType(playerEntity.getElementType())
+						.setTeamId(playerEntity.getTeamId());
+			}
+			pick.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(pick.getTeamId()), ""));
+			// element live
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
+			if (eventLiveEntity != null) {
+				pick.setMinutes(eventLiveEntity.getMinutes());
+			}
+			list.add(pick);
+		});
+		return list;
 	}
 
 	@Cacheable(value = "qryLeagueEventPickDataList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result.size() == 0")
@@ -1185,7 +1123,6 @@ public class QueryServiceImpl implements IQueryService {
 		if (CollectionUtils.isEmpty(autoSubList)) {
 			return Lists.newArrayList();
 		}
-		Map<String, String> positionMap = this.getPositionMap();
 		Map<String, String> teamNameMap = this.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
@@ -1196,7 +1133,7 @@ public class QueryServiceImpl implements IQueryService {
 			if (playerInEntity != null) {
 				o
 						.setElementInType(playerInEntity.getElementType())
-						.setElementInTypeName(positionMap.get(String.valueOf(playerInEntity.getElementType())))
+						.setElementInTypeName(Position.getNameFromElementType(playerInEntity.getElementType()))
 						.setElementInWebName(playerInEntity.getWebName())
 						.setElementInTeamId(playerInEntity.getTeamId())
 						.setElementInTeamName(teamNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
@@ -1206,7 +1143,7 @@ public class QueryServiceImpl implements IQueryService {
 			if (playerOutEntity != null) {
 				o
 						.setElementOutType(playerOutEntity.getElementType())
-						.setElementOutTypeName(positionMap.get(String.valueOf(playerOutEntity.getElementType())))
+						.setElementOutTypeName(Position.getNameFromElementType(playerOutEntity.getElementType()))
 						.setElementOutWebName(playerOutEntity.getWebName())
 						.setElementOutTeamId(playerOutEntity.getTeamId())
 						.setElementOutTeamName(teamNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
@@ -1230,7 +1167,6 @@ public class QueryServiceImpl implements IQueryService {
 			return Lists.newArrayList();
 		}
 		// prepare
-		Map<String, String> positionMap = this.getPositionMap();
 		Map<String, String> teamNameMap = this.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
 		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
@@ -1258,7 +1194,7 @@ public class QueryServiceImpl implements IQueryService {
 				if (playerInEntity != null) {
 					o
 							.setElementInType(playerInEntity.getElementType())
-							.setElementInTypeName(positionMap.get(String.valueOf(playerInEntity.getElementType())))
+							.setElementInTypeName(Position.getNameFromElementType(playerInEntity.getElementType()))
 							.setElementInWebName(playerInEntity.getWebName())
 							.setElementInTeamId(playerInEntity.getTeamId())
 							.setElementInTeamName(teamNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
@@ -1268,7 +1204,7 @@ public class QueryServiceImpl implements IQueryService {
 				if (playerOutEntity != null) {
 					o
 							.setElementOutType(playerOutEntity.getElementType())
-							.setElementOutTypeName(positionMap.get(String.valueOf(playerOutEntity.getElementType())))
+							.setElementOutTypeName(Position.getNameFromElementType(playerOutEntity.getElementType()))
 							.setElementOutWebName(playerOutEntity.getWebName())
 							.setElementOutTeamId(playerOutEntity.getTeamId())
 							.setElementOutTeamName(teamNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
