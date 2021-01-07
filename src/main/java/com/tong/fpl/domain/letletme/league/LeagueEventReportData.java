@@ -16,13 +16,13 @@ public class LeagueEventReportData {
 
 	private int rank;
 	private int entry;
+	private int event;
 	private String entryName;
 	private String playerName;
 	private int overallPoints;
 	private int overallRank;
 	private int teamValue;
 	private int bank;
-	private int event;
 	private int eventPoints;
 	private int eventTransfers;
 	private int eventTransfersCost;

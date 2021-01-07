@@ -137,7 +137,10 @@ public class TableQueryTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"3571, Classic, 1870"})
 	void qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
+		long start = System.currentTimeMillis();
 		TableData<LeagueEventReportData> data = this.tableQueryService.qryEntryScoringEventReportList(leagueId, leagueType, entry);
+		long end = System.currentTimeMillis();
+		System.out.println("escaped: " + (end - start));
 		System.out.println(1);
 	}
 

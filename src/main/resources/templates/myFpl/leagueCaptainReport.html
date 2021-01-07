@@ -166,7 +166,7 @@
                     {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                     {
                         field: 'entryName',
-                        title: '球队',
+                        title: '队伍',
                         align: 'center',
                         event: 'entryEvent',
                         rowspan: 2,
@@ -306,7 +306,7 @@
                             {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                             {
                                 field: 'entryName',
-                                title: '球队',
+                                title: '队伍',
                                 align: 'center',
                                 event: 'entryEvent',
                                 rowspan: 2,
@@ -477,16 +477,16 @@
                             }
                         },
                         {
-                            field: 'eventNetPoints',
+                            field: 'eventPoints',
                             title: '得分',
                             align: 'center',
                             totalRow: true,
                             rowspan: 2,
                             templet: function (d) {
                                 if (d.eventTransfersCost > 0) {
-                                    return d.eventNetPoints + '(-' + d.eventTransfersCost + ')';
+                                    return d.eventPoints + '(-' + d.eventTransfersCost + ')';
                                 } else {
-                                    return d.eventNetPoints;
+                                    return d.eventPoints;
                                 }
                             }
                         },

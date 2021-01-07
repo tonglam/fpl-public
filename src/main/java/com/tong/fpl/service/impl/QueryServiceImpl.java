@@ -856,7 +856,8 @@ public class QueryServiceImpl implements IQueryService {
 				.setSubs(subList
 						.stream()
 						.sorted(Comparator.comparing(EntryPickData::getPosition))
-						.collect(Collectors.toList()));
+						.collect(Collectors.toList()))
+				.setFormation(StringUtils.joinWith("-", defList.size(), midList.size(), fwdList.size()));
 	}
 
 	@Cacheable(value = "qryEntryPickData", key = "#event+'::'+#entry", unless = "#result == null")
@@ -869,37 +870,41 @@ public class QueryServiceImpl implements IQueryService {
 			return new PlayerPickData();
 		}
 		PlayerPickData playerPickData = this.qryPickListByPosition(entryEventResultEntity.getEventPicks());
-		Map<String, EventLiveEntity> eventLiveMap = this.getEventLiveByEvent(event);
+		playerPickData.setEntry(entry).setEvent(event);
+		Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
 		playerPickData.getGkps().forEach(o -> {
-			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(o.getElement()));
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(o.getElement());
 			if (eventLiveEntity == null) {
 				return;
 			}
 			o.setMinutes(eventLiveEntity.getMinutes()).setPoints(eventLiveEntity.getTotalPoints());
 		});
 		playerPickData.getDefs().forEach(o -> {
-			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(o.getElement()));
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(o.getElement());
 			if (eventLiveEntity == null) {
 				return;
 			}
 			o.setMinutes(eventLiveEntity.getMinutes()).setPoints(eventLiveEntity.getTotalPoints());
 		});
 		playerPickData.getMids().forEach(o -> {
-			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(o.getElement()));
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(o.getElement());
 			if (eventLiveEntity == null) {
 				return;
 			}
 			o.setMinutes(eventLiveEntity.getMinutes()).setPoints(eventLiveEntity.getTotalPoints());
 		});
 		playerPickData.getFwds().forEach(o -> {
-			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(o.getElement()));
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(o.getElement());
 			if (eventLiveEntity == null) {
 				return;
 			}
 			o.setMinutes(eventLiveEntity.getMinutes()).setPoints(eventLiveEntity.getTotalPoints());
 		});
 		playerPickData.getSubs().forEach(o -> {
-			EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(o.getElement()));
+			EventLiveEntity eventLiveEntity = eventLiveMap.get(o.getElement());
 			if (eventLiveEntity == null) {
 				return;
 			}
@@ -1009,7 +1014,10 @@ public class QueryServiceImpl implements IQueryService {
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
-		Map<String, EventLiveEntity> eventLiveMap = this.getEventLiveByEvent(event);
+		Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
 		// collect
 		List<PlayerPickData> list = Lists.newArrayList();
 		entryEventResultMap.keySet().forEach(entry -> {
@@ -1035,7 +1043,7 @@ public class QueryServiceImpl implements IQueryService {
 				}
 				pick.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(pick.getTeamId()), ""));
 				// element live
-				EventLiveEntity eventLiveEntity = eventLiveMap.get(String.valueOf(element));
+				EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
 				if (eventLiveEntity != null) {
 					pick.setMinutes(eventLiveEntity.getMinutes());
 				}

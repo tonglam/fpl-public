@@ -37,6 +37,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -2214,9 +2215,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 									.findFirst()
 									.orElse(0)
 					)
-					.setMostSelectedFormation("");
+					.setMostSelectedFormation(
+							pickDataList
+									.stream()
+									.filter(o -> o.getEntry() == entry)
+									.map(PlayerPickData::getFormation)
+									.findFirst()
+									.orElse("")
+					);
 			leagueEventScoringData
-					.setBenchTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(leagueEventScoringData.getBenchTotalPoints(), data.getOverallPoints()), 1))
 					.setAutoSubsTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(leagueEventScoringData.getAutoSubsTotalPoints(), data.getOverallPoints()), 1))
 					.setGkpTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(leagueEventScoringData.getGkpTotalPoints(), data.getOverallPoints()), 1))
 					.setDefTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(leagueEventScoringData.getDefTotalPoints(), data.getOverallPoints()), 1))
@@ -2265,7 +2272,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return rankMap;
 	}
 
-	@Cacheable(value = "qryLeagueScoringEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
+	//	@Cacheable(value = "qryLeagueScoringEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -2287,6 +2294,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		});
 		Multimap<Integer, EntryEventAutoSubsData> eventEventAutoSubMap = HashMultimap.create();
 		this.queryService.qryLeagueEventAutoSubDataList(event, leagueId, leagueType).forEach(o -> eventEventAutoSubMap.put(o.getEntry(), o));
+		Map<Integer, String> playerNameMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
 		// collect
 		List<LeagueEventReportData> list = Lists.newArrayList();
 		leagueEventReportEntityList.forEach(o -> {
@@ -2302,6 +2312,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setMidPoints(this.calcEntryEventElementTypePoints(entry, Position.MID.getElementType(), eventEventPickTable))
 					.setFwdPoints(this.calcEntryEventElementTypePoints(entry, Position.FWD.getElementType(), eventEventPickTable))
 					.setCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
+					.setCaptainWebName(playerNameMap.getOrDefault(data.getPlayedCaptain(), ""))
 					.setPlayedNum(
 							(int) Objects.requireNonNull(eventEventPickTable.get(entry, Position.GKP.getElementType()))
 									.stream()
@@ -2351,7 +2362,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		// sort
 		Map<Integer, Integer> rankMap = this.sortLeagueScoringEventRank(list);
 		if (!CollectionUtils.isEmpty(rankMap)) {
-			list.forEach(o -> o.setRank(rankMap.get(o.getOverallRank())));
+			list.forEach(o -> o.setRank(rankMap.get(o.getEventPoints())));
 		}
 		return new TableData<>(list
 				.stream()
@@ -2376,9 +2387,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		Map<Integer, Integer> rankCountMap = Maps.newLinkedHashMap();
 		leagueEventReportDataList
 				.stream()
-				.sorted(Comparator.comparing(LeagueEventReportData::getOverallRank))
+				.sorted(Comparator.comparing(LeagueEventReportData::getEventPoints).reversed())
 				.forEachOrdered(o -> {
-					int key = o.getOverallRank();
+					int key = o.getEventPoints();
 					if (rankCountMap.containsKey(key)) {
 						rankCountMap.put(key, rankCountMap.get(key) + 1);
 					} else {
@@ -2393,7 +2404,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return rankMap;
 	}
 
-	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	//	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -2404,90 +2415,93 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
 			return new TableData<>();
 		}
-		// collect
-		List<LeagueEventReportData> list = Lists.newArrayList();
-		leagueEventReportEntityList.forEach(o -> {
-			int event = o.getEvent();
-			LeagueEventReportData data = new LeagueEventReportData();
-			BeanUtil.copyProperties(o, data);
-			PlayerPickData pickData = this.queryService.qryEntryPickData(event, entry);
-			if (pickData == null) {
-				return;
-			}
-			data
-					.setGkpPoints(
-							pickData.getGkps()
-									.stream()
-									.mapToInt(EntryPickData::getPoints)
-									.sum()
-					)
-					.setDefPoints(
-							pickData.getDefs()
-									.stream()
-									.mapToInt(EntryPickData::getPoints)
-									.sum()
-					)
-					.setMidPoints(
-							pickData.getMids()
-									.stream()
-									.mapToInt(EntryPickData::getPoints)
-									.sum()
-					)
-					.setFwdPoints(
-							pickData.getFwds()
-									.stream()
-									.mapToInt(EntryPickData::getPoints)
-									.sum()
-					)
-					.setCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
-					.setPlayedNum(
-							(int) pickData.getGkps()
-									.stream()
-									.filter(pick -> pick.getMinutes() > 0)
-									.count() +
-									(int) pickData.getDefs()
-											.stream()
-											.filter(pick -> pick.getMinutes() > 0)
-											.count() +
-									(int) pickData.getMids()
-											.stream()
-											.filter(pick -> pick.getMinutes() > 0)
-											.count() +
-									(int) pickData.getFwds()
-											.stream()
-											.filter(pick -> pick.getMinutes() > 0)
-											.count()
-					)
-
-					.setFormation(
-							StringUtils.joinWith(
-									"-",
-									pickData.getDefs().size(),
-									pickData.getMids().size(),
-									pickData.getFwds().size()
-							)
-					);
-			// autoSubs
-			List<EntryEventAutoSubsData> entryEventAutoSubsList = this.queryService.qryEntryAutoSubDataList(event, entry);
-			data
-					.setAutoSubNum(entryEventAutoSubsList.size())
-					.setEntryEventAutoSubsList(entryEventAutoSubsList);
-			// other data
-			data
-					.setEventBenchByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventBenchPoints(), data.getEventPoints()), 1))
-					.setEventAutoSubByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventAutoSubPoints(), data.getEventPoints()), 1))
-					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
-					.setGkpPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpPoints(), data.getEventPoints()), 1))
-					.setDefPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefPoints(), data.getEventPoints()), 1))
-					.setMidPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getMidPoints(), data.getEventPoints()), 1))
-					.setFwdPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getFwdPoints(), data.getEventPoints()), 1));
-			list.add(data);
-		});
-		return new TableData<>(list
+		// prepare
+		Map<Integer, String> playerNameMap = this.playerService.list()
 				.stream()
-				.sorted(Comparator.comparing(LeagueEventReportData::getEvent))
-				.collect(Collectors.toList())
+				.collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+		// collect
+		List<CompletableFuture<LeagueEventReportData>> future = leagueEventReportEntityList.stream()
+				.map(o -> CompletableFuture.supplyAsync(() -> this.collectEntryScoringEventReportList(o, playerNameMap), new ForkJoinPool(4)))
+				.collect(Collectors.toList());
+		return new TableData<>(
+				future
+						.stream()
+						.map(CompletableFuture::join)
+						.sorted(Comparator.comparing(LeagueEventReportData::getEvent))
+						.collect(Collectors.toList())
 		);
+	}
+
+	private LeagueEventReportData collectEntryScoringEventReportList(LeagueEventReportEntity o, Map<Integer, String> playerNameMap) {
+		int entry = o.getEntry();
+		int event = o.getEvent();
+		LeagueEventReportData data = new LeagueEventReportData();
+		BeanUtil.copyProperties(o, data);
+		PlayerPickData pickData = this.queryService.qryEntryPickData(event, entry);
+		if (pickData == null) {
+			return data;
+		}
+		data
+				.setGkpPoints(
+						pickData.getGkps()
+								.stream()
+								.mapToInt(EntryPickData::getPoints)
+								.sum()
+				)
+				.setDefPoints(
+						pickData.getDefs()
+								.stream()
+								.mapToInt(EntryPickData::getPoints)
+								.sum()
+				)
+				.setMidPoints(
+						pickData.getMids()
+								.stream()
+								.mapToInt(EntryPickData::getPoints)
+								.sum()
+				)
+				.setFwdPoints(
+						pickData.getFwds()
+								.stream()
+								.mapToInt(EntryPickData::getPoints)
+								.sum()
+				)
+				.setCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
+				.setCaptainWebName(playerNameMap.getOrDefault(data.getPlayedCaptain(), ""))
+				.setPlayedNum(
+						(int) pickData.getGkps()
+								.stream()
+								.filter(pick -> pick.getMinutes() > 0)
+								.count() +
+								(int) pickData.getDefs()
+										.stream()
+										.filter(pick -> pick.getMinutes() > 0)
+										.count() +
+								(int) pickData.getMids()
+										.stream()
+										.filter(pick -> pick.getMinutes() > 0)
+										.count() +
+								(int) pickData.getFwds()
+										.stream()
+										.filter(pick -> pick.getMinutes() > 0)
+										.count()
+				)
+				.setFormation(pickData.getFormation());
+		// autoSubs
+		List<EntryEventAutoSubsData> entryEventAutoSubsList = this.queryService.qryEntryAutoSubDataList(event, entry);
+		data
+				.setAutoSubNum(entryEventAutoSubsList.size())
+				.setEntryEventAutoSubsList(entryEventAutoSubsList);
+		// other data
+		data
+				.setEventBenchByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventBenchPoints(), data.getEventPoints()), 1))
+				.setEventAutoSubByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventAutoSubPoints(), data.getEventPoints()), 1))
+				.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
+				.setGkpPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpPoints(), data.getEventPoints()), 1))
+				.setDefPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefPoints(), data.getEventPoints()), 1))
+				.setMidPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getMidPoints(), data.getEventPoints()), 1))
+				.setFwdPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getFwdPoints(), data.getEventPoints()), 1));
+		return data;
 	}
 
 	private LinkedHashMap<String, String> collectSelectedMap(List<Integer> elementList, int teamSize, int limit, Map<Integer, PlayerEntity> playerMap) {

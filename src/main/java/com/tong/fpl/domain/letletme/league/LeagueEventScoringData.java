@@ -11,7 +11,6 @@ import lombok.experimental.Accessors;
 public class LeagueEventScoringData {
 
 	private int benchTotalPoints;
-	private String benchTotalPointsByPercent;
 	private int autoSubsTotalPoints;
 	private String autoSubsTotalPointsByPercent;
 	private int gkpTotalPoints;

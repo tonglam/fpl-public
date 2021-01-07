@@ -174,7 +174,7 @@
                     {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                     {
                         field: 'entryName',
-                        title: '球队名称',
+                        title: '队伍',
                         align: 'center',
                         event: 'entryEvent',
                         rowspan: 2,
@@ -441,7 +441,7 @@
                             {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                             {
                                 field: 'entryName',
-                                title: '球队名称',
+                                title: '队伍',
                                 align: 'center',
                                 event: 'entryEvent',
                                 rowspan: 2,
@@ -751,7 +751,14 @@
                             title: '得分',
                             align: 'center',
                             totalRow: true,
-                            rowspan: 2
+                            rowspan: 2,
+                            templet: function (d) {
+                                if (d.eventTransfersCost > 0) {
+                                    return d.eventPoints + '(-' + d.eventTransfersCost + ')';
+                                } else {
+                                    return d.eventPoints;
+                                }
+                            }
                         },
                         {
                             field: 'eventTransfers',
@@ -761,14 +768,6 @@
                             templet: function (d) {
                                 return d.eventTransfers + " (" + d.eventTransfersPlayed + ") ";
                             },
-                            sort: true
-                        },
-                        {
-                            field: 'eventTransfersCost',
-                            title: '剁手',
-                            align: 'center',
-                            totalRow: true,
-                            rowspan: 2,
                             sort: true
                         },
                         {title: '转会总分', align: 'center', colspan: 6},

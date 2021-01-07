@@ -20,5 +20,6 @@ public class PlayerPickData {
 	private List<EntryPickData> mids;
 	private List<EntryPickData> fwds;
 	private List<EntryPickData> subs;
+	private String formation;
 
 }

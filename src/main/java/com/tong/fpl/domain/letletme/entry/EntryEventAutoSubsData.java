@@ -20,7 +20,6 @@ public class EntryEventAutoSubsData {
 	private String elementInTeamName;
 	private String elementInTeamShortName;
 	private int elementInPoints;
-	private boolean elementInPlayed;
 	private int elementOut;
 	private String elementOutWebName;
 	private int elementOutType;
