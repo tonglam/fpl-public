@@ -125,6 +125,10 @@
 
         table.render({
             elem: '#leagueCaptainReportStatTable',
+            size: 'sm',
+            even: true,
+            toolbar: true,
+            defaultToolbar: ['filter'],
             url: '/my_fpl/qryLeagueCaptainReportStat',
             where: {
                 leagueId: leagueId,
@@ -155,18 +159,15 @@
                     "data": data
                 };
             },
-            toolbar: true,
-            defaultToolbar: ['filter'],
             loading: true,
-            even: true,
             limit: 200,
             cols: [
                 [
                     {field: 'rank', title: '', align: 'center', rowspan: 2},
-                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
+                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, sort: true, hide: true},
                     {
                         field: 'entryName',
-                        title: '队伍',
+                        title: '球队',
                         align: 'center',
                         event: 'entryEvent',
                         rowspan: 2,
@@ -289,29 +290,43 @@
                 $("#reportStatExplain").addClass("layui-hide");
                 table.render({
                     elem: '#leagueCaptainEventReportTable',
+                    size: 'sm',
+                    even: true,
+                    toolbar: true,
+                    defaultToolbar: ['filter'],
                     url: '/my_fpl/qryLeagueCaptainEventReportList',
                     where: {
                         event: event,
                         leagueId: leagueId,
                         leagueType: leagueType
                     },
-                    toolbar: true,
-                    defaultToolbar: ['filter'],
                     loading: true,
                     limit: 200,
-                    even: true,
                     cols: [
                         [
-                            {field: 'rank', title: '', align: 'center', rowspan: 2},
+                            {
+                                field: 'rank',
+                                title: '',
+                                align: 'center',
+                                rowspan: 2,
+                                templet: function (d) {
+                                    let chip = showChip(d.eventChip);
+                                    if (chip === '无') {
+                                        return d.rank;
+                                    } else {
+                                        return d.rank + '(' + chip + ')';
+                                    }
+                                }
+                            },
                             {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
                             {
                                 field: 'entryName',
-                                title: '队伍',
+                                title: '球队',
                                 align: 'center',
                                 event: 'entryEvent',
                                 rowspan: 2,
                                 templet: '#entryNameTpl',
-                                filter: true
+                                filter: true,
                             },
                             {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
                             {
@@ -319,29 +334,23 @@
                                 title: '得分',
                                 align: 'center',
                                 rowspan: 2,
+                                sort: true,
+                                filter: true,
                                 templet: function (d) {
-                                    if (d.eventChip === 'wildcard') {
-                                        return d.eventPoints + " (wc) ";
-                                    } else if (d.eventChip === '3xc') {
-                                        return d.eventPoints + " (3c) ";
-                                    } else if (d.eventChip === 'bboost') {
-                                        return d.eventPoints + " (bb) ";
-                                    } else if (d.eventChip === 'freehit') {
-                                        return d.eventPoints + " (fh) ";
+                                    if (d.eventTransfersCost > 0) {
+                                        return d.eventPoints + '(-' + d.eventTransfersCost + ')';
                                     } else {
                                         return d.eventPoints;
                                     }
-                                },
-                                sort: true,
-                                filter: true
+                                }
                             },
                             {title: '队长', align: 'center', colspan: 5},
-                            {title: '最高分', align: 'center', colspan: 3}
+                            {title: '最高分', align: 'center', colspan: 4}
                         ],
                         [
                             {
                                 field: 'captainWebName',
-                                title: '名称',
+                                title: '球员',
                                 align: 'center',
                                 style: 'background-color: #5FB878; color: #fff;',
                                 filter: true
@@ -360,15 +369,15 @@
                                 sort: true
                             },
                             {
-                                field: 'captainSelected',
-                                title: '持有',
+                                field: 'captainPointsByPercent',
+                                title: '得分比',
                                 align: 'center',
                                 style: 'background-color: #5FB878; color: #fff;',
                                 sort: true
                             },
                             {
-                                field: 'captainPointsByPercent',
-                                title: '得分比',
+                                field: 'captainSelected',
+                                title: '持有',
                                 align: 'center',
                                 style: 'background-color: #5FB878; color: #fff;',
                                 sort: true
@@ -380,24 +389,20 @@
                                 style: 'background-color: #5FB878; color: #fff;',
                                 sort: true
                             },
-                            {field: 'highestScoreWebName', title: '名称', align: 'center', filter: true},
+                            {field: 'highestScoreWebName', title: '球员', align: 'center', filter: true},
                             {field: 'highestScorePoints', title: '得分', align: 'center', sort: true},
-                            {
-                                field: 'highestScoreEffectiveOwnerShipRate',
-                                title: '有效持有',
-                                align: 'center',
-                                sort: true
-                            }
+                            {field: 'highestScoreSelected', title: '持有', align: 'center', sort: true},
+                            {field: 'highestScoreEffectiveOwnerShipRate', title: '有效持有', align: 'center', sort: true}
                         ]
                     ],
                     autoColumnWidth: {
                         init: true
                     },
-                    id: 'leagueCaptainEventReportTable',
                     filter: {
                         items: ['data'],
                         bottom: false
                     },
+                    id: 'leagueCaptainEventReportTable',
                     done: function () {
                         soulTable.render(this);
                     }
@@ -447,6 +452,10 @@
             // 渲染
             table.render({
                 elem: '#' + tableId,
+                size: 'sm',
+                even: true,
+                toolbar: true,
+                defaultToolbar: ['filter'],
                 url: '/my_fpl/qryEntryCaptainEventReportList',
                 where: {
                     leagueId: leagueId,
@@ -454,10 +463,7 @@
                     entry: entry
                 },
                 limit: 40,
-                toolbar: true,
-                defaultToolbar: ['filter'],
                 loading: true,
-                even: true,
                 totalRow: true,
                 cols: [
                     [
@@ -496,7 +502,7 @@
                     [
                         {
                             field: 'captainWebName',
-                            title: '名称',
+                            title: '球员',
                             align: 'center',
                             style: 'background-color: #5FB878; color: #fff;'
                         },
@@ -514,14 +520,14 @@
                             }
                         },
                         {
-                            field: 'captainSelected',
-                            title: '持有',
+                            field: 'captainPointsByPercent',
+                            title: '得分比',
                             align: 'center',
                             style: 'background-color: #5FB878; color: #fff;'
                         },
                         {
-                            field: 'captainPointsByPercent',
-                            title: '得分比',
+                            field: 'captainSelected',
+                            title: '持有',
                             align: 'center',
                             style: 'background-color: #5FB878; color: #fff;'
                         },
@@ -531,16 +537,16 @@
                             align: 'center',
                             style: 'background-color: #5FB878; color: #fff;'
                         },
-                        {field: 'highestScoreWebName', title: '名称', align: 'center'},
+                        {field: 'highestScoreWebName', title: '球员', align: 'center'},
                         {field: 'highestScorePoints', title: '得分', align: 'center', totalRow: true},
-                        {
-                            field: 'highestScoreSelected',
-                            title: '持有',
-                            align: 'center'
-                        },
                         {
                             field: 'highestScorePointsByPercent',
                             title: '得分比',
+                            align: 'center'
+                        },
+                        {
+                            field: 'highestScoreSelected',
+                            title: '持有',
                             align: 'center'
                         },
                         {

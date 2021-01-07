@@ -12,6 +12,7 @@ import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutEventFixtureDat
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -234,7 +235,7 @@ public class QueryTest extends FplApplicationTests {
 	@CsvSource({"3571, Classic"})
 	void qryLeaguePickDataList(int leagueId, String leagueType) {
 		long start = System.currentTimeMillis();
-		List<PlayerPickData> list = this.querySerivce.qryLeaguePickDataList(leagueId, leagueType);
+		List<PlayerPickData> list = this.querySerivce.qryLeaguePickDataList(leagueId, leagueType, Lists.newArrayList());
 		long end = System.currentTimeMillis();
 		System.out.println("escaped: " + (end - start));
 		System.out.println(1);

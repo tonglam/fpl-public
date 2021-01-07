@@ -1571,7 +1571,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setPlayedCaptain(captain)
 					.setCaptainWebName(webNameMap.getOrDefault(captain, ""))
 					.setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * captainPoints : 2 * captainPoints)
-					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
+					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(captainPoints, data.getEventPoints()), 1))
+					.setCaptainBlank(captain == o.getCaptain() ? o.getCaptainBlank() : o.getViceCaptainBlank())
+					.setCaptainSelected(captain == o.getCaptain() ? o.getCaptainSelected() : o.getViceCaptainSelected())
 					.setCaptainEffectiveOwnerShipRate(elementEoMap.get(captain))
 					.setHighestScoreWebName(webNameMap.getOrDefault(o.getHighestScore(), ""))
 					.setHighestScorePointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getHighestScorePoints(), data.getEventPoints()), 1))
@@ -1642,9 +1644,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			int captain = o.getPlayedCaptain();
 			int captainPoints = captain == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints();
 			data
+					.setPlayedCaptain(captain)
 					.setCaptainWebName(webNameMap.getOrDefault(captain, ""))
 					.setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * captainPoints : 2 * captainPoints)
-					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
+					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(captainPoints, data.getEventPoints()), 1))
+					.setCaptainBlank(captain == o.getCaptain() ? o.getCaptainBlank() : o.getViceCaptainBlank())
+					.setCaptainSelected(captain == o.getCaptain() ? o.getCaptainSelected() : o.getViceCaptainSelected())
 					.setCaptainEffectiveOwnerShipRate(elementEoMap.get(captain))
 					.setHighestScoreWebName(webNameMap.getOrDefault(o.getHighestScore(), ""))
 					.setHighestScorePointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getHighestScorePoints(), data.getEventPoints()), 1))
@@ -2067,7 +2072,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
-	//	@Cacheable(value = "qryLeagueScoringReportStat", key = "#leagueId+'::'+#leagueType", unless = "#result==null")
+	// do not cache
 	@Override
 	public TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -2076,10 +2081,14 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
 			return new TableData<>();
 		}
+		List<Integer> entryList = leagueEventReportEntityList
+				.stream()
+				.map(LeagueEventReportEntity::getEntry)
+				.collect(Collectors.toList());
 		// prepare
 		Multimap<Integer, LeagueEventReportEntity> entryLeagueReportMap = HashMultimap.create();
 		leagueEventReportEntityList.forEach(o -> entryLeagueReportMap.put(o.getEntry(), o));
-		List<PlayerPickData> pickDataList = this.queryService.qryLeaguePickDataList(leagueId, leagueType);
+		List<PlayerPickData> pickDataList = this.queryService.qryLeaguePickDataList(leagueId, leagueType, entryList);
 		Table<Integer, Integer, List<EntryPickData>> eventEventPickTable = HashBasedTable.create(); // entry -> element_type -> List<EntryPickData>
 		pickDataList.forEach(o -> {
 			eventEventPickTable.put(o.getEntry(), Position.GKP.getElementType(), o.getGkps());
@@ -2104,12 +2113,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				return;
 			}
 			BeanUtil.copyProperties(lastStat, data, CopyOptions.create().ignoreNullValue());
-			data.setTransfersCost(
-					stats
-							.stream()
-							.mapToInt(LeagueEventReportEntity::getEventTransfersCost)
-							.sum()
-			);
+			data
+					.setTransfersCost(
+							stats
+									.stream()
+									.mapToInt(LeagueEventReportEntity::getEventTransfersCost)
+									.sum()
+					);
 			LeagueEventScoringData leagueEventScoringData = new LeagueEventScoringData()
 					.setBenchTotalPoints(
 							stats
@@ -2266,7 +2276,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return rankMap;
 	}
 
-	//	@Cacheable(value = "qryLeagueScoringEventReportList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result==null")
+	// do not cache
 	@Override
 	public TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -2284,7 +2294,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			eventEventPickTable.put(o.getEntry(), Position.DEF.getElementType(), o.getDefs());
 			eventEventPickTable.put(o.getEntry(), Position.MID.getElementType(), o.getMids());
 			eventEventPickTable.put(o.getEntry(), Position.FWD.getElementType(), o.getFwds());
-			eventEventPickTable.put(o.getEntry(), Position.SUB.getElementType(), o.getFwds());
+			eventEventPickTable.put(o.getEntry(), Position.SUB.getElementType(), o.getSubs());
 		});
 		Multimap<Integer, EntryEventAutoSubsData> eventEventAutoSubMap = HashMultimap.create();
 		this.queryService.qryLeagueEventAutoSubDataList(event, leagueId, leagueType).forEach(o -> eventEventAutoSubMap.put(o.getEntry(), o));
@@ -2300,6 +2310,26 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			if (!eventEventPickTable.containsRow(entry)) {
 				return;
 			}
+			// pick list
+			List<EntryPickData> entryEventPickList = Lists.newArrayList();
+			entryEventPickList.addAll(Objects.requireNonNull(eventEventPickTable.get(entry, Position.GKP.getElementType())));
+			entryEventPickList.addAll(Objects.requireNonNull(eventEventPickTable.get(entry, Position.DEF.getElementType())));
+			entryEventPickList.addAll(Objects.requireNonNull(eventEventPickTable.get(entry, Position.MID.getElementType())));
+			entryEventPickList.addAll(Objects.requireNonNull(eventEventPickTable.get(entry, Position.FWD.getElementType())));
+			data.setEntryEventPickList(
+					entryEventPickList
+							.stream()
+							.sorted(Comparator.comparing(EntryPickData::getPosition))
+							.collect(Collectors.toList())
+			);
+			List<EntryPickData> entryEventBenchList = Lists.newArrayList(Objects.requireNonNull(eventEventPickTable.get(entry, Position.SUB.getElementType())));
+			data.setEntryEventBenchList(
+					entryEventBenchList
+							.stream()
+							.sorted(Comparator.comparing(EntryPickData::getPosition))
+							.collect(Collectors.toList())
+			);
+			// scoring
 			data
 					.setGkpPoints(this.calcEntryEventElementTypePoints(entry, Position.GKP.getElementType(), eventEventPickTable))
 					.setDefPoints(this.calcEntryEventElementTypePoints(entry, Position.DEF.getElementType(), eventEventPickTable))
@@ -2344,8 +2374,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setEntryEventAutoSubsList(entryEventAutoSubsList);
 			// other data
 			data
-					.setEventBenchByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventBenchPoints(), data.getEventPoints()), 1))
-					.setEventAutoSubByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventAutoSubPoints(), data.getEventPoints()), 1))
+					.setEventAutoSubPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventAutoSubPoints(), data.getEventPoints()), 1))
 					.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
 					.setGkpPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpPoints(), data.getEventPoints()), 1))
 					.setDefPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefPoints(), data.getEventPoints()), 1))
@@ -2398,7 +2427,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return rankMap;
 	}
 
-	//	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
+	@Cacheable(value = "qryEntryScoringEventReportList", key = "#leagueId+'::'+#leagueType+'::'+#entry", unless = "#result==null")
 	@Override
 	public TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -2436,7 +2465,24 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			return data;
 		}
 		// pick list
-
+		List<EntryPickData> entryEventPickList = Lists.newArrayList();
+		entryEventPickList.addAll(pickData.getGkps());
+		entryEventPickList.addAll(pickData.getDefs());
+		entryEventPickList.addAll(pickData.getMids());
+		entryEventPickList.addAll(pickData.getFwds());
+		data.setEntryEventPickList(
+				entryEventPickList
+						.stream()
+						.sorted(Comparator.comparing(EntryPickData::getPosition))
+						.collect(Collectors.toList())
+		);
+		List<EntryPickData> entryEventBenchList = Lists.newArrayList(pickData.getSubs());
+		data.setEntryEventBenchList(
+				entryEventBenchList
+						.stream()
+						.sorted(Comparator.comparing(EntryPickData::getPosition))
+						.collect(Collectors.toList())
+		);
 		// scoring
 		data
 				.setGkpPoints(
@@ -2491,8 +2537,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.setEntryEventAutoSubsList(entryEventAutoSubsList);
 		// other data
 		data
-				.setEventBenchByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventBenchPoints(), data.getEventPoints()), 1))
-				.setEventAutoSubByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventAutoSubPoints(), data.getEventPoints()), 1))
+				.setEventAutoSubPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getEventAutoSubPoints(), data.getEventPoints()), 1))
 				.setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getCaptainPoints(), data.getEventPoints()), 1))
 				.setGkpPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpPoints(), data.getEventPoints()), 1))
 				.setDefPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefPoints(), data.getEventPoints()), 1))

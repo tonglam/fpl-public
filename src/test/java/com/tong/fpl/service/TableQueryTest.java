@@ -123,14 +123,20 @@ public class TableQueryTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"3571, Classic"})
 	void qryLeagueScoringReportStat(int leagueId, String leagueType) {
+		long start = System.currentTimeMillis();
 		TableData<LeagueEventReportStatData> data = this.tableQueryService.qryLeagueScoringReportStat(leagueId, leagueType);
+		long end = System.currentTimeMillis();
+		System.out.println("escaped: " + (end - start));
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
 	@CsvSource({"16, 3571, Classic"})
 	void qryLeagueScoringEventReportList(int event, int leagueId, String leagueType) {
+		long start = System.currentTimeMillis();
 		TableData<LeagueEventReportData> data = this.tableQueryService.qryLeagueScoringEventReportList(event, leagueId, leagueType);
+		long end = System.currentTimeMillis();
+		System.out.println("escaped: " + (end - start));
 		System.out.println(1);
 	}
 

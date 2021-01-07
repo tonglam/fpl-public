@@ -809,6 +809,7 @@ public class QueryServiceImpl implements IQueryService {
 				pick
 						.setWebName(playerEntity.getWebName())
 						.setElementType(playerEntity.getElementType())
+						.setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
 						.setTeamId(playerEntity.getTeamId());
 			}
 			pick.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(pick.getTeamId()), ""));
@@ -913,15 +914,9 @@ public class QueryServiceImpl implements IQueryService {
 		return playerPickData;
 	}
 
-	// 此数据结构不适合springboot的cache
+	// do not cache here
 	@Override
-	public List<PlayerPickData> qryLeaguePickDataList(int leagueId, String leagueType) {
-		List<Integer> entryList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
-				.eq(LeagueEventReportEntity::getLeagueType, leagueType))
-				.stream()
-				.map(LeagueEventReportEntity::getEntry)
-				.collect(Collectors.toList());
+	public List<PlayerPickData> qryLeaguePickDataList(int leagueId, String leagueType, List<Integer> entryList) {
 		if (CollectionUtils.isEmpty(entryList)) {
 			return Lists.newArrayList();
 		}
@@ -978,6 +973,7 @@ public class QueryServiceImpl implements IQueryService {
 				pick
 						.setWebName(playerEntity.getWebName())
 						.setElementType(playerEntity.getElementType())
+						.setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
 						.setTeamId(playerEntity.getTeamId());
 			}
 			pick.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(pick.getTeamId()), ""));
@@ -991,7 +987,7 @@ public class QueryServiceImpl implements IQueryService {
 		return list;
 	}
 
-	@Cacheable(value = "qryLeagueEventPickDataList", key = "#event+'::'+#leagueId+'::'+#leagueType", unless = "#result.size() == 0")
+	// do not cache
 	@Override
 	public List<PlayerPickData> qryLeagueEventPickDataList(int event, int leagueId, String leagueType) {
 		List<Integer> entryList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -1039,6 +1035,7 @@ public class QueryServiceImpl implements IQueryService {
 					pick
 							.setWebName(playerEntity.getWebName())
 							.setElementType(playerEntity.getElementType())
+							.setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
 							.setTeamId(playerEntity.getTeamId());
 				}
 				pick.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(pick.getTeamId()), ""));

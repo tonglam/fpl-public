@@ -21,53 +21,6 @@
 
             <form class="layui-form">
 
-                <fieldset class="layui-elem-field layui-field-title site-title"
-                          style="margin-top: 30px">
-                    <legend><a>查看的输入官方联赛id</a></legend>
-                </fieldset>
-
-                <blockquote class="layui-elem-quote">直接查看官方联赛只支持队伍少于100的官方联赛，且只提供当前比赛周数据。若不满足现要求，请先创建自定义联赛后，查看已创建的赛事。
-                </blockquote>
-
-                <div style="margin-top: 30px"></div>
-
-                <div class="layui-form-item">
-
-                    <div class="layui-inline">
-                        <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
-                        <div class="layui-input-inline" style="width: 110px">
-                            <input autocomplete="on" class="layui-input" name="leagueId" type="text">
-                        </div>
-                    </div>
-
-                    <div class="layui-inline">
-                        <label class="layui-form-label" style="margin-left: -50px">类型</label>
-                        <div class="layui-input-inline" style="width: 120px">
-                            <select class="layui-select" lay-filter="leagueType" name="leagueType">
-                                <option value="Classic">Classic</option>
-                                <option value="H2H">H2H</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="layui-inline">
-                        <label class="layui-form-label" style="margin-left: -40px">赛季</label>
-                        <div class="layui-input-inline" style="width: 100px">
-                            <input class="layui-input" type="text" value="2021" disabled>
-                        </div>
-                    </div>
-
-                    <button class="layui-btn" id="searchServiceButton" style="margin-left: 20px;margin-top: -5px"
-                            type="button">查看
-                    </button>
-
-                </div>
-
-                <fieldset class="layui-elem-field layui-field-title site-title"
-                          style="margin-top: 30px">
-                    <legend><a>查看已创建的赛事</a></legend>
-                </fieldset>
-
                 <div class="layui-form-item">
 
                     <div class="layui-inline">
