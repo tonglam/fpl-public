@@ -295,7 +295,7 @@
             limit: 1000,
             cols: [
                 [
-                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
+                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, sort: true, hide: true},
                     {
                         field: 'entryName',
                         title: '队伍',
@@ -430,12 +430,12 @@
                     }
                 ]
             ],
+            autoColumnWidth: {
+                init: true
+            },
             filter: {
                 items: ['data'],
                 bottom: false
-            },
-            autoColumnWidth: {
-                init: true
             },
             id: 'leagueScoringReportStatTable',
             done: function () {
@@ -495,7 +495,7 @@
                                     }
                                 }
                             },
-                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
+                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, sort: true, hide: true},
                             {
                                 field: 'entryName',
                                 title: '队伍',
@@ -524,24 +524,60 @@
                             {field: 'playedNum', title: '出场', align: 'center', sort: true},
                             {field: 'autoSubNum', title: '替补', align: 'center', sort: true},
                             {field: 'eventBenchPoints', title: '板凳分', align: 'center', sort: true},
-                            {field: 'eventAutoSubPoints', title: '替补分', align: 'center', sort: true},
                             {
-                                field: 'eventAutoSubPointsByPercent',
-                                title: '占比',
+                                field: 'eventAutoSubPoints',
+                                title: '替补分',
                                 align: 'center',
                                 sort: true,
-                                hide: true
+                                templet: function (d) {
+                                    return d.eventAutoSubPoints + "(" + d.eventAutoSubPointsByPercent + ")";
+                                }
                             },
-                            {field: 'captainPoints', title: '队长分', align: 'center', sort: true},
-                            {field: 'captainPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
-                            {field: 'gkpPoints', title: '门将分', align: 'center', sort: true},
-                            {field: 'gkpPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
-                            {field: 'defPoints', title: '后卫分', align: 'center', sort: true},
-                            {field: 'defPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
-                            {field: 'midPoints', title: '中场分', align: 'center', sort: true},
-                            {field: 'midPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
-                            {field: 'fwdPoints', title: '前锋分', align: 'center', sort: true},
-                            {field: 'fwdPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
+                            {
+                                field: 'captainPoints',
+                                title: '队长分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.captainPoints + "(" + d.captainPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'gkpPoints',
+                                title: '门将分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.gkpPoints + "(" + d.gkpPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'defPoints',
+                                title: '后卫分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.defPoints + "(" + d.defPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'midPoints',
+                                title: '中场分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.midPoints + "(" + d.midPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'fwdPoints',
+                                title: '前锋分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.fwdPoints + "(" + d.fwdPointsByPercent + ")";
+                                }
+                            },
                             {field: 'formation', title: '阵型', align: 'center', filter: true}
                         ]
                     ],
@@ -652,7 +688,7 @@
                     },
                     {field: 'captainWebName', title: '队长', align: 'center', filter: true},
                     {field: 'playedNum', title: '出场', align: 'center', sort: true},
-                    {field: 'autoSubNum', title: '替补', align: 'center', sort: true, totalRow: true},
+                    {field: 'autoSubNum', title: '替补', align: 'center', sort: true},
                     {field: 'eventBenchPoints', title: '板凳分', align: 'center', sort: true, totalRow: true},
                     {field: 'eventAutoSubPoints', title: '替补分', align: 'center', sort: true, totalRow: true},
                     {field: 'eventAutoSubPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
@@ -668,13 +704,14 @@
                     {field: 'fwdPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
                     {field: 'formation', title: '阵型', align: 'center', filter: true}
                 ]],
+                autoColumnWidth: {
+                    init: true
+                },
                 filter: {
                     items: ['data'],
                     bottom: false
                 },
-                autoColumnWidth: {
-                    init: true
-                },
+                id: tableId,
                 done: function (res) {
                     soulTable.render(this);
                     let that = this.elem.next();
@@ -683,8 +720,7 @@
                             setTableRowColor(that, index, "#FFB800");
                         }
                     });
-                },
-                id: tableId
+                }
             });
         }
 

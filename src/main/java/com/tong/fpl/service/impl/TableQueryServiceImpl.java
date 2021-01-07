@@ -230,6 +230,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	/**
 	 * @implNote tournament
 	 */
+	@Cacheable(value = "qryTournamentList", key = "#param.entry", unless = "#result.data.size() == 0")
 	@Override
 	public TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param) {
 		List<TournamentInfoData> list = Lists.newArrayList();
@@ -1891,7 +1892,8 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setEntryEventTransferList(this.setEntryTransferList(entryEventTransferEntities, playerMap, elementPointsMap));
 			if (StringUtils.equals(data.getEventChip(), Chip.WC.getValue()) || StringUtils.equals(data.getEventChip(), Chip.FH.getValue())) {
 				data
-						.setEventTransfers(entryEventTransferEntities.size())
+						.setEventTransfers(0)
+						.setEventTransfersPlayed(0)
 						.setTransferInTotalValue(0)
 						.setTransferOutTotalValue(0)
 						.setTransferValue(0);

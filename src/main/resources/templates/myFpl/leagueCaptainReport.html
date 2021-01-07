@@ -182,17 +182,7 @@
                         rowspan: 2,
                         sort: true
                     },
-                    {
-                        field: 'overallRank',
-                        title: '总排名',
-                        align: 'center',
-                        rowspan: 2,
-                        sort: true,
-                        templet: function (d) {
-                            return showOverallRank(d.overallRank);
-                        }
-                    },
-                    {title: '队长', align: 'center', colspan: 8}
+                    {title: '队长', align: 'center', colspan: 9}
                 ],
                 [
                     {
@@ -213,10 +203,10 @@
                         field: 'captainMaxPoints',
                         title: '最高分',
                         align: 'center',
+                        sort: true,
                         templet: function (d) {
                             return d.captainMaxPoints + '  (GW' + d.captainMaxPointsEvent + ') ';
-                        },
-                        sort: true
+                        }
                     },
                     {
                         field: 'captainMaxPointsWebName',
@@ -225,13 +215,28 @@
                         filter: true
                     },
                     {
+                        field: 'captainMinPoints',
+                        title: '最低分',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return d.captainMinPoints + '  (GW' + d.captainMinPointsEvent + ') ';
+                        }
+                    },
+                    {
+                        field: 'captainMinPointsWebName',
+                        title: '球员',
+                        align: 'center',
+                        filter: true
+                    },
+                    {
                         field: 'mostSelectedCaptainWebName',
                         title: '最多选择',
                         align: 'center',
+                        filter: true,
                         templet: function (d) {
                             return d.mostSelectedCaptainWebName + " (" + d.mostSelectedCaptainTimes + '次) ';
-                        },
-                        filter: true
+                        }
                     },
                     {
                         field: 'captainBlankTimes',
@@ -253,12 +258,12 @@
                     }
                 ]
             ],
+            autoColumnWidth: {
+                init: true
+            },
             filter: {
                 items: ['data'],
                 bottom: false
-            },
-            autoColumnWidth: {
-                init: true
             },
             id: 'leagueCaptainReportStatTable',
             done: function () {
@@ -318,7 +323,7 @@
                                     }
                                 }
                             },
-                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, hide: true},
+                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, sort: true, hide: true},
                             {
                                 field: 'entryName',
                                 title: '球队',
@@ -359,14 +364,14 @@
                                 field: 'captainPoints',
                                 title: '总得分',
                                 align: 'center',
+                                sort: true,
                                 templet: function (d) {
                                     if (d.captainBlank) {
                                         return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
                                     } else {
                                         return '<div style="background-color: #FFB800;color: #fff;" className="layui-table-cell">' + d.captainPoints + '</div>';
                                     }
-                                },
-                                sort: true
+                                }
                             },
                             {
                                 field: 'captainPointsByPercent',
@@ -556,17 +561,17 @@
                         }
                     ]
                 ],
+                autoColumnWidth: {
+                    init: true
+                },
                 filter: {
                     items: ['data'],
                     bottom: false
                 },
-                autoColumnWidth: {
-                    init: true
-                },
+                id: tableId,
                 done: function () {
                     soulTable.render(this);
-                },
-                id: tableId
+                }
             });
         }
 
