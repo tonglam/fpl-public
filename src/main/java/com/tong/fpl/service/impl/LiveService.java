@@ -99,10 +99,37 @@ public class LiveService implements ILiveService {
 				liveCalcData.setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
 			}
 		});
+		// sort
+		Map<Integer, Integer> rankMap = this.sortTournamentLivePointsRank(liveCalcList);
+		if (!CollectionUtils.isEmpty(rankMap)) {
+			liveCalcList.forEach(o -> o.setRank(rankMap.get(o.getLivePoints())));
+		}
 		return liveCalcList
 				.stream()
-				.sorted(Comparator.comparing(LiveCalcData::getLiveTotalPoints).reversed())
+				.sorted(Comparator.comparing(LiveCalcData::getRank))
 				.collect(Collectors.toList());
+	}
+
+	private Map<Integer, Integer> sortTournamentLivePointsRank(List<LiveCalcData> liveCalcDataList) {
+		Map<Integer, Integer> rankMap = Maps.newHashMap();
+		Map<Integer, Integer> rankCountMap = Maps.newLinkedHashMap();
+		liveCalcDataList
+				.stream()
+				.sorted(Comparator.comparing(LiveCalcData::getLivePoints).reversed())
+				.forEachOrdered(o -> {
+					int key = o.getLivePoints();
+					if (rankCountMap.containsKey(key)) {
+						rankCountMap.put(key, rankCountMap.get(key) + 1);
+					} else {
+						rankCountMap.put(key, 1);
+					}
+				});
+		int index = 1;
+		for (int key : rankCountMap.keySet()) {
+			rankMap.put(key, index);
+			index += rankCountMap.get(key);
+		}
+		return rankMap;
 	}
 
 	@Override

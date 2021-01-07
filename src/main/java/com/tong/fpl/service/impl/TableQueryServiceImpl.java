@@ -906,20 +906,14 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	 */
 	@Override
 	public TableData<LiveCalcData> qryEntryLivePoints(int entry) {
-		int event = this.queryService.getCurrentEvent();
-		LiveCalcData liveCalcData = this.liveService.calcLivePointsByEntry(event, entry);
+		LiveCalcData liveCalcData = this.liveService.calcLivePointsByEntry(this.queryService.getCurrentEvent(), entry);
 		return new TableData<>(liveCalcData);
 	}
 
 	@Override
 	public TableData<LiveCalcData> qryTournamentLivePoints(int tournamentId) {
-		int event = this.queryService.getCurrentEvent();
-		List<LiveCalcData> liveCalcList = this.liveService.calcLivePointsByTournament(event, tournamentId);
-		return new TableData<>(liveCalcList
-				.stream()
-				.sorted(Comparator.comparing(LiveCalcData::getLivePoints).reversed())
-				.collect(Collectors.toList())
-		);
+		List<LiveCalcData> liveCalcList = this.liveService.calcLivePointsByTournament(this.queryService.getCurrentEvent(), tournamentId);
+		return new TableData<>(liveCalcList);
 	}
 
 	@Override
@@ -2441,6 +2435,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (pickData == null) {
 			return data;
 		}
+		// pick list
+
+		// scoring
 		data
 				.setGkpPoints(
 						pickData.getGkps()

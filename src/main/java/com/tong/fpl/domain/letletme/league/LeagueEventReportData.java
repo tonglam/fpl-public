@@ -2,6 +2,7 @@ package com.tong.fpl.domain.letletme.league;
 
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventTransfersData;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -73,6 +74,7 @@ public class LeagueEventReportData {
 	private int playedNum;
 	private int autoSubNum;
 	private String formation;
+	private List<EntryPickData> entryEventPickList;
 	private List<EntryEventAutoSubsData> entryEventAutoSubsList;
 
 }

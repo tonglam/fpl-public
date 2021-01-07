@@ -13,6 +13,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class LiveCalcData {
 
+	private int rank;
 	private int event;
 	private int entry;
 	private String entryName;
