@@ -1,6 +1,5 @@
 package com.tong.fpl.controller;
 
-import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.ILiveApi;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
@@ -24,7 +23,6 @@ import javax.servlet.http.HttpSession;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveController {
 
-	private final IHttpApi httpApi;
 	private final ILiveApi liveApi;
 
 	@GetMapping(value = "/entry")
@@ -40,7 +38,7 @@ public class LiveController {
 
 	@GetMapping(value = "/league")
 	public String leagueController(Model model) {
-		model.addAttribute("currentGw", this.httpApi.getCurrentEvent());
+		model.addAttribute("currentGw", this.liveApi.getCurrentEvent());
 		return "live/league";
 	}
 

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ScoutTest extends FplApplicationTests {
 
     @Autowired
-    private IScoutService scoutService;
+    private IGroupService scoutService;
 
     @ParameterizedTest
     @CsvSource({"12"})

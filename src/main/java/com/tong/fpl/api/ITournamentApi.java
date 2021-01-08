@@ -97,6 +97,10 @@ public interface ITournamentApi {
 	/**
 	 * @apiNote common
 	 */
+	int getCurrentEvent();
+
+	int getNextEvent();
+
 	TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
 
 	TournamentInfoData qryTournamentInfoById(int tournamentId);

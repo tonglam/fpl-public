@@ -187,23 +187,33 @@ public class TournamentApiImpl implements ITournamentApi {
         return this.tournamentService.updateZjTournamentPhaseTwoGroupData(groupDataList, captainEntry);
     }
 
-    @Override
-    public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry) {
-        return this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, captainEntry);
-    }
+	@Override
+	public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry) {
+		return this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, captainEntry);
+	}
 
-    /**
-     * @implNote common
-     */
-    @Override
-    public TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param) {
-        return this.tableQueryService.qryTournamentList(param);
-    }
+	/**
+	 * @implNote common
+	 */
+	@Override
+	public int getCurrentEvent() {
+		return this.queryService.getCurrentEvent();
+	}
 
-    @Override
-    public TournamentInfoData qryTournamentInfoById(int tournamentId) {
-        return this.queryService.qryTournamentDataById(tournamentId);
-    }
+	@Override
+	public int getNextEvent() {
+		return this.queryService.getNextEvent();
+	}
+
+	@Override
+	public TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param) {
+		return this.tableQueryService.qryTournamentList(param);
+	}
+
+	@Override
+	public TournamentInfoData qryTournamentInfoById(int tournamentId) {
+		return this.queryService.qryTournamentDataById(tournamentId);
+	}
 
     @Override
     public EntryInfoData qryEntryInfo(int entry) {

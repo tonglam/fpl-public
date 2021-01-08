@@ -6,6 +6,7 @@ import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.PlayerStatEntity;
 import com.tong.fpl.domain.entity.PlayerValueEntity;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
+import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.utils.RedisUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -154,6 +155,13 @@ public class RedisCacheTest extends FplApplicationTests {
 	@CsvSource({"2021, 15"})
 	void getEventFixtureByEvent(String season, int event) {
 		List<EventFixtureEntity> list = this.redisCacheSerive.getEventFixtureByEvent(season, event);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"2021, 1"})
+	void getEventFixtureByTeamId(String season, int teamId) {
+		Map<String, List<PlayerFixtureData>> map = this.redisCacheSerive.getEventFixtureByTeamId(season, teamId);
 		System.out.println(1);
 	}
 

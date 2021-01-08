@@ -29,4 +29,9 @@ public interface ILiveApi {
 
 	TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
 
+	/**
+	 * @apiNote common
+	 */
+	int getCurrentEvent();
+
 }

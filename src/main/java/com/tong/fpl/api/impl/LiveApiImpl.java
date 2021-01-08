@@ -54,4 +54,12 @@ public class LiveApiImpl implements ILiveApi {
 		return this.tableQueryService.qryLiveTeamDataList(statusId);
 	}
 
+	/**
+	 * @implNote common
+	 */
+	@Override
+	public int getCurrentEvent() {
+		return this.queryService.getCurrentEvent();
+	}
+
 }

@@ -23,7 +23,7 @@ public class MatchDayTask {
 	private final IRedisCacheService redisCacheService;
 	private final ITournamentService tournamentService;
 	private final IUpdateEventResultService updateEventResultsService;
-	private final IScoutService scoutService;
+	private final IGroupService scoutService;
 
 	@Scheduled(cron = "0 0/5 0-9,19-23 * * *")
 	public void insertEventLiveCache() {

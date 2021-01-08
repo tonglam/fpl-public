@@ -120,4 +120,12 @@ public class MyFplApiImpl implements IMyFplApi {
 		return this.tableQueryService.qryEntryScoringEventReportList(leagueId, leagueType, entry);
 	}
 
+	/**
+	 * @implNote common
+	 */
+	@Override
+	public int getCurrentEvent() {
+		return this.queryService.getCurrentEvent();
+	}
+
 }

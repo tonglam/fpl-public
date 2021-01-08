@@ -58,7 +58,7 @@
                                 <span style="color: #FF5722"><strong>总得分：</strong></span><span>队长得分加权（正常二倍，TC三倍）； </span>
                                 <span style="color: #FF5722"><strong>得分比：</strong></span><span>得分占周得分的百分比； </span>
                                 <span style="color: #FF5722"><strong>blank：</strong></span><span>无扑救、零封、助攻、进球、BONUS任一项； </span>
-                                <span style="color: #FF5722"><strong>命中最高分：</strong></span><span>选中的队长恰好是阵容的最高分球员； </span>
+                                <span style="color: #FF5722"><strong>命中：</strong></span><span>选中的队长恰好命中阵容的最高分球员的次数； </span>
                             </div>
                         </fieldset>
 
@@ -249,7 +249,7 @@
                     },
                     {
                         field: 'captainHitTimes',
-                        title: '命中最高分',
+                        title: '命中',
                         align: 'center',
                         sort: true,
                         templet: function (d) {
@@ -491,7 +491,6 @@
                             field: 'eventPoints',
                             title: '得分',
                             align: 'center',
-                            totalRow: true,
                             rowspan: 2,
                             templet: function (d) {
                                 if (d.eventTransfersCost > 0) {

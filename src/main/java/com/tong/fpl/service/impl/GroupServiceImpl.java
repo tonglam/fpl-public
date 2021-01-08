@@ -6,7 +6,7 @@ import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.ScoutEntity;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
-import com.tong.fpl.service.IScoutService;
+import com.tong.fpl.service.IGroupService;
 import com.tong.fpl.service.db.EventLiveService;
 import com.tong.fpl.service.db.PlayerService;
 import com.tong.fpl.service.db.ScoutService;
@@ -26,12 +26,15 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ScoutServiceImpl implements IScoutService {
+public class GroupServiceImpl implements IGroupService {
 
     private final PlayerService playerService;
     private final EventLiveService eventLiveService;
     private final ScoutService scoutService;
 
+    /**
+     * @apiNote scout
+     */
     @Override
     public void upsertEventScout(ScoutData scoutData) {
         Map<Integer, Integer> elementTeamMap = this.playerService.list()

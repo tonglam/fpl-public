@@ -1,6 +1,5 @@
 package com.tong.fpl.controller;
 
-import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.api.IMyFplApi;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpSession;
 public class MyFplController {
 
 	private final IMyFplApi myFplApi;
-	private final IHttpApi httpApi;
 
 	@GetMapping(value = "/pick")
 	public String pickController() {
@@ -50,21 +48,21 @@ public class MyFplController {
 	@GetMapping(value = "/leagueCaptainReport")
 	public String leagueCaptainReportController(@RequestParam int leagueId, @RequestParam String leagueType, Model model) {
 		model.addAttribute("leagueName", this.myFplApi.qryLeagueNameByIdAndType(leagueId, leagueType));
-		model.addAttribute("gwMap", CommonUtils.createCurrentGwMapForOption(this.httpApi.getCurrentEvent()));
+		model.addAttribute("gwMap", CommonUtils.createCurrentGwMapForOption(this.myFplApi.getCurrentEvent()));
 		return "myFpl/leagueCaptainReport";
 	}
 
 	@GetMapping(value = "/leagueTransfersReport")
 	public String leagueTransferReportController(@RequestParam int leagueId, @RequestParam String leagueType, Model model) {
 		model.addAttribute("leagueName", this.myFplApi.qryLeagueNameByIdAndType(leagueId, leagueType));
-		model.addAttribute("gwMap", CommonUtils.createCurrentGwMapForOption(this.httpApi.getCurrentEvent()));
+		model.addAttribute("gwMap", CommonUtils.createCurrentGwMapForOption(this.myFplApi.getCurrentEvent()));
 		return "myFpl/leagueTransfersReport";
 	}
 
 	@GetMapping(value = "/leagueScoringReport")
 	public String leagueScoringReport(@RequestParam int leagueId, @RequestParam String leagueType, Model model) {
 		model.addAttribute("leagueName", this.myFplApi.qryLeagueNameByIdAndType(leagueId, leagueType));
-		model.addAttribute("gwMap", CommonUtils.createCurrentGwMapForOption(this.httpApi.getCurrentEvent()));
+		model.addAttribute("gwMap", CommonUtils.createCurrentGwMapForOption(this.myFplApi.getCurrentEvent()));
 		return "myFpl/leagueScoringReport";
 	}
 

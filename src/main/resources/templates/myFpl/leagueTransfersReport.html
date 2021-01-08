@@ -80,7 +80,9 @@
                                 <br>
                                 <span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员得分总和；</span>
                                 <br>
-                                <span style="color: #FF5722"><strong>转会总分-收益（上场）：</strong></span><span>转入球员得分减转出球员得分总和；括号内为转入且当轮上场球员得分减转出球员得分总和；</span>
+                                <span style="color: #FF5722"><strong>转会总分-收益（上场）：</strong></span><span>转入球员得分减转出球员得分总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分减转出球员得分总和； </span>
                                 <br>
                                 <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减剁手扣分总和；</span>
                                 <br>
@@ -507,11 +509,20 @@
                             },
                             {
                                 field: 'transferPoints',
-                                title: '收益 (上场)',
+                                title: '收益',
                                 align: 'center',
                                 sort: true,
                                 templet: function (d) {
-                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + " (" + d.transferPlayedPoints + ")" + '</div>';
+                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                                }
+                            },
+                            {
+                                field: 'transferPlayedPoints',
+                                title: '上场收益',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPlayedPoints + '</div>';
                                 }
                             },
                             {

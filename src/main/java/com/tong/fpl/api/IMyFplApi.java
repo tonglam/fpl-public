@@ -63,4 +63,9 @@ public interface IMyFplApi {
 
 	TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry);
 
+	/**
+	 * @apiNote common
+	 */
+	int getCurrentEvent();
+
 }

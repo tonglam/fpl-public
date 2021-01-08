@@ -1,10 +1,9 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
-import com.tong.fpl.domain.letletme.player.*;
-import com.tong.fpl.domain.letletme.scout.ScoutData;
+import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerValueData;
 
 import java.util.List;
 
@@ -31,26 +30,8 @@ public interface IStatApi {
 	TableData<LeagueStatData> qryTeamSelectStatByName(int event, String leagueName);
 
 	/**
-	 * @apiNote scout
+	 * @apiNote common
 	 */
-	TableData<PlayerShowData> qryScoutPlayerList(int elementType);
-
-	void upsertEventScout(ScoutData scoutData) throws Exception;
-
-	TableData<ScoutData> qryEventScoutPickList(int event);
-
-	ScoutData qryScoutEntryEventData(int event, int entry);
-
-	TableData<ScoutData> qryEventScoutList(int event);
-
-	List<DropdownData> getScoutEvent();
-
-	String getScoutDeadline(int event);
-
-	TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
-
-	PlayerPickData qryOffiaccountPickList();
-
-	TableData<PlayerDetailData> qryPlayerDetailData(int element);
+	int getCurrentEvent();
 
 }

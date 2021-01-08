@@ -211,9 +211,9 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"363"})
-	void qryPlayerShowData(int element) {
-		PlayerShowData data = this.querySerivce.qryPlayerShowData(element);
+	@CsvSource({"363, 17"})
+	void qryPlayerShowData(int event, int element) {
+		PlayerShowData data = this.querySerivce.qryPlayerShowData(event, element);
 		System.out.println(1);
 	}
 

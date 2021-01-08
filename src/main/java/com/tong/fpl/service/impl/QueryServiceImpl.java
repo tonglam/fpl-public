@@ -254,10 +254,12 @@ public class QueryServiceImpl implements IQueryService {
 		return this.redisCacheService.getPlayerValueByChangeDay(changeDay);
 	}
 
-	@Cacheable(value = "qryPlayerShowData", key = "#element")
+	// do not cache here
 	@Override
-	public PlayerShowData qryPlayerShowData(int element, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
-	                                        Map<Integer, PlayerEntity> playerMap, Multimap<Integer, EventLiveEntity> eventLiveMap) {
+	public PlayerShowData qryPlayerShowData(int event, int element,
+	                                        Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
+	                                        Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap, Multimap<Integer, EventLiveEntity> eventLiveMap,
+	                                        Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap) {
 		PlayerShowData data = new PlayerShowData().setElement(element);
 		// prepare
 		if (CollectionUtils.isEmpty(teamNameMap)) {
@@ -288,30 +290,6 @@ public class QueryServiceImpl implements IQueryService {
 				.setTeamName(teamNameMap.getOrDefault(String.valueOf(teamId), ""))
 				.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
 				.setPrice(playerEntity.getPrice() / 10.0);
-		// fixture
-		List<PlayerShowFixtureData> fixtureList = Lists.newArrayList();
-		Map<Integer, PlayerShowFixtureData> fixtureDataMap = Maps.newHashMap();
-		this.qryPlayerFixtureList(teamId, 0, 5).forEach(o -> {
-			int event = o.getEvent();
-			if (!fixtureDataMap.containsKey(event)) {
-				PlayerShowFixtureData playerShowFixtureData = new PlayerShowFixtureData()
-						.setEvent(o.getEvent())
-						.setAgainstTeamShortName(o.getAgainstTeamShortName())
-						.setDifficulty(o.getDifficulty())
-						.setWasHome(String.valueOf(o.isWasHome()))
-						.setBgw(o.isBgw())
-						.setDgw(o.isDgw());
-				fixtureDataMap.put(event, playerShowFixtureData);
-			} else { // dgw
-				fixtureDataMap.put(event, this.mergeFixtureData(fixtureDataMap.get(event), o));
-			}
-		});
-		fixtureList.addAll(fixtureDataMap.values());
-		fixtureList = fixtureList
-				.stream()
-				.sorted(Comparator.comparing(PlayerShowFixtureData::getEvent))
-				.collect(Collectors.toList());
-		data.setFixtureList(fixtureList);
 		// event_live
 		if (eventLiveMap.containsKey(element)) {
 			data.setTotalPoints(eventLiveMap.get(element)
@@ -321,7 +299,7 @@ public class QueryServiceImpl implements IQueryService {
 			);
 		}
 		// player_stat
-		PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(element);
+		PlayerStatEntity playerStatEntity = playerStatMap.get(element);
 		if (playerStatEntity != null) {
 			data
 					.setSelectedByPercent(playerStatEntity.getSelectedByPercent())
@@ -329,6 +307,86 @@ public class QueryServiceImpl implements IQueryService {
 					.setForm(playerStatEntity.getForm())
 					.setInDreamteam(playerStatEntity.getInDreamteam());
 		}
+		// fixture
+		int startEvent = event + 1;
+		if (startEvent > 38) {
+			return data;
+		}
+		int endEvent = startEvent + 4;
+		if (endEvent > 38) {
+			endEvent = 38;
+		}
+		Map<String, List<PlayerFixtureData>> teamEventFixtureMap = teamFixtureMap.get(teamId);
+		if (CollectionUtils.isEmpty(teamEventFixtureMap)) {
+			return data;
+		}
+		List<PlayerFixtureData> teamEventFixtureList = Lists.newArrayList();
+		for (int i = startEvent; i < endEvent + 1; i++) {
+			if (teamEventFixtureMap.containsKey(String.valueOf(i))) {
+				List<PlayerFixtureData> eventFixtureList = teamEventFixtureMap.get(String.valueOf(i));
+				if (eventFixtureList.size() == 1) {
+					for (PlayerFixtureData playerFixtureData :
+							eventFixtureList) {
+						playerFixtureData.
+								setAgainstTeamName(teamNameMap.get(String.valueOf(playerFixtureData.getAgainstTeamId())))
+								.setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(playerFixtureData.getAgainstTeamId())))
+								.setBgw(false)
+								.setDgw(false);
+						teamEventFixtureList.add(playerFixtureData);
+					}
+				} else {
+					for (PlayerFixtureData playerFixtureData :
+							eventFixtureList) {
+						playerFixtureData.
+								setAgainstTeamName(teamNameMap.get(String.valueOf(playerFixtureData.getAgainstTeamId())))
+								.setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(playerFixtureData.getAgainstTeamId())))
+								.setBgw(false)
+								.setDgw(true);
+						teamEventFixtureList.add(playerFixtureData);
+					}
+				}
+			} else {
+				teamEventFixtureList.add(new PlayerFixtureData()
+						.setTeamId(teamId)
+						.setEvent(i)
+						.setAgainstTeamId(0)
+						.setAgainstTeamName("BLANK")
+						.setAgainstTeamShortName("BLANK")
+						.setDifficulty(0)
+						.setKickoffTime("")
+						.setStarted(false)
+						.setFinished(false)
+						.setWasHome(false)
+						.setScore("")
+						.setBgw(true)
+						.setDgw(false)
+				);
+			}
+		}
+		// collect
+		List<PlayerShowFixtureData> fixtureList = Lists.newArrayList();
+		Map<Integer, PlayerShowFixtureData> fixtureDataMap = Maps.newHashMap();
+		teamEventFixtureList.forEach(o -> {
+			int checkEvent = o.getEvent();
+			if (!fixtureDataMap.containsKey(checkEvent)) {
+				PlayerShowFixtureData playerShowFixtureData = new PlayerShowFixtureData()
+						.setEvent(o.getEvent())
+						.setAgainstTeamShortName(o.getAgainstTeamShortName())
+						.setDifficulty(o.getDifficulty())
+						.setWasHome(String.valueOf(o.isWasHome()))
+						.setBgw(o.isBgw())
+						.setDgw(o.isDgw());
+				fixtureDataMap.put(checkEvent, playerShowFixtureData);
+			} else { // dgw
+				fixtureDataMap.put(checkEvent, this.mergeFixtureData(fixtureDataMap.get(checkEvent), o));
+			}
+		});
+		fixtureList.addAll(fixtureDataMap.values());
+		fixtureList = fixtureList
+				.stream()
+				.sorted(Comparator.comparing(PlayerShowFixtureData::getEvent))
+				.collect(Collectors.toList());
+		data.setFixtureList(fixtureList);
 		return data;
 	}
 
@@ -959,7 +1017,8 @@ public class QueryServiceImpl implements IQueryService {
 				.collect(new PlayerPickDataCollector());
 	}
 
-	private List<EntryPickData> initEventLeagueEntryPickData(int event, Multimap<Integer, EntryPickData> pickMap, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+	private List<EntryPickData> initEventLeagueEntryPickData(int event, Multimap<
+			Integer, EntryPickData> pickMap, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
 		List<EntryPickData> list = Lists.newArrayList();
 		Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
 				.eq(EventLiveEntity::getEvent, event))
@@ -1416,7 +1475,8 @@ public class QueryServiceImpl implements IQueryService {
 		return 0;
 	}
 
-	private String setRoundMatchInformation(List<TournamentKnockoutResultEntity> knockoutResultList, Map<Integer, String> entryNameMap) {
+	private String setRoundMatchInformation
+			(List<TournamentKnockoutResultEntity> knockoutResultList, Map<Integer, String> entryNameMap) {
 		StringBuilder builder = new StringBuilder();
 		knockoutResultList.forEach(o ->
 				builder

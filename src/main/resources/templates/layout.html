@@ -64,7 +64,14 @@
                     <dd><a href="/stat/price">身价变化</a></dd>
                     <dd><a href="/stat/selected">阵容选择</a></dd>
                     <dd><a href="/stat/compare">球员比较</a></dd>
-                    <dd><a href="/stat/scout">球探推荐</a></dd>
+                </dl>
+            </li>
+
+            <li class="layui-nav-item">
+                <a href="javascript:void(0)">公众号</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="/group/scout">球探推荐</a></dd>
+                    <dd><a href="/group/transfers">公号转会</a></dd>
                 </dl>
             </li>
 
@@ -338,6 +345,10 @@
         }
     }
 
+</script>
+
+<script th:fragment="playerDetail" th:inline="none">
+
     function showDifficulty(shortName, difficulty, event, wasHome) {
         switch (difficulty) {
             case -1: {
@@ -399,6 +410,132 @@
                 }
             }
         }
+    }
+
+    function parsePlayerTableData(playerShowDataList) {
+        let list = [];
+        $.each(playerShowDataList, function (index, item) {
+            let data = {};
+
+            data.element = item.element;
+            data.position = item.position;
+            data.multiplier = item.multiplier;
+            data.isCaptain = item.isCaptain;
+            data.isViceCaptain = item.isViceCaptain;
+            data.webName = item.webName;
+            data.elementType = item.elementType;
+            data.elementTypeName = item.elementTypeName;
+            data.teamId = item.teamId;
+            data.teamName = item.teamName;
+            data.teamShortName = item.teamShortName;
+            data.price = item.price;
+            data.totalPoints = item.totalPoints;
+            data.selectedByPercent = item.selectedByPercent;
+            data.pointsPerGame = item.pointsPerGame;
+            data.form = item.form;
+            data.inDreamteam = item.inDreamteam;
+
+            data.event1 = item.fixtureList[0].event;
+            data.againstTeamShortName1 = item.fixtureList[0].againstTeamShortName;
+            data.difficulty1 = item.fixtureList[0].difficulty;
+            data.wasHome1 = item.fixtureList[0].wasHome;
+            data.bgw1 = item.fixtureList[0].bgw;
+            data.dgw1 = item.fixtureList[0].dgw;
+
+            data.event2 = item.fixtureList[1].event;
+            data.againstTeamShortName2 = item.fixtureList[1].againstTeamShortName;
+            data.difficulty2 = item.fixtureList[1].difficulty;
+            data.wasHome2 = item.fixtureList[1].wasHome;
+            data.bgw2 = item.fixtureList[1].bgw;
+            data.dgw2 = item.fixtureList[1].dgw;
+
+            data.event3 = item.fixtureList[2].event;
+            data.againstTeamShortName3 = item.fixtureList[2].againstTeamShortName;
+            data.difficulty3 = item.fixtureList[2].difficulty;
+            data.wasHome3 = item.fixtureList[2].wasHome;
+            data.bgw3 = item.fixtureList[2].bgw;
+            data.dgw3 = item.fixtureList[2].dgw;
+
+            data.event4 = item.fixtureList[3].event;
+            data.againstTeamShortName4 = item.fixtureList[3].againstTeamShortName;
+            data.difficulty4 = item.fixtureList[3].difficulty;
+            data.wasHome4 = item.fixtureList[3].wasHome;
+            data.bgw4 = item.fixtureList[3].bgw;
+            data.dgw4 = item.fixtureList[3].dgw;
+
+            data.event5 = item.fixtureList[4].event;
+            data.againstTeamShortName5 = item.fixtureList[4].againstTeamShortName;
+            data.difficulty5 = item.fixtureList[4].difficulty;
+            data.wasHome5 = item.fixtureList[4].wasHome;
+            data.bgw5 = item.fixtureList[4].bgw;
+            data.dgw5 = item.fixtureList[4].dgw;
+
+            list.push(data);
+        })
+        return list;
+    }
+
+    function gkpCols() {
+        return [[
+            {field: 'minutes', title: '上场时间', align: 'center'},
+            {field: 'cleanSheets', title: '零封', align: 'center'},
+            {field: 'goalsConceded', title: '丢球', align: 'center'},
+            {field: 'saves', title: '扑救', align: 'center'},
+            {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+            {field: 'bonus', title: 'BONUS', align: 'center'},
+            {field: 'bps', title: 'BPS', align: 'center'},
+            {field: 'yellowCards', title: '黄宝石', align: 'center'},
+            {field: 'redCards', title: '红宝石', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'transfersInEvent', title: '周转入', align: 'center'},
+            {field: 'transfersOutEvent', title: '周转出', align: 'center'}
+        ]];
+    }
+
+    function defCols() {
+        return [[
+            {field: 'minutes', title: '上场时间', align: 'center'},
+            {field: 'cleanSheets', title: '零封', align: 'center'},
+            {field: 'goalsConceded', title: '丢球', align: 'center'},
+            {field: 'bonus', title: 'BONUS', align: 'center'},
+            {field: 'bps', title: 'BPS', align: 'center'},
+            {field: 'yellowCards', title: '黄宝石', align: 'center'},
+            {field: 'redCards', title: '红宝石', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'transfersInEvent', title: '周转入', align: 'center'},
+            {field: 'transfersOutEvent', title: '周转出', align: 'center'}
+        ]];
+    }
+
+    function midCols() {
+        return [[
+            {field: 'minutes', title: '上场时间', align: 'center'},
+            {field: 'goalsScored', title: '进球', align: 'center'},
+            {field: 'assists', title: '助攻', align: 'center'},
+            {field: 'bonus', title: 'BONUS', align: 'center'},
+            {field: 'bps', title: 'BPS', align: 'center'},
+            {field: 'cleanSheets', title: '零封', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'yellowCards', title: '黄宝石', align: 'center'},
+            {field: 'redCards', title: '红宝石', align: 'center'},
+            {field: 'transfersInEvent', title: '周转入', align: 'center'},
+            {field: 'transfersOutEvent', title: '周转出', align: 'center'}
+        ]];
+    }
+
+    function fwdCols() {
+        return [[
+            {field: 'minutes', title: '上场时间', align: 'center'},
+            {field: 'goalsScored', title: '进球', align: 'center'},
+            {field: 'assists', title: '助攻', align: 'center'},
+            {field: 'bonus', title: 'BONUS', align: 'center'},
+            {field: 'bps', title: 'BPS', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'yellowCards', title: '黄宝石', align: 'center'},
+            {field: 'redCards', title: '红宝石', align: 'center'},
+            {field: 'transfersInEvent', title: '周转入', align: 'center'},
+            {field: 'transfersOutEvent', title: '周转出', align: 'center'}
+        ]];
     }
 
 </script>
