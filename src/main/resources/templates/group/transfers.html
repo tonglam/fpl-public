@@ -592,12 +592,11 @@
                 ]
             },
             cols: [[
-                {field: 'index', title: '', align: 'center', width: 40},
                 {field: 'elementInTypeName', title: '位置', align: 'center', width: 80},
-                {field: 'elementInWebName', title: '转入', align: 'center', width: 150},
+                {field: 'elementInWebName', title: '转出', align: 'center', width: 150},
                 {
                     field: 'elementInPrice',
-                    title: '身价',
+                    title: '卖出价',
                     align: 'center',
                     width: 70,
                     templet: function (d) {
@@ -607,10 +606,10 @@
                         return ''
                     }
                 },
-                {field: 'elementOutWebName', title: '转出', align: 'center', width: 150},
+                {field: 'elementOutWebName', title: '转入', align: 'center', width: 150},
                 {
                     field: 'elementOutPrice',
-                    title: '身价',
+                    title: '买入价',
                     align: 'center',
                     width: 70,
                     templet: function (d) {
