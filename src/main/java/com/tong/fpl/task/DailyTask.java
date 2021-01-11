@@ -2,7 +2,7 @@ package com.tong.fpl.task;
 
 import com.tong.fpl.log.TaskLog;
 import com.tong.fpl.service.IRedisCacheService;
-import com.tong.fpl.service.IUpdateEventResultService;
+import com.tong.fpl.service.IUpdateEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class DailyTask {
 
 	private final IRedisCacheService redisCacheService;
-	private final IUpdateEventResultService updateEventResultsService;
+	private final IUpdateEventService updateEventResultsService;
 
 	@Scheduled(cron = "0 35 9 * * *")
 	public void refreshPlayerValue() {

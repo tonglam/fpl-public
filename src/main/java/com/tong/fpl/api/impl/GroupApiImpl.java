@@ -3,6 +3,7 @@ package com.tong.fpl.api.impl;
 import com.google.common.collect.Lists;
 import com.tong.fpl.api.IGroupApi;
 import com.tong.fpl.constant.enums.FollowAccount;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
@@ -92,6 +93,11 @@ public class GroupApiImpl implements IGroupApi {
 	@Override
 	public TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event) {
 		return this.tableQueryService.qryEntryEventPlayerShowList(event, FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+	}
+
+	@Override
+	public TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList) {
+		return this.tableQueryService.qryPlayerShowListByElement(pickList);
 	}
 
 	@Override

@@ -252,6 +252,79 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	}
 
 	@Override
+	public TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList) {
+		if (CollectionUtils.isEmpty(pickList)) {
+			return new TableData<>();
+		}
+		int event = this.queryService.getCurrentEvent();
+		Map<Integer, EntryPickData> pickMap = pickList
+				.stream()
+				.collect(Collectors.toMap(EntryPickData::getElement, o -> o));
+		if (CollectionUtils.isEmpty(pickMap)) {
+			return new TableData<>();
+		}
+		List<Integer> elementList = pickList
+				.stream()
+				.map(EntryPickData::getElement)
+				.collect(Collectors.toList());
+		// prepare
+		Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+		Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+				.in(PlayerEntity::getElement, elementList))
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+		Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
+		this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+				.in(PlayerStatEntity::getElement, elementList))
+				.forEach(o -> {
+					int element = o.getElement();
+					if (playerStatMap.containsKey(element) && o.getEvent() <= playerStatMap.get(element).getEvent()) {
+						return;
+					}
+					playerStatMap.put(element, o);
+				});
+		Multimap<Integer, EventLiveEntity> eventLiveMap = HashMultimap.create();
+		this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
+		Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap = Maps.newHashMap(); // teamId -> event -> fixtures
+		IntStream.rangeClosed(1, 20).forEach(teamId -> teamFixtureMap.put(teamId, this.queryService.getEventFixtureByTeamId(teamId)));
+		// collect
+		List<CompletableFuture<PlayerShowData>> future = pickMap.keySet()
+				.stream()
+				.map(o -> CompletableFuture.supplyAsync(() ->
+						this.queryService.qryPlayerShowData(event, o, teamNameMap, teamShortNameMap, playerMap, playerStatMap, eventLiveMap, teamFixtureMap)))
+				.collect(Collectors.toList());
+		List<PlayerShowData> playerShowDataList = future
+				.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
+		playerShowDataList.forEach(data -> {
+			EntryPickData entryPickData = pickMap.get(data.getElement());
+			if (entryPickData == null) {
+				return;
+			}
+			data
+					.setPosition(entryPickData.getPosition())
+					.setMultiplier(entryPickData.getMultiplier())
+					.setCaptain(entryPickData.isCaptain())
+					.setViceCaptain(entryPickData.isViceCaptain());
+		});
+		List<PlayerShowData> list = Lists.newArrayList();
+		list.addAll(playerShowDataList
+				.stream()
+				.filter(o -> o.getPosition() < 12)
+				.sorted(Comparator.comparing(PlayerShowData::getElementType).reversed()
+						.thenComparing(PlayerShowData::getPosition))
+				.collect(Collectors.toList()));
+		list.addAll(playerShowDataList
+				.stream()
+				.filter(o -> o.getPosition() > 11)
+				.sorted(Comparator.comparing(PlayerShowData::getPosition))
+				.collect(Collectors.toList()));
+		return new TableData<>(list);
+	}
+
+	@Override
 	public TableData<PlayerDetailData> qryPlayerDetailData(int element) {
 		return new TableData<>(this.queryService.qryPlayerDetailData(element));
 	}

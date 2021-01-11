@@ -46,7 +46,7 @@ public class TournamentServiceImpl implements ITournamentService {
 	private final ApplicationContext context;
 	private final IStaticService staticService;
 	private final IQueryService queryService;
-	private final IUpdateEventResultService updateEventResultService;
+	private final IUpdateEventService updateEventResultService;
 	private final IReportService reportService;
 	private final EntryInfoService entryInfoService;
 	private final TournamentInfoService tournamentInfoService;

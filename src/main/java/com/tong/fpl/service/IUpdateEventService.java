@@ -1,9 +1,11 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
+
 /**
  * Create by tong on 2020/6/29
  */
-public interface IUpdateEventResultService {
+public interface IUpdateEventService {
 
 	void updateEntryInfo();
 
@@ -34,5 +36,7 @@ public interface IUpdateEventResultService {
 	void updateZjTournamentResult(int tournamentId);
 
 	void updateAllEventResult(int event);
+
+	void insertEntryEventLineup(EntryEventLineupData entryEventLineupData);
 
 }

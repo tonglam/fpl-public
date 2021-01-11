@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class UpdateEventResultTest extends FplApplicationTests {
 
 	@Autowired
-	private IUpdateEventResultService updateEventResultsService;
+	private IUpdateEventService updateEventResultsService;
 
 	@Test
 	void updateEntryInfo() {

@@ -1,5 +1,6 @@
 package com.tong.fpl.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.Chip;
@@ -15,13 +16,14 @@ import com.tong.fpl.domain.data.userpick.AutoSubs;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
+import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.IReportService;
-import com.tong.fpl.service.IUpdateEventResultService;
+import com.tong.fpl.service.IUpdateEventService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.JsonUtils;
 import com.tong.fpl.utils.RedisUtils;
@@ -43,12 +45,13 @@ import java.util.stream.IntStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
+public class UpdateEventServiceImpl implements IUpdateEventService {
 
 	private final IQueryService queryService;
 	private final IRedisCacheService redisCacheService;
 	private final IReportService reportService;
 	private final EventLiveService eventLiveService;
+	private final EntryEventLineupService entryEventLineupService;
 	private final EntryEventResultService entryEventResultService;
 	private final EntryEventTransferService entryEventTransferService;
 	private final EntryInfoService entryInfoService;
@@ -1525,6 +1528,13 @@ public class UpdateEventResultServiceImpl implements IUpdateEventResultService {
 				this.reportService.updateLeagueEventResult(event, Integer.parseInt(leagueId), leagueType));
 		// clear cache
 		RedisUtils.removeCacheByKey("qry");
+	}
+
+	@Override
+	public void insertEntryEventLineup(EntryEventLineupData entryEventLineupData) {
+		EntryEventLineupEntity entryEventLineupEntity = BeanUtil.copyProperties(entryEventLineupData, EntryEventLineupEntity.class);
+		entryEventLineupEntity.setEventLineup(JsonUtils.obj2json(entryEventLineupData.getEventLineup()));
+		this.entryEventLineupService.save(entryEventLineupEntity);
 	}
 
 }

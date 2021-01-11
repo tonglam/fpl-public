@@ -32,9 +32,6 @@ public class GroupServiceImpl implements IGroupService {
     private final EventLiveService eventLiveService;
     private final ScoutService scoutService;
 
-    /**
-     * @apiNote scout
-     */
     @Override
     public void upsertEventScout(ScoutData scoutData) {
         Map<Integer, Integer> elementTeamMap = this.playerService.list()

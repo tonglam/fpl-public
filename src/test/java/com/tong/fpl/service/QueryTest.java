@@ -5,6 +5,7 @@ import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
@@ -254,6 +255,15 @@ public class QueryTest extends FplApplicationTests {
 				.eq(EntryEventResultEntity::getEntry, 1870)
 				.eq(EntryEventResultEntity::getEvent, 16));
 		List<EntryEventAutoSubsData> list = this.querySerivce.qryAutoSubListFromAutoSubs(entryEventResultEntity.getEventAutoSubs());
+		System.out.println(1);
+	}
+
+	@Test
+	void qryPickListFromPicks() {
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, 1870)
+				.eq(EntryEventResultEntity::getEvent, 16));
+		List<EntryPickData> list = this.querySerivce.qryPickListFromPicks(entryEventResultEntity.getEventPicks());
 		System.out.println(1);
 	}
 

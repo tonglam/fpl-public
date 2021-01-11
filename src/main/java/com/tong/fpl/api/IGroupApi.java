@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
@@ -35,6 +36,8 @@ public interface IGroupApi {
 	 * @apiNote transfers
 	 */
 	TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
+
+	TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList);
 
 	PlayerPickData qryOffiaccountPickList();
 

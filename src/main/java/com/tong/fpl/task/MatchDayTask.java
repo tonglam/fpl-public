@@ -22,7 +22,7 @@ public class MatchDayTask {
 	private final IQueryService queryService;
 	private final IRedisCacheService redisCacheService;
 	private final ITournamentService tournamentService;
-	private final IUpdateEventResultService updateEventResultsService;
+	private final IUpdateEventService updateEventResultsService;
 	private final IGroupService scoutService;
 
 	@Scheduled(cron = "0 0/5 0-9,19-23 * * *")

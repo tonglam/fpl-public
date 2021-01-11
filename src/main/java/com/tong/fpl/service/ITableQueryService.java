@@ -18,6 +18,8 @@ import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
 
+import java.util.List;
+
 /**
  * Create by tong on 2020/8/28
  */
@@ -35,6 +37,8 @@ public interface ITableQueryService {
 	TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
 
 	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry);
+
+	TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList);
 
 	TableData<PlayerDetailData> qryPlayerDetailData(int element);
 

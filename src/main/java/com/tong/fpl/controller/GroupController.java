@@ -1,6 +1,7 @@
 package com.tong.fpl.controller;
 
 import com.tong.fpl.api.IGroupApi;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
@@ -47,6 +48,12 @@ public class GroupController {
 		model.addAttribute("pickPlayerData", this.groupApi.qryOffiaccountPickList());
 		return "group/transfers";
 	}
+
+//	@GetMapping(value = "/reloadLineup")
+//	public String reloadLineupController(@RequestBody List<Integer> pickList, Model model) {
+//		model.addAttribute("pickPlayerData", this.groupApi.qryPlayerShowListByElement(pickList));
+//		return "group/transfers::lineup";
+//	}
 
 	/**
 	 * @apiNote scout
@@ -101,6 +108,12 @@ public class GroupController {
 	@ResponseBody
 	public TableData<PlayerShowData> qryOffiaccountPlayerShowList(@RequestParam int event) {
 		return this.groupApi.qryOffiaccountPlayerShowList(event);
+	}
+
+	@RequestMapping("/qryPlayerShowListByElement")
+	@ResponseBody
+	public TableData<PlayerShowData> qryPlayerShowListByElement(@RequestBody List<EntryPickData> pickList) {
+		return this.groupApi.qryPlayerShowListByElement(pickList);
 	}
 
 	/**
