@@ -16,15 +16,35 @@
 
             <div style="margin-top: 20px"></div>
 
-            <h1 style="font-size: 28px">公号转会</h1>
+            <h1 style="font-size: 28px"
+                th:text="'公号转会-'+${pickPlayerData.entryName}+'（'+${pickPlayerData.playerName}+'）'"></h1>
 
             <div class="layui-hide" id="nextGw" th:text="${nextGw}"></div>
 
             <div style="margin-top: 30px"></div>
 
             <div class="layui-row">
+                <div class="layui-col-md2">
+                    <div style="font-size: 18px" th:text="'阵容身价：'+(${pickPlayerData.teamValue}/10)+'m'"></div>
+                </div>
+                <div class="layui-col-md2">
+                    <div style="font-size: 18px" th:text="'余额：'+(${pickPlayerData.bank}/10)+'m'"></div>
+                </div>
+                <div class="layui-col-md2">
+                    <div style="font-size: 18px" th:text="'免费转会：1'"></div>
+                </div>
+                <div class="layui-col-md2">
+                    <div style="font-size: 18px" th:text="'转会扣分：4'"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px"></div>
+
+            <div class="layui-row">
                 <div class="layui-col-md5">
-                    <div th:fragment="lineup" th:replace="layout::pick(${pickPlayerData})"></div>
+                    <div id="lineup" th:fragment="lineup">
+                        <div th:replace="layout::pick(${pickPlayerData})"></div>
+                    </div>
                     <table class="layui-table" id="transfersTable" lay-filter="transfersTable"></table>
                     <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
                             lay-submit="confirmButton" type="button">提交
@@ -81,6 +101,7 @@
                     elem: '#eventPickTable',
                     size: 'sm',
                     data: parsePlayerTableData(response.data),
+                    limit: 15,
                     contextmenu: {
                         body: [
                             {
@@ -692,6 +713,7 @@
                 if (item.position === position) {
                     pickData.element = elementOut;
                     pickData.position = position;
+                    pickData.webName = row.webName;
                     pickData.elementType = elementOutType;
                     pickData.elementTypeName = row.elementTypeName;
                     pickData.teamId = row.teamId;
@@ -700,6 +722,7 @@
                 } else {
                     pickData.element = item.element;
                     pickData.position = item.position;
+                    pickData.webName = item.webName;
                     pickData.elementType = item.elementType;
                     pickData.elementTypeName = item.elementTypeName;
                     pickData.teamId = item.teamId;
@@ -716,7 +739,49 @@
                     layer.close(loadIndex);
                     console.info(error.message);
                 });
-
+            // refresh lineup
+            let pickPlayerData = {};
+            let gkps = [];
+            let defs = [];
+            let mids = [];
+            let fwds = [];
+            let subs = [];
+            $.each(pickList, function (index, item) {
+                if (item.position < 12) {
+                    switch (item.elementType) {
+                        case 1: {
+                            gkps.push(item);
+                            break;
+                        }
+                        case 2: {
+                            defs.push(item);
+                            break;
+                        }
+                        case 3: {
+                            mids.push(item);
+                            break;
+                        }
+                        case 4: {
+                            fwds.push(item);
+                            break;
+                        }
+                    }
+                } else {
+                    subs.push(item);
+                }
+            })
+            pickPlayerData.gkps = gkps;
+            pickPlayerData.defs = defs;
+            pickPlayerData.mids = mids;
+            pickPlayerData.fwds = fwds;
+            pickPlayerData.subs = subs;
+            axios.post('/group/reloadLineup', pickPlayerData)
+                .then(function (response) {
+                    $("#lineup").html(response);
+                })
+                .catch(function (error) {
+                    console.info(error.message);
+                });
         }
 
         function reloadPickPlayerTable(elementType) {

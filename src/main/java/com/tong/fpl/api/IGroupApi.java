@@ -15,39 +15,39 @@ import java.util.List;
  */
 public interface IGroupApi {
 
-	/**
-	 * @apiNote scout
-	 */
-	TableData<PlayerShowData> qryScoutPlayerList(int elementType);
+    /**
+     * @apiNote scout
+     */
+    TableData<PlayerShowData> qryScoutPlayerList(int elementType);
 
-	void upsertEventScout(ScoutData scoutData) throws Exception;
+    void upsertEventScout(ScoutData scoutData) throws Exception;
 
-	TableData<ScoutData> qryEventScoutPickList(int event);
+    TableData<ScoutData> qryEventScoutPickList(int event);
 
-	ScoutData qryScoutEntryEventData(int event, int entry);
+    TableData<ScoutData> qryEventScoutList(int event);
 
-	TableData<ScoutData> qryEventScoutList(int event);
+    List<DropdownData> getScoutEvent();
 
-	List<DropdownData> getScoutEvent();
+    String getScoutDeadline(int event);
 
-	String getScoutDeadline(int event);
+    /**
+     * @apiNote transfers
+     */
+    ScoutData qryScoutEntryEventData(int event, int entry);
 
-	/**
-	 * @apiNote transfers
-	 */
-	TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
+    TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
 
-	TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList);
+    TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList);
 
-	PlayerPickData qryOffiaccountPickList();
+    PlayerPickData qryOffiaccountPickList();
 
-	/**
-	 * @apiNote common
-	 */
-	int getCurrentEvent();
+    /**
+     * @apiNote common
+     */
+    int getCurrentEvent();
 
-	int getNextEvent();
+    int getNextEvent();
 
-	TableData<PlayerDetailData> qryPlayerDetailData(int element);
+    TableData<PlayerDetailData> qryPlayerDetailData(int element);
 
 }

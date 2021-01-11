@@ -131,11 +131,11 @@ public interface IQueryService {
 
 	default String getScoutDeadlineByEvent(int event) {
 		String deadline = this.getDeadlineByEvent(event);
-		String checkTime = StringUtils.substringBefore(deadline, " ") + "T08:30:00";
+		String checkTime = StringUtils.substringBefore(deadline, " ") + "T18:00:00";
 		return LocalDateTime.parse(deadline.replaceAll(" ", "T")).isAfter(LocalDateTime.parse(checkTime)) ?
 				LocalDateTime.parse(checkTime).format(DateTimeFormatter.ofPattern(Constant.DATETIME)) :
 				LocalDate.parse(StringUtils.substringBefore(deadline, " ")).minusDays(1)
-						.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
+						.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 18:00:00";
 	}
 
 	List<LocalDate> getMatchDayByEvent(int event);

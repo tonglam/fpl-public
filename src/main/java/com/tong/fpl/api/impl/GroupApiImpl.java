@@ -30,97 +30,97 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class GroupApiImpl implements IGroupApi {
 
-	private final IQueryService queryService;
-	private final ITableQueryService tableQueryService;
-	private final IGroupService scoutService;
+    private final IQueryService queryService;
+    private final ITableQueryService tableQueryService;
+    private final IGroupService scoutService;
 
-	/**
-	 * @implNote scout
-	 */
-	@Override
-	public TableData<PlayerShowData> qryScoutPlayerList(int elementType) {
-		return this.tableQueryService.qryPlayerShowListByElementType(elementType);
-	}
+    /**
+     * @implNote scout
+     */
+    @Override
+    public TableData<PlayerShowData> qryScoutPlayerList(int elementType) {
+        return this.tableQueryService.qryPlayerShowListByElementType(elementType);
+    }
 
-	@Override
-	public void upsertEventScout(ScoutData scoutData) throws Exception {
-		this.scoutService.upsertEventScout(scoutData);
-	}
+    @Override
+    public void upsertEventScout(ScoutData scoutData) throws Exception {
+        this.scoutService.upsertEventScout(scoutData);
+    }
 
-	@Override
-	public TableData<ScoutData> qryEventScoutPickList(int event) {
-		return this.tableQueryService.qryEventScoutPickList(event);
-	}
+    @Override
+    public TableData<ScoutData> qryEventScoutPickList(int event) {
+        return this.tableQueryService.qryEventScoutPickList(event);
+    }
 
-	@Override
-	public ScoutData qryScoutEntryEventData(int event, int entry) {
-		return this.queryService.qryScoutEntryEventData(event, entry);
-	}
+    @Override
+    public ScoutData qryScoutEntryEventData(int event, int entry) {
+        return this.queryService.qryScoutEntryEventData(event, entry);
+    }
 
-	@Override
-	public TableData<ScoutData> qryEventScoutList(int event) {
-		return this.tableQueryService.qryEventScoutList(event);
-	}
+    @Override
+    public TableData<ScoutData> qryEventScoutList(int event) {
+        return this.tableQueryService.qryEventScoutList(event);
+    }
 
-	@Override
-	public List<DropdownData> getScoutEvent() {
-		List<DropdownData> list = Lists.newArrayList();
-		list.add(
-				new DropdownData()
-						.setTxt("赛季")
-						.setEvent("0")
-		);
-		int currentGw = this.getCurrentEvent();
-		IntStream.rangeClosed(4, currentGw).forEachOrdered(event -> {
-			String gw = String.valueOf(event);
-			list.add(
-					new DropdownData()
-							.setTxt("GW" + gw)
-							.setEvent(gw)
-			);
-		});
-		return list;
-	}
+    @Override
+    public List<DropdownData> getScoutEvent() {
+        List<DropdownData> list = Lists.newArrayList();
+        list.add(
+                new DropdownData()
+                        .setTxt("赛季")
+                        .setEvent("0")
+        );
+        int currentGw = this.getCurrentEvent();
+        IntStream.rangeClosed(4, currentGw).forEachOrdered(event -> {
+            String gw = String.valueOf(event);
+            list.add(
+                    new DropdownData()
+                            .setTxt("GW" + gw)
+                            .setEvent(gw)
+            );
+        });
+        return list;
+    }
 
-	@Override
-	public String getScoutDeadline(int event) {
-		return this.queryService.getScoutDeadlineByEvent(event);
-	}
+    @Override
+    public String getScoutDeadline(int event) {
+        return this.queryService.getScoutDeadlineByEvent(event);
+    }
 
-	/**
-	 * @implNote transfers
-	 */
-	@Override
-	public TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event) {
-		return this.tableQueryService.qryEntryEventPlayerShowList(event, FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
-	}
+    /**
+     * @implNote transfers
+     */
+    @Override
+    public TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event) {
+        return this.tableQueryService.qryEntryEventPlayerShowList(event, FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+    }
 
-	@Override
-	public TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList) {
-		return this.tableQueryService.qryPlayerShowListByElement(pickList);
-	}
+    @Override
+    public TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList) {
+        return this.tableQueryService.qryPlayerShowListByElement(pickList);
+    }
 
-	@Override
-	public PlayerPickData qryOffiaccountPickList() {
-		return this.queryService.qryEntryPickData(this.getCurrentEvent(), FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
-	}
+    @Override
+    public PlayerPickData qryOffiaccountPickList() {
+        return this.queryService.qryEntryPickData(this.getCurrentEvent(), FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+    }
 
-	/**
-	 * @implNote common
-	 */
-	@Override
-	public int getCurrentEvent() {
-		return this.queryService.getCurrentEvent();
-	}
+    /**
+     * @implNote common
+     */
+    @Override
+    public int getCurrentEvent() {
+        return this.queryService.getCurrentEvent();
+    }
 
-	@Override
-	public int getNextEvent() {
-		return this.queryService.getNextEvent();
-	}
+    @Override
+    public int getNextEvent() {
+        return this.queryService.getNextEvent();
+    }
 
-	@Override
-	public TableData<PlayerDetailData> qryPlayerDetailData(int element) {
-		return this.tableQueryService.qryPlayerDetailData(element);
-	}
+    @Override
+    public TableData<PlayerDetailData> qryPlayerDetailData(int element) {
+        return this.tableQueryService.qryPlayerDetailData(element);
+    }
 
 }

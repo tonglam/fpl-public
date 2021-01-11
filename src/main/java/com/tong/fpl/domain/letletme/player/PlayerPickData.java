@@ -13,13 +13,17 @@ import java.util.List;
 @Accessors(chain = true)
 public class PlayerPickData {
 
-	private int entry;
-	private int event;
-	private List<EntryPickData> gkps;
-	private List<EntryPickData> defs;
-	private List<EntryPickData> mids;
-	private List<EntryPickData> fwds;
-	private List<EntryPickData> subs;
-	private String formation;
+    private int entry;
+    private int event;
+    private String entryName;
+    private String playerName;
+    private int teamValue;
+    private int bank;
+    private List<EntryPickData> gkps;
+    private List<EntryPickData> defs;
+    private List<EntryPickData> mids;
+    private List<EntryPickData> fwds;
+    private List<EntryPickData> subs;
+    private String formation;
 
 }
