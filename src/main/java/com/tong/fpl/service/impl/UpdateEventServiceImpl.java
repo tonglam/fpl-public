@@ -1548,8 +1548,6 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 					.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
 			this.entryEventLineupService.updateById(entryEventLineupEntity);
 		}
-
-
 	}
 
 }
