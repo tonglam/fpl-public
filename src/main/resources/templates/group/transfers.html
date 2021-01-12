@@ -115,7 +115,6 @@
 
     </div>
 </div>
-</div>
 
 <div th:replace="layout::footer"></div>
 
@@ -140,9 +139,8 @@
 <script th:inline="none">
     layui.use(['element', 'table', 'layer', 'soulTable'], function () {
 
-        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable, loadIndex,
-            nextGw = $("#nextGw").text(), transferTableData = [], gkpCol = gkpCols(), defCol = defCols(),
-            midCol = midCols(), fwdCol = fwdCols();
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, loadIndex, nextGw = $("#nextGw").text(),
+            transferTableData = [], gkpCol = gkpCols(), defCol = defCols(), midCol = midCols(), fwdCol = fwdCols();
 
         soulTable.config({
             drag: false,
