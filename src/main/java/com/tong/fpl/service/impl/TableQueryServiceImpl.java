@@ -59,7 +59,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	private final EventLiveService eventLiveService;
 	private final EntryInfoService entryInfoService;
 	private final EntryEventResultService entryEventResultService;
-	private final EntryEventTransferService entryEventTransferService;
+	private final EntryEventTransfersService entryEventTransferService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentGroupService tournamentGroupService;
 	private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
@@ -251,8 +251,78 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return new TableData<>(list);
 	}
 
+	@Cacheable(value = "qryEntryEventPlayerShowListForTransfers", key = "#event+'::'+#entry")
 	@Override
-	public TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList) {
+	public TableData<PlayerShowData> qryEntryEventPlayerShowListForTransfers(int event, int entry) {
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, entry)
+				.eq(EntryEventResultEntity::getEvent, event));
+		if (entryEventResultEntity == null) {
+			return new TableData<>();
+		}
+		Map<Integer, EntryPickData> pickMap = this.queryService.qryPickListFromPicks(entryEventResultEntity.getEventPicks())
+				.stream()
+				.collect(Collectors.toMap(EntryPickData::getElement, o -> o));
+		if (CollectionUtils.isEmpty(pickMap)) {
+			return new TableData<>();
+		}
+		List<Integer> elementList = pickMap.values()
+				.stream()
+				.map(EntryPickData::getElement)
+				.collect(Collectors.toList());
+		// prepare
+		Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+		Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+				.in(PlayerEntity::getElement, elementList))
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+		Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
+		this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+				.in(PlayerStatEntity::getElement, elementList))
+				.forEach(o -> {
+					int element = o.getElement();
+					if (playerStatMap.containsKey(element) && o.getEvent() <= playerStatMap.get(element).getEvent()) {
+						return;
+					}
+					playerStatMap.put(element, o);
+				});
+		Multimap<Integer, EventLiveEntity> eventLiveMap = HashMultimap.create();
+		this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
+		Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap = Maps.newHashMap(); // teamId -> event -> fixtures
+		IntStream.rangeClosed(1, 20).forEach(teamId -> teamFixtureMap.put(teamId, this.queryService.getEventFixtureByTeamId(teamId)));
+		// collect
+		List<CompletableFuture<PlayerShowData>> future = pickMap.keySet()
+				.stream()
+				.map(o -> CompletableFuture.supplyAsync(() ->
+						this.queryService.qryPlayerShowData(event, o, teamNameMap, teamShortNameMap, playerMap, playerStatMap, eventLiveMap, teamFixtureMap)))
+				.collect(Collectors.toList());
+		List<PlayerShowData> list = future
+				.stream()
+				.map(CompletableFuture::join)
+				.collect(Collectors.toList());
+		list.forEach(data -> {
+			EntryPickData entryPickData = pickMap.get(data.getElement());
+			if (entryPickData == null) {
+				return;
+			}
+			data
+					.setPosition(entryPickData.getPosition())
+					.setMultiplier(entryPickData.getMultiplier())
+					.setCaptain(entryPickData.isCaptain())
+					.setViceCaptain(entryPickData.isViceCaptain());
+		});
+		return new TableData<>(
+				list
+						.stream()
+						.sorted(Comparator.comparing(PlayerShowData::getElementType).reversed()
+								.thenComparing(PlayerShowData::getPosition))
+						.collect(Collectors.toList())
+		);
+	}
+
+	@Override
+	public TableData<PlayerShowData> qryPlayerShowListByElementForTransfers(List<EntryPickData> pickList) {
 		if (CollectionUtils.isEmpty(pickList)) {
 			return new TableData<>();
 		}
@@ -294,11 +364,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.map(o -> CompletableFuture.supplyAsync(() ->
 						this.queryService.qryPlayerShowData(event, o, teamNameMap, teamShortNameMap, playerMap, playerStatMap, eventLiveMap, teamFixtureMap)))
 				.collect(Collectors.toList());
-		List<PlayerShowData> playerShowDataList = future
+		List<PlayerShowData> list = future
 				.stream()
 				.map(CompletableFuture::join)
 				.collect(Collectors.toList());
-		playerShowDataList.forEach(data -> {
+		list.forEach(data -> {
 			EntryPickData entryPickData = pickMap.get(data.getElement());
 			if (entryPickData == null) {
 				return;
@@ -309,19 +379,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setCaptain(entryPickData.isCaptain())
 					.setViceCaptain(entryPickData.isViceCaptain());
 		});
-		List<PlayerShowData> list = Lists.newArrayList();
-		list.addAll(playerShowDataList
-				.stream()
-				.filter(o -> o.getPosition() < 12)
-				.sorted(Comparator.comparing(PlayerShowData::getElementType).reversed()
-						.thenComparing(PlayerShowData::getPosition))
-				.collect(Collectors.toList()));
-		list.addAll(playerShowDataList
-				.stream()
-				.filter(o -> o.getPosition() > 11)
-				.sorted(Comparator.comparing(PlayerShowData::getPosition))
-				.collect(Collectors.toList()));
-		return new TableData<>(list);
+		return new TableData<>(
+				list
+						.stream()
+						.sorted(Comparator.comparing(PlayerShowData::getElementType).reversed()
+								.thenComparing(PlayerShowData::getPosition))
+						.collect(Collectors.toList())
+		);
 	}
 
 	@Override
@@ -1780,7 +1844,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		// prepare
 		Table<Integer, Integer, Integer> elementPointsTable = HashBasedTable.create(); // element -> event -> points
 		this.eventLiveService.list().forEach(o -> elementPointsTable.put(o.getElement(), o.getEvent(), o.getTotalPoints()));
-		Multimap<Integer, EntryEventTransferEntity> entryEventTransferMap = HashMultimap.create();
+		Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap = HashMultimap.create();
 		this.entryEventTransferService.list().forEach(o -> entryEventTransferMap.put(o.getEntry(), o));
 		List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
 				.eq(LeagueEventReportEntity::getLeagueId, leagueId)
@@ -1811,7 +1875,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		);
 	}
 
-	private LeagueEventReportStatData qryEntryTransferReportStat(int entry, Collection<LeagueEventReportEntity> leagueEventReportEntities, Table<Integer, Integer, Integer> elementPointsTable, Multimap<Integer, EntryEventTransferEntity> entryEventTransferMap) {
+	private LeagueEventReportStatData qryEntryTransferReportStat(int entry, Collection<LeagueEventReportEntity> leagueEventReportEntities, Table<Integer, Integer, Integer> elementPointsTable, Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap) {
 		int size = leagueEventReportEntities.size();
 		if (size == 0) {
 			return null;
@@ -1819,7 +1883,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (!entryEventTransferMap.containsKey(entry)) {
 			return null;
 		}
-		Collection<EntryEventTransferEntity> entryEventTransferEntities = entryEventTransferMap.get(entry);
+		Collection<EntryEventTransfersEntity> entryEventTransferEntities = entryEventTransferMap.get(entry);
 		LeagueEventReportEntity leagueEventReportEntity = leagueEventReportEntities
 				.stream()
 				.max(Comparator.comparing(LeagueEventReportEntity::getEvent))
@@ -1835,7 +1899,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				)
 				.setTransfersPlayed((int) entryEventTransferEntities
 						.stream()
-						.filter(EntryEventTransferEntity::getElementInPlayed)
+						.filter(EntryEventTransfersEntity::getElementInPlayed)
 						.count()
 				)
 				.setTransfersCost(
@@ -1852,13 +1916,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.setTransferInTotalValue(
 						entryEventTransferEntities
 								.stream()
-								.mapToInt(EntryEventTransferEntity::getElementInCost)
+								.mapToInt(EntryEventTransfersEntity::getElementInCost)
 								.sum()
 				)
 				.setTransferOutTotalValue(
 						entryEventTransferEntities
 								.stream()
-								.mapToInt(EntryEventTransferEntity::getElementOutCost)
+								.mapToInt(EntryEventTransfersEntity::getElementOutCost)
 								.sum()
 				);
 		data
@@ -1872,7 +1936,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return leagueEventReportStatData;
 	}
 
-	private int sumSeasonElementPoints(Table<Integer, Integer, Integer> elementPointsTable, Collection<EntryEventTransferEntity> entryEventTransferEntities, String type) {
+	private int sumSeasonElementPoints(Table<Integer, Integer, Integer> elementPointsTable, Collection<EntryEventTransfersEntity> entryEventTransferEntities, String type) {
 		switch (type) {
 			case "in": {
 				return entryEventTransferEntities
@@ -1883,7 +1947,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			case "played": {
 				return entryEventTransferEntities
 						.stream()
-						.filter(EntryEventTransferEntity::getElementInPlayed)
+						.filter(EntryEventTransfersEntity::getElementInPlayed)
 						.mapToInt(o -> elementPointsTable.get(o.getElementIn(), o.getEvent()))
 						.sum();
 			}
@@ -1946,10 +2010,10 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.eq(EventLiveEntity::getEvent, event))
 				.stream()
 				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
-		Multimap<Integer, EntryEventTransferEntity> entryEventTransferMap = HashMultimap.create();
-		this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
-				.eq(EntryEventTransferEntity::getEvent, event)
-				.in(EntryEventTransferEntity::getEntry, entryList))
+		Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap = HashMultimap.create();
+		this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+				.eq(EntryEventTransfersEntity::getEvent, event)
+				.in(EntryEventTransfersEntity::getEntry, entryList))
 				.forEach(o -> entryEventTransferMap.put(o.getEntry(), o));
 		// collect
 		leagueEventReportEntityList.forEach(o -> {
@@ -1959,43 +2023,43 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			}
 			LeagueEventReportData data = new LeagueEventReportData();
 			BeanUtil.copyProperties(o, data);
-			Collection<EntryEventTransferEntity> entryEventTransferEntities = entryEventTransferMap.get(entry);
+			Collection<EntryEventTransfersEntity> entryEventTransferEntities = entryEventTransferMap.get(entry);
 			data
 					.setEventTransfersPlayed((int)
 							entryEventTransferEntities
 									.stream()
-									.filter(EntryEventTransferEntity::getElementInPlayed)
+									.filter(EntryEventTransfersEntity::getElementInPlayed)
 									.count()
 					)
 					.setTransferInTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
-									.map(EntryEventTransferEntity::getElementIn)
+									.map(EntryEventTransfersEntity::getElementIn)
 									.collect(Collectors.toList())
 					))
 					.setTransferInPlayedTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
-									.filter(EntryEventTransferEntity::getElementInPlayed)
-									.map(EntryEventTransferEntity::getElementIn)
+									.filter(EntryEventTransfersEntity::getElementInPlayed)
+									.map(EntryEventTransfersEntity::getElementIn)
 									.collect(Collectors.toList())
 					))
 					.setTransferOutTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
-									.map(EntryEventTransferEntity::getElementOut)
+									.map(EntryEventTransfersEntity::getElementOut)
 									.collect(Collectors.toList())
 					))
 					.setTransferInTotalValue(
 							entryEventTransferEntities
 									.stream()
-									.mapToInt(EntryEventTransferEntity::getElementInCost)
+									.mapToInt(EntryEventTransfersEntity::getElementInCost)
 									.sum()
 					)
 					.setTransferOutTotalValue(
 							entryEventTransferEntities
 									.stream()
-									.mapToInt(EntryEventTransferEntity::getElementOutCost)
+									.mapToInt(EntryEventTransfersEntity::getElementOutCost)
 									.sum()
 					);
 			data
@@ -2033,7 +2097,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.sum();
 	}
 
-	private List<EntryEventTransfersData> setEntryTransferList(Collection<EntryEventTransferEntity> entryEventTransferEntities, Map<Integer, PlayerEntity> playerMap, Map<Integer, Integer> elementPointsMap) {
+	private List<EntryEventTransfersData> setEntryTransferList(Collection<EntryEventTransfersEntity> entryEventTransferEntities, Map<Integer, PlayerEntity> playerMap, Map<Integer, Integer> elementPointsMap) {
 		List<EntryEventTransfersData> list = Lists.newArrayList();
 		entryEventTransferEntities.forEach(o -> {
 			EntryEventTransfersData entryEventTransferData = new EntryEventTransfersData();
@@ -2114,9 +2178,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
-		Multimap<Integer, EntryEventTransferEntity> entryEventTransferMap = HashMultimap.create();
-		this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
-				.eq(EntryEventTransferEntity::getEntry, entry))
+		Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap = HashMultimap.create();
+		this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+				.eq(EntryEventTransfersEntity::getEntry, entry))
 				.forEach(o -> entryEventTransferMap.put(o.getEvent(), o));
 		// collect
 		leagueEventReportEntityList.forEach(o -> {
@@ -2130,44 +2194,44 @@ public class TableQueryServiceImpl implements ITableQueryService {
 			}
 			LeagueEventReportData data = new LeagueEventReportData();
 			BeanUtil.copyProperties(o, data);
-			Collection<EntryEventTransferEntity> entryEventTransferEntities = entryEventTransferMap.get(event);
+			Collection<EntryEventTransfersEntity> entryEventTransferEntities = entryEventTransferMap.get(event);
 			data
 					.setEventTransfersPlayed((int)
 							entryEventTransferEntities
 									.stream()
-									.filter(EntryEventTransferEntity::getElementInPlayed)
+									.filter(EntryEventTransfersEntity::getElementInPlayed)
 									.count()
 					)
 					.setTransferInTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
-									.map(EntryEventTransferEntity::getElementIn)
+									.map(EntryEventTransfersEntity::getElementIn)
 									.collect(Collectors.toList())
 					))
 					.setTransferInPlayedTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
-									.filter(EntryEventTransferEntity::getElementInPlayed)
-									.map(EntryEventTransferEntity::getElementIn)
+									.filter(EntryEventTransfersEntity::getElementInPlayed)
+									.map(EntryEventTransfersEntity::getElementIn)
 									.collect(Collectors.toList())
 					))
 					.setTransferOutTotalPoints(this.sumElementPoints(elementPointsMap,
 							entryEventTransferEntities
 									.stream()
-									.map(EntryEventTransferEntity::getElementOut)
+									.map(EntryEventTransfersEntity::getElementOut)
 									.collect(Collectors.toList())
 					))
 					.setTransferInTotalValue(
 							entryEventTransferEntities
 									.stream()
-									.mapToInt(EntryEventTransferEntity::getElementInCost)
+									.mapToInt(EntryEventTransfersEntity::getElementInCost)
 									.sum()
 					)
 
 					.setTransferOutTotalValue(
 							entryEventTransferEntities
 									.stream()
-									.mapToInt(EntryEventTransferEntity::getElementOutCost)
+									.mapToInt(EntryEventTransfersEntity::getElementOutCost)
 									.sum()
 					);
 			data

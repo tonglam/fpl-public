@@ -17,47 +17,104 @@
             <div style="margin-top: 20px"></div>
 
             <h1 style="font-size: 28px"
-                th:text="'公号转会-'+${pickPlayerData.entryName}+'（'+${pickPlayerData.playerName}+'）'"></h1>
+                th:text="${pickPlayerData.entryName}+'（'+${pickPlayerData.playerName}+'）'"></h1>
 
             <div class="layui-hide" id="nextGw" th:text="${nextGw}"></div>
 
-            <div style="margin-top: 30px"></div>
+            <div style="margin-top: 20px"></div>
 
-            <div class="layui-row">
-                <div class="layui-col-md2">
-                    <div style="font-size: 18px" th:text="'阵容身价：'+(${pickPlayerData.teamValue}/10)+'m'"></div>
-                </div>
-                <div class="layui-col-md2">
-                    <div style="font-size: 18px" th:text="'余额：'+(${pickPlayerData.bank}/10)+'m'"></div>
-                </div>
-                <div class="layui-col-md2">
-                    <div style="font-size: 18px" th:text="'免费转会：1'"></div>
-                </div>
-                <div class="layui-col-md2">
-                    <div style="font-size: 18px" th:text="'转会扣分：4'"></div>
-                </div>
-            </div>
+            <div class="layui-tab layui-tab-brief" lay-filter="checkTab">
 
-            <div style="margin-top: 30px"></div>
+                <ul class="layui-tab-title">
+                    <li class="layui-this" lay-id="transfer">一顿操作</li>
+                    <li class="" lay-id="result">猛如虎</li>
+                </ul>
 
-            <div class="layui-row">
-                <div class="layui-col-md5">
-                    <div id="lineup" th:fragment="lineup">
-                        <div th:replace="layout::pick(${pickPlayerData})"></div>
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 30px"></div>
+
+                        <div class="layui-row">
+                            <div class="layui-col-md2">
+                                <div style="font-size: 18px"
+                                     th:text="'阵容身价：'+(${pickPlayerData.teamValue}/10)+'m'"></div>
+                                <div class="layui-hide" id="teamValue" th:text="${pickPlayerData.teamValue}"></div>
+                            </div>
+                            <div class="layui-col-md2">
+                                <div style="font-size: 18px" th:text="'余额：'+(${pickPlayerData.bank}/10)+'m'"></div>
+                                <div class="layui-hide" id="bank" th:text="${pickPlayerData.bank}"></div>
+                            </div>
+                            <div class="layui-col-md2">
+                                <div style="font-size: 18px" th:text="'免费转会：1'"></div>
+                                <div class="layui-hide" id="freeTransfers" th:text="1"></div>
+                            </div>
+                            <div class="layui-col-md2">
+                                <div style="font-size: 18px" th:text="'转会扣分：4'"></div>
+                                <div class="layui-hide" id="transfersCost" th:text="4"></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 30px"></div>
+
+                        <div class="layui-row">
+                            <div class="layui-col-md5">
+                                <div id="lineup" th:fragment="lineup">
+                                    <div th:replace="layout::transfers(${pickPlayerData})"></div>
+                                </div>
+                                <table class="layui-table" id="transfersTable" lay-filter="transfersTable"></table>
+                                <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
+                                        lay-submit="confirmButton" type="button">提交
+                                </button>
+                            </div>
+                            <div class="layui-col-md7">
+                                <table class="layui-table" id="eventPickTable" lay-filter="eventPickTable"></table>
+                                <table class="layui-table" id="playerPickTable" lay-filter="playerPickTable"></table>
+                            </div>
+                        </div>
+
                     </div>
-                    <table class="layui-table" id="transfersTable" lay-filter="transfersTable"></table>
-                    <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
-                            lay-submit="confirmButton" type="button">提交
-                    </button>
+
+                    <div class="layui-tab-item">
+
+                        <div style="margin-top: 30px"></div>
+
+                        <!--                        <div class="layui-row">-->
+                        <!--                            <div class="layui-col-md2">-->
+                        <!--                                <div style="font-size: 18px"-->
+                        <!--                                     th:text="'阵容身价：'+(${pickPlayerData.teamValue}/10)+'m'"></div>-->
+                        <!--                            </div>-->
+                        <!--                            <div class="layui-col-md2">-->
+                        <!--                                <div style="font-size: 18px" th:text="'余额：'+(${pickPlayerData.bank}/10)+'m'"></div>-->
+                        <!--                            </div>-->
+                        <!--                            <div class="layui-col-md2">-->
+                        <!--                                <div style="font-size: 18px" th:text="'免费转会：1'"></div>-->
+                        <!--                            </div>-->
+                        <!--                            <div class="layui-col-md2">-->
+                        <!--                                <div style="font-size: 18px" th:text="'转会扣分：4'"></div>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
+
+                        <div style="margin-top: 30px"></div>
+
+                        <div th:each="item,userStat:${lineupList}">
+                            <div style="font-size: 18px" th:text="'球探：'+${item.entryName}"></div>
+                            <div style="margin-top: 20px"></div>
+                            <div th:replace="layout::transfers(${item})"></div>
+                            <div style="margin-top: 30px"></div>
+                        </div>
+
+                    </div>
+
                 </div>
-                <div class="layui-col-md7">
-                    <table class="layui-table" id="eventPickTable" lay-filter="eventPickTable"></table>
-                    <table class="layui-table" id="playerPickTable" lay-filter="playerPickTable"></table>
-                </div>
+
             </div>
 
         </div>
+
     </div>
+</div>
 </div>
 
 <div th:replace="layout::footer"></div>
@@ -81,10 +138,11 @@
 </script>
 
 <script th:inline="none">
-    layui.use(['table', 'layer', 'soulTable'], function () {
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
 
-        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, loadIndex, nextGw = $("#nextGw").text(),
-            transferTableData = [], gkpCol = gkpCols(), defCol = defCols(), midCol = midCols(), fwdCol = fwdCols();
+        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable, loadIndex,
+            nextGw = $("#nextGw").text(), transferTableData = [], gkpCol = gkpCols(), defCol = defCols(),
+            midCol = midCols(), fwdCol = fwdCols();
 
         soulTable.config({
             drag: false,
@@ -95,7 +153,7 @@
             }
         });
 
-        axios.get('/group/qryOffiaccountPlayerShowList?event=' + (parseInt(nextGw) - 1))
+        axios.get('/group/qryEntryEventPlayerShowListForTransfers?event=' + (parseInt(nextGw) - 1))
             .then(function (response) {
                 table.render({
                     elem: '#eventPickTable',
@@ -253,14 +311,8 @@
                         init: true
                     },
                     id: 'eventPickTable',
-                    done: function (res) {
+                    done: function () {
                         soulTable.render(this);
-                        let that = this.elem.next();
-                        res.data.forEach(function (d, index) {
-                            if (index > 10) {
-                                setTableRowColor(that, index, "#e2e2e2");
-                            }
-                        });
                     }
                 });
             })
@@ -556,7 +608,7 @@
         table.render({
             elem: '#transfersTable',
             data: transferTableData,
-            width: 567,
+            width: 570,
             contextmenu: {
                 body: [
                     {
@@ -593,12 +645,12 @@
             },
             cols: [[
                 {field: 'elementInTypeName', title: '位置', align: 'center', width: 80},
-                {field: 'elementInWebName', title: '转出', align: 'center', width: 150},
+                {field: 'elementInWebName', title: '转出', align: 'center', width: 160},
                 {
                     field: 'elementInPrice',
                     title: '卖出价',
                     align: 'center',
-                    width: 70,
+                    width: 80,
                     templet: function (d) {
                         if (parseInt(d.elementInPrice) > 0) {
                             return d.elementInPrice + 'm';
@@ -606,12 +658,12 @@
                         return ''
                     }
                 },
-                {field: 'elementOutWebName', title: '转入', align: 'center', width: 150},
+                {field: 'elementOutWebName', title: '转入', align: 'center', width: 160},
                 {
                     field: 'elementOutPrice',
                     title: '买入价',
                     align: 'center',
-                    width: 70,
+                    width: 80,
                     templet: function (d) {
                         if (parseInt(d.elementOutPrice) > 0) {
                             return d.elementOutPrice + 'm';
@@ -730,7 +782,7 @@
                 }
                 pickList.push(pickData);
             });
-            axios.post('/group/qryPlayerShowListByElement', pickList)
+            axios.post('/group/qryPlayerShowListByElementForTransfers', pickList)
                 .then(function (response) {
                     table.reload('eventPickTable', {data: parsePlayerTableData(response.data)});
                 })
@@ -746,27 +798,23 @@
             let fwds = [];
             let subs = [];
             $.each(pickList, function (index, item) {
-                if (item.position < 12) {
-                    switch (item.elementType) {
-                        case 1: {
-                            gkps.push(item);
-                            break;
-                        }
-                        case 2: {
-                            defs.push(item);
-                            break;
-                        }
-                        case 3: {
-                            mids.push(item);
-                            break;
-                        }
-                        case 4: {
-                            fwds.push(item);
-                            break;
-                        }
+                switch (item.elementType) {
+                    case 1: {
+                        gkps.push(item);
+                        break;
                     }
-                } else {
-                    subs.push(item);
+                    case 2: {
+                        defs.push(item);
+                        break;
+                    }
+                    case 3: {
+                        mids.push(item);
+                        break;
+                    }
+                    case 4: {
+                        fwds.push(item);
+                        break;
+                    }
                 }
             })
             pickPlayerData.gkps = gkps;
@@ -813,6 +861,39 @@
                 return value1 - value2;
             }
         }
+
+        $("#confirmButton").on('click', function () {
+            let lineup = [];
+            $.each(table.cache['eventPickTable'], function (index, item) {
+                lineup.push({
+                    element: item.element,
+                    position: item.position,
+                    elementType: item.elementType,
+                    multiplier: 1,
+                    points: 0,
+                    teamId: item.teamId,
+                    viceCaptain: false,
+                    captain: false
+                });
+            });
+            let data = {};
+            data.teamValue = $("#teamValue").text();
+            data.bank = $("#bank").text();
+            data.freeTransfers = $("#freeTransfers").text();
+            data.transfersCost = $("#transfersCost").text();
+            data.lineup = lineup;
+            // 禁用提交按钮
+            $(this).attr("disabled", "");
+            // 提交
+            axios.post('/group/upsertEventLineup', data)
+                .then(function (response) {
+                    layer.msg(response, {time: 1500});
+                })
+                .catch(function (error) {
+                    console.info(error.message);
+                    $(this).removeAttr("disabled");
+                });
+        });
 
     });
 

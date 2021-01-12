@@ -16,6 +16,8 @@ public class EntryEventLineupData {
 	private int event;
 	private int teamValue;
 	private int bank;
-	private List<EntryPickData> eventLineup;
+	private int freeTransfers;
+	private int transfersCost;
+	private List<EntryPickData> lineup;
 
 }

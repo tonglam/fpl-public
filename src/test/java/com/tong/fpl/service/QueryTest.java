@@ -267,4 +267,10 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@Test
+	void qryOffiaccountLineupForTransfers() {
+		List<PlayerPickData> list = this.querySerivce.qryOffiaccountLineupForTransfers();
+		System.out.println(1);
+	}
+
 }

@@ -12,8 +12,8 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "entry_event_transfer")
-public class EntryEventTransferEntity {
+@TableName(value = "entry_event_transfers")
+public class EntryEventTransfersEntity {
 
 	@TableId
 	private Integer id;

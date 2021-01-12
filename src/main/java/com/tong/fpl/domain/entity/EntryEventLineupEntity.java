@@ -20,8 +20,12 @@ public class EntryEventLineupEntity {
 	private Integer event;
 	private Integer teamValue;
 	private Integer bank;
-	private String eventLineup;
+	private Integer freeTransfers;
+	private Integer transfersCost;
+	private String lineup;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;
+	@TableField(fill = FieldFill.UPDATE)
+	private String updateTime;
 
 }

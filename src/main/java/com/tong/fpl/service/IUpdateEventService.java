@@ -37,6 +37,6 @@ public interface IUpdateEventService {
 
 	void updateAllEventResult(int event);
 
-	void insertEntryEventLineup(EntryEventLineupData entryEventLineupData);
+	void upsertEntryEventLineup(EntryEventLineupData entryEventLineupData);
 
 }

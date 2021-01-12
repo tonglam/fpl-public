@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
@@ -15,39 +16,43 @@ import java.util.List;
  */
 public interface IGroupApi {
 
-    /**
-     * @apiNote scout
-     */
-    TableData<PlayerShowData> qryScoutPlayerList(int elementType);
+	/**
+	 * @apiNote scout
+	 */
+	TableData<PlayerShowData> qryScoutPlayerList(int elementType);
 
-    void upsertEventScout(ScoutData scoutData) throws Exception;
+	void upsertEventScout(ScoutData scoutData);
 
-    TableData<ScoutData> qryEventScoutPickList(int event);
+	TableData<ScoutData> qryEventScoutPickList(int event);
 
-    TableData<ScoutData> qryEventScoutList(int event);
+	TableData<ScoutData> qryEventScoutList(int event);
 
-    List<DropdownData> getScoutEvent();
+	List<DropdownData> getScoutEvent();
 
-    String getScoutDeadline(int event);
+	String getScoutDeadline(int event);
 
-    /**
-     * @apiNote transfers
-     */
-    ScoutData qryScoutEntryEventData(int event, int entry);
+	/**
+	 * @apiNote transfers
+	 */
+	ScoutData qryScoutEntryEventData(int event, int entry);
 
-    TableData<PlayerShowData> qryOffiaccountPlayerShowList(int event);
+	TableData<PlayerShowData> qryEntryEventPlayerShowListForTransfers(int event);
 
-    TableData<PlayerShowData> qryPlayerShowListByElement(List<EntryPickData> pickList);
+	TableData<PlayerShowData> qryPlayerShowListByElementForTransfers(List<EntryPickData> pickList);
 
-    PlayerPickData qryOffiaccountPickList();
+	PlayerPickData qryOffiaccountPickListForTransfers();
 
-    /**
-     * @apiNote common
-     */
-    int getCurrentEvent();
+	List<PlayerPickData> qryOffiaccountLineupForTransfers();
 
-    int getNextEvent();
+	void upsertEventLineup(EntryEventLineupData entryEventLineupData);
 
-    TableData<PlayerDetailData> qryPlayerDetailData(int element);
+	/**
+	 * @apiNote common
+	 */
+	int getCurrentEvent();
+
+	int getNextEvent();
+
+	TableData<PlayerDetailData> qryPlayerDetailData(int element);
 
 }

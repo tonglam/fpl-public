@@ -131,11 +131,11 @@ public interface IQueryService {
 
 	default String getScoutDeadlineByEvent(int event) {
 		String deadline = this.getDeadlineByEvent(event);
-		String checkTime = StringUtils.substringBefore(deadline, " ") + "T18:00:00";
+		String checkTime = StringUtils.substringBefore(deadline, " ") + "T08:30:00";
 		return LocalDateTime.parse(deadline.replaceAll(" ", "T")).isAfter(LocalDateTime.parse(checkTime)) ?
 				LocalDateTime.parse(checkTime).format(DateTimeFormatter.ofPattern(Constant.DATETIME)) :
 				LocalDate.parse(StringUtils.substringBefore(deadline, " ")).minusDays(1)
-						.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 18:00:00";
+						.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
 	}
 
 	List<LocalDate> getMatchDayByEvent(int event);
@@ -214,11 +214,21 @@ public interface IQueryService {
 
 	PlayerPickData qryPickListByPosition(String season, String picks);
 
+	default PlayerPickData qryPickListByPositionForTransfers(String picks) {
+		return this.qryPickListByPositionForTransfers(CommonUtils.getCurrentSeason(), picks);
+	}
+
+	PlayerPickData qryPickListByPositionForTransfers(String season, String picks);
+
 	PlayerPickData qryEntryPickData(int event, int entry);
+
+	PlayerPickData qryEntryPickDataForTransfers(int event, int entry);
 
 	List<PlayerPickData> qryLeaguePickDataList(int leagueId, String leagueType, List<Integer> entryList);
 
 	List<PlayerPickData> qryLeagueEventPickDataList(int event, int leagueId, String leagueType);
+
+	List<PlayerPickData> qryOffiaccountLineupForTransfers();
 
 	default List<EntryEventAutoSubsData> qryEntryAutoSubDataList(int event, int entry) {
 		return this.qryEntryAutoSubDataList(CommonUtils.getCurrentSeason(), event, entry);

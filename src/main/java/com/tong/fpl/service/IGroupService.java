@@ -7,7 +7,7 @@ import com.tong.fpl.domain.letletme.scout.ScoutData;
  */
 public interface IGroupService {
 
-	void upsertEventScout(ScoutData scoutData) throws Exception;
+	void upsertEventScout(ScoutData scoutData);
 
 	void updateEventScoutResult(int event);
 

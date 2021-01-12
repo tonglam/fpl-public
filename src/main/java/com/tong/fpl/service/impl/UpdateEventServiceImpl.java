@@ -53,7 +53,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	private final EventLiveService eventLiveService;
 	private final EntryEventLineupService entryEventLineupService;
 	private final EntryEventResultService entryEventResultService;
-	private final EntryEventTransferService entryEventTransferService;
+	private final EntryEventTransfersService entryEventTransferService;
 	private final EntryInfoService entryInfoService;
 	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
@@ -210,15 +210,15 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 		if (CollectionUtils.isEmpty(transferResList)) {
 			return;
 		}
-		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		List<EntryEventTransfersEntity> list = Lists.newArrayList();
 		// get data from transfer
-		List<EntryEventTransferEntity> entryEventTransferList = this.getEntryEventTransfer(transferResList);
+		List<EntryEventTransfersEntity> entryEventTransferList = this.getEntryEventTransfer(transferResList);
 		if (CollectionUtils.isEmpty(entryEventTransferList)) {
 			return;
 		}
 		// insert or update
-		Map<String, EntryEventTransferEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
-				.eq(EntryEventTransferEntity::getEntry, entry))
+		Map<String, EntryEventTransfersEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+				.eq(EntryEventTransfersEntity::getEntry, entry))
 				.stream()
 				.collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEvent(), k.getEntry(), k.getElementIn(), k.getElementOut(), k.getTime()), o -> o));
 		entryEventTransferList.forEach(o -> {
@@ -247,13 +247,13 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 		if (CollectionUtils.isEmpty(pickElementList)) {
 			return;
 		}
-		List<EntryEventTransferEntity> entryEventTransferEntityList = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
-				.eq(EntryEventTransferEntity::getEvent, event)
-				.eq(EntryEventTransferEntity::getEntry, entry));
+		List<EntryEventTransfersEntity> entryEventTransferEntityList = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+				.eq(EntryEventTransfersEntity::getEvent, event)
+				.eq(EntryEventTransfersEntity::getEntry, entry));
 		if (CollectionUtils.isEmpty(entryEventTransferEntityList)) {
 			return;
 		}
-		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		List<EntryEventTransfersEntity> list = Lists.newArrayList();
 		entryEventTransferEntityList.forEach(o -> {
 			o.setElementInPlayed(StringUtils.equals(Chip.BB.getValue(), entryEventResultEntity.getEventChip()) ?
 					pickElementList.contains(o.getElementIn()) : pickElementList.subList(0, 11).contains(o.getElementIn())
@@ -263,11 +263,11 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 		this.entryEventTransferService.updateBatchById(list);
 	}
 
-	private List<EntryEventTransferEntity> getEntryEventTransfer(List<TransferRes> transferResList) {
-		List<EntryEventTransferEntity> list = Lists.newArrayList();
+	private List<EntryEventTransfersEntity> getEntryEventTransfer(List<TransferRes> transferResList) {
+		List<EntryEventTransfersEntity> list = Lists.newArrayList();
 		transferResList.forEach(o ->
 				list.add(
-						new EntryEventTransferEntity()
+						new EntryEventTransfersEntity()
 								.setEntry(o.getEntry())
 								.setEvent(o.getEvent())
 								.setElementIn(o.getElementIn())
@@ -335,12 +335,12 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 			log.error("tournament_info not exists, tournament:{}!", tournamentId);
 			return;
 		}
-		Map<String, EntryEventTransferEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
-				.in(EntryEventTransferEntity::getEntry, entryList))
+		Map<String, EntryEventTransfersEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+				.in(EntryEventTransfersEntity::getEntry, entryList))
 				.stream()
 				.collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEvent(), k.getEntry(), k.getElementIn(), k.getElementOut(), k.getTime()), o -> o));
 		// upsert entry_event_transfer
-		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		List<EntryEventTransfersEntity> list = Lists.newArrayList();
 		entryList.forEach(entry -> {
 			if (entry <= 0) {
 				return;
@@ -349,7 +349,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 			if (CollectionUtils.isEmpty(transferResList)) {
 				return;
 			}
-			List<EntryEventTransferEntity> entryEventTransferList = this.getEntryEventTransfer(transferResList);
+			List<EntryEventTransfersEntity> entryEventTransferList = this.getEntryEventTransfer(transferResList);
 			if (CollectionUtils.isEmpty(entryEventTransferList)) {
 				return;
 			}
@@ -379,15 +379,15 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 		if (CollectionUtils.isEmpty(entryEventResultMap)) {
 			return;
 		}
-		Multimap<Integer, EntryEventTransferEntity> entryEventTransferMap = HashMultimap.create();
-		this.entryEventTransferService.list(new QueryWrapper<EntryEventTransferEntity>().lambda()
-				.eq(EntryEventTransferEntity::getEvent, event)
-				.in(EntryEventTransferEntity::getEntry, entryList))
+		Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap = HashMultimap.create();
+		this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+				.eq(EntryEventTransfersEntity::getEvent, event)
+				.in(EntryEventTransfersEntity::getEntry, entryList))
 				.forEach(o -> entryEventTransferMap.put(o.getEntry(), o));
 		if (entryEventTransferMap.size() == 0) {
 			return;
 		}
-		List<EntryEventTransferEntity> list = Lists.newArrayList();
+		List<EntryEventTransfersEntity> list = Lists.newArrayList();
 		entryList.forEach(entry -> {
 			EntryEventResultEntity entryEventResultEntity = entryEventResultMap.getOrDefault(entry, null);
 			if (entryEventResultEntity == null) {
@@ -1531,9 +1531,9 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	}
 
 	@Override
-	public void insertEntryEventLineup(EntryEventLineupData entryEventLineupData) {
+	public void upsertEntryEventLineup(EntryEventLineupData entryEventLineupData) {
 		EntryEventLineupEntity entryEventLineupEntity = BeanUtil.copyProperties(entryEventLineupData, EntryEventLineupEntity.class);
-		entryEventLineupEntity.setEventLineup(JsonUtils.obj2json(entryEventLineupData.getEventLineup()));
+		entryEventLineupEntity.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
 		this.entryEventLineupService.save(entryEventLineupEntity);
 	}
 
