@@ -608,6 +608,7 @@
         table.render({
             elem: '#transfersTable',
             data: transferTableData,
+            limit: 15,
             width: 570,
             contextmenu: {
                 body: [
@@ -888,6 +889,7 @@
             axios.post('/group/upsertEventLineup', data)
                 .then(function (response) {
                     layer.msg(response, {time: 1500});
+                    window.location.replace("/group/transfers");
                 })
                 .catch(function (error) {
                     console.info(error.message);
