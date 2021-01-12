@@ -1532,9 +1532,24 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 
 	@Override
 	public void upsertEntryEventLineup(EntryEventLineupData entryEventLineupData) {
-		EntryEventLineupEntity entryEventLineupEntity = BeanUtil.copyProperties(entryEventLineupData, EntryEventLineupEntity.class);
-		entryEventLineupEntity.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
-		this.entryEventLineupService.save(entryEventLineupEntity);
+		EntryEventLineupEntity entryEventLineupEntity = this.entryEventLineupService.getOne(new QueryWrapper<EntryEventLineupEntity>().lambda()
+				.eq(EntryEventLineupEntity::getEntry, entryEventLineupData.getEntry())
+				.eq(EntryEventLineupEntity::getEvent, entryEventLineupData.getEvent()));
+		if (entryEventLineupEntity == null) {
+			entryEventLineupEntity = BeanUtil.copyProperties(entryEventLineupData, EntryEventLineupEntity.class);
+			entryEventLineupEntity.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
+			this.entryEventLineupService.save(entryEventLineupEntity);
+		} else {
+			entryEventLineupEntity
+					.setTeamValue(entryEventLineupData.getTeamValue())
+					.setBank(entryEventLineupData.getBank())
+					.setFreeTransfers(entryEventLineupData.getFreeTransfers())
+					.setTransfersCost(entryEventLineupData.getTransfersCost())
+					.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
+			this.entryEventLineupService.updateById(entryEventLineupEntity);
+		}
+
+
 	}
 
 }
