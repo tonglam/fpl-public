@@ -176,7 +176,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         );
     }
 
-    //    @Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry")
+    @Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry")
     @Override
     public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry) {
         EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
@@ -257,7 +257,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return new TableData<>(list);
     }
 
-    //    @Cacheable(value = "qryEntryEventPlayerShowListForTransfers", key = "#event+'::'+#entry")
+    @Cacheable(value = "qryEntryEventPlayerShowListForTransfers", key = "#event+'::'+#entry")
     @Override
     public TableData<PlayerShowData> qryEntryEventPlayerShowListForTransfers(int event, int entry) {
         EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
@@ -394,6 +394,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
         Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap = Maps.newHashMap(); // teamId -> event -> fixtures
         IntStream.rangeClosed(1, 20).forEach(teamId -> teamFixtureMap.put(teamId, this.queryService.getEventFixtureByTeamId(teamId)));
+        IntStream.rangeClosed(1, 20).forEach(teamId -> teamFixtureMap.put(teamId, this.queryService.getEventFixtureByTeamId(teamId)));
         // collect
         List<CompletableFuture<PlayerShowData>> future = pickMap.keySet()
                 .stream()
@@ -410,6 +411,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 return;
             }
             data
+                    .setSellPrice(entryPickData.getSellPrice() / 10.0)
                     .setPosition(entryPickData.getPosition())
                     .setMultiplier(entryPickData.getMultiplier())
                     .setCaptain(entryPickData.isCaptain())
