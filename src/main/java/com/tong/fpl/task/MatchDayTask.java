@@ -25,7 +25,7 @@ public class MatchDayTask {
 	private final IUpdateEventService updateEventResultsService;
 	private final IGroupService scoutService;
 
-	@Scheduled(cron = "0 0/5 0-9,19-23 * * *")
+	@Scheduled(cron = "0 0/5 0-10,19-23 * * *")
 	public void insertEventLiveCache() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDayTime(event)) {
@@ -201,13 +201,13 @@ public class MatchDayTask {
 				.forEach(tournamentId -> this.updateEventResultsService.updateEntryEventTransfersPlayed(event, tournamentId));
 	}
 
-	@Scheduled(cron = "0 30 9,11 * * *")
-	public void updateAllEventResult() {
-		int event = this.queryService.getCurrentEvent();
-		if (!this.queryService.isMatchDay(event)) {
-			return;
-		}
-		this.updateEventResultsService.updateAllEventResult(event);
-	}
+//	@Scheduled(cron = "0 30 9,11 * * *")
+//	public void updateAllEventResult() {
+//		int event = this.queryService.getCurrentEvent();
+//		if (!this.queryService.isMatchDay(event)) {
+//			return;
+//		}
+//		this.updateEventResultsService.updateAllEventResult(event);
+//	}
 
 }

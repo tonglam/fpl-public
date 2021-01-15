@@ -1,5 +1,6 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 
 import java.util.List;
@@ -36,5 +37,20 @@ public interface ILiveService {
 	 * @param tournamentId tournamentId
 	 */
 	List<LiveCalcData> calcLivePointsByTournament(int event, int tournamentId);
+
+	/**
+	 * calculate element live points
+	 *
+	 * @param event   event
+	 * @param element element
+	 */
+	int calcElementLivePoints(int event, int element);
+
+	/**
+	 * calculate element live points
+	 *
+	 * @param eventLiveEntity event_live
+	 */
+	int calcElementLivePoints(EventLiveEntity eventLiveEntity);
 
 }

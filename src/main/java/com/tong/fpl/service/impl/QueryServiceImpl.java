@@ -68,6 +68,7 @@ public class QueryServiceImpl implements IQueryService {
 	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventLineupService entryEventLineupService;
+	private final EntryEventTransfersService entryEventTransfersService;
 	private final EntryEventResultService entryEventResultService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
@@ -304,7 +305,10 @@ public class QueryServiceImpl implements IQueryService {
 		PlayerStatEntity playerStatEntity = playerStatMap.get(element);
 		if (playerStatEntity != null) {
 			data
+					.setChancePlayingNextRound(playerStatEntity.getChanceOfPlayingNextRound())
+					.setChancePlayingThisRound(playerStatEntity.getChanceOfPlayingThisRound())
 					.setSelectedByPercent(playerStatEntity.getSelectedByPercent())
+					.setNews(playerStatEntity.getNews())
 					.setPointsPerGame(playerStatEntity.getPointsPerGame())
 					.setForm(playerStatEntity.getForm())
 					.setInDreamteam(playerStatEntity.getInDreamteam());
@@ -770,13 +774,13 @@ public class QueryServiceImpl implements IQueryService {
 	}
 
 	@Override
-	public List<EventLiveEntity> qryEventLive(String season, int event, int element) {
+	public EventLiveEntity qryEventLive(String season, int event, int element) {
 		MybatisPlusConfig.season.set(season);
-		List<EventLiveEntity> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+		EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
 				.eq(EventLiveEntity::getEvent, event)
 				.eq(EventLiveEntity::getElement, element));
 		MybatisPlusConfig.season.remove();
-		return list;
+		return eventLiveEntity;
 	}
 
 	/**
@@ -1057,12 +1061,19 @@ public class QueryServiceImpl implements IQueryService {
 		if (entryEventResultEntity == null) {
 			return new PlayerPickData();
 		}
+		if (StringUtils.equals(entryEventResultEntity.getEventChip(), Chip.FH.getValue())) {
+			entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+					.eq(EntryEventResultEntity::getEntry, entry)
+					.eq(EntryEventResultEntity::getEvent, event - 1));
+		}
 		PlayerPickData playerPickData = this.qryPickListByPositionForTransfers(entryEventResultEntity.getEventPicks());
 		playerPickData
 				.setEntry(entry)
 				.setEvent(event)
 				.setTeamValue(entryEventResultEntity.getTeamValue())
 				.setBank(entryEventResultEntity.getBank());
+		Map<Integer, Integer> freeTransfersMap = this.qryEntryFreeTransfersMap(entry);
+		playerPickData.setFreeTransfers(freeTransfersMap.getOrDefault(event + 1, 1));
 		EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
 		if (entryInfoEntity != null) {
 			playerPickData
@@ -1441,6 +1452,42 @@ public class QueryServiceImpl implements IQueryService {
 			});
 		});
 		return list;
+	}
+
+	//	@Cacheable(value = "qryEntryFreeTransfersMap", key = "#event+'::'+#entry")
+	@Override
+	public Map<Integer, Integer> qryEntryFreeTransfersMap(int entry) {
+		Map<Integer, Integer> map = Maps.newHashMap();
+		// prepare
+		List<EntryEventResultEntity> entryEventResultList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, entry)
+				.orderByAsc(EntryEventResultEntity::getEvent));
+		Map<Integer, String> eventChipMap = entryEventResultList
+				.stream()
+				.filter(o -> !StringUtils.equals(o.getEventChip(), Chip.NONE.getValue()))
+				.collect(Collectors.toMap(EntryEventResultEntity::getEvent, EntryEventResultEntity::getEventChip));
+		List<Integer> eventList = entryEventResultList
+				.stream()
+				.map(EntryEventResultEntity::getEvent)
+				.collect(Collectors.toList());
+		int startEvent = eventList.get(0);
+		eventList.add(eventList.get(eventList.size() - 1) + 1);
+		// calc
+		eventList.forEach(event -> {
+			if (event == startEvent || (eventChipMap.containsKey(event) && (StringUtils.equals(eventChipMap.get(event), Chip.WC.getValue()) || StringUtils.equals(eventChipMap.get(event), Chip.FH.getValue())))) {
+				map.put(event, 99);
+				return;
+			}
+			int freeTransfers = map.getOrDefault(event - 1, 0) + 1;
+			if (freeTransfers > 2) {
+				freeTransfers = 1;
+			}
+			if (eventChipMap.containsKey(event - 1) && (StringUtils.equals(eventChipMap.get(event - 1), Chip.WC.getValue()) || StringUtils.equals(eventChipMap.get(event - 1), Chip.FH.getValue()))) {
+				freeTransfers = 1;
+			}
+			map.put(event, freeTransfers);
+		});
+		return map;
 	}
 
 	/**

@@ -24,7 +24,11 @@ public class PlayerShowData {
 	private String teamName;
 	private String teamShortName;
 	private double price;
+	private double sellPrice;
 	private int totalPoints;
+	private int chancePlayingNextRound;
+	private int chancePlayingThisRound;
+	private String news;
 	private String selectedByPercent;
 	private String pointsPerGame;
 	private String form;

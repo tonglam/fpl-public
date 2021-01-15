@@ -62,7 +62,7 @@ public class HttpApiImpl implements IHttpApi {
 	}
 
 	@Override
-	public List<EventLiveEntity> qryEventLive(String season, int event, int element) {
+	public EventLiveEntity qryEventLive(String season, int event, int element) {
 		return this.queryService.qryEventLive(season, event, element);
 	}
 

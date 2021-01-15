@@ -119,7 +119,7 @@ public class LiveFixtureCollector implements Collector<EventFixtureEntity, Map<I
 	}
 
 	private MatchPlayStatus getPlayStatus(String kickoffTime, boolean started, boolean finished) {
-		if (finished || LocalDateTime.now().isAfter(LocalDateTime.parse(kickoffTime.replaceAll(" ", "T")).plusHours(3))) {
+		if (finished || LocalDateTime.now().isAfter(LocalDateTime.parse(kickoffTime.replaceAll(" ", "T")).plusHours(2))) {
 			return MatchPlayStatus.Finished;
 		} else {
 			if (!started) {

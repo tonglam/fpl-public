@@ -36,23 +36,21 @@
 
                         <div style="margin-top: 30px"></div>
 
-                        <div class="layui-row">
-                            <div class="layui-col-md2">
-                                <div style="font-size: 18px"
-                                     th:text="'阵容身价：'+(${pickPlayerData.teamValue}/10)+'m'"></div>
-                                <div class="layui-hide" id="teamValue" th:text="${pickPlayerData.teamValue}"></div>
+                        <div class="layui-row" style="padding-left: 50px">
+                            <div class="layui-col-sm1">
+                                <div id="freeTransfersStr" style="font-size: 18px"
+                                     th:text="'免费转会：'+${pickPlayerData.freeTransfers}"></div>
+                                <div class="layui-hide" id="freeTransfers"
+                                     th:text="${pickPlayerData.freeTransfers}"></div>
                             </div>
-                            <div class="layui-col-md2">
-                                <div style="font-size: 18px" th:text="'余额：'+(${pickPlayerData.bank}/10)+'m'"></div>
-                                <div class="layui-hide" id="bank" th:text="${pickPlayerData.bank}"></div>
+                            <div class="layui-col-sm1">
+                                <div id="transfersCostStr" style="font-size: 18px" th:text="'转会扣分：0'"></div>
+                                <div class="layui-hide" id="transfersCost" th:text="0"></div>
                             </div>
-                            <div class="layui-col-md2">
-                                <div style="font-size: 18px" th:text="'免费转会：1'"></div>
-                                <div class="layui-hide" id="freeTransfers" th:text="1"></div>
-                            </div>
-                            <div class="layui-col-md2">
-                                <div style="font-size: 18px" th:text="'转会扣分：4'"></div>
-                                <div class="layui-hide" id="transfersCost" th:text="4"></div>
+                            <div class="layui-col-sm1">
+                                <div id="bankStr" style="font-size: 18px"
+                                     th:text="'余额：'+(${pickPlayerData.bank}/10)+'m'"></div>
+                                <div class="layui-hide" id="bank" th:text="${pickPlayerData.bank}/10"></div>
                             </div>
                         </div>
 
@@ -61,7 +59,7 @@
                         <div class="layui-row">
                             <div class="layui-col-md5">
                                 <div id="lineup" th:fragment="lineup">
-                                    <div th:replace="layout::transfers(${pickPlayerData})"></div>
+                                    <!--                                    <div th:replace="layout::transfers(${pickPlayerData})"></div>-->
                                 </div>
                                 <table class="layui-table" id="transfersTable" lay-filter="transfersTable"></table>
                                 <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
@@ -178,6 +176,14 @@
                                 title: '球员',
                                 align: 'center',
                                 rowspan: 2,
+                                templet: function (d) {
+                                    if (d.chancePlayingNextRound < 100 && d.chancePlayingNextRound >= 50) {
+                                        return '<span style="color: orange">' + d.webName + '</span>';
+                                    } else if (d.chancePlayingNextRound < 50 && d.news !== '') {
+                                        return '<span style="color: red">' + d.webName + '</span>';
+                                    }
+                                    return d.webName;
+                                },
                                 icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                                 children: function (d) {
                                     let col;
@@ -215,17 +221,18 @@
                                     ];
                                 }
                             },
-                            {field: 'teamShortName', title: '球队', align: 'center', rowspan: 2},
-                            {field: 'totalPoints', title: '总分', align: 'center', rowspan: 2},
                             {
-                                field: 'price',
-                                title: '身价',
+                                fixed: 'left',
+                                field: 'sellPrice',
+                                title: '卖出价',
                                 align: 'center',
                                 rowspan: 2,
                                 templet: function (d) {
-                                    return d.price + 'm';
+                                    return d.sellPrice + 'm';
                                 }
                             },
+                            {field: 'teamShortName', title: '球队', align: 'center', rowspan: 2},
+                            {field: 'totalPoints', title: '总分', align: 'center', rowspan: 2},
                             {
                                 field: 'selectedByPercent',
                                 title: '持有率',
@@ -342,12 +349,20 @@
                 [
                     {fixed: 'left', field: 'elementTypeName', title: '位置', align: 'center', rowspan: 2},
                     {
+                        fixed: 'left',
                         field: 'webName',
                         title: '球员',
                         align: 'center',
                         filter: true,
                         rowspan: 2,
-                        fixed: 'left',
+                        templet: function (d) {
+                            if (d.chancePlayingNextRound < 100 && d.chancePlayingNextRound >= 50) {
+                                return '<span style="color: orange">' + d.webName + '</span>';
+                            } else if (d.chancePlayingNextRound < 50 && d.news !== '') {
+                                return '<span style="color: red">' + d.webName + '</span>';
+                            }
+                            return d.webName;
+                        },
                         icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                         children: function (d) {
                             let col;
@@ -614,13 +629,16 @@
                         name: '重置转入球员',
                         icon: 'layui-icon layui-icon-refresh',
                         click: function (obj) {
-                            let elementOut = obj.row.elementOut;
+                            let elementIn = obj.row.elementIn, bankDom = $("#bank"),
+                                newBank = numAdd(bankDom.text(), obj.row.elementInPrice);
+                            bankDom.text(newBank);
+                            $("#bankStr").text('余额：' + newBank + 'm');
                             transferTableData = table.cache['transfersTable'];
                             $.each(transferTableData, function (index, item) {
-                                if (item.elementOut === elementOut) {
-                                    item.elementOut = '';
-                                    item.elementOutWebName = '';
-                                    item.elementOutPrice = '';
+                                if (item.elementIn === elementIn) {
+                                    item.elementIn = '';
+                                    item.elementInWebName = '';
+                                    item.elementInPrice = '';
                                 }
                             });
                             table.reload('transfersTable', {data: transferTableData});
@@ -630,10 +648,15 @@
                         name: '删除此条转会',
                         icon: 'layui-icon layui-icon-close',
                         click: function (obj) {
-                            let elementIn = obj.row.elementIn, newData = [];
+                            let elementOut = obj.row.elementOut, bankDom = $("#bank"), newData = [];
                             $.each(transferTableData, function (index, item) {
-                                if (item.elementIn !== elementIn) {
+                                if (item.elementOut !== elementOut) {
                                     newData.push(item);
+                                } else {
+                                    let elementOutPrice = item.elementOutPrice,
+                                        newBank = numSub(numAdd(bankDom.text(), obj.row.elementInPrice), elementOutPrice);
+                                    bankDom.text(newBank);
+                                    $("#bankStr").text('余额：' + newBank + 'm');
                                 }
                             });
                             transferTableData = newData;
@@ -643,29 +666,29 @@
                 ]
             },
             cols: [[
-                {field: 'elementInTypeName', title: '位置', align: 'center', width: 80},
-                {field: 'elementInWebName', title: '转出', align: 'center', width: 160},
-                {
-                    field: 'elementInPrice',
-                    title: '卖出价',
-                    align: 'center',
-                    width: 80,
-                    templet: function (d) {
-                        if (parseInt(d.elementInPrice) > 0) {
-                            return d.elementInPrice + 'm';
-                        }
-                        return ''
-                    }
-                },
-                {field: 'elementOutWebName', title: '转入', align: 'center', width: 160},
+                {field: 'elementOutTypeName', title: '位置', align: 'center', width: 80},
+                {field: 'elementOutWebName', title: '转出', align: 'center', width: 160},
                 {
                     field: 'elementOutPrice',
-                    title: '买入价',
+                    title: '卖出价',
                     align: 'center',
                     width: 80,
                     templet: function (d) {
                         if (parseInt(d.elementOutPrice) > 0) {
                             return d.elementOutPrice + 'm';
+                        }
+                        return ''
+                    }
+                },
+                {field: 'elementInWebName', title: '转入', align: 'center', width: 160},
+                {
+                    field: 'elementInPrice',
+                    title: '买入价',
+                    align: 'center',
+                    width: 80,
+                    templet: function (d) {
+                        if (parseInt(d.elementInPrice) > 0) {
+                            return d.elementInPrice + 'm';
                         }
                         return '';
                     }
@@ -678,43 +701,56 @@
         });
 
         function addTransfersRow(row) {
-            let elementIn = row.element;
-            let elementInType = row.elementType;
+            let elementOut = row.element, sellPrice = parseInt(row.sellPrice);
             if (typeof table.cache['transfersTable'] !== 'undefined') {
                 transferTableData = table.cache['transfersTable'];
             }
             // check
             let check = true;
             $.each(transferTableData, function (index, item) {
-                if (item.elementIn === elementIn) {
+                if (item.elementOut === elementOut) {
                     check = false;
                 }
             })
             if (!check) {
                 return false;
             }
+            let transferNum = transferTableData.length + 1;
             // add row
             transferTableData.push(
                 {
-                    index: transferTableData.length + 1,
+                    index: transferNum,
                     position: row.position,
-                    elementInType: row.elementType,
-                    elementInTypeName: row.elementTypeName,
-                    elementIn: elementIn,
-                    elementInWebName: row.webName,
-                    elementInPrice: row.price,
-                    elementOut: '',
-                    elementOutWebName: '',
-                    elementOutPrice: ''
+                    elementOutType: row.elementType,
+                    elementOutTypeName: row.elementTypeName,
+                    elementOut: elementOut,
+                    elementOutWebName: row.webName,
+                    elementOutPrice: sellPrice,
+                    elementIn: '',
+                    elementInWebName: '',
+                    elementInPrice: ''
                 });
+            // ft & cost & bank
+            let freeTransfersDom = $("#freeTransfers"), transfersCostDom = $("#transfersCost"), bankDom = $("#bank"),
+                freeTransfers = parseInt(freeTransfersDom.text()), transfersCost = parseInt(transfersCostDom.text()),
+                bank = bankDom.text();
+            if (freeTransfers > 0) {
+                freeTransfersDom.text(freeTransfers - 1);
+                $("#freeTransfersStr").text('免费转会：' + (freeTransfers - 1));
+            } else {
+                transfersCostDom.text(transfersCost + 4);
+                $("#transfersCostStr").text('转会扣分：' + (transfersCost + 4));
+            }
+            let newBank = numAdd(bank, sellPrice);
+            bankDom.text(newBank);
+            $("#bankStr").text('余额：' + newBank + 'm');
             // reload
             table.reload('transfersTable', {data: transferTableData});
-            reloadPickPlayerTable(elementInType);
+            reloadPickPlayerTable(row.elementType);
         }
 
         function addTransfersIn(row) {
-            let elementOut = row.element;
-            let elementOutType = row.elementType;
+            let elementIn = row.element, elementInType = row.elementType, price = row.price;
             if (typeof table.cache['transfersTable'] === 'undefined') {
                 layer.msg('请先选择要转出的球员！', {time: 1000});
                 return false;
@@ -722,18 +758,26 @@
             // check
             let check = true;
             $.each(transferTableData, function (index, item) {
-                if (item.elementOut === elementOut) {
+                if (item.elementIn === elementIn) {
                     layer.msg('此球员已转入，不能重复！', {time: 1000});
                     check = false;
                 }
             })
+            let bankDom = $("#bank"), bank = bankDom.text(), newBank = numSub(bank, price);
+            if (newBank < 0) {
+                layer.msg('不够钱啊咋整！', {time: 1000});
+                check = false;
+            }
             if (!check) {
                 return false;
             }
+            // bank
+            bankDom.text(newBank);
+            $("#bankStr").text('余额：' + newBank + 'm');
             // add transfers in list
             let toBeFilledData = [], position;
             $.each(transferTableData, function (index, item) {
-                if (item.elementInType === elementOutType && (item.elementOut === '' || item.elementOut === 0)) {
+                if (item.elementOutType === elementInType && (item.elementIn === '' || item.elementIn === 0)) {
                     position = item.position;
                     toBeFilledData.push(item);
                 }
@@ -748,23 +792,22 @@
             // add transfers in
             $.each(transferTableData, function (index, item) {
                 if (item.index === addIndex) {
-                    item.elementOut = elementOut;
-                    item.elementOutWebName = row.webName;
-                    item.elementOutPrice = row.price;
+                    item.elementIn = elementIn;
+                    item.elementInWebName = row.webName;
+                    item.elementInPrice = price;
                 }
             });
             // reload
             table.reload('transfersTable', {data: transferTableData});
             // refresh event pick table
-            let pickList = [];
-            let eventPickTableData = table.cache['eventPickTable'];
+            let pickList = [], eventPickTableData = table.cache['eventPickTable'];
             $.each(eventPickTableData, function (index, item) {
                 let pickData = {};
                 if (item.position === position) {
-                    pickData.element = elementOut;
+                    pickData.element = elementIn;
                     pickData.position = position;
                     pickData.webName = row.webName;
-                    pickData.elementType = elementOutType;
+                    pickData.elementType = elementInType;
                     pickData.elementTypeName = row.elementTypeName;
                     pickData.teamId = row.teamId;
                     pickData.teamName = row.teamName;
@@ -787,7 +830,7 @@
                 })
                 .catch(function (error) {
                     layer.close(loadIndex);
-                    console.info(error.message);
+                    console.info(error);
                 });
             // refresh lineup
             let pickPlayerData = {};
@@ -826,7 +869,7 @@
                     $("#lineup").html(response);
                 })
                 .catch(function (error) {
-                    console.info(error.message);
+                    console.info(error);
                 });
         }
 

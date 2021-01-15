@@ -189,7 +189,11 @@ public interface IQueryService {
 	 */
 	List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-	List<EventLiveEntity> qryEventLive(String season, int event, int element);
+	default EventLiveEntity qryEventLive(int event, int element) {
+		return this.qryEventLive(CommonUtils.getCurrentSeason(), event, element);
+	}
+
+	EventLiveEntity qryEventLive(String season, int event, int element);
 
 	/**
 	 * @apiNote event_result
@@ -243,6 +247,8 @@ public interface IQueryService {
 	List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String season, String autoSubs);
 
 	List<EntryEventAutoSubsData> qryLeagueEventAutoSubDataList(int event, int leagueId, String leagueType);
+
+	Map<Integer, Integer> qryEntryFreeTransfersMap(int entry);
 
 	/**
 	 * @apiNote league

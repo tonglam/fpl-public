@@ -373,6 +373,9 @@ public class LiveService implements ILiveService {
 			EventLiveEntity eventLiveEntity = eventLiveMap.get(elementEventResultData.getElement());
 			if (eventLiveEntity != null) {
 				BeanUtil.copyProperties(eventLiveEntity, elementEventResultData, CopyOptions.create().ignoreNullValue());
+				// calc total point
+				elementEventResultData.setTotalPoints(this.calcElementLivePoints(eventLiveEntity));
+				// calc olayed
 				elementEventResultData.setPlayed(elementEventResultData.getMinutes() > 0 || elementEventResultData.getYellowCards() > 0 || elementEventResultData.getRedCards() > 0);
 				this.setEventLiveBonusData(elementEventResultData, liveBonusTable);
 			}
@@ -547,6 +550,112 @@ public class LiveService implements ILiveService {
 		list.subList(0, 11).forEach(o -> o.setAutoSub(o.getPosition() > 11));
 		list.subList(11, 15).forEach(o -> o.setAutoSub(o.getPosition() < 12));
 		return list;
+	}
+
+
+	@Override
+	public int calcElementLivePoints(int event, int element) {
+		EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
+		if (eventLiveEntity == null) {
+			return 0;
+		}
+		return this.calcElementLivePoints(eventLiveEntity);
+	}
+
+	@Override
+	public int calcElementLivePoints(EventLiveEntity eventLiveEntity) {
+		int elementType = eventLiveEntity.getElementType();
+		return this.calcElementPlayingPoints(eventLiveEntity.getMinutes())
+				+ this.calcElementGoalsScoredPoints(elementType, eventLiveEntity.getGoalsScored())
+				+ this.calcElementGoalsAssistPoints(eventLiveEntity.getAssists())
+				+ this.calcElementCleanSheetsPoints(elementType, eventLiveEntity.getMinutes(), eventLiveEntity.getGoalsConceded())
+				+ this.calcElementGoalsConcededPoints(elementType, eventLiveEntity.getGoalsConceded())
+				+ this.calcElementPenaltiesSavedPoints(eventLiveEntity.getPenaltiesSaved())
+				+ this.calcElementPenaltiesMissedPoints(eventLiveEntity.getPenaltiesMissed())
+				+ this.calcElementOwnGoalsPoints(eventLiveEntity.getOwnGoals())
+				+ this.calcElementYellowCardsPoints(eventLiveEntity.getYellowCards())
+				+ this.calcElementRedCardsPoints(eventLiveEntity.getRedCards())
+				+ this.calcElementSavesPoints(eventLiveEntity.getSaves())
+				+ this.calcElementBonusPoints(eventLiveEntity.getBonus());
+	}
+
+	private int calcElementPlayingPoints(int minutes) {
+		if (minutes > 0 && minutes < 60) {
+			return 1;
+		} else if (minutes > 60) {
+			return 2;
+		}
+		return 0;
+	}
+
+	private int calcElementGoalsScoredPoints(int elementType, int goalsScored) {
+		switch (elementType) {
+			case 1:
+			case 2: {
+				return 6 * goalsScored;
+			}
+			case 3: {
+				return 5 * goalsScored;
+			}
+			case 4: {
+				return 4 * goalsScored;
+			}
+		}
+		return 0;
+	}
+
+	private int calcElementGoalsAssistPoints(int assists) {
+		return 3 * assists;
+	}
+
+	private int calcElementCleanSheetsPoints(int elementType, int minutes, int goalsConceded) {
+		if (minutes > 60 && goalsConceded == 0) {
+			switch (elementType) {
+				case 1:
+				case 2: {
+					return 4;
+				}
+				case 3: {
+					return 1;
+				}
+			}
+		}
+		return 0;
+	}
+
+	private int calcElementGoalsConcededPoints(int elementType, int goalsConceded) {
+		if (elementType == 1 || elementType == 2) {
+			return -1 * ((int) Math.floor(goalsConceded * 1.0 / 2));
+		}
+		return 0;
+	}
+
+	private int calcElementPenaltiesSavedPoints(int penaltiesSaved) {
+		return 5 * penaltiesSaved;
+	}
+
+	private int calcElementPenaltiesMissedPoints(int penaltiesMissed) {
+		return -2 * penaltiesMissed;
+	}
+
+	private int calcElementOwnGoalsPoints(int ownGoals) {
+		return -2 * ownGoals;
+	}
+
+	private int calcElementYellowCardsPoints(int yellowCards) {
+		return -1 * yellowCards;
+	}
+
+	private int calcElementRedCardsPoints(int redCards) {
+		return -3 * redCards;
+	}
+
+	private int calcElementSavesPoints(int saves) {
+		return (int) Math.floor(saves * 1.0 / 3);
+	}
+
+	private int calcElementBonusPoints(int bonus) {
+		return bonus;
 	}
 
 	@SafeVarargs

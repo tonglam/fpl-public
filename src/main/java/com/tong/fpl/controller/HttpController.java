@@ -49,7 +49,7 @@ public class HttpController {
 	@TraceHttpCall
 	@RequestMapping("/qryEventLive")
 	@ResponseBody
-	public List<EventLiveEntity> qryEventLive(@RequestParam String season, @RequestParam int event, @RequestParam int element) {
+	public EventLiveEntity qryEventLive(@RequestParam String season, @RequestParam int event, @RequestParam int element) {
 		return this.httpApi.qryEventLive(season, event, element);
 	}
 

@@ -19,9 +19,12 @@ public class LiveTest extends FplApplicationTests {
 	private ILiveService liveCalcService;
 
 	@ParameterizedTest
-	@CsvSource({"17, 3890326"})
+	@CsvSource({"18, 3890326"})
 	void calcLivePoints(int event, int entry) {
+		long start = System.currentTimeMillis();
 		LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
+		long end = System.currentTimeMillis();
+		System.out.println("escaped: " + (end - start));
 		System.out.println("points: " + liveCalaData.getLivePoints());
 	}
 
@@ -46,7 +49,7 @@ public class LiveTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1, 2"})
+	@CsvSource({"18, 1"})
 	void calcLivePointsByTournament(int event, int tournamentId) {
 		long start = System.currentTimeMillis();
 		List<LiveCalcData> list = this.liveCalcService.calcLivePointsByTournament(event, tournamentId);

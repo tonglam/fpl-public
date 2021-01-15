@@ -623,7 +623,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 		Map<Integer, List<EventLiveEntity>> teamEventLiveMap = Maps.newHashMap();
 		this.getEventLiveByEvent(this.getCurrentEvent()).values()
 				.forEach(o -> {
-
 					if (o.getMinutes() <= 0) {
 						return;
 					}

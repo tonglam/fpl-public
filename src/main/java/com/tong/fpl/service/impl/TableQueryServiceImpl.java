@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.*;
+import com.tong.fpl.config.collector.PlayerValueCollector;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.entity.*;
@@ -260,6 +261,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		if (entryEventResultEntity == null) {
 			return new TableData<>();
 		}
+		if (StringUtils.equals(entryEventResultEntity.getEventChip(), Chip.FH.getValue())) {
+			entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+					.eq(EntryEventResultEntity::getEntry, entry)
+					.eq(EntryEventResultEntity::getEvent, event - 1));
+		}
 		Map<Integer, EntryPickData> pickMap = this.queryService.qryPickListFromPicks(entryEventResultEntity.getEventPicks())
 				.stream()
 				.collect(Collectors.toMap(EntryPickData::getElement, o -> o));
@@ -291,6 +297,21 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
 		Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap = Maps.newHashMap(); // teamId -> event -> fixtures
 		IntStream.rangeClosed(1, 20).forEach(teamId -> teamFixtureMap.put(teamId, this.queryService.getEventFixtureByTeamId(teamId)));
+		Map<Integer, Integer> startPriceMap = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+				.eq(PlayerValueEntity::getChangeType, ValueChangeType.Start.name()))
+				.stream()
+				.collect(Collectors.toMap(PlayerValueEntity::getElement, PlayerValueEntity::getValue));
+		Map<Integer, Integer> transferInPriceMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+				.eq(EntryEventTransfersEntity::getEntry, entry)
+				.orderByAsc(EntryEventTransfersEntity::getEvent))
+				.stream()
+				.collect(Collectors.toMap(EntryEventTransfersEntity::getElementIn, EntryEventTransfersEntity::getElementInCost, (oldValue, newValue) -> newValue));
+		Map<Integer, Integer> elementCurrentPriceMap = this.playerValueService.list()
+				.stream()
+				.collect(new PlayerValueCollector())
+				.values()
+				.stream()
+				.collect(Collectors.toMap(PlayerValueEntity::getElement, PlayerValueEntity::getValue));
 		// collect
 		List<CompletableFuture<PlayerShowData>> future = pickMap.keySet()
 				.stream()
@@ -307,6 +328,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				return;
 			}
 			data
+					.setSellPrice(this.calcElementSellPrice(data.getElement(), startPriceMap, transferInPriceMap, elementCurrentPriceMap) / 10.0)
 					.setPosition(entryPickData.getPosition())
 					.setMultiplier(entryPickData.getMultiplier())
 					.setCaptain(entryPickData.isCaptain())
@@ -319,6 +341,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 								.thenComparing(PlayerShowData::getPosition))
 						.collect(Collectors.toList())
 		);
+	}
+
+	private int calcElementSellPrice(int element, Map<Integer, Integer> startPriceMap, Map<Integer, Integer> transferElementPriceMap, Map<Integer, Integer> elementCurrentPriceMap) {
+		int boughtPrice = transferElementPriceMap.containsKey(element) ? transferElementPriceMap.get(element) : startPriceMap.get(element);
+		int currentPrice = elementCurrentPriceMap.containsKey(element) ? elementCurrentPriceMap.get(element) : startPriceMap.get(element);
+		if (boughtPrice >= currentPrice) {
+			return currentPrice;
+		}
+		return boughtPrice + (int) Math.floor((currentPrice - boughtPrice) * 1.0 / 2);
 	}
 
 	@Override

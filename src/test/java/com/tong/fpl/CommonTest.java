@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -93,8 +92,7 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		System.out.println(LocalDate.parse("2021-09-01").getMonth().getValue());
-		System.out.println("1");
+		System.out.println((int) Math.floor(5 * 1.0 / 3));
 	}
 
 	@ParameterizedTest

@@ -273,4 +273,11 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"1327348"})
+	void qryEntryFreeTransfers(int entry) {
+		Map<Integer, Integer> map = this.querySerivce.qryEntryFreeTransfersMap(entry);
+		System.out.println(1);
+	}
+
 }

@@ -19,7 +19,7 @@ public interface IHttpApi {
 
     List<EventLiveEntity> qryEventLiveAll(String season, int element);
 
-    List<EventLiveEntity> qryEventLive(String season, int event, int element);
+    EventLiveEntity qryEventLive(String season, int event, int element);
 
     PlayerData qryPlayerData(PlayerQueryParam playerQueryParam) throws Exception;
 
