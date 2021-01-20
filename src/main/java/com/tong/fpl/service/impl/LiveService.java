@@ -568,7 +568,7 @@ public class LiveService implements ILiveService {
 		return this.calcElementPlayingPoints(eventLiveEntity.getMinutes())
 				+ this.calcElementGoalsScoredPoints(elementType, eventLiveEntity.getGoalsScored())
 				+ this.calcElementGoalsAssistPoints(eventLiveEntity.getAssists())
-				+ this.calcElementCleanSheetsPoints(elementType, eventLiveEntity.getMinutes(), eventLiveEntity.getGoalsConceded())
+				+ this.calcElementCleanSheetsPoints(elementType, eventLiveEntity.getCleanSheets())
 				+ this.calcElementGoalsConcededPoints(elementType, eventLiveEntity.getGoalsConceded())
 				+ this.calcElementPenaltiesSavedPoints(eventLiveEntity.getPenaltiesSaved())
 				+ this.calcElementPenaltiesMissedPoints(eventLiveEntity.getPenaltiesMissed())
@@ -582,8 +582,12 @@ public class LiveService implements ILiveService {
 	private int calcElementPlayingPoints(int minutes) {
 		if (minutes > 0 && minutes < 60) {
 			return 1;
-		} else if (minutes > 60) {
+		} else if (minutes > 60 && minutes <= 90) {
 			return 2;
+		} else if (minutes > 90 && minutes < 150) {
+			return 3;
+		} else if (minutes >= 150) {
+			return 4;
 		}
 		return 0;
 	}
@@ -608,16 +612,14 @@ public class LiveService implements ILiveService {
 		return 3 * assists;
 	}
 
-	private int calcElementCleanSheetsPoints(int elementType, int minutes, int goalsConceded) {
-		if (minutes > 60 && goalsConceded == 0) {
-			switch (elementType) {
-				case 1:
-				case 2: {
-					return 4;
-				}
-				case 3: {
-					return 1;
-				}
+	private int calcElementCleanSheetsPoints(int elementType, int cleansheet) {
+		switch (elementType) {
+			case 1:
+			case 2: {
+				return 4 * cleansheet;
+			}
+			case 3: {
+				return cleansheet;
 			}
 		}
 		return 0;
