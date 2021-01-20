@@ -10,20 +10,21 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class EntryPickData {
 
-	private int entry;
-	private int event;
-	private int element;
-	private int position;
-	private int elementType;
-	private String elementTypeName;
-	private String webName;
-	private int multiplier;
-	private boolean isCaptain;
-	private boolean isViceCaptain;
-	private int teamId;
-	private String teamName;
-	private String teamShortName;
-	private int minutes;
-	private int points;
+    private int entry;
+    private int event;
+    private int element;
+    private int position;
+    private int elementType;
+    private String elementTypeName;
+    private String webName;
+    private int multiplier;
+    private boolean isCaptain;
+    private boolean isViceCaptain;
+    private int teamId;
+    private String teamName;
+    private String teamShortName;
+    private int minutes;
+    private int points;
+    private int sellPrice;
 
 }

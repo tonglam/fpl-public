@@ -174,5 +174,11 @@ public class TableQueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"18, 4074865"})
+	void qryEntryEventPlayerShowListForTransfers(int event, int entry) {
+		TableData<PlayerShowData> data = this.tableQueryService.qryEntryEventPlayerShowListForTransfers(event, entry);
+		System.out.println(1);
+	}
 
 }
