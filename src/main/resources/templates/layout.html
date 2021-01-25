@@ -156,7 +156,7 @@
                 <div th:switch="${item.eventTransferIn}">
                     <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
                          th:value="${item.element}"></div>
-                    <div class="name" th:case="true" th:text="${item.webName}" th:value="${item.element}"></div>
+                    <div class="name" th:case="false" th:text="${item.webName}" th:value="${item.element}"></div>
                 </div>
             </li>
         </ol>
