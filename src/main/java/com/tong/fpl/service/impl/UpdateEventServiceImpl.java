@@ -1548,12 +1548,30 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 				transfersIns.add(o);
 			}
 		});
+		String transfersIn = "";
+		for (Integer o :
+				transfersIns) {
+			if (StringUtils.isEmpty(transfersIn)) {
+				transfersIn = o + "";
+				continue;
+			}
+			transfersIn = StringUtils.joinWith(",", transfersIn, o);
+		}
 		List<Integer> transfersOuts = Lists.newArrayList();
 		entryPickList.forEach(o -> {
 			if (!lineupList.contains(o)) {
 				transfersOuts.add(o);
 			}
 		});
+		String transfersOut = "";
+		for (Integer o :
+				transfersOuts) {
+			if (StringUtils.isEmpty(transfersOut)) {
+				transfersOut = o + "";
+				continue;
+			}
+			transfersOut = StringUtils.joinWith(",", transfersOut, o);
+		}
 		// upsert
 		EntryEventLineupEntity entryEventLineupEntity = new EntryEventLineupEntity()
 				.setEntry(entryEventLineupData.getEntry())
@@ -1563,8 +1581,8 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 				.setFreeTransfers(entryEventLineupData.getFreeTransfers())
 				.setTransfers(transfersIns.size())
 				.setTransfersCost(entryEventLineupData.getTransfersCost())
-				.setTransfersIn(StringUtils.joinWith(",", transfersIns))
-				.setTransfersOut(StringUtils.joinWith(",", transfersOuts))
+				.setTransfersIn(transfersIn)
+				.setTransfersOut(transfersOut)
 				.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
 		EntryEventLineupEntity entryEventLineup = this.entryEventLineupService.getOne(new QueryWrapper<EntryEventLineupEntity>().lambda()
 				.eq(EntryEventLineupEntity::getEntry, entryEventLineupData.getEntry())

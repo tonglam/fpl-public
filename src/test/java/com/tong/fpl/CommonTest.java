@@ -92,7 +92,17 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		System.out.println((int) Math.floor(5 * 1.0 / 3));
+		List<Integer> a = Lists.newArrayList(1, 2);
+		String b = "";
+		for (Integer c :
+				a) {
+			if (StringUtils.isEmpty(b)) {
+				b = c + "";
+				continue;
+			}
+			b = StringUtils.joinWith(",", b, c);
+		}
+		System.out.println(b);
 	}
 
 	@ParameterizedTest
