@@ -68,7 +68,6 @@ public class QueryServiceImpl implements IQueryService {
 	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventLineupService entryEventLineupService;
-	private final EntryEventTransfersService entryEventTransfersService;
 	private final EntryEventResultService entryEventResultService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
@@ -823,6 +822,8 @@ public class QueryServiceImpl implements IQueryService {
 				.setBenchPoints(entryEventResultEntity.getEventBenchPoints())
 				.setRank(entryEventResultEntity.getEventRank())
 				.setChip(entryEventResultEntity.getEventChip())
+				.setTeamValue(entryEventResultEntity.getTeamValue())
+				.setBank(entryEventResultEntity.getBank())
 				.setPicks(this.qryPickListFromPicks(entryEventResultEntity.getEventPicks()));
 		return entryEventResultData;
 	}
@@ -1344,7 +1345,12 @@ public class QueryServiceImpl implements IQueryService {
 					playerPickData
 							.setEntry(entry)
 							.setEntryName((String) scoutEntryMap.get(String.valueOf(o.getEntry())))
-							.setEvent(event);
+							.setEvent(event)
+							.setTeamValue(o.getTeamValue())
+							.setBank(o.getBank())
+							.setFreeTransfers(o.getFreeTransfers())
+							.setTransfers(o.getTransfers())
+							.setTransfersCost(o.getTransfersCost());
 					Collection<Integer> entryTransfersIns = transfersInMap.get(entry);
 					if (CollectionUtils.isEmpty(entryTransfersIns)) {
 						return playerPickData;

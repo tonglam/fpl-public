@@ -78,29 +78,27 @@
 
                         <div style="margin-top: 30px"></div>
 
-                        <!--                        <div class="layui-row">-->
-                        <!--                            <div class="layui-col-md2">-->
-                        <!--                                <div style="font-size: 18px"-->
-                        <!--                                     th:text="'阵容身价：'+(${pickPlayerData.teamValue}/10)+'m'"></div>-->
-                        <!--                            </div>-->
-                        <!--                            <div class="layui-col-md2">-->
-                        <!--                                <div style="font-size: 18px" th:text="'余额：'+(${pickPlayerData.bank}/10)+'m'"></div>-->
-                        <!--                            </div>-->
-                        <!--                            <div class="layui-col-md2">-->
-                        <!--                                <div style="font-size: 18px" th:text="'免费转会：1'"></div>-->
-                        <!--                            </div>-->
-                        <!--                            <div class="layui-col-md2">-->
-                        <!--                                <div style="font-size: 18px" th:text="'转会扣分：4'"></div>-->
-                        <!--                            </div>-->
-                        <!--                        </div>-->
-
                         <div style="margin-top: 30px"></div>
 
-                        <div th:each="item,userStat:${lineupList}">
-                            <div style="font-size: 18px" th:text="'球探：'+${item.entryName}"></div>
-                            <div style="margin-top: 20px"></div>
-                            <div th:replace="layout::transfers(${item})"></div>
-                            <div style="margin-top: 30px"></div>
+                        <div id="transfers" th:fragment="transfers">
+                            <div th:each="item,userStat:${lineupList}">
+                                <div style="font-size: 18px" th:text="'球探：'+${item.entryName}"></div>
+                                <div style="margin-top: 10px"></div>
+                                <div class="layui-row">
+                                    <div class="layui-col-md3">
+                                        <div style="font-size: 18px" th:text="'余额：'+(${item.bank}/10)+'m'"></div>
+                                    </div>
+                                    <div class="layui-col-md2">
+                                        <div style="font-size: 18px" th:text="'转会：'+${item.transfers}"></div>
+                                    </div>
+                                    <div class="layui-col-md2">
+                                        <div style="font-size: 18px" th:text="'扣分：'+${item.transfersCost}"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 20px"></div>
+                                <div th:replace="layout::transfers(${item})"></div>
+                                <div style="margin-top: 30px"></div>
+                            </div>
                         </div>
 
                     </div>
@@ -137,8 +135,9 @@
 <script th:inline="none">
     layui.use(['element', 'table', 'layer', 'soulTable'], function () {
 
-        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, loadIndex, nextGw = $("#nextGw").text(),
-            transferTableData = [], gkpCol = gkpCols(), defCol = defCols(), midCol = midCols(), fwdCol = fwdCols();
+        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable, loadIndex,
+            nextGw = $("#nextGw").text(), transferTableData = [], gkpCol = gkpCols(), defCol = defCols(),
+            midCol = midCols(), fwdCol = fwdCols();
 
         soulTable.config({
             drag: false,
@@ -539,7 +538,7 @@
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
-                            console.info(error.message);
+                            console.info(error);
                         });
                     break;
                 }
@@ -562,7 +561,7 @@
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
-                            console.info(error.message);
+                            console.info(error);
                         });
                     break;
                 }
@@ -585,7 +584,7 @@
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
-                            console.info(error.message);
+                            console.info(error);
                         });
                     break;
                 }
@@ -608,7 +607,7 @@
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
-                            console.info(error.message);
+                            console.info(error);
                         });
                     break;
                 }
@@ -750,6 +749,7 @@
         }
 
         function addTransfersIn(row) {
+            let loadIndex = layer.msg("请稍等", {time: false, scrollbar: false});
             let elementIn = row.element, elementInType = row.elementType, price = row.price;
             if (typeof table.cache['transfersTable'] === 'undefined') {
                 layer.msg('请先选择要转出的球员！', {time: 1000});
@@ -828,6 +828,7 @@
             });
             axios.post('/group/qryPlayerShowListByElementForTransfers', pickList)
                 .then(function (response) {
+                    layer.close(loadIndex);
                     table.reload('eventPickTable', {data: parsePlayerTableData(response.data)});
                 })
                 .catch(function (error) {
@@ -894,7 +895,7 @@
                 })
                 .catch(function (error) {
                     layer.close(loadIndex);
-                    console.info(error.message);
+                    console.info(error);
                 });
         }
 
@@ -917,7 +918,9 @@
                     points: 0,
                     teamId: item.teamId,
                     viceCaptain: false,
-                    captain: false
+                    captain: false,
+                    eventTransferIn: item.eventTransferIn,
+                    eventTransferOut: item.eventTransferOut
                 });
             });
             let data = {};
@@ -935,9 +938,21 @@
                     window.location.replace("/group/transfers");
                 })
                 .catch(function (error) {
-                    console.info(error.message);
+                    console.info(error);
                     $(this).removeAttr("disabled");
                 });
+        });
+
+        element.on('tab(checkTab)', function (data) {
+            if (data.index === 1) {
+                axios.get('/group/reloadTransfers')
+                    .then(function (response) {
+                        $("#transfers").html(response);
+                    })
+                    .catch(function (error) {
+                        console.info(error);
+                    });
+            }
         });
 
     });

@@ -1,12 +1,8 @@
 package com.tong.fpl.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
-import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.constant.enums.GroupMode;
-import com.tong.fpl.constant.enums.KnockoutMode;
-import com.tong.fpl.constant.enums.TournamentMode;
+import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.data.response.UserHistoryRes;
@@ -17,6 +13,7 @@ import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
@@ -1532,20 +1529,50 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 
 	@Override
 	public void upsertEntryEventLineup(EntryEventLineupData entryEventLineupData) {
-		EntryEventLineupEntity entryEventLineupEntity = this.entryEventLineupService.getOne(new QueryWrapper<EntryEventLineupEntity>().lambda()
+		// prepare
+		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventLineupData.getEvent(), FollowAccount.Offiaccount_2021.getEntry());
+		if (entryEventResultData == null) {
+			return;
+		}
+		List<Integer> entryPickList = entryEventResultData.getPicks()
+				.stream()
+				.map(EntryPickData::getElement)
+				.collect(Collectors.toList());
+		List<Integer> lineupList = entryEventLineupData.getLineup()
+				.stream()
+				.map(EntryPickData::getElement)
+				.collect(Collectors.toList());
+		List<Integer> transfersIns = Lists.newArrayList();
+		lineupList.forEach(o -> {
+			if (!entryPickList.contains(o)) {
+				transfersIns.add(o);
+			}
+		});
+		List<Integer> transfersOuts = Lists.newArrayList();
+		entryPickList.forEach(o -> {
+			if (!lineupList.contains(o)) {
+				transfersOuts.add(o);
+			}
+		});
+		// upsert
+		EntryEventLineupEntity entryEventLineupEntity = new EntryEventLineupEntity()
+				.setEntry(entryEventLineupData.getEntry())
+				.setEvent(entryEventResultData.getEvent())
+				.setTeamValue(entryEventLineupData.getTeamValue())
+				.setBank(entryEventLineupData.getBank())
+				.setFreeTransfers(entryEventLineupData.getFreeTransfers())
+				.setTransfers(transfersIns.size())
+				.setTransfersCost(entryEventLineupData.getTransfersCost())
+				.setTransfersIn(StringUtils.joinWith(",", transfersIns))
+				.setTransfersOut(StringUtils.joinWith(",", transfersOuts))
+				.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
+		EntryEventLineupEntity entryEventLineup = this.entryEventLineupService.getOne(new QueryWrapper<EntryEventLineupEntity>().lambda()
 				.eq(EntryEventLineupEntity::getEntry, entryEventLineupData.getEntry())
 				.eq(EntryEventLineupEntity::getEvent, entryEventLineupData.getEvent()));
-		if (entryEventLineupEntity == null) {
-			entryEventLineupEntity = BeanUtil.copyProperties(entryEventLineupData, EntryEventLineupEntity.class);
-			entryEventLineupEntity.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
+		if (entryEventLineup == null) {
 			this.entryEventLineupService.save(entryEventLineupEntity);
 		} else {
-			entryEventLineupEntity
-					.setTeamValue(entryEventLineupData.getTeamValue())
-					.setBank(entryEventLineupData.getBank())
-					.setFreeTransfers(entryEventLineupData.getFreeTransfers())
-					.setTransfersCost(entryEventLineupData.getTransfersCost())
-					.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
+			entryEventLineupEntity.setId(entryEventLineup.getId());
 			this.entryEventLineupService.updateById(entryEventLineupEntity);
 		}
 	}

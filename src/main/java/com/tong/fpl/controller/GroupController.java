@@ -1,5 +1,6 @@
 package com.tong.fpl.controller;
 
+import com.google.common.collect.Lists;
 import com.tong.fpl.api.IGroupApi;
 import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -48,7 +49,7 @@ public class GroupController {
 	public String transfersController(Model model) {
 		model.addAttribute("nextGw", this.groupApi.getNextEvent());
 		model.addAttribute("pickPlayerData", this.groupApi.qryOffiaccountPickListForTransfers());
-		model.addAttribute("lineupList", this.groupApi.qryOffiaccountLineupForTransfers());
+		model.addAttribute("lineupList", Lists.newArrayList());
 		return "group/transfers";
 	}
 
@@ -56,6 +57,12 @@ public class GroupController {
 	public String reloadLineupController(@RequestBody PlayerPickData pickPlayerData, Model model) {
 		model.addAttribute("pickPlayerData", pickPlayerData);
 		return "group/transfers::lineup";
+	}
+
+	@RequestMapping(value = "/reloadTransfers")
+	public String reloadTransfersController(Model model) {
+		model.addAttribute("lineupList", this.groupApi.qryOffiaccountLineupForTransfers());
+		return "group/transfers::transfers";
 	}
 
 	/**

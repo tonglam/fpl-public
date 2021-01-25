@@ -20,6 +20,8 @@ public class PlayerPickData {
 	private int teamValue;
 	private int bank;
 	private int freeTransfers;
+	private int transfers;
+	private int transfersCost;
 	private List<EntryPickData> gkps;
 	private List<EntryPickData> defs;
 	private List<EntryPickData> mids;
