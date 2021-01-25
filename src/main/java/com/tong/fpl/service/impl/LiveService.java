@@ -291,7 +291,8 @@ public class LiveService implements ILiveService {
 						.setScore("")
 						.setGwStarted(true)
 						.setGwFinished(true)
-						.setPlayStatus(MatchPlayStatus.Blank.getStatus());
+						.setPlayStatus(MatchPlayStatus.Blank.getStatus())
+						.setBgw(true);
 			}
 		}
 		return elementEventResultData;
@@ -300,6 +301,9 @@ public class LiveService implements ILiveService {
 	private void setMatchInfo(ElementEventResultData elementEventResultData, Map<String, List<LiveFixtureData>> liveFixtureMap) {
 		List<LiveFixtureData> list = Lists.newArrayList();
 		liveFixtureMap.values().forEach(list::addAll);
+		if (list.size() > 1) {
+			elementEventResultData.setDgw(true);
+		}
 		// team short name
 		List<String> teamShortNameList = list
 				.stream()
@@ -374,7 +378,7 @@ public class LiveService implements ILiveService {
 			if (eventLiveEntity != null) {
 				BeanUtil.copyProperties(eventLiveEntity, elementEventResultData, CopyOptions.create().ignoreNullValue());
 				// calc total point
-				elementEventResultData.setTotalPoints(this.calcElementLivePoints(eventLiveEntity));
+				elementEventResultData.setTotalPoints(elementEventResultData.isDgw() ? eventLiveEntity.getTotalPoints() : this.calcElementLivePoints(eventLiveEntity));
 				// calc olayed
 				elementEventResultData.setPlayed(elementEventResultData.getMinutes() > 0 || elementEventResultData.getYellowCards() > 0 || elementEventResultData.getRedCards() > 0);
 				this.setEventLiveBonusData(elementEventResultData, liveBonusTable);
@@ -562,6 +566,7 @@ public class LiveService implements ILiveService {
 		return this.calcElementLivePoints(eventLiveEntity);
 	}
 
+	// dgw is shit
 	@Override
 	public int calcElementLivePoints(EventLiveEntity eventLiveEntity) {
 		int elementType = eventLiveEntity.getElementType();
@@ -584,10 +589,6 @@ public class LiveService implements ILiveService {
 			return 1;
 		} else if (minutes > 60 && minutes <= 90) {
 			return 2;
-		} else if (minutes > 90 && minutes < 150) {
-			return 3;
-		} else if (minutes >= 150) {
-			return 4;
 		}
 		return 0;
 	}

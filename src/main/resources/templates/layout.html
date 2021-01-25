@@ -70,8 +70,8 @@
             <li class="layui-nav-item">
                 <a href="javascript:void(0)">公众号</a>
                 <dl class="layui-nav-child">
-                    <dd><a href="/group/scout">球探推荐</a></dd>
-                    <dd><a href="/group/transfers">公号转会</a></dd>
+                    <dd><a href="/group/scout">推荐</a></dd>
+                    <dd><a href="/group/transfers">转会</a></dd>
                 </dl>
             </li>
 
@@ -143,25 +143,41 @@
         <ol class="container">
             <li th:each="item,stat:${pickPlayerData.fwds}">
                 <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
-                <div class="name" th:text="${item.webName}" th:value="${item.element}"></div>
+                <div th:switch="${item.eventTransferIn}">
+                    <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
+                         th:value="${item.element}"></div>
+                    <div class="name" th:case="false" th:text="${item.webName}" th:value="${item.element}"></div>
+                </div>
             </li>
         </ol>
         <ol class="container">
             <li th:each="item,stat:${pickPlayerData.mids}">
                 <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
-                <div class="name" th:text="${item.webName}" th:value="${item.element}"></div>
+                <div th:switch="${item.eventTransferIn}">
+                    <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
+                         th:value="${item.element}"></div>
+                    <div class="name" th:case="true" th:text="${item.webName}" th:value="${item.element}"></div>
+                </div>
             </li>
         </ol>
         <ol class="container">
             <li th:each="item,stat:${pickPlayerData.defs}">
                 <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
-                <div class="name" th:text="${item.webName}" th:value="${item.element}"></div>
+                <div th:switch="${item.eventTransferIn}">
+                    <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
+                         th:value="${item.element}"></div>
+                    <div class="name" th:case="false" th:text="${item.webName}" th:value="${item.element}"></div>
+                </div>
             </li>
         </ol>
         <ul class="container">
             <li th:each="item,stat:${pickPlayerData.gkps}">
                 <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
-                <div class="name" th:text="${item.webName}" th:value="${item.element}"></div>
+                <div th:switch="${item.eventTransferIn}">
+                    <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
+                         th:value="${item.element}"></div>
+                    <div class="name" th:case="false" th:text="${item.webName}" th:value="${item.element}"></div>
+                </div>
             </li>
         </ul>
     </div>

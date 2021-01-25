@@ -26,5 +26,7 @@ public class EntryPickData {
     private int minutes;
     private int points;
     private int sellPrice;
+    private boolean eventTransferIn;
+    private boolean eventTransferOut;
 
 }

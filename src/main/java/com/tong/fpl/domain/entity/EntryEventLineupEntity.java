@@ -21,7 +21,10 @@ public class EntryEventLineupEntity {
 	private Integer teamValue;
 	private Integer bank;
 	private Integer freeTransfers;
+	private Integer transfers;
 	private Integer transfersCost;
+	private String transfersIn;
+	private String transfersOut;
 	private String lineup;
 	@TableField(fill = FieldFill.INSERT)
 	private String createTime;

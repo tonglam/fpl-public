@@ -50,6 +50,8 @@ public class ElementEventResultData {
 	private int totalPoints;
 	private boolean pickActive;
 	private boolean autoSub;
+	private boolean bgw;
+	private boolean dgw;
 
 	@Override
 	public boolean equals(Object o) {
