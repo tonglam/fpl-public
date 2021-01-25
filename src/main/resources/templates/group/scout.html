@@ -252,12 +252,20 @@
             cols: [
                 [
                     {
+                        fixed: 'left',
                         field: 'webName',
                         title: '球员',
                         align: 'center',
                         filter: true,
                         rowspan: 2,
-                        fixed: 'left',
+                        templet: function (d) {
+                            if (d.chancePlayingNextRound < 100 && d.chancePlayingNextRound >= 50) {
+                                return '<span style="color: orange">' + d.webName + '</span>';
+                            } else if (d.chancePlayingNextRound < 50 && d.news !== '') {
+                                return '<span style="color: red">' + d.webName + '</span>';
+                            }
+                            return d.webName;
+                        },
                         icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
                         children: function (d) {
                             let col;
