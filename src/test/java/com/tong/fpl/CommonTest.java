@@ -4,6 +4,7 @@ import cn.hutool.core.io.CharsetDetector;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+import com.tong.fpl.constant.Constant;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,6 +14,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -92,17 +96,13 @@ public class CommonTest extends FplApplicationTests {
 
 	@Test
 	void test() {
-		List<Integer> a = Lists.newArrayList(1, 2);
-		String b = "";
-		for (Integer c :
-				a) {
-			if (StringUtils.isEmpty(b)) {
-				b = c + "";
-				continue;
-			}
-			b = StringUtils.joinWith(",", b, c);
-		}
-		System.out.println(b);
+		String deadline = "2021-01-30 19:00:00";
+		String checkTime = StringUtils.substringBefore(deadline, " ") + "T08:30:00";
+		String time = LocalDateTime.parse(deadline.replaceAll(" ", "T")).isAfter(LocalDateTime.parse(checkTime)) ?
+				LocalDateTime.parse(checkTime).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) :
+				LocalDate.parse(StringUtils.substringBefore(deadline, " ")).minusDays(1)
+						.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
+		System.out.println(time.replaceAll(" ", "T") + "Z");
 	}
 
 	@ParameterizedTest

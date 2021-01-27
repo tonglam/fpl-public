@@ -28,6 +28,11 @@ public class CommonUtils {
 	}
 
 	public static String getZoneDate(String time) {
+		ZoneId zoneId = ZoneId.of("UTC");
+		return LocalDateTime.ofInstant(Instant.parse(time), zoneId).atZone(zoneId).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
+	}
+
+	public static String getLocalZoneDate(String time) {
 		ZoneId zoneId = ZonedDateTime.now().getZone();
 		return LocalDateTime.ofInstant(Instant.parse(time), zoneId).atZone(zoneId).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
 	}

@@ -94,8 +94,8 @@ public class HttpApiImpl implements IHttpApi {
 	}
 
 	@Override
-	public String qryDeadlineByEvent(int event) {
-		return this.queryService.getDeadlineByEvent(event);
+	public String getUtcDeadlineByEvent(int event) {
+		return this.queryService.getUtcDeadlineByEvent(event);
 	}
 
 	@Override

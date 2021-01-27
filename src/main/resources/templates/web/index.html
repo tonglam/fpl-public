@@ -112,7 +112,7 @@
 <script th:replace="layout::baseScript"></script>
 
 <script th:inline="javascript">
-    let nextGw = [[${nextGw}]], deadline = getLocalTime([[${deadline}]].split('/').join('-')),
+    let nextGw = [[${nextGw}]], deadline = getLocalTime([[${deadline}]]),
         deadLineTime = "GW" + nextGw + " deadline：" + deadline;
     $("#deadlineTime").html(deadLineTime);
     $("#countdown").timeTo({

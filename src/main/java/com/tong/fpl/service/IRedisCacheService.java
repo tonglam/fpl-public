@@ -57,23 +57,29 @@ public interface IRedisCacheService {
         return this.getTeamNameMap(CommonUtils.getCurrentSeason());
     }
 
-    Map<String, String> getTeamNameMap(String season);
+	Map<String, String> getTeamNameMap(String season);
 
-    default Map<String, String> getTeamShortNameMap() {
-        return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
-    }
+	default Map<String, String> getTeamShortNameMap() {
+		return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
+	}
 
-    Map<String, String> getTeamShortNameMap(String season);
+	Map<String, String> getTeamShortNameMap(String season);
 
-    default String getDeadlineByEvent(int event) {
-        return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
-    }
+	default String getUtcDeadlineByEvent(int event) {
+		return this.getUtcDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
+	}
 
-    String getDeadlineByEvent(String season, int event);
+	String getUtcDeadlineByEvent(String season, int event);
 
-    default List<EventFixtureEntity> getEventFixtureByEvent(int event) {
-        return this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event);
-    }
+	default String getDeadlineByEvent(int event) {
+		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
+	}
+
+	String getDeadlineByEvent(String season, int event);
+
+	default List<EventFixtureEntity> getEventFixtureByEvent(int event) {
+		return this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event);
+	}
 
 	List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
 

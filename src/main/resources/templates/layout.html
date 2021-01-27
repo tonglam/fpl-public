@@ -272,7 +272,7 @@
     });
 
     function getLocalTime(time) {
-        return moment(moment(time).utcOffset(-480)).local().format('YYYY/MM/DD HH:mm:ss');
+        return moment(time).utcOffset(new Date().getTimezoneOffset()).format('YYYY/MM/DD HH:mm:ss');
     }
 
     function getUrlParam(name) {

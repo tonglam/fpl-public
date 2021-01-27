@@ -51,7 +51,7 @@ public class MatchDayTask {
 		this.redisCacheService.insertEventLive(event);
 	}
 
-	@Scheduled(cron = "0 35 6,12 * * *")
+	@Scheduled(cron = "0 35 6 * * *")
 	public void insertEvent() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDay(event)) {

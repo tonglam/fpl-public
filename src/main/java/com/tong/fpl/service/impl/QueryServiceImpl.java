@@ -511,7 +511,11 @@ public class QueryServiceImpl implements IQueryService {
 		return this.getCurrentEvent() + 1;
 	}
 
-	@Cacheable(value = "getDeadlineByEvent", key = "#season+'::'+#event", unless = "#result == null")
+	@Override
+	public String getUtcDeadlineByEvent(String season, int event) {
+		return this.redisCacheService.getUtcDeadlineByEvent(season, event);
+	}
+
 	@Override
 	public String getDeadlineByEvent(String season, int event) {
 		return this.redisCacheService.getDeadlineByEvent(season, event);

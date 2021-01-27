@@ -378,7 +378,15 @@
                                             [
                                                 {field: '', title: '转入', align: 'center', colspan: 5},
                                                 {field: '', title: '转出', align: 'center', colspan: 4},
-                                                {field: 'time', title: '交易时间', align: 'center', rowspan: 2}
+                                                {
+                                                    field: 'time',
+                                                    title: '交易时间',
+                                                    align: 'center',
+                                                    rowspan: 2,
+                                                    templet: function (d) {
+                                                        return getLocalTime(d.time);
+                                                    }
+                                                }
                                             ],
                                             [
                                                 {field: 'elementInName', title: '球员', align: 'center'},

@@ -123,6 +123,12 @@ public interface IQueryService {
 
 	int getNextEvent();
 
+	default String getUtcDeadlineByEvent(int event) {
+		return this.getUtcDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
+	}
+
+	String getUtcDeadlineByEvent(String season, int event);
+
 	default String getDeadlineByEvent(int event) {
 		return this.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
 	}
@@ -132,10 +138,11 @@ public interface IQueryService {
 	default String getScoutDeadlineByEvent(int event) {
 		String deadline = this.getDeadlineByEvent(event);
 		String checkTime = StringUtils.substringBefore(deadline, " ") + "T08:30:00";
-		return LocalDateTime.parse(deadline.replaceAll(" ", "T")).isAfter(LocalDateTime.parse(checkTime)) ?
+		String scoutDeadLine = LocalDateTime.parse(deadline.replaceAll(" ", "T")).isAfter(LocalDateTime.parse(checkTime)) ?
 				LocalDateTime.parse(checkTime).format(DateTimeFormatter.ofPattern(Constant.DATETIME)) :
 				LocalDate.parse(StringUtils.substringBefore(deadline, " ")).minusDays(1)
 						.format(DateTimeFormatter.ofPattern(Constant.DATE)) + " 08:30:00";
+		return scoutDeadLine.replaceAll(" ", "T") + "Z";
 	}
 
 	List<LocalDate> getMatchDayByEvent(int event);

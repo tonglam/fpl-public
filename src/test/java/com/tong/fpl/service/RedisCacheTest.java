@@ -135,7 +135,14 @@ public class RedisCacheTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"2021, 1"})
+	@CsvSource({"2021, 21"})
+	void getUtcDeadlineByEvent(String season, int event) {
+		String a = this.redisCacheSerive.getUtcDeadlineByEvent(season, event);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"2021, 21"})
 	void getDeadlineByEvent(String season, int event) {
 		String a = this.redisCacheSerive.getDeadlineByEvent(season, event);
 		System.out.println(1);

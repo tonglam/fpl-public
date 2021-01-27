@@ -25,7 +25,7 @@ public class WebPageController {
     public String indexController(Model model) {
         int nextEvent = this.httpApi.getNextEvent();
         model.addAttribute("nextGw", nextEvent);
-        model.addAttribute("deadline", this.httpApi.qryDeadlineByEvent(nextEvent));
+        model.addAttribute("deadline", this.httpApi.getUtcDeadlineByEvent(nextEvent));
         return "web/index";
     }
 

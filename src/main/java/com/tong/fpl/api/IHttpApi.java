@@ -25,7 +25,7 @@ public interface IHttpApi {
 
     List<PlayerInfoData> qryAllPlayers(String season);
 
-    String qryDeadlineByEvent(int event);
+    String getUtcDeadlineByEvent(int event);
 
     int getCurrentEvent();
 

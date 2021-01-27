@@ -125,8 +125,9 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 			staticRes.getEvents().forEach(bootstrapEvent -> {
 				EventEntity eventEntity = new EventEntity();
 				BeanUtil.copyProperties(bootstrapEvent, eventEntity, CopyOptions.create().ignoreNullValue());
-				eventEntity.setId(bootstrapEvent.getId())
-						.setDeadlineTime(CommonUtils.getZoneDate(bootstrapEvent.getDeadlineTime()));
+				eventEntity
+						.setId(bootstrapEvent.getId())
+						.setDeadlineTime(bootstrapEvent.getDeadlineTime());
 				eventList.add(eventEntity);
 			});
 			this.eventService.saveBatch(eventList);
@@ -177,7 +178,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 			eventFixturesRes.forEach(o -> {
 				EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
 				BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
-				eventFixtureEntity.setKickoffTime(CommonUtils.getZoneDate(o.getKickoffTime()));
+				eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDate(o.getKickoffTime()));
 				eventFixtureList.add(eventFixtureEntity);
 			});
 			this.eventFixtureService.saveBatch(eventFixtureList);
@@ -272,7 +273,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 			eventFixturesRes.forEach(o -> {
 				EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
 				BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
-				eventFixtureEntity.setKickoffTime(CommonUtils.getZoneDate(o.getKickoffTime()));
+				eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDate(o.getKickoffTime()));
 				eventFixtureList.add(eventFixtureEntity);
 			});
 			this.eventFixtureService.saveBatch(eventFixtureList);
@@ -295,7 +296,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 			eventFixturesRes.forEach(o -> {
 				EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
 				BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
-				eventFixtureEntity.setKickoffTime(CommonUtils.getZoneDate(o.getKickoffTime()));
+				eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDate(o.getKickoffTime()));
 				eventFixtureList.add(eventFixtureEntity);
 			});
 			// set cache by event
@@ -838,9 +839,15 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 	}
 
 	@Override
+	public String getUtcDeadlineByEvent(String season, int event) {
+		String key = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), season);
+		return CommonUtils.getZoneDate((String) this.redisTemplate.opsForHash().get(key, String.valueOf(event)));
+	}
+
+	@Override
 	public String getDeadlineByEvent(String season, int event) {
 		String key = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), season);
-		return (String) this.redisTemplate.opsForHash().get(key, String.valueOf(event));
+		return CommonUtils.getLocalZoneDate((String) this.redisTemplate.opsForHash().get(key, String.valueOf(event)));
 	}
 
 	@Override
