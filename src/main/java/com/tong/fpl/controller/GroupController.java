@@ -53,13 +53,20 @@ public class GroupController {
 		return "group/transfers";
 	}
 
+	@GetMapping(value = "/pick")
+	public String pickController(Model model) {
+		model.addAttribute("nextGw", this.groupApi.getNextEvent());
+		model.addAttribute("pickPlayerData", this.groupApi.qryOffiaccountPickList());
+		return "group/pick";
+	}
+
 	@RequestMapping(value = "/reloadLineup")
 	public String reloadLineupController(@RequestBody PlayerPickData pickPlayerData, Model model) {
 		model.addAttribute("pickPlayerData", pickPlayerData);
 		return "group/transfers::lineup";
 	}
 
-	@RequestMapping(value = "/reloadTransfers")
+	@GetMapping(value = "/reloadTransfers")
 	public String reloadTransfersController(Model model) {
 		model.addAttribute("lineupList", this.groupApi.qryOffiaccountLineupForTransfers());
 		return "group/transfers::transfers";
@@ -112,6 +119,21 @@ public class GroupController {
 	}
 
 	/**
+	 * @apiNote pick
+	 */
+	@RequestMapping("/qryEntryEventPlayerShowList")
+	@ResponseBody
+	public TableData<PlayerShowData> qryEntryEventPlayerShowList(@RequestParam int event) {
+		return this.groupApi.qryEntryEventPlayerShowList(event);
+	}
+
+	@RequestMapping("/qrySortedEntryEventPlayerShowList")
+	@ResponseBody
+	public TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(@RequestBody List<PlayerShowData> playerShowDataList) {
+		return this.groupApi.qrySortedEntryEventPlayerShowList(playerShowDataList);
+	}
+
+	/**
 	 * @apiNote transfers
 	 */
 	@RequestMapping("/qryEntryEventPlayerShowListForTransfers")
@@ -126,9 +148,9 @@ public class GroupController {
 		return this.groupApi.qryPlayerShowListByElementForTransfers(pickList);
 	}
 
-	@RequestMapping("/upsertEventLineup")
+	@RequestMapping("/upsertEventTransfers")
 	@ResponseBody
-	public String upsertEventLineup(@RequestBody EntryEventLineupData entryEventLineupData, HttpSession session) {
+	public String upsertEventTransfers(@RequestBody EntryEventLineupData entryEventLineupData, HttpSession session) {
 		int entry = Integer.parseInt(session.getAttribute("entry").toString());
 		Map<Object, Object> map = RedisUtils.getHashByKey("scoutEntry");
 		if (!map.containsKey(String.valueOf(entry))) {
@@ -137,7 +159,7 @@ public class GroupController {
 		entryEventLineupData
 				.setEntry(entry)
 				.setEvent(this.groupApi.getCurrentEvent());
-		this.groupApi.upsertEventLineup(entryEventLineupData);
+		this.groupApi.upsertEventTransfers(entryEventLineupData);
 		return "提交成功";
 	}
 

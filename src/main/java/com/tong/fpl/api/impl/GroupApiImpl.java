@@ -91,6 +91,24 @@ public class GroupApiImpl implements IGroupApi {
 	}
 
 	/**
+	 * @implNote pick
+	 */
+	@Override
+	public PlayerPickData qryOffiaccountPickList() {
+		return this.queryService.qryEntryPickData(this.getCurrentEvent(), FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+	}
+
+	@Override
+	public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event) {
+		return this.tableQueryService.qryEntryEventPlayerShowList(event, FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+	}
+
+	@Override
+	public TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList) {
+		return this.tableQueryService.qrySortedEntryEventPlayerShowList(playerShowDataList);
+	}
+
+	/**
 	 * @implNote transfers
 	 */
 	@Override
@@ -114,8 +132,8 @@ public class GroupApiImpl implements IGroupApi {
 	}
 
 	@Override
-	public void upsertEventLineup(EntryEventLineupData entryEventLineupData) {
-		this.updateEventService.upsertEntryEventLineup(entryEventLineupData);
+	public void upsertEventTransfers(EntryEventLineupData entryEventLineupData) {
+		this.updateEventService.upsertEventTransfers(entryEventLineupData);
 	}
 
 	/**

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>排阵-公众号-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <div style="margin-top: 20px"></div>
+
+            <h1 style="font-size: 22px"
+                th:text="${pickPlayerData.entryName}+'（'+${pickPlayerData.playerName}+'）'"></h1>
+
+            <div class="layui-hide" id="nextGw" th:text="${nextGw}"></div>
+
+            <div style="margin-top: 20px"></div>
+
+            <div class="layui-tab layui-tab-brief" lay-filter="checkTab">
+
+                <ul class="layui-tab-title">
+                    <li class="layui-this" lay-id="pick">排阵</li>
+                    <li class="" lay-id="result">结果</li>
+                </ul>
+
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 30px"></div>
+
+                        <div class="layui-row layui-col-space30">
+                            <div class="layui-col-md5">
+                                <div id="lineup" th:fragment="lineup">
+                                    <!--                                    <div th:replace="layout::pick(${pickPlayerData})"></div>-->
+                                </div>
+                                <table class="layui-table" id="substituteTable" lay-filter="substituteTable"></table>
+                                <!--                                <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"-->
+                                <!--                                        lay-submit="confirmButton" type="button">提交-->
+                                <!--                                </button>-->
+                            </div>
+                            <div class="layui-col-md7">
+                                <table class="layui-table" id="eventPickTable" lay-filter="eventPickTable"></table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="layui-tab-item">
+
+                        <div style="margin-top: 30px"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:replace="layout::entryInputLayer"></script>
+
+<script th:replace="layout::playerDetail"></script>
+
+<script th:inline="none">
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable,
+            nextGw = $("#nextGw").text(), substituteTableData = [], gkpCol = gkpCols(), defCol = defCols(),
+            midCol = midCols(), fwdCol = fwdCols(), eventPickData = [];
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        axios.get('/group/qryEntryEventPlayerShowList?event=' + (parseInt(nextGw) - 1))
+            .then(function (response) {
+                eventPickData = parsePlayerTableData(response.data);
+                table.render({
+                    elem: '#eventPickTable',
+                    size: 'sm',
+                    data: eventPickData,
+                    limit: 15,
+                    cols: [[
+                        {fixed: 'left', field: 'elementTypeName', title: '位置', align: 'center', rowspan: 2},
+                        {
+                            fixed: 'left',
+                            field: 'webName',
+                            title: '球员',
+                            align: 'center',
+                            rowspan: 2,
+                            templet: function (d) {
+                                if (d.chancePlayingNextRound < 100 && d.chancePlayingNextRound >= 50) {
+                                    return '<span style="color: orange">' + d.webName + '</span>';
+                                } else if (d.chancePlayingNextRound < 50 && d.news !== '') {
+                                    return '<span style="color: red">' + d.webName + '</span>';
+                                }
+                                return d.webName;
+                            },
+                            icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                            children: function (d) {
+                                let col;
+                                switch (d.elementType) {
+                                    case 1: {
+                                        col = gkpCol;
+                                        break;
+                                    }
+                                    case 2: {
+                                        col = defCol;
+                                        break;
+                                    }
+                                    case 3: {
+                                        col = midCol;
+                                        break;
+                                    }
+                                    case 4: {
+                                        col = fwdCol;
+                                        break;
+                                    }
+                                }
+                                return [
+                                    {
+                                        title: '赛季',
+                                        url: '/group/qryPlayerDetailData',
+                                        where: {element: d.element},
+                                        cols: col,
+                                        autoColumnWidth: {
+                                            init: true
+                                        },
+                                        done: function () {
+                                            soulTable.render(this);
+                                        }
+                                    }
+                                ];
+                            }
+                        },
+                        {field: 'teamShortName', title: '球队', align: 'center', rowspan: 2},
+                        {
+                            field: '',
+                            title: '对阵',
+                            align: 'center',
+                            templet: function (d) {
+                                return showDifficulty(d.againstTeamShortName1, d.difficulty1, d.event1, d.wasHome1);
+                            }
+                        },
+                        {field: 'totalPoints', title: '总分', align: 'center', rowspan: 2},
+                        {
+                            field: 'selectedByPercent',
+                            title: '持有率',
+                            align: 'center',
+                            rowspan: 2,
+                            templet: function (d) {
+                                return d.selectedByPercent + '%';
+                            }
+                        },
+                        {
+                            field: 'pointsPerGame',
+                            title: '场均得分',
+                            align: 'center',
+                            rowspan: 2
+                        }
+                    ]],
+                    autoColumnWidth: {
+                        init: true
+                    },
+                    id: 'eventPickTable',
+                    done: function (res) {
+                        soulTable.render(this);
+                        let that = this.elem.next();
+                        res.data.forEach(function (d, index) {
+                            if (index > 10) {
+                                setTableRowColor(that, index, "#e2e2e2");
+                            }
+                        });
+                    }
+                });
+            })
+            .catch(function (error) {
+                console.info(error);
+            });
+
+    });
+
+</script>
+
+</html>

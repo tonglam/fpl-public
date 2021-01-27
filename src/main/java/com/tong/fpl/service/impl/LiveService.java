@@ -228,6 +228,12 @@ public class LiveService implements ILiveService {
 								.filter(o -> o.isPickActive() && (o.isPlayed() || StringUtils.equals("BLANK", o.getAgainstShortName()) || o.isGwFinished()))
 								.count()
 				)
+				.setToPlay(
+						(int) pickList
+								.stream()
+								.filter(o -> o.isPickActive() && !o.isPlayed())
+								.count()
+				)
 				.setCaptainName(
 						pickList
 								.stream()

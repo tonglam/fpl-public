@@ -432,7 +432,7 @@
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
-                            console.info(error.message);
+                            console.info(error);
                         });
                     break;
                 }
@@ -445,7 +445,7 @@
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
-                            console.info(error.message);
+                            console.info(error);
                         });
                     break;
                 }
@@ -458,7 +458,7 @@
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
-                            console.info(error.message);
+                            console.info(error);
                         });
                     break;
                 }
@@ -471,7 +471,7 @@
                         })
                         .catch(function (error) {
                             layer.close(loadIndex);
-                            console.info(error.message);
+                            console.info(error);
                         });
                     break;
                 }
@@ -578,7 +578,7 @@
                     window.location.replace("/group/scout");
                 })
                 .catch(function (error) {
-                    console.info(error.message);
+                    console.info(error);
                     $(this).removeAttr("disabled");
                 });
         });

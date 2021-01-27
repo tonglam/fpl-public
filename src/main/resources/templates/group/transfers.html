@@ -78,8 +78,6 @@
 
                         <div style="margin-top: 30px"></div>
 
-                        <div style="margin-top: 30px"></div>
-
                         <div id="transfers" th:fragment="transfers">
                             <div th:each="item,userStat:${lineupList}">
                                 <div style="font-size: 18px" th:text="'球探：'+${item.entryName}"></div>
@@ -932,7 +930,7 @@
             // 禁用提交按钮
             $(this).attr("disabled", "");
             // 提交
-            axios.post('/group/upsertEventLineup', data)
+            axios.post('/group/upsertEventTransfers', data)
                 .then(function (response) {
                     layer.msg(response, {time: 1500});
                     window.location.replace("/group/transfers");

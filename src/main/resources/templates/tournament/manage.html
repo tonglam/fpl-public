@@ -204,7 +204,7 @@
                             obj.update(field);
                         })
                         .catch(function (error) {
-                            console.log(error.message);
+                            console.log(error);
                             layer.msg("更新错误，请重新尝试！", {icon: 2, time: 1500});
                         });
                 });
@@ -233,7 +233,7 @@
                                     obj.del();
                                 })
                                 .catch(function (error) {
-                                    console.log(error.message);
+                                    console.log(error);
                                     layer.msg("删除错误，请重新尝试！", {icon: 2, time: 1500});
                                 });
                         });
@@ -265,7 +265,7 @@
                                     });
                                 })
                                 .catch(function (error) {
-                                    console.log(error.message);
+                                    console.log(error);
                                     layer.msg("更新错误，请重新尝试！", {icon: 2, time: 1500});
                                 });
                         });

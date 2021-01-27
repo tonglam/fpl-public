@@ -38,6 +38,8 @@ public interface ITableQueryService {
 
 	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry);
 
+	TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList);
+
 	TableData<PlayerShowData> qryEntryEventPlayerShowListForTransfers(int event, int entry);
 
 	TableData<PlayerShowData> qryPlayerShowListByElementForTransfers(List<EntryPickData> pickList);

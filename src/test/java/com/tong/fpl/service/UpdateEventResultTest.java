@@ -21,7 +21,7 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"16, 3"})
+	@CsvSource({"19, 3"})
 	void upsertTournamentEntryEventResult(int event, int tournamentId) {
 		this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");
@@ -35,7 +35,7 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"16, 9"})
+	@CsvSource({"19, 2"})
 	void updateTournamentEventTransferPlayed(int event, int tournamentId) {
 		this.updateEventResultsService.updateTournamentEventTransfersPlayed(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");

@@ -688,7 +688,7 @@
                     })
                     .catch(function (error) {
                         layer.close(loadIndex);
-                        console.info(error.message);
+                        console.info(error);
                         layer.msg("联赛url读取错误，请重试", {time: 1500});
                         $(this).val('');
                         totalTeamDom.val("");
@@ -719,7 +719,7 @@
                     })
                     .catch(function (error) {
                         layer.close(loadIndex);
-                        console.info(error.message);
+                        console.info(error);
                         layer.msg("联赛url读取错误，请重试", {time: 1500});
                         $(this).val('');
                         totalTeamDom.val("");
@@ -791,7 +791,7 @@
                     }
                 })
                 .catch(function (error) {
-                    console.info(error.message);
+                    console.info(error);
                     layer.msg("赛事名称查询错误，请重试", {time: 1500});
                     tournamentNameDom.val('');
                 });
@@ -1361,7 +1361,7 @@
                         });
                     })
                     .catch(function (error) {
-                        console.info(error.message);
+                        console.info(error);
                         layer.msg("创建失败，请重新尝试！", {icon: 2, time: 1500});
                     });
             }, function (index) {
@@ -1406,7 +1406,7 @@
                     }
                 })
                 .catch(function (error) {
-                    console.info(error.message);
+                    console.info(error);
                     layer.msg("赛事名称查询错误，请重试", {time: 1500});
                     this.val('');
                 });
@@ -1460,7 +1460,7 @@
                         });
                     })
                     .catch(function (error) {
-                        console.info(error.message);
+                        console.info(error);
                     });
             });
             // 监听队长单选框
@@ -1761,7 +1761,7 @@
                         });
                     })
                     .catch(function (error) {
-                        console.info(error.message);
+                        console.info(error);
                         layer.msg("创建失败，请重新尝试！", {icon: 2, time: 1500});
                     });
             }, function (index) {

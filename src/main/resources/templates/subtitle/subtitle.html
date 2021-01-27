@@ -470,7 +470,7 @@
                                 layer.msg(response, {icon: 6, time: 1500});
                             })
                             .catch(function (error) {
-                                console.log(error.message);
+                                console.log(error);
                                 layer.msg("修改错误，请重新尝试！", {icon: 2, time: 1500});
                             });
                     });
@@ -488,7 +488,7 @@
                                 subtitleTable = table.reload(config.id, $.extend(true, {data: dataTemp}, {}));
                             })
                             .catch(function (error) {
-                                console.log(error.message);
+                                console.log(error);
                                 layer.msg("删除错误，请重新尝试！", {icon: 2, time: 1500});
                             });
                     });
@@ -519,7 +519,7 @@
                             layer.msg("新增成功！", {icon: 6, time: 1500});
                         })
                         .catch(function (error) {
-                            console.log(error.message);
+                            console.log(error);
                             layer.msg("新增错误，请重新尝试！", {icon: 2, time: 1500});
                         });
                     break;
@@ -577,7 +577,7 @@
                     layer.msg(response, {time: 1500});
                 })
                 .catch(function (error) {
-                    layer.msg(error.message, {time: 1500});
+                    layer.msg(error, {time: 1500});
                 });
         });
 

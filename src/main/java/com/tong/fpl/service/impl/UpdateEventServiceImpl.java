@@ -1528,7 +1528,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	}
 
 	@Override
-	public void upsertEntryEventLineup(EntryEventLineupData entryEventLineupData) {
+	public void upsertEventTransfers(EntryEventLineupData entryEventLineupData) {
 		// prepare
 		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventLineupData.getEvent(), FollowAccount.Offiaccount_2021.getEntry());
 		if (entryEventResultData == null) {

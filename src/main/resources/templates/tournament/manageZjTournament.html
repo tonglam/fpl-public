@@ -271,7 +271,7 @@
                                         window.location.reload();
                                     })
                                     .catch(function (error) {
-                                        console.info(error.message);
+                                        console.info(error);
                                     });
                             });
                             $(".layui-layer-btn1").on("click", function () {
@@ -360,7 +360,7 @@
                 }
             })
             .catch(function (error) {
-                console.log(error.message);
+                console.log(error);
             });
 
         form.on('select(disCloseGroupName)', function (data) {
@@ -381,7 +381,7 @@
                     form.render('select');
                 })
                 .catch(function (error) {
-                    console.log(error.message);
+                    console.log(error);
                 });
         });
 
@@ -395,7 +395,7 @@
                     $("input[name=disClosePlayerName]").val(response.playerName);
                 })
                 .catch(function (error) {
-                    console.log(error.message);
+                    console.log(error);
                 });
         });
 
@@ -436,7 +436,7 @@
                         });
                     })
                     .catch(function (error) {
-                        console.log(error.message);
+                        console.log(error);
                     });
                 layer.close(index);
             });
@@ -566,7 +566,7 @@
 
             })
             .catch(function (error) {
-                console.log(error.message);
+                console.log(error);
             });
 
         <!-- 监听分组选择 -->
@@ -701,7 +701,7 @@
                     });
                 })
                 .catch(function (error) {
-                    console.log(error.message);
+                    console.log(error);
                 });
         }
 
@@ -756,7 +756,7 @@
                         });
                     })
                     .catch(function (error) {
-                        console.info(error.message);
+                        console.info(error);
                         layer.msg("更新失败，请重新尝试！", {icon: 2, time: 1500});
                     });
             }, function (index) {
@@ -780,7 +780,7 @@
                 });
             })
             .catch(function (error) {
-                console.log(error.message);
+                console.log(error);
             });
 
         <!-- pk赛可选择对手 -->
@@ -820,7 +820,7 @@
                         form.render('select');
                     })
                     .catch(function (error) {
-                        console.log(error.message);
+                        console.log(error);
                     });
             });
 
@@ -840,7 +840,7 @@
                         });
                     })
                     .catch(function (error) {
-                        console.log(error.message);
+                        console.log(error);
                     });
             });
 
@@ -863,7 +863,7 @@
                     }
                 })
                 .catch(function (error) {
-                    console.log(error.message);
+                    console.log(error);
                 });
         });
 

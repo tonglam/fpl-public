@@ -32,6 +32,15 @@ public interface IGroupApi {
 	String getScoutDeadline(int event);
 
 	/**
+	 * @apiNote pick
+	 */
+	PlayerPickData qryOffiaccountPickList();
+
+	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event);
+
+	TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList);
+
+	/**
 	 * @apiNote transfers
 	 */
 	ScoutData qryScoutEntryEventData(int event, int entry);
@@ -44,7 +53,7 @@ public interface IGroupApi {
 
 	List<PlayerPickData> qryOffiaccountLineupForTransfers();
 
-	void upsertEventLineup(EntryEventLineupData entryEventLineupData);
+	void upsertEventTransfers(EntryEventLineupData entryEventLineupData);
 
 	/**
 	 * @apiNote common

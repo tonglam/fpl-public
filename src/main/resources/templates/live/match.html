@@ -250,7 +250,7 @@
             })
             .catch(function (error) {
                 layer.close(loadIndex);
-                console.log(error.message);
+                console.log(error);
             });
 
         element.on('tab(matchStatusTab)', function (data) {
@@ -283,7 +283,7 @@
                 })
                 .catch(function (error) {
                     layer.close(loadIndex);
-                    console.log(error.message);
+                    console.log(error);
                 });
 
             axios.get('/live/qryLiveTeamDataList?statusId=' + statusId)
@@ -343,7 +343,7 @@
                 })
                 .catch(function (error) {
                     layer.close(loadIndex);
-                    console.log(error.message);
+                    console.log(error);
                 })
 
         });

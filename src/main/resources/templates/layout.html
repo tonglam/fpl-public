@@ -71,6 +71,7 @@
                 <a href="javascript:void(0)">公众号</a>
                 <dl class="layui-nav-child">
                     <dd><a href="/group/scout">推荐</a></dd>
+                    <dd><a href="/group/pick">排阵</a></dd>
                     <dd><a href="/group/transfers">转会</a></dd>
                 </dl>
             </li>
@@ -464,8 +465,8 @@
             data.element = item.element;
             data.position = item.position;
             data.multiplier = item.multiplier;
-            data.isCaptain = item.isCaptain;
-            data.isViceCaptain = item.isViceCaptain;
+            data.isCaptain = item.captain;
+            data.isViceCaptain = item.viceCaptain;
             data.webName = item.webName;
             data.elementType = item.elementType;
             data.elementTypeName = item.elementTypeName;
