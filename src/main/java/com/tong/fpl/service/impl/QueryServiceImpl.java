@@ -67,7 +67,8 @@ public class QueryServiceImpl implements IQueryService {
 	private final PlayerService playerService;
 	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;
-	private final EntryEventLineupService entryEventLineupService;
+	private final EntryEventSimulatePickService entryEventSimulatePickService;
+	private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
 	private final EntryEventResultService entryEventResultService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
@@ -861,6 +862,9 @@ public class QueryServiceImpl implements IQueryService {
 	@Cacheable(value = "qryPickListByPosition", key = "#season+'::'+#picks", unless = "#result == null")
 	@Override
 	public PlayerPickData qryPickListByPosition(String season, String picks) {
+		if (StringUtils.isEmpty(picks)) {
+			return new PlayerPickData();
+		}
 		List<EntryPickData> pickList = JsonUtils.json2Collection(picks, List.class, EntryPickData.class);
 		if (CollectionUtils.isEmpty(pickList)) {
 			return new PlayerPickData();
@@ -1322,13 +1326,45 @@ public class QueryServiceImpl implements IQueryService {
 	}
 
 	@Override
-	public List<PlayerPickData> qryOffiaccountLineupForTransfers() {
-		int event = this.getCurrentEvent();
+	public List<PlayerPickData> qryOffiaccountPickList() {
+		int event = this.getNextEvent();
 		Map<Object, Object> scoutEntryMap = RedisUtils.getHashByKey("scoutEntry");
-		List<Object> entryList = new ArrayList<>(scoutEntryMap.keySet());
-		List<EntryEventLineupEntity> entryEventLineupEntityList = this.entryEventLineupService.list(new QueryWrapper<EntryEventLineupEntity>().lambda()
-				.eq(EntryEventLineupEntity::getEvent, event)
-				.in(EntryEventLineupEntity::getEntry, entryList));
+		List<Object> scoutList = new ArrayList<>(scoutEntryMap.keySet());
+		List<EntryEventSimulatePickEntity> entryEventSimulatePickEntityList = this.entryEventSimulatePickService.list(new QueryWrapper<EntryEventSimulatePickEntity>().lambda()
+				.eq(EntryEventSimulatePickEntity::getEntry, FollowAccount.Offiaccount_2021.getEntry())
+				.eq(EntryEventSimulatePickEntity::getEvent, event)
+				.in(EntryEventSimulatePickEntity::getOperator, scoutList));
+		if (CollectionUtils.isEmpty(entryEventSimulatePickEntityList)) {
+			return Lists.newArrayList();
+		}
+		return entryEventSimulatePickEntityList
+				.stream()
+				.map(o -> {
+					int entry = o.getOperator();
+					PlayerPickData playerPickData = this.qryPickListByPosition(o.getLineup());
+					playerPickData
+							.setEntry(entry)
+							.setEntryName((String) scoutEntryMap.get(String.valueOf(entry)))
+							.setEvent(event)
+							.setTeamValue(0)
+							.setBank(0)
+							.setFreeTransfers(0)
+							.setTransfers(0)
+							.setTransfersCost(0);
+					return playerPickData;
+				})
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<PlayerPickData> qryOffiaccountLineupForTransfers() {
+		int event = this.getNextEvent();
+		Map<Object, Object> scoutEntryMap = RedisUtils.getHashByKey("scoutEntry");
+		List<Object> scoutList = new ArrayList<>(scoutEntryMap.keySet());
+		List<EntryEventSimulateTransfersEntity> entryEventLineupEntityList = this.entryEventSimulateTransfersService.list(new QueryWrapper<EntryEventSimulateTransfersEntity>().lambda()
+				.eq(EntryEventSimulateTransfersEntity::getEntry, FollowAccount.Offiaccount_2021.getEntry())
+				.eq(EntryEventSimulateTransfersEntity::getEvent, event)
+				.in(EntryEventSimulateTransfersEntity::getOperator, scoutList));
 		if (CollectionUtils.isEmpty(entryEventLineupEntityList)) {
 			return Lists.newArrayList();
 		}
@@ -1344,11 +1380,11 @@ public class QueryServiceImpl implements IQueryService {
 		return entryEventLineupEntityList
 				.stream()
 				.map(o -> {
-					int entry = o.getEntry();
+					int entry = o.getOperator();
 					PlayerPickData playerPickData = this.qryPickListByPositionForTransfers(o.getLineup());
 					playerPickData
 							.setEntry(entry)
-							.setEntryName((String) scoutEntryMap.get(String.valueOf(o.getEntry())))
+							.setEntryName((String) scoutEntryMap.get(String.valueOf(entry)))
 							.setEvent(event)
 							.setTeamValue(o.getTeamValue())
 							.setBank(o.getBank())
@@ -2293,7 +2329,7 @@ public class QueryServiceImpl implements IQueryService {
 		return this.leagueEventReportService.getBaseMapper().qryLeagueNameList();
 	}
 
-	//	@Cacheable(value = "qryLeagueEventEoMap", key = "#leagueId+'::'+#leagueType")
+	@Cacheable(value = "qryLeagueEventEoMap", key = "#leagueId+'::'+#leagueType")
 	@Override
 	public Map<Integer, String> qryLeagueEventEoMap(int event, int leagueId, String leagueType) {
 		Map<Integer, String> map = Maps.newHashMap();
@@ -2390,6 +2426,9 @@ public class QueryServiceImpl implements IQueryService {
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * @implNote scout
+	 */
 	@Override
 	public ScoutData qryScoutEntryEventData(int event, int entry) {
 		ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
@@ -2425,6 +2464,50 @@ public class QueryServiceImpl implements IQueryService {
 			return playerEntity.getPrice() / 10.0;
 		}
 		return 0;
+	}
+
+	/**
+	 * @implNote simulate
+	 */
+	@Override
+	public PlayerPickData qryEntryEventPickData(int event, int entry, int operator) {
+		// 先查entry_event_simulate_pick，再查entry_event_simulate_transfers,最后查entry_event_result
+		String picks = this.qryEntryEventPicks(event, entry, operator);
+		PlayerPickData playerPickData = this.qryPickListByPosition(picks);
+		playerPickData
+				.setEntry(entry)
+				.setEvent(event);
+		EntryInfoEntity entryInfoEntity = this.qryEntryInfo(entry);
+		if (entryInfoEntity != null) {
+			playerPickData
+					.setEntryName(entryInfoEntity.getEntryName())
+					.setPlayerName(entryInfoEntity.getPlayerName());
+		}
+		return playerPickData;
+	}
+
+	private String qryEntryEventPicks(int event, int entry, int operator) {
+		EntryEventSimulatePickEntity entryEventSimulatePickEntity = this.entryEventSimulatePickService.getOne(new QueryWrapper<EntryEventSimulatePickEntity>().lambda()
+				.eq(EntryEventSimulatePickEntity::getEntry, entry)
+				.eq(EntryEventSimulatePickEntity::getEvent, event)
+				.eq(EntryEventSimulatePickEntity::getOperator, operator));
+		if (entryEventSimulatePickEntity != null) {
+			return entryEventSimulatePickEntity.getLineup();
+		}
+		EntryEventSimulateTransfersEntity entryEventSimulateTransfersEntity = this.entryEventSimulateTransfersService.getOne(new QueryWrapper<EntryEventSimulateTransfersEntity>().lambda()
+				.eq(EntryEventSimulateTransfersEntity::getEntry, entry)
+				.eq(EntryEventSimulateTransfersEntity::getEvent, event)
+				.eq(EntryEventSimulateTransfersEntity::getOperator, operator));
+		if (entryEventSimulateTransfersEntity != null) {
+			return entryEventSimulateTransfersEntity.getLineup();
+		}
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, entry)
+				.eq(EntryEventResultEntity::getEvent, event - 1));
+		if (entryEventResultEntity != null) {
+			return entryEventResultEntity.getEventPicks();
+		}
+		return "";
 	}
 
 }

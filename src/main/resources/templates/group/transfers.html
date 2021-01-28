@@ -26,7 +26,7 @@
             <div class="layui-tab layui-tab-brief" lay-filter="checkTab">
 
                 <ul class="layui-tab-title">
-                    <li class="layui-this" lay-id="transfer">一顿操作</li>
+                    <li class="layui-this" lay-id="transfers">一顿操作</li>
                     <li class="" lay-id="result">猛如虎</li>
                 </ul>
 
@@ -58,7 +58,7 @@
 
                         <div class="layui-row layui-col-space30">
                             <div class="layui-col-md5">
-                                <div id="lineup" th:fragment="lineup">
+                                <div id="lineup" th:fragment="transfers">
                                     <div th:replace="layout::transfers(${pickPlayerData})"></div>
                                 </div>
                                 <table class="layui-table" id="transfersTable" lay-filter="transfersTable"></table>
@@ -78,8 +78,8 @@
 
                         <div style="margin-top: 30px"></div>
 
-                        <div id="transfers" th:fragment="transfers">
-                            <div th:each="item,userStat:${lineupList}">
+                        <div id="transfers" th:fragment="transfersList">
+                            <div th:each="item,userStat:${transfersList}">
                                 <div style="font-size: 18px" th:text="'球探：'+${item.entryName}"></div>
                                 <div style="margin-top: 10px"></div>
                                 <div class="layui-row">
@@ -811,6 +811,7 @@
                     pickData.teamName = row.teamName;
                     pickData.teamShortName = row.teamShortName;
                     pickData.sellPrice = numMulti(row.price, 10);
+                    pickData.eventTransferIn = true;
                 } else {
                     pickData.element = item.element;
                     pickData.position = item.position;
@@ -865,7 +866,7 @@
             pickPlayerData.mids = mids;
             pickPlayerData.fwds = fwds;
             pickPlayerData.subs = subs;
-            axios.post('/group/reloadLineup', pickPlayerData)
+            axios.post('/group/reloadTransfers', pickPlayerData)
                 .then(function (response) {
                     $("#lineup").html(response);
                 })
@@ -943,7 +944,7 @@
 
         element.on('tab(checkTab)', function (data) {
             if (data.index === 1) {
-                axios.get('/group/reloadTransfers')
+                axios.get('/group/reloadTransfersList')
                     .then(function (response) {
                         $("#transfers").html(response);
                     })

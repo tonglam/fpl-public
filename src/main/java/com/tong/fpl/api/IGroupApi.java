@@ -1,6 +1,7 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulatePickData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
@@ -34,11 +35,15 @@ public interface IGroupApi {
 	/**
 	 * @apiNote pick
 	 */
-	PlayerPickData qryOffiaccountPickList();
+	PlayerPickData qryOffiaccountPickData(int operator);
+
+	List<PlayerPickData> qryOffiaccountPickList();
 
 	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event);
 
 	TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList);
+
+	void upsertEventPick(EntryEventSimulatePickData entryEventSimulatePickData);
 
 	/**
 	 * @apiNote transfers
@@ -53,7 +58,7 @@ public interface IGroupApi {
 
 	List<PlayerPickData> qryOffiaccountLineupForTransfers();
 
-	void upsertEventTransfers(EntryEventLineupData entryEventLineupData);
+	void upsertEventTransfers(EntryEventSimulateTransfersData entryEventLineupData);
 
 	/**
 	 * @apiNote common

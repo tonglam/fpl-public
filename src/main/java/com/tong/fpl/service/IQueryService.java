@@ -239,6 +239,8 @@ public interface IQueryService {
 
 	List<PlayerPickData> qryLeagueEventPickDataList(int event, int leagueId, String leagueType);
 
+	List<PlayerPickData> qryOffiaccountPickList();
+
 	List<PlayerPickData> qryOffiaccountLineupForTransfers();
 
 	default List<EntryEventAutoSubsData> qryEntryAutoSubDataList(int event, int entry) {
@@ -335,5 +337,10 @@ public interface IQueryService {
 	 * @apiNote scout
 	 */
 	ScoutData qryScoutEntryEventData(int event, int entry);
+
+	/**
+	 * @apiNote simulate
+	 */
+	PlayerPickData qryEntryEventPickData(int event, int entry, int operator);
 
 }

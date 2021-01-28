@@ -33,6 +33,8 @@ public class PlayerShowData {
 	private String pointsPerGame;
 	private String form;
 	private boolean inDreamteam;
+	private boolean eventTransferIn;
+	private boolean eventTransferOut;
 	private List<PlayerShowFixtureData> fixtureList;
 
 }

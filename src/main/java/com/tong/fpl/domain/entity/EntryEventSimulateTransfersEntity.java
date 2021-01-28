@@ -9,8 +9,8 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "entry_event_lineup")
-public class EntryEventLineupEntity {
+@TableName(value = "entry_event_simulate_transfers")
+public class EntryEventSimulateTransfersEntity {
 
 	@TableId
 	private Integer id;
@@ -18,6 +18,7 @@ public class EntryEventLineupEntity {
 	private Integer entry;
 	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
 	private Integer event;
+	private Integer operator;
 	private Integer teamValue;
 	private Integer bank;
 	private Integer freeTransfers;

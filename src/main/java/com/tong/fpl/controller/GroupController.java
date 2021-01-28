@@ -2,7 +2,9 @@ package com.tong.fpl.controller;
 
 import com.google.common.collect.Lists;
 import com.tong.fpl.api.IGroupApi;
-import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
+import com.tong.fpl.constant.enums.FollowAccount;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulatePickData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
@@ -45,6 +47,17 @@ public class GroupController {
 		return "group/scout";
 	}
 
+	@GetMapping(value = "/pick")
+	public String pickController(Model model, HttpSession session) {
+		int operator = 0;
+		if (session.getAttribute("entry") != null) {
+			operator = Integer.parseInt(session.getAttribute("entry").toString());
+		}
+		model.addAttribute("nextGw", this.groupApi.getNextEvent());
+		model.addAttribute("pickPlayerData", this.groupApi.qryOffiaccountPickData(operator));
+		return "group/pick";
+	}
+
 	@GetMapping(value = "/transfers")
 	public String transfersController(Model model) {
 		model.addAttribute("nextGw", this.groupApi.getNextEvent());
@@ -53,23 +66,28 @@ public class GroupController {
 		return "group/transfers";
 	}
 
-	@GetMapping(value = "/pick")
-	public String pickController(Model model) {
-		model.addAttribute("nextGw", this.groupApi.getNextEvent());
-		model.addAttribute("pickPlayerData", this.groupApi.qryOffiaccountPickList());
-		return "group/pick";
-	}
-
-	@RequestMapping(value = "/reloadLineup")
-	public String reloadLineupController(@RequestBody PlayerPickData pickPlayerData, Model model) {
+	@RequestMapping(value = "/reloadPick")
+	public String reloadPickController(@RequestBody PlayerPickData pickPlayerData, Model model) {
 		model.addAttribute("pickPlayerData", pickPlayerData);
-		return "group/transfers::lineup";
+		return "group/pick::pick";
 	}
 
-	@GetMapping(value = "/reloadTransfers")
-	public String reloadTransfersController(Model model) {
-		model.addAttribute("lineupList", this.groupApi.qryOffiaccountLineupForTransfers());
+	@GetMapping(value = "/reloadPickList")
+	public String reloadPickListController(Model model) {
+		model.addAttribute("pickList", this.groupApi.qryOffiaccountPickList());
+		return "group/pick::pickList";
+	}
+
+	@RequestMapping(value = "/reloadTransfers")
+	public String reloadTransfersController(@RequestBody PlayerPickData pickPlayerData, Model model) {
+		model.addAttribute("pickPlayerData", pickPlayerData);
 		return "group/transfers::transfers";
+	}
+
+	@GetMapping(value = "/reloadTransfersList")
+	public String reloadTransfersListController(Model model) {
+		model.addAttribute("transfersList", this.groupApi.qryOffiaccountLineupForTransfers());
+		return "group/transfers::transfersList";
 	}
 
 	/**
@@ -133,6 +151,22 @@ public class GroupController {
 		return this.groupApi.qrySortedEntryEventPlayerShowList(playerShowDataList);
 	}
 
+	@RequestMapping("/upsertEventPick")
+	@ResponseBody
+	public String upsertEventPick(@RequestBody EntryEventSimulatePickData entryEventSimulatePickData, HttpSession session) {
+		int entry = Integer.parseInt(session.getAttribute("entry").toString());
+		Map<Object, Object> map = RedisUtils.getHashByKey("scoutEntry");
+		if (!map.containsKey(String.valueOf(entry))) {
+			return "请先加入让让群球探！";
+		}
+		entryEventSimulatePickData
+				.setEntry(FollowAccount.Offiaccount_2021.getEntry())
+				.setEvent(this.groupApi.getNextEvent())
+				.setOperator(entry);
+		this.groupApi.upsertEventPick(entryEventSimulatePickData);
+		return "保存成功";
+	}
+
 	/**
 	 * @apiNote transfers
 	 */
@@ -150,16 +184,17 @@ public class GroupController {
 
 	@RequestMapping("/upsertEventTransfers")
 	@ResponseBody
-	public String upsertEventTransfers(@RequestBody EntryEventLineupData entryEventLineupData, HttpSession session) {
+	public String upsertEventTransfers(@RequestBody EntryEventSimulateTransfersData entryEventSimulateTransfersData, HttpSession session) {
 		int entry = Integer.parseInt(session.getAttribute("entry").toString());
 		Map<Object, Object> map = RedisUtils.getHashByKey("scoutEntry");
 		if (!map.containsKey(String.valueOf(entry))) {
 			return "请先加入让让群球探！";
 		}
-		entryEventLineupData
-				.setEntry(entry)
-				.setEvent(this.groupApi.getCurrentEvent());
-		this.groupApi.upsertEventTransfers(entryEventLineupData);
+		entryEventSimulateTransfersData
+				.setEntry(FollowAccount.Offiaccount_2021.getEntry())
+				.setEvent(this.groupApi.getNextEvent())
+				.setOperator(entry);
+		this.groupApi.upsertEventTransfers(entryEventSimulateTransfersData);
 		return "提交成功";
 	}
 

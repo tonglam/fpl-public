@@ -107,25 +107,69 @@
         <ol class="container" id="fwds">
             <li th:each="item,stat:${pickPlayerData.fwds}">
                 <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
-                <div class="name" th:text="${item.webName}" th:value="${item.element}"></div>
+                <div th:switch="${item.captain}">
+                    <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
+                         th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
+                    <div th:case="false">
+                        <div th:switch="${item.viceCaptain}">
+                            <div class="name" style="color:#FFB800" th:case="true"
+                                 th:text="${item.webName}+' (vc)'" th:value="${item.element}"></div>
+                            <div class="name" th:case="false" th:text="${item.webName}"
+                                 th:value="${item.element}"></div>
+                        </div>
+                    </div>
+                </div>
             </li>
         </ol>
         <ol class="container" id="mids">
             <li th:each="item,stat:${pickPlayerData.mids}">
                 <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
-                <div class="name" th:text="${item.webName}" th:value="${item.element}"></div>
+                <div th:switch="${item.captain}">
+                    <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
+                         th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
+                    <div th:case="false">
+                        <div th:switch="${item.viceCaptain}">
+                            <div class="name" style="color:#FFB800" th:case="true"
+                                 th:text="${item.webName}+' (vc)'" th:value="${item.element}"></div>
+                            <div class="name" th:case="false" th:text="${item.webName}"
+                                 th:value="${item.element}"></div>
+                        </div>
+                    </div>
+                </div>
             </li>
         </ol>
         <ol class="container" id="defs">
             <li th:each="item,stat:${pickPlayerData.defs}">
                 <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
-                <div class="name" th:text="${item.webName}" th:value="${item.element}"></div>
+                <div th:switch="${item.captain}">
+                    <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
+                         th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
+                    <div th:case="false">
+                        <div th:switch="${item.viceCaptain}">
+                            <div class="name" style="color:#FFB800" th:case="true"
+                                 th:text="${item.webName}+' (vc)'" th:value="${item.element}"></div>
+                            <div class="name" th:case="false" th:text="${item.webName}"
+                                 th:value="${item.element}"></div>
+                        </div>
+                    </div>
+                </div>
             </li>
         </ol>
         <ul class="container" id="gkps">
             <li th:each="item,stat:${pickPlayerData.gkps}">
                 <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
-                <div class="name" th:text="${item.webName}" th:value="${item.element}"></div>
+                <div th:switch="${item.captain}">
+                    <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
+                         th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
+                    <div th:case="false">
+                        <div th:switch="${item.viceCaptain}">
+                            <div class="name" style="color:#FFB800" th:case="true"
+                                 th:text="${item.webName}+' (vc)'" th:value="${item.element}"></div>
+                            <div class="name" th:case="false" th:text="${item.webName}"
+                                 th:value="${item.element}"></div>
+                        </div>
+                    </div>
+                </div>
             </li>
         </ul>
     </div>
@@ -483,6 +527,8 @@
             data.pointsPerGame = item.pointsPerGame;
             data.form = item.form;
             data.inDreamteam = item.inDreamteam;
+            data.eventTransferIn = item.eventTransferIn;
+            data.eventTransferOut = item.eventTransferOut;
 
             data.event1 = item.fixtureList[0].event;
             data.againstTeamShortName1 = item.fixtureList[0].againstTeamShortName;

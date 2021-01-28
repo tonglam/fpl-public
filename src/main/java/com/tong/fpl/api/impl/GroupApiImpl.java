@@ -3,7 +3,8 @@ package com.tong.fpl.api.impl;
 import com.google.common.collect.Lists;
 import com.tong.fpl.api.IGroupApi;
 import com.tong.fpl.constant.enums.FollowAccount;
-import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulatePickData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.DropdownData;
 import com.tong.fpl.domain.letletme.global.TableData;
@@ -94,8 +95,13 @@ public class GroupApiImpl implements IGroupApi {
 	 * @implNote pick
 	 */
 	@Override
-	public PlayerPickData qryOffiaccountPickList() {
-		return this.queryService.qryEntryPickData(this.getCurrentEvent(), FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+	public PlayerPickData qryOffiaccountPickData(int operator) {
+		return this.queryService.qryEntryEventPickData(this.getNextEvent(), FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()), operator);
+	}
+
+	@Override
+	public List<PlayerPickData> qryOffiaccountPickList() {
+		return this.queryService.qryOffiaccountPickList();
 	}
 
 	@Override
@@ -106,6 +112,11 @@ public class GroupApiImpl implements IGroupApi {
 	@Override
 	public TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList) {
 		return this.tableQueryService.qrySortedEntryEventPlayerShowList(playerShowDataList);
+	}
+
+	@Override
+	public void upsertEventPick(EntryEventSimulatePickData entryEventSimulatePickData) {
+		this.updateEventService.upsertEventPick(entryEventSimulatePickData);
 	}
 
 	/**
@@ -132,8 +143,8 @@ public class GroupApiImpl implements IGroupApi {
 	}
 
 	@Override
-	public void upsertEventTransfers(EntryEventLineupData entryEventLineupData) {
-		this.updateEventService.upsertEventTransfers(entryEventLineupData);
+	public void upsertEventTransfers(EntryEventSimulateTransfersData entryEventSimulateTransfersData) {
+		this.updateEventService.upsertEventTransfers(entryEventSimulateTransfersData);
 	}
 
 	/**

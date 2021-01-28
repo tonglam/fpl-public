@@ -6,18 +6,15 @@ import lombok.experimental.Accessors;
 import java.util.List;
 
 /**
- * Create by tong on 2021/1/11
+ * Create by tong on 2021/1/28
  */
 @Data
 @Accessors(chain = true)
-public class EntryEventLineupData {
+public class EntryEventSimulatePickData {
 
 	private int entry;
 	private int event;
-	private int teamValue;
-	private int bank;
-	private int freeTransfers;
-	private int transfersCost;
+	private int operator;
 	private List<EntryPickData> lineup;
 
 }

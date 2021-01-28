@@ -1018,6 +1018,9 @@ public class TournamentServiceImpl implements ITournamentService {
 		} else if (LeagueType.valueOf(leagueType) == LeagueType.H2h) {
 			entryInfoList = this.staticService.getEntryInfoListFromH2h(leagueId);
 		}
+		if (CollectionUtils.isEmpty(entryInfoList)) {
+			return Lists.newArrayList();
+		}
 		int newTeamNum = entryInfoList.size();
 		// update tournament_info
 		tournamentInfoEntity

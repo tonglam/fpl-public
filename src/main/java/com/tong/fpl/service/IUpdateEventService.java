@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulatePickData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
 
 /**
  * Create by tong on 2020/6/29
@@ -37,6 +38,8 @@ public interface IUpdateEventService {
 
 	void updateAllEventResult(int event);
 
-	void upsertEventTransfers(EntryEventLineupData entryEventLineupData);
+	void upsertEventPick(EntryEventSimulatePickData entryEventSimulatePickData);
+
+	void upsertEventTransfers(EntryEventSimulateTransfersData entryEventSimulateTransfersData);
 
 }

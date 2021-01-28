@@ -179,6 +179,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	@Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry")
 	@Override
 	public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry) {
+		// TODO: 2021/1/28 先查，再查，最后查
 		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
 				.eq(EntryEventResultEntity::getEntry, entry)
 				.eq(EntryEventResultEntity::getEvent, event));
@@ -260,9 +261,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	// do not cache
 	@Override
 	public TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList) {
-		for (int i = 1; i < playerShowDataList.size() + 1; i++) {
-			playerShowDataList.get(i - 1).setPosition(i);
-		}
 		List<PlayerShowData> list = Lists.newArrayList();
 		list.addAll(playerShowDataList
 				.stream()
@@ -394,6 +392,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.stream()
 				.map(EntryPickData::getElement)
 				.collect(Collectors.toList());
+		List<Integer> transfersList = pickList
+				.stream()
+				.filter(EntryPickData::isEventTransferIn)
+				.map(EntryPickData::getElement)
+				.collect(Collectors.toList());
 		// prepare
 		Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
@@ -437,6 +440,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setMultiplier(entryPickData.getMultiplier())
 					.setCaptain(entryPickData.isCaptain())
 					.setViceCaptain(entryPickData.isViceCaptain());
+			if (transfersList.contains(data.getElement())) {
+				data.setEventTransferIn(true);
+			}
 		});
 		return new TableData<>(
 				list

@@ -11,10 +11,7 @@ import com.tong.fpl.domain.data.userHistory.Current;
 import com.tong.fpl.domain.data.userpick.AutoSubs;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
-import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
-import com.tong.fpl.domain.letletme.entry.EntryEventLineupData;
-import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
-import com.tong.fpl.domain.letletme.entry.EntryPickData;
+import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.service.IQueryService;
@@ -48,9 +45,10 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	private final IRedisCacheService redisCacheService;
 	private final IReportService reportService;
 	private final EventLiveService eventLiveService;
-	private final EntryEventLineupService entryEventLineupService;
 	private final EntryEventResultService entryEventResultService;
 	private final EntryEventTransfersService entryEventTransferService;
+	private final EntryEventSimulatePickService entryEventSimulatePickService;
+	private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
 	private final EntryInfoService entryInfoService;
 	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
@@ -1528,9 +1526,32 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	}
 
 	@Override
-	public void upsertEventTransfers(EntryEventLineupData entryEventLineupData) {
+	public void upsertEventPick(EntryEventSimulatePickData entryEventSimulatePickData) {
+		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventSimulatePickData.getEvent(), FollowAccount.Offiaccount_2021.getEntry());
+		if (entryEventResultData == null) {
+			return;
+		}
+		EntryEventSimulatePickEntity entryEventSimulatePickEntity = new EntryEventSimulatePickEntity()
+				.setEntry(entryEventSimulatePickData.getEntry())
+				.setEvent(entryEventSimulatePickData.getEvent())
+				.setOperator(entryEventSimulatePickData.getOperator())
+				.setLineup(JsonUtils.obj2json(entryEventSimulatePickData.getLineup()));
+		EntryEventSimulatePickEntity entryEventSimulatePick = this.entryEventSimulatePickService.getOne(new QueryWrapper<EntryEventSimulatePickEntity>().lambda()
+				.eq(EntryEventSimulatePickEntity::getEntry, entryEventSimulatePickData.getEntry())
+				.eq(EntryEventSimulatePickEntity::getEvent, entryEventSimulatePickData.getEvent())
+				.eq(EntryEventSimulatePickEntity::getOperator, entryEventSimulatePickData.getOperator()));
+		if (entryEventSimulatePick == null) {
+			this.entryEventSimulatePickService.save(entryEventSimulatePickEntity);
+		} else {
+			entryEventSimulatePickEntity.setId(entryEventSimulatePick.getId());
+			this.entryEventSimulatePickService.updateById(entryEventSimulatePickEntity);
+		}
+	}
+
+	@Override
+	public void upsertEventTransfers(EntryEventSimulateTransfersData entryEventSimulateTransfersData) {
 		// prepare
-		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventLineupData.getEvent(), FollowAccount.Offiaccount_2021.getEntry());
+		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventSimulateTransfersData.getEvent() - 1, FollowAccount.Offiaccount_2021.getEntry());
 		if (entryEventResultData == null) {
 			return;
 		}
@@ -1538,7 +1559,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 				.stream()
 				.map(EntryPickData::getElement)
 				.collect(Collectors.toList());
-		List<Integer> lineupList = entryEventLineupData.getLineup()
+		List<Integer> lineupList = entryEventSimulateTransfersData.getLineup()
 				.stream()
 				.map(EntryPickData::getElement)
 				.collect(Collectors.toList());
@@ -1573,25 +1594,27 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 			transfersOut = StringUtils.joinWith(",", transfersOut, o);
 		}
 		// upsert
-		EntryEventLineupEntity entryEventLineupEntity = new EntryEventLineupEntity()
-				.setEntry(entryEventLineupData.getEntry())
-				.setEvent(entryEventResultData.getEvent())
-				.setTeamValue(entryEventLineupData.getTeamValue())
-				.setBank(entryEventLineupData.getBank())
-				.setFreeTransfers(entryEventLineupData.getFreeTransfers())
+		EntryEventSimulateTransfersEntity entryEventSimulateTransfersEntity = new EntryEventSimulateTransfersEntity()
+				.setEntry(entryEventSimulateTransfersData.getEntry())
+				.setEvent(entryEventSimulateTransfersData.getEvent())
+				.setOperator(entryEventSimulateTransfersData.getOperator())
+				.setTeamValue(entryEventSimulateTransfersData.getTeamValue())
+				.setBank(entryEventSimulateTransfersData.getBank())
+				.setFreeTransfers(entryEventSimulateTransfersData.getFreeTransfers())
 				.setTransfers(transfersIns.size())
-				.setTransfersCost(entryEventLineupData.getTransfersCost())
+				.setTransfersCost(entryEventSimulateTransfersData.getTransfersCost())
 				.setTransfersIn(transfersIn)
 				.setTransfersOut(transfersOut)
-				.setLineup(JsonUtils.obj2json(entryEventLineupData.getLineup()));
-		EntryEventLineupEntity entryEventLineup = this.entryEventLineupService.getOne(new QueryWrapper<EntryEventLineupEntity>().lambda()
-				.eq(EntryEventLineupEntity::getEntry, entryEventLineupData.getEntry())
-				.eq(EntryEventLineupEntity::getEvent, entryEventLineupData.getEvent()));
-		if (entryEventLineup == null) {
-			this.entryEventLineupService.save(entryEventLineupEntity);
+				.setLineup(JsonUtils.obj2json(entryEventSimulateTransfersData.getLineup()));
+		EntryEventSimulateTransfersEntity entryEventSimulateTransfers = this.entryEventSimulateTransfersService.getOne(new QueryWrapper<EntryEventSimulateTransfersEntity>().lambda()
+				.eq(EntryEventSimulateTransfersEntity::getEntry, entryEventSimulateTransfersData.getEntry())
+				.eq(EntryEventSimulateTransfersEntity::getEvent, entryEventSimulateTransfersData.getEvent())
+				.eq(EntryEventSimulateTransfersEntity::getOperator, entryEventSimulateTransfersData.getOperator()));
+		if (entryEventSimulateTransfers == null) {
+			this.entryEventSimulateTransfersService.save(entryEventSimulateTransfersEntity);
 		} else {
-			entryEventLineupEntity.setId(entryEventLineup.getId());
-			this.entryEventLineupService.updateById(entryEventLineupEntity);
+			entryEventSimulateTransfersEntity.setId(entryEventSimulateTransfers.getId());
+			this.entryEventSimulateTransfersService.updateById(entryEventSimulateTransfersEntity);
 		}
 	}
 
