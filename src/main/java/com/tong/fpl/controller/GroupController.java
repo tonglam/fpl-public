@@ -141,8 +141,12 @@ public class GroupController {
 	 */
 	@RequestMapping("/qryEntryEventPlayerShowList")
 	@ResponseBody
-	public TableData<PlayerShowData> qryEntryEventPlayerShowList(@RequestParam int event) {
-		return this.groupApi.qryEntryEventPlayerShowList(event);
+	public TableData<PlayerShowData> qryEntryEventPlayerShowList(@RequestParam int event, HttpSession session) {
+		int operator = 0;
+		if (session.getAttribute("entry") != null) {
+			operator = Integer.parseInt(session.getAttribute("entry").toString());
+		}
+		return this.groupApi.qryOffiaccountEventPlayerShowList(event, operator);
 	}
 
 	@RequestMapping("/qrySortedEntryEventPlayerShowList")

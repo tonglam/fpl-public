@@ -203,7 +203,7 @@ public interface IQueryService {
 	EventLiveEntity qryEventLive(String season, int event, int element);
 
 	/**
-	 * @apiNote event_result
+	 * @apiNote entry_event_result
 	 */
 	List<EntryEventResultData> qryEntryResult(String season, int entry);
 
@@ -258,6 +258,8 @@ public interface IQueryService {
 	List<EntryEventAutoSubsData> qryLeagueEventAutoSubDataList(int event, int leagueId, String leagueType);
 
 	Map<Integer, Integer> qryEntryFreeTransfersMap(int entry);
+
+	String qryEntryEventPicks(int event, int entry, int operator);
 
 	/**
 	 * @apiNote league

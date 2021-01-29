@@ -107,8 +107,14 @@
         });
 
         $("#confirmButton").on('click', function () {
-            let lineup = [];
+            let lineup = [], captanSet = false, viceCaptainSet = false;
             $.each(table.cache['eventPickTable'], function (index, item) {
+                if (item.captain) {
+                    captanSet = true;
+                }
+                if (item.viceCaptain) {
+                    viceCaptainSet = true;
+                }
                 lineup.push({
                     element: item.element,
                     position: item.position,
@@ -116,10 +122,18 @@
                     multiplier: 1,
                     points: 0,
                     teamId: item.teamId,
-                    viceCaptain: item.viceCaptain,
-                    captain: item.captain
+                    captain: item.captain,
+                    viceCaptain: item.viceCaptain
                 });
             });
+            if (!captanSet) {
+                layer.msg('请设置队长', {time: 1000});
+                return false;
+            }
+            if (!viceCaptainSet) {
+                layer.msg('请设置队长', {time: 1000});
+                return false;
+            }
             let data = {};
             data.lineup = lineup;
             // 禁用提交按钮
@@ -128,6 +142,7 @@
             axios.post('/group/upsertEventPick', data)
                 .then(function (response) {
                     layer.msg(response, {time: 1500});
+                    window.location.replace("/group/pick");
                 })
                 .catch(function (error) {
                     console.info(error);
@@ -135,7 +150,7 @@
                 });
         });
 
-        axios.get('/group/qryEntryEventPlayerShowList?event=' + (parseInt(nextGw) - 1))
+        axios.get('/group/qryEntryEventPlayerShowList?event=' + parseInt(nextGw))
             .then(function (response) {
                 eventPickData = response.data;
                 table.render({

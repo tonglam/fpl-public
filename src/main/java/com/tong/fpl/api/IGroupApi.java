@@ -39,7 +39,7 @@ public interface IGroupApi {
 
 	List<PlayerPickData> qryOffiaccountPickList();
 
-	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event);
+	TableData<PlayerShowData> qryOffiaccountEventPlayerShowList(int event, int operator);
 
 	TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList);
 

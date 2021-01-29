@@ -70,6 +70,7 @@ public class QueryServiceImpl implements IQueryService {
 	private final EntryEventSimulatePickService entryEventSimulatePickService;
 	private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
 	private final EntryEventResultService entryEventResultService;
+	private final EntryEventTransfersService entryEventTransfersService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
@@ -788,7 +789,7 @@ public class QueryServiceImpl implements IQueryService {
 	}
 
 	/**
-	 * @implNote event_result
+	 * @implNote entry_event_result
 	 */
 	@Cacheable(value = "qryEntryResult", key = "#season+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")
 	@Override
@@ -1534,7 +1535,7 @@ public class QueryServiceImpl implements IQueryService {
 		return list;
 	}
 
-	//	@Cacheable(value = "qryEntryFreeTransfersMap", key = "#event+'::'+#entry")
+	@Cacheable(value = "qryEntryFreeTransfersMap", key = "#event+'::'+#entry")
 	@Override
 	public Map<Integer, Integer> qryEntryFreeTransfersMap(int entry) {
 		Map<Integer, Integer> map = Maps.newHashMap();
@@ -1546,6 +1547,15 @@ public class QueryServiceImpl implements IQueryService {
 				.stream()
 				.filter(o -> !StringUtils.equals(o.getEventChip(), Chip.NONE.getValue()))
 				.collect(Collectors.toMap(EntryEventResultEntity::getEvent, EntryEventResultEntity::getEventChip));
+		Map<Integer, Integer> eventTransfersMap = entryEventResultList
+				.stream()
+				.filter(o -> o.getEventTransfers() > 0)
+				.collect(Collectors.toMap(EntryEventResultEntity::getEvent, EntryEventResultEntity::getEventTransfers));
+		List<Integer> eventCostList = entryEventResultList
+				.stream()
+				.filter(o -> o.getEventTransfersCost() > 0)
+				.map(EntryEventResultEntity::getEvent)
+				.collect(Collectors.toList());
 		List<Integer> eventList = entryEventResultList
 				.stream()
 				.map(EntryEventResultEntity::getEvent)
@@ -1554,20 +1564,54 @@ public class QueryServiceImpl implements IQueryService {
 		eventList.add(eventList.get(eventList.size() - 1) + 1);
 		// calc
 		eventList.forEach(event -> {
+			// 开卡周无限转会
 			if (event == startEvent || (eventChipMap.containsKey(event) && (StringUtils.equals(eventChipMap.get(event), Chip.WC.getValue()) || StringUtils.equals(eventChipMap.get(event), Chip.FH.getValue())))) {
 				map.put(event, 99);
 				return;
 			}
-			int freeTransfers = map.getOrDefault(event - 1, 0) + 1;
-			if (freeTransfers > 2) {
-				freeTransfers = 1;
+			// 上周开卡或者扣分，本周必为1次
+			if ((eventChipMap.containsKey(event - 1) && (StringUtils.equals(eventChipMap.get(event - 1), Chip.WC.getValue()) || StringUtils.equals(eventChipMap.get(event - 1), Chip.FH.getValue())))
+					|| (eventCostList.contains(event - 1))) {
+				map.put(event, 1);
+				return;
 			}
-			if (eventChipMap.containsKey(event - 1) && (StringUtils.equals(eventChipMap.get(event - 1), Chip.WC.getValue()) || StringUtils.equals(eventChipMap.get(event - 1), Chip.FH.getValue()))) {
+			// 上周剩余，加一次，减去本周转会数
+			int freeTransfers = map.getOrDefault(event - 1, 0) + 1 - eventTransfersMap.getOrDefault(event, 0);
+			if (freeTransfers < 0) {
+				freeTransfers = 0;
+			}
+			if (freeTransfers > 2) {
 				freeTransfers = 1;
 			}
 			map.put(event, freeTransfers);
 		});
 		return map;
+	}
+
+	// do not cache
+	@Override
+	public String qryEntryEventPicks(int event, int entry, int operator) {
+		EntryEventSimulatePickEntity entryEventSimulatePickEntity = this.entryEventSimulatePickService.getOne(new QueryWrapper<EntryEventSimulatePickEntity>().lambda()
+				.eq(EntryEventSimulatePickEntity::getEntry, entry)
+				.eq(EntryEventSimulatePickEntity::getEvent, event)
+				.eq(EntryEventSimulatePickEntity::getOperator, operator));
+		if (entryEventSimulatePickEntity != null) {
+			return entryEventSimulatePickEntity.getLineup();
+		}
+		EntryEventSimulateTransfersEntity entryEventSimulateTransfersEntity = this.entryEventSimulateTransfersService.getOne(new QueryWrapper<EntryEventSimulateTransfersEntity>().lambda()
+				.eq(EntryEventSimulateTransfersEntity::getEntry, entry)
+				.eq(EntryEventSimulateTransfersEntity::getEvent, event)
+				.eq(EntryEventSimulateTransfersEntity::getOperator, operator));
+		if (entryEventSimulateTransfersEntity != null) {
+			return entryEventSimulateTransfersEntity.getLineup();
+		}
+		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEntry, entry)
+				.eq(EntryEventResultEntity::getEvent, event - 1));
+		if (entryEventResultEntity != null) {
+			return entryEventResultEntity.getEventPicks();
+		}
+		return "";
 	}
 
 	/**
@@ -2484,30 +2528,6 @@ public class QueryServiceImpl implements IQueryService {
 					.setPlayerName(entryInfoEntity.getPlayerName());
 		}
 		return playerPickData;
-	}
-
-	private String qryEntryEventPicks(int event, int entry, int operator) {
-		EntryEventSimulatePickEntity entryEventSimulatePickEntity = this.entryEventSimulatePickService.getOne(new QueryWrapper<EntryEventSimulatePickEntity>().lambda()
-				.eq(EntryEventSimulatePickEntity::getEntry, entry)
-				.eq(EntryEventSimulatePickEntity::getEvent, event)
-				.eq(EntryEventSimulatePickEntity::getOperator, operator));
-		if (entryEventSimulatePickEntity != null) {
-			return entryEventSimulatePickEntity.getLineup();
-		}
-		EntryEventSimulateTransfersEntity entryEventSimulateTransfersEntity = this.entryEventSimulateTransfersService.getOne(new QueryWrapper<EntryEventSimulateTransfersEntity>().lambda()
-				.eq(EntryEventSimulateTransfersEntity::getEntry, entry)
-				.eq(EntryEventSimulateTransfersEntity::getEvent, event)
-				.eq(EntryEventSimulateTransfersEntity::getOperator, operator));
-		if (entryEventSimulateTransfersEntity != null) {
-			return entryEventSimulateTransfersEntity.getLineup();
-		}
-		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-				.eq(EntryEventResultEntity::getEntry, entry)
-				.eq(EntryEventResultEntity::getEvent, event - 1));
-		if (entryEventResultEntity != null) {
-			return entryEventResultEntity.getEventPicks();
-		}
-		return "";
 	}
 
 }

@@ -176,32 +176,21 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		);
 	}
 
-	@Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry")
-	@Override
-	public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry) {
-		// TODO: 2021/1/28 先查，再查，最后查
-		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-				.eq(EntryEventResultEntity::getEntry, entry)
-				.eq(EntryEventResultEntity::getEvent, event));
-		if (entryEventResultEntity == null) {
-			return new TableData<>();
-		}
-		if (StringUtils.equals(entryEventResultEntity.getEventChip(), Chip.FH.getValue())) {
-			entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-					.eq(EntryEventResultEntity::getEntry, entry)
-					.eq(EntryEventResultEntity::getEvent, event - 1));
-		}
-		Map<Integer, EntryPickData> pickMap = this.queryService.qryPickListFromPicks(entryEventResultEntity.getEventPicks())
-				.stream()
-				.collect(Collectors.toMap(EntryPickData::getElement, o -> o));
-		if (CollectionUtils.isEmpty(pickMap)) {
-			return new TableData<>();
-		}
-		List<Integer> elementList = pickMap.values()
-				.stream()
-				.map(EntryPickData::getElement)
-				.collect(Collectors.toList());
-		// prepare
+//	@Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry+'::'+#operator")
+@Override
+public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry, int operator) {
+	String picks = this.queryService.qryEntryEventPicks(event, entry, operator);
+	Map<Integer, EntryPickData> pickMap = this.queryService.qryPickListFromPicks(picks)
+			.stream()
+			.collect(Collectors.toMap(EntryPickData::getElement, o -> o));
+	if (CollectionUtils.isEmpty(pickMap)) {
+		return new TableData<>();
+	}
+	List<Integer> elementList = pickMap.values()
+			.stream()
+			.map(EntryPickData::getElement)
+			.collect(Collectors.toList());
+	// prepare
 		Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()

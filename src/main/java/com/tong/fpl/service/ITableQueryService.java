@@ -36,7 +36,7 @@ public interface ITableQueryService {
 
 	TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
 
-	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry);
+	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry, int operator);
 
 	TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList);
 

@@ -105,8 +105,8 @@ public class GroupApiImpl implements IGroupApi {
 	}
 
 	@Override
-	public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event) {
-		return this.tableQueryService.qryEntryEventPlayerShowList(event, FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+	public TableData<PlayerShowData> qryOffiaccountEventPlayerShowList(int event, int operator) {
+		return this.tableQueryService.qryEntryEventPlayerShowList(event, FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()), operator);
 	}
 
 	@Override
