@@ -187,6 +187,12 @@ public interface IQueryService {
 
 	Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
 
+	default Map<Integer, Map<String, List<PlayerFixtureData>>> getTeamEventFixtureMap() {
+		return this.getTeamEventFixtureMap(CommonUtils.getCurrentSeason());
+	}
+
+	Map<Integer, Map<String, List<PlayerFixtureData>>> getTeamEventFixtureMap(String season);
+
 	List<TournamentGroupFixtureData> qryGroupFixtureListById(int tournamentId);
 
 	List<TournamentKnockoutFixtureData> qryKnockoutFixtureListById(int tournamentId);

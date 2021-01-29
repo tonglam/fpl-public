@@ -49,6 +49,8 @@ public class DBTest extends FplApplicationTests {
 	private LeagueEventReportService leagueEventReportService;
 	@Autowired
 	private ScoutService scoutService;
+	@Autowired
+	private EntryEventSimulatePickService entryEventSimulatePickService;
 
 	@Test
 	void test() {
@@ -158,6 +160,19 @@ public class DBTest extends FplApplicationTests {
 	void groupByElementType() {
 		List<PlayerPickData> dataList = Lists.newArrayList();
 		IntStream.rangeClosed(1, 16).forEach(event -> dataList.add(this.querySerivce.qryEntryPickData(event, 1870)));
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"21, 4074865, 1870"})
+	void entryEventSimulatePick(int event, int entry, int operator) {
+		long start = System.currentTimeMillis();
+		EntryEventSimulatePickEntity entryEventSimulatePickEntity = this.entryEventSimulatePickService.getOne(new QueryWrapper<EntryEventSimulatePickEntity>().lambda()
+				.eq(EntryEventSimulatePickEntity::getEntry, entry)
+				.eq(EntryEventSimulatePickEntity::getEvent, event)
+				.eq(EntryEventSimulatePickEntity::getOperator, operator));
+		long end = System.currentTimeMillis();
+		System.out.println("escaped: " + (end - start));
 		System.out.println(1);
 	}
 

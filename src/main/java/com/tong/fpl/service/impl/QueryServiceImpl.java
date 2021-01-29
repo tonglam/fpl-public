@@ -70,7 +70,6 @@ public class QueryServiceImpl implements IQueryService {
 	private final EntryEventSimulatePickService entryEventSimulatePickService;
 	private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
 	private final EntryEventResultService entryEventResultService;
-	private final EntryEventTransfersService entryEventTransfersService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
@@ -240,19 +239,16 @@ public class QueryServiceImpl implements IQueryService {
 		return list;
 	}
 
-	@Cacheable(value = "getPlayerByElement", key = "#season+'::'+#element", unless = "#result == null")
 	@Override
 	public PlayerEntity getPlayerByElement(String season, int element) {
 		return this.redisCacheService.getPlayerByElement(season, element);
 	}
 
-	@Cacheable(value = "getPlayerStatByElement", key = "#season+'::'+#element", unless = "#result == null")
 	@Override
 	public PlayerStatEntity getPlayerStatByElement(String season, int element) {
 		return this.redisCacheService.getPlayerStatByElement(season, element);
 	}
 
-	@Cacheable(value = "getPlayerValueByChangeDay", key = "#changeDay", unless = "#result == null")
 	@Override
 	public List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay) {
 		return this.redisCacheService.getPlayerValueByChangeDay(changeDay);
@@ -410,7 +406,7 @@ public class QueryServiceImpl implements IQueryService {
 	/**
 	 * @implNote entry
 	 */
-	@Cacheable(value = "qryEntryInfo", key = "#season+'::'+#entry", unless = "#result == null")
+	@Cacheable(value = "qryEntryInfo", key = "#season+'::'+#entry")
 	@Override
 	public EntryInfoEntity qryEntryInfo(String season, int entry) {
 		if (entry <= 0) {
@@ -596,13 +592,11 @@ public class QueryServiceImpl implements IQueryService {
 	/**
 	 * @implNote team
 	 */
-	@Cacheable(value = "getTeamNameMap", key = "#season", unless = "#result == null")
 	@Override
 	public Map<String, String> getTeamNameMap(String season) {
 		return this.redisCacheService.getTeamNameMap(season);
 	}
 
-	@Cacheable(value = "getTeamShortNameMap", key = "#season", unless = "#result == null")
 	@Override
 	public Map<String, String> getTeamShortNameMap(String season) {
 		return this.redisCacheService.getTeamShortNameMap(season);
@@ -611,16 +605,20 @@ public class QueryServiceImpl implements IQueryService {
 	/**
 	 * @implNote fixture
 	 */
-	@Cacheable(value = "getEventFixtureByEvent", key = "#season+'::'+#event", unless = "#result == null")
 	@Override
 	public List<EventFixtureEntity> getEventFixtureByEvent(String season, int event) {
 		return this.redisCacheService.getEventFixtureByEvent(season, event);
 	}
 
-	@Cacheable(value = "getEventFixtureByTeamId", key = "#season+'::'+#teamId", unless = "#result == null")
 	@Override
 	public Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId) {
 		return this.redisCacheService.getEventFixtureByTeamId(season, teamId);
+	}
+
+	@Cacheable(value = "getTeamEventFixtureMap", key = "#season")
+	@Override
+	public Map<Integer, Map<String, List<PlayerFixtureData>>> getTeamEventFixtureMap(String season) {
+		return this.redisCacheService.getTeamEventFixtureMap(season);
 	}
 
 	@Cacheable(value = "qryGroupFixtureListById", key = "#tournamentId", unless = "#result.size() eq 0")
@@ -1625,7 +1623,6 @@ public class QueryServiceImpl implements IQueryService {
 				: this.staticService.getEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name())).size();
 	}
 
-	@Cacheable(value = "qryLeagueMap", key = "#event")
 	@Override
 	public Map<String, String> qryLeagueMap(int event) {
 		return this.qryAllTournamentList()
@@ -1660,7 +1657,6 @@ public class QueryServiceImpl implements IQueryService {
 		return tournamentInfoData;
 	}
 
-	@Cacheable(cacheNames = "tournamentInfoEntity", key = "#tournamentId")
 	@Override
 	public TournamentInfoEntity qryTournamentInfoById(int tournamentId) {
 		return this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
@@ -1668,7 +1664,6 @@ public class QueryServiceImpl implements IQueryService {
 				.eq(TournamentInfoEntity::getState, 1));
 	}
 
-	@Cacheable(value = "qryEntryListByTournament", key = "#tournamentId", unless = "#result.size() gt 0")
 	@Override
 	public List<Integer> qryEntryListByTournament(int tournamentId) {
 		return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
@@ -2515,7 +2510,6 @@ public class QueryServiceImpl implements IQueryService {
 	 */
 	@Override
 	public PlayerPickData qryEntryEventPickData(int event, int entry, int operator) {
-		// 先查entry_event_simulate_pick，再查entry_event_simulate_transfers,最后查entry_event_result
 		String picks = this.qryEntryEventPicks(event, entry, operator);
 		PlayerPickData playerPickData = this.qryPickListByPosition(picks);
 		playerPickData

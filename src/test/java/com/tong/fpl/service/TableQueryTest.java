@@ -168,7 +168,7 @@ public class TableQueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"17, 4074865, 1870"})
+	@CsvSource({"21, 4074865, 1870"})
 	void qryEntryEventPlayerShowList(int event, int entry, int operator) {
 		long start = System.currentTimeMillis();
 		TableData<PlayerShowData> data = this.tableQueryService.qryEntryEventPlayerShowList(event, entry, operator);

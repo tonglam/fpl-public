@@ -208,6 +208,12 @@ public class RedisCacheTest extends FplApplicationTests {
 	}
 
 	@Test
+	void getTeamEventFixtureMap() {
+		Map<Integer, Map<String, List<PlayerFixtureData>>> map = this.redisCacheSerive.getTeamEventFixtureMap("2021");
+		System.out.println(1);
+	}
+
+	@Test
 	void redis() {
 		String key = "scoutEntry";
 		Map<Object, Object> map = RedisUtils.getHashByKey(key);

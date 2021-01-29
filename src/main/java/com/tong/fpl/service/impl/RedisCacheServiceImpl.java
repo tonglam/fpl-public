@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -312,10 +313,11 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 	@Override
 	public void insertLiveFixtureCache() {
 		Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+		String season = CommonUtils.getCurrentSeason();
 		int event = this.getCurrentEvent();
-		Table<Integer, MatchPlayStatus, List<LiveFixtureData>> table = this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event)
+		Table<Integer, MatchPlayStatus, List<LiveFixtureData>> table = this.getEventFixtureByEvent(season, event)
 				.stream()
-				.collect(new LiveFixtureCollector(this.getTeamNameMap(), this.getTeamShortNameMap()));
+				.collect(new LiveFixtureCollector(this.getTeamNameMap(season), this.getTeamShortNameMap(season)));
 		Map<String, Object> valueMap = Maps.newHashMap();
 		table.rowKeySet().forEach(teamId -> {
 			Map<MatchPlayStatus, List<LiveFixtureData>> map = Maps.newHashMap();
@@ -765,9 +767,10 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 
 	@Override
 	public int getCurrentEvent() {
+		String season = CommonUtils.getCurrentSeason();
 		int event = 1;
 		for (int i = 1; i < 39; i++) {
-			String deadline = this.getDeadlineByEvent(i);
+			String deadline = this.getDeadlineByEvent(season, i);
 			if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
 				event = i;
 			} else {
@@ -775,20 +778,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 			}
 		}
 		return event;
-	}
-
-	@Override
-	public int getNextEvent() {
-		int event = 1;
-		for (int i = 1; i < 39; i++) {
-			String deadline = this.getDeadlineByEvent(i);
-			if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
-				event = i;
-			} else {
-				break;
-			}
-		}
-		return event + 1;
 	}
 
 	private String getChangeType(int nowCost, int lastCost) {
@@ -867,6 +856,23 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 		Map<String, List<PlayerFixtureData>> map = Maps.newHashMap();
 		String key = StringUtils.joinWith("::", EventFixtureEntity.class.getSimpleName(), season, "teamId", teamId);
 		this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(String.valueOf(k), v == null ? Lists.newArrayList() : (List<PlayerFixtureData>) v));
+		return map;
+	}
+
+	@Override
+	public Map<Integer, Map<String, List<PlayerFixtureData>>> getTeamEventFixtureMap(String season) {
+		Map<Integer, Map<String, List<PlayerFixtureData>>> map = Maps.newHashMap();
+		List<Integer> teamList = Lists.newArrayList();
+		IntStream.rangeClosed(1, 20).forEach(teamList::add);
+		this.redisTemplate.executePipelined((RedisCallback<Object>) redisConnection -> {
+			teamList.forEach(teamId -> {
+				String key = StringUtils.joinWith("::", EventFixtureEntity.class.getSimpleName(), season, "teamId", teamId);
+				Map<String, List<PlayerFixtureData>> teamMap = Maps.newHashMap();
+				redisTemplate.opsForHash().entries(key).forEach((k, v) -> teamMap.put(String.valueOf(k), v == null ? Lists.newArrayList() : (List<PlayerFixtureData>) v));
+				map.put(teamId, teamMap);
+			});
+			return null;
+		});
 		return map;
 	}
 

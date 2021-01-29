@@ -221,7 +221,6 @@ public class LiveService implements ILiveService {
 				.setLivePoints(livePoints)
 				.setTransferCost(userPicksRes.getEntryHistory().getEventTransfersCost())
 				.setLiveNetPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost())
-				.setLiveTotalPoints(livePoints - userPicksRes.getEntryHistory().getEventTransfersCost())
 				.setPlayed(
 						(int) pickList
 								.stream()

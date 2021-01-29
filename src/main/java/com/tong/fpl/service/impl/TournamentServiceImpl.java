@@ -8,6 +8,7 @@ import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.constant.enums.TournamentMode;
 import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.event.CreateZjTournamentEventData;
@@ -1040,9 +1041,11 @@ public class TournamentServiceImpl implements ITournamentService {
 		// save new entry_info
 		List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
 		newEntryInfoList.parallelStream().forEach(entryInfoEntity -> {
-			Optional<EntryRes> entryRes = this.staticService.getEntry(entryInfoEntity.getEntry());
-			entryRes.ifPresent(o -> entryInfoEntityList.add(new EntryInfoEntity()
-							.setEntry(entryInfoEntity.getEntry())
+			int entry = entryInfoEntity.getEntry();
+			EntryInfoEntity newEntryInfoEntity = new EntryInfoEntity().setEntry(entry);
+			Optional<EntryRes> entryRes = this.staticService.getEntry(entry);
+			entryRes.ifPresent(o ->
+					newEntryInfoEntity
 							.setEntryName(o.getName())
 							.setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
 							.setRegion(o.getPlayerRegionName())
@@ -1052,11 +1055,15 @@ public class TournamentServiceImpl implements ITournamentService {
 							.setBank(o.getLastDeadlineBank())
 							.setTeamValue(o.getLastDeadlineValue())
 							.setTotalTransfers(o.getLastDeadlineTotalTransfers())
-							.setLastOverallPoints(o.getSummaryOverallPoints())
-							.setLastOverallRank(o.getSummaryOverallRank())
 							.setLastTeamValue(o.getLastDeadlineValue())
-					)
 			);
+			Optional<UserPicksRes> userPicksRes = this.staticService.getUserPicks(this.queryService.getLastEvent(), entry);
+			userPicksRes.ifPresent(o ->
+					newEntryInfoEntity
+							.setLastOverallPoints(o.getEntryHistory().getTotalPoints())
+							.setLastOverallRank(o.getEntryHistory().getOverallRank())
+			);
+			entryInfoEntityList.add(newEntryInfoEntity);
 		});
 		this.entryInfoService.saveOrUpdateBatch(entryInfoEntityList);
 		// save tournament_entry

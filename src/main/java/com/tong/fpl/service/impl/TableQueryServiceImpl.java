@@ -176,21 +176,21 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		);
 	}
 
-//	@Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry+'::'+#operator")
-@Override
-public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry, int operator) {
-	String picks = this.queryService.qryEntryEventPicks(event, entry, operator);
-	Map<Integer, EntryPickData> pickMap = this.queryService.qryPickListFromPicks(picks)
-			.stream()
-			.collect(Collectors.toMap(EntryPickData::getElement, o -> o));
-	if (CollectionUtils.isEmpty(pickMap)) {
-		return new TableData<>();
-	}
-	List<Integer> elementList = pickMap.values()
-			.stream()
-			.map(EntryPickData::getElement)
-			.collect(Collectors.toList());
-	// prepare
+	@Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry+'::'+#operator")
+	@Override
+	public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry, int operator) {
+		String picks = this.queryService.qryEntryEventPicks(event, entry, operator);
+		Map<Integer, EntryPickData> pickMap = this.queryService.qryPickListFromPicks(picks)
+				.stream()
+				.collect(Collectors.toMap(EntryPickData::getElement, o -> o));
+		if (CollectionUtils.isEmpty(pickMap)) {
+			return new TableData<>();
+		}
+		List<Integer> elementList = pickMap.values()
+				.stream()
+				.map(EntryPickData::getElement)
+				.collect(Collectors.toList());
+		// prepare
 		Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
@@ -209,8 +209,7 @@ public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entr
 				});
 		Multimap<Integer, EventLiveEntity> eventLiveMap = HashMultimap.create();
 		this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
-		Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap = Maps.newHashMap(); // teamId -> event -> fixtures
-		IntStream.rangeClosed(1, 20).forEach(teamId -> teamFixtureMap.put(teamId, this.queryService.getEventFixtureByTeamId(teamId)));
+		Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap = this.queryService.getTeamEventFixtureMap();
 		// collect
 		List<CompletableFuture<PlayerShowData>> future = pickMap.keySet()
 				.stream()
