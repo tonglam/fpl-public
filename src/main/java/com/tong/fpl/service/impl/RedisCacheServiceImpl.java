@@ -841,7 +841,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 	@Override
 	public String getUtcDeadlineByEvent(String season, int event) {
 		String key = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), season);
-		return CommonUtils.getZoneDate((String) this.redisTemplate.opsForHash().get(key, String.valueOf(event)));
+		return (String) this.redisTemplate.opsForHash().get(key, String.valueOf(event));
 	}
 
 	@Override
