@@ -176,7 +176,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		);
 	}
 
-	@Cacheable(value = "qryEntryPlayerShowList", key = "#event+'::'+#entry+'::'+#operator")
+	// do not cache
 	@Override
 	public TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry, int operator) {
 		String picks = this.queryService.qryEntryEventPicks(event, entry, operator);
