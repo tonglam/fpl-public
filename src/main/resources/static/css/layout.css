@@ -290,7 +290,7 @@ h1, h2, h3 {
 }
 
 /* 适配多设备 */
-@media screen and (max-width: 750px) {
+@media screen and (max-width: 1200px) {
     .layui-main {
         width: auto;
         margin: 0 10px;

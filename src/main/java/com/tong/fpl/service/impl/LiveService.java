@@ -230,7 +230,7 @@ public class LiveService implements ILiveService {
 				.setToPlay(
 						(int) pickList
 								.stream()
-								.filter(o -> o.isPickActive() && !o.isPlayed())
+								.filter(o -> o.isPickActive() && !o.isGwStarted() && !o.isGwFinished())
 								.count()
 				)
 				.setCaptainName(

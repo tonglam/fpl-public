@@ -172,11 +172,16 @@
     {{#  } }}
 </script>
 
+<script id="switchTpl" type="text/html">
+    <input type="checkbox" name="automaticCaptions" value="{{d.automaticCaptions}}" lay-skin="switch" lay-text="有|无"
+           lay-filter="automaticCaptions" {{ d.automaticCaptions== true ? 'checked' : '' }}>
+</script>
+
 <script th:inline="none">
-    layui.use(['form', 'layer', 'laydate', 'table', 'soulTable', 'upload'], function () {
+    layui.use(['form', 'layer', 'laydate', 'table', 'tableEdit', 'soulTable', 'upload'], function () {
 
         let $ = layui.$, form = layui.form, layer = layui.layer, laydate = layui.laydate, table = layui.table,
-            soulTable = layui.soulTable, upload = layui.upload;
+            tableEdit = layui.tableEdit, soulTable = layui.soulTable, upload = layui.upload;
 
         laydate.render({
             elem: 'input[name=startDay]',
@@ -201,6 +206,11 @@
 
         let statusEnum = ["已接活", "已翻译", "已校对", "已拉轴", "已压制", "已填表", "已结算"];
 
+        let statusSelect = [{name: undefined, value: ""}, {name: 1, value: "张三1"}, {name: 2, value: "张三2"}, {
+            name: 3,
+            value: "张三3"
+        }, {name: 4, value: "张三4"}, {name: 5, value: "张三5"}];
+
         let subtitleTable, qryParam = {
             title: $("input[name=title]").val(),
             mode: $("select[name=mode]").val(),
@@ -220,28 +230,24 @@
                     limit: 100,
                     cellMinWidth: 80,
                     cols: [[
-                        {field: 'title', title: '视频标题', align: 'center', width: 400, edit: true},
+                        {fix: 'left', field: 'title', title: '视频标题', align: 'center', width: 400, edit: true},
                         {field: 'length', title: '时长(s)', align: 'center', edit: true},
                         {
                             field: 'automaticCaptions',
-                            title: '自动字幕',
+                            title: '字幕',
                             align: 'center',
-                            templet: function (d) {
-                                if (!d.automaticCaptions) {
-                                    return "<select name='captionsSelect' lay-filter='captionsSelect'>" +
-                                        "<option value='否'>否</option>" +
-                                        "<option value='是'>是</option>" +
-                                        "</select>";
-                                } else {
-                                    return "<select name='captionsSelect' lay-filter='captionsSelect'>" +
-                                        "<option value='是'>是</option>" +
-                                        "<option value='否'>否</option>" +
-                                        "</select>";
-                                }
-                            }
+                            templet: '#switchTpl',
+                            unresize: true
                         },
                         {field: 'translator', title: '翻译', align: 'center', edit: true, filter: true},
-                        {field: 'jobDate', title: '接活日期', align: 'center', width: 120, edit: true, filter: true},
+                        {
+                            field: 'jobDate',
+                            title: '接活',
+                            align: 'center',
+                            width: 120,
+                            event: 'jobDate',
+                            filter: true
+                        },
                         {field: 'proofreader', title: '校对', align: 'center', edit: true, filter: true},
                         {field: 'proportion', title: '占比', align: 'center', width: 60, edit: true},
                         {
@@ -273,38 +279,36 @@
                             field: 'status',
                             title: '状态',
                             align: 'center',
+                            event: 'status',
                             width: 90,
+                            config: {type: 'select', data: statusSelect, verify: true},
                             templet: function (d) {
-                                let select = "<select name='statusSelect' lay-filter='statusSelect'>";
-                                if (d.status != null) {
-                                    select += "<option value=" + d.status + ">" + d.status + "</option>";
-                                    $.each(statusEnum, function (index, item) {
-                                        if (item !== d.status) {
-                                            select += "<option value=" + item + ">" + item + "</option>";
-                                        }
-                                    })
-                                } else {
-                                    $.each(statusEnum, function (index, item) {
-                                        select += "<option value=" + item + ">" + item + "</option>";
-                                    })
+                                if (d.status) {
+                                    if (d.status.value) {
+                                        return d.status.value;
+                                    }
+                                    return d.status;
                                 }
-                                select += "</select>";
-                                return select;
+                                return ''
                             }
                         },
-                        {field: 'finishDate', title: '完成日期', align: 'center', width: 120, edit: true, filter: true},
+                        {field: 'finishDate', title: '完成', align: 'center', width: 120, edit: true, filter: true},
                         {fixed: 'right', title: '操作', align: 'center', width: 108, toolbar: '#barTpl'}
                     ]],
-                    id: 'subtitleTable',
                     filter: {
                         items: ['data'],
                         bottom: false
                     },
+                    id: 'subtitleTable',
                     done: function () {
                         soulTable.render(this);
                     }
                 });
-            })
+
+                let aopTable = tableEdit.aopObj(subtitleTable.config.cols);
+
+            });
+
 
         $("#search").on('click', function () {
             qryParam = {
