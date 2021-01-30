@@ -380,7 +380,7 @@ public class LiveService implements ILiveService {
                 BeanUtil.copyProperties(eventLiveEntity, elementEventResultData, CopyOptions.create().ignoreNullValue());
                 // calc total point
                 elementEventResultData.setTotalPoints(elementEventResultData.isDgw() ? eventLiveEntity.getTotalPoints() : this.calcElementLivePoints(eventLiveEntity));
-                // calc olayed
+                // calc played
                 elementEventResultData.setPlayed(elementEventResultData.getMinutes() > 0 || elementEventResultData.getYellowCards() > 0 || elementEventResultData.getRedCards() > 0);
                 this.setEventLiveBonusData(elementEventResultData, liveBonusTable);
             }
