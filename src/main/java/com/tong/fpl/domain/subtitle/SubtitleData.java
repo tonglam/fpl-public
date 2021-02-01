@@ -13,7 +13,7 @@ public class SubtitleData {
     private int id;
     private String title;
     private String jobType;
-    private String vedioType;
+    private String videoType;
     private int length;
     private boolean automaticCaptions;
     private String translator;

@@ -201,13 +201,16 @@ public class MatchDayTask {
 				.forEach(tournamentId -> this.updateEventResultsService.updateEntryEventTransfersPlayed(event, tournamentId));
 	}
 
-//	@Scheduled(cron = "0 30 9,11 * * *")
-//	public void updateAllEventResult() {
-//		int event = this.queryService.getCurrentEvent();
-//		if (!this.queryService.isMatchDay(event)) {
-//			return;
-//		}
-//		this.updateEventResultsService.updateAllEventResult(event);
-//	}
+	@Scheduled(cron = "0 40 9,11 * * *")
+	public void updateTournamentEventTransfersPlayed() {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isMatchDay(event)) {
+			return;
+		}
+		this.queryService.qryAllTournamentList()
+				.stream()
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> this.updateEventResultsService.updateTournamentEventTransfersPlayed(event, tournamentId));
+	}
 
 }

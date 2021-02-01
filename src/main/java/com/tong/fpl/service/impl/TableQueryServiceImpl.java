@@ -461,10 +461,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	/**
 	 * @implNote tournament
 	 */
-	@Cacheable(value = "qryTournamentList", key = "#param.entry", unless = "#result.data.size() == 0")
+//	@Cacheable(value = "qryTournamentList", key = "#param.entry", unless = "#result.data.size() == 0")
 	@Override
 	public TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param) {
 		List<TournamentInfoData> list = Lists.newArrayList();
+		if (param.getEntry() <= 0) {
+			return new TableData<>(list);
+		}
 		// get tournament info
 		LambdaQueryWrapper<TournamentInfoEntity> queryWrapper = new QueryWrapper<TournamentInfoEntity>().lambda();
 		if (param.getEntry() > 0) {

@@ -9,10 +9,8 @@ import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.PlayerShowData;
-import com.tong.fpl.domain.letletme.tournament.TournamentBattleGroupEventResultData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupData;
-import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
-import com.tong.fpl.domain.letletme.tournament.ZjTournamentResultData;
+import com.tong.fpl.domain.letletme.tournament.*;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,6 +179,16 @@ public class TableQueryTest extends FplApplicationTests {
 	@CsvSource({"18, 4074865"})
 	void qryEntryEventPlayerShowListForTransfers(int event, int entry) {
 		TableData<PlayerShowData> data = this.tableQueryService.qryEntryEventPlayerShowListForTransfers(event, entry);
+		System.out.println(1);
+	}
+
+	@Test
+	void qryTournamentList() {
+		TournamentQueryParam param = new TournamentQueryParam()
+				.setEntry(0)
+				.setLeagueId(0)
+				.setSeason("2021");
+		TableData<TournamentInfoData> data = this.tableQueryService.qryTournamentList(param);
 		System.out.println(1);
 	}
 

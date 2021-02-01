@@ -650,8 +650,13 @@
                                 if (item.elementOut !== elementOut) {
                                     newData.push(item);
                                 } else {
-                                    let elementOutPrice = item.elementOutPrice,
+                                    let elementOutPrice = item.elementOutPrice, freeTransfersDom = $("#freeTransfers"),
+                                        freeTransfers = parseInt(freeTransfersDom.text()),
                                         newBank = numSub(numAdd(bankDom.text(), obj.row.elementInPrice), elementOutPrice);
+                                    if (freeTransfers < 2) {
+                                        freeTransfersDom.text(freeTransfers + 1);
+                                        $("#freeTransfersStr").text('免费转会：' + (freeTransfers + 1));
+                                    }
                                     bankDom.text(newBank);
                                     $("#bankStr").text('余额：' + newBank + 'm');
                                 }

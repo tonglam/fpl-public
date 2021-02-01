@@ -19,7 +19,7 @@ public class SubtitleEntity {
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
     private String jobType;
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-    private String vedioType;
+    private String videoType;
     private Integer length;
     private Boolean automaticCaptions;
     private String translator;
