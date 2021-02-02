@@ -311,11 +311,10 @@ public class QueryServiceImpl implements IQueryService {
 					.setInDreamteam(playerStatEntity.getInDreamteam());
 		}
 		// fixture
-		int startEvent = event + 1;
-		if (startEvent > 38) {
+		if (event > 38) {
 			return data;
 		}
-		int endEvent = startEvent + 4;
+		int endEvent = event + 5;
 		if (endEvent > 38) {
 			endEvent = 38;
 		}
@@ -324,7 +323,7 @@ public class QueryServiceImpl implements IQueryService {
 			return data;
 		}
 		List<PlayerFixtureData> teamEventFixtureList = Lists.newArrayList();
-		for (int i = startEvent; i < endEvent + 1; i++) {
+		for (int i = event; i < endEvent + 1; i++) {
 			if (teamEventFixtureMap.containsKey(String.valueOf(i))) {
 				List<PlayerFixtureData> eventFixtureList = teamEventFixtureMap.get(String.valueOf(i));
 				if (eventFixtureList.size() == 1) {

@@ -264,7 +264,7 @@
                             title: '对阵',
                             align: 'center',
                             templet: function (d) {
-                                return showDifficulty(d.fixtureList[1].againstTeamShortName, d.fixtureList[1].difficulty, d.fixtureList[1].event, d.fixtureList[1].wasHome);
+                                return showDifficulty(d.fixtureList[0].againstTeamShortName, d.fixtureList[0].difficulty, d.fixtureList[0].event, d.fixtureList[0].wasHome);
                             }
                         },
                         {field: 'totalPoints', title: '总分', align: 'center', rowspan: 2},
