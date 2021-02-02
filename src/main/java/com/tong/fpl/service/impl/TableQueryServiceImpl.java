@@ -2801,7 +2801,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		return current == 1;
 	}
 
-	@Cacheable(value = "qryEventScoutPickList", key = "#event")
 	@Override
 	public TableData<ScoutData> qryEventScoutPickList(int event) {
 		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
