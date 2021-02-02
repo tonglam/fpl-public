@@ -43,4 +43,9 @@ public class SubtitleApiImpl implements ISubtitleApi {
 		return this.subtitleService.mergeSubtitle(fileName, engSub);
 	}
 
+	@Override
+	public TableData<SubtitleData> qrySubtitleListByType(QueryParam qryParam) {
+		return this.subtitleService.qrySubtitleListByType(qryParam);
+	}
+
 }

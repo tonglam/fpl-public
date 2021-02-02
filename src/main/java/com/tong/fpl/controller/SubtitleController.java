@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.subtitle.QueryParam;
 import com.tong.fpl.domain.subtitle.SubtitleData;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,7 @@ import java.nio.file.Paths;
 /**
  * Create by tong on 2020/12/2
  */
+@Slf4j
 @Controller
 @RequestMapping(value = "/subtitle")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -47,6 +49,15 @@ public class SubtitleController {
 			qryParam.setStatus("未完成");
 		}
 		return this.subtitleApi.qrySubtitleList(qryParam);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "/qrySubtitleListByType")
+	public TableData<SubtitleData> qrySubtitleListByType(@RequestBody QueryParam qryParam) {
+		if (StringUtils.isEmpty(qryParam.getJobType()) || StringUtils.isEmpty(qryParam.getVideoType())) {
+			return new TableData<>();
+		}
+		return this.subtitleApi.qrySubtitleListByType(qryParam);
 	}
 
 	@ResponseBody
@@ -91,13 +102,20 @@ public class SubtitleController {
 		return this.subtitleApi.mergeSubtitle(fileName, engSub);
 	}
 
-	@RequestMapping(value = "/downloadSubtitleFile")
-	public void downloadSubtitleFile(@RequestParam String fileName, HttpServletResponse response) {
-		fileName = Constant.SUBTITLE_FILE_LOCATION + "(New)" + fileName + ".txt";
+	@ResponseBody
+	@RequestMapping(value = "/checkDownloadFileName")
+	public String checkDownloadFileName(@RequestParam String fileName) {
+		fileName = this.competeFileName(fileName);
 		Path path = Paths.get(fileName);
 		if (Files.notExists(path)) {
-			return;
+			log.info("file not exists:{}", fileName);
+			return "file not exists";
 		}
+		return fileName;
+	}
+
+	@RequestMapping(value = "/downloadSubtitleFile")
+	public void downloadSubtitleFile(@RequestParam String fileName, HttpServletResponse response) {
 		File file = new File(fileName);
 		fileName = StringUtils.substringAfter(fileName, Constant.SUBTITLE_FILE_LOCATION);
 		response.reset();
@@ -114,17 +132,27 @@ public class SubtitleController {
 		try {
 			fis = new FileInputStream(file);
 			byte[] bytes = new byte[1024];
-
 			os = response.getOutputStream();
 			int i = fis.read(bytes);
 			while (i != -1) {
 				os.write(bytes);
 				i = fis.read(bytes);
 			}
-
 		} catch (IOException e) {
+			log.info("file download error, fileName:{}, exception:{}", fileName, e.getMessage());
 			e.printStackTrace();
 		}
+	}
+
+	private String competeFileName(String fileName) {
+		if (fileName.contains(("New")) && fileName.contains("txt")) {
+			return Constant.SUBTITLE_FILE_LOCATION + fileName;
+		} else if (fileName.contains(("New"))) {
+			return Constant.SUBTITLE_FILE_LOCATION + fileName + ".txt";
+		} else if (fileName.contains(("txt"))) {
+			return Constant.SUBTITLE_FILE_LOCATION + "(New)" + fileName;
+		}
+		return Constant.SUBTITLE_FILE_LOCATION + "(New)" + fileName + ".txt";
 	}
 
 }

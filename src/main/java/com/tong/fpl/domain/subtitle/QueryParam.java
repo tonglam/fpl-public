@@ -11,6 +11,8 @@ import lombok.experimental.Accessors;
 public class QueryParam {
 
 	private String title;
+	private String jobType;
+	private String videoType;
 	private String mode;
 	private String startDay;
 	private String endDay;

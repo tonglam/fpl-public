@@ -89,8 +89,11 @@ public class SubtitleServiceImpl implements ISubtitleService {
 		} else if (StringUtils.equals("完成时间", qryParam.getMode()) && (StringUtils.isNotEmpty(qryParam.getStartDay()) && StringUtils.isNotEmpty(qryParam.getEndDay()))) {
 			queryWrapper.between(SubtitleEntity::getFinishDate, qryParam.getStartDay(), qryParam.getEndDay());
 		}
-		if (StringUtils.isNotEmpty(qryParam.getTitle())) {
-			queryWrapper.like(SubtitleEntity::getTitle, qryParam.getTitle());
+		if (StringUtils.isNotEmpty(qryParam.getJobType())) {
+			queryWrapper.eq(SubtitleEntity::getJobType, qryParam.getJobType());
+		}
+		if (StringUtils.isNotEmpty(qryParam.getVideoType())) {
+			queryWrapper.eq(SubtitleEntity::getVideoType, qryParam.getVideoType());
 		}
 		if (StringUtils.isNotEmpty(qryParam.getStatus())) {
 			if (StringUtils.equals("全部", qryParam.getStatus())) {
@@ -179,6 +182,18 @@ public class SubtitleServiceImpl implements ISubtitleService {
 			line = StringUtils.substringBefore(line, last);
 		}
 		builder.append(line).append("\n");
+	}
+
+	@Override
+	public TableData<SubtitleData> qrySubtitleListByType(QueryParam qryParam) {
+		List<SubtitleData> list = Lists.newArrayList();
+		LambdaQueryWrapper<SubtitleEntity> queryWrapper = this.getSubtitleQueryWrapper(qryParam);
+		queryWrapper
+				.eq(SubtitleEntity::getJobType, qryParam.getJobType())
+				.eq(SubtitleEntity::getVideoType, qryParam.getVideoType());
+		this.subtitleService.list(queryWrapper)
+				.forEach(o -> list.add(BeanUtil.copyProperties(o, SubtitleData.class)));
+		return new TableData<>(list);
 	}
 
 }

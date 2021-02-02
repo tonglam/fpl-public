@@ -53,11 +53,26 @@
             <form class="layui-form">
                 <div class="layui-form-item">
 
-                    <div class="layui-inline">
-                        <label class="layui-form-label" style="margin-left: -80px;margin-right: -20px">标题</label>
+                    <div class="layui-inline" style="margin-right: -80px">
+                        <label class="layui-form-label" style="margin-left: -60px">工种</label>
+                        <div class="layui-input-inline" style="width: 35%">
+                            <select class="layui-select" lay-filter="jobType" name="jobType">
+                                <option value="">请选择</option>
+                                <option value="1">翻译</option>
+                                <option value="2">校对</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="layui-inline" style="width: 300px">
-                        <input class="layui-input" name="title" type="text">
+
+                    <div class="layui-inline" style="margin-right: -80px">
+                        <label class="layui-form-label" style="margin-left: -60px">类型</label>
+                        <div class="layui-input-inline" style="width: 35%">
+                            <select class="layui-select" lay-filter="videoType" name="videoType">
+                                <option value="">请选择</option>
+                                <option value="1">Youtube</option>
+                                <option value="2">Titok</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="layui-inline" style="width: 110px">
@@ -172,9 +187,14 @@
     {{#  } }}
 </script>
 
-<script id="switchTpl" type="text/html">
-    <input type="checkbox" name="automaticCaptions" value="{{d.automaticCaptions}}" lay-skin="switch" lay-text="有|无"
-           lay-filter="automaticCaptions" {{ d.automaticCaptions== true ? 'checked' : '' }}>
+<script id="toolbar" type="text/html">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="trans-titok">翻译-抖音</button>
+        <button class="layui-btn layui-btn-sm" lay-event="trans-youtube">翻译-有土鳖</button>
+        <button class="layui-btn layui-btn-sm" lay-event="proof-titok">校对-抖音</button>
+        <button class="layui-btn layui-btn-sm" lay-event="proof-youtube">校对-有土鳖</button>
+        <button class="layui-btn layui-btn-sm" lay-event="clear">清除筛选条件</button>
+    </div>
 </script>
 
 <script th:inline="none">
@@ -208,7 +228,8 @@
             statusEnum = ["已接活", "已翻译", "已校对", "已拉轴", "已压制", "已填表", "已结算"];
 
         let subtitleTable, qryParam = {
-            title: $("input[name=title]").val(),
+            jobType: $("select[name=jobType]").siblings("div.layui-form-select").find("dl").find("dd.layui-this").text(),
+            videoType: $("select[name=videoType]").siblings("div.layui-form-select").find("dl").find("dd.layui-this").text(),
             mode: $("select[name=mode]").val(),
             startDay: $("input[name=startDay]").val(),
             endDay: $("input[name=endDay]").val(),
@@ -221,11 +242,12 @@
                     elem: '#subtitleTable',
                     even: true,
                     data: response.data,
-                    toolbar: true,
+                    toolbar: '#toolbar',
                     defaultToolbar: ["filter"],
                     limit: 100,
                     cellMinWidth: 80,
                     cols: [[
+                        {fixed: 'left', type: 'numbers', title: ''},
                         {fix: 'left', field: 'title', title: '视频标题', align: 'center', width: 400, edit: true},
                         {field: 'length', title: '时长(s)', align: 'center', edit: true},
                         {
@@ -278,8 +300,19 @@
                             field: 'automaticCaptions',
                             title: '字幕',
                             align: 'center',
-                            templet: '#switchTpl',
-                            unresize: true
+                            templet: function (d) {
+                                if (!d.automaticCaptions) {
+                                    return "<select name='captionsSelect' lay-filter='captionsSelect'>" +
+                                        "<option value='无'>无</option>" +
+                                        "<option value='有'>有</option>" +
+                                        "</select>";
+                                } else {
+                                    return "<select name='captionsSelect' lay-filter='captionsSelect'>" +
+                                        "<option value='有'>有</option>" +
+                                        "<option value='无'>无</option>" +
+                                        "</select>";
+                                }
+                            }
                         },
                         {field: 'translator', title: '翻译', align: 'center', edit: true, filter: true},
                         {field: 'jobDate', title: '接活', align: 'center', width: 120, edit: true, filter: true},
@@ -347,6 +380,57 @@
                 });
             })
 
+        table.on('toolbar(subtitleTable)', function (obj) {
+            switch (obj.event) {
+                case 'trans-titok': {
+                    qryParam.jobType = '翻译';
+                    qryParam.videoType = 'Titok';
+                    axios.post('/subtitle/qrySubtitleList', qryParam)
+                        .then(function (response) {
+                            table.reload('subtitleTable', {data: response.data});
+                        })
+                    break;
+                }
+                case 'trans-youtube': {
+                    qryParam.jobType = '翻译';
+                    qryParam.videoType = 'Youtube';
+                    axios.post('/subtitle/qrySubtitleList', qryParam)
+                        .then(function (response) {
+                            table.reload('subtitleTable', {data: response.data});
+                        })
+                    break;
+                }
+                case 'proof-titok': {
+                    qryParam.jobType = '校对';
+                    qryParam.videoType = 'Titok';
+                    axios.post('/subtitle/qrySubtitleList', qryParam)
+                        .then(function (response) {
+                            table.reload('subtitleTable', {data: response.data});
+                        })
+                    break;
+                }
+                case 'proof-youtube': {
+                    qryParam.jobType = '校对';
+                    qryParam.videoType = 'Youtube';
+                    axios.post('/subtitle/qrySubtitleList', qryParam)
+                        .then(function (response) {
+                            table.reload('subtitleTable', {data: response.data});
+                        })
+                    break;
+                }
+                case 'clear': {
+                    soulTable.clearFilter('subtitleTable');
+                    qryParam.jobType = $("select[name=jobType]").siblings("div.layui-form-select").find("dl").find("dd.layui-this").text();
+                    qryParam.videoType = $("select[name=videoType]").siblings("div.layui-form-select").find("dl").find("dd.layui-this").text();
+                    axios.post('/subtitle/qrySubtitleList', qryParam)
+                        .then(function (response) {
+                            table.reload('subtitleTable', {data: response.data});
+                        })
+                    break;
+                }
+            }
+        });
+
         $("#search").on('click', function () {
             qryParam = {
                 title: $("input[name=title]").val(),
@@ -370,7 +454,7 @@
                 jobType: '翻译',
                 videoType: 'Youtube',
                 length: '',
-                automaticCaptions: '是',
+                automaticCaptions: '有',
                 translator: '',
                 jobDate: moment().format("YYYY-MM-DD"),
                 proofreader: '',
@@ -385,6 +469,78 @@
         });
 
         table.on('row(subtitleTable)', function (obj) {
+
+            form.on('select(jobTypeSelect)', function (data) {
+                let tableData = table.cache["subtitleTable"]
+                let id = obj.data.id;
+                if (id > 0) {
+                    $.each(tableData, function (index, item) {
+                        if (item.id === obj.data.id) {
+                            item.jobType = data.value;
+                        }
+                    })
+                } else {
+                    let title = obj.data.title;
+                    if (typeof title === 'undefined') {
+                        layer.msg("先填标题！", {time: 1500});
+                        $("select[name=statusSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='翻译']").click();
+                        return false;
+                    }
+                    $.each(tableData, function (index, item) {
+                        if (item.title === title) {
+                            item.jobType = data.value;
+                        }
+                    })
+                }
+            });
+
+            form.on('select(videoTypeSelect)', function (data) {
+                let tableData = table.cache["subtitleTable"]
+                let id = obj.data.id;
+                if (id > 0) {
+                    $.each(tableData, function (index, item) {
+                        if (item.id === obj.data.id) {
+                            item.videoType = data.value;
+                        }
+                    })
+                } else {
+                    let title = obj.data.title;
+                    if (typeof title === 'undefined') {
+                        layer.msg("先填标题！", {time: 1500});
+                        $("select[name=statusSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='Youtube']").click();
+                        return false;
+                    }
+                    $.each(tableData, function (index, item) {
+                        if (item.title === title) {
+                            item.videoType = data.value;
+                        }
+                    })
+                }
+            });
+
+            form.on('select(captionsSelect)', function (data) {
+                let tableData = table.cache["subtitleTable"]
+                let id = obj.data.id;
+                if (id > 0) {
+                    $.each(tableData, function (index, item) {
+                        if (item.id === obj.data.id) {
+                            item.automaticCaptions = data.value;
+                        }
+                    })
+                } else {
+                    let title = obj.data.title;
+                    if (typeof title === 'undefined') {
+                        layer.msg("先填标题！", {time: 1500});
+                        $("select[name=captionsSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='是']").click();
+                        return false;
+                    }
+                    $.each(tableData, function (index, item) {
+                        if (item.title === title) {
+                            item.automaticCaptions = data.value;
+                        }
+                    })
+                }
+            });
 
             form.on('select(statusSelect)', function (data) {
                 let tableData = table.cache["subtitleTable"]
@@ -405,30 +561,6 @@
                     $.each(tableData, function (index, item) {
                         if (item.title === title) {
                             item.status = data.value;
-                        }
-                    })
-                }
-            });
-
-            form.on('select(captionsSelect)', function (data) {
-                let tableData = table.cache["subtitleTable"]
-                let id = obj.data.id;
-                if (id > 0) {
-                    $.each(tableData, function (index, item) {
-                        if (item.id === obj.data.id) {
-                            item.automaticCaptions = data.value;
-                        }
-                    })
-                } else {
-                    let title = obj.data.title;
-                    if (typeof title === 'undefined') {
-                        layer.msg("先填标题！", {time: 1500});
-                        $("select[name=statusSelect]").siblings("div.layui-form-select").find("dl").find("dd[lay-value='是']").click();
-                        return false;
-                    }
-                    $.each(tableData, function (index, item) {
-                        if (item.title === title) {
-                            item.automaticCaptions = data.value;
                         }
                     })
                 }
@@ -500,8 +632,10 @@
                         let subtitleData = {};
                         subtitleData.id = data.id;
                         subtitleData.title = data.title;
+                        subtitleData.jobType = data.jobType;
+                        subtitleData.videoType = data.videoType;
                         subtitleData.length = data.length;
-                        subtitleData.automaticCaptions = data.automaticCaptions === '是';
+                        subtitleData.automaticCaptions = data.automaticCaptions === '有';
                         subtitleData.translator = data.translator;
                         subtitleData.jobDate = data.jobDate;
                         subtitleData.proofreader = data.proofreader;
@@ -544,6 +678,8 @@
                     }
                     let subtitleData = {};
                     subtitleData.title = data.title;
+                    subtitleData.jobType = data.jobType;
+                    subtitleData.videoType = data.videoType;
                     subtitleData.length = data.length;
                     subtitleData.automaticCaptions = data.automaticCaptions === '是';
                     subtitleData.translator = data.translator;
@@ -630,10 +766,18 @@
                 layer.msg("文件名不能为空！", {time: 1500});
                 return false;
             }
-            if (fileName.indexOf(".txt") < 0) {
-                fileName += ".txt";
-            }
-            window.location = "/subtitle/downloadSubtitleFile?fileName=" + fileName;
+            axios.get('/subtitle/checkDownloadFileName?fileName=' + fileName)
+                .then(function (response) {
+                    if (response === 'file not exists') {
+                        layer.msg(response, {time: 1500});
+                        return false;
+                    }
+                    fileName = response;
+                    window.location = "/subtitle/downloadSubtitleFile?fileName=" + fileName;
+                })
+                .catch(function (error) {
+                    layer.msg(error, {time: 1500});
+                });
         });
 
     });

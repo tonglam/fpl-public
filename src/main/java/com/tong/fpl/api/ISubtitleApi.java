@@ -19,4 +19,6 @@ public interface ISubtitleApi {
 
 	String mergeSubtitle(String fileName, boolean engSub);
 
+	TableData<SubtitleData> qrySubtitleListByType(QueryParam qryParam);
+
 }
