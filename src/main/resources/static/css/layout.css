@@ -290,7 +290,7 @@ h1, h2, h3 {
 }
 
 /* 适配多设备 */
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 750px) {
     .layui-main {
         width: auto;
         margin: 0 10px;
@@ -315,7 +315,7 @@ h1, h2, h3 {
     }
 
     .header .layui-nav .layui-nav-item a {
-        padding: 0 20px;
+        padding: 0 5px;
     }
 
     .header .layui-nav .layui-nav-item[pc] {
@@ -326,108 +326,10 @@ h1, h2, h3 {
         display: inline-block;
     }
 
-    .site-banner {
-        height: 300px;
-    }
-
-    .site-banner-bg {
-        background-size: cover;
-    }
-
-    .site-zfj {
-        height: 100px;
-        padding-top: 5px;
-    }
-
-    .site-zfj i {
-        top: 10px;
-        width: 100px;
-        height: 100px;
-        margin-left: -50px;
-        font-size: 100px;
-    }
-
-    .site-desc {
-        background-size: 70%;
-        margin: 0;
-    }
-
-    .site-desc .web-font-desc {
-        padding-top: 20px;
-        font-size: 30px;
-    }
-
-    .site-desc cite {
-        display: none;
-    }
-
-    .site-download {
-        margin-top: 0;
-    }
-
-    .site-download a {
-        height: 40px;
-        line-height: 40px;
-        padding: 0 25px 0 60px;
-        border-radius: 30px;
-        color: #fff;
-        font-size: 16px;
-    }
-
-    .site-download a cite {
-        left: 20px;
-    }
-
-    .site-banner-other {
-        bottom: 10px;
-    }
-
-    .site-idea {
-        margin: 20px 0;
-    }
-
-    .site-idea li {
-        margin: 0 0 20px 0;
-        width: 100%;
-        height: auto;
-        -webkit-box-sizing: border-box !important;
-        -moz-box-sizing: border-box !important;
-        box-sizing: border-box !important;
-    }
-
-    .site-hengfu img {
-        max-width: 100%
-    }
-
-    .site-block .layui-form {
-        margin-right: 0;
-    }
-
-    .layui-layer-dir {
-        display: none;
-    }
-
-    .site-tree {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        min-height: 0;
-        overflow: auto;
-        z-index: 1000;
-        left: -260px;
-        background-color: #fff;
-        transition: all .3s;
-        -webkit-transition: all .3s;
-    }
-
     .site-content {
         width: 100%;
         padding: 0;
         overflow: auto;
-    }
-
-    .site-content img {
-        max-width: 100%;
     }
 
     .site-tree-mobile {
