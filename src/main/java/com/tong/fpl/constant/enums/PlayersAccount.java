@@ -54,7 +54,16 @@ public enum PlayersAccount {
     Bissouma(5747167),
     Bendtner(3349042),
     Crouch(5100073),
-    Richards(113765);
+    Richards(113765),
+    Odegaard(4971020),
+    Deeney(2337480),
+    Cleverley(32480),
+    Allen(3807657),
+    Foster(2617471),
+    Rhodes(4193516),
+    Agbonlahor(1910910),
+    Duffy(3164912),
+    King(2081113);
 
     private final int entry;
 
