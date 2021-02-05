@@ -328,7 +328,7 @@ public interface IQueryService {
 
 	List<String> qryTeamSelectStatList();
 
-	Map<Integer, String> qryLeagueEventEoMap(int event, int leagueId, String leagueType);
+	Map<String, String> qryLeagueEventEoMap(int event, int leagueId, String leagueType);
 
 	/**
 	 * @apiNote live, cannot be cached

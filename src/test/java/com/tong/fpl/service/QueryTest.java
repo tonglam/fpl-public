@@ -228,7 +228,7 @@ public class QueryTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"14, 3571, Classic"})
 	void qryLeagueEventEoMap(int event, int leagueId, String leagueType) {
-		Map<Integer, String> map = this.querySerivce.qryLeagueEventEoMap(event, leagueId, leagueType);
+		Map<String, String> map = this.querySerivce.qryLeagueEventEoMap(event, leagueId, leagueType);
 		System.out.println(1);
 	}
 
