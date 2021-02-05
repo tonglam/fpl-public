@@ -15,6 +15,8 @@ public interface IReportService {
 
 	void insertLeagueEventSelect(int event, int leagueId, String leagueType, int limit);
 
+	void insertEntryLeagueEventSelectByTournament(int event, int tournamentId);
+
 	void updateEntryLeagueEventResult(int event, int leagueId, String leagueType, int entry);
 
 	void updateLeagueEventResult(int event, int leagueId, String leagueType);

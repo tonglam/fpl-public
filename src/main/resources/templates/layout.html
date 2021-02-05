@@ -157,7 +157,7 @@
         </ol>
         <ul class="container" id="gkps">
             <li th:each="item,stat:${pickPlayerData.gkps}">
-                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/GKP.png'">
                 <div th:switch="${item.captain}">
                     <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
                          th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
@@ -176,7 +176,16 @@
     <div class="bench">
         <ul class="container" id="subs">
             <li th:each="item,stat:${pickPlayerData.subs}">
-                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <div th:switch="${item.elementType}">
+                    <div th:case=1>
+                        <img src="" style="width: 50px;height: 50px"
+                             th:src="'/img/jersey/GKP.png'">
+                    </div>
+                    <div th:case="*">
+                        <img src="" style="width: 50px;height: 50px"
+                             th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                    </div>
+                </div>
                 <div class="name" th:text="${item.webName}"></div>
             </li>
         </ul>

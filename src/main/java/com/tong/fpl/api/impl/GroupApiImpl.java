@@ -16,7 +16,6 @@ import com.tong.fpl.service.IGroupService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ITableQueryService;
 import com.tong.fpl.service.IUpdateEventService;
-import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +95,7 @@ public class GroupApiImpl implements IGroupApi {
 	 */
 	@Override
 	public PlayerPickData qryOffiaccountPickData(int operator) {
-		return this.queryService.qryEntryEventPickData(this.getNextEvent(), FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()), operator);
+		return this.queryService.qryEntryEventPickData(this.getNextEvent(), FollowAccount.getFollowAccountEntry("Offiaccount"), operator);
 	}
 
 	@Override
@@ -106,7 +105,7 @@ public class GroupApiImpl implements IGroupApi {
 
 	@Override
 	public TableData<PlayerShowData> qryOffiaccountEventPlayerShowList(int event, int operator) {
-		return this.tableQueryService.qryEntryEventPlayerShowList(event, FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()), operator);
+		return this.tableQueryService.qryEntryEventPlayerShowList(event, FollowAccount.getFollowAccountEntry("Offiaccount"), operator);
 	}
 
 	@Override
@@ -124,7 +123,7 @@ public class GroupApiImpl implements IGroupApi {
 	 */
 	@Override
 	public TableData<PlayerShowData> qryEntryEventPlayerShowListForTransfers(int event) {
-		return this.tableQueryService.qryEntryEventPlayerShowListForTransfers(event, FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+		return this.tableQueryService.qryEntryEventPlayerShowListForTransfers(event, FollowAccount.getFollowAccountEntry("Offiaccount"));
 	}
 
 	@Override
@@ -134,7 +133,7 @@ public class GroupApiImpl implements IGroupApi {
 
 	@Override
 	public PlayerPickData qryOffiaccountPickListForTransfers() {
-		return this.queryService.qryEntryPickDataForTransfers(this.getCurrentEvent(), FollowAccount.getFollowAccountEntry("Offiaccount", CommonUtils.getCurrentSeason()));
+		return this.queryService.qryEntryPickDataForTransfers(this.getCurrentEvent(), FollowAccount.getFollowAccountEntry("Offiaccount"));
 	}
 
 	@Override

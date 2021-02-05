@@ -1527,7 +1527,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 
 	@Override
 	public void upsertEventPick(EntryEventSimulatePickData entryEventSimulatePickData) {
-		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventSimulatePickData.getEvent(), FollowAccount.Offiaccount_2021.getEntry());
+		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventSimulatePickData.getEvent(), FollowAccount.Offiaccount.getEntry());
 		if (entryEventResultData == null) {
 			return;
 		}
@@ -1551,7 +1551,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	@Override
 	public void upsertEventTransfers(EntryEventSimulateTransfersData entryEventSimulateTransfersData) {
 		// prepare
-		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventSimulateTransfersData.getEvent() - 1, FollowAccount.Offiaccount_2021.getEntry());
+		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventSimulateTransfersData.getEvent() - 1, FollowAccount.Offiaccount.getEntry());
 		if (entryEventResultData == null) {
 			return;
 		}

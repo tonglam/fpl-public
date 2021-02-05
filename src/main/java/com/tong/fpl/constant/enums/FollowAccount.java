@@ -13,13 +13,22 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public enum FollowAccount {
 
-    Offiaccount_2021(4074865);
+    Offiaccount(4074865),
+    Magnus_Carlsen(76862),
+    FPLGeneral(1546),
+    FPLtips(1667),
+    Fpl_Salah(825),
+    Ben_Crellin(132073),
+    Ben_Dinnery(1572168);
 
     private final int entry;
 
-    public static int getFollowAccountEntry(String name, String season) {
+    public static int getFollowAccountEntry(String name) {
+        if (name.contains("-")) {
+            return getFollowAccountEntry(name.replaceAll("-", "_"));
+        }
         return Stream.of(FollowAccount.values())
-                .filter(o -> StringUtils.equals(o.name(), name + "_" + season))
+                .filter(o -> StringUtils.equals(o.name(), name))
                 .map(FollowAccount::getEntry)
                 .findFirst()
                 .orElse(0);

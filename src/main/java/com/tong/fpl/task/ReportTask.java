@@ -1,11 +1,15 @@
 package com.tong.fpl.task;
 
+import com.google.common.collect.Lists;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2020/9/16
@@ -32,13 +36,32 @@ public class ReportTask {
 		});
 	}
 
+	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
+	public void insertLeagueEventSelectTournamentStat() {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isSelectTime(event)) {
+			return;
+		}
+		String leagueType = "Tournament";
+		List<Integer> tournamentList = Lists.newArrayList(13, 14);
+		tournamentList.forEach(tournamentId -> {
+			if (this.reportService.evenLeagueEventExists(event, tournamentId, leagueType)) {
+				return;
+			}
+			this.reportService.insertEntryLeagueEventSelectByTournament(event, tournamentId);
+		});
+	}
+
 	@Scheduled(cron = "0 0 9,12 * * *")
 	public void updateLeagueEventResult() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDay(event)) {
 			return;
 		}
-		this.queryService.qryLeagueMap(event).forEach((leagueIdStr, leagueType) ->
+		Map<String, String> leagueMap = this.queryService.qryLeagueMap(event);
+		leagueMap.put("13", "Tournament");
+		leagueMap.put("14", "Tournament");
+		leagueMap.forEach((leagueIdStr, leagueType) ->
 				this.reportService.updateLeagueEventResult(event, Integer.parseInt(leagueIdStr), leagueType));
 	}
 

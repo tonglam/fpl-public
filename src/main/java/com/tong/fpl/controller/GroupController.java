@@ -164,7 +164,7 @@ public class GroupController {
 			return "请先加入让让群球探！";
 		}
 		entryEventSimulatePickData
-				.setEntry(FollowAccount.Offiaccount_2021.getEntry())
+				.setEntry(FollowAccount.Offiaccount.getEntry())
 				.setEvent(this.groupApi.getNextEvent())
 				.setOperator(entry);
 		this.groupApi.upsertEventPick(entryEventSimulatePickData);
@@ -195,7 +195,7 @@ public class GroupController {
 			return "请先加入让让群球探！";
 		}
 		entryEventSimulateTransfersData
-				.setEntry(FollowAccount.Offiaccount_2021.getEntry())
+				.setEntry(FollowAccount.Offiaccount.getEntry())
 				.setEvent(this.groupApi.getNextEvent())
 				.setOperator(entry);
 		this.groupApi.upsertEventTransfers(entryEventSimulateTransfersData);

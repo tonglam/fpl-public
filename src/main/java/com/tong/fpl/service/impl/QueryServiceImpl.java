@@ -467,6 +467,7 @@ public class QueryServiceImpl implements IQueryService {
                 .map(TournamentEntryEntity::getTournamentId)
                 .collect(Collectors.toList());
         list.add(13); // 球员联赛
+        list.add(14); // 网红联赛
         return list;
     }
 
@@ -1331,7 +1332,7 @@ public class QueryServiceImpl implements IQueryService {
         Map<Object, Object> scoutEntryMap = RedisUtils.getHashByKey("scoutEntry");
         List<Object> scoutList = new ArrayList<>(scoutEntryMap.keySet());
         List<EntryEventSimulatePickEntity> entryEventSimulatePickEntityList = this.entryEventSimulatePickService.list(new QueryWrapper<EntryEventSimulatePickEntity>().lambda()
-                .eq(EntryEventSimulatePickEntity::getEntry, FollowAccount.Offiaccount_2021.getEntry())
+                .eq(EntryEventSimulatePickEntity::getEntry, FollowAccount.Offiaccount.getEntry())
                 .eq(EntryEventSimulatePickEntity::getEvent, event)
                 .in(EntryEventSimulatePickEntity::getOperator, scoutList));
         if (CollectionUtils.isEmpty(entryEventSimulatePickEntityList)) {
@@ -1362,7 +1363,7 @@ public class QueryServiceImpl implements IQueryService {
         Map<Object, Object> scoutEntryMap = RedisUtils.getHashByKey("scoutEntry");
         List<Object> scoutList = new ArrayList<>(scoutEntryMap.keySet());
         List<EntryEventSimulateTransfersEntity> entryEventLineupEntityList = this.entryEventSimulateTransfersService.list(new QueryWrapper<EntryEventSimulateTransfersEntity>().lambda()
-                .eq(EntryEventSimulateTransfersEntity::getEntry, FollowAccount.Offiaccount_2021.getEntry())
+                .eq(EntryEventSimulateTransfersEntity::getEntry, FollowAccount.Offiaccount.getEntry())
                 .eq(EntryEventSimulateTransfersEntity::getEvent, event)
                 .in(EntryEventSimulateTransfersEntity::getOperator, scoutList));
         if (CollectionUtils.isEmpty(entryEventLineupEntityList)) {

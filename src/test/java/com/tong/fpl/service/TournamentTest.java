@@ -2,13 +2,21 @@ package com.tong.fpl.service;
 
 import com.google.common.collect.Lists;
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.constant.enums.FollowAccount;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
+import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
+import com.tong.fpl.service.db.EntryInfoService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Create by tong on 2020/7/15
@@ -17,6 +25,10 @@ public class TournamentTest extends FplApplicationTests {
 
 	@Autowired
 	private ITournamentService tournamentService;
+	@Autowired
+	private EntryInfoService entryInfoService;
+	@Autowired
+	private IStaticService staticService;
 
 	@Test
 	void createNewTournament() {
@@ -78,9 +90,11 @@ public class TournamentTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"guazhang可能要鸽"})
+	@CsvSource({"网红联赛"})
 	void createNewTournamentBackground(String name) {
-		this.tournamentService.createNewTournamentBackground(name, Lists.newArrayList());
+		List<Integer> entryList = Lists.newArrayList();
+		Arrays.stream(FollowAccount.values()).forEach(o -> entryList.add(o.getEntry()));
+		this.tournamentService.createNewTournamentBackground(name, entryList);
 		System.out.println(1);
 	}
 
@@ -96,6 +110,33 @@ public class TournamentTest extends FplApplicationTests {
 	void updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry) {
 		this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, captainEntry);
 		System.out.println(1);
+	}
+
+	@Test
+	void temp() {
+		List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
+		List<Integer> entryList = Lists.newArrayList();
+		Arrays.stream(FollowAccount.values()).forEach(o -> entryList.add(o.getEntry()));
+		entryList.parallelStream().forEach(entry -> {
+			Optional<EntryRes> entryRes = this.staticService.getEntry(entry);
+			entryRes.ifPresent(o -> entryInfoEntityList.add(new EntryInfoEntity()
+							.setEntry(entry)
+							.setEntryName(o.getName())
+							.setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
+							.setRegion(o.getPlayerRegionName())
+							.setStartedEvent(o.getStartedEvent())
+							.setOverallPoints(o.getSummaryOverallPoints())
+							.setOverallRank(o.getSummaryOverallRank())
+							.setBank(o.getLastDeadlineBank())
+							.setTeamValue(o.getLastDeadlineValue())
+							.setTotalTransfers(o.getLastDeadlineTotalTransfers())
+							.setLastOverallPoints(o.getSummaryOverallPoints())
+							.setLastOverallRank(o.getSummaryOverallRank())
+							.setLastTeamValue(o.getLastDeadlineValue())
+					)
+			);
+		});
+		this.entryInfoService.saveOrUpdateBatch(entryInfoEntityList);
 	}
 
 }

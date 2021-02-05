@@ -1,7 +1,9 @@
 package com.tong.fpl.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.LeagueType;
@@ -14,10 +16,7 @@ import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.IStaticService;
-import com.tong.fpl.service.db.EntryEventResultService;
-import com.tong.fpl.service.db.EventLiveService;
-import com.tong.fpl.service.db.LeagueEventReportService;
-import com.tong.fpl.service.db.PlayerStatService;
+import com.tong.fpl.service.db.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,8 +46,10 @@ public class ReportServiceImpl implements IReportService {
 	private final IStaticService staticService;
 	private final IQueryService queryService;
 	private final PlayerStatService playerStatService;
+	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
+	private final TournamentEntryService tournamentEntryService;
 	private final LeagueEventReportService leagueEventReportService;
 
 	@Override
@@ -110,6 +111,42 @@ public class ReportServiceImpl implements IReportService {
 		// save
 		this.leagueEventReportService.saveBatch(leagueEventStatEntityList);
 		log.info("leagueId:{}, leagueType:{}, event:{}, insert league_event_report size:{}!", leagueId, leagueType, event, leagueEventStatEntityList.size());
+	}
+
+	@Override
+	public void insertEntryLeagueEventSelectByTournament(int event, int tournamentId) {
+		TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
+		if (tournamentInfoEntity == null) {
+			return;
+		}
+		String leagueType = "Tournament";
+		String leagueName = tournamentInfoEntity.getName();
+		List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+				.eq(TournamentEntryEntity::getTournamentId, tournamentId))
+				.stream()
+				.map(TournamentEntryEntity::getEntry)
+				.collect(Collectors.toList());
+		if (CollectionUtils.isEmpty(entryList)) {
+			return;
+		}
+		List<EntryInfoData> entryInfoDataList = Lists.newArrayList();
+		this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+				.in(EntryInfoEntity::getEntry, entryList))
+				.forEach(o -> entryInfoDataList.add(BeanUtil.copyProperties(o, EntryInfoData.class)));
+		List<CompletableFuture<LeagueEventReportEntity>> future = entryInfoDataList
+				.stream()
+				.map(o ->
+						CompletableFuture.supplyAsync(() ->
+								this.initEntryEventSelectStat(event, o.getEntry(), tournamentId, leagueType, leagueName)))
+				.collect(Collectors.toList());
+		List<LeagueEventReportEntity> leagueEventStatEntityList = future
+				.stream()
+				.map(CompletableFuture::join)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		// save
+		this.leagueEventReportService.saveBatch(leagueEventStatEntityList);
+		log.info("tournamentId:{}, event:{}, insert league_event_report size:{}!", tournamentId, event, leagueEventStatEntityList.size());
 	}
 
 	private LeagueInfoData getLeagueDataByTypeAndId(int leagueId, String leagueType, int limit) {
