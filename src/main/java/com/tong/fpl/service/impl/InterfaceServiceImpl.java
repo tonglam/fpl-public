@@ -36,6 +36,19 @@ public class InterfaceServiceImpl implements IInterfaceService {
 	}
 
 	@Override
+	public Optional<EntryCupRes> getEntryCup(int entry) {
+		try {
+			String result = HttpUtils.httpGet(String.format(Constant.ENTRY_CUP, entry)).orElse("");
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+			return Optional.of(mapper.readValue(result, EntryCupRes.class));
+		} catch (IOException e) {
+			log.error("getEntryCup error: " + e.getMessage());
+		}
+		return Optional.empty();
+	}
+
+	@Override
 	public Optional<UserPicksRes> getUserPicks(int event, int entry) {
 		try {
 			String result = HttpUtils.httpGet(String.format(Constant.USER_PICKS, entry, event)).orElse("");

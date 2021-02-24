@@ -1,19 +1,14 @@
 package com.tong.fpl.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.Lists;
-import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.LeagueType;
-import com.tong.fpl.domain.data.bootstrapStaic.Event;
 import com.tong.fpl.domain.data.leaguesClassic.ClassicInfo;
 import com.tong.fpl.domain.data.leaguesH2h.H2hInfo;
 import com.tong.fpl.domain.data.response.*;
-import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IStaticService;
-import com.tong.fpl.service.db.EntryEventResultService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,35 +27,6 @@ import java.util.Optional;
 public class StaticServiceImpl implements IStaticService {
 
 	private final IInterfaceService interfaceService;
-	private final EntryEventResultService entryEventResultService;
-
-	@Override
-	public void insertAverageEventResult(int event, StaticRes staticRes) {
-		int averageScore = staticRes.getEvents().stream()
-				.filter(o -> o.getId() == event)
-				.map(Event::getAverageEntryScore)
-				.findFirst()
-				.orElse(0);
-		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
-				.eq(EntryEventResultEntity::getEvent, event).eq(EntryEventResultEntity::getEntry, -1));
-		if (entryEventResultEntity != null) {
-			entryEventResultEntity.setEventPoints(averageScore).setEventNetPoints(averageScore);
-		} else {
-			entryEventResultEntity = new EntryEventResultEntity()
-					.setEntry(-1)
-					.setEvent(event)
-					.setEventPoints(averageScore)
-					.setEventTransfers(0)
-					.setEventTransfersCost(0)
-					.setEventNetPoints(averageScore)
-					.setEventBenchPoints(0)
-					.setEventRank(0)
-					.setOverallRank(0)
-					.setEventChip(Chip.NONE.getValue())
-					.setEventPicks("");
-		}
-		this.entryEventResultService.saveOrUpdate(entryEventResultEntity);
-	}
 
 	@Override
 	public List<EntryInfoData> getEntryInfoListFromClassic(int classicId) {
@@ -191,6 +157,11 @@ public class StaticServiceImpl implements IStaticService {
 	@Override
 	public Optional<EntryRes> getEntry(int entry) {
 		return this.interfaceService.getEntry(entry);
+	}
+
+	@Override
+	public Optional<EntryCupRes> getEntryCup(int entry) {
+		return this.interfaceService.getEntryCup(entry);
 	}
 
 	@Override

@@ -44,9 +44,10 @@ public class Match {
     private int entry2Total;
     @JsonProperty("is_knockout")
     private boolean isKnockout;
-    @JsonProperty("seed_value")
-    private int seedValue;
-    private int event;
-    private boolean tiebreak;
+	private int winner;
+	@JsonProperty("seed_value")
+	private String seedValue;
+	private int event;
+	private String tiebreak;
 
 }

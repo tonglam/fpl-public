@@ -60,6 +60,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	private final EventLiveService eventLiveService;
 	private final EntryInfoService entryInfoService;
 	private final EntryEventResultService entryEventResultService;
+	private final EntryEventCupResultService entryEventCupResultService;
 	private final EntryEventTransfersService entryEventTransferService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentGroupService tournamentGroupService;
@@ -677,6 +678,22 @@ public class TableQueryServiceImpl implements ITableQueryService {
 									.setPkPlayerName("");
 						}
 					}
+					// cup
+					EntryEventCupResultEntity entryEventCupResultEntity = this.entryEventCupResultService.list(new QueryWrapper<EntryEventCupResultEntity>().lambda()
+							.eq(EntryEventCupResultEntity::getEntry, entry)
+							.orderByDesc(EntryEventCupResultEntity::getEvent))
+							.stream()
+							.findFirst()
+							.orElse(null);
+					if (entryEventCupResultEntity == null) {
+						tournamentGroupData.setLastCupEvent(0);
+					} else {
+						if (entryEventCupResultEntity.getEvent() == current && StringUtils.equals("Win", entryEventCupResultEntity.getResult())) {
+							tournamentGroupData.setLastCupEvent(99);
+						} else {
+							tournamentGroupData.setLastCupEvent(entryEventCupResultEntity.getEvent());
+						}
+					}
 					list.add(tournamentGroupData);
 				});
 		return new TableData<>(list);
@@ -898,6 +915,34 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		Page<TournamentPointsGroupEventResultData> pageResult = new Page<>(page, limit, pointsGroupResultPage.getTotal());
 		pageResult.setRecords(list);
 		return new TableData<>(pageResult);
+	}
+
+	@Cacheable(value = "qryPageEntryEventCupResult", key = "#entry+'::'+#page+'::'+#limit")
+	@Override
+	public TableData<EntryEventCupData> qryPageEntryEventCupResult(int entry, int page, int limit) {
+		Page<EntryEventCupResultEntity> pointsGroupResultPage = this.entryEventCupResultService.getBaseMapper().selectPage(
+				new Page<>(page, limit, true), new QueryWrapper<EntryEventCupResultEntity>().lambda()
+						.eq(EntryEventCupResultEntity::getEntry, entry)
+		);
+		if (CollectionUtils.isEmpty(pointsGroupResultPage.getRecords())) {
+			return new TableData<>();
+		}
+		List<EntryEventCupData> list = Lists.newArrayList();
+		pointsGroupResultPage.getRecords().forEach(o -> {
+			EntryEventCupData data = new EntryEventCupData()
+					.setEvent(o.getEvent())
+					.setEntry(entry)
+					.setEntryName(o.getEntryName())
+					.setPlayerName(o.getPlayerName())
+					.setEventPoints(o.getEventPoints())
+					.setAgainstEntry(o.getAgainstEntry())
+					.setAgainstEntryName(o.getAgainstEntryName())
+					.setAgainstPlayerName(o.getAgainstPlayerName())
+					.setAgainstEventPoints(o.getAgainstEventPoints())
+					.setResult(o.getResult());
+			list.add(data);
+		});
+		return new TableData<>(list);
 	}
 
 	@Cacheable(value = "qryPageBattleGroupResult", key = "#tournamentId+'::'+#groupId+'::'+#entry+'::'+#page+'::'+#limit")

@@ -48,5 +48,6 @@ public class TournamentGroupData {
 	private String pkEntryName;
 	private String pkPlayerName;
 	private TournamentPointsGroupEventResultData pointsGroupEventResult;
+	private int lastCupEvent;
 
 }

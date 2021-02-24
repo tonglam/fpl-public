@@ -221,6 +221,11 @@
     </div>
 </script>
 
+<script id="nameTpl" type="text/html">
+    <a href="https://fantasy.premierleague.com/entry/{{d.entry}}/event/{{d.event}}" target="_blank"
+       title="查看官网分数" class="layui-table-link">{{d.entryName}}</a>
+</script>
+
 <script th:inline="none">
     layui.use(['table', 'soulTable'], function () {
         let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
@@ -408,52 +413,93 @@
                         collapse: true,
                         lazy: true,
                         children: function (d) {
-                            return [{
-                                title: "每轮赛果",
-                                url: '/tournament/qryPointsGroupResult',
-                                where: {
-                                    tournamentId: tournamentId,
-                                    groupId: i,
-                                    entry: d.entry
-                                },
-                                page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
-                                loading: true,
-                                limit: 5,
-                                limits: [5, 10, 15],
-                                cols: [[
-                                    {field: 'event', title: 'GW', align: 'center'},
-                                    {field: 'groupRank', title: '周小组排名', align: 'center'},
-                                    {field: 'points', title: '得分', align: 'center'},
-                                    {field: 'cost', title: '剁手', align: 'center'},
-                                    {field: 'netPoints', title: '净得分', align: 'center'},
-                                    {field: 'benchPoints', title: '板凳得分', align: 'center'},
-                                    {
-                                        field: 'chip',
-                                        title: '开卡',
-                                        align: 'center',
-                                        templet(d) {
-                                            return showChip(d.chip);
-                                        }
+                            return [
+                                {
+                                    title: "每轮赛果",
+                                    url: '/tournament/qryPointsGroupResult',
+                                    where: {
+                                        tournamentId: tournamentId,
+                                        groupId: i,
+                                        entry: d.entry
                                     },
-                                    {
-                                        field: 'rank',
-                                        title: '周排名',
-                                        align: 'center',
-                                        templet: function (d) {
-                                            return showOverallRank(d.rank);
+                                    page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
+                                    loading: true,
+                                    limit: 5,
+                                    limits: [5, 10, 15],
+                                    cols: [[
+                                        {field: 'event', title: 'GW', align: 'center'},
+                                        {field: 'groupRank', title: '周小组排名', align: 'center'},
+                                        {field: 'points', title: '得分', align: 'center'},
+                                        {field: 'cost', title: '剁手', align: 'center'},
+                                        {field: 'netPoints', title: '净得分', align: 'center'},
+                                        {field: 'benchPoints', title: '板凳得分', align: 'center'},
+                                        {
+                                            field: 'chip',
+                                            title: '开卡',
+                                            align: 'center',
+                                            templet(d) {
+                                                return showChip(d.chip);
+                                            }
+                                        },
+                                        {
+                                            field: 'rank',
+                                            title: '周排名',
+                                            align: 'center',
+                                            templet: function (d) {
+                                                return showOverallRank(d.rank);
+                                            }
                                         }
+                                    ]],
+                                    autoColumnWidth: {
+                                        init: true
                                     },
-                                ]],
-                                autoColumnWidth: {
-                                    init: true
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
                                 },
-                                done: function () {
-                                    soulTable.render(this);
+                                {
+                                    title: "官方杯赛",
+                                    url: '/tournament/qryEntryEventCupResult',
+                                    where: {
+                                        entry: d.entry
+                                    },
+                                    page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
+                                    loading: true,
+                                    limit: 5,
+                                    limits: [5, 10, 15],
+                                    cols: [[
+                                        {field: 'event', title: 'GW', align: 'center'},
+                                        {field: 'entryName', title: '队伍', align: 'center'},
+                                        {field: 'playerName', title: '玩家', align: 'center'},
+                                        {field: 'eventPoints', title: '得分', align: 'center'},
+                                        {field: 'againstEntryName', title: '对阵队伍', align: 'center'},
+                                        {field: 'againstPlayerName', title: '对阵玩家', align: 'center'},
+                                        {field: 'againstEventPoints', title: '对阵得分', align: 'center'},
+                                        {
+                                            field: 'result',
+                                            title: '结果',
+                                            align: 'center',
+                                            templet(d) {
+                                                if (d.result === 'Win') {
+                                                    return '晋级';
+                                                } else {
+                                                    return '淘汰';
+                                                }
+                                            },
+                                        }
+                                    ]],
+                                    autoColumnWidth: {
+                                        init: true
+                                    },
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
                                 }
-                            }]
+                            ]
                         }
                     },
-                    {field: 'entryName', title: '队名', align: 'center'},
+                    {field: 'entry', title: 'team_id', align: 'center', hide: true},
+                    {field: 'entryName', title: '队名', align: 'center', templet: "#nameTpl"},
                     {field: 'playerName', title: '玩家', align: 'center'},
                     {
                         field: 'totalNetPoints',
@@ -495,6 +541,22 @@
                                 return parseInt(d.bank) / 10 + 'm';
                             } else {
                                 return 0;
+                            }
+                        }
+                    },
+                    {
+                        field: 'lastCupEvent',
+                        title: '杯赛',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            if (d.lastCupEvent === 0) {
+                                return '未晋级';
+                            } else if (d.lastCupEvent === 99) {
+                                return '还在战';
+                            } else {
+                                return 'GW' + d.lastCupEvent;
                             }
                         }
                     }

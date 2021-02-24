@@ -12,11 +12,15 @@ public interface IUpdateEventService {
 
 	void upsertEntryEventResult(int event, int entry);
 
+	void upsertTournamentEntryEventResult(int event, int tournamentId);
+
+	void upsertEntryEventCupResult(int event, int entry);
+
+	void upsertTournamentEntryEventCupResult(int event, int tournamentId);
+
 	void insertEntryEventTransfer(int entry);
 
 	void updateEntryEventTransfersPlayed(int event, int entry);
-
-	void upsertTournamentEntryEventResult(int event, int tournamentId);
 
 	void insertTournamentEntryEventTransfers(int tournamentId);
 

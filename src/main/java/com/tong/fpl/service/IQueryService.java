@@ -4,10 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.Constant;
-import com.tong.fpl.domain.data.response.EntryRes;
-import com.tong.fpl.domain.data.response.TransferRes;
-import com.tong.fpl.domain.data.response.UserHistoryRes;
-import com.tong.fpl.domain.data.response.UserPicksRes;
+import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
@@ -103,6 +100,8 @@ public interface IQueryService {
 	EntryInfoEntity qryEntryInfo(String season, int entry);
 
 	EntryRes getEntry(int entry);
+
+	EntryCupRes getEntryCup(int entry);
 
 	UserPicksRes getUserPicks(int event, int entry);
 

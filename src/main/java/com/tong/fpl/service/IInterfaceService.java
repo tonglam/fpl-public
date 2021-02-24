@@ -14,6 +14,8 @@ public interface IInterfaceService {
 
 	Optional<EntryRes> getEntry(int entry);
 
+	Optional<EntryCupRes> getEntryCup(int entry);
+
 	Optional<UserPicksRes> getUserPicks(int event, int entry);
 
 	Optional<UserHistoryRes> getUserHistory(int entry);

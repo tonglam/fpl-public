@@ -11,10 +11,7 @@ import com.tong.fpl.config.collector.PlayerPickDataCollector;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.*;
-import com.tong.fpl.domain.data.response.EntryRes;
-import com.tong.fpl.domain.data.response.TransferRes;
-import com.tong.fpl.domain.data.response.UserHistoryRes;
-import com.tong.fpl.domain.data.response.UserPicksRes;
+import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
@@ -441,6 +438,12 @@ public class QueryServiceImpl implements IQueryService {
 	@Override
 	public EntryRes getEntry(int entry) {
 		return this.staticService.getEntry(entry).orElse(null);
+	}
+
+	@Cacheable(value = "getEntryCup", key = "#entry", unless = "#result == null")
+	@Override
+	public EntryCupRes getEntryCup(int entry) {
+		return this.staticService.getEntryCup(entry).orElse(null);
 	}
 
 	@Cacheable(value = "getUserPicks", key = "#event+'::'+#entry", cacheManager = "apiCacheManager", unless = "#result == null")

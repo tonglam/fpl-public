@@ -21,28 +21,42 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"19, 3"})
+	@CsvSource({"25, 14"})
 	void upsertTournamentEntryEventResult(int event, int tournamentId) {
 		this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest
-	@CsvSource({"1"})
+	@CsvSource({"17, 1870"})
+	void upsertEntryEventCupResult(int event, int entry) {
+		this.updateEventResultsService.upsertEntryEventCupResult(event, entry);
+		System.out.println("event: " + event + ", update finished!");
+	}
+
+	@ParameterizedTest
+	@CsvSource({"25, 1"})
+	void upsertTournamentEntryEventCupResult(int event, int tournamentId) {
+		this.updateEventResultsService.upsertTournamentEntryEventCupResult(event, tournamentId);
+		System.out.println("event: " + event + ", update finished!");
+	}
+
+	@ParameterizedTest
+	@CsvSource({"14"})
 	void insertTournamentEntryEventTransfer(int tournamentId) {
 		this.updateEventResultsService.insertTournamentEntryEventTransfers(tournamentId);
 		System.out.println(1);
 	}
 
 	@ParameterizedTest
-	@CsvSource({"21, 7"})
+	@CsvSource({"25, 14"})
 	void updateTournamentEventTransferPlayed(int event, int tournamentId) {
 		this.updateEventResultsService.updateTournamentEventTransfersPlayed(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");
 	}
 
 	@ParameterizedTest
-	@CsvSource({"16, 10"})
+	@CsvSource({"25, 14"})
 	void updatePointsRaceGroupResult(int event, int tournamentId) {
 		this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");

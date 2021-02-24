@@ -12,8 +12,6 @@ import java.util.Optional;
  */
 public interface IStaticService {
 
-	void insertAverageEventResult(int event, StaticRes staticRes);
-
 	List<EntryInfoData> getEntryInfoListFromClassic(int classicId);
 
 	List<EntryInfoData> getEntryInfoListFromH2h(int h2hId);
@@ -27,6 +25,8 @@ public interface IStaticService {
 	Optional<ElementSummaryRes> getElementSummary(int element);
 
 	Optional<EntryRes> getEntry(int entry);
+
+	Optional<EntryCupRes> getEntryCup(int entry);
 
 	Optional<UserPicksRes> getUserPicks(int event, int entry);
 

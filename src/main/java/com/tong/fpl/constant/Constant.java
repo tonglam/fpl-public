@@ -15,6 +15,7 @@ public class Constant {
 	private static final String PREFIX = "https://fantasy.premierleague.com/api/";
 	public static final String BOOTSTRAP_STATIC = PREFIX + "bootstrap-static/";
 	public static final String ENTRY = PREFIX + "entry/%s/";
+	public static final String ENTRY_CUP = PREFIX + "entry/%s/cup/";
 	public static final String USER_HISTORY = PREFIX + "entry/%s/history/";
 	public static final String USER_PICKS = PREFIX + "entry/%s/event/%s/picks/";
 	public static final String LEAGUES_CLASSIC = PREFIX + "leagues-classic/%s/standings/?page_standings=%s";

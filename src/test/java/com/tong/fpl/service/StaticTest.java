@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
@@ -47,6 +48,13 @@ public class StaticTest extends FplApplicationTests {
 	@CsvSource({"1870"})
 	void getTransfer(int entry) {
 		Optional<List<TransferRes>> a = this.staticSerive.getTransfer(entry);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"1870"})
+	void getEntry(int entry) {
+		Optional<EntryRes> a = this.staticSerive.getEntry(entry);
 		System.out.println(1);
 	}
 

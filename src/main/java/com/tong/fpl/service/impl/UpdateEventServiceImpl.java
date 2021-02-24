@@ -3,10 +3,8 @@ package com.tong.fpl.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.*;
-import com.tong.fpl.domain.data.response.EntryRes;
-import com.tong.fpl.domain.data.response.TransferRes;
-import com.tong.fpl.domain.data.response.UserHistoryRes;
-import com.tong.fpl.domain.data.response.UserPicksRes;
+import com.tong.fpl.domain.data.entry.Match;
+import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.domain.data.userHistory.Current;
 import com.tong.fpl.domain.data.userpick.AutoSubs;
 import com.tong.fpl.domain.data.userpick.Pick;
@@ -46,6 +44,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	private final IReportService reportService;
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
+	private final EntryEventCupResultService entryEventCupResultService;
 	private final EntryEventTransfersService entryEventTransferService;
 	private final EntryEventSimulatePickService entryEventSimulatePickService;
 	private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
@@ -138,6 +137,53 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 		}
 	}
 
+	@Override
+	public void upsertTournamentEntryEventResult(int event, int tournamentId) {
+		// get entry_list
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
+			return;
+		}
+		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+				.eq(EntryEventResultEntity::getEvent, event)
+				.in(EntryEventResultEntity::getEntry, entryList))
+				.stream()
+				.collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
+		// get event_live
+		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+		// upsert entry_event_result
+		RedisUtils.removeCacheByKey("get");
+		List<EntryEventResultEntity> insertEventResultList = Lists.newArrayList();
+		List<EntryEventResultEntity> updateEventResultList = Lists.newArrayList();
+		entryList.forEach(entry -> {
+			if (entry <= 0) {
+				return;
+			}
+			UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
+			if (userPick == null) {
+				return;
+			}
+			EntryEventResultEntity entryEventResultEntity = this.calcEntryEventPoints(event, entry, userPick, elementPointsMap);
+			if (entryEventResultEntity == null) {
+				return;
+			}
+			if (!entryEventResultMap.containsKey(entry)) {
+				insertEventResultList.add(entryEventResultEntity);
+			} else {
+				entryEventResultEntity.setId(entryEventResultMap.get(entry).getId());
+				updateEventResultList.add(entryEventResultEntity);
+			}
+		});
+		this.entryEventResultService.saveBatch(insertEventResultList);
+		log.info("tournament:{}, event:{}, insert tournament entry event result size:{}!", tournamentId, event, insertEventResultList.size());
+		this.entryEventResultService.updateBatchById(updateEventResultList);
+		log.info("tournament:{}, event:{}, update tournament entry event result size:{}!", tournamentId, event, updateEventResultList.size());
+	}
+
 	private EntryEventResultEntity calcEntryEventPoints(int event, int entry, UserPicksRes userPick, Map<Integer, Integer> elementPointsMap) {
 		return new EntryEventResultEntity()
 				.setEntry(entry)
@@ -194,6 +240,120 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 				)
 		);
 		return JsonUtils.obj2json(autoSubList);
+	}
+
+	@Override
+	public void upsertEntryEventCupResult(int event, int entry) {
+		if (entry < 0) {
+			return;
+		}
+		EntryCupRes entryCupRes = this.queryService.getEntryCup(entry);
+		if (entryCupRes == null) {
+			return;
+		}
+		Match cupMatch = entryCupRes.getCupMatches()
+				.stream()
+				.filter(o -> o.getEvent() == event)
+				.findFirst()
+				.orElse(null);
+		if (cupMatch == null) {
+			return;
+		}
+		// entry_event_cup_result
+		EntryEventCupResultEntity entryEventCupResult = new EntryEventCupResultEntity()
+				.setEvent(event)
+				.setEntry(entry)
+				.setEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Name() : cupMatch.getEntry2Name())
+				.setPlayerName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1PlayerName() : cupMatch.getEntry2PlayerName())
+				.setEventPoints(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Points() : cupMatch.getEntry2Points())
+				.setAgainstEntry(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry2Entry() : cupMatch.getEntry1Entry())
+				.setAgainstEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry2Name() : cupMatch.getEntry1Name())
+				.setAgainstPlayerName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry2PlayerName() : cupMatch.getEntry1PlayerName())
+				.setAgainstEventPoints(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry2Points() : cupMatch.getEntry1Points());
+		if (cupMatch.getWinner() == 0) {
+			if (entryEventCupResult.getEventPoints() >= entryEventCupResult.getAgainstEventPoints()) {
+				entryEventCupResult.setResult("Win");
+			}
+		} else if (cupMatch.getWinner() == entryEventCupResult.getEntry()) {
+			entryEventCupResult.setResult("Win");
+		} else {
+			entryEventCupResult.setResult("Lose");
+		}
+		// insert or update
+		EntryEventCupResultEntity entryEventCupResultEntity = this.entryEventCupResultService.getOne(new QueryWrapper<EntryEventCupResultEntity>().lambda()
+				.eq(EntryEventCupResultEntity::getEvent, event)
+				.eq(EntryEventCupResultEntity::getEntry, entry));
+		if (entryEventCupResultEntity == null) {
+			this.entryEventCupResultService.save(entryEventCupResult);
+		} else {
+			entryEventCupResult.setId(entryEventCupResultEntity.getId());
+			this.entryEventCupResultService.updateById(entryEventCupResult);
+		}
+	}
+
+	@Override
+	public void upsertTournamentEntryEventCupResult(int event, int tournamentId) {
+		// get entry_list
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			log.error("tournament:{}, tournament_info not exists!", tournamentId);
+			return;
+		}
+		Map<Integer, EntryEventCupResultEntity> entryEventCupResultMap = this.entryEventCupResultService.list(new QueryWrapper<EntryEventCupResultEntity>().lambda()
+				.eq(EntryEventCupResultEntity::getEvent, event)
+				.in(EntryEventCupResultEntity::getEntry, entryList))
+				.stream()
+				.collect(Collectors.toMap(EntryEventCupResultEntity::getEntry, o -> o));
+		// upsert entry_event_result
+		List<EntryEventCupResultEntity> insertEventCupResultList = Lists.newArrayList();
+		List<EntryEventCupResultEntity> updateEventCupResultList = Lists.newArrayList();
+		entryList.forEach(entry -> {
+			if (entry < 0) {
+				return;
+			}
+			EntryCupRes entryCupRes = this.queryService.getEntryCup(entry);
+			if (entryCupRes == null) {
+				return;
+			}
+			Match cupMatch = entryCupRes.getCupMatches()
+					.stream()
+					.filter(o -> o.getEvent() == event)
+					.findFirst()
+					.orElse(null);
+			if (cupMatch == null) {
+				return;
+			}
+			// entry_event_cup_result
+			EntryEventCupResultEntity entryEventCupResult = new EntryEventCupResultEntity()
+					.setEvent(event)
+					.setEntry(entry)
+					.setEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Name() : cupMatch.getEntry2Name())
+					.setPlayerName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1PlayerName() : cupMatch.getEntry2PlayerName())
+					.setEventPoints(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Points() : cupMatch.getEntry2Points())
+					.setAgainstEntry(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry2Entry() : cupMatch.getEntry1Entry())
+					.setAgainstEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry2Name() : cupMatch.getEntry1Name())
+					.setAgainstPlayerName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry2PlayerName() : cupMatch.getEntry1PlayerName())
+					.setAgainstEventPoints(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry2Points() : cupMatch.getEntry1Points());
+			if (cupMatch.getWinner() == 0) {
+				if (entryEventCupResult.getEventPoints() >= entryEventCupResult.getAgainstEventPoints()) {
+					entryEventCupResult.setResult("Win");
+				}
+			} else if (cupMatch.getWinner() == entryEventCupResult.getEntry()) {
+				entryEventCupResult.setResult("Win");
+			} else {
+				entryEventCupResult.setResult("Lose");
+			}
+			if (!entryEventCupResultMap.containsKey(entry)) {
+				insertEventCupResultList.add(entryEventCupResult);
+			} else {
+				entryEventCupResult.setId(entryEventCupResultMap.get(entry).getId());
+				updateEventCupResultList.add(entryEventCupResult);
+			}
+		});
+		this.entryEventCupResultService.saveBatch(insertEventCupResultList);
+		log.info("tournament:{}, event:{}, insert tournament entry event cup result size:{}!", tournamentId, event, insertEventCupResultList.size());
+		this.entryEventCupResultService.updateBatchById(updateEventCupResultList);
+		log.info("tournament:{}, event:{}, update tournament entry event cup result size:{}!", tournamentId, event, updateEventCupResultList.size());
 	}
 
 	@Override
@@ -273,53 +433,6 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 								.setTime(o.getTime())
 				));
 		return list;
-	}
-
-	@Override
-	public void upsertTournamentEntryEventResult(int event, int tournamentId) {
-		// get entry_list
-		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
-		if (CollectionUtils.isEmpty(entryList)) {
-			log.error("tournament:{}, tournament_info not exists!", tournamentId);
-			return;
-		}
-		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-				.eq(EntryEventResultEntity::getEvent, event)
-				.in(EntryEventResultEntity::getEntry, entryList))
-				.stream()
-				.collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
-		// get event_live
-		Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-				.eq(EventLiveEntity::getEvent, event))
-				.stream()
-				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
-		// upsert entry_event_result
-		RedisUtils.removeCacheByKey("get");
-		List<EntryEventResultEntity> insertEventResultList = Lists.newArrayList();
-		List<EntryEventResultEntity> updateEventResultList = Lists.newArrayList();
-		entryList.forEach(entry -> {
-			if (entry <= 0) {
-				return;
-			}
-			UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
-			if (userPick == null) {
-				return;
-			}
-			EntryEventResultEntity entryEventResultEntity = this.calcEntryEventPoints(event, entry, userPick, elementPointsMap);
-			if (entryEventResultEntity == null) {
-				return;
-			}
-			if (!entryEventResultMap.containsKey(entry)) {
-				insertEventResultList.add(entryEventResultEntity);
-			} else {
-				entryEventResultEntity.setId(entryEventResultMap.get(entry).getId());
-				updateEventResultList.add(entryEventResultEntity);
-			}
-		});
-		this.entryEventResultService.saveBatch(insertEventResultList);
-		log.info("tournament:{}, event:{}, insert tournament entry event result size:{}!", tournamentId, event, insertEventResultList.size());
-		this.entryEventResultService.updateBatchById(updateEventResultList);
-		log.info("tournament:{}, event:{}, update tournament entry event result size:{}!", tournamentId, event, updateEventResultList.size());
 	}
 
 	@Override

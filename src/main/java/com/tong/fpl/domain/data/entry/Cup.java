@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class Cup {
 
-	private List<Match> match;
+	private List<Match> matches;
 	private CupStatus status;
 
 }

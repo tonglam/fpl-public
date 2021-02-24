@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryEventCupData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -65,6 +66,8 @@ public interface ITableQueryService {
 	TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId);
 
 	TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+
+	TableData<EntryEventCupData> qryPageEntryEventCupResult(int entry, int page, int limit);
 
 	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
