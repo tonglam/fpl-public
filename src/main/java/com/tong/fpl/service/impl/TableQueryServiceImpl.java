@@ -920,15 +920,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
 	@Cacheable(value = "qryPageEntryEventCupResult", key = "#entry+'::'+#page+'::'+#limit")
 	@Override
 	public TableData<EntryEventCupData> qryPageEntryEventCupResult(int entry, int page, int limit) {
-		Page<EntryEventCupResultEntity> pointsGroupResultPage = this.entryEventCupResultService.getBaseMapper().selectPage(
+		Page<EntryEventCupResultEntity> cupResultPage = this.entryEventCupResultService.getBaseMapper().selectPage(
 				new Page<>(page, limit, true), new QueryWrapper<EntryEventCupResultEntity>().lambda()
 						.eq(EntryEventCupResultEntity::getEntry, entry)
 		);
-		if (CollectionUtils.isEmpty(pointsGroupResultPage.getRecords())) {
+		if (CollectionUtils.isEmpty(cupResultPage.getRecords())) {
 			return new TableData<>();
 		}
 		List<EntryEventCupData> list = Lists.newArrayList();
-		pointsGroupResultPage.getRecords().forEach(o -> {
+		cupResultPage.getRecords().forEach(o -> {
 			EntryEventCupData data = new EntryEventCupData()
 					.setEvent(o.getEvent())
 					.setEntry(entry)
@@ -942,7 +942,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
 					.setResult(o.getResult());
 			list.add(data);
 		});
-		return new TableData<>(list);
+		Page<EntryEventCupData> pageResult = new Page<>(page, limit, cupResultPage.getTotal());
+		pageResult.setRecords(list);
+		return new TableData<>(pageResult);
 	}
 
 	@Cacheable(value = "qryPageBattleGroupResult", key = "#tournamentId+'::'+#groupId+'::'+#entry+'::'+#page+'::'+#limit")
