@@ -325,9 +325,6 @@
     });
 
     function getLocalTime(time) {
-        console.info(time);
-        console.info(new Date().getTimezoneOffset());
-        console.info(moment("2021-01-30T11:00:00Z").utcOffset(480).format('YYYY/MM/DD HH:mm:ss'));
         return moment(time).utcOffset(-1 * new Date().getTimezoneOffset()).format('YYYY/MM/DD HH:mm:ss');
     }
 
