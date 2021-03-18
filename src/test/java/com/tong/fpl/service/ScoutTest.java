@@ -14,7 +14,7 @@ public class ScoutTest extends FplApplicationTests {
     private IGroupService scoutService;
 
     @ParameterizedTest
-    @CsvSource({"27"})
+    @CsvSource({"28"})
     void updateEventScoutResult(int event) {
         this.scoutService.updateEventScoutResult(event);
         System.out.println(1);

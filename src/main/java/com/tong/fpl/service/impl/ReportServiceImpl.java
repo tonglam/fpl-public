@@ -96,6 +96,9 @@ public class ReportServiceImpl implements IReportService {
 		String leagueName = limit == 0 ? leagueInfoData.getName() : leagueInfoData.getName() + "(top " + (int) NumberUtil.div(limit, 1000, 0, RoundingMode.FLOOR) + "k)";
 		// init league result stat
 		List<EntryInfoData> entryInfoDataList = leagueInfoData.getEntryInfoList();
+		if (CollectionUtils.isEmpty(entryInfoDataList)) {
+			return;
+		}
 		// get user picks
 		List<CompletableFuture<LeagueEventReportEntity>> future = entryInfoDataList
 				.stream()
@@ -376,7 +379,7 @@ public class ReportServiceImpl implements IReportService {
 					);
 		}
 		// captain
-		int captain = leagueEventStatEntity.getCaptain();
+		int captain = leagueEventStatEntity.getPlayedCaptain();
 		if (eventLiveMap.containsKey(captain)) {
 			EventLiveEntity captainEventLiveEntity = eventLiveMap.get(captain);
 			leagueEventStatEntity
