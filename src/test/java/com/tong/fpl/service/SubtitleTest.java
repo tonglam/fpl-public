@@ -20,4 +20,11 @@ public class SubtitleTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"E:\\, Born to Do-Steven Cooper"})
+	void praseIrcToWord(String dir, String name) {
+		this.subtitleService.praseIrcToWord(dir, name);
+		System.out.println(1);
+	}
+
 }

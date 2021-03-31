@@ -21,4 +21,6 @@ public interface ISubtitleApi {
 
 	TableData<SubtitleData> qrySubtitleListByType(QueryParam qryParam);
 
+	String praseIrcToWord(String dir, String name);
+
 }

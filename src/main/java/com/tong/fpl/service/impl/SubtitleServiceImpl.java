@@ -5,6 +5,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.io.CharsetDetector;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.qrpcode.domain.WordGo;
 import com.google.common.collect.Lists;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.entity.SubtitleEntity;
@@ -28,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Create by tong on 2020/12/2
@@ -194,6 +196,27 @@ public class SubtitleServiceImpl implements ISubtitleService {
 		this.subtitleService.list(queryWrapper)
 				.forEach(o -> list.add(BeanUtil.copyProperties(o, SubtitleData.class)));
 		return new TableData<>(list);
+	}
+
+	@Override
+	public String praseIrcToWord(String dir, String name) {
+		try {
+			List<String> list = Files.lines(Paths.get(dir + name + ".lrc"))
+					.map(o -> StringUtils.substringAfter(o, "]"))
+					.filter(StringUtils::isNotEmpty)
+					.map(o -> StringUtils.replace(o, "&apos;", "'"))
+					.map(o -> StringUtils.replace(o, "&quot;", "'"))
+					.collect(Collectors.toList());
+			WordGo wordGo = new WordGo();
+			list.forEach(o -> wordGo.addLine(o, "font-family: Times New Roman; font-size: 12"));
+			String outputName = dir + name + ".docx";
+			wordGo.create(outputName);
+			log.info("prase irc:[{}] to word sucess", name);
+			return outputName;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

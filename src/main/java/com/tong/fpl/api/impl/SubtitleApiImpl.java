@@ -48,4 +48,9 @@ public class SubtitleApiImpl implements ISubtitleApi {
 		return this.subtitleService.qrySubtitleListByType(qryParam);
 	}
 
+	@Override
+	public String praseIrcToWord(String dir, String name) {
+		return this.subtitleService.praseIrcToWord(dir, name);
+	}
+
 }

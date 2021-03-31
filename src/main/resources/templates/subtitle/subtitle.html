@@ -167,6 +167,34 @@
             <br>
             <a href="https://musicallydown.com/" style="font-size: 15px" target="_blank">抖音下载</a>
 
+            <fieldset class="layui-elem-field layui-field-title site-title"
+                      style="margin-top: 30px">
+                <legend><a>歌词文件（lrc转word）</a></legend>
+            </fieldset>
+
+            <div class="layui-upload-drag" id="lrcUpload" style="margin-left: 80px">
+                <i class="layui-icon"></i>
+                <p>点击或拖拽上传</p>
+            </div>
+
+            <div style="margin-top: 20px"></div>
+
+            <form class="layui-form">
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">文件名</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="on" class="layui-input" name="lrcName" type="text">
+                    </div>
+
+                    <button class="layui-btn layui-btn-sm" id="lrcDownload" style="margin-left:20px;margin-top: 6px"
+                            type="button">下载
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
     </div>
 </div>
@@ -778,6 +806,31 @@
                 .catch(function (error) {
                     layer.msg(error, {time: 1500});
                 });
+        });
+
+        upload.render({
+            elem: '#lrcUpload',
+            url: '/subtitle/uploadSubtitleFile',
+            accept: 'file',
+            exts: 'lrc',
+            size: 1024,
+            done: function (response) {
+                let message = response.data;
+                layer.msg(message, {time: 1500});
+                let index = message.search(":"), lastIndex = message.search(".lrc");
+                if (index > 0) {
+                    $("input[name=lrcName]").val(message.substring(index + 1, lastIndex));
+                }
+            }
+        });
+
+        $("#lrcDownload").on('click', function () {
+            let name = $("input[name=lrcName]").val();
+            if (name === '') {
+                layer.msg("文件名不能为空！", {time: 1500});
+                return false;
+            }
+            window.location = "/subtitle/downloadLrcFile?name=" + name;
         });
 
     });
