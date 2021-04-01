@@ -160,7 +160,7 @@ public class SubtitleController {
 	public ResponseData<String> uploadLrcFile(@RequestParam MultipartFile file) {
 		try {
 			String fileName = file.getOriginalFilename();
-			Path path = Paths.get(Constant.SUBTITLE_FILE_LOCATION + fileName);
+			Path path = Paths.get(Constant.SONGS_FILE_LOCATION + fileName);
 			if (Files.exists(path)) {
 				Files.delete(path);
 			}
@@ -173,12 +173,12 @@ public class SubtitleController {
 
 	@RequestMapping(value = "/downloadLrcFile")
 	public void downloadLrcFile(@RequestParam String name, HttpServletResponse response) {
-		String fileName = this.subtitleApi.praseIrcToWord(Constant.SUBTITLE_FILE_LOCATION, name);
+		String fileName = this.subtitleApi.praseIrcToWord(Constant.SONGS_FILE_LOCATION, name);
 		if (StringUtils.isEmpty(fileName)) {
 			log.error("word:[{}] not exists!", name);
 		}
 		File file = new File(fileName);
-		fileName = StringUtils.substringAfter(fileName, Constant.SUBTITLE_FILE_LOCATION);
+		fileName = StringUtils.substringAfter(fileName, Constant.SONGS_FILE_LOCATION);
 		response.reset();
 		response.setHeader("Content-Disposition", "attachment; filename=" + new String(fileName.getBytes(), StandardCharsets.ISO_8859_1));
 		response.setHeader("Cache-Control", "no-cache,no-store,must-revalidate");

@@ -206,6 +206,7 @@ public class SubtitleServiceImpl implements ISubtitleService {
 					.filter(StringUtils::isNotEmpty)
 					.map(o -> StringUtils.replace(o, "&apos;", "'"))
 					.map(o -> StringUtils.replace(o, "&quot;", "'"))
+					.map(o -> StringUtils.replace(o, "&", "and"))
 					.collect(Collectors.toList());
 			WordGo wordGo = new WordGo();
 			list.forEach(o -> wordGo.addLine(o, "font-family: Times New Roman; font-size: 12"));

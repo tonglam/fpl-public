@@ -27,5 +27,6 @@ public class Constant {
 
 	// location
 	public static final String SUBTITLE_FILE_LOCATION = "/home/workspace/subtitle/";
+	public static final String SONGS_FILE_LOCATION = "/home/workspace/songs/";
 
 }
