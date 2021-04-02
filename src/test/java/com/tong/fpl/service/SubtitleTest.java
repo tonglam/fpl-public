@@ -22,8 +22,8 @@ public class SubtitleTest extends FplApplicationTests {
 
 	@ParameterizedTest
 	@CsvSource({"/home/workspace/songs/, Creep-Gamper & Dadoni Ember Island"})
-	void praseIrcToWord(String dir, String name) {
-		this.subtitleService.praseIrcToWord(dir, name);
+	void parseIrcToWord(String dir, String name) {
+		this.subtitleService.parseIrcToWord(dir, name);
 		System.out.println(1);
 	}
 

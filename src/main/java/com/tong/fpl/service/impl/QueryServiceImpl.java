@@ -1538,7 +1538,7 @@ public class QueryServiceImpl implements IQueryService {
 		return list;
 	}
 
-	@Cacheable(value = "qryEntryFreeTransfersMap", key = "#event+'::'+#entry")
+	@Cacheable(value = "qryEntryFreeTransfersMap", key = "#entry")
 	@Override
 	public Map<Integer, Integer> qryEntryFreeTransfersMap(int entry) {
 		Map<Integer, Integer> map = Maps.newHashMap();

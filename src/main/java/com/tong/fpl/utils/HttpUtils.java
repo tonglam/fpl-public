@@ -17,9 +17,11 @@ import org.apache.http.util.EntityUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.rmi.server.ExportException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Create by tong on 2018/2/8
@@ -83,35 +85,6 @@ public class HttpUtils {
 			httpclient.close();
 		}
 		return Optional.empty();
-	}
-
-	/**
-	 * 为http的get方法的url方便的添加多个键值参数
-	 *
-	 * @param url    原url
-	 * @param params 参数
-	 * @return 拼接好参数的url
-	 */
-	private static String attachHttpGetParams(Map<String, String> params, String url) {
-		Iterator<String> keys = params.keySet().iterator();
-		Iterator<String> values = params.values().iterator();
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("?");
-		for (int i = 0; i < params.size(); i++) {
-			String value = null;
-			try {
-				value = URLEncoder.encode(values.next(), "utf-8");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			stringBuilder.append(keys.next());
-			stringBuilder.append("=");
-			stringBuilder.append(value);
-			if (i != params.size() - 1) {
-				stringBuilder.append("&");
-			}
-		}
-		return url + stringBuilder.toString();
 	}
 
 	/**

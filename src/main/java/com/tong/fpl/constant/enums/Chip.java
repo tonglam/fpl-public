@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum Chip {
+
 	NONE("n/a"), BB("bboost"), FH("freehit"), WC("wildcard"), TC("3xc");
 
 	private final String value;

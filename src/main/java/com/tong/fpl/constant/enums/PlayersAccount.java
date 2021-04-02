@@ -2,9 +2,6 @@ package com.tong.fpl.constant.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.stream.Stream;
 
 /**
  * Create by tong on 2022/02/04
@@ -66,16 +63,5 @@ public enum PlayersAccount {
     King(2081113);
 
     private final int entry;
-
-    public static int getPlayerAccountEntry(String name) {
-        if (name.contains("-")) {
-            return getPlayerAccountEntry(name.replaceAll("-", "_"));
-        }
-        return Stream.of(PlayersAccount.values())
-                .filter(o -> StringUtils.equals(o.name(), name))
-                .map(PlayersAccount::getEntry)
-                .findFirst()
-                .orElse(0);
-    }
 
 }

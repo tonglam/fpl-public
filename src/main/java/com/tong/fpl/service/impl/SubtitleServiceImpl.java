@@ -199,7 +199,7 @@ public class SubtitleServiceImpl implements ISubtitleService {
 	}
 
 	@Override
-	public String praseIrcToWord(String dir, String name) {
+	public String parseIrcToWord(String dir, String name) {
 		try {
 			List<String> list = Files.lines(Paths.get(dir + name + ".lrc"))
 					.map(o -> StringUtils.substringAfter(o, "]"))
@@ -212,7 +212,7 @@ public class SubtitleServiceImpl implements ISubtitleService {
 			list.forEach(o -> wordGo.addLine(o, "font-family: Times New Roman; font-size: 12"));
 			String outputName = dir + name + ".docx";
 			wordGo.create(outputName);
-			log.info("prase irc:[{}] to word sucess", name);
+			log.info("parse irc:[{}] to word success", name);
 			return outputName;
 		} catch (IOException e) {
 			e.printStackTrace();

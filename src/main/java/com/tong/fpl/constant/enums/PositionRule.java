@@ -9,6 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PositionRule {
+
 	MIN_NUM_GKP(1), MIN_NUM_DEF(3), MIN_NUM_FWD(1), MIN_PLAYERS(11);
 
 	private final int num;

@@ -107,10 +107,10 @@
         });
 
         $("#confirmButton").on('click', function () {
-            let lineup = [], captanSet = false, viceCaptainSet = false;
+            let lineup = [], captainSet = false, viceCaptainSet = false;
             $.each(table.cache['eventPickTable'], function (index, item) {
                 if (item.captain) {
-                    captanSet = true;
+                    captainSet = true;
                 }
                 if (item.viceCaptain) {
                     viceCaptainSet = true;
@@ -126,7 +126,7 @@
                     viceCaptain: item.viceCaptain
                 });
             });
-            if (!captanSet) {
+            if (!captainSet) {
                 layer.msg('请设置队长', {time: 1000});
                 return false;
             }

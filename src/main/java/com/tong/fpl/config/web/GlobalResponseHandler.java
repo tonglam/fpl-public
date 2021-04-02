@@ -19,13 +19,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
 	@Override
-	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+	public boolean supports(@Nullable MethodParameter returnType, @Nullable Class<? extends HttpMessageConverter<?>> converterType) {
 		return true;
 	}
 
 	@Override
-	@Nullable
-	public Object beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+	public Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType, @Nullable MediaType selectedContentType, @Nullable Class<? extends HttpMessageConverter<?>> selectedConverterType, @Nullable ServerHttpRequest request, @Nullable ServerHttpResponse response) {
 		if (body == null) {
 			return ResponseData.success();
 		}
@@ -34,6 +33,9 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 			return body;
 		}
 		// 拦截api数据
+		if (returnType == null) {
+			return body;
+		}
 		if (returnType.getExecutable().getClass().getSimpleName().contains("Http")) {
 			if (body instanceof ResponseData) {
 				return body;

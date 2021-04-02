@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 @Getter
 @AllArgsConstructor
 public enum KnockoutMode {
+
     No_knockout("0", "无淘汰赛"), Single_round("1", "单循环"),
     Home_away("2", "主客场"), PK("3", "PK赛");
 

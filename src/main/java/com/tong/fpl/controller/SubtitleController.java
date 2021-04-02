@@ -173,7 +173,7 @@ public class SubtitleController {
 
 	@RequestMapping(value = "/downloadLrcFile")
 	public void downloadLrcFile(@RequestParam String name, HttpServletResponse response) {
-		String fileName = this.subtitleApi.praseIrcToWord(Constant.SONGS_FILE_LOCATION, name);
+		String fileName = this.subtitleApi.parseIrcToWord(Constant.SONGS_FILE_LOCATION, name);
 		if (StringUtils.isEmpty(fileName)) {
 			log.error("word:[{}] not exists!", name);
 		}

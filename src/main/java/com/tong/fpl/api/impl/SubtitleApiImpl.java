@@ -49,8 +49,8 @@ public class SubtitleApiImpl implements ISubtitleApi {
 	}
 
 	@Override
-	public String praseIrcToWord(String dir, String name) {
-		return this.subtitleService.praseIrcToWord(dir, name);
+	public String parseIrcToWord(String dir, String name) {
+		return this.subtitleService.parseIrcToWord(dir, name);
 	}
 
 }

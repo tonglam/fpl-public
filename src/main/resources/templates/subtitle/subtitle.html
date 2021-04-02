@@ -252,7 +252,7 @@
             }
         });
 
-        let jobTypeEnum = ["翻译", "校对"], vedioTypeEnum = ["Titok", "Youtube"],
+        let jobTypeEnum = ["翻译", "校对"], videoTypeEnum = ["Titok", "Youtube"],
             statusEnum = ["已接活", "已翻译", "已校对", "已拉轴", "已压制", "已填表", "已结算"];
 
         let subtitleTable, qryParam = {
@@ -310,7 +310,7 @@
                                 let select = "<select name='videoTypeSelect' lay-filter='videoTypeSelect'>";
                                 if (d.videoType != null) {
                                     select += "<option value=" + d.videoType + ">" + d.videoType + "</option>";
-                                    $.each(vedioTypeEnum, function (index, item) {
+                                    $.each(videoTypeEnum, function (index, item) {
                                         if (item !== d.videoType) {
                                             select += "<option value=" + item + ">" + item + "</option>";
                                         }
