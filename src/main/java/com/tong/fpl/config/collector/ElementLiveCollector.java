@@ -63,7 +63,7 @@ public class ElementLiveCollector implements Collector<ElementEventResultData, M
 				table.put(false, false, Lists.newArrayList());
 				// put the real value
 				map.get(elementType).forEach(o -> {
-					boolean active = !o.isGwStarted() || (o.isGwStarted() && o.isPlayed());
+					boolean active = !o.isGwFinished() || (o.isGwStarted() && o.isPlayed());
 					boolean start = o.getPosition() < 12;
 					List<ElementEventResultData> list = table.get(active, start);
 					if (CollectionUtils.isEmpty(list)) {

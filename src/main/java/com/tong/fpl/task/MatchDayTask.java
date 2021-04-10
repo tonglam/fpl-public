@@ -189,18 +189,6 @@ public class MatchDayTask {
 		this.scoutService.updateEventScoutResult(event);
 	}
 
-	@Scheduled(cron = "0 25 9,12 * * *")
-	public void updateTournamentEventTransferPlayed() {
-		int event = this.queryService.getCurrentEvent();
-		if (!this.queryService.isMatchDay(event)) {
-			return;
-		}
-		this.queryService.qryAllTournamentList()
-				.stream()
-				.map(TournamentInfoEntity::getId)
-				.forEach(tournamentId -> this.updateEventResultsService.updateEntryEventTransfersPlayed(event, tournamentId));
-	}
-
 	@Scheduled(cron = "0 40 9,11 * * *")
 	public void updateTournamentEventTransfersPlayed() {
 		int event = this.queryService.getCurrentEvent();
