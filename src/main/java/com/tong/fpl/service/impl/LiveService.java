@@ -441,8 +441,7 @@ public class LiveService implements ILiveService {
 		}
 		// mids
 		int maxMidNum = PositionRule.MIN_PLAYERS.getNum() - gkps.size() - defs.size() - fwds.size();
-		List<ElementEventResultData> mids = this.createSteam(map.get(Position.MID.getElementType()).get(true, true),
-				map.get(Position.MID.getElementType()).get(true, false))
+		List<ElementEventResultData> mids = this.createSteam(map.get(Position.MID.getElementType()).get(true, true))
 				.flatMap(Collection::stream)
 				.sorted(Comparator.comparing(ElementEventResultData::getPosition))
 				.limit(maxMidNum)
