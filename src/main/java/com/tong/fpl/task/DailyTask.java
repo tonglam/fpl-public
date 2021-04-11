@@ -18,6 +18,16 @@ public class DailyTask {
 	private final IRedisCacheService redisCacheService;
 	private final IUpdateEventService updateEventResultsService;
 
+	@Scheduled(cron = "0 35 6 * * *")
+	public void insertEvent() {
+		this.redisCacheService.insertEvent();
+	}
+
+	@Scheduled(cron = "0 40 6 * * *")
+	public void insertEventFixture() {
+		this.redisCacheService.insertEventFixture();
+	}
+
 	@Scheduled(cron = "0 35 9 * * *")
 	public void refreshPlayerValue() {
 		try {

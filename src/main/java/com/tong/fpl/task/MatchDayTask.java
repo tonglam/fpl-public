@@ -51,16 +51,6 @@ public class MatchDayTask {
 		this.redisCacheService.insertEventLive(event);
 	}
 
-	@Scheduled(cron = "0 35 6 * * *")
-	public void insertEvent() {
-		int event = this.queryService.getCurrentEvent();
-		if (!this.queryService.isMatchDay(event)) {
-			return;
-		}
-		TaskLog.info("start true insertEvent task");
-		this.redisCacheService.insertEvent();
-	}
-
 	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
 	public void insertEntryEventTransfer() {
 		int event = this.queryService.getCurrentEvent();
