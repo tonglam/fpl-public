@@ -44,7 +44,17 @@
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%X{ip} %d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="eventLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/home/workspace/fpl/log/event.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -63,6 +73,10 @@
 
     <logger name="com.tong.fpl.log.TaskLog" additivity="false">
         <appender-ref ref="taskLog"/>
+    </logger>
+
+    <logger name="com.tong.fpl.log.EventLog" additivity="false">
+        <appender-ref ref="eventLog"/>
     </logger>
 
 </configuration>
