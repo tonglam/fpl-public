@@ -12,31 +12,31 @@ import java.util.Map;
  */
 public interface IRedisCacheService {
 
-    void insertTeam();
+	void insertTeam();
 
-    void insertHisTeam(String season);
+	void insertHisTeam(String season);
 
-    void insertEvent();
+	void insertEvent();
 
-    void insertHisEvent(String season);
+	void insertHisEvent(String season);
 
-    void insertEventFixture();
+	void insertEventFixture();
 
-    void insertHisEventFixture(String season);
+	void insertHisEventFixture(String season);
 
-    void insertSingleEventFixture(int event);
+	void insertSingleEventFixture(int event);
 
-    void insertSingleEventFixtureCache(int event);
+	void insertSingleEventFixtureCache(int event);
 
-    void insertLiveFixtureCache();
+	void insertLiveFixtureCache();
 
-    void insertPlayer();
+	void insertPlayer();
 
-    void insertHisPlayer(String season);
+	void insertHisPlayer(String season);
 
-    void insertPlayerStat();
+	void insertPlayerStat();
 
-    void insertHisPlayerStat(String season);
+	void insertHisPlayerStat(String season);
 
 	void insertPlayerValue();
 
@@ -49,6 +49,8 @@ public interface IRedisCacheService {
 	void insertDiscloseCache(int tournamentId, int captainGroupId, int entry);
 
 	void insertEventPassedDeadlineCache();
+
+	void insertSingleEventPassedDeadlineCache(int event);
 
 	int getCurrentEvent();
 
@@ -76,10 +78,10 @@ public interface IRedisCacheService {
 
 	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
-    Map<String, String> getPositionMap();
+	Map<String, String> getPositionMap();
 
-    Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+	Map<String, Map<String, Integer>> getLiveBonusCacheMap();
 
-    List<Integer> getDiscloseList(int tournamentId, int captainGroupId);
+	List<Integer> getDiscloseList(int tournamentId, int captainGroupId);
 
 }

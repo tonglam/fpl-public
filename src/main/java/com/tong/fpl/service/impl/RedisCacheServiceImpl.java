@@ -11,6 +11,7 @@ import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.MatchPlayStatus;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.ValueChangeType;
+import com.tong.fpl.domain.data.bootstrapStaic.Event;
 import com.tong.fpl.domain.data.eventLive.ElementStat;
 import com.tong.fpl.domain.data.response.EventFixturesRes;
 import com.tong.fpl.domain.data.response.EventLiveRes;
@@ -777,6 +778,33 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 		);
 		// set cache
 		deadlineMap.forEach((event, deadline) -> {
+			LocalDateTime deadlineTime = LocalDateTime.parse(StringUtils.substringBefore(deadline, "Z"));
+			LocalDateTime now = LocalDateTime.now();
+			if (deadlineTime.isBefore(now)) {
+				return;
+			}
+			deadlineTime = deadlineTime.plusHours(1);
+			Duration duration = Duration.between(now, deadlineTime);
+			String key = StringUtils.joinWith("::", "EventPassedDeadline", event);
+			this.redisTemplate.opsForValue().set(key, deadlineTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), duration);
+		});
+	}
+
+	@Override
+	public void insertSingleEventPassedDeadlineCache(int event) {
+		// get event deadline
+		Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
+		result.ifPresent(staticRes -> {
+			String deadline = staticRes.getEvents()
+					.stream()
+					.filter(o -> o.getId() == event)
+					.map(Event::getDeadlineTime)
+					.findFirst()
+					.orElse(null);
+			if (StringUtils.isEmpty(deadline)) {
+				return;
+			}
+			// set cache
 			LocalDateTime deadlineTime = LocalDateTime.parse(StringUtils.substringBefore(deadline, "Z"));
 			LocalDateTime now = LocalDateTime.now();
 			if (deadlineTime.isBefore(now)) {

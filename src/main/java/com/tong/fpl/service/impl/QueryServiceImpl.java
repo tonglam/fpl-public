@@ -1265,7 +1265,9 @@ public class QueryServiceImpl implements IQueryService {
 				// element live
 				EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
 				if (eventLiveEntity != null) {
-					pick.setMinutes(eventLiveEntity.getMinutes());
+					pick
+							.setMinutes(eventLiveEntity.getMinutes())
+							.setPoints(eventLiveEntity.getTotalPoints());
 				}
 				// add into list
 				if (pick.getPosition() <= 11) {

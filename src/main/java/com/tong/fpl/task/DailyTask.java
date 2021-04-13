@@ -1,6 +1,7 @@
 package com.tong.fpl.task;
 
 import com.tong.fpl.log.TaskLog;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.IUpdateEventService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class DailyTask {
 
 	private final IRedisCacheService redisCacheService;
+	private final IQueryService queryService;
 	private final IUpdateEventService updateEventResultsService;
 
 	@Scheduled(cron = "0 35 6 * * *")
@@ -29,8 +31,9 @@ public class DailyTask {
 	}
 
 	@Scheduled(cron = "0 45 6 * * *")
-	public void insertEventPassedDeadlineCache() {
-		this.redisCacheService.insertEventPassedDeadlineCache();
+	public void insertSingleEventPassedDeadlineCache() {
+		int nextEvent = this.queryService.getNextEvent();
+		this.redisCacheService.insertSingleEventPassedDeadlineCache(nextEvent);
 	}
 
 	@Scheduled(cron = "0 35 9 * * *")
