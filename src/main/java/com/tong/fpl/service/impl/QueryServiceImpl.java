@@ -1435,12 +1435,12 @@ public class QueryServiceImpl implements IQueryService {
 		if (entryEventResultEntity == null) {
 			return Lists.newArrayList();
 		}
-		return this.qryAutoSubListFromAutoSubs(season, entryEventResultEntity.getEventAutoSubs());
+		return this.qryAutoSubListFromAutoSubs(season, event, entryEventResultEntity.getEventAutoSubs());
 	}
 
-	@Cacheable(value = "qryAutoSubListFromAutoSubs", key = "#season+'::'+#autoSubs", unless = "#result == null")
+	@Cacheable(value = "qryAutoSubListFromAutoSubs", key = "#season+'::'+#event+'::'+#autoSubs", unless = "#result == null")
 	@Override
-	public List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String season, String autoSubs) {
+	public List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String season, int event, String autoSubs) {
 		if (StringUtils.isBlank(autoSubs)) {
 			return Lists.newArrayList();
 		}
@@ -1450,6 +1450,10 @@ public class QueryServiceImpl implements IQueryService {
 		}
 		Map<String, String> teamNameMap = this.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+		Map<Integer, Integer> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
@@ -1462,7 +1466,8 @@ public class QueryServiceImpl implements IQueryService {
 						.setElementInWebName(playerInEntity.getWebName())
 						.setElementInTeamId(playerInEntity.getTeamId())
 						.setElementInTeamName(teamNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
-						.setElementInTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""));
+						.setElementInTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
+						.setElementInPoints(eventLiveMap.getOrDefault(o.getElementIn(), 0));
 			}
 			PlayerEntity playerOutEntity = playerMap.getOrDefault(o.getElementOut(), null);
 			if (playerOutEntity != null) {
@@ -1472,7 +1477,8 @@ public class QueryServiceImpl implements IQueryService {
 						.setElementOutWebName(playerOutEntity.getWebName())
 						.setElementOutTeamId(playerOutEntity.getTeamId())
 						.setElementOutTeamName(teamNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
-						.setElementOutTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""));
+						.setElementOutTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
+						.setElementOutPoints(eventLiveMap.getOrDefault(o.getElementOut(), 0));
 			}
 		});
 		return autoSubList;
@@ -1502,6 +1508,10 @@ public class QueryServiceImpl implements IQueryService {
 		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
 				.stream()
 				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+		Map<Integer, Integer> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+				.eq(EventLiveEntity::getEvent, event))
+				.stream()
+				.collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
 		// collect
 		List<EntryEventAutoSubsData> list = Lists.newArrayList();
 		entryEventResultMap.keySet().forEach(entry -> {
@@ -1523,7 +1533,8 @@ public class QueryServiceImpl implements IQueryService {
 							.setElementInWebName(playerInEntity.getWebName())
 							.setElementInTeamId(playerInEntity.getTeamId())
 							.setElementInTeamName(teamNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
-							.setElementInTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""));
+							.setElementInTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
+							.setElementInPoints(eventLiveMap.getOrDefault(o.getElementIn(), 0));
 				}
 				PlayerEntity playerOutEntity = playerMap.getOrDefault(o.getElementOut(), null);
 				if (playerOutEntity != null) {
@@ -1533,7 +1544,8 @@ public class QueryServiceImpl implements IQueryService {
 							.setElementOutWebName(playerOutEntity.getWebName())
 							.setElementOutTeamId(playerOutEntity.getTeamId())
 							.setElementOutTeamName(teamNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
-							.setElementOutTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""));
+							.setElementOutTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
+							.setElementOutPoints(eventLiveMap.getOrDefault(o.getElementOut(), 0));
 				}
 				list.add(o);
 			});

@@ -2653,6 +2653,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				entryEventAutoSubsList.addAll(eventEventAutoSubMap.get(entry));
 			}
 			data
+					.setEventAutoSubPoints(
+							entryEventAutoSubsList
+									.stream()
+									.mapToInt(EntryEventAutoSubsData::getElementInPoints)
+									.sum()
+					)
 					.setAutoSubNum(eventEventAutoSubMap.containsKey(entry) ? eventEventAutoSubMap.get(entry).size() : 0)
 					.setEntryEventAutoSubsList(entryEventAutoSubsList);
 			// other data
@@ -2816,6 +2822,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
 		// autoSubs
 		List<EntryEventAutoSubsData> entryEventAutoSubsList = this.queryService.qryEntryAutoSubDataList(event, entry);
 		data
+				.setEventAutoSubPoints(
+						entryEventAutoSubsList
+								.stream()
+								.mapToInt(EntryEventAutoSubsData::getElementInPoints)
+								.sum()
+				)
 				.setAutoSubNum(entryEventAutoSubsList.size())
 				.setEntryEventAutoSubsList(entryEventAutoSubsList);
 		// other data

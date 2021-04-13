@@ -249,12 +249,13 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
-	@Test
-	void qryAutoSubListFromAutoSubs() {
+	@ParameterizedTest
+	@CsvSource({"1"})
+	void qryAutoSubListFromAutoSubs(int event) {
 		EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
 				.eq(EntryEventResultEntity::getEntry, 1870)
 				.eq(EntryEventResultEntity::getEvent, 16));
-		List<EntryEventAutoSubsData> list = this.querySerivce.qryAutoSubListFromAutoSubs(entryEventResultEntity.getEventAutoSubs());
+		List<EntryEventAutoSubsData> list = this.querySerivce.qryAutoSubListFromAutoSubs(event, entryEventResultEntity.getEventAutoSubs());
 		System.out.println(1);
 	}
 

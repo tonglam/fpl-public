@@ -254,11 +254,11 @@ public interface IQueryService {
 
 	List<EntryEventAutoSubsData> qryEntryAutoSubDataList(String season, int event, int entry);
 
-	default List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String autoSubs) {
-		return this.qryAutoSubListFromAutoSubs(CommonUtils.getCurrentSeason(), autoSubs);
+	default List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(int event, String autoSubs) {
+		return this.qryAutoSubListFromAutoSubs(CommonUtils.getCurrentSeason(), event, autoSubs);
 	}
 
-	List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String season, String autoSubs);
+	List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String season, int event, String autoSubs);
 
 	List<EntryEventAutoSubsData> qryLeagueEventAutoSubDataList(int event, int leagueId, String leagueType);
 
