@@ -38,17 +38,19 @@ public interface IRedisCacheService {
 
     void insertHisPlayerStat(String season);
 
-    void insertPlayerValue();
+	void insertPlayerValue();
 
-    void insertEventLive(int event);
+	void insertEventLive(int event);
 
-    void insertEventLiveCache(int event);
+	void insertEventLiveCache(int event);
 
-    void insertLiveBonusCache();
+	void insertLiveBonusCache();
 
-    void insertDiscloseCache(int tournamentId, int captainGroupId, int entry);
+	void insertDiscloseCache(int tournamentId, int captainGroupId, int entry);
 
-    int getCurrentEvent();
+	void insertEventPassedDeadlineCache();
+
+	int getCurrentEvent();
 
 	Map<String, String> getTeamNameMap(String season);
 

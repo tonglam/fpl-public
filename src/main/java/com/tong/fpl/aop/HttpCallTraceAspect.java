@@ -41,13 +41,13 @@ public class HttpCallTraceAspect {
 
     @AfterReturning(returning = "object", pointcut = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
     public void afterReturning(Object object) {
-        HttpCallLog.info("response:{%s}", "data");
+        HttpCallLog.info("response:{}", "data");
         HttpCallLog.info("time espaced:{} ms!", System.currentTimeMillis() - startTime.get());
     }
 
     @AfterThrowing(throwing = "e", pointcut = "@annotation(com.tong.fpl.aop.annotation.TraceHttpCall)")
     public void afterThrowing(Exception e) {
-        HttpCallLog.error("exception:{%s}", e.getMessage());
+        HttpCallLog.error("exception:{}", e.getMessage());
         e.printStackTrace();
     }
 

@@ -28,6 +28,11 @@ public class DailyTask {
 		this.redisCacheService.insertEventFixture();
 	}
 
+	@Scheduled(cron = "0 45 6 * * *")
+	public void insertEventPassedDeadlineCache() {
+		this.redisCacheService.insertEventPassedDeadlineCache();
+	}
+
 	@Scheduled(cron = "0 35 9 * * *")
 	public void refreshPlayerValue() {
 		try {
