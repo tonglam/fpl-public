@@ -18,7 +18,11 @@ public interface IUpdateEventService {
 
 	void upsertTournamentEntryEventCupResult(int event, int tournamentId);
 
-	void insertEntryEventTransfer(int entry);
+	void insertEntryEventPick(int event, int entry);
+
+	void insertTournamentEntryEventPick(int event, int tournamentId);
+
+	void insertEntryEventTransfers(int entry);
 
 	void updateEntryEventTransfersPlayed(int event, int entry);
 

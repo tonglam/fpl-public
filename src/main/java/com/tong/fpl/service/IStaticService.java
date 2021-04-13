@@ -22,8 +22,6 @@ public interface IStaticService {
 
 	Optional<UserHistoryRes> getUserHistory(int entry);
 
-	Optional<ElementSummaryRes> getElementSummary(int element);
-
 	Optional<EntryRes> getEntry(int entry);
 
 	Optional<EntryCupRes> getEntryCup(int entry);

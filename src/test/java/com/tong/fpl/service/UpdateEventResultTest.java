@@ -6,6 +6,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.stream.IntStream;
+
 /**
  * Create by tong on 2020/7/15
  */
@@ -39,6 +41,25 @@ public class UpdateEventResultTest extends FplApplicationTests {
 	void upsertTournamentEntryEventCupResult(int event, int tournamentId) {
 		this.updateEventResultsService.upsertTournamentEntryEventCupResult(event, tournamentId);
 		System.out.println("event: " + event + ", update finished!");
+	}
+
+	@ParameterizedTest
+	@CsvSource({"1, 1870"})
+	void insertEntryEventPicks(int event, int entry) {
+		this.updateEventResultsService.insertEntryEventPick(event, entry);
+		System.out.println(1);
+	}
+
+	@Test
+	void insertTournamentEntryEventPicks() {
+		IntStream.rangeClosed(1, 14).forEach(tournamentId -> {
+			System.out.println("tournament:" + tournamentId);
+			IntStream.rangeClosed(1, 31).forEach(event -> {
+				this.updateEventResultsService.insertTournamentEntryEventPick(event, tournamentId);
+				System.out.println("event:" + event);
+			});
+		});
+		System.out.println(1);
 	}
 
 	@ParameterizedTest

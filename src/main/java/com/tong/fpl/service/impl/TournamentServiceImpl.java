@@ -50,6 +50,7 @@ public class TournamentServiceImpl implements ITournamentService {
 	private final IUpdateEventService updateEventResultService;
 	private final IReportService reportService;
 	private final EntryInfoService entryInfoService;
+	private final EntryEventPickService entryEventPickService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
 	private final TournamentGroupService tournamentGroupService;
@@ -988,11 +989,12 @@ public class TournamentServiceImpl implements ITournamentService {
 		int currentEvent = this.queryService.getCurrentEvent();
 		// create new tournament_group and tournament_group_result
 		this.createTournamentNewGroupData(tournamentId, groupStartGw, groupEndGw, newEntryInfoList);
-		// update tournament new entry_event_result
+		// update tournament new entry_event_pick && entry_event_result
 		List<Integer> newEntryList = newEntryInfoList
 				.stream()
 				.map(EntryInfoData::getEntry)
 				.collect(Collectors.toList());
+		this.updateTournamentNewEntryEventPick(currentEvent, tournamentId, groupStartGw, groupEndGw, newEntryList);
 		this.updateTournamentNewEntryEventResult(currentEvent, tournamentId, groupStartGw, groupEndGw, newEntryList);
 		// update tournament_points_group_result
 		this.updateTournamentPointsGroupResult(currentEvent, tournamentId, groupStartGw, groupEndGw);
@@ -1127,6 +1129,19 @@ public class TournamentServiceImpl implements ITournamentService {
 		this.tournamentGroupService.saveBatch(tournamentGroupList);
 		this.tournamentPointsGroupResultService.saveBatch(tournamentPointsGroupResultList);
 		log.info("tournament:{}, create new group data success!", tournamentId);
+	}
+
+	private void updateTournamentNewEntryEventPick(int currentEvent, int tournamentId, int groupStartGw, int groupEndGw, List<Integer> newEntryList) {
+		if (currentEvent < groupStartGw) {
+			return;
+		}
+		if (currentEvent > groupEndGw) {
+			currentEvent = groupEndGw;
+		}
+		IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event ->
+				newEntryList.forEach(entry ->
+						this.updateEventResultService.insertEntryEventPick(event, entry)));
+		log.info("tournament:{}, update new entry event pick success!", tournamentId);
 	}
 
 	private void updateTournamentNewEntryEventResult(int currentEvent, int tournamentId, int groupStartGw, int groupEndGw, List<Integer> newEntryList) {

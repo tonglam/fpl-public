@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -45,6 +46,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	private final EventLiveService eventLiveService;
 	private final EntryEventResultService entryEventResultService;
 	private final EntryEventCupResultService entryEventCupResultService;
+	private final EntryEventPickService entryEventPickService;
 	private final EntryEventTransfersService entryEventTransferService;
 	private final EntryEventSimulatePickService entryEventSimulatePickService;
 	private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
@@ -357,7 +359,81 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
 	}
 
 	@Override
-	public void insertEntryEventTransfer(int entry) {
+	public void insertEntryEventPick(int event, int entry) {
+		if (entry <= 0) {
+			return;
+		}
+		if (this.entryEventPickService.count(new QueryWrapper<EntryEventPickEntity>().lambda()
+				.eq(EntryEventPickEntity::getEntry, entry)
+				.eq(EntryEventPickEntity::getEvent, event)) > 0) {
+			return;
+		}
+		UserPicksRes userPicksRes = this.queryService.getUserPicks(event, entry);
+		if (userPicksRes == null || CollectionUtils.isEmpty(userPicksRes.getPicks())) {
+			return;
+		}
+		this.entryEventPickService.save(this.initEventEntryPicks(event, entry, 0));
+	}
+
+	private EntryEventPickEntity initEventEntryPicks(int event, int entry, int tryTimes) {
+		if (entry <= 0) {
+			return null;
+		}
+		UserPicksRes userPicksRes = this.queryService.getUserPicks(event, entry);
+		if (userPicksRes == null || CollectionUtils.isEmpty(userPicksRes.getPicks())) {
+			tryTimes++;
+			if (tryTimes >= 5) {
+				return null;
+			}
+			this.initEventEntryPicks(event, entry, tryTimes);
+		}
+		if (userPicksRes == null) {
+			return null;
+		}
+		return new EntryEventPickEntity()
+				.setEntry(entry)
+				.setEvent(event)
+				.setTransfers(userPicksRes.getEntryHistory().getEventTransfers())
+				.setTransfersCost(userPicksRes.getEntryHistory().getEventTransfersCost())
+				.setChip(userPicksRes.getActiveChip() == null ? Chip.NONE.getValue() : userPicksRes.getActiveChip())
+				.setPicks(JsonUtils.obj2json(userPicksRes.getPicks()));
+	}
+
+	@Override
+	public void insertTournamentEntryEventPick(int event, int tournamentId) {
+		// get entry_list
+		List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			log.error("tournament_info not exists, tournament:{}!", tournamentId);
+			return;
+		}
+		// init
+		List<Integer> existsList = this.entryEventPickService.list(new QueryWrapper<EntryEventPickEntity>().lambda()
+				.eq(EntryEventPickEntity::getEvent, event)
+				.in(EntryEventPickEntity::getEntry, entryList))
+				.stream()
+				.map(EntryEventPickEntity::getEntry)
+				.collect(Collectors.toList());
+		entryList = entryList
+				.stream()
+				.filter(o -> !existsList.contains(o))
+				.collect(Collectors.toList());
+		// save
+		List<CompletableFuture<EntryEventPickEntity>> future = entryList
+				.stream()
+				.map(entry -> CompletableFuture.supplyAsync(() -> this.initEventEntryPicks(event, entry, 0)))
+				.collect(Collectors.toList());
+		List<EntryEventPickEntity> list = future
+				.stream()
+				.map(CompletableFuture::join)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		this.entryEventPickService.saveBatch(list);
+		log.info("tournament:{}, event:{}, insert tournament entry event pick size:{}!", tournamentId, event, list.size());
+	}
+
+	@Override
+	public void insertEntryEventTransfers(int entry) {
 		if (entry <= 0) {
 			return;
 		}

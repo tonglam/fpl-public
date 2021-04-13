@@ -320,6 +320,8 @@ public interface IQueryService {
 
 	boolean qryTournamentUpdateNeeded(int event, int tournamentId);
 
+	List<EntryEventPickEntity> qryTournamentEntryEventPick(int event, int tournamentId);
+
 	/**
 	 * @apiNote report
 	 */

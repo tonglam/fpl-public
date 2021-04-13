@@ -52,7 +52,19 @@ public class MatchDayTask {
 	}
 
 	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
-	public void insertEntryEventTransfer() {
+	public void insertEntryEventPicks() {
+		int event = this.queryService.getCurrentEvent();
+		if (!this.queryService.isSelectTime(event)) {
+			return;
+		}
+		this.queryService.qryAllTournamentList()
+				.stream()
+				.map(TournamentInfoEntity::getId)
+				.forEach(tournamentId -> this.updateEventResultsService.insertTournamentEntryEventPick(event, tournamentId));
+	}
+
+	@Scheduled(cron = "0 0/5 0-4,18-23 * * *")
+	public void insertEntryEventTransfers() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isSelectTime(event)) {
 			return;

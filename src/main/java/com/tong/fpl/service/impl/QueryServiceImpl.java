@@ -66,6 +66,7 @@ public class QueryServiceImpl implements IQueryService {
 	private final EventLiveService eventLiveService;
 	private final EntryEventSimulatePickService entryEventSimulatePickService;
 	private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
+	private final EntryEventPickService entryEventPickService;
 	private final EntryEventResultService entryEventResultService;
 	private final TournamentInfoService tournamentInfoService;
 	private final TournamentEntryService tournamentEntryService;
@@ -2340,6 +2341,18 @@ public class QueryServiceImpl implements IQueryService {
 			}
 		}
 		return false;
+	}
+
+	@Cacheable(value = "qryTournamentEntryEventPick", key = "#event+'::'+#tournamentId", unless = "#result.size() eq 0")
+	@Override
+	public List<EntryEventPickEntity> qryTournamentEntryEventPick(int event, int tournamentId) {
+		List<Integer> entryList = this.qryEntryListByTournament(tournamentId);
+		if (CollectionUtils.isEmpty(entryList)) {
+			return Lists.newArrayList();
+		}
+		return this.entryEventPickService.list(new QueryWrapper<EntryEventPickEntity>().lambda()
+				.eq(EntryEventPickEntity::getEvent, event)
+				.in(EntryEventPickEntity::getEntry, entryList));
 	}
 
 	/**

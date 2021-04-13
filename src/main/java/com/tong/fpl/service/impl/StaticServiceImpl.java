@@ -150,11 +150,6 @@ public class StaticServiceImpl implements IStaticService {
 	}
 
 	@Override
-	public Optional<ElementSummaryRes> getElementSummary(int element) {
-		return this.interfaceService.getElementSummary(element);
-	}
-
-	@Override
 	public Optional<EntryRes> getEntry(int entry) {
 		return this.interfaceService.getEntry(entry);
 	}

@@ -30,8 +30,6 @@ public interface IInterfaceService {
 
 	Optional<StaticRes> getBootstrapStatic();
 
-	Optional<ElementSummaryRes> getElementSummary(int element);
-
 	Optional<List<TransferRes>> getTransfer(int entry);
 
 }

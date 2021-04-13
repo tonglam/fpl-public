@@ -144,19 +144,6 @@ public class InterfaceServiceImpl implements IInterfaceService {
 	}
 
 	@Override
-	public Optional<ElementSummaryRes> getElementSummary(int element) {
-		try {
-			String result = HttpUtils.httpGet(String.format(Constant.ELEMENT, element)).orElse("");
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-			return Optional.of(mapper.readValue(result, ElementSummaryRes.class));
-		} catch (IOException e) {
-			HttpCallLog.error("element:{}, get element summary error:{}", element, e.getMessage());
-		}
-		return Optional.empty();
-	}
-
-	@Override
 	public Optional<List<TransferRes>> getTransfer(int entry) {
 		try {
 			String result = HttpUtils.httpGet(String.format(Constant.TRANSFER, entry)).orElse("");
