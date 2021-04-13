@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.data.response.*;
+import com.tong.fpl.log.HttpCallLog;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, EntryRes.class));
 		} catch (IOException e) {
-			log.error("getEntry error: " + e.getMessage());
+			HttpCallLog.error("entry:{}, get entry error:{}", entry, e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -43,7 +44,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, EntryCupRes.class));
 		} catch (IOException e) {
-			log.error("getEntryCup error: " + e.getMessage());
+			HttpCallLog.error("entry:{}, get entry cup error:{}", entry, e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -59,7 +60,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, UserPicksRes.class));
 		} catch (IOException e) {
-			log.error("getUserPicks error: " + e.getMessage());
+			HttpCallLog.error("event:{}, entry:{}, get user picks error:{}", event, entry, e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -72,7 +73,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, UserHistoryRes.class));
 		} catch (IOException e) {
-			log.error("getUserHistory error: " + e.getMessage());
+			HttpCallLog.error("entry:{}, get user history error:{}", entry, e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -85,7 +86,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, LeagueClassicRes.class));
 		} catch (IOException e) {
-			log.error("getLeaguesClassic error: " + e.getMessage());
+			HttpCallLog.error("classicId:{}, page:{}, get leagues classic error:{}", classicId, page, e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -98,7 +99,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, LeagueH2hRes.class));
 		} catch (IOException e) {
-			log.error("getLeaguesH2h error: " + e.getMessage());
+			HttpCallLog.error("classicId:{}, page:{}, get leagues H2h error:{}", h2hId, page, e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -111,7 +112,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, EventLiveRes.class));
 		} catch (IOException e) {
-			log.error("getEventLive error: " + e.getMessage());
+			HttpCallLog.error("event:{}, get event live error:{}", event, e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -124,7 +125,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, new TypeReference<List<EventFixturesRes>>() {}));
 		} catch (IOException e) {
-			log.error("getEventFixture error: " + e.getMessage());
+			HttpCallLog.error("event:{}, getEventFixture error: " + e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -137,7 +138,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, StaticRes.class));
 		} catch (IOException e) {
-			log.error("get boot-static error: " + e.getMessage());
+			HttpCallLog.error("get boot strap static error:{}", e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -150,7 +151,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, ElementSummaryRes.class));
 		} catch (IOException e) {
-			log.error("getElementSummary error: " + e.getMessage());
+			HttpCallLog.error("element:{}, get element summary error:{}", element, e.getMessage());
 		}
 		return Optional.empty();
 	}
@@ -163,7 +164,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
 			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 			return Optional.of(mapper.readValue(result, new TypeReference<List<TransferRes>>() {}));
 		} catch (IOException e) {
-			log.error("getTransfer error: " + e.getMessage());
+			HttpCallLog.error("entry:{}, get transfer error:{}", entry, e.getMessage());
 		}
 		return Optional.empty();
 	}
