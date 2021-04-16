@@ -35,6 +35,7 @@ public class LiveCalcData {
 	private int liveTotalPoints;
 	private int played;
 	private int toPlay;
+	private int playedCaptain;
 	private String captainName;
 	private List<ElementEventResultData> pickList;
 

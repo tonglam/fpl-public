@@ -139,7 +139,7 @@ public class TableQueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"3571, Classic, 1870"})
+	@CsvSource({"3571, Classic, 1144629"})
 	void qryEntryScoringEventReportList(int leagueId, String leagueType, int entry) {
 		long start = System.currentTimeMillis();
 		TableData<LeagueEventReportData> data = this.tableQueryService.qryEntryScoringEventReportList(leagueId, leagueType, entry);

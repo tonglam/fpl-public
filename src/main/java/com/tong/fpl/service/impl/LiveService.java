@@ -224,6 +224,8 @@ public class LiveService implements ILiveService {
 		List<ElementEventResultData> pickList = this.getPickList(elementEventResultDataList);
 		// calc live points
 		int livePoints = this.calcActivePoints(Chip.getChipFromValue(entryEventPickEntity.getChip()), pickList);
+		// played captain
+		ElementEventResultData playedCaptain = this.selectPlayedCaptain(pickList);
 		// sort pick list
 		List<ElementEventResultData> sortedPickList = this.sortPickList(pickList);
 		return new LiveCalcData()
@@ -246,14 +248,8 @@ public class LiveService implements ILiveService {
 								.filter(o -> o.isPickActive() && !o.isGwStarted() && !o.isGwFinished())
 								.count()
 				)
-				.setCaptainName(
-						pickList
-								.stream()
-								.filter(ElementEventResultData::isCaptain)
-								.map(ElementEventResultData::getWebName)
-								.findFirst()
-								.orElse("")
-				);
+				.setPlayedCaptain(playedCaptain.getElement())
+				.setCaptainName(playedCaptain.getWebName());
 	}
 
 	private EntryEventPickEntity getEntryEventPick(int event, int entry, Map<Integer, EntryEventPickEntity> entryEventPickMap) {
@@ -341,6 +337,24 @@ public class LiveService implements ILiveService {
 			}
 		}
 		return elementEventResultData;
+	}
+
+
+	private ElementEventResultData selectPlayedCaptain(List<ElementEventResultData> pickList) {
+		ElementEventResultData captain = pickList
+				.stream()
+				.filter(ElementEventResultData::isCaptain)
+				.findFirst()
+				.orElse(new ElementEventResultData());
+		ElementEventResultData viceCaptain = pickList
+				.stream()
+				.filter(ElementEventResultData::isViceCaptain)
+				.findFirst()
+				.orElse(new ElementEventResultData());
+		if (captain.getMinutes() == 0 && viceCaptain.getMinutes() > 0) {
+			return viceCaptain;
+		}
+		return captain;
 	}
 
 	private void setMatchInfo(ElementEventResultData elementEventResultData, Map<String, List<LiveFixtureData>> liveFixtureMap) {

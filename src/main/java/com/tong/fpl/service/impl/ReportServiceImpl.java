@@ -337,6 +337,9 @@ public class ReportServiceImpl implements IReportService {
 
 	private LeagueEventReportEntity updateEntryEventResultStat(int event, LeagueEventReportEntity leagueEventStatEntity, Map<Integer, PlayerStatEntity> playerStatMap, Map<Integer, EventLiveEntity> eventLiveMap, Map<Integer, EntryEventResultEntity> entryEventResultMap) {
 		int entry = leagueEventStatEntity.getEntry();
+		if (entry != 1144629) {
+			return new LeagueEventReportEntity();
+		}
 		// entry_info
 		EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
 		if (entryInfoEntity != null) {
@@ -379,27 +382,34 @@ public class ReportServiceImpl implements IReportService {
 					);
 		}
 		// captain
-		int captain = leagueEventStatEntity.getPlayedCaptain();
+		int captain = leagueEventStatEntity.getCaptain();
+		EventLiveEntity captainEventLiveEntity;
 		if (eventLiveMap.containsKey(captain)) {
-			EventLiveEntity captainEventLiveEntity = eventLiveMap.get(captain);
+			captainEventLiveEntity = eventLiveMap.get(captain);
 			leagueEventStatEntity
 					.setCaptainPoints(captainEventLiveEntity.getTotalPoints())
 					.setCaptainBlank(this.setElementBlank(captainEventLiveEntity))
-					.setCaptainSelected(playerStatMap.containsKey(captain) ? playerStatMap.get(captain).getSelectedByPercent() + "%" : "")
-					.setPlayedCaptain(captainEventLiveEntity.getMinutes() > 0 ? captain : 0);
+					.setCaptainSelected(playerStatMap.containsKey(captain) ? playerStatMap.get(captain).getSelectedByPercent() + "%" : "");
+		} else {
+			captainEventLiveEntity = new EventLiveEntity()
+					.setMinutes(0)
+					.setTotalPoints(0);
 		}
 		// vice captain
 		int viceCaptain = leagueEventStatEntity.getViceCaptain();
+		EventLiveEntity viceCaptainEventLiveEntity;
 		if (eventLiveMap.containsKey(viceCaptain)) {
-			EventLiveEntity viceCaptainEventLiveEntity = eventLiveMap.get(viceCaptain);
+			viceCaptainEventLiveEntity = eventLiveMap.get(viceCaptain);
 			leagueEventStatEntity
 					.setViceCaptainPoints(viceCaptainEventLiveEntity.getTotalPoints())
 					.setViceCaptainBlank(this.setElementBlank(viceCaptainEventLiveEntity))
 					.setViceCaptainSelected(playerStatMap.containsKey(viceCaptain) ? playerStatMap.get(viceCaptain).getSelectedByPercent() + "%" : "");
-			if (leagueEventStatEntity.getPlayedCaptain() == 0 && viceCaptainEventLiveEntity.getMinutes() > 0) {
-				leagueEventStatEntity.setPlayedCaptain(viceCaptain);
-			}
+		} else {
+			viceCaptainEventLiveEntity = new EventLiveEntity()
+					.setMinutes(0)
+					.setTotalPoints(0);
 		}
+		leagueEventStatEntity.setPlayedCaptain(this.selectPlayedCaptain(captainEventLiveEntity, viceCaptainEventLiveEntity));
 		// highest score
 		int highestElement = this.getHighestScoreElement(leagueEventStatEntity, eventLiveMap);
 		if (eventLiveMap.containsKey(highestElement)) {
@@ -415,6 +425,13 @@ public class ReportServiceImpl implements IReportService {
 			leagueEventStatEntity.setPlayedCaptain(leagueEventStatEntity.getCaptain());
 		}
 		return leagueEventStatEntity;
+	}
+
+	private int selectPlayedCaptain(EventLiveEntity captainEventLiveEntity, EventLiveEntity viceCaptainEventLiveEntity) {
+		if (captainEventLiveEntity.getMinutes() == 0 && viceCaptainEventLiveEntity.getMinutes() > 0) {
+			return viceCaptainEventLiveEntity.getElement();
+		}
+		return captainEventLiveEntity.getElement();
 	}
 
 	private int calcAutoSubPoints(List<AutoSubs> automaticSubs, Map<Integer, EventLiveEntity> eventLiveMap) {
