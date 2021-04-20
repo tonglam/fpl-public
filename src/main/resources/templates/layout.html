@@ -539,40 +539,50 @@
             data.eventTransferIn = item.eventTransferIn;
             data.eventTransferOut = item.eventTransferOut;
 
-            data.event1 = item.fixtureList[1].event;
-            data.againstTeamShortName1 = item.fixtureList[1].againstTeamShortName;
-            data.difficulty1 = item.fixtureList[1].difficulty;
-            data.wasHome1 = item.fixtureList[1].wasHome;
-            data.bgw1 = item.fixtureList[1].bgw;
-            data.dgw1 = item.fixtureList[1].dgw;
+            if (item.fixtureList.length > 2) {
+                data.event1 = item.fixtureList[1].event;
+                data.againstTeamShortName1 = item.fixtureList[1].againstTeamShortName;
+                data.difficulty1 = item.fixtureList[1].difficulty;
+                data.wasHome1 = item.fixtureList[1].wasHome;
+                data.bgw1 = item.fixtureList[1].bgw;
+                data.dgw1 = item.fixtureList[1].dgw;
+            }
 
-            data.event2 = item.fixtureList[2].event;
-            data.againstTeamShortName2 = item.fixtureList[2].againstTeamShortName;
-            data.difficulty2 = item.fixtureList[2].difficulty;
-            data.wasHome2 = item.fixtureList[2].wasHome;
-            data.bgw2 = item.fixtureList[2].bgw;
-            data.dgw2 = item.fixtureList[2].dgw;
+            if (item.fixtureList.length > 3) {
+                data.event2 = item.fixtureList[2].event;
+                data.againstTeamShortName2 = item.fixtureList[2].againstTeamShortName;
+                data.difficulty2 = item.fixtureList[2].difficulty;
+                data.wasHome2 = item.fixtureList[2].wasHome;
+                data.bgw2 = item.fixtureList[2].bgw;
+                data.dgw2 = item.fixtureList[2].dgw;
+            }
 
-            data.event3 = item.fixtureList[3].event;
-            data.againstTeamShortName3 = item.fixtureList[3].againstTeamShortName;
-            data.difficulty3 = item.fixtureList[3].difficulty;
-            data.wasHome3 = item.fixtureList[3].wasHome;
-            data.bgw3 = item.fixtureList[3].bgw;
-            data.dgw3 = item.fixtureList[3].dgw;
+            if (item.fixtureList.length > 4) {
+                data.event3 = item.fixtureList[3].event;
+                data.againstTeamShortName3 = item.fixtureList[3].againstTeamShortName;
+                data.difficulty3 = item.fixtureList[3].difficulty;
+                data.wasHome3 = item.fixtureList[3].wasHome;
+                data.bgw3 = item.fixtureList[3].bgw;
+                data.dgw3 = item.fixtureList[3].dgw;
+            }
 
-            data.event4 = item.fixtureList[4].event;
-            data.againstTeamShortName4 = item.fixtureList[4].againstTeamShortName;
-            data.difficulty4 = item.fixtureList[4].difficulty;
-            data.wasHome4 = item.fixtureList[4].wasHome;
-            data.bgw4 = item.fixtureList[4].bgw;
-            data.dgw4 = item.fixtureList[4].dgw;
+            if (item.fixtureList.length > 5) {
+                data.event4 = item.fixtureList[4].event;
+                data.againstTeamShortName4 = item.fixtureList[4].againstTeamShortName;
+                data.difficulty4 = item.fixtureList[4].difficulty;
+                data.wasHome4 = item.fixtureList[4].wasHome;
+                data.bgw4 = item.fixtureList[4].bgw;
+                data.dgw4 = item.fixtureList[4].dgw;
+            }
 
-            data.event5 = item.fixtureList[5].event;
-            data.againstTeamShortName5 = item.fixtureList[5].againstTeamShortName;
-            data.difficulty5 = item.fixtureList[5].difficulty;
-            data.wasHome5 = item.fixtureList[5].wasHome;
-            data.bgw5 = item.fixtureList[5].bgw;
-            data.dgw5 = item.fixtureList[5].dgw;
+            if (item.fixtureList.length > 6) {
+                data.event5 = item.fixtureList[5].event;
+                data.againstTeamShortName5 = item.fixtureList[5].againstTeamShortName;
+                data.difficulty5 = item.fixtureList[5].difficulty;
+                data.wasHome5 = item.fixtureList[5].wasHome;
+                data.bgw5 = item.fixtureList[5].bgw;
+                data.dgw5 = item.fixtureList[5].dgw;
+            }
 
             list.push(data);
         })
