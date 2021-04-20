@@ -539,49 +539,84 @@
             data.eventTransferIn = item.eventTransferIn;
             data.eventTransferOut = item.eventTransferOut;
 
-            if (item.fixtureList.length > 2) {
+            if (item.fixtureList.length >= 2) {
                 data.event1 = item.fixtureList[1].event;
                 data.againstTeamShortName1 = item.fixtureList[1].againstTeamShortName;
                 data.difficulty1 = item.fixtureList[1].difficulty;
                 data.wasHome1 = item.fixtureList[1].wasHome;
                 data.bgw1 = item.fixtureList[1].bgw;
                 data.dgw1 = item.fixtureList[1].dgw;
+            } else {
+                data.event1 = '';
+                data.againstTeamShortName1 = '';
+                data.difficulty1 = 0;
+                data.wasHome1 = '';
+                data.bgw1 = '';
+                data.dgw1 = '';
             }
 
-            if (item.fixtureList.length > 3) {
+            if (item.fixtureList.length >= 3) {
                 data.event2 = item.fixtureList[2].event;
                 data.againstTeamShortName2 = item.fixtureList[2].againstTeamShortName;
                 data.difficulty2 = item.fixtureList[2].difficulty;
                 data.wasHome2 = item.fixtureList[2].wasHome;
                 data.bgw2 = item.fixtureList[2].bgw;
                 data.dgw2 = item.fixtureList[2].dgw;
+            } else {
+                data.event2 = '';
+                data.againstTeamShortName2 = '';
+                data.difficulty2 = 0;
+                data.wasHome2 = '';
+                data.bgw2 = '';
+                data.dgw2 = '';
             }
 
-            if (item.fixtureList.length > 4) {
+            if (item.fixtureList.length >= 4) {
                 data.event3 = item.fixtureList[3].event;
                 data.againstTeamShortName3 = item.fixtureList[3].againstTeamShortName;
                 data.difficulty3 = item.fixtureList[3].difficulty;
                 data.wasHome3 = item.fixtureList[3].wasHome;
                 data.bgw3 = item.fixtureList[3].bgw;
                 data.dgw3 = item.fixtureList[3].dgw;
+            } else {
+                data.event3 = '';
+                data.againstTeamShortName3 = '';
+                data.difficulty3 = 0;
+                data.wasHome3 = '';
+                data.bgw3 = '';
+                data.dgw3 = '';
             }
 
-            if (item.fixtureList.length > 5) {
+            if (item.fixtureList.length >= 5) {
                 data.event4 = item.fixtureList[4].event;
                 data.againstTeamShortName4 = item.fixtureList[4].againstTeamShortName;
                 data.difficulty4 = item.fixtureList[4].difficulty;
                 data.wasHome4 = item.fixtureList[4].wasHome;
                 data.bgw4 = item.fixtureList[4].bgw;
                 data.dgw4 = item.fixtureList[4].dgw;
+            } else {
+                data.event4 = '';
+                data.againstTeamShortName4 = '';
+                data.difficulty4 = 0;
+                data.wasHome4 = '';
+                data.bgw4 = '';
+                data.dgw4 = '';
             }
 
-            if (item.fixtureList.length > 6) {
+            if (item.fixtureList.length >= 6) {
                 data.event5 = item.fixtureList[5].event;
                 data.againstTeamShortName5 = item.fixtureList[5].againstTeamShortName;
                 data.difficulty5 = item.fixtureList[5].difficulty;
                 data.wasHome5 = item.fixtureList[5].wasHome;
                 data.bgw5 = item.fixtureList[5].bgw;
                 data.dgw5 = item.fixtureList[5].dgw;
+            } else {
+                data.event5 = '';
+                data.againstTeamShortName5 = '';
+                data.difficulty5 = 0;
+                data.wasHome5 = '';
+                data.bgw5 = '';
+                data.dgw5 = '';
             }
 
             list.push(data);
