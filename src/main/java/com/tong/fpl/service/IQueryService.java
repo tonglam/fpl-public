@@ -86,9 +86,9 @@ public interface IQueryService {
 	}
 
 	PlayerShowData qryPlayerShowData(int event, int element,
-	                                 Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
-	                                 Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap, Multimap<Integer, EventLiveEntity> eventLiveMap,
-	                                 Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap);
+									 Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
+									 Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap, Multimap<Integer, EventLiveEntity> eventLiveMap,
+									 Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap);
 
 	/**
 	 * @apiNote entry
@@ -98,6 +98,12 @@ public interface IQueryService {
 	}
 
 	EntryInfoEntity qryEntryInfo(String season, int entry);
+
+	default EntryInfoData qryEntryInfoData(int entry) {
+		return this.qryEntryInfoData(CommonUtils.getCurrentSeason(), entry);
+	}
+
+	EntryInfoData qryEntryInfoData(String season, int entry);
 
 	EntryRes getEntry(int entry);
 
