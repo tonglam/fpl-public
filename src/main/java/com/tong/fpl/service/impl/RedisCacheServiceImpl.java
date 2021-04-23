@@ -564,6 +564,9 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 				}));
 		this.eventLiveService.saveBatch(eventLiveList);
 		log.info("insert event_live size is " + eventLiveList.size() + "!");
+		if (this.eventLiveService.count() == 0) {
+			this.insertEventLive(event);
+		}
 		// set cache
 		Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
 		Map<String, Object> valueMap = Maps.newHashMap();

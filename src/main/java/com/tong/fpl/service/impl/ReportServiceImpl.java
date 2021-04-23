@@ -337,9 +337,6 @@ public class ReportServiceImpl implements IReportService {
 
 	private LeagueEventReportEntity updateEntryEventResultStat(int event, LeagueEventReportEntity leagueEventStatEntity, Map<Integer, PlayerStatEntity> playerStatMap, Map<Integer, EventLiveEntity> eventLiveMap, Map<Integer, EntryEventResultEntity> entryEventResultMap) {
 		int entry = leagueEventStatEntity.getEntry();
-		if (entry != 1144629) {
-			return new LeagueEventReportEntity();
-		}
 		// entry_info
 		EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
 		if (entryInfoEntity != null) {

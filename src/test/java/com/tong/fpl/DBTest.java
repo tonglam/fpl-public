@@ -6,12 +6,14 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
+import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.player.PlayerPickData;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.*;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,11 +36,7 @@ public class DBTest extends FplApplicationTests {
 	@Autowired
 	private PlayerService playerService;
 	@Autowired
-	private PlayerStatService playerStatService;
-	@Autowired
 	private PlayerValueService playerValueService;
-	@Autowired
-	private TournamentEntryService tournamentEntryService;
 	@Autowired
 	private EntryEventResultService entryEventResultService;
 	@Autowired
@@ -174,6 +172,50 @@ public class DBTest extends FplApplicationTests {
 		long end = System.currentTimeMillis();
 		System.out.println("escaped: " + (end - start));
 		System.out.println(1);
+	}
+
+	@Test
+	void badChoice() {
+		List<LeagueEventReportEntity> list = Lists.newArrayList();
+		List<LeagueEventReportEntity> list2 = Lists.newArrayList();
+		this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+				.eq(LeagueEventReportEntity::getEvent, 32)
+				.eq(LeagueEventReportEntity::getLeagueId, 314)
+				.eq(LeagueEventReportEntity::getLeagueType, "Classic"))
+				.forEach(o -> {
+					int count = 0;
+					count = verify(count, o.getPosition1());
+					count = verify(count, o.getPosition2());
+					count = verify(count, o.getPosition3());
+					count = verify(count, o.getPosition4());
+					count = verify(count, o.getPosition5());
+					count = verify(count, o.getPosition6());
+					count = verify(count, o.getPosition7());
+					count = verify(count, o.getPosition8());
+					count = verify(count, o.getPosition9());
+					count = verify(count, o.getPosition10());
+					count = verify(count, o.getPosition11());
+					if (StringUtils.equals(Chip.BB.getValue(), o.getEventChip())) {
+						count = verify(count, o.getPosition12());
+						count = verify(count, o.getPosition13());
+						count = verify(count, o.getPosition14());
+						count = verify(count, o.getPosition15());
+					}
+					if (count >= 2) {
+						list.add(o);
+						if (StringUtils.equals(Chip.BB.getValue(), o.getEventChip())) {
+							list2.add(o);
+						}
+					}
+				});
+		System.out.println(1);
+	}
+
+	private int verify(int count, int element) {
+		if (element == 74 || element == 273 || element == 496 || element == 576) {
+			return count + 1;
+		}
+		return count;
 	}
 
 }
