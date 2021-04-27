@@ -75,7 +75,7 @@ public class MatchDayTask {
 				.forEach(this.updateEventResultsService::insertTournamentEntryEventTransfers);
 	}
 
-	@Scheduled(cron = "0 0 8,12 * * *")
+	@Scheduled(cron = "0 0 8,11 * * *")
 	public void updateTournamentResult() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDay(event)) {
@@ -104,7 +104,7 @@ public class MatchDayTask {
 		}
 	}
 
-	@Scheduled(cron = "0 5 8,12 * * *")
+	@Scheduled(cron = "0 5 8,11 * * *")
 	public void updatePointsRaceGroupResult() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDay(event)) {
@@ -130,7 +130,7 @@ public class MatchDayTask {
 		}
 	}
 
-	@Scheduled(cron = "0 10 8,12 * * *")
+	@Scheduled(cron = "0 10 8,11 * * *")
 	public void updateBattleRaceGroupResult() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDay(event)) {
@@ -156,7 +156,7 @@ public class MatchDayTask {
 		}
 	}
 
-	@Scheduled(cron = "0 15 8,12 * * *")
+	@Scheduled(cron = "0 15 8,11 * * *")
 	public void updateKnockoutResult() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDay(event)) {
@@ -182,7 +182,7 @@ public class MatchDayTask {
 		}
 	}
 
-	@Scheduled(cron = "0 20 8,12 * * *")
+	@Scheduled(cron = "0 20 8,11 * * *")
 	public void updateScoutResult() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDay(event)) {

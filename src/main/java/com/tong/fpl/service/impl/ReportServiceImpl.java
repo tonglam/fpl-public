@@ -14,6 +14,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.db.*;
@@ -45,6 +46,7 @@ public class ReportServiceImpl implements IReportService {
 
 	private final IStaticService staticService;
 	private final IQueryService queryService;
+	private final IRedisCacheService redisCacheService;
 	private final PlayerStatService playerStatService;
 	private final EntryInfoService entryInfoService;
 	private final EventLiveService eventLiveService;
@@ -310,15 +312,24 @@ public class ReportServiceImpl implements IReportService {
 						playerStatMap.put(element, o);
 					}
 				});
+		if (CollectionUtils.isEmpty(playerStatMap)) {
+			return;
+		}
 		Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
 				.eq(EventLiveEntity::getEvent, event))
 				.stream()
 				.collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+		if (CollectionUtils.isEmpty(eventLiveMap)) {
+			return;
+		}
 		Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
 				.eq(EntryEventResultEntity::getEvent, event)
 				.in(EntryEventResultEntity::getEntry, entryList))
 				.stream()
 				.collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
+		if (CollectionUtils.isEmpty(entryEventResultMap)) {
+			return;
+		}
 		// collect
 		List<CompletableFuture<LeagueEventReportEntity>> future = leagueEventStatList
 				.stream()

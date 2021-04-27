@@ -23,10 +23,12 @@ public class UpdateEventResultTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"29, 14"})
-    void upsertTournamentEntryEventResult(int event, int tournamentId) {
-        this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournamentId);
-        System.out.println("event: " + event + ", update finished!");
+    @CsvSource({"32"})
+    void upsertTournamentEntryEventResult(int event) {
+        IntStream.rangeClosed(1, 14).forEach(tournamentId -> {
+            this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournamentId);
+            System.out.println("event: " + event + ", update finished!");
+        });
     }
 
     @ParameterizedTest
