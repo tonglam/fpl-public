@@ -1669,7 +1669,8 @@ public class QueryServiceImpl implements IQueryService {
      */
     @Override
     public List<TournamentInfoEntity> qryAllTournamentList() {
-        return this.tournamentInfoService.list();
+        return this.tournamentInfoService.list(new QueryWrapper<TournamentInfoEntity>().lambda()
+                .ne(TournamentInfoEntity::getLeagueId, 99999));
     }
 
     @Cacheable(cacheNames = "tournamentData", key = "#tournamentId")
