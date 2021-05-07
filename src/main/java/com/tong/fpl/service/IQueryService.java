@@ -86,9 +86,11 @@ public interface IQueryService {
 	}
 
 	PlayerShowData qryPlayerShowData(int event, int element,
-									 Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
-									 Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap, Multimap<Integer, EventLiveEntity> eventLiveMap,
-									 Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap);
+	                                 Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
+	                                 Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap, Multimap<Integer, EventLiveEntity> eventLiveMap,
+	                                 Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap);
+
+	List<PlayerInfoData> qryPlayerInfoListByElementType(int elementType);
 
 	/**
 	 * @apiNote entry

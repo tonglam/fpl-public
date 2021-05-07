@@ -281,4 +281,11 @@ public class QueryTest extends FplApplicationTests {
 		System.out.println(1);
 	}
 
+	@ParameterizedTest
+	@CsvSource({"1"})
+	void qryPlayerInfoListByElementType(int elementType) {
+		List<PlayerInfoData> list = this.querySerivce.qryPlayerInfoListByElementType(elementType);
+		System.out.println(1);
+	}
+
 }

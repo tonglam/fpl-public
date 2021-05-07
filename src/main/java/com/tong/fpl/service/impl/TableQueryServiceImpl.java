@@ -159,7 +159,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
 				.forEach(o -> eventLiveMap.put(o.getElement(), o));
 		Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap = Maps.newHashMap(); // teamId -> event -> fixtures
 		IntStream.rangeClosed(1, 20).forEach(teamId -> teamFixtureMap.put(teamId, this.queryService.getEventFixtureByTeamId(teamId)));
-
 		// collect
 		List<CompletableFuture<PlayerShowData>> future = playerEntityList
 				.stream()
