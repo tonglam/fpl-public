@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
 public class LotteryEntity {
 
     @TableId
-    private int id;
+    private Integer id;
     private String name;
     private String creator;
     private String prizeMap;
