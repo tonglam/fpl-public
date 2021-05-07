@@ -22,6 +22,11 @@ public class CommonController {
 
 	private final ICommonApi commonApi;
 
+	@GetMapping("/getCurrentEvent")
+	public int getCurrentEvent() {
+		return this.commonApi.getCurrentEvent();
+	}
+
 	@GetMapping("/getNextEvent")
 	public int getNextEvent() {
 		return this.commonApi.getNextEvent();
