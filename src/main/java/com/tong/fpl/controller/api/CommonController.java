@@ -19,7 +19,7 @@ import java.util.Map;
  * Create by tong on 2021/2/26
  */
 @RestController
-@RequestMapping("/common")
+@RequestMapping("/api/common")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CommonController {
 
