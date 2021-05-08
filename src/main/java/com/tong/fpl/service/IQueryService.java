@@ -90,7 +90,7 @@ public interface IQueryService {
 	                                 Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap, Multimap<Integer, EventLiveEntity> eventLiveMap,
 	                                 Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap);
 
-	Map<String, PlayerInfoData> qryPlayerInfoByElementType(int elementType);
+	Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
 	/**
 	 * @apiNote entry

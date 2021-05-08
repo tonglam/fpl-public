@@ -400,13 +400,15 @@ public class QueryServiceImpl implements IQueryService {
 				.setDgw(true);
 	}
 
-	@Cacheable(value = "qryPlayerInfoListByElementType", key = "#elementType")
+	@Cacheable(value = "qryPlayerInfoByElementType", key = "#elementType")
 	@Override
-	public Map<String, PlayerInfoData> qryPlayerInfoByElementType(int elementType) {
-		Map<String, PlayerInfoData> map = Maps.newHashMap();
+	public Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
+		Map<String, List<PlayerInfoData>> map = Maps.newHashMap();
+		Multimap<String, PlayerInfoData> multimap = HashMultimap.create();
 		// prepare
 		Map<String, String> teamNameMap = this.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+		// init
 		this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
 				.eq(PlayerEntity::getElementType, elementType))
 				.forEach(o -> {
@@ -415,8 +417,14 @@ public class QueryServiceImpl implements IQueryService {
 							.setTeamName(teamNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
 							.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
 							.setPrice(data.getPrice() / 10);
-					map.put(data.getTeamShortName(), data);
+					multimap.put(data.getTeamShortName(), data);
 				});
+		// collect
+		multimap.keySet().forEach(team ->
+				map.put(team, multimap.get(team)
+						.stream()
+						.sorted(Comparator.comparing(PlayerInfoData::getPrice).reversed())
+						.collect(Collectors.toList())));
 		return map;
 	}
 

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,7 +44,7 @@ public class CommonController {
 	}
 
 	@GetMapping("/qryPlayerInfoByElementType")
-	public Map<String, PlayerInfoData> qryPlayerInfoByElementType(@RequestParam int elementType) {
+	public Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(@RequestParam int elementType) {
 		return this.commonApi.qryPlayerInfoByElementType(elementType);
 	}
 

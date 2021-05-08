@@ -284,7 +284,7 @@ public class QueryTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"1"})
 	void qryPlayerInfoListByElementType(int elementType) {
-		Map<String, PlayerInfoData> map = this.querySerivce.qryPlayerInfoByElementType(elementType);
+		Map<String, List<PlayerInfoData>> map = this.querySerivce.qryPlayerInfoByElementType(elementType);
 		System.out.println(1);
 	}
 

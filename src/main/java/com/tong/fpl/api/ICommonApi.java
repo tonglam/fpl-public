@@ -3,6 +3,7 @@ package com.tong.fpl.api;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,6 +34,6 @@ public interface ICommonApi {
 	/**
 	 * 根据位置获取球员列表(team_short_name -> player_info)
 	 */
-	Map<String, PlayerInfoData> qryPlayerInfoByElementType(int elementType);
+	Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
 }
