@@ -2,6 +2,7 @@ package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.ICommonApi;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,11 @@ public class CommonController {
 	@GetMapping("/qryPlayerInfoByElementType")
 	public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(@RequestParam int elementType) {
 		return this.commonApi.qryPlayerInfoByElementType(elementType);
+	}
+
+	@GetMapping("/qryPlayerDetailData")
+	public PlayerDetailData qryPlayerDetailData(@RequestParam int element) {
+		return this.commonApi.qryPlayerDetailData(element);
 	}
 
 	@GetMapping("/getScoutMap")
