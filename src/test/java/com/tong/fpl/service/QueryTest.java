@@ -226,7 +226,7 @@ public class QueryTest extends FplApplicationTests {
 	}
 
 	@ParameterizedTest
-	@CsvSource({"14, 3571, Classic"})
+	@CsvSource({"35, 65, Classic"})
 	void qryLeagueEventEoMap(int event, int leagueId, String leagueType) {
 		Map<String, String> map = this.querySerivce.qryLeagueEventEoMap(event, leagueId, leagueType);
 		System.out.println(1);
@@ -284,7 +284,7 @@ public class QueryTest extends FplApplicationTests {
 	@ParameterizedTest
 	@CsvSource({"1"})
 	void qryPlayerInfoListByElementType(int elementType) {
-		List<PlayerInfoData> list = this.querySerivce.qryPlayerInfoListByElementType(elementType);
+		Map<String, PlayerInfoData> map = this.querySerivce.qryPlayerInfoByElementType(elementType);
 		System.out.println(1);
 	}
 

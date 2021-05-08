@@ -402,8 +402,8 @@ public class QueryServiceImpl implements IQueryService {
 
 	@Cacheable(value = "qryPlayerInfoListByElementType", key = "#elementType")
 	@Override
-	public List<PlayerInfoData> qryPlayerInfoListByElementType(int elementType) {
-		List<PlayerInfoData> list = Lists.newArrayList();
+	public Map<String, PlayerInfoData> qryPlayerInfoByElementType(int elementType) {
+		Map<String, PlayerInfoData> map = Maps.newHashMap();
 		// prepare
 		Map<String, String> teamNameMap = this.getTeamNameMap();
 		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
@@ -415,9 +415,9 @@ public class QueryServiceImpl implements IQueryService {
 							.setTeamName(teamNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
 							.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
 							.setPrice(data.getPrice() / 10);
-					list.add(data);
+					map.put(data.getTeamShortName(), data);
 				});
-		return list;
+		return map;
 	}
 
 	/**
