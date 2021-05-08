@@ -36,4 +36,9 @@ public interface ICommonApi {
 	 */
 	Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
+	/**
+	 * 获取球探名单
+	 */
+	Map<Object, Object> getScoutMap();
+
 }

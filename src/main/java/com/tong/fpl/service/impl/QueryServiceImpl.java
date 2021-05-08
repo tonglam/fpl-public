@@ -2576,6 +2576,11 @@ public class QueryServiceImpl implements IQueryService {
 		return 0;
 	}
 
+	@Override
+	public Map<Object, Object> getScoutMap() {
+		return RedisUtils.getHashByKey("scoutEntry");
+	}
+
 	/**
 	 * @implNote simulate
 	 */

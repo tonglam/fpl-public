@@ -48,4 +48,9 @@ public class CommonController {
 		return this.commonApi.qryPlayerInfoByElementType(elementType);
 	}
 
+	@GetMapping("/getScoutMap")
+	public Map<Object, Object> getScoutMap() {
+		return this.commonApi.getScoutMap();
+	}
+
 }

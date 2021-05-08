@@ -18,31 +18,36 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CommonApiImpl implements ICommonApi {
 
-    private final IQueryService queryService;
+	private final IQueryService queryService;
 
-    @Override
-    public int getCurrentEvent() {
-        return this.queryService.getCurrentEvent();
-    }
+	@Override
+	public int getCurrentEvent() {
+		return this.queryService.getCurrentEvent();
+	}
 
-    @Override
-    public int getNextEvent() {
-        return this.queryService.getNextEvent();
-    }
+	@Override
+	public int getNextEvent() {
+		return this.queryService.getNextEvent();
+	}
 
-    @Override
-    public String getUtcDeadlineByEvent(int event) {
-        return this.queryService.getUtcDeadlineByEvent(event);
-    }
+	@Override
+	public String getUtcDeadlineByEvent(int event) {
+		return this.queryService.getUtcDeadlineByEvent(event);
+	}
 
-    @Override
-    public EntryInfoData qryEntryInfoData(int entry) {
-        return this.queryService.qryEntryInfoData(entry);
-    }
+	@Override
+	public EntryInfoData qryEntryInfoData(int entry) {
+		return this.queryService.qryEntryInfoData(entry);
+	}
 
-    @Override
-    public Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
-        return this.queryService.qryPlayerInfoByElementType(elementType);
-    }
+	@Override
+	public Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
+		return this.queryService.qryPlayerInfoByElementType(elementType);
+	}
+
+	@Override
+	public Map<Object, Object> getScoutMap() {
+		return this.queryService.getScoutMap();
+	}
 
 }

@@ -355,6 +355,8 @@ public interface IQueryService {
 	 */
 	ScoutData qryScoutEntryEventData(int event, int entry);
 
+	Map<Object, Object> getScoutMap();
+
 	/**
 	 * @apiNote simulate
 	 */
