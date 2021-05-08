@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +91,7 @@ public interface IQueryService {
 	                                 Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap, Multimap<Integer, EventLiveEntity> eventLiveMap,
 	                                 Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap);
 
-	Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
+	LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
 	/**
 	 * @apiNote entry

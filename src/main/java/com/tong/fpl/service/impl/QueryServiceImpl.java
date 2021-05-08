@@ -400,33 +400,37 @@ public class QueryServiceImpl implements IQueryService {
 				.setDgw(true);
 	}
 
-	@Cacheable(value = "qryPlayerInfoByElementType", key = "#elementType")
-	@Override
-	public Map<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
-		Map<String, List<PlayerInfoData>> map = Maps.newHashMap();
-		Multimap<String, PlayerInfoData> multimap = HashMultimap.create();
-		// prepare
-		Map<String, String> teamNameMap = this.getTeamNameMap();
-		Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
-		// init
-		this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
-				.eq(PlayerEntity::getElementType, elementType))
-				.forEach(o -> {
-					PlayerInfoData data = BeanUtil.copyProperties(o, PlayerInfoData.class);
-					data.setElementTypeName(Position.getNameFromElementType(data.getElementType()))
-							.setTeamName(teamNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
-							.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
-							.setPrice(data.getPrice() / 10);
-					multimap.put(data.getTeamShortName(), data);
-				});
-		// collect
-		multimap.keySet().forEach(team ->
-				map.put(team, multimap.get(team)
-						.stream()
-						.sorted(Comparator.comparing(PlayerInfoData::getPrice).reversed())
-						.collect(Collectors.toList())));
-		return map;
-	}
+//	@Cacheable(value = "qryPlayerInfoByElementType", key = "#elementType")
+@Override
+public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
+	LinkedHashMap<String, List<PlayerInfoData>> map = Maps.newLinkedHashMap();
+	Multimap<String, PlayerInfoData> multimap = HashMultimap.create();
+	// prepare
+	Map<String, String> teamNameMap = this.getTeamNameMap();
+	Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+	// init
+	this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+			.eq(PlayerEntity::getElementType, elementType))
+			.forEach(o -> {
+				PlayerInfoData data = BeanUtil.copyProperties(o, PlayerInfoData.class);
+				data.setElementTypeName(Position.getNameFromElementType(data.getElementType()))
+						.setTeamName(teamNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
+						.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
+						.setPrice(data.getPrice() / 10);
+				multimap.put(data.getTeamShortName(), data);
+			});
+	// collect
+	List<String> shortNameSortedList = multimap.keySet()
+			.stream()
+			.sorted(Comparator.comparing(String::toUpperCase))
+			.collect(Collectors.toList());
+	shortNameSortedList.forEach(team ->
+			map.put(team, multimap.get(team)
+					.stream()
+					.sorted(Comparator.comparing(PlayerInfoData::getPrice).reversed())
+					.collect(Collectors.toList())));
+	return map;
+}
 
 	/**
 	 * @implNote entry
