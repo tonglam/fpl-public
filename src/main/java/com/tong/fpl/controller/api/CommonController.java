@@ -3,6 +3,7 @@ package com.tong.fpl.controller.api;
 import com.tong.fpl.api.ICommonApi;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
+import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,41 +24,46 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CommonController {
 
-	private final ICommonApi commonApi;
+    private final ICommonApi commonApi;
 
-	@GetMapping("/getCurrentEvent")
-	public int getCurrentEvent() {
-		return this.commonApi.getCurrentEvent();
-	}
+    @GetMapping("/getCurrentEvent")
+    public int getCurrentEvent() {
+        return this.commonApi.getCurrentEvent();
+    }
 
-	@GetMapping("/getNextEvent")
-	public int getNextEvent() {
-		return this.commonApi.getNextEvent();
-	}
+    @GetMapping("/getNextEvent")
+    public int getNextEvent() {
+        return this.commonApi.getNextEvent();
+    }
 
-	@GetMapping("/getUtcDeadlineByEvent")
-	public String getUtcDeadlineByEvent(@RequestParam int event) {
-		return this.commonApi.getUtcDeadlineByEvent(event);
-	}
+    @GetMapping("/getUtcDeadlineByEvent")
+    public String getUtcDeadlineByEvent(@RequestParam int event) {
+        return this.commonApi.getUtcDeadlineByEvent(event);
+    }
 
-	@GetMapping("/qryEntryInfoData")
-	public EntryInfoData qryEntryInfoData(@RequestParam int entry) {
-		return this.commonApi.qryEntryInfoData(entry);
-	}
+    @GetMapping("/qryEntryInfoData")
+    public EntryInfoData qryEntryInfoData(@RequestParam int entry) {
+        return this.commonApi.qryEntryInfoData(entry);
+    }
 
-	@GetMapping("/qryPlayerInfoByElementType")
-	public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(@RequestParam int elementType) {
-		return this.commonApi.qryPlayerInfoByElementType(elementType);
-	}
+    @GetMapping("/qryPlayerInfoByElementType")
+    public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(@RequestParam int elementType) {
+        return this.commonApi.qryPlayerInfoByElementType(elementType);
+    }
 
-	@GetMapping("/qryPlayerDetailData")
-	public PlayerDetailData qryPlayerDetailData(@RequestParam int element) {
-		return this.commonApi.qryPlayerDetailData(element);
-	}
+    @GetMapping("/qryPlayerDetailData")
+    public PlayerDetailData qryPlayerDetailData(@RequestParam int element) {
+        return this.commonApi.qryPlayerDetailData(element);
+    }
 
-	@GetMapping("/getScoutMap")
-	public Map<Object, Object> getScoutMap() {
-		return this.commonApi.getScoutMap();
-	}
+    @GetMapping("/qryTeamFixture")
+    public Map<String, List<PlayerFixtureData>> qryTeamFixture(@RequestParam String shortName) {
+        return this.commonApi.qryTeamFixture(shortName);
+    }
+
+    @GetMapping("/getScoutMap")
+    public Map<Object, Object> getScoutMap() {
+        return this.commonApi.getScoutMap();
+    }
 
 }

@@ -25,7 +25,7 @@ public class MatchDayTask {
 	private final IUpdateEventService updateEventResultsService;
 	private final IGroupService scoutService;
 
-	@Scheduled(cron = "0 0/5 0-10,19-23 * * *")
+	@Scheduled(cron = "0 */1 0-10,19-23 * * *")
 	public void insertEventLiveCache() {
 		int event = this.queryService.getCurrentEvent();
 		if (!this.queryService.isMatchDayTime(event)) {

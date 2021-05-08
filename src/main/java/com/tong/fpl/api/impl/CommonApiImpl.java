@@ -3,6 +3,7 @@ package com.tong.fpl.api.impl;
 import com.tong.fpl.api.ICommonApi;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
+import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.service.IQueryService;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,11 @@ public class CommonApiImpl implements ICommonApi {
     @Override
     public Map<Object, Object> getScoutMap() {
         return this.queryService.getScoutMap();
+    }
+
+    @Override
+    public Map<String, List<PlayerFixtureData>> qryTeamFixture(String shortName) {
+        return this.queryService.qryTeamFixture(shortName);
     }
 
 }
