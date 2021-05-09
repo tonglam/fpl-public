@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/live")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class LiveController {
+public class ApiLiveController {
 
     private final IQueryService queryService;
 

@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/common")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class CommonController {
+public class ApiCommonController {
 
     private final ICommonApi commonApi;
 
