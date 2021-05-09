@@ -13,6 +13,7 @@ import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
+import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
@@ -352,6 +353,8 @@ public interface IQueryService {
     Map<String, Map<String, Integer>> getLiveBonusCacheMap();
 
     List<LiveMatchData> qryLiveMatchList(int statusId);
+
+    List<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
 
     /**
      * @apiNote scout

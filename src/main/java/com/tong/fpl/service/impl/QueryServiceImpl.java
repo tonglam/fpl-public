@@ -13,6 +13,7 @@ import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
@@ -21,6 +22,7 @@ import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
+import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.domain.letletme.tournament.*;
@@ -2548,6 +2550,99 @@ public class QueryServiceImpl implements IQueryService {
                 .sorted(Comparator.comparing(LiveMatchData::getKickoffTime).reversed())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<LiveMatchTeamData> qryLiveTeamDataList(int statusId) {
+        List<LiveMatchTeamData> list = Lists.newArrayList();
+        // prepare
+        int event = this.getCurrentEvent();
+        Collection<EventLiveEntity> eventLiveList = this.getEventLiveByEvent(event).values();
+        Map<Integer, PlayerEntity> playerMap = this.getPlayerMap();
+        Map<Integer, String> teamShortNameMap = this.getLiveTeamShortNameMap();
+        // live element event result
+        List<Integer> teamIdList = Lists.newArrayList();
+        this.qryLiveMatchList(statusId).forEach(o -> {
+            teamIdList.add(o.getHomeTeamId());
+            teamIdList.add(o.getAwayTeamId());
+        });
+        teamIdList.forEach(teamId -> list.add(this.qryLiveTeamData(teamId, eventLiveList, playerMap, teamShortNameMap)));
+        return list;
+    }
+
+    private LiveMatchTeamData qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, PlayerEntity> playerMap, Map<Integer, String> teamShortNameMap) {
+        LiveMatchTeamData data = new LiveMatchTeamData().setTeamId(teamId);
+        List<ElementEventResultData> teamDataList = Lists.newArrayList();
+        // team data
+        Map<Integer, Integer> liveBonusMap = this.getLiveBonusMap(teamId);
+        eventLiveList.forEach(o -> {
+            if (o.getTeamId() != teamId || o.getMinutes() <= 0) {
+                return;
+            }
+            ElementEventResultData elementEventResultData = new ElementEventResultData();
+            elementEventResultData
+                    .setEvent(o.getEvent())
+                    .setElement(o.getElement())
+                    .setWebName(playerMap.containsKey(o.getElement()) ? playerMap.get(o.getElement()).getWebName() : "")
+                    .setElementType(o.getElementType())
+                    .setElementTypeName(Position.getNameFromElementType(o.getElementType()))
+                    .setTeamId(playerMap.containsKey(o.getElement()) ? playerMap.get(o.getElement()).getTeamId() : 0)
+                    .setMinutes(o.getMinutes())
+                    .setGoalsScored(o.getGoalsScored())
+                    .setAssists(o.getAssists())
+                    .setGoalsConceded(o.getGoalsConceded())
+                    .setOwnGoals(o.getOwnGoals())
+                    .setPenaltiesSaved(o.getPenaltiesSaved())
+                    .setPenaltiesMissed(o.getPenaltiesMissed())
+                    .setYellowCards(o.getYellowCards())
+                    .setRedCards(o.getRedCards())
+                    .setSaves(o.getSaves())
+                    .setBps(o.getBps())
+                    .setTotalPoints(o.getTotalPoints());
+            if (o.getBonus() > 0) {
+                elementEventResultData
+                        .setBonus(o.getBonus())
+                        .setTotalPoints(elementEventResultData.getTotalPoints());
+            } else {
+                elementEventResultData
+                        .setBonus(liveBonusMap.getOrDefault(o.getElement(), 0))
+                        .setTotalPoints(elementEventResultData.getTotalPoints() + elementEventResultData.getBonus());
+            }
+            elementEventResultData.setTeamShortName(teamShortNameMap.getOrDefault(elementEventResultData.getTeamId(), ""));
+            teamDataList.add(elementEventResultData);
+        });
+        data
+                .setElementEventResultList(teamDataList
+                        .stream()
+                        .sorted(Comparator.comparing(ElementEventResultData::getTotalPoints)
+                                .thenComparing(ElementEventResultData::getBps).reversed())
+                        .collect(Collectors.toList())
+                );
+        return data;
+    }
+
+    private Map<Integer, PlayerEntity> getPlayerMap() {
+        return this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+    }
+
+    private Map<Integer, String> getLiveTeamShortNameMap() {
+        Map<Integer, String> map = Maps.newHashMap();
+        this.getTeamShortNameMap().forEach((k, v) -> map.put(Integer.valueOf(k), v));
+        return map;
+    }
+
+    private Map<Integer, Integer> getLiveBonusMap(int teamId) {
+        Map<Integer, Integer> map = Maps.newHashMap();
+        this.getLiveBonusCacheMap().forEach((team, list) -> {
+            if (!StringUtils.equals(team, String.valueOf(teamId))) {
+                return;
+            }
+            list.forEach((element, bonus) -> map.put(Integer.valueOf(element), bonus));
+        });
+        return map;
+    }
+
 
     /**
      * @implNote scout
