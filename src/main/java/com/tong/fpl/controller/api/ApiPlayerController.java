@@ -2,6 +2,7 @@ package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiPlayer;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
+import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2021/5/10
@@ -31,6 +33,11 @@ public class ApiPlayerController {
     @GetMapping("/qryPlayerDetailData")
     public PlayerDetailData qryPlayerDetailData(@RequestParam int element) {
         return this.apiPlayer.qryPlayerDetailData(element);
+    }
+
+    @GetMapping("/qryTeamFixture")
+    public Map<String, List<PlayerFixtureData>> qryTeamFixture(@RequestParam String shortName) {
+        return this.apiPlayer.qryTeamFixture(shortName);
     }
 
 }

@@ -1,16 +1,10 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiLive;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2021/5/9
@@ -21,10 +15,5 @@ import java.util.Map;
 public class ApiLiveController {
 
 	private final IApiLive apiLive;
-
-	@GetMapping("/qryTeamFixture")
-	public Map<String, List<PlayerFixtureData>> qryTeamLiveFixture(@RequestParam String shortName) {
-		return this.apiLive.qryTeamLiveFixture(shortName);
-	}
 
 }
