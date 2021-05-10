@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2021/5/9
@@ -28,7 +29,7 @@ public class LiveApiController {
 	}
 
 	@GetMapping("/qryLiveMatchDataByStatus")
-	public List<LiveMatchTeamData> qryLiveMatchDataByStatus(@RequestParam String playStatus) {
+	public Map<String, LiveMatchTeamData> qryLiveMatchDataByStatus(@RequestParam String playStatus) {
 		return this.apiLive.qryLiveMatchDataByStatus(playStatus);
 	}
 

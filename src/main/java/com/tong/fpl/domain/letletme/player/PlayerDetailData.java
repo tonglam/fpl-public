@@ -10,16 +10,17 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PlayerDetailData {
 
-    private String season;
-    private String selectedByPercent;
-    private int chanceOfPlayingNextRound;
-    private int chanceOfPlayingThisRound;
-    private String form;
-    private String pointsPerGame;
-    private boolean inDreamteam;
-    private String news;
-    private String newsAdded;
-    private int transfersInEvent;
+	private int element;
+	private String season;
+	private String selectedByPercent;
+	private int chanceOfPlayingNextRound;
+	private int chanceOfPlayingThisRound;
+	private String form;
+	private String pointsPerGame;
+	private boolean inDreamteam;
+	private String news;
+	private String newsAdded;
+	private int transfersInEvent;
     private int transfersOutEvent;
 	private int transfersIn;
 	private int transfersOut;

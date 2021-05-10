@@ -8,8 +8,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.TeamEntity;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
@@ -31,10 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +53,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 	 * @implNote common
 	 */
 
-	@Cacheable(value = "api::qryCurrentEventAndNextUtcDeadline", cacheManager = "apiCacheManager")
+	@Cacheable(value = "api::qryCurrentEventAndNextUtcDeadline", cacheManager = "apiCacheManager", unless = "#result.size() != 2")
 	@Override
 	public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
 		Map<String, String> map = Maps.newHashMap();
@@ -69,7 +68,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 	 * @implNote entry
 	 */
 
-	@Cacheable(value = "api::qryEntryInfoData", key = "#entry", cacheManager = "apiCacheManager")
+	@Cacheable(value = "api::qryEntryInfoData", key = "#entry", cacheManager = "apiCacheManager", unless = "#result.entry eq 0")
 	@Override
 	public EntryInfoData qryEntryInfoData(int entry) {
 		EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
@@ -84,17 +83,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 	 */
 
 	/**
-	 * @implNote live
+	 * @implNote live(do not cache)
 	 */
 
-	@Cacheable(value = "api::qryLiveFixtureByStatus", key = "#playStatus", cacheManager = "apiCacheManager")
 	@Override
 	public List<LiveMatchData> qryLiveFixtureByStatus(String playStatus) {
 		List<LiveMatchData> list = Lists.newArrayList();
 		Map<String, Map<String, List<LiveFixtureData>>> eventLiveFixtureMap = this.redisCacheService.getEventLiveFixtureMap();
 		eventLiveFixtureMap.keySet().forEach(teamId ->
 				eventLiveFixtureMap.get(teamId).forEach((status, fixtureList) -> {
-					if (!StringUtils.equals(status, playStatus)) {
+					if (!StringUtils.equalsIgnoreCase(status, playStatus)) {
 						return;
 					}
 					fixtureList.forEach(o -> {
@@ -121,16 +119,92 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 	}
 
 	@Override
-	public List<LiveMatchTeamData> qryLiveMatchDataByStatus(String playStatus) {
-		List<LiveMatchTeamData> list = Lists.newArrayList();
-		return list;
+	public Map<String, LiveMatchTeamData> qryLiveMatchDataByStatus(String playStatus) {
+		Map<String, LiveMatchTeamData> map = Maps.newHashMap();
+		// prepare
+		int event = this.queryService.getCurrentEvent();
+		Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
+		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+		// live element event result
+		List<Integer> teamIdList = Lists.newArrayList();
+		this.qryLiveFixtureByStatus(playStatus).forEach(o -> {
+			teamIdList.add(o.getHomeTeamId());
+			teamIdList.add(o.getAwayTeamId());
+		});
+		teamIdList.forEach(teamId -> map.put(teamShortNameMap.get(String.valueOf(teamId)), this.qryLiveTeamData(teamId, eventLiveList, playerMap, teamShortNameMap)));
+		return map;
+	}
+
+	private LiveMatchTeamData qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+		LiveMatchTeamData data = new LiveMatchTeamData().setTeamId(teamId);
+		List<ElementEventResultData> teamDataList = Lists.newArrayList();
+		// team data
+		Map<Integer, Integer> liveBonusMap = this.getLiveBonusMap(teamId);
+		eventLiveList.forEach(o -> {
+			if (o.getTeamId() != teamId || o.getMinutes() <= 0) {
+				return;
+			}
+			ElementEventResultData elementEventResultData = new ElementEventResultData();
+			elementEventResultData
+					.setEvent(o.getEvent())
+					.setElement(o.getElement())
+					.setWebName(playerMap.containsKey(o.getElement()) ? playerMap.get(o.getElement()).getWebName() : "")
+					.setElementType(o.getElementType())
+					.setElementTypeName(Position.getNameFromElementType(o.getElementType()))
+					.setTeamId(playerMap.containsKey(o.getElement()) ? playerMap.get(o.getElement()).getTeamId() : 0)
+					.setMinutes(o.getMinutes())
+					.setGoalsScored(o.getGoalsScored())
+					.setAssists(o.getAssists())
+					.setGoalsConceded(o.getGoalsConceded())
+					.setOwnGoals(o.getOwnGoals())
+					.setPenaltiesSaved(o.getPenaltiesSaved())
+					.setPenaltiesMissed(o.getPenaltiesMissed())
+					.setYellowCards(o.getYellowCards())
+					.setRedCards(o.getRedCards())
+					.setSaves(o.getSaves())
+					.setBps(o.getBps())
+					.setTotalPoints(o.getTotalPoints());
+			if (o.getBonus() > 0) {
+				elementEventResultData
+						.setBonus(o.getBonus())
+						.setTotalPoints(elementEventResultData.getTotalPoints());
+			} else {
+				elementEventResultData
+						.setBonus(liveBonusMap.getOrDefault(o.getElement(), 0))
+						.setTotalPoints(elementEventResultData.getTotalPoints() + elementEventResultData.getBonus());
+			}
+			elementEventResultData.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(elementEventResultData.getTeamId()), ""));
+			teamDataList.add(elementEventResultData);
+		});
+		data
+				.setElementEventResultList(teamDataList
+						.stream()
+						.sorted(Comparator.comparing(ElementEventResultData::getTotalPoints)
+								.thenComparing(ElementEventResultData::getBps).reversed())
+						.collect(Collectors.toList())
+				);
+		return data;
+	}
+
+	private Map<Integer, Integer> getLiveBonusMap(int teamId) {
+		Map<Integer, Integer> map = Maps.newHashMap();
+		this.queryService.getLiveBonusCacheMap().forEach((team, list) -> {
+			if (!StringUtils.equals(team, String.valueOf(teamId))) {
+				return;
+			}
+			list.forEach((element, bonus) -> map.put(Integer.valueOf(element), bonus));
+		});
+		return map;
 	}
 
 	/**
 	 * @implNote player
 	 */
 
-	@Cacheable(value = "api::qryPlayerInfoByElementType", key = "#elementType", cacheManager = "apiCacheManager")
+	@Cacheable(value = "api::qryPlayerInfoByElementType", key = "#elementType", cacheManager = "apiCacheManager", unless = "#result.size() eq 0")
 	@Override
 	public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
 		LinkedHashMap<String, List<PlayerInfoData>> map = Maps.newLinkedHashMap();
@@ -162,13 +236,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 		return map;
 	}
 
-	@Cacheable(value = "api::qryPlayerDetailData", key = "#element", cacheManager = "apiCacheManager")
+	@Cacheable(value = "api::qryPlayerDetailData", key = "#element", cacheManager = "apiCacheManager", unless = "#result.element eq 0")
 	@Override
 	public PlayerDetailData qryPlayerDetailData(int element) {
 		return this.queryService.qryPlayerDetailData(element);
 	}
 
-	@Cacheable(value = "api::qryTeamFixtureByShortName", key = "#shortName", cacheManager = "apiCacheManager")
+	@Cacheable(value = "api::qryTeamFixtureByShortName", key = "#shortName", cacheManager = "apiCacheManager", unless = "#result.size() eq 0")
 	@Override
 	public Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName) {
 		int teamId = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
@@ -185,7 +259,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 	 * @implNote scout
 	 */
 
-	@Cacheable(value = "api::qryScoutEntry", cacheManager = "apiCacheManager")
+	@Cacheable(value = "api::qryScoutEntry", cacheManager = "apiCacheManager", unless = "#result.size() eq 0")
 	@Override
 	public Map<String, String> qryScoutEntry() {
 		Map<String, String> map = Maps.newHashMap();

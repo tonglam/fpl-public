@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2021/5/10
@@ -25,7 +26,7 @@ public class ApiLiveImpl implements IApiLive {
 	}
 
 	@Override
-	public List<LiveMatchTeamData> qryLiveMatchDataByStatus(String playStatus) {
+	public Map<String, LiveMatchTeamData> qryLiveMatchDataByStatus(String playStatus) {
 		return this.apiQueryService.qryLiveMatchDataByStatus(playStatus);
 	}
 

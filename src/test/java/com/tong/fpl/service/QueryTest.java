@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
+import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutEventFixtureData;
@@ -278,6 +279,13 @@ public class QueryTest extends FplApplicationTests {
 	@CsvSource({"1327348"})
 	void qryEntryFreeTransfers(int entry) {
 		Map<Integer, Integer> map = this.querySerivce.qryEntryFreeTransfersMap(entry);
+		System.out.println(1);
+	}
+
+	@ParameterizedTest
+	@CsvSource({"1"})
+	void qryLiveTeamDataList(int statusId) {
+		List<LiveMatchTeamData> list = this.querySerivce.qryLiveTeamDataList(statusId);
 		System.out.println(1);
 	}
 

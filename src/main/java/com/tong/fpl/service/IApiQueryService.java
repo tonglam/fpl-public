@@ -35,7 +35,7 @@ public interface IApiQueryService {
 	 */
 	List<LiveMatchData> qryLiveFixtureByStatus(String playStatus);
 
-	List<LiveMatchTeamData> qryLiveMatchDataByStatus(String playStatus);
+	Map<String, LiveMatchTeamData> qryLiveMatchDataByStatus(String playStatus);
 
 	/**
 	 * @apiNote player
