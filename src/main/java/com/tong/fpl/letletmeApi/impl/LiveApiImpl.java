@@ -1,10 +1,10 @@
-package com.tong.fpl.api.impl;
+package com.tong.fpl.letletmeApi.impl;
 
-import com.tong.fpl.api.ILiveApi;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
+import com.tong.fpl.letletmeApi.ILiveApi;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;

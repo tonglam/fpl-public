@@ -28,6 +28,16 @@
         </encoder>
     </appender>
 
+    <appender name="apiControllerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/home/workspace/fpl/log/api_controller.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%X{ip} %d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="httpCallLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/home/workspace/fpl/log/http_call.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -65,6 +75,10 @@
 
     <logger name="com.tong.fpl.log.ControllerLog" additivity="false">
         <appender-ref ref="controllerLog"/>
+    </logger>
+
+    <logger name="com.tong.fpl.log.ApiControllerLog" additivity="false">
+        <appender-ref ref="apiControllerLog"/>
     </logger>
 
     <logger name="com.tong.fpl.log.HttpCallLog" additivity="false">

@@ -1,9 +1,8 @@
-package com.tong.fpl.api.impl;
+package com.tong.fpl.letletmeApi.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.google.common.collect.Lists;
-import com.tong.fpl.api.IHttpApi;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.letletme.entry.EntryEventData;
@@ -11,6 +10,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerQueryParam;
+import com.tong.fpl.letletmeApi.IHttpApi;
 import com.tong.fpl.service.IQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

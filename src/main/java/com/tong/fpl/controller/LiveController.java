@@ -1,9 +1,9 @@
 package com.tong.fpl.controller;
 
-import com.tong.fpl.api.ILiveApi;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
+import com.tong.fpl.letletmeApi.ILiveApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

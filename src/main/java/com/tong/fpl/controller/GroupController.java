@@ -1,7 +1,6 @@
 package com.tong.fpl.controller;
 
 import com.google.common.collect.Lists;
-import com.tong.fpl.api.IGroupApi;
 import com.tong.fpl.constant.enums.FollowAccount;
 import com.tong.fpl.domain.letletme.entry.EntryEventSimulatePickData;
 import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
@@ -12,6 +11,7 @@ import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerPickData;
 import com.tong.fpl.domain.letletme.player.PlayerShowData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
+import com.tong.fpl.letletmeApi.IGroupApi;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

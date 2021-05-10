@@ -1,10 +1,10 @@
-package com.tong.fpl.api.impl;
+package com.tong.fpl.letletmeApi.impl;
 
-import com.tong.fpl.api.IStatApi;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.letletmeApi.IStatApi;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;

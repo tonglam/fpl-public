@@ -1,6 +1,6 @@
-package com.tong.fpl.api.impl;
+package com.tong.fpl.letletmeApi.impl;
 
-import com.tong.fpl.api.ILotteryApi;
+import com.tong.fpl.letletmeApi.ILotteryApi;
 import org.springframework.stereotype.Service;
 
 /**

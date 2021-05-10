@@ -1,7 +1,6 @@
-package com.tong.fpl.api.impl;
+package com.tong.fpl.letletmeApi.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.tong.fpl.api.IMyFplApi;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
@@ -11,6 +10,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
+import com.tong.fpl.letletmeApi.IMyFplApi;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ITableQueryService;
 import lombok.RequiredArgsConstructor;

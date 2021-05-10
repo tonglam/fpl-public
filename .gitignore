@@ -30,3 +30,6 @@ target/
 !/.idea/libraries/
 /.idea/
 src/main/resources/.DS_Store
+fpl.iml
+~/
+application.yaml

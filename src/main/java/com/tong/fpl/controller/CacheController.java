@@ -2,7 +2,7 @@ package com.tong.fpl.controller;
 
 import cn.hutool.core.codec.Base64;
 import com.tong.fpl.aop.annotation.TraceHttpCall;
-import com.tong.fpl.api.ICacheApi;
+import com.tong.fpl.letletmeApi.ICacheApi;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

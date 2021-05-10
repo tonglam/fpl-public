@@ -1,11 +1,11 @@
 package com.tong.fpl.controller;
 
-import com.tong.fpl.api.ISubtitleApi;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.letletme.global.ResponseData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.subtitle.QueryParam;
 import com.tong.fpl.domain.subtitle.SubtitleData;
+import com.tong.fpl.letletmeApi.ISubtitleApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

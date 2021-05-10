@@ -1,6 +1,6 @@
 package com.tong.fpl.controller;
 
-import com.tong.fpl.api.IHttpApi;
+import com.tong.fpl.letletmeApi.IHttpApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

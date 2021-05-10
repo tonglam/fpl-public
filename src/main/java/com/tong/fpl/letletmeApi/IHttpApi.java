@@ -1,4 +1,4 @@
-package com.tong.fpl.api;
+package com.tong.fpl.letletmeApi;
 
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.letletme.entry.EntryEventData;

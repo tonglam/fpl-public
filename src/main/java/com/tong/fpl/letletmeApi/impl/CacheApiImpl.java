@@ -1,6 +1,6 @@
-package com.tong.fpl.api.impl;
+package com.tong.fpl.letletmeApi.impl;
 
-import com.tong.fpl.api.ICacheApi;
+import com.tong.fpl.letletmeApi.ICacheApi;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.IUpdateEventService;
 import com.tong.fpl.utils.RedisUtils;

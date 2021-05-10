@@ -1,0 +1,36 @@
+package com.tong.fpl.controller.api;
+
+import com.tong.fpl.api.IApiPlayer;
+import com.tong.fpl.domain.letletme.player.PlayerDetailData;
+import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+
+/**
+ * Create by tong on 2021/5/10
+ */
+@RestController
+@RequestMapping("/api/player")
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+public class ApiPlayerController {
+
+    private final IApiPlayer apiPlayer;
+
+    @GetMapping("/qryPlayerInfoByElementType")
+    public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(@RequestParam int elementType) {
+        return this.apiPlayer.qryPlayerInfoByElementType(elementType);
+    }
+
+    @GetMapping("/qryPlayerDetailData")
+    public PlayerDetailData qryPlayerDetailData(@RequestParam int element) {
+        return this.apiPlayer.qryPlayerDetailData(element);
+    }
+
+}
