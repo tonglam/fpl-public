@@ -1,6 +1,6 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.ITournamentApi;
+import com.tong.fpl.api.IApiTournament;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TournamentApiController {
 
-    private final ITournamentApi tournamentApi;
+    private final IApiTournament apiTournament;
 
 }

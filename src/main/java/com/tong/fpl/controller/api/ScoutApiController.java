@@ -1,6 +1,6 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.IScoutApi;
+import com.tong.fpl.api.IApiScout;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +17,11 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ScoutApiController {
 
-	private final IScoutApi scoutApi;
+	private final IApiScout apiScout;
 
 	@GetMapping("/qryScoutEntry")
 	public Map<String, String> qryScoutEntry() {
-		return this.scoutApi.qryScoutEntry();
+		return this.apiScout.qryScoutEntry();
 	}
 
 }

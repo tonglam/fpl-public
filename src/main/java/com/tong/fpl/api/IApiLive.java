@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Create by tong on 2021/5/10
  */
-public interface ILiveApi {
+public interface IApiLive {
 
 	/**
 	 * 获取实时比赛

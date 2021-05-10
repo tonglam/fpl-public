@@ -1,6 +1,6 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.ILiveApi;
+import com.tong.fpl.api.IApiLive;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import lombok.RequiredArgsConstructor;
@@ -20,16 +20,16 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveApiController {
 
-	private final ILiveApi liveApi;
+	private final IApiLive apiLive;
 
 	@GetMapping("/qryLiveFixtureByStatus")
 	public List<LiveMatchData> qryLiveFixtureByStatus(@RequestParam String playStatus) {
-		return this.liveApi.qryLiveFixtureByStatus(playStatus);
+		return this.apiLive.qryLiveFixtureByStatus(playStatus);
 	}
 
 	@GetMapping("/qryLiveMatchDataByStatus")
 	public List<LiveMatchTeamData> qryLiveMatchDataByStatus(@RequestParam String playStatus) {
-		return this.liveApi.qryLiveMatchDataByStatus(playStatus);
+		return this.apiLive.qryLiveMatchDataByStatus(playStatus);
 	}
 
 }

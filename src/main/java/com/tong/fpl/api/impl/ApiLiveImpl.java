@@ -1,6 +1,6 @@
 package com.tong.fpl.api.impl;
 
-import com.tong.fpl.api.ILiveApi;
+import com.tong.fpl.api.IApiLive;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.service.IApiQueryService;
@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class LiveApiImpl implements ILiveApi {
+public class ApiLiveImpl implements IApiLive {
 
 	private final IApiQueryService apiQueryService;
 

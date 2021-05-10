@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Create by tong on 2021/5/10
  */
-public interface IPlayerApi {
+public interface IApiPlayer {
 
 	/**
 	 * 根据位置获取球员列表(team_short_name -> player_info)

@@ -1,6 +1,6 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.ICommonApi;
+import com.tong.fpl.api.IApiCommon;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +17,11 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CommonApiController {
 
-	private final ICommonApi commonApi;
+	private final IApiCommon apiCommon;
 
 	@GetMapping("/qryCurrentEventAndNextUtcDeadline")
 	public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
-		return this.commonApi.qryCurrentEventAndNextUtcDeadline();
+		return this.apiCommon.qryCurrentEventAndNextUtcDeadline();
 	}
 
 }

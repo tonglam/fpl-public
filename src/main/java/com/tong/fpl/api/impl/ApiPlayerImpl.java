@@ -1,6 +1,6 @@
 package com.tong.fpl.api.impl;
 
-import com.tong.fpl.api.IPlayerApi;
+import com.tong.fpl.api.IApiPlayer;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class PlayerApiImpl implements IPlayerApi {
+public class ApiPlayerImpl implements IApiPlayer {
 
 	private final IApiQueryService apiQueryService;
 
