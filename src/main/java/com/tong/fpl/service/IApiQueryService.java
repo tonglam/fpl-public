@@ -2,7 +2,6 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -19,11 +18,13 @@ public interface IApiQueryService {
 	/**
 	 * @apiNote common
 	 */
+
 	Map<String, String> qryCurrentEventAndNextUtcDeadline();
 
 	/**
 	 * @apiNote entry
 	 */
+
 	EntryInfoData qryEntryInfoData(int entry);
 
 	/**
@@ -33,13 +34,13 @@ public interface IApiQueryService {
 	/**
 	 * @apiNote live
 	 */
-	List<LiveMatchData> qryLiveFixtureByStatus(String playStatus);
 
-	Map<String, LiveMatchTeamData> qryLiveMatchDataByStatus(String playStatus);
+	List<LiveMatchData> qryLiveMatchDataByStatus(String playStatus);
 
 	/**
 	 * @apiNote player
 	 */
+
 	LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
 	PlayerDetailData qryPlayerDetailData(int element);
@@ -53,6 +54,7 @@ public interface IApiQueryService {
 	/**
 	 * @apiNote scout
 	 */
+
 	Map<String, String> qryScoutEntry();
 
 	/**

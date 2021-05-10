@@ -15,7 +15,6 @@ import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -87,8 +86,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 	 */
 
 	@Override
-	public List<LiveMatchData> qryLiveFixtureByStatus(String playStatus) {
+	public List<LiveMatchData> qryLiveMatchDataByStatus(String playStatus) {
 		List<LiveMatchData> list = Lists.newArrayList();
+		// prepare
+		int event = this.queryService.getCurrentEvent();
+		Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
+		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+				.stream()
+				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+		// collect
 		Map<String, Map<String, List<LiveFixtureData>>> eventLiveFixtureMap = this.redisCacheService.getEventLiveFixtureMap();
 		eventLiveFixtureMap.keySet().forEach(teamId ->
 				eventLiveFixtureMap.get(teamId).forEach((status, fixtureList) -> {
@@ -100,14 +107,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 							return;
 						}
 						list.add(new LiveMatchData()
+								.setMatchId(list.size() + 1)
 								.setHomeTeamId(o.getTeamId())
 								.setHomeTeamName(o.getTeamName())
 								.setHomeTeamShortName(o.getTeamShortName())
 								.setHomeScore(o.getTeamScore())
+								.setHomeTeamDataList(this.qryLiveTeamData(o.getTeamId(), eventLiveList, playerMap, teamShortNameMap))
 								.setAwayTeamId(o.getAgainstId())
 								.setAwayTeamName(o.getAgainstName())
 								.setAwayTeamShortName(o.getAgainstShortName())
 								.setAwayScore(o.getAgainstTeamScore())
+								.setAwayTeamDataList(this.qryLiveTeamData(o.getAgainstId(), eventLiveList, playerMap, teamShortNameMap))
 								.setKickoffTime(o.getKickoffTime())
 						);
 					});
@@ -118,29 +128,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 				.collect(Collectors.toList());
 	}
 
-	@Override
-	public Map<String, LiveMatchTeamData> qryLiveMatchDataByStatus(String playStatus) {
-		Map<String, LiveMatchTeamData> map = Maps.newHashMap();
-		// prepare
-		int event = this.queryService.getCurrentEvent();
-		Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
-		Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-				.stream()
-				.collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
-		Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-		// live element event result
-		List<Integer> teamIdList = Lists.newArrayList();
-		this.qryLiveFixtureByStatus(playStatus).forEach(o -> {
-			teamIdList.add(o.getHomeTeamId());
-			teamIdList.add(o.getAwayTeamId());
-		});
-		teamIdList.forEach(teamId -> map.put(teamShortNameMap.get(String.valueOf(teamId)), this.qryLiveTeamData(teamId, eventLiveList, playerMap, teamShortNameMap)));
-		return map;
-	}
-
-	private LiveMatchTeamData qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
-		LiveMatchTeamData data = new LiveMatchTeamData().setTeamId(teamId);
-		List<ElementEventResultData> teamDataList = Lists.newArrayList();
+	private List<ElementEventResultData> qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+		List<ElementEventResultData> list = Lists.newArrayList();
 		// team data
 		Map<Integer, Integer> liveBonusMap = this.getLiveBonusMap(teamId);
 		eventLiveList.forEach(o -> {
@@ -177,16 +166,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 						.setTotalPoints(elementEventResultData.getTotalPoints() + elementEventResultData.getBonus());
 			}
 			elementEventResultData.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(elementEventResultData.getTeamId()), ""));
-			teamDataList.add(elementEventResultData);
+			list.add(elementEventResultData);
 		});
-		data
-				.setElementEventResultList(teamDataList
-						.stream()
-						.sorted(Comparator.comparing(ElementEventResultData::getTotalPoints)
-								.thenComparing(ElementEventResultData::getBps).reversed())
-						.collect(Collectors.toList())
-				);
-		return data;
+		return list;
 	}
 
 	private Map<Integer, Integer> getLiveBonusMap(int teamId) {
