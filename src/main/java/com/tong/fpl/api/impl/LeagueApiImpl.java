@@ -1,7 +1,6 @@
 package com.tong.fpl.api.impl;
 
-import com.tong.fpl.api.IApiTournament;
-import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,8 +10,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ApiTournamentImpl implements IApiTournament {
+public class LeagueApiImpl {
 
-	private final IQueryService queryService;
+	private final IApiQueryService apiQueryService;
 
 }

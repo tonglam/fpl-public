@@ -1,19 +1,19 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.IApiLive;
+import com.tong.fpl.api.ILeagueApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Create by tong on 2021/5/9
+ * Create by tong on 2021/5/10
  */
 @RestController
-@RequestMapping("/api/live")
+@RequestMapping("/api/league")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ApiLiveController {
+public class LeagueApiController {
 
-	private final IApiLive apiLive;
+	private ILeagueApi leagueapi;
 
 }

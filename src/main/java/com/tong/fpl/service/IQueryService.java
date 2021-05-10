@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -92,8 +91,6 @@ public interface IQueryService {
                                      Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap, Multimap<Integer, EventLiveEntity> eventLiveMap,
                                      Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap);
 
-    LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
-
     /**
      * @apiNote entry
      */
@@ -102,12 +99,6 @@ public interface IQueryService {
     }
 
     EntryInfoEntity qryEntryInfo(String season, int entry);
-
-    default EntryInfoData qryEntryInfoData(int entry) {
-        return this.qryEntryInfoData(CommonUtils.getCurrentSeason(), entry);
-    }
-
-    EntryInfoData qryEntryInfoData(String season, int entry);
 
     EntryRes getEntry(int entry);
 
@@ -180,8 +171,6 @@ public interface IQueryService {
     }
 
     Map<String, String> getTeamShortNameMap(String season);
-
-    Map<String, List<PlayerFixtureData>> qryTeamFixture(String shortName);
 
     /**
      * @apiNote fixture

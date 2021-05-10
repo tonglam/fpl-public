@@ -1,6 +1,6 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.IApiEntry;
+import com.tong.fpl.api.IEntryApi;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/entry")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ApiEntryController {
+public class EntryApiController {
 
-    private final IApiEntry apiEntry;
+    private final IEntryApi entryapi;
 
     @GetMapping("/qryEntryInfoData")
     public EntryInfoData qryEntryInfoData(@RequestParam int entry) {
-        return this.apiEntry.qryEntryInfoData(entry);
+        return this.entryapi.qryEntryInfoData(entry);
     }
 
 }

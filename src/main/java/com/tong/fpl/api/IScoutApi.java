@@ -5,11 +5,11 @@ import java.util.Map;
 /**
  * Create by tong on 2021/5/10
  */
-public interface IApiScout {
+public interface IScoutApi {
 
 	/**
 	 * 获取球探名单
 	 */
-	Map<Object, Object> getScoutMap();
+	Map<String, String> qryScoutEntry();
 
 }

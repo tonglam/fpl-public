@@ -1,6 +1,6 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.IApiPlayer;
+import com.tong.fpl.api.IPlayerApi;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -21,23 +21,23 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/player")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ApiPlayerController {
+public class PlayerApiController {
 
-    private final IApiPlayer apiPlayer;
+    private final IPlayerApi playerApi;
 
     @GetMapping("/qryPlayerInfoByElementType")
     public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(@RequestParam int elementType) {
-        return this.apiPlayer.qryPlayerInfoByElementType(elementType);
+        return this.playerApi.qryPlayerInfoByElementType(elementType);
     }
 
     @GetMapping("/qryPlayerDetailData")
     public PlayerDetailData qryPlayerDetailData(@RequestParam int element) {
-        return this.apiPlayer.qryPlayerDetailData(element);
+        return this.playerApi.qryPlayerDetailData(element);
     }
 
-    @GetMapping("/qryTeamFixture")
-    public Map<String, List<PlayerFixtureData>> qryTeamFixture(@RequestParam String shortName) {
-        return this.apiPlayer.qryTeamFixture(shortName);
+    @GetMapping("/qryTeamFixtureByShortName")
+    public Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(@RequestParam String shortName) {
+        return this.playerApi.qryTeamFixtureByShortName(shortName);
     }
 
 }

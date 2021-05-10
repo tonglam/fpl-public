@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -279,13 +278,6 @@ public class QueryTest extends FplApplicationTests {
 	@CsvSource({"1327348"})
 	void qryEntryFreeTransfers(int entry) {
 		Map<Integer, Integer> map = this.querySerivce.qryEntryFreeTransfersMap(entry);
-		System.out.println(1);
-	}
-
-	@ParameterizedTest
-	@CsvSource({"1"})
-	void qryPlayerInfoListByElementType(int elementType) {
-		LinkedHashMap<String, List<PlayerInfoData>> map = this.querySerivce.qryPlayerInfoByElementType(elementType);
 		System.out.println(1);
 	}
 

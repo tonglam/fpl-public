@@ -1,7 +1,7 @@
 package com.tong.fpl.api.impl;
 
-import com.tong.fpl.api.IApiReport;
-import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.api.IReportApi;
+import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ApiReportImpl implements IApiReport {
+public class ReportApiImpl implements IReportApi {
 
-	private final IQueryService queryService;
+	private final IApiQueryService apiQueryService;
 
 }

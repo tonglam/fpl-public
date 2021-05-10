@@ -1,6 +1,6 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.IApiScout;
+import com.tong.fpl.api.ICommonApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 /**
- * Create by tong on 2021/5/9
+ * Create by tong on 2021/2/26
  */
 @RestController
-@RequestMapping("/api/scout")
+@RequestMapping("/api/common")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ApiScoutController {
+public class CommonApiController {
 
-	private final IApiScout apiScout;
+	private final ICommonApi commonApi;
 
-	@GetMapping("/getScoutMap")
-	public Map<Object, Object> getScoutMap() {
-		return this.apiScout.getScoutMap();
+	@GetMapping("/qryCurrentEventAndNextUtcDeadline")
+	public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
+		return this.commonApi.qryCurrentEventAndNextUtcDeadline();
 	}
 
 }

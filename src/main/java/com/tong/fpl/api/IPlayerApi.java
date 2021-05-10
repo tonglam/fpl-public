@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Create by tong on 2021/5/10
  */
-public interface IApiPlayer {
+public interface IPlayerApi {
 
 	/**
 	 * 根据位置获取球员列表(team_short_name -> player_info)
@@ -27,6 +27,6 @@ public interface IApiPlayer {
 	/**
 	 * 根据球队缩写获取赛程
 	 */
-	Map<String, List<PlayerFixtureData>> qryTeamFixture(String shortName);
+	Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
 }

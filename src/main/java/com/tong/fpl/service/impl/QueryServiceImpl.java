@@ -403,38 +403,6 @@ public class QueryServiceImpl implements IQueryService {
                 .setDgw(true);
     }
 
-    //	@Cacheable(value = "qryPlayerInfoByElementType", key = "#elementType")
-    @Override
-    public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
-        LinkedHashMap<String, List<PlayerInfoData>> map = Maps.newLinkedHashMap();
-        Multimap<String, PlayerInfoData> multimap = HashMultimap.create();
-        // prepare
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
-        // init
-        this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
-                .eq(PlayerEntity::getElementType, elementType))
-                .forEach(o -> {
-                    PlayerInfoData data = BeanUtil.copyProperties(o, PlayerInfoData.class);
-                    data.setElementTypeName(Position.getNameFromElementType(data.getElementType()))
-                            .setTeamName(teamNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
-                            .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
-                            .setPrice(data.getPrice() / 10);
-                    multimap.put(data.getTeamShortName(), data);
-                });
-        // collect
-        List<String> shortNameSortedList = multimap.keySet()
-                .stream()
-                .sorted(Comparator.comparing(String::toUpperCase))
-                .collect(Collectors.toList());
-        shortNameSortedList.forEach(team ->
-                map.put(team, multimap.get(team)
-                        .stream()
-                        .sorted(Comparator.comparing(PlayerInfoData::getPrice).reversed())
-                        .collect(Collectors.toList())));
-        return map;
-    }
-
     /**
      * @implNote entry
      */
@@ -468,16 +436,6 @@ public class QueryServiceImpl implements IQueryService {
                 .setBank(entryRes.getLastDeadlineBank())
                 .setTeamValue(entryRes.getLastDeadlineValue())
                 .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
-    }
-
-    @Cacheable(value = "qryEntryInfoData", key = "#season+'::'+#entry")
-    @Override
-    public EntryInfoData qryEntryInfoData(String season, int entry) {
-        EntryInfoEntity entryInfoEntity = this.qryEntryInfo(season, entry);
-        if (entryInfoEntity == null) {
-            return new EntryInfoData();
-        }
-        return BeanUtil.copyProperties(entryInfoEntity, EntryInfoData.class);
     }
 
     @Cacheable(value = "getEntry", key = "#entry", unless = "#result == null")
@@ -651,14 +609,6 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public Map<String, String> getTeamShortNameMap(String season) {
         return this.redisCacheService.getTeamShortNameMap(season);
-    }
-
-    @Override
-    public Map<String, List<PlayerFixtureData>> qryTeamFixture(String shortName) {
-        int teamId = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
-                .eq(TeamEntity::getShortName, shortName))
-                .getId();
-        return this.getEventFixtureByTeamId(teamId);
     }
 
     /**
