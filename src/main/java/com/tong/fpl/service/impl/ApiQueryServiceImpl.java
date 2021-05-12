@@ -212,11 +212,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (playerEntity == null) {
             return new PlayerInfoData();
         }
+        int event = this.queryService.getCurrentEvent();
+        EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
         return BeanUtil.copyProperties(playerEntity, PlayerInfoData.class)
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                 .setTeamName(this.getTeamNameByTeam(playerEntity.getTeamId()))
                 .setTeamShortName(this.getShortTeamNameByTeam(playerEntity.getTeamId()))
-                .setPrice(playerEntity.getPrice() / 10.0);
+                .setPrice(playerEntity.getPrice() / 10.0)
+                .setPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints());
     }
 
     @Cacheable(
