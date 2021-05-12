@@ -41,9 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-/**
- * Create by tong on 2021/5/10
- */
+/** Create by tong on 2021/5/10 */
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -55,9 +53,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
   private final PlayerService playerService;
   private final ScoutService scoutService;
 
-  /**
-   * @implNote common
-   */
+  /** @implNote common */
   @Cacheable(
       value = "api::qryCurrentEventAndNextUtcDeadline",
       cacheManager = "apiCacheManager",
@@ -72,9 +68,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     return map;
   }
 
-  /**
-   * @implNote entry
-   */
+  /** @implNote entry */
   @Cacheable(
       value = "api::qryEntryInfoData",
       key = "#entry",
@@ -92,9 +86,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
   /** @implNote league */
 
-  /**
-   * @implNote live(do not cache)
-   */
+  /** @implNote live(do not cache) */
   @Override
   public List<LiveMatchData> qryLiveMatchDataByStatus(String playStatus) {
     List<LiveMatchData> list = Lists.newArrayList();
@@ -227,9 +219,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     return map;
   }
 
-  /**
-   * @implNote player
-   */
+  /** @implNote player */
   @Cacheable(
       value = "api::qryPlayerInfoByElementType",
       key = "#elementType",
@@ -297,9 +287,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
   /** @implNote report */
 
-  /**
-   * @implNote scout
-   */
+  /** @implNote scout */
   @Cacheable(
       value = "api::qryScoutEntry",
       cacheManager = "apiCacheManager",
@@ -344,26 +332,31 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         .setScoutName(scoutEntity.getScoutName())
         .setGkp(scoutEntity.getGkp())
         .setGkpName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getGkp()))
+        .setGkpTeamId(scoutEntity.getGkpTeamId())
         .setGkpTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getGkpTeamId()), ""))
         .setGkpPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getGkp()) / 10.0)
         .setDef(scoutEntity.getDef())
         .setDefName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getDef()))
+        .setDefTeamId(scoutEntity.getDefTeamId())
         .setDefTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getDefTeamId()), ""))
         .setDefPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getDef()) / 10.0)
         .setMid(scoutEntity.getMid())
+        .setMidTeamId(scoutEntity.getMidTeamId())
         .setMidName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getMid()))
         .setMidTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getMidTeamId()), ""))
         .setMidPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getMid()) / 10.0)
         .setFwd(scoutEntity.getFwd())
         .setFwdName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getFwd()))
+        .setFwdTeamId(scoutEntity.getFwdTeamId())
         .setFwdTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getFwdTeamId()), ""))
         .setFwdPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getFwd()) / 10.0)
         .setCaptain(scoutEntity.getCaptain())
         .setCaptainName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getCaptain()))
+        .setCaptainTeamId(scoutEntity.getCaptainTeamId())
         .setCaptainTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getCaptainTeamId()), ""))
         .setCaptainPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getCaptain()) / 10.0)
