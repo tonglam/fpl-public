@@ -346,27 +346,27 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         .setGkpName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getGkp()))
         .setGkpTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getGkpTeamId()), ""))
-        .setGkpPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getGkp()))
+        .setGkpPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getGkp()) / 10.0)
         .setDef(scoutEntity.getDef())
         .setDefName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getDef()))
         .setDefTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getDefTeamId()), ""))
-        .setDefPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getDef()))
+        .setDefPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getDef()) / 10.0)
         .setMid(scoutEntity.getMid())
         .setMidName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getMid()))
         .setMidTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getMidTeamId()), ""))
-        .setMidPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getMid()))
+        .setMidPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getMid()) / 10.0)
         .setFwd(scoutEntity.getFwd())
         .setFwdName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getFwd()))
         .setFwdTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getFwdTeamId()), ""))
-        .setFwdPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getFwd()))
+        .setFwdPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getFwd()) / 10.0)
         .setCaptain(scoutEntity.getCaptain())
         .setCaptainName(this.queryService.qryPlayerWebNameByElement(scoutEntity.getCaptain()))
         .setCaptainTeamShortName(
             teamShortNameMap.getOrDefault(String.valueOf(scoutEntity.getCaptainTeamId()), ""))
-        .setCaptainPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getCaptain()))
+        .setCaptainPrice(this.queryService.qryPlayePriceByElement(scoutEntity.getCaptain()) / 10.0)
         .setReason(scoutEntity.getReason());
   }
 
