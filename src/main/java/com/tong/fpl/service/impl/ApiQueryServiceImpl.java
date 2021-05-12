@@ -95,7 +95,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // prepare
         int event = this.queryService.getCurrentEvent();
         Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list().stream()
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
         Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
         // collect
@@ -248,7 +249,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     multimap.put(data.getTeamShortName(), data);
                 });
         // collect
-        List<String> shortNameSortedList = multimap.keySet().stream()
+        List<String> shortNameSortedList = multimap.keySet()
+                .stream()
                 .sorted(Comparator.comparing(String::toUpperCase))
                 .collect(Collectors.toList());
         shortNameSortedList.forEach(team ->
@@ -275,7 +277,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             unless = "#result.size() eq 0")
     @Override
     public Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName) {
-        int teamId = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda().eq(TeamEntity::getShortName, shortName)).getId();
+        int teamId = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
+                .eq(TeamEntity::getShortName, shortName)).getId();
         return this.queryService.getEventFixtureByTeamId(teamId);
     }
 
@@ -309,11 +312,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return this.initScoutData(scoutEntity);
     }
 
-    // do not cache
+    @Cacheable(
+            value = "api::qryEventScoutResult",
+            key = "#event",
+            cacheManager = "apiCacheManager")
     @Override
     public List<EventScoutData> qryEventScoutResult(int event) {
         return this.scoutService
-                .list(new QueryWrapper<ScoutEntity>().lambda().eq(ScoutEntity::getEvent, event))
+                .list(new QueryWrapper<ScoutEntity>().lambda()
+                        .eq(ScoutEntity::getEvent, event))
                 .stream()
                 .map(this::initScoutData)
                 .collect(Collectors.toList());
