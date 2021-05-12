@@ -1,6 +1,6 @@
 package com.tong.fpl.aop.annotation;
 
-import com.tong.fpl.log.ControllerLog;
+import com.tong.fpl.log.ApiControllerLog;
 import com.tong.fpl.utils.HttpUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -50,7 +50,7 @@ public class ApiControllerLogAspect {
 	public void doAfterReturning(Object obj) {
 		stringBuffer.append(", response:{data}");
 		stringBuffer.append(", elapsed time:").append(System.currentTimeMillis() - startTime.get()).append("ms!");
-		ControllerLog.info(stringBuffer.toString());
+		ApiControllerLog.info(stringBuffer.toString());
 	}
 
 }
