@@ -5,61 +5,40 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-
+import com.tong.fpl.domain.letletme.scout.ScoutData;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Create by tong on 2021/5/10
- */
+/** Create by tong on 2021/5/10 */
 public interface IApiQueryService {
 
-	/**
-	 * @apiNote common
-	 */
+  /** @apiNote common */
+  Map<String, String> qryCurrentEventAndNextUtcDeadline();
 
-	Map<String, String> qryCurrentEventAndNextUtcDeadline();
+  /** @apiNote entry */
+  EntryInfoData qryEntryInfoData(int entry);
 
-	/**
-	 * @apiNote entry
-	 */
+  /** @apiNote league */
 
-	EntryInfoData qryEntryInfoData(int entry);
+  /** @apiNote live */
+  List<LiveMatchData> qryLiveMatchDataByStatus(String playStatus);
 
-	/**
-	 * @apiNote league
-	 */
+  /** @apiNote player */
+  LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
-	/**
-	 * @apiNote live
-	 */
+  PlayerDetailData qryPlayerDetailData(int element);
 
-	List<LiveMatchData> qryLiveMatchDataByStatus(String playStatus);
+  Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
-	/**
-	 * @apiNote player
-	 */
+  /** @apiNote report */
 
-	LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
+  /** @apiNote scout */
+  Map<String, String> qryScoutEntry();
 
-	PlayerDetailData qryPlayerDetailData(int element);
+  ScoutData qryEventScoutPickResult(int event, int entry);
 
-	Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
+  List<ScoutData> qryEventScoutResult(int event);
 
-	/**
-	 * @apiNote report
-	 */
-
-	/**
-	 * @apiNote scout
-	 */
-
-	Map<String, String> qryScoutEntry();
-
-	/**
-	 * @apiNote tournament
-	 */
-
-
+  /** @apiNote tournament */
 }
