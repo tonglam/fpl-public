@@ -35,7 +35,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"20210513"})
+    @CsvSource({"20210514"})
     void qryPlayerValueByChangeDate(String changeDate) {
         Map<String, List<PlayerValueData>> map = this.apiQueryService.qryPlayerValueByChangeDate(changeDate);
         System.out.println(1);

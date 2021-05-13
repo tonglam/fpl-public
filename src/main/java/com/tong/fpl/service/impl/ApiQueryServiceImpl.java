@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -289,7 +290,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Cacheable(
             value = "api::qryPlayerValueByChangeDate",
             key = "#changeDate",
-            cacheManager = "apiCacheManager")
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0")
     @Override
     public Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(String changeDate) {
         Map<String, List<PlayerValueData>> map = Maps.newHashMap();
@@ -298,6 +300,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
         List<PlayerValueEntity> playerValueList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
                 .eq(PlayerValueEntity::getChangeDate, changeDate));
+        if (CollectionUtils.isEmpty(playerValueList)) {
+            return Maps.newHashMap();
+        }
         List<Integer> elementList = playerValueList
                 .stream()
                 .map(PlayerValueEntity::getElement)
