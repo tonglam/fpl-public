@@ -18,9 +18,9 @@ public class PlayerValueData {
     private int elementType;
     private String elementTypeName;
     private int event;
-    private int value;
+    private double value;
     private String changeDate;
     private String changeType;
-    private int lastValue;
+    private double lastValue;
 
 }

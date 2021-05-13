@@ -340,11 +340,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         PlayerValueData data = BeanUtil.copyProperties(playerValueEntity, PlayerValueData.class);
         PlayerEntity playerEntity = playerMap.get(element);
         if (playerEntity != null) {
-            data.setWebName(playerEntity.getWebName())
+            data
+                    .setWebName(playerEntity.getWebName())
                     .setTeamId(playerEntity.getTeamId())
                     .setTeamName(teamNameMap.getOrDefault(String.valueOf(element), ""))
                     .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(element), ""))
-                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()));
+                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                    .setValue(playerValueEntity.getValue() / 10.0)
+                    .setLastValue(playerValueEntity.getLastValue() / 10.0);
         }
         return data;
     }
