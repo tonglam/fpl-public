@@ -293,10 +293,23 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Override
     public Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(String changeDate) {
         Map<String, List<PlayerValueData>> map = Maps.newHashMap();
-        List<PlayerValueData> playerValueDataList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
-                .eq(PlayerValueEntity::getChangeDate, changeDate))
+        // prepare
+        Map<String, String> teamNameMap = this.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        List<PlayerValueEntity> playerValueList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+                .eq(PlayerValueEntity::getChangeDate, changeDate));
+        List<Integer> elementList = playerValueList
                 .stream()
-                .map(this::initPlayerValueData)
+                .map(PlayerValueEntity::getElement)
+                .collect(Collectors.toList());
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+                .in(PlayerEntity::getElement, elementList))
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        // collect
+        List<PlayerValueData> playerValueDataList = playerValueList
+                .stream()
+                .map(o -> this.initPlayerValueData(o, teamNameMap, teamShortNameMap, playerMap))
                 .collect(Collectors.toList());
         map.put(
                 ValueChangeType.Start.name(),
@@ -322,17 +335,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return map;
     }
 
-    private PlayerValueData initPlayerValueData(PlayerValueEntity playerValueEntity) {
+    private PlayerValueData initPlayerValueData(PlayerValueEntity playerValueEntity, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<Integer, PlayerEntity> playerMap) {
         int element = playerValueEntity.getElement();
         PlayerValueData data = BeanUtil.copyProperties(playerValueEntity, PlayerValueData.class);
-        PlayerInfoData playerInfoData = this.qryPlayerInfoByElement(element);
-        if (playerInfoData != null) {
-            data
-                    .setWebName(playerInfoData.getWebName())
-                    .setTeamId(playerInfoData.getTeamId())
-                    .setTeamName(playerInfoData.getTeamName())
-                    .setTeamShortName(playerInfoData.getTeamShortName())
-                    .setElementTypeName(playerInfoData.getElementTypeName());
+        PlayerEntity playerEntity = playerMap.get(element);
+        if (playerEntity != null) {
+            data.setWebName(playerEntity.getWebName())
+                    .setTeamId(playerEntity.getTeamId())
+                    .setTeamName(teamNameMap.getOrDefault(String.valueOf(element), ""))
+                    .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(element), ""))
+                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()));
         }
         return data;
     }
