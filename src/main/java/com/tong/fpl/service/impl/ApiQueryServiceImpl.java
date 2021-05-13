@@ -348,8 +348,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             data
                     .setWebName(playerEntity.getWebName())
                     .setTeamId(playerEntity.getTeamId())
-                    .setTeamName(teamNameMap.getOrDefault(String.valueOf(element), ""))
-                    .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(element), ""))
+                    .setTeamName(teamNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                    .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
                     .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                     .setValue(playerValueEntity.getValue() / 10.0)
                     .setLastValue(playerValueEntity.getLastValue() / 10.0);
