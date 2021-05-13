@@ -20,7 +20,7 @@ public class ApiReportImpl implements IApiReport {
 	private final IApiQueryService apiQueryService;
 
 	@Override
-	public Map<String, List<PlayerValueData>> qryPlayerVuleByChangeDate(String changeDate) {
+	public Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(String changeDate) {
 		return this.apiQueryService.qryPlayerValueByChangeDate(changeDate);
 	}
 

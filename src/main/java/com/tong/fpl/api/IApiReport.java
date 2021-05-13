@@ -10,6 +10,6 @@ import java.util.Map;
  */
 public interface IApiReport {
 
-    Map<String, List<PlayerValueData>> qryPlayerVuleByChangeDate(String changeDate);
+    Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(String changeDate);
 
 }
