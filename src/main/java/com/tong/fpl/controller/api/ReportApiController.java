@@ -23,8 +23,11 @@ public class ReportApiController {
     private final IApiReport apiReport;
 
     @GetMapping("/qryPlayerVuleByChangeDate")
-    public Map<String, List<PlayerValueData>> qryPlayerVuleByChangeDate(@RequestParam String changeDate) {
-        return this.apiReport.qryPlayerVuleByChangeDate(changeDate);
+    public Map<String, List<PlayerValueData>> qryPlayerVuleByChangeDate(@RequestParam String date) {
+        if (date.contains("-")) {
+            date = date.replaceAll("-", "");
+        }
+        return this.apiReport.qryPlayerVuleByChangeDate(date);
     }
 
 }
