@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 
 import java.util.LinkedHashMap;
@@ -60,6 +61,8 @@ public interface IApiQueryService {
     PlayerDetailData qryPlayerDetailData(int element);
 
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
+
+    Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(String changeDate);
 
     /**
      * @apiNote report

@@ -26,27 +26,27 @@ public class DailyTask {
 	}
 
 	@Scheduled(cron = "0 40 6 * * *")
-	public void insertEventFixture() {
-		this.redisCacheService.insertEventFixture();
-	}
+    public void insertEventFixture() {
+        this.redisCacheService.insertEventFixture();
+    }
 
-	@Scheduled(cron = "0 45 6 * * *")
-	public void insertSingleEventPassedDeadlineCache() {
-		int nextEvent = this.queryService.getNextEvent();
-		this.redisCacheService.insertSingleEventPassedDeadlineCache(nextEvent);
-	}
+    @Scheduled(cron = "0 45 6 * * *")
+    public void insertSingleEventPassedDeadlineCache() {
+        int nextEvent = this.queryService.getNextEvent();
+        this.redisCacheService.insertSingleEventPassedDeadlineCache(nextEvent);
+    }
 
-	@Scheduled(cron = "0 35 9 * * *")
-	public void refreshPlayerValue() {
-		try {
-			this.redisCacheService.insertPlayer();
-			this.redisCacheService.insertPlayerStat();
-			this.redisCacheService.insertPlayerValue();
-		} catch (Exception e) {
-			e.printStackTrace();
-			TaskLog.error(e.getMessage());
-			this.refreshPlayerValue();
-		}
+    @Scheduled(cron = "0 30-35 9 * * *")
+    public void refreshPlayerValue() {
+        try {
+            this.redisCacheService.insertPlayer();
+            this.redisCacheService.insertPlayerStat();
+            this.redisCacheService.insertPlayerValue();
+        } catch (Exception e) {
+            e.printStackTrace();
+            TaskLog.error(e.getMessage());
+            this.refreshPlayerValue();
+        }
 	}
 
 	@Scheduled(cron = "0 35 9 * * *")

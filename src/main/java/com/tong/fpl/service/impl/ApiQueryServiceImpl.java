@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.enums.Position;
+import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
@@ -15,11 +16,13 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.db.PlayerService;
+import com.tong.fpl.service.db.PlayerValueService;
 import com.tong.fpl.service.db.ScoutService;
 import com.tong.fpl.service.db.TeamService;
 import com.tong.fpl.utils.CommonUtils;
@@ -46,6 +49,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final IRedisCacheService redisCacheService;
     private final TeamService teamService;
     private final PlayerService playerService;
+    private final PlayerValueService playerValueService;
     private final ScoutService scoutService;
 
     /**
@@ -280,6 +284,57 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         int teamId = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
                 .eq(TeamEntity::getShortName, shortName)).getId();
         return this.queryService.getEventFixtureByTeamId(teamId);
+    }
+
+    @Cacheable(
+            value = "api::qryPlayerValueByChangeDate",
+            key = "#changeDate",
+            cacheManager = "apiCacheManager")
+    @Override
+    public Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(String changeDate) {
+        Map<String, List<PlayerValueData>> map = Maps.newHashMap();
+        List<PlayerValueData> playerValueDataList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+                .eq(PlayerValueEntity::getChangeDate, changeDate))
+                .stream()
+                .map(this::initPlayerValueData)
+                .collect(Collectors.toList());
+        map.put(
+                ValueChangeType.Start.name(),
+                playerValueDataList
+                        .stream()
+                        .filter(o -> StringUtils.equals(ValueChangeType.Start.name(), o.getChangeType()))
+                        .collect(Collectors.toList())
+        );
+        map.put(
+                ValueChangeType.Rise.name(),
+                playerValueDataList
+                        .stream()
+                        .filter(o -> StringUtils.equals(ValueChangeType.Rise.name(), o.getChangeType()))
+                        .collect(Collectors.toList())
+        );
+        map.put(
+                ValueChangeType.Faller.name(),
+                playerValueDataList
+                        .stream()
+                        .filter(o -> StringUtils.equals(ValueChangeType.Faller.name(), o.getChangeType()))
+                        .collect(Collectors.toList())
+        );
+        return map;
+    }
+
+    private PlayerValueData initPlayerValueData(PlayerValueEntity playerValueEntity) {
+        int element = playerValueEntity.getElement();
+        PlayerValueData data = BeanUtil.copyProperties(playerValueEntity, PlayerValueData.class);
+        PlayerInfoData playerInfoData = this.qryPlayerInfoByElement(element);
+        if (playerInfoData != null) {
+            data
+                    .setWebName(playerInfoData.getWebName())
+                    .setTeamId(playerInfoData.getTeamId())
+                    .setTeamName(playerInfoData.getTeamName())
+                    .setTeamShortName(playerInfoData.getTeamShortName())
+                    .setElementTypeName(playerInfoData.getElementTypeName());
+        }
+        return data;
     }
 
     /**

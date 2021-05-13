@@ -12,6 +12,7 @@ public class PlayerValueData {
 
     private int element;
     private String webName;
+    private int teamId;
     private String teamName;
     private String teamShortName;
     private int elementType;

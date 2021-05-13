@@ -20,30 +20,31 @@ public class GroupApiController {
 
     private final IApiGroup apiGroup;
 
-    @RequestMapping("/qryScoutEntry")
+    @GetMapping("/qryScoutEntry")
     public Map<String, String> qryScoutEntry() {
         return this.apiGroup.qryScoutEntry();
     }
 
-    @RequestMapping("/qryEventEntryScoutResult")
+    @GetMapping("/qryEventEntryScoutResult")
     public EventScoutData qryEventEntryScoutResult(@RequestParam int event, @RequestParam int entry) {
         return this.apiGroup.qryEventEntryScoutResult(event, entry);
     }
 
-    @RequestMapping("/qryEventScoutResult")
+    @GetMapping("/qryEventScoutResult")
     public List<EventScoutData> qryEventScoutResult(@RequestParam int event) {
         return this.apiGroup.qryEventScoutResult(event);
     }
 
-    @RequestMapping("/upsertEventScout")
+    @PatchMapping("/upsertEventScout")
     @ResponseBody
     public void upsertEventScout(@RequestBody ScoutData scoutData) {
         this.apiGroup.upsertEventScout(scoutData);
     }
 
-    @RequestMapping("/updateEventScoutResult")
+    @GetMapping("/updateEventScoutResult")
     @ResponseBody
     public void updateEventScoutResult(@RequestParam int event) {
         this.apiGroup.updateEventScoutResult(event);
     }
+
 }
