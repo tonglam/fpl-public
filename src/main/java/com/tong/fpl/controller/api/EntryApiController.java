@@ -23,7 +23,7 @@ public class EntryApiController {
         return this.apiEntry.qryEntryInfo(entry);
     }
 
-    @GetMapping("/fuzzyQueryEntry")
+    @RequestMapping("/fuzzyQueryEntry")
     public List<EntryInfoData> fuzzyQueryEntry(@RequestBody EntryQueryParam param) {
         return this.apiEntry.fuzzyQueryEntry(param);
     }
