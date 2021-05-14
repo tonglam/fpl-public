@@ -109,7 +109,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTotalTransfers(entryInfoEntity.getTotalTransfers())
                 .setValue(entryInfoEntity.getTeamValue() / 10.0)
                 .setBank(entryInfoEntity.getBank() / 10.0)
-                .setTeamValue(entryInfoEntity.getTeamValue() / 10.0 - entryInfoEntity.getBank() / 10.0);
+                .setTeamValue((entryInfoEntity.getTeamValue() - entryInfoEntity.getBank()) / 10.0);
     }
 
     // do not cache
@@ -206,7 +206,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setChip(StringUtils.isBlank(entryEventResultEntity.getEventChip()) ? Chip.NONE.getValue() : entryEventResultEntity.getEventChip())
                     .setValue(entryEventResultEntity.getTeamValue() / 10.0)
                     .setBank(entryEventResultEntity.getBank() / 10.0)
-                    .setTeamValue(entryEventResultEntity.getTeamValue() / 10.0 - entryEventResultEntity.getBank() / 10.0);
+                    .setTeamValue((entryEventResultEntity.getTeamValue() - entryEventResultEntity.getBank()) / 10.0);
         }
         // from fpl server
         UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
@@ -226,7 +226,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
                 .setValue(userPick.getEntryHistory().getValue() / 10.0)
                 .setBank(userPick.getEntryHistory().getBank() / 10.0)
-                .setTeamValue(userPick.getEntryHistory().getValue() / 10.0 - userPick.getEntryHistory().getBank() / 10.0);
+                .setTeamValue((userPick.getEntryHistory().getValue() - userPick.getEntryHistory().getBank()) / 10.0);
     }
 
     /**
@@ -519,12 +519,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    //    @Cacheable(
-//            value = "api::qryLeagueEventEoWebNameMap",
-//            key = "#event+'::'+#leagueId+'::'+#leagueType",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.size() eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryLeagueEventEoWebNameMap",
+            key = "#event+'::'+#leagueId+'::'+#leagueType",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public Map<String, String> qryLeagueEventEoWebNameMap(int event, int leagueId, String leagueType) {
         Map<String, String> map = Maps.newHashMap();
@@ -570,12 +570,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return map;
     }
 
-    //    @Cacheable(
-//            value = "api::qryTeamSelectByLeagueName",
-//            key = "#event+'::'+#leagueName",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.captainSelectedMap.size() eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryTeamSelectByLeagueName",
+            key = "#event+'::'+#leagueName",
+            cacheManager = "apiCacheManager",
+            unless = "#result.captainSelectedMap.size() eq 0"
+    )
     @Override
     public LeagueStatData qryTeamSelectByLeagueName(int event, String leagueName) {
         LeagueStatData data = new LeagueStatData().setName(leagueName).setEvent(event);
