@@ -20,21 +20,21 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiPlayerImpl implements IApiPlayer {
 
-	private final IApiQueryService apiQueryService;
+    private final IApiQueryService apiQueryService;
 
-	@Override
-	public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
-		return this.apiQueryService.qryPlayerInfoByElementType(elementType);
-	}
+    @Override
+    public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
+        return this.apiQueryService.qryPlayerInfoByElementType(elementType);
+    }
 
-	@Override
-	public PlayerDetailData qryPlayerDetailData(int element) {
-		return this.apiQueryService.qryPlayerDetailData(element);
-	}
+    @Override
+    public PlayerDetailData qryPlayerDetailByElement(int element) {
+        return this.apiQueryService.qryPlayerDetailByElement(element);
+    }
 
-	@Override
-	public Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName) {
-		return this.apiQueryService.qryTeamFixtureByShortName(shortName);
-	}
+    @Override
+    public Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName) {
+        return this.apiQueryService.qryTeamFixtureByShortName(shortName);
+    }
 
 }

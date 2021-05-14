@@ -1,8 +1,10 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiLive;
+import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.service.IApiQueryService;
+import com.tong.fpl.service.ILiveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +18,22 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiLiveImpl implements IApiLive {
 
-	private final IApiQueryService apiQueryService;
+    private final IApiQueryService apiQueryService;
+    private final ILiveService liveService;
 
-	@Override
-	public List<LiveMatchData> qryLiveMatchDataByStatus(String playStatus) {
-		return this.apiQueryService.qryLiveMatchDataByStatus(playStatus);
-	}
+    @Override
+    public LiveCalcData calcLivePointsByEntry(int event, int entry) {
+        return this.liveService.calcLivePointsByEntry(event, entry);
+    }
+
+    @Override
+    public List<LiveCalcData> calcLivePointsByTournament(int event, int tournamentId) {
+        return this.liveService.calcLivePointsByTournament(event, tournamentId);
+    }
+
+    @Override
+    public List<LiveMatchData> qryLiveMatchByStatus(String playStatus) {
+        return this.apiQueryService.qryLiveMatchByStatus(playStatus);
+    }
 
 }

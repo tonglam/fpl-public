@@ -14,19 +14,19 @@ import java.util.Map;
  */
 public interface IApiPlayer {
 
-	/**
-	 * 根据位置获取球员列表(team_short_name -> player_info)
-	 */
-	LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
+    /**
+     * 根据位置获取球员列表(team_short_name -> player_info)
+     */
+    LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
-	/**
-	 * 获取球员详情
-	 */
-	PlayerDetailData qryPlayerDetailData(@RequestParam int element);
+    /**
+     * 获取球员详情
+     */
+    PlayerDetailData qryPlayerDetailByElement(@RequestParam int element);
 
-	/**
-	 * 根据球队缩写获取赛程
-	 */
-	Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
+    /**
+     * 根据球队缩写获取赛程(team_short_name -> player_fixture)
+     */
+    Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
 }

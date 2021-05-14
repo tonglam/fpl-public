@@ -21,8 +21,9 @@ public class EntryEventResultData {
     private int benchPoints;
     private int rank;
     private String chip;
-    private int teamValue;
-    private int bank;
+    private double value;
+    private double bank;
+    private double teamValue;
     private List<EntryPickData> picks;
 
 }

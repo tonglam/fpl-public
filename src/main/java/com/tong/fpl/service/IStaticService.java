@@ -12,22 +12,22 @@ import java.util.Optional;
  */
 public interface IStaticService {
 
-	List<EntryInfoData> getEntryInfoListFromClassic(int classicId);
+    List<EntryInfoData> getEntryInfoListFromClassic(int classicId);
 
-	List<EntryInfoData> getEntryInfoListFromH2h(int h2hId);
+    List<EntryInfoData> getEntryInfoListFromH2h(int h2hId);
 
-	LeagueInfoData getEntryInfoListFromClassicByLimit(int classicId, int limit);
+    LeagueInfoData getEntryInfoListFromClassicByLimit(int classicId, int limit);
 
-	LeagueInfoData getEntryInfoListFromH2hByLimit(int h2hId, int limit);
+    LeagueInfoData getEntryInfoListFromH2hByLimit(int h2hId, int limit);
 
-	Optional<UserHistoryRes> getUserHistory(int entry);
+    Optional<UserHistoryRes> getUserHistory(int entry);
 
-	Optional<EntryRes> getEntry(int entry);
+    Optional<EntryRes> getEntry(int entry);
 
-	Optional<EntryCupRes> getEntryCup(int entry);
+    Optional<EntryCupRes> getEntryCup(int entry);
 
-	Optional<UserPicksRes> getUserPicks(int event, int entry);
+    Optional<UserPicksRes> getUserPicks(int event, int entry);
 
-	Optional<List<TransferRes>> getTransfer(int entry);
+    Optional<List<TransferRes>> getTransfer(int entry);
 
 }

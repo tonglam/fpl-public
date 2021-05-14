@@ -15,57 +15,57 @@ import com.tong.fpl.domain.letletme.tournament.TournamentQueryParam;
  */
 public interface IMyFplApi {
 
-	/**
-	 * @apiNote entry
-	 */
-	EntryInfoData qryEntryInfo(int entry);
+    /**
+     * @apiNote entry
+     */
+    EntryInfoData qryEntryInfo(int entry);
 
-	TableData<EntryEventResultData> qryEntryResultList(int entry);
+    TableData<EntryEventResultData> qryEntryResultList(int entry);
 
-	TableData<EntryPickData> qryEntryEventResult(int event, int entry);
+    TableData<EntryPickData> qryEntryEventResult(int event, int entry);
 
-	/**
-	 * @apiNote pick
-	 */
-	TableData<PlayerInfoData> qryPlayerDataList(int page, int limit);
+    /**
+     * @apiNote pick
+     */
+    TableData<PlayerInfoData> qryPlayerDataList(int page, int limit);
 
-	/**
-	 * @apiNote league
-	 */
-	TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
+    /**
+     * @apiNote league
+     */
+    TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
 
-	String qryLeagueNameByIdAndType(int leagueId, String leagueType);
+    String qryLeagueNameByIdAndType(int leagueId, String leagueType);
 
-	/**
-	 * @apiNote leagueCaptain
-	 */
-	TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
+    /**
+     * @apiNote leagueCaptain
+     */
+    TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int event, int leagueId, String leagueType);
+    TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int event, int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry);
+    TableData<LeagueEventReportData> qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry);
 
-	/**
-	 * @apiNote leagueTransfers
-	 */
-	TableData<LeagueEventReportStatData> qryLeagueTransfersReportStat(int leagueId, String leagueType);
+    /**
+     * @apiNote leagueTransfers
+     */
+    TableData<LeagueEventReportStatData> qryLeagueTransfersReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueTransfersEventReportList(int event, int leagueId, String leagueType);
+    TableData<LeagueEventReportData> qryLeagueTransfersEventReportList(int event, int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry);
+    TableData<LeagueEventReportData> qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry);
 
-	/**
-	 * @apiNote leagueScoring
-	 */
-	TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType);
+    /**
+     * @apiNote leagueScoring
+     */
+    TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType);
+    TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry);
+    TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry);
 
-	/**
-	 * @apiNote common
-	 */
-	int getCurrentEvent();
+    /**
+     * @apiNote common
+     */
+    int getCurrentEvent();
 
 }

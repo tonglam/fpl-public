@@ -12,7 +12,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class EntryResultData {
 
-	private EntryInfoData entryInfoData;
-	private List<EntryEventResultData> eventResultDataList;
+    private EntryInfoData entryInfoData;
+    private List<EntryEventResultData> eventResultDataList;
 
 }

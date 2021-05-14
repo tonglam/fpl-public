@@ -65,7 +65,7 @@ public class ReportServiceImpl implements IReportService {
     }
 
     @Override
-    public boolean evenLeagueEventExists(int event, int leagueId, String leagueType) {
+    public boolean eventLeagueEventExists(int event, int leagueId, String leagueType) {
         long count = this.leagueEventReportService.count(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueId, leagueId)
                 .eq(LeagueEventReportEntity::getLeagueType, leagueType)

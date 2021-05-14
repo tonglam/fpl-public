@@ -17,9 +17,10 @@ public class EntryInfoData {
     private int startedEvent;
     private int overallPoints;
     private int overallRank;
-    private int bank;
-    private int teamValue;
     private int totalTransfers;
+    private double value;
+    private double bank;
+    private double teamValue;
     private int capTotalPoints;
     private String percent;
 

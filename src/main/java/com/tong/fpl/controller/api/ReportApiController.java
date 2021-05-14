@@ -1,6 +1,8 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiReport;
+import com.tong.fpl.domain.letletme.league.LeagueInfoData;
+import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +24,22 @@ public class ReportApiController {
 
     private final IApiReport apiReport;
 
-    @GetMapping("/qryPlayerValueByChangeDate")
-    public Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(@RequestParam String date) {
+    @GetMapping("/qryPlayerValueByDate")
+    public Map<String, List<PlayerValueData>> qryPlayerValueByDate(@RequestParam String date) {
         if (date.contains("-")) {
             date = date.replaceAll("-", "");
         }
-        return this.apiReport.qryPlayerValueByChangeDate(date);
+        return this.apiReport.qryPlayerValueByDate(date);
+    }
+
+    @GetMapping("/qryLeagueInfo")
+    public List<LeagueInfoData> qryLeagueInfo() {
+        return this.apiReport.qryLeagueInfo();
+    }
+
+    @GetMapping("/qryTeamSelectByLeagueName")
+    public LeagueStatData qryTeamSelectByLeagueName(@RequestParam int event, @RequestParam String leagueName) {
+        return this.apiReport.qryTeamSelectByLeagueName(event, leagueName);
     }
 
 }

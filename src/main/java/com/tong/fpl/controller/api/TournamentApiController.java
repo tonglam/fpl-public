@@ -1,10 +1,15 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiTournament;
+import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Create by tong on 2021/5/10
@@ -15,5 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class TournamentApiController {
 
     private final IApiTournament apiTournament;
+
+    @GetMapping("/qryEntryTournament")
+    public List<TournamentInfoData> qryEntryTournament(@RequestParam int entry) {
+        return this.apiTournament.qryEntryTournament(entry);
+    }
 
 }

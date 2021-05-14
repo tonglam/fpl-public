@@ -1,11 +1,13 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiEntry;
-import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Create by tong on 2021/5/10
@@ -14,11 +16,31 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiEntryImpl implements IApiEntry {
 
-	private final IApiQueryService apiQueryService;
+    private final IApiQueryService apiQueryService;
 
-	@Override
-	public EntryInfoData qryEntryInfoData(int entry) {
-		return this.apiQueryService.qryEntryInfoData(entry);
-	}
+    @Override
+    public List<EntryInfoData> fuzzyQueryEntry(EntryQueryParam param) {
+        return this.apiQueryService.fuzzyQueryEntry(param);
+    }
+
+    @Override
+    public EntryInfoData qryEntryInfo(int entry) {
+        return this.apiQueryService.qryEntryInfo(entry);
+    }
+
+    @Override
+    public EntryLeagueInfoData qryEntryLeagueInfo(int entry) {
+        return this.apiQueryService.qryEntryLeagueInfo(entry);
+    }
+
+    @Override
+    public EntryHistoryInfoData qryEntryHistoryInfo(int entry) {
+        return this.apiQueryService.qryEntryHistoryInfo(entry);
+    }
+
+    @Override
+    public EntryEventResultData qryEntryEventResult(int event, int entry) {
+        return this.apiQueryService.qryEntryEventResult(event, entry);
+    }
 
 }

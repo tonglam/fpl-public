@@ -7,20 +7,20 @@ import java.util.Map;
  */
 public interface IReportService {
 
-	boolean entryEvenLeagueEventExists(int event, int leagueId, String leagueType, int entry);
+    boolean entryEvenLeagueEventExists(int event, int leagueId, String leagueType, int entry);
 
-	boolean evenLeagueEventExists(int event, int leagueId, String leagueType);
+    boolean eventLeagueEventExists(int event, int leagueId, String leagueType);
 
-	void insertEntryLeagueEventSelect(int event, int leagueId, String leagueType, int entry);
+    void insertEntryLeagueEventSelect(int event, int leagueId, String leagueType, int entry);
 
-	void insertLeagueEventSelect(int event, int leagueId, String leagueType, int limit);
+    void insertLeagueEventSelect(int event, int leagueId, String leagueType, int limit);
 
-	void insertEntryLeagueEventSelectByTournament(int event, int tournamentId);
+    void insertEntryLeagueEventSelectByTournament(int event, int tournamentId);
 
-	void updateEntryLeagueEventResult(int event, int leagueId, String leagueType, int entry);
+    void updateEntryLeagueEventResult(int event, int leagueId, String leagueType, int entry);
 
-	void updateLeagueEventResult(int event, int leagueId, String leagueType);
+    void updateLeagueEventResult(int event, int leagueId, String leagueType);
 
-	Map<String, Object> calcEventStat(int event, int leagueId, String leagueType, int topNum);
+    Map<String, Object> calcEventStat(int event, int leagueId, String leagueType, int topNum);
 
 }

@@ -26,105 +26,105 @@ import java.util.List;
  */
 public interface ITableQueryService {
 
-	/**
-	 * @apiNote player
-	 */
-	TableData<PlayerInfoData> qryPlayerList(String season);
+    /**
+     * @apiNote player
+     */
+    TableData<PlayerInfoData> qryPlayerList(String season);
 
-	TableData<PlayerInfoData> qryPagePlayerDataList(int page, int limit);
+    TableData<PlayerInfoData> qryPagePlayerDataList(int page, int limit);
 
-	TableData<PlayerValueData> qryPriceChangeList();
+    TableData<PlayerValueData> qryPriceChangeList();
 
-	TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
+    TableData<PlayerShowData> qryPlayerShowListByElementType(int elementType);
 
-	TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry, int operator);
+    TableData<PlayerShowData> qryEntryEventPlayerShowList(int event, int entry, int operator);
 
-	TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList);
+    TableData<PlayerShowData> qrySortedEntryEventPlayerShowList(List<PlayerShowData> playerShowDataList);
 
-	TableData<PlayerShowData> qryEntryEventPlayerShowListForTransfers(int event, int entry);
+    TableData<PlayerShowData> qryEntryEventPlayerShowListForTransfers(int event, int entry);
 
-	TableData<PlayerShowData> qryPlayerShowListByElementForTransfers(List<EntryPickData> pickList);
+    TableData<PlayerShowData> qryPlayerShowListByElementForTransfers(List<EntryPickData> pickList);
 
-	TableData<PlayerDetailData> qryPlayerDetailData(int element);
+    TableData<PlayerDetailData> qryPlayerDetailData(int element);
 
-	/**
-	 * @apiNote league
-	 */
-	TableData<EntryInfoData> qryLeagueEntryList(String url);
+    /**
+     * @apiNote league
+     */
+    TableData<EntryInfoData> qryLeagueEntryList(String url);
 
-	/**
-	 * @apiNote tournament
-	 */
-	TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
+    /**
+     * @apiNote tournament
+     */
+    TableData<TournamentInfoData> qryTournamentList(TournamentQueryParam param);
 
-	TableData<TournamentEntryData> qryEntryTournamentList(int entry);
+    TableData<TournamentEntryData> qryEntryTournamentList(int entry);
 
-	TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
+    TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
-	TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
+    TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
 
-	TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId);
+    TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId);
 
-	TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+    TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	TableData<EntryEventCupData> qryPageEntryEventCupResult(int entry, int page, int limit);
+    TableData<EntryEventCupData> qryPageEntryEventCupResult(int entry, int page, int limit);
 
-	TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
+    TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-	TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
+    TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
 
-	TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
+    TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
 
-	TableData<StepsData> qryZjTournamentPkPickSteps(int tournamentId);
+    TableData<StepsData> qryZjTournamentPkPickSteps(int tournamentId);
 
-	TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
+    TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
 
-	/**
-	 * @apiNote live
-	 */
-	TableData<LiveCalcData> qryEntryLivePoints(int entry);
+    /**
+     * @apiNote live
+     */
+    TableData<LiveCalcData> qryEntryLivePoints(int entry);
 
-	TableData<LiveCalcData> qryTournamentLivePoints(int tournamentId);
+    TableData<LiveCalcData> qryTournamentLivePoints(int tournamentId);
 
-	TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
+    TableData<LiveMatchTeamData> qryLiveTeamDataList(int statusId);
 
-	/**
-	 * @apiNote entry_result
-	 */
-	TableData<EntryPickData> qryEntryEventResult(int event, int entry);
+    /**
+     * @apiNote entry_result
+     */
+    TableData<EntryPickData> qryEntryEventResult(int event, int entry);
 
-	TableData<EntryEventResultData> qryEntryResultList(int entry);
+    TableData<EntryEventResultData> qryEntryResultList(int entry);
 
-	TableData<ElementEventResultData> qryElementEventResult(int event, int element);
+    TableData<ElementEventResultData> qryElementEventResult(int event, int element);
 
-	/**
-	 * @apiNote report
-	 */
-	TableData<LeagueStatData> qryTeamSelectStatByName(int event, String leagueName);
+    /**
+     * @apiNote report
+     */
+    TableData<LeagueStatData> qryTeamSelectStatByName(int event, String leagueName);
 
-	TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
+    TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int event, int leagueId, String leagueType);
+    TableData<LeagueEventReportData> qryLeagueCaptainEventReportList(int event, int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry);
+    TableData<LeagueEventReportData> qryEntryCaptainEventReportList(int leagueId, String leagueType, int entry);
 
-	TableData<LeagueEventReportStatData> qryLeagueTransfersReportStat(int leagueId, String leagueType);
+    TableData<LeagueEventReportStatData> qryLeagueTransfersReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueTransfersEventReportList(int event, int leagueId, String leagueType);
+    TableData<LeagueEventReportData> qryLeagueTransfersEventReportList(int event, int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry);
+    TableData<LeagueEventReportData> qryEntryTransfersEventReportList(int leagueId, String leagueType, int entry);
 
-	TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType);
+    TableData<LeagueEventReportStatData> qryLeagueScoringReportStat(int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType);
+    TableData<LeagueEventReportData> qryLeagueScoringEventReportList(int event, int leagueId, String leagueType);
 
-	TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry);
+    TableData<LeagueEventReportData> qryEntryScoringEventReportList(int leagueId, String leagueType, int entry);
 
-	/**
-	 * @apiNote scout
-	 */
-	TableData<ScoutData> qryEventScoutPickList(int event);
+    /**
+     * @apiNote scout
+     */
+    TableData<ScoutData> qryEventScoutPickList(int event);
 
-	TableData<ScoutData> qryEventScoutList(int event);
+    TableData<ScoutData> qryEventScoutList(int event);
 
 }

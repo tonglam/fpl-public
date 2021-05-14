@@ -26,7 +26,7 @@ public class RESTfulTest {
     private MockMvc mockMvc;
 
     MvcResult mockResult(String url, MultiValueMap<String, String> params) throws Exception {
-        return mockMvc
+        return this.mockMvc
                 .perform(MockMvcRequestBuilders.get(url)
                         .contentType(MediaType.ALL).params(params))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -66,7 +66,7 @@ public class RESTfulTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/live/qryEntryLivePoints"})
+    @CsvSource({"/live/calcLivePointsByEntry"})
     void qryEntryLivePoints(String url) throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         MvcResult mvcResult = this.mockResult(url, params);
@@ -75,7 +75,7 @@ public class RESTfulTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"/live/qryTournamentLivePoints, 2"})
+    @CsvSource({"/live/calcLivePointsByTournament, 2"})
     void qryTournamentLivePoints(String url, String tournamentId) throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("tournamentId", tournamentId);

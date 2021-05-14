@@ -30,9 +30,9 @@ public class PlayerApiController {
         return this.apiPlayer.qryPlayerInfoByElementType(elementType);
     }
 
-    @GetMapping("/qryPlayerDetailData")
-    public PlayerDetailData qryPlayerDetailData(@RequestParam int element) {
-        return this.apiPlayer.qryPlayerDetailData(element);
+    @GetMapping("/qryPlayerDetailByElement")
+    public PlayerDetailData qryPlayerDetailByElement(@RequestParam int element) {
+        return this.apiPlayer.qryPlayerDetailByElement(element);
     }
 
     @GetMapping("/qryTeamFixtureByShortName")

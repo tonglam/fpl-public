@@ -1,6 +1,8 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiReport;
+import com.tong.fpl.domain.letletme.league.LeagueInfoData;
+import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +19,21 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiReportImpl implements IApiReport {
 
-	private final IApiQueryService apiQueryService;
+    private final IApiQueryService apiQueryService;
 
-	@Override
-	public Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(String changeDate) {
-		return this.apiQueryService.qryPlayerValueByChangeDate(changeDate);
-	}
+    @Override
+    public Map<String, List<PlayerValueData>> qryPlayerValueByDate(String date) {
+        return this.apiQueryService.qryPlayerValueByDate(date);
+    }
+
+    @Override
+    public List<LeagueInfoData> qryLeagueInfo() {
+        return this.apiQueryService.qryLeagueInfo();
+    }
+
+    @Override
+    public LeagueStatData qryTeamSelectByLeagueName(int event, String leagueName) {
+        return this.apiQueryService.qryTeamSelectByLeagueName(event, leagueName);
+    }
 
 }
