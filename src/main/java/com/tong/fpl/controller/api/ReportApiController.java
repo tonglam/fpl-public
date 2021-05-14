@@ -1,7 +1,6 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiReport;
-import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,7 @@ public class ReportApiController {
     }
 
     @GetMapping("/qryLeagueInfo")
-    public List<LeagueInfoData> qryLeagueInfo() {
+    public List<String> qryLeagueInfo() {
         return this.apiReport.qryLeagueInfo();
     }
 

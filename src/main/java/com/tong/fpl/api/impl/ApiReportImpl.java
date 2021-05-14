@@ -1,7 +1,6 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiReport;
-import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.service.IApiQueryService;
@@ -27,8 +26,8 @@ public class ApiReportImpl implements IApiReport {
     }
 
     @Override
-    public List<LeagueInfoData> qryLeagueInfo() {
-        return this.apiQueryService.qryLeagueInfo();
+    public List<String> qryLeagueInfo() {
+        return this.apiQueryService.qryLeagueName();
     }
 
     @Override

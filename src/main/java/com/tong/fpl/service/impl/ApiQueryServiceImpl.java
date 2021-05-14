@@ -15,7 +15,6 @@ import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
-import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
@@ -508,15 +507,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Cacheable(
-            value = "api::qryLeagueInfo",
+            value = "api::qryLeagueName",
             cacheManager = "apiCacheManager"
     )
     @Override
-    public List<LeagueInfoData> qryLeagueInfo() {
-        return this.leagueEventReportService.getBaseMapper().qryLeagueNameList()
-                .stream()
-                .map(o -> new LeagueInfoData())
-                .collect(Collectors.toList());
+    public List<String> qryLeagueName() {
+        return this.leagueEventReportService.getBaseMapper().qryLeagueNameList();
     }
 
     @Cacheable(

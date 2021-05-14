@@ -1,6 +1,5 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 
@@ -20,7 +19,7 @@ public interface IApiReport {
     /**
      * 查询存储的所有联赛
      */
-    List<LeagueInfoData> qryLeagueInfo();
+    List<String> qryLeagueInfo();
 
     /**
      * 根据联赛名称查询阵容选择结果
