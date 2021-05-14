@@ -35,7 +35,7 @@ public class GroupApiController {
         return this.apiGroup.qryEventScoutResult(event);
     }
 
-    @PatchMapping("/upsertEventScout")
+    @PostMapping("/upsertEventScout")
     @ResponseBody
     public void upsertEventScout(@RequestBody ScoutData scoutData) {
         this.apiGroup.upsertEventScout(scoutData);

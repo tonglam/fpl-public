@@ -59,7 +59,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Cacheable(
             value = "api::qryCurrentEventAndNextUtcDeadline",
             cacheManager = "apiCacheManager",
-            unless = "#result.size() != 2")
+            unless = "#result.size() != 2"
+    )
     @Override
     public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
         Map<String, String> map = Maps.newHashMap();
@@ -77,7 +78,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             value = "api::qryEntryInfoData",
             key = "#entry",
             cacheManager = "apiCacheManager",
-            unless = "#result.entry eq 0")
+            unless = "#result.entry eq 0"
+    )
     @Override
     public EntryInfoData qryEntryInfoData(int entry) {
         EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
@@ -211,7 +213,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             value = "api::qryPlayerInfoByElement",
             key = "#element",
             cacheManager = "apiCacheManager",
-            unless = "#result.element eq 0")
+            unless = "#result.element eq 0"
+    )
     @Override
     public PlayerInfoData qryPlayerInfoByElement(int element) {
         PlayerEntity playerEntity = this.playerService.getById(element);
@@ -232,7 +235,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             value = "api::qryPlayerInfoByElementType",
             key = "#elementType",
             cacheManager = "apiCacheManager",
-            unless = "#result.size() eq 0")
+            unless = "#result.size() eq 0"
+    )
     @Override
     public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
         LinkedHashMap<String, List<PlayerInfoData>> map = Maps.newLinkedHashMap();
@@ -269,7 +273,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             value = "api::qryPlayerDetailData",
             key = "#element",
             cacheManager = "apiCacheManager",
-            unless = "#result.element eq 0")
+            unless = "#result.element eq 0"
+    )
     @Override
     public PlayerDetailData qryPlayerDetailData(int element) {
         return this.queryService.qryPlayerDetailData(element);
@@ -279,7 +284,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             value = "api::qryTeamFixtureByShortName",
             key = "#shortName",
             cacheManager = "apiCacheManager",
-            unless = "#result.size() eq 0")
+            unless = "#result.size() eq 0"
+    )
     @Override
     public Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName) {
         int teamId = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
@@ -291,7 +297,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             value = "api::qryPlayerValueByChangeDate",
             key = "#changeDate",
             cacheManager = "apiCacheManager",
-            unless = "#result.size() eq 0")
+            unless = "#result.size() eq 0"
+    )
     @Override
     public Map<String, List<PlayerValueData>> qryPlayerValueByChangeDate(String changeDate) {
         Map<String, List<PlayerValueData>> map = Maps.newHashMap();
@@ -367,7 +374,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Cacheable(
             value = "api::qryScoutEntry",
             cacheManager = "apiCacheManager",
-            unless = "#result.size() eq 0")
+            unless = "#result.size() eq 0"
+    )
     @Override
     public Map<String, String> qryScoutEntry() {
         Map<String, String> map = Maps.newHashMap();
@@ -390,7 +398,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Cacheable(
             value = "api::qryEventScoutResult",
             key = "#event",
-            cacheManager = "apiCacheManager")
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public List<EventScoutData> qryEventScoutResult(int event) {
         return this.scoutService
@@ -398,6 +408,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .eq(ScoutEntity::getEvent, event))
                 .stream()
                 .map(this::initScoutData)
+                .sorted(Comparator.comparing(EventScoutData::getEventPoints).reversed())
                 .collect(Collectors.toList());
     }
 
