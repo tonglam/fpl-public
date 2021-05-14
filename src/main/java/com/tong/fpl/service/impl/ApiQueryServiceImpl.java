@@ -317,7 +317,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             elementEventResultData.setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(elementEventResultData.getTeamId()), ""));
             list.add(elementEventResultData);
         });
-        return list;
+        return list
+                .stream()
+                .sorted(Comparator.comparing(ElementEventResultData::getTotalPoints).reversed())
+                .collect(Collectors.toList());
     }
 
     private Map<Integer, Integer> getLiveBonusMap(int teamId) {
