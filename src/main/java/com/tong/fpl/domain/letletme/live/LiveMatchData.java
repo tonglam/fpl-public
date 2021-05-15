@@ -14,6 +14,7 @@ import java.util.List;
 public class LiveMatchData {
 
 	private int matchId;
+	private int minutes;
 	private int homeTeamId;
 	private String homeTeamName;
 	private String homeTeamShortName;

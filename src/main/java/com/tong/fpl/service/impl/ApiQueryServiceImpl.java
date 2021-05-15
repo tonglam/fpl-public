@@ -256,21 +256,28 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         if (!o.isWasHome()) {
                             return;
                         }
-                        list.add(
-                                new LiveMatchData()
-                                        .setMatchId(list.size() + 1)
-                                        .setHomeTeamId(o.getTeamId())
-                                        .setHomeTeamName(o.getTeamName())
-                                        .setHomeTeamShortName(o.getTeamShortName())
-                                        .setHomeScore(o.getTeamScore())
-                                        .setHomeTeamDataList(this.qryLiveTeamData(o.getTeamId(), eventLiveList, playerMap, teamShortNameMap))
-                                        .setAwayTeamId(o.getAgainstId())
-                                        .setAwayTeamName(o.getAgainstName())
-                                        .setAwayTeamShortName(o.getAgainstShortName())
-                                        .setAwayScore(o.getAgainstTeamScore())
-                                        .setAwayTeamDataList(this.qryLiveTeamData(o.getAgainstId(), eventLiveList, playerMap, teamShortNameMap))
-                                        .setKickoffTime(o.getKickoffTime())
+                        LiveMatchData liveMatchData = new LiveMatchData()
+                                .setMatchId(list.size() + 1)
+                                .setHomeTeamId(o.getTeamId())
+                                .setHomeTeamName(o.getTeamName())
+                                .setHomeTeamShortName(o.getTeamShortName())
+                                .setHomeScore(o.getTeamScore())
+                                .setHomeTeamDataList(this.qryLiveTeamData(o.getTeamId(), eventLiveList, playerMap, teamShortNameMap))
+                                .setAwayTeamId(o.getAgainstId())
+                                .setAwayTeamName(o.getAgainstName())
+                                .setAwayTeamShortName(o.getAgainstShortName())
+                                .setAwayScore(o.getAgainstTeamScore())
+                                .setAwayTeamDataList(this.qryLiveTeamData(o.getAgainstId(), eventLiveList, playerMap, teamShortNameMap))
+                                .setKickoffTime(o.getKickoffTime());
+                        liveMatchData.setMinutes(
+                                liveMatchData
+                                        .getHomeTeamDataList()
+                                        .stream()
+                                        .max(Comparator.comparing(ElementEventResultData::getMinutes))
+                                        .map(ElementEventResultData::getMinutes)
+                                        .orElse(0)
                         );
+                        list.add(liveMatchData);
                     });
                 }));
         return list.stream()
