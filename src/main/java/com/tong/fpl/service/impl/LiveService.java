@@ -226,12 +226,10 @@ public class LiveService implements ILiveService {
         int livePoints = this.calcActivePoints(Chip.getChipFromValue(entryEventPickEntity.getChip()), pickList);
         // played captain
         ElementEventResultData playedCaptain = this.selectPlayedCaptain(pickList);
-        // sort pick list
-        List<ElementEventResultData> sortedPickList = this.sortPickList(pickList);
         return new LiveCalcData()
                 .setEntry(entry)
                 .setEvent(event)
-                .setPickList(sortedPickList)
+                .setPickList(pickList)
                 .setChip(entryEventPickEntity.getChip())
                 .setLivePoints(livePoints)
                 .setTransferCost(entryEventPickEntity.getTransfersCost())
