@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Create by tong on 2021/5/10
  */
-public interface IApiReport {
+public interface IApiStat {
 
     /**
      * 根据日期查询球员身价变化

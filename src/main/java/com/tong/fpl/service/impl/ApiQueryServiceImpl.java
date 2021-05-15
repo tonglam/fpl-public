@@ -353,17 +353,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
      */
     @Cacheable(
             value = "api::qryPlayerInfoByElement",
-            key = "#element",
+            key = "#event+'::'+#element",
             cacheManager = "apiCacheManager",
             unless = "#result.element eq 0"
     )
     @Override
-    public PlayerInfoData qryPlayerInfoByElement(int element) {
+    public PlayerInfoData qryPlayerInfoByElement(int event, int element) {
         PlayerEntity playerEntity = this.playerService.getById(element);
         if (playerEntity == null) {
             return new PlayerInfoData();
         }
-        int event = this.queryService.getCurrentEvent();
         EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
         return BeanUtil.copyProperties(playerEntity, PlayerInfoData.class)
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
@@ -956,7 +955,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (scoutEntity == null) {
             return new EventScoutData();
         }
-        return this.initScoutData(scoutEntity);
+        return this.initScoutData(event, scoutEntity);
     }
 
     @Cacheable(
@@ -967,25 +966,24 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public List<EventScoutData> qryEventScoutResult(int event) {
-        return this.scoutService
-                .list(new QueryWrapper<ScoutEntity>().lambda()
-                        .eq(ScoutEntity::getEvent, event))
+        return this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
+                .eq(ScoutEntity::getEvent, event))
                 .stream()
-                .map(this::initScoutData)
+                .map(o -> this.initScoutData(event, o))
                 .sorted(Comparator.comparing(EventScoutData::getEventPoints).reversed())
                 .collect(Collectors.toList());
     }
 
-    private EventScoutData initScoutData(ScoutEntity scoutEntity) {
+    private EventScoutData initScoutData(int event, ScoutEntity scoutEntity) {
         return new EventScoutData()
                 .setEvent(scoutEntity.getEvent())
                 .setEntry(scoutEntity.getEntry())
                 .setScoutName(scoutEntity.getScoutName())
-                .setGkpInfo(this.qryPlayerInfoByElement(scoutEntity.getGkp()))
-                .setDefInfo(this.qryPlayerInfoByElement(scoutEntity.getDef()))
-                .setMidInfo(this.qryPlayerInfoByElement(scoutEntity.getMid()))
-                .setFwdInfo(this.qryPlayerInfoByElement(scoutEntity.getFwd()))
-                .setCaptainInfo(this.qryPlayerInfoByElement(scoutEntity.getCaptain()))
+                .setGkpInfo(this.qryPlayerInfoByElement(event, scoutEntity.getGkp()))
+                .setDefInfo(this.qryPlayerInfoByElement(event, scoutEntity.getDef()))
+                .setMidInfo(this.qryPlayerInfoByElement(event, scoutEntity.getMid()))
+                .setFwdInfo(this.qryPlayerInfoByElement(event, scoutEntity.getFwd()))
+                .setCaptainInfo(this.qryPlayerInfoByElement(event, scoutEntity.getCaptain()))
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(scoutEntity.getEventPoints())
                 .setTotalPoints(scoutEntity.getTotalPoints());

@@ -815,8 +815,7 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
         MybatisPlusConfig.season.set(season);
-        List<EventLiveEntity> list = this.eventLiveService.list(
-                new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getElement, element));
+        List<EventLiveEntity> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getElement, element));
         MybatisPlusConfig.season.remove();
         return list;
     }
@@ -824,10 +823,9 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public EventLiveEntity qryEventLive(String season, int event, int element) {
         MybatisPlusConfig.season.set(season);
-        EventLiveEntity eventLiveEntity = this.eventLiveService
-                .getOne(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event)
-                        .eq(EventLiveEntity::getElement, element));
+        EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event)
+                .eq(EventLiveEntity::getElement, element));
         MybatisPlusConfig.season.remove();
         return eventLiveEntity;
     }
@@ -840,11 +838,9 @@ public class QueryServiceImpl implements IQueryService {
     public List<EntryEventResultData> qryEntryResult(String season, int entry) {
         List<EntryEventResultData> list = Lists.newArrayList();
         if (StringUtils.equals(season, "1920")) {
-            IntStream.rangeClosed(1, 47)
-                    .forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
+            IntStream.rangeClosed(1, 47).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
         } else {
-            IntStream.rangeClosed(1, 38)
-                    .forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
+            IntStream.rangeClosed(1, 38).forEach(event -> list.add(this.setEntryEventResult(season, event, entry)));
         }
         return list;
     }

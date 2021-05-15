@@ -60,7 +60,7 @@ public interface IApiQueryService {
     /**
      * @apiNote player
      */
-    PlayerInfoData qryPlayerInfoByElement(int element);
+    PlayerInfoData qryPlayerInfoByElement(int event, int element);
 
     LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 

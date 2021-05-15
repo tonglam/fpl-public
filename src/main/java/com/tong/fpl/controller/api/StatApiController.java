@@ -1,6 +1,6 @@
 package com.tong.fpl.controller.api;
 
-import com.tong.fpl.api.IApiReport;
+import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +17,11 @@ import java.util.Map;
  * Create by tong on 2021/5/10
  */
 @RestController
-@RequestMapping("/api/report")
+@RequestMapping("/api/stat")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ReportApiController {
+public class StatApiController {
 
-    private final IApiReport apiReport;
+    private final IApiStat apiReport;
 
     @GetMapping("/qryPlayerValueByDate")
     public Map<String, List<PlayerValueData>> qryPlayerValueByDate(@RequestParam String date) {
