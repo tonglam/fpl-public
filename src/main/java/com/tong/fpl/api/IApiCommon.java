@@ -12,4 +12,9 @@ public interface IApiCommon {
 	 */
 	Map<String, String> qryCurrentEventAndNextUtcDeadline();
 
+	/**
+	 * 刷新event_live
+	 */
+	void insertEventLive(int event);
+
 }

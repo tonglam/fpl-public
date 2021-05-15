@@ -2,6 +2,7 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiCommon;
 import com.tong.fpl.service.IApiQueryService;
+import com.tong.fpl.service.IRedisCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,17 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiCommonImpl implements IApiCommon {
 
+	private final IRedisCacheService redisCacheService;
 	private final IApiQueryService apiQueryService;
 
 	@Override
 	public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
 		return this.apiQueryService.qryCurrentEventAndNextUtcDeadline();
+	}
+
+	@Override
+	public void insertEventLive(int event) {
+		this.redisCacheService.insertEventLive(event);
 	}
 
 }
