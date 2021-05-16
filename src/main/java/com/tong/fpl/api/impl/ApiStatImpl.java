@@ -26,8 +26,8 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
-    public List<String> qryLeagueInfo() {
-        return this.apiQueryService.qryLeagueName();
+    public List<String> qryAllLeagueName() {
+        return this.apiQueryService.qryAllLeagueName();
     }
 
     @Override

@@ -73,7 +73,7 @@ public interface IApiQueryService {
      */
     Map<String, List<PlayerValueData>> qryPlayerValueByDate(String changeDate);
 
-    List<String> qryLeagueName();
+    List<String> qryAllLeagueName();
 
     Map<String, String> qryLeagueEventEoWebNameMap(int event, int leagueId, String leagueType);
 

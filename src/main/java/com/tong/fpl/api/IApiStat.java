@@ -19,7 +19,7 @@ public interface IApiStat {
     /**
      * 查询存储的所有联赛
      */
-    List<String> qryLeagueInfo();
+    List<String> qryAllLeagueName();
 
     /**
      * 根据联赛名称查询阵容选择结果

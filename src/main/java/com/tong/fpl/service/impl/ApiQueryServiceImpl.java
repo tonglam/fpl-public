@@ -516,12 +516,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Cacheable(
-            value = "api::qryLeagueName",
-            cacheManager = "apiCacheManager"
+            value = "api::qryAllLeagueName",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
     )
     @Override
-    public List<String> qryLeagueName() {
-        return this.leagueEventReportService.getBaseMapper().qryLeagueNameList();
+    public List<String> qryAllLeagueName() {
+        int event = this.queryService.getCurrentEvent();
+        return this.leagueEventReportService.getBaseMapper().qryLeagueNameListByEvent(event);
     }
 
     @Cacheable(
@@ -583,15 +585,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public LeagueStatData qryTeamSelectByLeagueName(int event, String leagueName) {
-        LeagueStatData data = new LeagueStatData().setName(leagueName).setEvent(event);
+        LeagueStatData data = new LeagueStatData().setEvent(event).setName(leagueName);
         // player_info
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
         // team_select
         List<LeagueEventReportEntity> leagueEventReportList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
-                .eq(LeagueEventReportEntity::getEvent, event));
+                .eq(LeagueEventReportEntity::getEvent, event)
+                .eq(LeagueEventReportEntity::getLeagueName, leagueName));
         int teamSize = leagueEventReportList.size();
         if (CollectionUtils.isEmpty(leagueEventReportList)) {
             return data;

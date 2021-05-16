@@ -25,9 +25,9 @@ public class CommonApiController {
         return this.apiCommon.qryCurrentEventAndNextUtcDeadline();
     }
 
-    @GetMapping("/insertEventLive")
-    public void insertEventLive(@RequestParam int event) {
-        this.apiCommon.insertEventLive(event);
+    @GetMapping("/insertEventLiveCache")
+    public void insertEventLiveCache(@RequestParam int event) {
+        this.apiCommon.insertEventLiveCache(event);
     }
 
 }

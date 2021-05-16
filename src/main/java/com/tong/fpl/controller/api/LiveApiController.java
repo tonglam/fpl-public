@@ -22,9 +22,6 @@ public class LiveApiController {
     @RequestMapping("/calcLivePointsByEntry")
     @ResponseBody
     public LiveCalcData calcLivePointsByEntry(@RequestParam int event, @RequestParam int entry) {
-        if (entry <= 0) {
-            return new LiveCalcData();
-        }
         return this.apiLive.calcLivePointsByEntry(event, entry);
     }
 

@@ -16,17 +16,20 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiCommonImpl implements IApiCommon {
 
-	private final IRedisCacheService redisCacheService;
-	private final IApiQueryService apiQueryService;
+    private final IRedisCacheService redisCacheService;
+    private final IApiQueryService apiQueryService;
 
-	@Override
-	public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
-		return this.apiQueryService.qryCurrentEventAndNextUtcDeadline();
-	}
+    @Override
+    public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
+        return this.apiQueryService.qryCurrentEventAndNextUtcDeadline();
+    }
 
-	@Override
-	public void insertEventLive(int event) {
-		this.redisCacheService.insertEventLive(event);
-	}
+    @Override
+    public void insertEventLiveCache(int event) {
+        this.redisCacheService.insertEventLiveCache(event);
+        this.redisCacheService.insertSingleEventFixtureCache(event);
+        this.redisCacheService.insertLiveFixtureCache();
+        this.redisCacheService.insertLiveBonusCache();
+    }
 
 }

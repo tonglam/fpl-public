@@ -11,7 +11,10 @@ import java.util.List;
  */
 public interface LeagueEventReportMapper extends BaseMapper<LeagueEventReportEntity> {
 
-	@Select("select DISTINCT(league_name) from league_event_report")
-	List<String> qryLeagueNameList();
+    @Select("select DISTINCT(league_name) from league_event_report")
+    List<String> qryLeagueNameList();
+
+    @Select("select DISTINCT(league_name) from league_event_report where event = #{event}")
+    List<String> qryLeagueNameListByEvent(int event);
 
 }

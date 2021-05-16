@@ -31,9 +31,9 @@ public class StatApiController {
         return this.apiReport.qryPlayerValueByDate(date);
     }
 
-    @GetMapping("/qryLeagueInfo")
-    public List<String> qryLeagueInfo() {
-        return this.apiReport.qryLeagueInfo();
+    @GetMapping("/qryAllLeagueName")
+    public List<String> qryAllLeagueName() {
+        return this.apiReport.qryAllLeagueName();
     }
 
     @GetMapping("/qryTeamSelectByLeagueName")

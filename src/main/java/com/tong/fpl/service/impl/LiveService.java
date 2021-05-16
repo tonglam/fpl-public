@@ -55,6 +55,9 @@ public class LiveService implements ILiveService {
 
     @Override
     public LiveCalcData calcLivePointsByEntry(int event, int entry) {
+        if (entry <= 0) {
+            return new LiveCalcData();
+        }
         // prepare
         Map<Integer, PlayerEntity> playerInfoMap = Maps.newHashMap();
         Map<Integer, EventLiveEntity> eventLiveMap = this.getEventLiveByEvent(event);
@@ -74,6 +77,9 @@ public class LiveService implements ILiveService {
 
     @Override
     public List<LiveCalcData> calcLivePointsByTournament(int event, int tournamentId) {
+        if (tournamentId <= 0) {
+            return Lists.newArrayList();
+        }
         // prepare
         Map<Integer, PlayerEntity> playerInfoMap = this.playerService.list()
                 .stream()
