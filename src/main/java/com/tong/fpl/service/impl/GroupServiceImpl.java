@@ -7,9 +7,11 @@ import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.ScoutEntity;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.service.IGroupService;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.EventLiveService;
 import com.tong.fpl.service.db.PlayerService;
 import com.tong.fpl.service.db.ScoutService;
+import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class GroupServiceImpl implements IGroupService {
 
+    private final IQueryService queryService;
     private final PlayerService playerService;
     private final EventLiveService eventLiveService;
     private final ScoutService scoutService;
@@ -122,6 +125,10 @@ public class GroupServiceImpl implements IGroupService {
                     list.add(o);
                 });
         this.scoutService.updateBatchById(list);
+        if (event == this.queryService.getCurrentEvent()) {
+            String key = StringUtils.join("api::qryEventScoutResult::", event);
+            RedisUtils.removeCacheByKey(key);
+        }
     }
 
 }
