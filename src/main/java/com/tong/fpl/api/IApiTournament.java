@@ -14,7 +14,7 @@ public interface IApiTournament {
     /**
      * 查询参加的联赛
      */
-    List<TournamentInfoData> qryEntryTournament(int entry);
+    List<TournamentInfoData> qryEntryPointsRaceTournament(int entry);
 
     /**
      * 根据id查询联赛信息

@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.enums.Chip;
+import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.data.response.UserPicksRes;
@@ -1020,16 +1021,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Cacheable(
-            value = "api::qryEntryTournament",
+            value = "api::qryEntryPointsRaceTournament",
             key = "#entry",
             cacheManager = "apiCacheManager",
             unless = "#result.size() eq 0"
     )
     @Override
-    public List<TournamentInfoData> qryEntryTournament(int entry) {
+    public List<TournamentInfoData> qryEntryPointsRaceTournament(int entry) {
         return this.tournamentInfoService.list(new QueryWrapper<TournamentInfoEntity>().lambda()
                 .in(TournamentInfoEntity::getId, this.qryEntryTournamentEntry(entry)))
                 .stream()
+                .filter(o -> StringUtils.equalsIgnoreCase(GroupMode.Points_race.name(), o.getGroupMode()))
                 .map(o -> BeanUtil.copyProperties(o, TournamentInfoData.class))
                 .collect(Collectors.toList());
     }

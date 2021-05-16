@@ -78,7 +78,7 @@ public class ApiQueryTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"1870"})
     void qryEntryTournament(int entry) {
-        List<TournamentInfoData> list = this.apiQueryService.qryEntryTournament(entry);
+        List<TournamentInfoData> list = this.apiQueryService.qryEntryPointsRaceTournament(entry);
         System.out.println(1);
     }
 

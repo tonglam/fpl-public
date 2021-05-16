@@ -21,9 +21,9 @@ public class TournamentApiController {
 
     private final IApiTournament apiTournament;
 
-    @GetMapping("/qryEntryTournament")
-    public List<TournamentInfoData> qryEntryTournament(@RequestParam int entry) {
-        return this.apiTournament.qryEntryTournament(entry);
+    @GetMapping("/qryEntryPointsRaceTournament")
+    public List<TournamentInfoData> qryEntryPointsRaceTournament(@RequestParam int entry) {
+        return this.apiTournament.qryEntryPointsRaceTournament(entry);
     }
 
     @GetMapping("/qryTournamentInfoById")

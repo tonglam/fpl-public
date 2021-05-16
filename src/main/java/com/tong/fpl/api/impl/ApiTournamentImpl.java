@@ -19,8 +19,8 @@ public class ApiTournamentImpl implements IApiTournament {
     private final IApiQueryService apiQueryService;
 
     @Override
-    public List<TournamentInfoData> qryEntryTournament(int entry) {
-        return this.apiQueryService.qryEntryTournament(entry);
+    public List<TournamentInfoData> qryEntryPointsRaceTournament(int entry) {
+        return this.apiQueryService.qryEntryPointsRaceTournament(entry);
     }
 
     @Override
