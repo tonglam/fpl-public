@@ -26,7 +26,7 @@ public class ApiCommonImpl implements IApiCommon {
 
     @Override
     public void insertEventLiveCache(int event) {
-        this.redisCacheService.insertEventLiveCache(event);
+        this.redisCacheService.insertEventLive(event);
         this.redisCacheService.insertSingleEventFixtureCache(event);
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();

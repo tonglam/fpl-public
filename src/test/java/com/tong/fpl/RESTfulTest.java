@@ -84,4 +84,14 @@ public class RESTfulTest {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"/api/group/updateEventScoutResult, 36"})
+    void updateEventScoutResult(String url, String event) throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("event", event);
+        MvcResult mvcResult = this.mockResult(url, params);
+        String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        System.out.println(1);
+    }
+
 }
