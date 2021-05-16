@@ -22,4 +22,10 @@ public class ApiTournamentImpl implements IApiTournament {
     public List<TournamentInfoData> qryEntryTournament(int entry) {
         return this.apiQueryService.qryEntryTournament(entry);
     }
+
+    @Override
+    public TournamentInfoData qryTournamentInfoById(int id) {
+        return this.apiQueryService.qryTournamentInfoById(id);
+    }
+
 }

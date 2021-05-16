@@ -95,4 +95,6 @@ public interface IApiQueryService {
 
     List<TournamentInfoData> qryEntryTournament(int entry);
 
+    TournamentInfoData qryTournamentInfoById(int id);
+
 }

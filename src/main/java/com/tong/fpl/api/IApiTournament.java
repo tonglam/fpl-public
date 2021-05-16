@@ -16,5 +16,9 @@ public interface IApiTournament {
      */
     List<TournamentInfoData> qryEntryTournament(int entry);
 
+    /**
+     * 根据id查询联赛信息
+     */
+    TournamentInfoData qryTournamentInfoById(int id);
 
 }

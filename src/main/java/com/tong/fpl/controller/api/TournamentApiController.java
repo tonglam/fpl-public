@@ -26,4 +26,9 @@ public class TournamentApiController {
         return this.apiTournament.qryEntryTournament(entry);
     }
 
+    @GetMapping("/qryTournamentInfoById")
+    public TournamentInfoData qryTournamentInfoById(@RequestParam int id) {
+        return this.apiTournament.qryTournamentInfoById(id);
+    }
+
 }

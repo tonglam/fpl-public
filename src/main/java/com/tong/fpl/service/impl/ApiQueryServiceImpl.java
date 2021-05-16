@@ -1034,4 +1034,19 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(
+            value = "api::qryTournamentInfoById",
+            key = "#id",
+            cacheManager = "apiCacheManager",
+            unless = "#result.id eq 0"
+    )
+    @Override
+    public TournamentInfoData qryTournamentInfoById(int id) {
+        TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getById(id);
+        if (tournamentInfoEntity == null) {
+            return new TournamentInfoData();
+        }
+        return BeanUtil.copyProperties(tournamentInfoEntity, TournamentInfoData.class);
+    }
+
 }
