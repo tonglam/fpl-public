@@ -355,7 +355,7 @@ public class LiveService implements ILiveService {
                 .filter(ElementEventResultData::isViceCaptain)
                 .findFirst()
                 .orElse(new ElementEventResultData());
-        if (captain.isPlayed() && captain.getMinutes() == 0 && viceCaptain.getMinutes() > 0) {
+        if (!captain.isPlayed() && captain.getMinutes() == 0 && viceCaptain.getMinutes() > 0) {
             return viceCaptain;
         }
         return captain;

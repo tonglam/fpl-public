@@ -9,35 +9,35 @@ import java.util.Map;
 
 public class ReportTest extends FplApplicationTests {
 
-	@Autowired
-	private IReportService reportService;
+    @Autowired
+    private IReportService reportService;
 
-	@ParameterizedTest
-	@CsvSource({"36, 314, Classic, 10000"})
-	void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit) {
-		this.reportService.insertLeagueEventSelect(event, leagueId, leagueType, limit);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"36, 314, Classic, 10000"})
+    void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit) {
+        this.reportService.insertLeagueEventSelect(event, leagueId, leagueType, limit);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"35, 65, Classic"})
-	void updateLeagueEventResultStat(int event, int leagueId, String leagueType) {
-		this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
-		System.out.println("event: " + event + ", update finished!");
-	}
+    @ParameterizedTest
+    @CsvSource({"36, 65, Classic"})
+    void updateLeagueEventResultStat(int event, int leagueId, String leagueType) {
+        this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
+        System.out.println("event: " + event + ", update finished!");
+    }
 
-	@ParameterizedTest
-	@CsvSource({"35, 65, Classic, 100"})
-	void calcEventStat(int event, int leagueId, String leagueType, int topNum) {
-		Map<String, Object> map = this.reportService.calcEventStat(event, leagueId, leagueType, topNum);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"35, 65, Classic, 100"})
+    void calcEventStat(int event, int leagueId, String leagueType, int topNum) {
+        Map<String, Object> map = this.reportService.calcEventStat(event, leagueId, leagueType, topNum);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"32, 13"})
-	void insertEntryLeagueEventSelectByTournament(int event, int tournamentId) {
-		this.reportService.insertEntryLeagueEventSelectByTournament(event, tournamentId);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"32, 13"})
+    void insertEntryLeagueEventSelectByTournament(int event, int tournamentId) {
+        this.reportService.insertEntryLeagueEventSelectByTournament(event, tournamentId);
+        System.out.println(1);
+    }
 
 }
