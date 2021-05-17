@@ -230,11 +230,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     /**
-     * @implNote league
-     */
-
-    /**
-     * @implNote liv (do not cache)
+     * @implNote live (do not cache)
      */
     @Override
     public List<LiveMatchData> qryLiveMatchByStatus(String playStatus) {

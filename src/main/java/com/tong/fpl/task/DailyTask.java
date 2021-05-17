@@ -16,16 +16,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DailyTask {
 
-	private final IRedisCacheService redisCacheService;
-	private final IQueryService queryService;
-	private final IUpdateEventService updateEventResultsService;
+    private final IRedisCacheService redisCacheService;
+    private final IQueryService queryService;
+    private final IUpdateEventService updateEventResultsService;
 
-	@Scheduled(cron = "0 35 6 * * *")
-	public void insertEvent() {
-		this.redisCacheService.insertEvent();
-	}
+    @Scheduled(cron = "0 35 6 * * *")
+    public void insertEvent() {
+        this.redisCacheService.insertEvent();
+    }
 
-	@Scheduled(cron = "0 40 6 * * *")
+    @Scheduled(cron = "0 40 6 * * *")
     public void insertEventFixture() {
         this.redisCacheService.insertEventFixture();
     }
@@ -36,7 +36,7 @@ public class DailyTask {
         this.redisCacheService.insertSingleEventPassedDeadlineCache(nextEvent);
     }
 
-    @Scheduled(cron = "0 30-35 9 * * *")
+    @Scheduled(cron = "0 25-35 9 * * *")
     public void refreshPlayerValue() {
         try {
             this.redisCacheService.insertPlayer();
@@ -47,17 +47,17 @@ public class DailyTask {
             TaskLog.error(e.getMessage());
             this.refreshPlayerValue();
         }
-	}
+    }
 
-	@Scheduled(cron = "0 35 9 * * *")
-	public void updateEntryInfo() {
-		try {
-			this.updateEventResultsService.updateEntryInfo();
-		} catch (Exception e) {
-			e.printStackTrace();
-			TaskLog.error(e.getMessage());
-		}
-	}
+    @Scheduled(cron = "0 50 9 * * *")
+    public void updateEntryInfo() {
+        try {
+            this.updateEventResultsService.updateEntryInfo();
+        } catch (Exception e) {
+            e.printStackTrace();
+            TaskLog.error(e.getMessage());
+        }
+    }
 
 }
 
