@@ -10,20 +10,26 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class EntryEventTransfersData {
 
-	private int entry;
-	private int event;
-	private int elementIn;
-	private String elementInName;
-	private int elementInType;
-	private String elementInTypeName;
-	private int elementInCost;
-	private int elementInPoints;
-	private boolean elementInPlayed;
+    private int event;
+    private int entry;
+    private int elementIn;
+    private String elementInName;
+    private int elementInType;
+    private String elementInTypeName;
+    private int elementInTeamId;
+    private String elementInTeamName;
+    private String elementInTeamShortName;
+    private double elementInCost;
+    private int elementInPoints;
+    private boolean elementInPlayed;
     private int elementOut;
     private String elementOutName;
+    private int elementOutTeamId;
+    private String elementOutTeamName;
+    private String elementOutTeamShortName;
     private int elementOutType;
     private String elementOutTypeName;
-    private int elementOutCost;
+    private double elementOutCost;
     private int elementOutPoints;
     private String time;
 

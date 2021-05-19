@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 
 import java.util.List;
@@ -19,6 +20,21 @@ public interface IApiTournament {
     /**
      * 根据id查询联赛信息
      */
-    TournamentInfoData qryTournamentInfoById(int id);
+    TournamentInfoData qryTournamentInfo(int id);
+
+    /**
+     * 获取联赛周得分
+     */
+    List<EntryEventResultData> qryTournamentEventResult(int event, int tournamentId);
+
+    /**
+     * 获取联赛成员是否拥有球员
+     */
+    List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element);
+
+    /**
+     * 获取联赛成员是否出场球员
+     */
+    List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element);
 
 }

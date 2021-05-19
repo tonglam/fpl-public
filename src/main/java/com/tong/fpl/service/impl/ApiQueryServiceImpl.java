@@ -13,6 +13,7 @@ import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.data.response.UserPicksRes;
+import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
@@ -31,6 +32,7 @@ import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
+import com.tong.fpl.utils.JsonUtils;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +60,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final TeamService teamService;
     private final PlayerService playerService;
     private final PlayerValueService playerValueService;
+    private final EventLiveService eventLiveService;
+    private final EntryEventTransfersService entryEventTransfersService;
     private final EntryEventResultService entryEventResultService;
     private final ScoutService scoutService;
     private final TournamentEntryService tournamentEntryService;
@@ -195,8 +199,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .eq(EntryEventResultEntity::getEntry, entry));
         if (entryEventResultEntity != null) {
             return new EntryEventResultData()
-                    .setEntry(entry)
                     .setEvent(event)
+                    .setEntry(entry)
                     .setTransfers(entryEventResultEntity.getEventTransfers())
                     .setPoints(entryEventResultEntity.getEventPoints())
                     .setTransfersCost(entryEventResultEntity.getEventTransfersCost())
@@ -206,7 +210,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setChip(StringUtils.isBlank(entryEventResultEntity.getEventChip()) ? Chip.NONE.getValue() : entryEventResultEntity.getEventChip())
                     .setValue(entryEventResultEntity.getTeamValue() / 10.0)
                     .setBank(entryEventResultEntity.getBank() / 10.0)
-                    .setTeamValue((entryEventResultEntity.getTeamValue() - entryEventResultEntity.getBank()) / 10.0);
+                    .setTeamValue((entryEventResultEntity.getTeamValue() - entryEventResultEntity.getBank()) / 10.0)
+                    .setPickList(this.getPickListFromDB(event, entryEventResultEntity.getEventPicks()));
         }
         // from fpl server
         UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
@@ -226,7 +231,182 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
                 .setValue(userPick.getEntryHistory().getValue() / 10.0)
                 .setBank(userPick.getEntryHistory().getBank() / 10.0)
-                .setTeamValue((userPick.getEntryHistory().getValue() - userPick.getEntryHistory().getBank()) / 10.0);
+                .setTeamValue((userPick.getEntryHistory().getValue() - userPick.getEntryHistory().getBank()) / 10.0)
+                .setPickList(this.getPickListFromServer(event, userPick.getPicks()));
+    }
+
+    private List<ElementEventResultData> getPickListFromDB(int event, String picks) {
+        List<EntryPickData> pickList = JsonUtils.json2Collection(picks, List.class, EntryPickData.class);
+        if (CollectionUtils.isEmpty(pickList)) {
+            return Lists.newArrayList();
+        }
+        return this.qryEntryEventPicksResult(event, pickList);
+    }
+
+    private List<ElementEventResultData> getPickListFromServer(int event, List<Pick> picks) {
+        List<EntryPickData> pickList = Lists.newArrayList();
+        picks.forEach(o ->
+                pickList.add(
+                        new EntryPickData()
+                                .setElement(o.getElement())
+                                .setPosition(o.getPosition())
+                                .setMultiplier(o.getMultiplier())
+                                .setCaptain(o.isCaptain())
+                                .setViceCaptain(o.isViceCaptain())
+                ));
+        return this.qryEntryEventPicksResult(event, pickList);
+    }
+
+    @Cacheable(
+            value = "api::qryEntryEventPicksResult",
+            key = "#event+'::'+#pickList.get(0).event+'::'+#pickList.get(0).entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<ElementEventResultData> qryEntryEventPicksResult(int event, List<EntryPickData> pickList) {
+        List<ElementEventResultData> list = Lists.newArrayList();
+        // prepare
+        Map<String, String> teamNameMap = this.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+        // collect
+        pickList.forEach(pick -> {
+            int element = pick.getElement();
+            if (!playerMap.containsKey(element)) {
+                return;
+            }
+            PlayerEntity playerEntity = playerMap.get(element);
+            ElementEventResultData data = BeanUtil.copyProperties(pick, ElementEventResultData.class);
+            data
+                    .setEvent(event)
+                    .setElement(element)
+                    .setElementType(playerEntity.getElementType())
+                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                    .setWebName(playerEntity.getWebName())
+                    .setTeamId(playerEntity.getTeamId())
+                    .setTeamName(teamNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                    .setTeamShortName(
+                            teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                    .setPrice(playerEntity.getPrice() / 10.0);
+            EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
+            if (eventLiveEntity != null) {
+                data
+                        .setMinutes(eventLiveEntity.getMinutes())
+                        .setGoalsScored(eventLiveEntity.getGoalsScored())
+                        .setAssists(eventLiveEntity.getAssists())
+                        .setCleanSheets(eventLiveEntity.getCleanSheets())
+                        .setGoalsConceded(eventLiveEntity.getGoalsConceded())
+                        .setOwnGoals(eventLiveEntity.getOwnGoals())
+                        .setPenaltiesSaved(eventLiveEntity.getPenaltiesSaved())
+                        .setPenaltiesMissed(eventLiveEntity.getPenaltiesSaved())
+                        .setYellowCards(eventLiveEntity.getYellowCards())
+                        .setRedCards(eventLiveEntity.getRedCards())
+                        .setSaves(eventLiveEntity.getSaves())
+                        .setBonus(eventLiveEntity.getBonus())
+                        .setBps(eventLiveEntity.getBps());
+            }
+            list.add(data);
+        });
+        return list;
+    }
+
+    @Cacheable(
+            value = "api::qryEntryEventTransfers",
+            key = "#event+'::'+#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry) {
+        List<EntryEventTransfersData> list = Lists.newArrayList();
+        //prepare
+        Map<String, String> teamNameMap = this.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+        //collect
+        this.getEntryEventTransfers(event, entry).forEach(o -> {
+            int elementIn = o.getElementIn();
+            int elementOut = o.getElementOut();
+            EntryEventTransfersData data = new EntryEventTransfersData()
+                    .setEvent(o.getEvent())
+                    .setEntry(o.getEntry())
+                    .setElementIn(elementIn)
+                    .setElementInCost(o.getElementInCost() / 10.0)
+                    .setElementInPlayed(o.getElementInPlayed())
+                    .setElementOut(elementOut)
+                    .setElementOutCost(o.getElementOutCost() / 10.0)
+                    .setTime(o.getTime());
+            PlayerEntity playerInEntity = playerMap.get(elementIn);
+            if (playerInEntity != null) {
+                data
+                        .setElementInName(playerInEntity.getWebName())
+                        .setElementInType(playerInEntity.getElementType())
+                        .setElementInTypeName(Position.getNameFromElementType(playerInEntity.getElementType()))
+                        .setElementInTeamId(playerInEntity.getTeamId())
+                        .setElementInTeamName(teamNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
+                        .setElementInTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
+                        .setElementInPoints(pointsMap.getOrDefault(elementIn, 0));
+            }
+            PlayerEntity playerOutEntity = playerMap.get(o.getElementOut());
+            if (playerInEntity != null) {
+                data
+                        .setElementOutName(playerOutEntity.getWebName())
+                        .setElementOutType(playerOutEntity.getElementType())
+                        .setElementOutTypeName(Position.getNameFromElementType(playerOutEntity.getElementType()))
+                        .setElementOutTeamId(playerOutEntity.getTeamId())
+                        .setElementOutTeamName(teamNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
+                        .setElementOutTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
+                        .setElementOutPoints(pointsMap.getOrDefault(elementOut, 0));
+            }
+            list.add(data);
+        });
+        return list
+                .stream()
+                .sorted(Comparator.comparing(EntryEventTransfersData::getTime))
+                .collect(Collectors.toList());
+    }
+
+    private List<EntryEventTransfersEntity> getEntryEventTransfers(int event, int entry) {
+        List<EntryEventTransfersEntity> list;
+        list = this.entryEventTransfersService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+                .eq(EntryEventTransfersEntity::getEvent, event)
+                .eq(EntryEventTransfersEntity::getEntry, entry));
+        if (!CollectionUtils.isEmpty(list)) {
+            return list;
+        }
+        // collect
+        this.staticService.getTransfer(entry).ifPresent(res ->
+                res.forEach(o -> {
+                    if (o.getEvent() != event) {
+                        return;
+                    }
+                    list.add(
+                            new EntryEventTransfersEntity()
+                                    .setEvent(o.getEvent())
+                                    .setEntry(o.getEntry())
+                                    .setElementIn(o.getElementIn())
+                                    .setElementInCost(o.getElementInCost())
+                                    .setElementInPlayed(false)
+                                    .setElementOut(o.getElementOut())
+                                    .setElementOutCost(o.getElementOutCost())
+                                    .setTime(o.getTime())
+                    );
+                })
+        );
+        return list;
     }
 
     /**
@@ -1039,12 +1219,219 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             unless = "#result.id eq 0"
     )
     @Override
-    public TournamentInfoData qryTournamentInfoById(int id) {
+    public TournamentInfoData qryTournamentInfo(int id) {
         TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getById(id);
         if (tournamentInfoEntity == null) {
             return new TournamentInfoData();
         }
         return BeanUtil.copyProperties(tournamentInfoEntity, TournamentInfoData.class);
+    }
+
+    @Cacheable(
+            value = "api::qryTournamentEventResult",
+            key = "#event+'::'+#tournamentId",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<EntryEventResultData> qryTournamentEventResult(int event, int tournamentId) {
+        // entry list
+        List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                .stream()
+                .map(TournamentEntryEntity::getEntry)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(entryList)) {
+            return Lists.newArrayList();
+        }
+        // prepare
+        Map<String, String> teamNameMap = this.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+        // entry_event_result
+        return this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, event)
+                .in(EntryEventResultEntity::getEntry, entryList))
+                .stream()
+                .map(o -> {
+                    return new EntryEventResultData()
+                            .setEvent(event)
+                            .setEntry(o.getEntry())
+                            .setTransfers(o.getEventTransfers())
+                            .setPoints(o.getEventPoints())
+                            .setTransfersCost(o.getEventTransfersCost())
+                            .setNetPoints(o.getEventPoints() - o.getEventTransfersCost())
+                            .setBenchPoints(o.getEventBenchPoints())
+                            .setRank(o.getEventRank())
+                            .setChip(StringUtils.isBlank(o.getEventChip()) ? Chip.NONE.getValue() : o.getEventChip())
+                            .setValue(o.getTeamValue() / 10.0)
+                            .setBank(o.getBank() / 10.0)
+                            .setTeamValue((o.getTeamValue() - o.getBank()) / 10.0)
+                            .setPickList(this.qryTournamentEntryPickList(event, o.getEventPicks(), teamNameMap, teamShortNameMap, playerMap, eventLiveMap));
+                })
+                .sorted(Comparator.comparing(EntryEventResultData::getPoints))
+                .collect(Collectors.toList());
+    }
+
+    private List<ElementEventResultData> qryTournamentEntryPickList(int event, String eventPicks,
+                                                                    Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
+                                                                    Map<Integer, PlayerEntity> playerMap, Map<Integer, EventLiveEntity> eventLiveMap) {
+        List<EntryPickData> pickList = JsonUtils.json2Collection(eventPicks, List.class, EntryPickData.class);
+        if (CollectionUtils.isEmpty(pickList)) {
+            return Lists.newArrayList();
+        }
+        List<ElementEventResultData> list = Lists.newArrayList();
+        pickList.forEach(o -> {
+            int element = o.getElement();
+            if (!playerMap.containsKey(element)) {
+                return;
+            }
+            PlayerEntity playerEntity = playerMap.get(element);
+            ElementEventResultData data = BeanUtil.copyProperties(o, ElementEventResultData.class);
+            data
+                    .setEvent(event)
+                    .setElement(element)
+                    .setElementType(playerEntity.getElementType())
+                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                    .setWebName(playerEntity.getWebName())
+                    .setTeamId(playerEntity.getTeamId())
+                    .setTeamName(teamNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                    .setTeamShortName(
+                            teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                    .setPrice(playerEntity.getPrice() / 10.0);
+            EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
+            if (eventLiveEntity != null) {
+                data
+                        .setMinutes(eventLiveEntity.getMinutes())
+                        .setGoalsScored(eventLiveEntity.getGoalsScored())
+                        .setAssists(eventLiveEntity.getAssists())
+                        .setCleanSheets(eventLiveEntity.getCleanSheets())
+                        .setGoalsConceded(eventLiveEntity.getGoalsConceded())
+                        .setOwnGoals(eventLiveEntity.getOwnGoals())
+                        .setPenaltiesSaved(eventLiveEntity.getPenaltiesSaved())
+                        .setPenaltiesMissed(eventLiveEntity.getPenaltiesSaved())
+                        .setYellowCards(eventLiveEntity.getYellowCards())
+                        .setRedCards(eventLiveEntity.getRedCards())
+                        .setSaves(eventLiveEntity.getSaves())
+                        .setBonus(eventLiveEntity.getBonus())
+                        .setBps(eventLiveEntity.getBps());
+            }
+            list.add(data);
+        });
+        return list;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryTournamentEntryContainElement",
+//            key = "#event+'::'+#tournamentId+'::+#element",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.size() eq 0"
+//    )
+    @Override
+    public List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element) {
+        // entry list
+        List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                .stream()
+                .map(TournamentEntryEntity::getEntry)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(entryList)) {
+            return Lists.newArrayList();
+        }
+        // entry_event_result
+        List<Integer> list = Lists.newArrayList();
+        this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, event)
+                .in(EntryEventResultEntity::getEntry, entryList))
+                .forEach(o -> {
+                    if (this.entryContainElement(element, o.getEventPicks(), o.getEventChip())) {
+                        list.add(o.getEntry());
+                    }
+                });
+        return list;
+    }
+
+    private boolean entryContainElement(int element, String eventPicks, String eventChip) {
+        List<EntryPickData> pickList = JsonUtils.json2Collection(eventPicks, List.class, EntryPickData.class);
+        if (CollectionUtils.isEmpty(pickList)) {
+            return false;
+        }
+        for (EntryPickData data :
+                pickList) {
+            if (!StringUtils.equalsIgnoreCase(Chip.BB.getValue(), eventChip)) {
+                if (data.getPosition() > 12) {
+                    continue;
+                }
+            }
+            if (data.getElement() == element) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryTournamentEntryPlayElement",
+//            key = "#event+'::'+#tournamentId+'::+'+#element",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.size() eq 0"
+//    )
+    @Override
+    public List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element) {
+        // entry list
+        List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                .stream()
+                .map(TournamentEntryEntity::getEntry)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(entryList)) {
+            return Lists.newArrayList();
+        }
+        // prepare
+        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+        // entry_event_result
+        List<Integer> list = Lists.newArrayList();
+        this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, event)
+                .in(EntryEventResultEntity::getEntry, entryList))
+                .forEach(o -> {
+                    if (this.entryPlayElement(element, o.getEventPicks(), o.getEventChip(), eventLiveMap)) {
+                        list.add(o.getEntry());
+                    }
+                });
+        return list;
+    }
+
+    private boolean entryPlayElement(int element, String eventPicks, String eventChip, Map<Integer, EventLiveEntity> eventLiveMap) {
+        List<EntryPickData> pickList = JsonUtils.json2Collection(eventPicks, List.class, EntryPickData.class);
+        if (CollectionUtils.isEmpty(pickList)) {
+            return false;
+        }
+        for (EntryPickData data :
+                pickList) {
+            if (!StringUtils.equalsIgnoreCase(Chip.BB.getValue(), eventChip)) {
+                if (data.getPosition() > 12) {
+                    continue;
+                }
+            }
+            int pickElement = data.getElement();
+            if (pickElement == element) {
+                EventLiveEntity eventLiveEntity = eventLiveMap.get(pickElement);
+                if (eventLiveEntity != null && eventLiveEntity.getMinutes() > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

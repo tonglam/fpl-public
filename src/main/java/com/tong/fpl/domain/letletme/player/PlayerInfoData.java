@@ -10,15 +10,15 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PlayerInfoData {
 
-	private int element;
-	private int code;
-	private String webName;
-	private int elementType;
-	private String elementTypeName;
-	private int teamId;
-	private String teamName;
-	private String teamShortName;
-	private double price;
-	private int points;
+    private int element;
+    private int code;
+    private String webName;
+    private int elementType;
+    private String elementTypeName;
+    private int teamId;
+    private String teamName;
+    private String teamShortName;
+    private double price;
+    private int points;
 
 }

@@ -1,6 +1,7 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiTournament;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,23 @@ public class ApiTournamentImpl implements IApiTournament {
     }
 
     @Override
-    public TournamentInfoData qryTournamentInfoById(int id) {
-        return this.apiQueryService.qryTournamentInfoById(id);
+    public TournamentInfoData qryTournamentInfo(int id) {
+        return this.apiQueryService.qryTournamentInfo(id);
+    }
+
+    @Override
+    public List<EntryEventResultData> qryTournamentEventResult(int event, int tournamentId) {
+        return this.apiQueryService.qryTournamentEventResult(event, tournamentId);
+    }
+
+    @Override
+    public List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element) {
+        return this.apiQueryService.qryTournamentEntryContainElement(event, tournamentId, element);
+    }
+
+    @Override
+    public List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element) {
+        return this.apiQueryService.qryTournamentEntryPlayElement(event, tournamentId, element);
     }
 
 }

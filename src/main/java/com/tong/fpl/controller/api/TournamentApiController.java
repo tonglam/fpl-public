@@ -1,6 +1,7 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiTournament;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,24 @@ public class TournamentApiController {
         return this.apiTournament.qryEntryPointsRaceTournament(entry);
     }
 
-    @GetMapping("/qryTournamentInfoById")
-    public TournamentInfoData qryTournamentInfoById(@RequestParam int id) {
-        return this.apiTournament.qryTournamentInfoById(id);
+    @GetMapping("/qryTournamentInfo")
+    public TournamentInfoData qryTournamentInfo(@RequestParam int id) {
+        return this.apiTournament.qryTournamentInfo(id);
+    }
+
+    @GetMapping("/qryTournamentEventResult")
+    public List<EntryEventResultData> qryTournamentEventResult(@RequestParam int event, @RequestParam int tournamentId) {
+        return this.apiTournament.qryTournamentEventResult(event, tournamentId);
+    }
+
+    @GetMapping("/qryTournamentEntryContainElement")
+    List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element) {
+        return this.apiTournament.qryTournamentEntryContainElement(event, tournamentId, element);
+    }
+
+    @GetMapping("/qryTournamentEntryPlayElement")
+    List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element) {
+        return this.apiTournament.qryTournamentEntryPlayElement(event, tournamentId, element);
     }
 
 }

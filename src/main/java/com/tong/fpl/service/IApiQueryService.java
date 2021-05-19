@@ -1,5 +1,6 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.league.LeagueStatData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
@@ -36,6 +37,10 @@ public interface IApiQueryService {
     EntryHistoryInfoData qryEntryHistoryInfo(int entry);
 
     EntryEventResultData qryEntryEventResult(int event, int entry);
+
+    List<ElementEventResultData> qryEntryEventPicksResult(int event, List<EntryPickData> pickList);
+
+    List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry);
 
     /**
      * @apiNote live
@@ -95,6 +100,12 @@ public interface IApiQueryService {
 
     List<TournamentInfoData> qryEntryPointsRaceTournament(int entry);
 
-    TournamentInfoData qryTournamentInfoById(int id);
+    TournamentInfoData qryTournamentInfo(int id);
+
+    List<EntryEventResultData> qryTournamentEventResult(int event, int tournamentId);
+
+    List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element);
+
+    List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element);
 
 }

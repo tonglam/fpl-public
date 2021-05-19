@@ -70,7 +70,12 @@ public class LiveService implements ILiveService {
         EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity != null) {
             BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
-            liveCalcData.setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
+            liveCalcData
+                    .setValue(entryInfoEntity.getTeamValue() / 10.0)
+                    .setBank(entryInfoEntity.getBank() / 10.0)
+                    .setTeamValue((entryInfoEntity.getTeamValue() - entryInfoEntity.getBank()) / 10.0)
+                    .setLastValue(entryInfoEntity.getLastTeamValue() / 10.0)
+                    .setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
         }
         return liveCalcData;
     }
@@ -316,7 +321,7 @@ public class LiveService implements ILiveService {
             elementEventResultData
                     .setElementType(playerEntity.getElementType())
                     .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                    .setPrice(playerEntity.getPrice())
+                    .setPrice(playerEntity.getPrice() / 10.0)
                     .setWebName(playerEntity.getWebName());
             // event fixture
             int teamId = playerEntity.getTeamId();
@@ -605,35 +610,6 @@ public class LiveService implements ILiveService {
         }
         return activeCaptain;
     }
-
-    private List<ElementEventResultData> sortPickList(List<ElementEventResultData> pickList) {
-        List<ElementEventResultData> list = Lists.newArrayList();
-        list.add(pickList.get(0));
-        list.addAll(pickList
-                .stream()
-                .filter(o -> o.getElementType() != 1)
-                .filter(ElementEventResultData::isPickActive)
-                .sorted(Comparator.comparing(ElementEventResultData::getPlayStatus)
-                        .thenComparing(ElementEventResultData::getElementType)
-                        .thenComparing(ElementEventResultData::getPosition))
-                .collect(Collectors.toList()));
-        list.add(pickList
-                .stream()
-                .filter(o -> o.getElementType() == 1)
-                .filter(o -> !list.contains(o))
-                .findFirst()
-                .orElse(new ElementEventResultData()));
-        list.addAll(pickList
-                .stream()
-                .filter(o -> o.getElementType() != 1)
-                .filter(o -> !o.isPickActive())
-                .sorted(Comparator.comparing(ElementEventResultData::getPosition))
-                .collect(Collectors.toList()));
-        list.subList(0, 11).forEach(o -> o.setAutoSub(o.getPosition() > 11));
-        list.subList(11, 15).forEach(o -> o.setAutoSub(o.getPosition() < 12));
-        return list;
-    }
-
 
     @Override
     public int calcElementLivePoints(int event, int element) {

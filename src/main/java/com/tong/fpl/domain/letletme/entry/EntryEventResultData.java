@@ -1,5 +1,6 @@
 package com.tong.fpl.domain.letletme.entry;
 
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -12,8 +13,8 @@ import java.util.List;
 @Accessors(chain = true)
 public class EntryEventResultData {
 
-    private int entry;
     private int event;
+    private int entry;
     private int transfers;
     private int points;
     private int transfersCost;
@@ -25,5 +26,6 @@ public class EntryEventResultData {
     private double bank;
     private double teamValue;
     private List<EntryPickData> picks;
+    private List<ElementEventResultData> pickList;
 
 }
