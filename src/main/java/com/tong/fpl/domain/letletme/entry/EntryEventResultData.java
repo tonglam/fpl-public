@@ -26,6 +26,7 @@ public class EntryEventResultData {
     private double bank;
     private double teamValue;
     private List<EntryPickData> picks;
+    private String captainName;
     private List<ElementEventResultData> pickList;
 
 }

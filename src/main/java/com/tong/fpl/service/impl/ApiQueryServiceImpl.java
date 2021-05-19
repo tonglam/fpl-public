@@ -193,12 +193,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public EntryEventResultData qryEntryEventResult(int event, int entry) {
+        EntryEventResultData data = new EntryEventResultData();
         // from db
         EntryEventResultEntity entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
                 .eq(EntryEventResultEntity::getEvent, event)
                 .eq(EntryEventResultEntity::getEntry, entry));
         if (entryEventResultEntity != null) {
-            return new EntryEventResultData()
+            data
                     .setEvent(event)
                     .setEntry(entry)
                     .setTransfers(entryEventResultEntity.getEventTransfers())
@@ -212,14 +213,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setBank(entryEventResultEntity.getBank() / 10.0)
                     .setTeamValue((entryEventResultEntity.getTeamValue() - entryEventResultEntity.getBank()) / 10.0)
                     .setPickList(this.getPickListFromDB(event, entryEventResultEntity.getEventPicks()));
+            data
+                    .setCaptainName(this.getPlayedCaptainName(data.getPicks()));
         }
         // from fpl server
         UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
         if (userPick == null) {
-            return new EntryEventResultData();
+            return data;
         }
         // entry_event_result
-        return new EntryEventResultData()
+        data
                 .setEntry(entry)
                 .setEvent(event)
                 .setTransfers(userPick.getEntryHistory().getEventTransfers())
@@ -233,6 +236,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setBank(userPick.getEntryHistory().getBank() / 10.0)
                 .setTeamValue((userPick.getEntryHistory().getValue() - userPick.getEntryHistory().getBank()) / 10.0)
                 .setPickList(this.getPickListFromServer(event, userPick.getPicks()));
+        data
+                .setCaptainName(this.getPlayedCaptainName(data.getPicks()));
+        return data;
     }
 
     private List<ElementEventResultData> getPickListFromDB(int event, String picks) {
@@ -241,6 +247,26 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return Lists.newArrayList();
         }
         return this.qryEntryEventPicksResult(event, pickList);
+    }
+
+    private String getPlayedCaptainName(List<EntryPickData> picks) {
+        EntryPickData captain = picks
+                .stream()
+                .filter(EntryPickData::isCaptain)
+                .findFirst()
+                .orElse(null);
+        EntryPickData viceCaptain = picks
+                .stream()
+                .filter(EntryPickData::isViceCaptain)
+                .findFirst()
+                .orElse(null);
+        if (captain == null || viceCaptain == null) {
+            return "";
+        }
+        if (captain.getMinutes() == 0 && viceCaptain.getMinutes() > 0) {
+            return viceCaptain.getWebName();
+        }
+        return captain.getWebName();
     }
 
     private List<ElementEventResultData> getPickListFromServer(int event, List<Pick> picks) {
