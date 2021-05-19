@@ -289,7 +289,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     @Cacheable(
             value = "api::qryEntryEventPicksResult",
-            key = "#event+'::'+#pickList.get(0).event+'::'+#pickList.get(0).entry",
+            key = "#pickList.get(0).event+'::'+#pickList.get(0).entry",
             cacheManager = "apiCacheManager",
             unless = "#result.size() eq 0"
     )
@@ -340,7 +340,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .setRedCards(eventLiveEntity.getRedCards())
                         .setSaves(eventLiveEntity.getSaves())
                         .setBonus(eventLiveEntity.getBonus())
-                        .setBps(eventLiveEntity.getBps());
+                        .setBps(eventLiveEntity.getBps())
+                        .setTotalPoints(eventLiveEntity.getTotalPoints());
             }
             list.add(data);
         });
