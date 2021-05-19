@@ -38,7 +38,7 @@ public interface IApiQueryService {
 
     EntryEventResultData qryEntryEventResult(int event, int entry);
 
-    List<ElementEventResultData> qryEntryEventPicksResult(int event, List<EntryPickData> pickList);
+    List<ElementEventResultData> qryEntryEventPicksResult(int event, String chip, List<EntryPickData> pickList);
 
     List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry);
 

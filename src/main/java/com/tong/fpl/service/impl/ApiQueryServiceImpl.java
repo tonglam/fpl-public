@@ -212,11 +212,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setValue(entryEventResultEntity.getTeamValue() / 10.0)
                     .setBank(entryEventResultEntity.getBank() / 10.0)
                     .setTeamValue((entryEventResultEntity.getTeamValue() - entryEventResultEntity.getBank()) / 10.0)
-                    .setPickList(this.getPickListFromDB(event, entryEventResultEntity.getEventPicks()))
+
                     .setOverallPoints(entryEventResultEntity.getOverallPoints())
                     .setOverallRank(entryEventResultEntity.getOverallRank());
             data
-                    .setCaptainName(this.getPlayedCaptainName(data.getPickList()));
+                    .setCaptainName(this.getPlayedCaptainName(data.getPickList()))
+                    .setPickList(this.getPickListFromDB(event, data.getChip(), entryEventResultEntity.getEventPicks()));
         }
         // from fpl server
         UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
@@ -237,20 +238,20 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setValue(userPick.getEntryHistory().getValue() / 10.0)
                 .setBank(userPick.getEntryHistory().getBank() / 10.0)
                 .setTeamValue((userPick.getEntryHistory().getValue() - userPick.getEntryHistory().getBank()) / 10.0)
-                .setPickList(this.getPickListFromServer(event, userPick.getPicks()))
                 .setOverallPoints(userPick.getEntryHistory().getTotalPoints())
                 .setOverallRank(userPick.getEntryHistory().getOverallRank());
         data
-                .setCaptainName(this.getPlayedCaptainName(data.getPickList()));
+                .setCaptainName(this.getPlayedCaptainName(data.getPickList()))
+                .setPickList(this.getPickListFromServer(event, data.getChip(), userPick.getPicks()));
         return data;
     }
 
-    private List<ElementEventResultData> getPickListFromDB(int event, String picks) {
+    private List<ElementEventResultData> getPickListFromDB(int event, String chip, String picks) {
         List<EntryPickData> pickList = JsonUtils.json2Collection(picks, List.class, EntryPickData.class);
         if (CollectionUtils.isEmpty(pickList)) {
             return Lists.newArrayList();
         }
-        return this.qryEntryEventPicksResult(event, pickList);
+        return this.qryEntryEventPicksResult(event, chip, pickList);
     }
 
     private String getPlayedCaptainName(List<ElementEventResultData> picks) {
@@ -273,7 +274,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return captain.getWebName();
     }
 
-    private List<ElementEventResultData> getPickListFromServer(int event, List<Pick> picks) {
+    private List<ElementEventResultData> getPickListFromServer(int event, String chip, List<Pick> picks) {
         List<EntryPickData> pickList = Lists.newArrayList();
         picks.forEach(o ->
                 pickList.add(
@@ -284,7 +285,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .setCaptain(o.isCaptain())
                                 .setViceCaptain(o.isViceCaptain())
                 ));
-        return this.qryEntryEventPicksResult(event, pickList);
+        return this.qryEntryEventPicksResult(event, chip, pickList);
     }
 
     @Cacheable(
@@ -294,7 +295,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             unless = "#result.size() eq 0"
     )
     @Override
-    public List<ElementEventResultData> qryEntryEventPicksResult(int event, List<EntryPickData> pickList) {
+    public List<ElementEventResultData> qryEntryEventPicksResult(int event, String chip, List<EntryPickData> pickList) {
         List<ElementEventResultData> list = Lists.newArrayList();
         // prepare
         Map<String, String> teamNameMap = this.getTeamNameMap();
@@ -322,8 +323,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setWebName(playerEntity.getWebName())
                     .setTeamId(playerEntity.getTeamId())
                     .setTeamName(teamNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
-                    .setTeamShortName(
-                            teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                    .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
                     .setPrice(playerEntity.getPrice() / 10.0);
             EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
             if (eventLiveEntity != null) {
@@ -341,7 +341,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .setSaves(eventLiveEntity.getSaves())
                         .setBonus(eventLiveEntity.getBonus())
                         .setBps(eventLiveEntity.getBps())
-                        .setTotalPoints(eventLiveEntity.getTotalPoints());
+                        .setTotalPoints(eventLiveEntity.getTotalPoints())
+                        .setPickActive(true);
+            }
+            if (!StringUtils.equalsIgnoreCase(Chip.BB.getValue(), chip) && data.getPosition() > 11) {
+                data.setPickActive(false);
             }
             list.add(data);
         });

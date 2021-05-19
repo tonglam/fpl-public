@@ -2,6 +2,7 @@ package com.tong.fpl.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
@@ -99,7 +100,7 @@ public class ApiQueryTest extends FplApplicationTests {
             return;
         }
         List<EntryPickData> pickList = JsonUtils.json2Collection(entryEventResultEntity.getEventPicks(), List.class, EntryPickData.class);
-        List<ElementEventResultData> list = this.apiQueryService.qryEntryEventPicksResult(event, pickList);
+        List<ElementEventResultData> list = this.apiQueryService.qryEntryEventPicksResult(event, Chip.NONE.getValue(), pickList);
         System.out.println(1);
     }
 
