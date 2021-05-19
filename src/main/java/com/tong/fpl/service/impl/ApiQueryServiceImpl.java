@@ -215,9 +215,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
                     .setOverallPoints(entryEventResultEntity.getOverallPoints())
                     .setOverallRank(entryEventResultEntity.getOverallRank());
-            data
-                    .setCaptainName(this.getPlayedCaptainName(data.getPickList()))
-                    .setPickList(this.getPickListFromDB(event, data.getChip(), entryEventResultEntity.getEventPicks()));
+            data.setPickList(this.getPickListFromDB(event, data.getChip(), entryEventResultEntity.getEventPicks()));
+            data.setCaptainName(this.getPlayedCaptainName(data.getPickList()));
         }
         // from fpl server
         UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
@@ -240,9 +239,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamValue((userPick.getEntryHistory().getValue() - userPick.getEntryHistory().getBank()) / 10.0)
                 .setOverallPoints(userPick.getEntryHistory().getTotalPoints())
                 .setOverallRank(userPick.getEntryHistory().getOverallRank());
-        data
-                .setCaptainName(this.getPlayedCaptainName(data.getPickList()))
-                .setPickList(this.getPickListFromServer(event, data.getChip(), userPick.getPicks()));
+        data.setPickList(this.getPickListFromServer(event, data.getChip(), userPick.getPicks()));
+        data.setCaptainName(this.getPlayedCaptainName(data.getPickList()));
         return data;
     }
 
