@@ -216,7 +216,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setOverallPoints(entryEventResultEntity.getOverallPoints())
                     .setOverallRank(entryEventResultEntity.getOverallRank());
             data
-                    .setCaptainName(this.getPlayedCaptainName(data.getPicks()));
+                    .setCaptainName(this.getPlayedCaptainName(data.getPickList()));
         }
         // from fpl server
         UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
@@ -241,7 +241,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setOverallPoints(userPick.getEntryHistory().getTotalPoints())
                 .setOverallRank(userPick.getEntryHistory().getOverallRank());
         data
-                .setCaptainName(this.getPlayedCaptainName(data.getPicks()));
+                .setCaptainName(this.getPlayedCaptainName(data.getPickList()));
         return data;
     }
 
@@ -253,15 +253,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return this.qryEntryEventPicksResult(event, pickList);
     }
 
-    private String getPlayedCaptainName(List<EntryPickData> picks) {
-        EntryPickData captain = picks
+    private String getPlayedCaptainName(List<ElementEventResultData> picks) {
+        ElementEventResultData captain = picks
                 .stream()
-                .filter(EntryPickData::isCaptain)
+                .filter(ElementEventResultData::isCaptain)
                 .findFirst()
                 .orElse(null);
-        EntryPickData viceCaptain = picks
+        ElementEventResultData viceCaptain = picks
                 .stream()
-                .filter(EntryPickData::isViceCaptain)
+                .filter(ElementEventResultData::isViceCaptain)
                 .findFirst()
                 .orElse(null);
         if (captain == null || viceCaptain == null) {

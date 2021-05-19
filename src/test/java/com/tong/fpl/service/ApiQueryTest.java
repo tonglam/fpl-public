@@ -89,7 +89,6 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-
     @ParameterizedTest
     @CsvSource({"36, 1870"})
     void qryPlayerEventResultByPicks(int event, int entry) {
@@ -105,14 +104,14 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"36, 1870"})
+    @CsvSource({"37, 1870"})
     void qryEntryEventResult(int event, int entry) {
         EntryEventResultData data = this.apiQueryService.qryEntryEventResult(event, entry);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"36, 1870"})
+    @CsvSource({"37, 1870"})
     void qryEntryEventTransfers(int event, int entry) {
         List<EntryEventTransfersData> list = this.apiQueryService.qryEntryEventTransfers(event, entry);
         System.out.println(1);
