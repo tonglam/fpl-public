@@ -212,7 +212,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setValue(entryEventResultEntity.getTeamValue() / 10.0)
                     .setBank(entryEventResultEntity.getBank() / 10.0)
                     .setTeamValue((entryEventResultEntity.getTeamValue() - entryEventResultEntity.getBank()) / 10.0)
-                    .setPickList(this.getPickListFromDB(event, entryEventResultEntity.getEventPicks()));
+                    .setPickList(this.getPickListFromDB(event, entryEventResultEntity.getEventPicks()))
+                    .setOverallPoints(entryEventResultEntity.getOverallPoints())
+                    .setOverallRank(entryEventResultEntity.getOverallRank());
             data
                     .setCaptainName(this.getPlayedCaptainName(data.getPicks()));
         }
@@ -235,7 +237,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setValue(userPick.getEntryHistory().getValue() / 10.0)
                 .setBank(userPick.getEntryHistory().getBank() / 10.0)
                 .setTeamValue((userPick.getEntryHistory().getValue() - userPick.getEntryHistory().getBank()) / 10.0)
-                .setPickList(this.getPickListFromServer(event, userPick.getPicks()));
+                .setPickList(this.getPickListFromServer(event, userPick.getPicks()))
+                .setOverallPoints(userPick.getEntryHistory().getTotalPoints())
+                .setOverallRank(userPick.getEntryHistory().getOverallRank());
         data
                 .setCaptainName(this.getPlayedCaptainName(data.getPicks()));
         return data;
@@ -1299,6 +1303,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .setValue(o.getTeamValue() / 10.0)
                                 .setBank(o.getBank() / 10.0)
                                 .setTeamValue((o.getTeamValue() - o.getBank()) / 10.0)
+                                .setOverallPoints(o.getOverallPoints())
+                                .setOverallRank(o.getOverallRank())
                                 .setPickList(this.qryTournamentEntryPickList(event, o.getEventPicks(), teamNameMap, teamShortNameMap, playerMap, eventLiveMap)))
                 .sorted(Comparator.comparing(EntryEventResultData::getPoints))
                 .collect(Collectors.toList());
