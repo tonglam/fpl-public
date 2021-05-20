@@ -481,21 +481,20 @@ public class ApiQueryServiceImpl implements IApiQueryService {
      */
     @Override
     public List<LiveMatchData> qryLiveMatchByStatus(String playStatus) {
-        List<LiveMatchData> list = Lists.newArrayList();
-
         // prepare
         int event = this.queryService.getCurrentEvent();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
         Map<String, String> teamNameMap = this.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
         // next event
         if (StringUtils.equalsIgnoreCase(MatchPlayStatus.Next_Event.name(), playStatus)) {
-            return this.qryNextEventMatch(event, teamNameMap, teamShortNameMap, playerMap);
+            return this.qryNextEventMatch(event, teamNameMap, teamShortNameMap);
         }
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
         Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
         // collect
+        List<LiveMatchData> list = Lists.newArrayList();
         Map<String, Map<String, List<LiveFixtureData>>> eventLiveFixtureMap = this.redisCacheService.getEventLiveFixtureMap();
         eventLiveFixtureMap.keySet().forEach(teamId ->
                 eventLiveFixtureMap.get(teamId).forEach((status, fixtureList) -> {
@@ -535,7 +534,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    private List<LiveMatchData> qryNextEventMatch(int event, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<Integer, PlayerEntity> playerMap) {
+    private List<LiveMatchData> qryNextEventMatch(int event, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap) {
         List<LiveMatchData> list = Lists.newArrayList();
         if (event > 38) {
             return list;
