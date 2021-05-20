@@ -8,10 +8,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.tong.fpl.constant.enums.Chip;
-import com.tong.fpl.constant.enums.GroupMode;
-import com.tong.fpl.constant.enums.Position;
-import com.tong.fpl.constant.enums.ValueChangeType;
+import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
@@ -61,6 +58,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final TeamService teamService;
     private final PlayerService playerService;
     private final PlayerValueService playerValueService;
+    private final EventFixtureService eventFixtureService;
     private final EventLiveService eventLiveService;
     private final EntryEventTransfersService entryEventTransfersService;
     private final EntryEventResultService entryEventResultService;
@@ -484,13 +482,19 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Override
     public List<LiveMatchData> qryLiveMatchByStatus(String playStatus) {
         List<LiveMatchData> list = Lists.newArrayList();
+
         // prepare
         int event = this.queryService.getCurrentEvent();
-        Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, String> teamNameMap = this.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        // next event
+        if (StringUtils.equalsIgnoreCase(MatchPlayStatus.Next_Event.name(), playStatus)) {
+            return this.qryNextEventMatch(event, teamNameMap, teamShortNameMap, playerMap);
+        }
+        Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
         // collect
         Map<String, Map<String, List<LiveFixtureData>>> eventLiveFixtureMap = this.redisCacheService.getEventLiveFixtureMap();
         eventLiveFixtureMap.keySet().forEach(teamId ->
@@ -529,6 +533,31 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return list.stream()
                 .sorted(Comparator.comparing(LiveMatchData::getKickoffTime).reversed())
                 .collect(Collectors.toList());
+    }
+
+    private List<LiveMatchData> qryNextEventMatch(int event, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<Integer, PlayerEntity> playerMap) {
+        List<LiveMatchData> list = Lists.newArrayList();
+        if (event > 38) {
+            return list;
+        }
+        this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda()
+                .eq(EventFixtureEntity::getEvent, event))
+                .forEach(o ->
+                        new LiveMatchData()
+                                .setMatchId(list.size() + 1)
+                                .setMinutes(0)
+                                .setHomeTeamId(o.getTeamH())
+                                .setHomeTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
+                                .setHomeTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
+                                .setHomeScore(0)
+                                .setHomeTeamDataList(Lists.newArrayList())
+                                .setAwayTeamId(o.getTeamA())
+                                .setAwayTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
+                                .setAwayTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
+                                .setAwayScore(0)
+                                .setAwayTeamDataList(Lists.newArrayList())
+                );
+        return list;
     }
 
     private List<ElementEventResultData> qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {

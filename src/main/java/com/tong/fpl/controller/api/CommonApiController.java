@@ -30,9 +30,4 @@ public class CommonApiController {
         this.apiCommon.insertEventLiveCache(event);
     }
 
-    @GetMapping("/insertPlayer")
-    public void insertPlayer() {
-        this.apiCommon.insertPlayer();
-    }
-
 }

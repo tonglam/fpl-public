@@ -21,9 +21,4 @@ public interface IApiCommon {
      */
     void insertEventLiveCache(int event);
 
-    /**
-     * 刷新player
-     */
-    void insertPlayer();
-
 }
