@@ -28,6 +28,7 @@ public class EntryEventResultData {
     private int overallPoints;
     private int overallRank;
     private List<EntryPickData> picks;
+    private String captainName;
     private List<ElementEventResultData> pickList;
 
 }
