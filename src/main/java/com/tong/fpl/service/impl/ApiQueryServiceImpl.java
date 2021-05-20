@@ -449,8 +449,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public List<EntryEventResultData> qryEntryEventSummary(int entry) {
+        int event = this.queryService.getCurrentEvent();
         List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
                 .eq(EntryEventResultEntity::getEntry, entry)
+                .le(EntryEventResultEntity::getEvent, event)
                 .orderByAsc(EntryEventResultEntity::getEvent));
         if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
             return Lists.newArrayList();
@@ -1660,9 +1662,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry) {
+        int event = this.queryService.getCurrentEvent();
         return this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
                 .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
                 .eq(TournamentPointsGroupResultEntity::getEntry, entry)
+                .le(TournamentPointsGroupResultEntity::getEvent, event)
                 .orderByAsc(TournamentPointsGroupResultEntity::getEntry)
                 .orderByAsc(TournamentPointsGroupResultEntity::getEvent))
                 .stream()
