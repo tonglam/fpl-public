@@ -41,7 +41,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"finished"})
+    @CsvSource({"next_event"})
     void qryLiveMatchDataByStatus(String playStatus) {
         List<LiveMatchData> list = this.apiQueryService.qryLiveMatchByStatus(playStatus);
         System.out.println(1);

@@ -540,9 +540,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return list;
         }
         this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda()
-                .eq(EventFixtureEntity::getEvent, event))
+                .eq(EventFixtureEntity::getEvent, event + 1)
+                .orderByAsc(EventFixtureEntity::getKickoffTime))
                 .forEach(o ->
-                        new LiveMatchData()
+                        list.add(new LiveMatchData()
                                 .setMatchId(list.size() + 1)
                                 .setMinutes(0)
                                 .setHomeTeamId(o.getTeamH())
@@ -555,6 +556,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .setAwayTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
                                 .setAwayScore(0)
                                 .setAwayTeamDataList(Lists.newArrayList())
+                                .setKickoffTime(o.getKickoffTime())
+                        )
                 );
         return list;
     }
