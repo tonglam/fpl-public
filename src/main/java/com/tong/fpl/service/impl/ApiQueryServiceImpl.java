@@ -26,6 +26,7 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
@@ -66,6 +67,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final ScoutService scoutService;
     private final TournamentEntryService tournamentEntryService;
     private final TournamentInfoService tournamentInfoService;
+    private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
     private final LeagueEventReportService leagueEventReportService;
 
     /**
@@ -211,6 +213,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setValue(entryEventResultEntity.getTeamValue() / 10.0)
                     .setBank(entryEventResultEntity.getBank() / 10.0)
                     .setTeamValue((entryEventResultEntity.getTeamValue() - entryEventResultEntity.getBank()) / 10.0)
+                    .setOverallPoints(entryEventResultEntity.getOverallPoints())
+                    .setOverallRank(entryEventResultEntity.getOverallRank())
                     .setPickList(this.getPickListFromDB(event, entryEventResultEntity.getEventPicks()));
         }
         // from fpl server
@@ -232,6 +236,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setValue(userPick.getEntryHistory().getValue() / 10.0)
                 .setBank(userPick.getEntryHistory().getBank() / 10.0)
                 .setTeamValue((userPick.getEntryHistory().getValue() - userPick.getEntryHistory().getBank()) / 10.0)
+                .setOverallPoints(userPick.getEntryHistory().getTotalPoints())
+                .setOverallRank(userPick.getEntryHistory().getOverallRank())
                 .setPickList(this.getPickListFromServer(event, userPick.getPicks()));
     }
 
@@ -407,6 +413,41 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 })
         );
         return list;
+    }
+
+    @Cacheable(
+            value = "api::qryEntryEventSummary",
+            key = "#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<EntryEventResultData> qryEntryEventSummary(int entry) {
+        List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEntry, entry)
+                .orderByAsc(EntryEventResultEntity::getEvent));
+        if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
+            return Lists.newArrayList();
+        }
+        return entryEventResultEntityList
+                .stream()
+                .map(o ->
+                        new EntryEventResultData()
+                                .setEvent(o.getEvent())
+                                .setEntry(entry)
+                                .setPoints(o.getEventPoints())
+                                .setNetPoints(o.getEventNetPoints())
+                                .setTransfersCost(o.getEventTransfersCost())
+                                .setTransfers(o.getEventTransfers())
+                                .setRank(o.getEventRank())
+                                .setChip(o.getEventChip())
+                                .setValue(o.getTeamValue() / 10.0)
+                                .setBank(o.getBank() / 10.0)
+                                .setTeamValue((o.getTeamValue() - o.getBank()) / 10.0)
+                                .setOverallPoints(o.getOverallPoints())
+                                .setOverallRank(o.getOverallRank())
+                )
+                .collect(Collectors.toList());
     }
 
     /**
@@ -619,7 +660,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     /**
-     * @implNote report
+     * @implNote stat
      */
     @Cacheable(
             value = "api::qryPlayerValueByDate",
@@ -636,7 +677,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         List<PlayerValueEntity> playerValueList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
                 .eq(PlayerValueEntity::getChangeDate, date));
         if (CollectionUtils.isEmpty(playerValueList)) {
-            return Maps.newHashMap();
+            return map;
         }
         List<Integer> elementList = playerValueList
                 .stream()
@@ -672,6 +713,91 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .filter(o -> StringUtils.equals(ValueChangeType.Faller.name(), o.getChangeType()))
                         .collect(Collectors.toList())
         );
+        return map;
+    }
+
+    @Cacheable(
+            value = "api::qryPlayerValueByElement",
+            key = "#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<PlayerValueData> qryPlayerValueByElement(int element) {
+        // prepare
+        Map<String, String> teamNameMap = this.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        List<PlayerValueEntity> playerValueList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+                .eq(PlayerValueEntity::getElement, element)
+                .orderByAsc(PlayerValueEntity::getChangeDate));
+        if (CollectionUtils.isEmpty(playerValueList)) {
+            return Lists.newArrayList();
+        }
+        List<Integer> elementList = playerValueList
+                .stream()
+                .map(PlayerValueEntity::getElement)
+                .collect(Collectors.toList());
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+                .in(PlayerEntity::getElement, elementList))
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        // collect
+        return playerValueList
+                .stream()
+                .map(o -> this.initPlayerValueData(o, teamNameMap, teamShortNameMap, playerMap))
+                .collect(Collectors.toList());
+    }
+
+    @Cacheable(
+            value = "api::qryPlayerValueByTeamId",
+            key = "#teamId",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId) {
+        Map<String, List<PlayerValueData>> map = Maps.newHashMap();
+        // prepare
+        Map<String, String> teamNameMap = this.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        // element list
+        List<Integer> teamElementList = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getTeamId, teamId))
+                .stream()
+                .map(PlayerEntity::getElement)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(teamElementList)) {
+            return map;
+        }
+        List<PlayerValueEntity> playerValueList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+                .in(PlayerValueEntity::getElement, teamElementList)
+                .orderByAsc(PlayerValueEntity::getElement)
+                .orderByAsc(PlayerValueEntity::getChangeDate));
+        if (CollectionUtils.isEmpty(playerValueList)) {
+            return map;
+        }
+        List<Integer> elementList = playerValueList
+                .stream()
+                .map(PlayerValueEntity::getElement)
+                .collect(Collectors.toList());
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+                .in(PlayerEntity::getElement, elementList))
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        // collect
+        playerValueList
+                .stream()
+                .map(o -> this.initPlayerValueData(o, teamNameMap, teamShortNameMap, playerMap))
+                .forEach(o -> {
+                    String elementTypeName = o.getElementTypeName();
+                    if (!map.containsKey(elementTypeName)) {
+                        map.put(elementTypeName, Lists.newArrayList(o));
+                    } else {
+                        List<PlayerValueData> valueList = map.get(elementTypeName);
+                        valueList.add(o);
+                        map.put(elementTypeName, valueList);
+                    }
+                });
         return map;
     }
 
@@ -1259,22 +1385,21 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .eq(EntryEventResultEntity::getEvent, event)
                 .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
-                .map(o -> {
-                    return new EntryEventResultData()
-                            .setEvent(event)
-                            .setEntry(o.getEntry())
-                            .setTransfers(o.getEventTransfers())
-                            .setPoints(o.getEventPoints())
-                            .setTransfersCost(o.getEventTransfersCost())
-                            .setNetPoints(o.getEventPoints() - o.getEventTransfersCost())
-                            .setBenchPoints(o.getEventBenchPoints())
-                            .setRank(o.getEventRank())
-                            .setChip(StringUtils.isBlank(o.getEventChip()) ? Chip.NONE.getValue() : o.getEventChip())
-                            .setValue(o.getTeamValue() / 10.0)
-                            .setBank(o.getBank() / 10.0)
-                            .setTeamValue((o.getTeamValue() - o.getBank()) / 10.0)
-                            .setPickList(this.qryTournamentEntryPickList(event, o.getEventPicks(), teamNameMap, teamShortNameMap, playerMap, eventLiveMap));
-                })
+                .map(o ->
+                        new EntryEventResultData()
+                                .setEvent(event)
+                                .setEntry(o.getEntry())
+                                .setTransfers(o.getEventTransfers())
+                                .setPoints(o.getEventPoints())
+                                .setTransfersCost(o.getEventTransfersCost())
+                                .setNetPoints(o.getEventPoints() - o.getEventTransfersCost())
+                                .setBenchPoints(o.getEventBenchPoints())
+                                .setRank(o.getEventRank())
+                                .setChip(StringUtils.isBlank(o.getEventChip()) ? Chip.NONE.getValue() : o.getEventChip())
+                                .setValue(o.getTeamValue() / 10.0)
+                                .setBank(o.getBank() / 10.0)
+                                .setTeamValue((o.getTeamValue() - o.getBank()) / 10.0)
+                                .setPickList(this.qryTournamentEntryPickList(event, o.getEventPicks(), teamNameMap, teamShortNameMap, playerMap, eventLiveMap)))
                 .sorted(Comparator.comparing(EntryEventResultData::getPoints))
                 .collect(Collectors.toList());
     }
@@ -1327,12 +1452,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return list;
     }
 
-    //    @Cacheable(
-//            value = "api::qryTournamentEntryContainElement",
-//            key = "#event+'::'+#tournamentId+'::+#element",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.size() eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryTournamentEntryContainElement",
+            key = "#event+'::'+#tournamentId+'::+#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element) {
         // entry list
@@ -1376,12 +1501,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return false;
     }
 
-    //    @Cacheable(
-//            value = "api::qryTournamentEntryPlayElement",
-//            key = "#event+'::'+#tournamentId+'::+'+#element",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.size() eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryTournamentEntryPlayElement",
+            key = "#event+'::'+#tournamentId+'::+'+#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element) {
         // entry list
@@ -1432,6 +1557,68 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             }
         }
         return false;
+    }
+
+    @Cacheable(
+            value = "api::qryTournamentEventSummary",
+            key = "#event+'::'+#tournamentId",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<TournamentPointsGroupEventResultData> qryTournamentEventSummary(int event, int tournamentId) {
+        return this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
+                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                .eq(TournamentPointsGroupResultEntity::getEvent, event)
+                .orderByAsc(TournamentPointsGroupResultEntity::getEntry))
+                .stream()
+                .map(o -> {
+                    TournamentPointsGroupEventResultData data = new TournamentPointsGroupEventResultData()
+                            .setTournamentId(tournamentId)
+                            .setEvent(o.getEvent())
+                            .setEntry(o.getEntry())
+                            .setGroupRank(o.getEventGroupRank())
+                            .setPoints(o.getEventPoints())
+                            .setCost(o.getEventCost())
+                            .setNetPoints(o.getEventNetPoints())
+                            .setRank(o.getEventRank());
+                    EntryInfoData entryInfoData = this.qryEntryInfo(o.getEntry());
+                    if (entryInfoData != null) {
+                        data
+                                .setEntryName(entryInfoData.getEntryName())
+                                .setPlayerName(entryInfoData.getPlayerName());
+                    }
+                    return data;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Cacheable(
+            value = "api::qryTournamentEntryEventSummary",
+            key = "#tournamentId+'::'+#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry) {
+        return this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
+                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                .eq(TournamentPointsGroupResultEntity::getEntry, entry)
+                .orderByAsc(TournamentPointsGroupResultEntity::getEntry)
+                .orderByAsc(TournamentPointsGroupResultEntity::getEvent))
+                .stream()
+                .map(o ->
+                        new TournamentPointsGroupEventResultData()
+                                .setTournamentId(tournamentId)
+                                .setEvent(o.getEvent())
+                                .setEntry(o.getEntry())
+                                .setGroupRank(o.getEventGroupRank())
+                                .setPoints(o.getEventPoints())
+                                .setCost(o.getEventCost())
+                                .setNetPoints(o.getEventNetPoints())
+                                .setRank(o.getEventRank())
+                )
+                .collect(Collectors.toList());
     }
 
 }

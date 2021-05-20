@@ -12,9 +12,9 @@ import java.util.List;
 @Accessors(chain = true)
 public class EntryEventSimulatePickData {
 
-	private int entry;
-	private int event;
-	private int operator;
-	private List<EntryPickData> lineup;
+    private int event;
+    private int entry;
+    private int operator;
+    private List<EntryPickData> lineup;
 
 }

@@ -26,6 +26,16 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
+    public List<PlayerValueData> qryPlayerValueByElement(int element) {
+        return this.apiQueryService.qryPlayerValueByElement(element);
+    }
+
+    @Override
+    public Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId) {
+        return this.apiQueryService.qryPlayerValueByTeamId(teamId);
+    }
+
+    @Override
     public List<String> qryAllLeagueName() {
         return this.apiQueryService.qryAllLeagueName();
     }

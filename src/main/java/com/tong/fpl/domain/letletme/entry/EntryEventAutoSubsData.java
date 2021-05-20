@@ -10,23 +10,23 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class EntryEventAutoSubsData {
 
-	private int entry;
-	private int event;
-	private int elementIn;
-	private String elementInWebName;
-	private int elementInType;
-	private String elementInTypeName;
-	private int elementInTeamId;
-	private String elementInTeamName;
-	private String elementInTeamShortName;
-	private int elementInPoints;
-	private int elementOut;
-	private String elementOutWebName;
-	private int elementOutType;
-	private String elementOutTypeName;
-	private int elementOutTeamId;
-	private String elementOutTeamName;
-	private String elementOutTeamShortName;
-	private int elementOutPoints;
+    private int event;
+    private int entry;
+    private int elementIn;
+    private String elementInWebName;
+    private int elementInType;
+    private String elementInTypeName;
+    private int elementInTeamId;
+    private String elementInTeamName;
+    private String elementInTeamShortName;
+    private int elementInPoints;
+    private int elementOut;
+    private String elementOutWebName;
+    private int elementOutType;
+    private String elementOutTypeName;
+    private int elementOutTeamId;
+    private String elementOutTeamName;
+    private String elementOutTeamShortName;
+    private int elementOutPoints;
 
 }

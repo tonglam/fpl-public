@@ -12,17 +12,17 @@ import lombok.experimental.Accessors;
 @TableName(value = "entry_event_simulate_pick")
 public class EntryEventSimulatePickEntity {
 
-	@TableId
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer entry;
-	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer event;
-	private Integer operator;
-	private String lineup;
-	@TableField(fill = FieldFill.INSERT)
-	private String createTime;
-	@TableField(fill = FieldFill.UPDATE)
-	private String updateTime;
+    @TableId
+    private Integer id;
+    @TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer event;
+    private Integer operator;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer entry;
+    private String lineup;
+    @TableField(fill = FieldFill.INSERT)
+    private String createTime;
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateTime;
 
 }

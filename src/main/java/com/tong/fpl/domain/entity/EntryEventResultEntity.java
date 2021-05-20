@@ -12,27 +12,27 @@ import lombok.experimental.Accessors;
 @TableName(value = "entry_event_result")
 public class EntryEventResultEntity {
 
-	@TableId
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer entry;
-	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer event;
-	private Integer eventPoints;
-	private Integer eventTransfers;
-	private Integer eventTransfersCost;
-	private Integer eventNetPoints;
-	private Integer eventBenchPoints;
-	private Integer eventAutoSubPoints;
-	private Integer eventRank;
-	private String eventChip;
-	private String eventPicks;
-	private String eventAutoSubs;
-	private Integer overallPoints;
-	private Integer overallRank;
-	private Integer teamValue;
-	private Integer bank;
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-	private String updateTime;
+    @TableId
+    private Integer id;
+    @TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer event;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer entry;
+    private Integer eventPoints;
+    private Integer eventTransfers;
+    private Integer eventTransfersCost;
+    private Integer eventNetPoints;
+    private Integer eventBenchPoints;
+    private Integer eventAutoSubPoints;
+    private Integer eventRank;
+    private String eventChip;
+    private String eventPicks;
+    private String eventAutoSubs;
+    private Integer overallPoints;
+    private Integer overallRank;
+    private Integer teamValue;
+    private Integer bank;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateTime;
 
 }

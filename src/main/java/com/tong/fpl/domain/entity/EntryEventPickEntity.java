@@ -12,17 +12,17 @@ import lombok.experimental.Accessors;
 @TableName(value = "entry_event_pick")
 public class EntryEventPickEntity {
 
-	@TableId
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer entry;
-	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer event;
-	private Integer transfers;
-	private Integer transfersCost;
-	private String chip;
-	private String picks;
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-	private String updateTime;
+    @TableId
+    private Integer id;
+    @TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer event;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer entry;
+    private Integer transfers;
+    private Integer transfersCost;
+    private String chip;
+    private String picks;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateTime;
 
 }

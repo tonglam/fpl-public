@@ -15,16 +15,18 @@ public class EntryEventResultData {
 
     private int event;
     private int entry;
-    private int transfers;
     private int points;
-    private int transfersCost;
     private int netPoints;
+    private int transfersCost;
     private int benchPoints;
+    private int transfers;
     private int rank;
     private String chip;
     private double value;
     private double bank;
     private double teamValue;
+    private int overallPoints;
+    private int overallRank;
     private List<EntryPickData> picks;
     private List<ElementEventResultData> pickList;
 

@@ -10,6 +10,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.utils.JsonUtils;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,20 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
+    @CsvSource({"302"})
+    void qryPlayerValueByElement(int element) {
+        List<PlayerValueData> list = this.apiQueryService.qryPlayerValueByElement(element);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"13"})
+    void qryPlayerValueByTeamId(int teamId) {
+        Map<String, List<PlayerValueData>> map = this.apiQueryService.qryPlayerValueByTeamId(teamId);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
     @CsvSource({"1870"})
     void qryEntryLeagueInfo(int entry) {
         EntryLeagueInfoData data = this.apiQueryService.qryEntryLeagueInfo(entry);
@@ -88,7 +103,6 @@ public class ApiQueryTest extends FplApplicationTests {
         LeagueStatData data = this.apiQueryService.qryTeamSelectByLeagueName(event, leagueName);
         System.out.println(1);
     }
-
 
     @ParameterizedTest
     @CsvSource({"36, 1870"})
@@ -136,6 +150,27 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"36, 1, 203"})
     void qryTournamentEntryPlayElement(int event, int tournamentId, int element) {
         List<Integer> list = this.apiQueryService.qryTournamentEntryPlayElement(event, tournamentId, element);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1870"})
+    void qryEntryEventSummary(int entry) {
+        List<EntryEventResultData> list = this.apiQueryService.qryEntryEventSummary(entry);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1, 1"})
+    void qryTournamentEventSummary(int event, int tournamentId) {
+        List<TournamentPointsGroupEventResultData> list = this.apiQueryService.qryTournamentEventSummary(event, tournamentId);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1, 1870"})
+    void qryTournamentEntryEventSummary(int tournamentId, int entry) {
+        List<TournamentPointsGroupEventResultData> list = this.apiQueryService.qryTournamentEntryEventSummary(tournamentId, entry);
         System.out.println(1);
     }
 

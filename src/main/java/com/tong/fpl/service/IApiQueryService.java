@@ -10,6 +10,7 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,6 +42,8 @@ public interface IApiQueryService {
     List<ElementEventResultData> qryEntryEventPicksResult(int event, List<EntryPickData> pickList);
 
     List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry);
+
+    List<EntryEventResultData> qryEntryEventSummary(int entry);
 
     /**
      * @apiNote live
@@ -74,9 +77,13 @@ public interface IApiQueryService {
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
     /**
-     * @apiNote report
+     * @apiNote stat
      */
     Map<String, List<PlayerValueData>> qryPlayerValueByDate(String changeDate);
+
+    List<PlayerValueData> qryPlayerValueByElement(int element);
+
+    Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId);
 
     List<String> qryAllLeagueName();
 
@@ -107,5 +114,9 @@ public interface IApiQueryService {
     List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element);
 
     List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element);
+
+    List<TournamentPointsGroupEventResultData> qryTournamentEventSummary(int event, int tournamentId);
+
+    List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry);
 
 }

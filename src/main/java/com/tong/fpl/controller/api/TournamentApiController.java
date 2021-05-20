@@ -3,6 +3,7 @@ package com.tong.fpl.controller.api;
 import com.tong.fpl.api.IApiTournament;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +46,16 @@ public class TournamentApiController {
     @GetMapping("/qryTournamentEntryPlayElement")
     List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element) {
         return this.apiTournament.qryTournamentEntryPlayElement(event, tournamentId, element);
+    }
+
+    @GetMapping("/qryTournamentEventSummary")
+    List<TournamentPointsGroupEventResultData> qryTournamentEventSummary(int event, int tournamentId) {
+        return this.apiTournament.qryTournamentEventSummary(event, tournamentId);
+    }
+
+    @GetMapping("/qryTournamentEntryEventSummary")
+    List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry) {
+        return this.apiTournament.qryTournamentEntryEventSummary(tournamentId, entry);
     }
 
 }

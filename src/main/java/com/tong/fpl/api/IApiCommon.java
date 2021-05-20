@@ -25,4 +25,5 @@ public interface IApiCommon {
      * 刷新player
      */
     void insertPlayer();
+
 }

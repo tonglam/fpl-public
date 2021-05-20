@@ -49,4 +49,9 @@ public class EntryApiController {
         return this.apiEntry.qryEntryEventTransfers(event, entry);
     }
 
+    @GetMapping("/qryEntryEventSummary")
+    public List<EntryEventResultData> qryEntryEventSummary(@RequestParam int entry) {
+        return this.apiEntry.qryEntryEventSummary(entry);
+    }
+
 }

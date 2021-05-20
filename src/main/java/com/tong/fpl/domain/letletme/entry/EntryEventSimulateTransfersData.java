@@ -12,13 +12,13 @@ import java.util.List;
 @Accessors(chain = true)
 public class EntryEventSimulateTransfersData {
 
-	private int entry;
-	private int event;
-	private int operator;
-	private int teamValue;
-	private int bank;
-	private int freeTransfers;
-	private int transfersCost;
-	private List<EntryPickData> lineup;
+    private int event;
+    private int entry;
+    private int operator;
+    private int teamValue;
+    private int bank;
+    private int freeTransfers;
+    private int transfersCost;
+    private List<EntryPickData> lineup;
 
 }

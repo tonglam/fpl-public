@@ -38,4 +38,10 @@ public interface IApiEntry {
      * 获取周转会
      */
     List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry);
+
+    /**
+     * 获取周得分总结
+     */
+    List<EntryEventResultData> qryEntryEventSummary(int entry);
+
 }

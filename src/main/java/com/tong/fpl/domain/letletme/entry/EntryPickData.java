@@ -10,8 +10,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class EntryPickData {
 
-    private int entry;
     private int event;
+    private int entry;
     private int element;
     private int position;
     private int elementType;

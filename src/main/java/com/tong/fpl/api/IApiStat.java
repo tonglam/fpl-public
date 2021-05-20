@@ -17,6 +17,16 @@ public interface IApiStat {
     Map<String, List<PlayerValueData>> qryPlayerValueByDate(String date);
 
     /**
+     * 根据球员查询球员身价变化
+     */
+    List<PlayerValueData> qryPlayerValueByElement(int element);
+
+    /**
+     * 根据球队查询球员身价变化
+     */
+    Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId);
+
+    /**
      * 查询存储的所有联赛
      */
     List<String> qryAllLeagueName();

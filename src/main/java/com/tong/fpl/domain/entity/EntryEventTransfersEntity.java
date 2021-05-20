@@ -15,17 +15,17 @@ import lombok.experimental.Accessors;
 @TableName(value = "entry_event_transfers")
 public class EntryEventTransfersEntity {
 
-	@TableId
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer entry;
-	@TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer event;
-	private Integer elementIn;
-	private Integer elementInCost;
-	private Boolean elementInPlayed;
-	private Integer elementOut;
-	private Integer elementOutCost;
-	private String time;
+    @TableId
+    private Integer id;
+    @TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer event;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer entry;
+    private Integer elementIn;
+    private Integer elementInCost;
+    private Boolean elementInPlayed;
+    private Integer elementOut;
+    private Integer elementOutCost;
+    private String time;
 
 }
