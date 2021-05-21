@@ -1339,12 +1339,93 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public List<EventScoutData> qryEventScoutResult(int event) {
+        if (event == 0) {
+            return this.qrySeasonScoutResult();
+        }
+        if (event > 38) {
+            return Lists.newArrayList();
+        }
         return this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
                 .eq(ScoutEntity::getEvent, event))
                 .stream()
                 .map(o -> this.initScoutData(event, o))
                 .sorted(Comparator.comparing(EventScoutData::getEventPoints).reversed())
                 .collect(Collectors.toList());
+    }
+
+    private List<EventScoutData> qrySeasonScoutResult() {
+        Multimap<Integer, ScoutEntity> map = HashMultimap.create();
+        this.scoutService.list()
+                .forEach(o -> map.put(o.getEntry(), o));
+        List<EventScoutData> list = Lists.newArrayList();
+        map.keySet().forEach(entry -> {
+            Collection<ScoutEntity> scoutList = map.get(entry);
+            if (CollectionUtils.isEmpty(scoutList)) {
+                return;
+            }
+            ScoutEntity lastScout = scoutList
+                    .stream()
+                    .max(Comparator.comparing(ScoutEntity::getEvent))
+                    .orElse(null);
+            if (lastScout == null) {
+                return;
+            }
+            list.add(
+                    new EventScoutData()
+                            .setEvent(0)
+                            .setEntry(entry)
+                            .setScoutName(lastScout.getScoutName())
+                            .setGkpInfo(
+                                    new PlayerInfoData()
+                                            .setPoints(
+                                                    scoutList
+                                                            .stream()
+                                                            .mapToInt(ScoutEntity::getGkpPoints)
+                                                            .sum()
+                                            )
+                            )
+                            .setDefInfo(
+                                    new PlayerInfoData()
+                                            .setPoints(
+                                                    scoutList
+                                                            .stream()
+                                                            .mapToInt(ScoutEntity::getDefPoints)
+                                                            .sum()
+                                            )
+                            )
+                            .setMidInfo(
+                                    new PlayerInfoData()
+                                            .setPoints(
+                                                    scoutList
+                                                            .stream()
+                                                            .mapToInt(ScoutEntity::getMidPoints)
+                                                            .sum()
+                                            )
+                            )
+                            .setFwdInfo(
+                                    new PlayerInfoData()
+                                            .setPoints(
+                                                    scoutList
+                                                            .stream()
+                                                            .mapToInt(ScoutEntity::getFwdPoints)
+                                                            .sum()
+                                            )
+                            )
+                            .setCaptainInfo(
+                                    new PlayerInfoData()
+                                            .setPoints(
+                                                    scoutList
+                                                            .stream()
+                                                            .mapToInt(ScoutEntity::getCaptainPoints)
+                                                            .sum()
+                                            )
+                            )
+                            .setReason("")
+                            .setEventPoints(0)
+                            .setTotalPoints(lastScout.getTotalPoints())
+            );
+        });
+        return list;
     }
 
     private EventScoutData initScoutData(int event, ScoutEntity scoutEntity) {
