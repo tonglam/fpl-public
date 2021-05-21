@@ -1425,7 +1425,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             .setTotalPoints(lastScout.getTotalPoints())
             );
         });
-        return list;
+        return list
+                .stream()
+                .sorted(Comparator.comparing(EventScoutData::getTotalPoints))
+                .collect(Collectors.toList());
     }
 
     private EventScoutData initScoutData(int event, ScoutEntity scoutEntity) {
