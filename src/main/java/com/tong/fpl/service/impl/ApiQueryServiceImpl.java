@@ -1429,7 +1429,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         });
         return list
                 .stream()
-                .sorted(Comparator.comparing(EventScoutData::getTotalPoints))
+                .sorted(Comparator.comparing(EventScoutData::getTotalPoints).reversed())
                 .collect(Collectors.toList());
     }
 
