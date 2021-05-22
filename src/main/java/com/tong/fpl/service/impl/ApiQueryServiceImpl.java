@@ -1356,6 +1356,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private List<EventScoutData> qrySeasonScoutResult() {
         Multimap<Integer, ScoutEntity> map = HashMultimap.create();
         this.scoutService.list()
+                .stream()
+                .filter(o -> o.getEventPoints() > 0)
                 .forEach(o -> map.put(o.getEntry(), o));
         List<EventScoutData> list = Lists.newArrayList();
         map.keySet().forEach(entry -> {

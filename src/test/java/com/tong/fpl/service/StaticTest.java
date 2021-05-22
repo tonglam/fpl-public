@@ -1,14 +1,17 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.domain.data.entry.Match;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.TransferRes;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,5 +60,29 @@ public class StaticTest extends FplApplicationTests {
         Optional<EntryRes> a = this.staticSerive.getEntry(entry);
         System.out.println(1);
     }
+
+    @Test
+    void getCupResult() {
+        int entry = 488823;
+        do {
+            entry = this.getNextEntry(entry);
+            System.out.println("next entry:" + entry);
+            this.getNextEntry(entry);
+        }
+        while (entry != 0);
+        System.out.println(1);
+    }
+
+    private int getNextEntry(int entry) {
+        return this.staticSerive.getEntryCup(entry)
+                .map(entryCupRes -> entryCupRes.getCupMatches()
+                        .stream()
+                        .filter(o -> o.getEvent() <= 37)
+                        .max(Comparator.comparing(Match::getEvent))
+                        .map(Match::getWinner)
+                        .orElse(0))
+                .orElse(0);
+    }
+
 
 }

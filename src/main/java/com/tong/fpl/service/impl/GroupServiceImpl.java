@@ -1,7 +1,9 @@
 package com.tong.fpl.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.ScoutEntity;
@@ -103,14 +105,14 @@ public class GroupServiceImpl implements IGroupService {
     @Override
     public void updateEventScoutResult(int event) {
         List<ScoutEntity> list = Lists.newArrayList();
+        Multimap<Integer, ScoutEntity> entryPointsMap = HashMultimap.create();
+        this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
+                .lt(ScoutEntity::getEvent, event))
+                .forEach(o -> entryPointsMap.put(o.getEntry(), o));
         Map<Integer, Integer> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
-        Map<Integer, Integer> lastEventPointsMap = this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                .eq(ScoutEntity::getEvent, event - 1))
-                .stream()
-                .collect(Collectors.toMap(ScoutEntity::getEntry, ScoutEntity::getTotalPoints));
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
                 .eq(ScoutEntity::getEvent, event))
                 .forEach(o -> {
@@ -120,8 +122,13 @@ public class GroupServiceImpl implements IGroupService {
                             .setMidPoints(eventLiveMap.getOrDefault(o.getMid(), 0))
                             .setFwdPoints(eventLiveMap.getOrDefault(o.getFwd(), 0))
                             .setCaptainPoints(eventLiveMap.getOrDefault(o.getCaptain(), 0));
-                    int eventPoints = o.getGkpPoints() + o.getDefPoints() + o.getMidPoints() + o.getFwdPoints() + o.getCaptainPoints();
-                    o.setEventPoints(eventPoints).setTotalPoints(eventPoints + lastEventPointsMap.getOrDefault(o.getEntry(), 0));
+                    o.setEventPoints(o.getGkpPoints() + o.getDefPoints() + o.getMidPoints() + o.getFwdPoints() + o.getCaptainPoints());
+                    o.setTotalPoints(o.getEventPoints() +
+                            entryPointsMap.get(o.getEntry())
+                                    .stream()
+                                    .mapToInt(ScoutEntity::getEventPoints)
+                                    .sum()
+                    );
                     list.add(o);
                 });
         this.scoutService.updateBatchById(list);
@@ -129,6 +136,7 @@ public class GroupServiceImpl implements IGroupService {
             String key = StringUtils.join("api::qryEventScoutResult::", event);
             RedisUtils.removeCacheByKey(key);
         }
+        RedisUtils.removeCacheByKey("api::qryEventScoutResult::0");
     }
 
 }
