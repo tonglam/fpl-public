@@ -30,4 +30,9 @@ public class CommonApiController {
         this.apiCommon.insertEventLiveCache(event);
     }
 
+    @GetMapping("/qryEventAverageScore")
+    public Map<String, Integer> qryEventAverageScore() {
+        return this.apiCommon.qryEventAverageScore();
+    }
+
 }

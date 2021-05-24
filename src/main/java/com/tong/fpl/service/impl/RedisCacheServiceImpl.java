@@ -769,6 +769,27 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
+    public void insertAverageScore(int event) {
+        this.interfaceService.getBootstrapStatic().ifPresent(res -> {
+            Event eventEntity = res.getEvents()
+                    .stream()
+                    .filter(o -> o.getId() == event)
+                    .findFirst()
+                    .orElse(null);
+            if (eventEntity == null) {
+                return;
+            }
+            int average = eventEntity.getAverageEntryScore();
+            // set cache
+            String key = StringUtils.joinWith("::", "AverageScore", event);
+            RedisUtils.removeCacheByKey(key);
+            Map<String, Object> cacheMap = Maps.newHashMap();
+            cacheMap.put(key, average);
+            RedisUtils.pipelineValueCache(cacheMap, -1, null);
+        });
+    }
+
+    @Override
     public void insertDiscloseCache(int tournamentId, int captainGroupId, int entry) {
         String key = StringUtils.joinWith("::", "DiscloseList", tournamentId, captainGroupId);
         RedisUtils.removeCacheByKey(key);
@@ -933,7 +954,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             teamList.forEach(teamId -> {
                 String key = StringUtils.joinWith("::", EventFixtureEntity.class.getSimpleName(), season, "teamId", teamId);
                 Map<String, List<PlayerFixtureData>> teamMap = Maps.newHashMap();
-                redisTemplate.opsForHash().entries(key).forEach((k, v) -> teamMap.put(String.valueOf(k), v == null ? Lists.newArrayList() : (List<PlayerFixtureData>) v));
+                this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> teamMap.put(String.valueOf(k), v == null ? Lists.newArrayList() : (List<PlayerFixtureData>) v));
                 map.put(teamId, teamMap);
             });
             return null;

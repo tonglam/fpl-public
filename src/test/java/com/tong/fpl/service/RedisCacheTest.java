@@ -8,6 +8,7 @@ import com.tong.fpl.domain.entity.PlayerValueEntity;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.utils.RedisUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -22,215 +23,229 @@ import java.util.Set;
  */
 public class RedisCacheTest extends FplApplicationTests {
 
-	@Autowired
-	private IRedisCacheService redisCacheSerive;
+    @Autowired
+    private IRedisCacheService redisCacheSerive;
 
-	@Test
-	void insertTeam() {
-		this.redisCacheSerive.insertTeam();
-	}
+    @Test
+    void test() {
+        String key = StringUtils.joinWith("::", "AverageScore", 39);
+        int a = (int) RedisUtils.getValueByKey(key).orElse(0);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"1920"})
-	void insertHisTeam(String season) {
-		this.redisCacheSerive.insertHisTeam(season);
-	}
+    @Test
+    void insertTeam() {
+        this.redisCacheSerive.insertTeam();
+    }
 
-	@Test
-	void insertEvent() {
-		this.redisCacheSerive.insertEvent();
-	}
+    @ParameterizedTest
+    @CsvSource({"1920"})
+    void insertHisTeam(String season) {
+        this.redisCacheSerive.insertHisTeam(season);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"1920"})
-	void insertHisEvent(String season) {
-		this.redisCacheSerive.insertHisEvent(season);
-	}
+    @Test
+    void insertEvent() {
+        this.redisCacheSerive.insertEvent();
+    }
 
-	@Test
-	void insertEventFixture() {
-		this.redisCacheSerive.insertEventFixture();
-	}
+    @ParameterizedTest
+    @CsvSource({"1920"})
+    void insertHisEvent(String season) {
+        this.redisCacheSerive.insertHisEvent(season);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"1920"})
-	void insertHisEventFixture(String season) {
-		this.redisCacheSerive.insertHisEventFixture(season);
-	}
+    @Test
+    void insertEventFixture() {
+        this.redisCacheSerive.insertEventFixture();
+    }
 
-	@ParameterizedTest
-	@CsvSource({"36"})
-	void insertSingleEventFixture(int event) {
-		this.redisCacheSerive.insertSingleEventFixture(event);
-	}
+    @ParameterizedTest
+    @CsvSource({"1920"})
+    void insertHisEventFixture(String season) {
+        this.redisCacheSerive.insertHisEventFixture(season);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"31"})
-	void insertSingleEventFixtureCache(int event) {
-		this.redisCacheSerive.insertSingleEventFixtureCache(event);
-	}
+    @ParameterizedTest
+    @CsvSource({"36"})
+    void insertSingleEventFixture(int event) {
+        this.redisCacheSerive.insertSingleEventFixture(event);
+    }
 
-	@Test
-	void insertLiveFixtureCache() {
-		this.redisCacheSerive.insertLiveFixtureCache();
-	}
+    @ParameterizedTest
+    @CsvSource({"31"})
+    void insertSingleEventFixtureCache(int event) {
+        this.redisCacheSerive.insertSingleEventFixtureCache(event);
+    }
 
-	@Test
-	void insertPlayer() {
-		this.redisCacheSerive.insertPlayer();
-	}
+    @Test
+    void insertLiveFixtureCache() {
+        this.redisCacheSerive.insertLiveFixtureCache();
+    }
 
-	@ParameterizedTest
-	@CsvSource({"1920"})
-	void insertHisPlayer(String season) {
-		this.redisCacheSerive.insertHisPlayer(season);
-	}
+    @Test
+    void insertPlayer() {
+        this.redisCacheSerive.insertPlayer();
+    }
 
-	@Test
-	void insertPlayerStat() {
-		this.redisCacheSerive.insertPlayerStat();
-	}
+    @ParameterizedTest
+    @CsvSource({"1920"})
+    void insertHisPlayer(String season) {
+        this.redisCacheSerive.insertHisPlayer(season);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"1920"})
-	void insertHisPlayerStat(String season) {
-		this.redisCacheSerive.insertHisPlayerStat(season);
-	}
+    @Test
+    void insertPlayerStat() {
+        this.redisCacheSerive.insertPlayerStat();
+    }
 
-	@Test
-	void insertPlayerValue() {
-		this.redisCacheSerive.insertPlayerValue();
-	}
+    @ParameterizedTest
+    @CsvSource({"1920"})
+    void insertHisPlayerStat(String season) {
+        this.redisCacheSerive.insertHisPlayerStat(season);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"36"})
-	void insertEventLive(int event) {
-		this.redisCacheSerive.insertEventLive(event);
-	}
+    @Test
+    void insertPlayerValue() {
+        this.redisCacheSerive.insertPlayerValue();
+    }
 
-	@ParameterizedTest
-	@CsvSource({"27"})
-	void insertEventLiveCache(int event) {
-		this.redisCacheSerive.insertEventLiveCache(event);
-	}
+    @ParameterizedTest
+    @CsvSource({"38"})
+    void insertEventLive(int event) {
+        this.redisCacheSerive.insertEventLive(event);
+    }
 
-	@Test
-	void inserLiveBonusCache() {
-		this.redisCacheSerive.insertLiveBonusCache();
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"27"})
+    void insertEventLiveCache(int event) {
+        this.redisCacheSerive.insertEventLiveCache(event);
+    }
 
-	@Test
-	void insertEventPassedDeadlineCache() {
-		this.redisCacheSerive.insertEventPassedDeadlineCache();
-		System.out.println(1);
-	}
+    @Test
+    void inserLiveBonusCache() {
+        this.redisCacheSerive.insertLiveBonusCache();
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"2021"})
-	void getTeamNameMap(String season) {
-		Map<String, String> map = this.redisCacheSerive.getTeamNameMap(season);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"1"})
+    void insertAverageScore(int event) {
+        this.redisCacheSerive.insertAverageScore(event);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"2021"})
-	void getTeamShrotNameMap(String season) {
-		Map<String, String> map = this.redisCacheSerive.getTeamShortNameMap(season);
-		System.out.println(1);
-	}
+    @Test
+    void insertEventPassedDeadlineCache() {
+        this.redisCacheSerive.insertEventPassedDeadlineCache();
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"2021, 21"})
-	void getUtcDeadlineByEvent(String season, int event) {
-		String a = this.redisCacheSerive.getUtcDeadlineByEvent(season, event);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"2021"})
+    void getTeamNameMap(String season) {
+        Map<String, String> map = this.redisCacheSerive.getTeamNameMap(season);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"2021, 21"})
-	void getDeadlineByEvent(String season, int event) {
-		String a = this.redisCacheSerive.getDeadlineByEvent(season, event);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"2021"})
+    void getTeamShrotNameMap(String season) {
+        Map<String, String> map = this.redisCacheSerive.getTeamShortNameMap(season);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"2021, 211"})
-	void getPlayerByElememt(String season, int element) {
-		long startTime = System.currentTimeMillis();
-		PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElement(season, element);
-		long endTime = System.currentTimeMillis();
-		System.out.println("escape: " + (endTime - startTime) + "ms");
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"2021, 21"})
+    void getUtcDeadlineByEvent(String season, int event) {
+        String a = this.redisCacheSerive.getUtcDeadlineByEvent(season, event);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"2021, 15"})
-	void getEventFixtureByEvent(String season, int event) {
-		List<EventFixtureEntity> list = this.redisCacheSerive.getEventFixtureByEvent(season, event);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"2021, 21"})
+    void getDeadlineByEvent(String season, int event) {
+        String a = this.redisCacheSerive.getDeadlineByEvent(season, event);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"2021, 1"})
-	void getEventFixtureByTeamId(String season, int teamId) {
-		Map<String, List<PlayerFixtureData>> map = this.redisCacheSerive.getEventFixtureByTeamId(season, teamId);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"2021, 211"})
+    void getPlayerByElememt(String season, int element) {
+        long startTime = System.currentTimeMillis();
+        PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElement(season, element);
+        long endTime = System.currentTimeMillis();
+        System.out.println("escape: " + (endTime - startTime) + "ms");
+        System.out.println(1);
+    }
 
-	@Test
-	void getEventLiveFixture() {
-		Map<String, Map<String, List<LiveFixtureData>>> map = this.redisCacheSerive.getEventLiveFixtureMap();
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"2021, 15"})
+    void getEventFixtureByEvent(String season, int event) {
+        List<EventFixtureEntity> list = this.redisCacheSerive.getEventFixtureByEvent(season, event);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"20200827"})
-	void getPlayerValueByChangeDay(String changeDate) {
-		List<PlayerValueEntity> list = this.redisCacheSerive.getPlayerValueByChangeDay(changeDate);
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"2021, 1"})
+    void getEventFixtureByTeamId(String season, int teamId) {
+        Map<String, List<PlayerFixtureData>> map = this.redisCacheSerive.getEventFixtureByTeamId(season, teamId);
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"1920, 221"})
-	void getPlayerStatByElement(String season, int element) {
-		long startTime = System.currentTimeMillis();
-		PlayerStatEntity playerStatEntity = this.redisCacheSerive.getPlayerStatByElement(season, element);
-		long endTime = System.currentTimeMillis();
-		System.out.println("escape: " + (endTime - startTime) + "ms");
-		System.out.println(1);
-	}
+    @Test
+    void getEventLiveFixture() {
+        Map<String, Map<String, List<LiveFixtureData>>> map = this.redisCacheSerive.getEventLiveFixtureMap();
+        System.out.println(1);
+    }
 
-	@Test
-	void getPositionMap() {
-		Map<String, String> map = this.redisCacheSerive.getPositionMap();
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"20200827"})
+    void getPlayerValueByChangeDay(String changeDate) {
+        List<PlayerValueEntity> list = this.redisCacheSerive.getPlayerValueByChangeDay(changeDate);
+        System.out.println(1);
+    }
 
-	@Test
-	void getLiveBonusCacheMap() {
-		Map<String, Map<String, Integer>> map = this.redisCacheSerive.getLiveBonusCacheMap();
-		System.out.println(1);
-	}
+    @ParameterizedTest
+    @CsvSource({"1920, 221"})
+    void getPlayerStatByElement(String season, int element) {
+        long startTime = System.currentTimeMillis();
+        PlayerStatEntity playerStatEntity = this.redisCacheSerive.getPlayerStatByElement(season, element);
+        long endTime = System.currentTimeMillis();
+        System.out.println("escape: " + (endTime - startTime) + "ms");
+        System.out.println(1);
+    }
 
-	@Test
-	void getTeamEventFixtureMap() {
-		Map<Integer, Map<String, List<PlayerFixtureData>>> map = this.redisCacheSerive.getTeamEventFixtureMap("2021");
-		System.out.println(1);
-	}
+    @Test
+    void getPositionMap() {
+        Map<String, String> map = this.redisCacheSerive.getPositionMap();
+        System.out.println(1);
+    }
 
-	@Test
-	void redis() {
-		String key = "scoutEntry";
-		Map<Object, Object> map = RedisUtils.getHashByKey(key);
-		Set<Object> set = map.keySet();
-		System.out.println(1);
-	}
+    @Test
+    void getLiveBonusCacheMap() {
+        Map<String, Map<String, Integer>> map = this.redisCacheSerive.getLiveBonusCacheMap();
+        System.out.println(1);
+    }
 
-	@ParameterizedTest
-	@CsvSource({"qry"})
-	void redisClear(String key) {
-		RedisUtils.removeCacheByKey(key);
-	}
+    @Test
+    void getTeamEventFixtureMap() {
+        Map<Integer, Map<String, List<PlayerFixtureData>>> map = this.redisCacheSerive.getTeamEventFixtureMap("2021");
+        System.out.println(1);
+    }
+
+    @Test
+    void redis() {
+        String key = "scoutEntry";
+        Map<Object, Object> map = RedisUtils.getHashByKey(key);
+        Set<Object> set = map.keySet();
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"qry"})
+    void redisClear(String key) {
+        RedisUtils.removeCacheByKey(key);
+    }
 
 }

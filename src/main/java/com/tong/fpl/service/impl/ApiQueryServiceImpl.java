@@ -22,6 +22,7 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
+import com.tong.fpl.domain.letletme.summary.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.IApiQueryService;
@@ -60,6 +61,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final PlayerValueService playerValueService;
     private final EventFixtureService eventFixtureService;
     private final EventLiveService eventLiveService;
+    private final EventLiveSummaryService eventLiveSummaryService;
+    private final EntryInfoService entryInfoService;
+    private final EntryEventPickService entryEventPickService;
     private final EntryEventTransfersService entryEventTransfersService;
     private final EntryEventResultService entryEventResultService;
     private final ScoutService scoutService;
@@ -86,6 +90,22 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return map;
     }
 
+    @Cacheable(
+            value = "api::qryEventAverageScore",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() == 0"
+    )
+    @Override
+    public Map<String, Integer> qryEventAverageScore() {
+        Map<String, Integer> map = Maps.newHashMap();
+        int current = this.queryService.getCurrentEvent();
+        IntStream.rangeClosed(1, current).forEach(event -> {
+            String key = StringUtils.joinWith("::", "AverageScore", event);
+            int score = (int) RedisUtils.getValueByKey(key).orElse(0);
+            map.put(String.valueOf(event), score);
+        });
+        return map;
+    }
 
     /**
      * @implNote entry
@@ -1770,4 +1790,201 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * @implNote summary
+     */
+//    @Cacheable(
+//            value = "api::qryEntrySeasonSummary",
+//            key = "#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.entry eq 0"
+//    )
+    @Override
+    public EntrySeasonData qryEntrySeasonSummary(int entry) {
+        EntrySeasonData data = new EntrySeasonData();
+        // prepare
+        Map<Integer, String> webNameMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEntry, entry));
+        if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
+            return data;
+        }
+        List<EntryEventPickEntity> entryEventPickEntityList = this.entryEventPickService.list(new QueryWrapper<EntryEventPickEntity>().lambda()
+                .eq(EntryEventPickEntity::getEntry, entry));
+        if (CollectionUtils.isEmpty(entryEventPickEntityList)) {
+            return data;
+        }
+        Map<Integer, List<Pick>> eventPickMap = entryEventPickEntityList
+                .stream()
+                .collect(Collectors.toMap(EntryEventPickEntity::getEvent, o -> {
+                            List<Pick> list = JsonUtils.json2Collection(o.getPicks(), List.class, Pick.class);
+                            if (CollectionUtils.isEmpty(list)) {
+                                return Lists.newArrayList();
+                            }
+                            return list;
+                        })
+                );
+        List<EntryEventTransfersEntity> entryEventTransfersEntityList = this.entryEventTransfersService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+                .eq(EntryEventTransfersEntity::getEntry, entry));
+        if (CollectionUtils.isEmpty(entryEventTransfersEntityList)) {
+            return data;
+        }
+        // entry_info
+        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        if (entryInfoEntity == null) {
+            return data;
+        }
+        data
+                .setEntry(entry)
+                .setEntryName(entryInfoEntity.getEntryName())
+                .setPlayerName(entryInfoEntity.getPlayerName());
+        // summary
+        this.setEntrySeasonSummaryData(data, entryEventResultEntityList, webNameMap);
+        // captain
+        this.setEntrySeasonCaptainData(data, eventPickMap, webNameMap);
+        // transfers
+        this.setEntrySeasonTransfersData(data);
+        // score
+        this.setEntrySeasonScoreData(data);
+        return data;
+    }
+
+    private void setEntrySeasonSummaryData(EntrySeasonData entrySeasonData, List<EntryEventResultEntity> entryEventResultEntityList, Map<Integer, String> nameMap) {
+        EntrySummaryData data = new EntrySummaryData();
+        // entry_event_result
+        entryEventResultEntityList
+                .stream()
+                .max(Comparator.comparing(EntryEventResultEntity::getEventPoints))
+                .ifPresent(o ->
+                        data
+                                .setHighestScore(o.getEventPoints())
+                                .setHighestEvent(o.getEvent())
+                );
+        entryEventResultEntityList
+                .stream()
+                .min(Comparator.comparing(EntryEventResultEntity::getEventPoints))
+                .ifPresent(o ->
+                        data
+                                .setLowestScore(o.getEventPoints())
+                                .setLowestEvent(o.getEvent())
+                );
+        entryEventResultEntityList
+                .stream()
+                .max(Comparator.comparing(EntryEventResultEntity::getOverallRank))
+                .ifPresent(o ->
+                        data
+                                .setHighestOverallRank(o.getOverallRank())
+                                .setHighestOverallRankEvent(o.getEvent())
+                );
+        entryEventResultEntityList
+                .stream()
+                .min(Comparator.comparing(EntryEventResultEntity::getOverallRank))
+                .ifPresent(o ->
+                        data
+                                .setLowestOverallRank(o.getOverallRank())
+                                .setLowestOverallRankEvent(o.getEvent())
+                );
+        // average
+        Map<String, Integer> averageMap = this.qryEventAverageScore();
+        data
+                .setBelowAverageEvents(
+                        entryEventResultEntityList
+                                .stream()
+                                .filter(o -> o.getEventPoints() < averageMap.getOrDefault(String.valueOf(o.getEvent()), 0))
+                                .collect(Collectors.toMap(EntryEventResultEntity::getEvent, EntryEventResultEntity::getEventPoints))
+                );
+        entryEventResultEntityList
+                .stream()
+                .max(Comparator.comparing(EntryEventResultEntity::getEventBenchPoints))
+                .ifPresent(o ->
+                        data
+                                .setHighestBenchPoints(o.getOverallRank())
+                                .setHighestBenchPointsEvent(o.getEvent())
+                );
+        // autoSub
+        entryEventResultEntityList
+                .stream()
+                .max(Comparator.comparing(EntryEventResultEntity::getEventAutoSubPoints))
+                .ifPresent(o -> {
+                            List<EntryEventAutoSubsData> list = JsonUtils.json2Collection(o.getEventAutoSubs(), List.class, EntryEventAutoSubsData.class);
+                            if (CollectionUtils.isEmpty(list)) {
+                                return;
+                            }
+                            list.forEach(i ->
+                                    i
+                                            .setEvent(o.getEvent())
+                                            .setElementInWebName(nameMap.getOrDefault(i.getElementIn(), ""))
+                                            .setElementOutWebName(nameMap.getOrDefault(i.getElementOut(), ""))
+                            );
+                            data
+                                    .setHighestAutoSubsPoints(list);
+                        }
+                );
+        entrySeasonData.setSummaryData(data);
+    }
+
+    private void setEntrySeasonCaptainData(EntrySeasonData entrySeasonData, Map<Integer, List<Pick>> eventPickMap, Map<Integer, String> nameMap) {
+        EntryCaptainData data = new EntryCaptainData();
+        // collect
+
+//        data
+//                .setTotalPoints()
+//                .setTotalPointsByPercent()
+//                .setViceTotalPoints()
+//                .setMaxPoints()
+//                .setMaxPointsEvent()
+//                .setMaxPointsWebName()
+//                .setMinPoints()
+//                .setMinPointsEvent()
+//                .setMinPointsWebName()
+//                .setMostSelected()
+//                .setMostSelectedWebName()
+//                .setMostSelectedTimes()
+//                .setBlankTimes()
+//                .setHitTimes();
+
+    }
+
+    private void setEntrySeasonTransfersData(EntrySeasonData entrySeasonData) {
+        EntryTransfersData data = new EntryTransfersData();
+
+//        data
+//                .setMostTransfers()
+//                .setMostTransfersCost()
+//                .setMostTransfersEvent()
+//                .setBestTransfer()
+//                .setWorstTransfer();
+
+
+    }
+
+    private void setEntrySeasonScoreData(EntrySeasonData entrySeasonData) {
+        EntryScoreData data = new EntryScoreData();
+
+//        data
+//                .setGkpTotalPoints()
+//                .setGkpTotalPointsByPercent()
+//                .setDefTotalPoints()
+//                .setDefTotalPointsByPercent()
+//                .setMidTotalPoints()
+//                .setMidTotalPointsByPercent()
+//                .setFwdTotalPoints()
+//                .setFwdTotalPointsByPercent()
+//                .setMostSelectedGkp()
+//                .setMostSelectedGkpName()
+//                .setMostSelectedDef()
+//                .setMostSelectedDefName()
+//                .setMostSelectedMid()
+//                .setMostSelectedMidName()
+//                .setMostSelectedFwd()
+//                .setMostSelectedFwdName()
+//                .setMostSelectedFormation();
+    }
+
+    @Override
+    public TournamentSeasonData qryTournamentSeasonSummary(int tournamentId) {
+        return null;
+    }
 }

@@ -23,7 +23,7 @@ public class UpdateEventResultTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"32"})
+    @CsvSource({"38"})
     void upsertTournamentEntryEventResult(int event) {
         IntStream.rangeClosed(1, 14).forEach(tournamentId -> {
             this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournamentId);
@@ -71,7 +71,7 @@ public class UpdateEventResultTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"29, 1"})
+    @CsvSource({"38"})
     void updateTournamentEventTransferPlayed(int event, int tournamentId) {
         this.updateEventResultsService.updateTournamentEventTransfersPlayed(event, tournamentId);
         System.out.println("event: " + event + ", update finished!");
@@ -123,6 +123,12 @@ public class UpdateEventResultTest extends FplApplicationTests {
     @CsvSource({"4"})
     void updateZjTournamentResult(int tournamentId) {
         this.updateEventResultsService.updateZjTournamentResult(tournamentId);
+        System.out.println(1);
+    }
+
+    @Test
+    void upsertEventLiveSummary() {
+        this.updateEventResultsService.upsertEventLiveSummary();
         System.out.println(1);
     }
 

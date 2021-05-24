@@ -13,6 +13,7 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
+import com.tong.fpl.domain.letletme.summary.EntrySeasonData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
@@ -42,6 +43,12 @@ public class ApiQueryTest extends FplApplicationTests {
     @Test
     void qryCurrentEventAndNextUtcDeadline() {
         Map<String, String> map = this.apiQueryService.qryCurrentEventAndNextUtcDeadline();
+        System.out.println(1);
+    }
+
+    @Test
+    void qryEventAverageScore() {
+        Map<String, Integer> map = this.apiQueryService.qryEventAverageScore();
         System.out.println(1);
     }
 
@@ -277,6 +284,16 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"1, 1870"})
     void qryTournamentEntryEventSummary(int tournamentId, int entry) {
         List<TournamentPointsGroupEventResultData> list = this.apiQueryService.qryTournamentEntryEventSummary(tournamentId, entry);
+        System.out.println(1);
+    }
+
+    /**
+     * @apiNote summary
+     */
+    @ParameterizedTest
+    @CsvSource({"1870"})
+    void qryEntrySeasonSummary(int entry) {
+        EntrySeasonData data = this.apiQueryService.qryEntrySeasonSummary(entry);
         System.out.println(1);
     }
 

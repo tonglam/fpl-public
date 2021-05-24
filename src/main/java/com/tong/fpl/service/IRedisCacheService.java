@@ -12,76 +12,78 @@ import java.util.Map;
  */
 public interface IRedisCacheService {
 
-	void insertTeam();
+    void insertTeam();
 
-	void insertHisTeam(String season);
+    void insertHisTeam(String season);
 
-	void insertEvent();
+    void insertEvent();
 
-	void insertHisEvent(String season);
+    void insertHisEvent(String season);
 
-	void insertEventFixture();
+    void insertEventFixture();
 
-	void insertHisEventFixture(String season);
+    void insertHisEventFixture(String season);
 
-	void insertSingleEventFixture(int event);
+    void insertSingleEventFixture(int event);
 
-	void insertSingleEventFixtureCache(int event);
+    void insertSingleEventFixtureCache(int event);
 
-	void insertLiveFixtureCache();
+    void insertLiveFixtureCache();
 
-	void insertPlayer();
+    void insertPlayer();
 
-	void insertHisPlayer(String season);
+    void insertHisPlayer(String season);
 
-	void insertPlayerStat();
+    void insertPlayerStat();
 
-	void insertHisPlayerStat(String season);
+    void insertHisPlayerStat(String season);
 
-	void insertPlayerValue();
+    void insertPlayerValue();
 
-	void insertEventLive(int event);
+    void insertEventLive(int event);
 
-	void insertEventLiveCache(int event);
+    void insertEventLiveCache(int event);
 
-	void insertLiveBonusCache();
+    void insertLiveBonusCache();
 
-	void insertDiscloseCache(int tournamentId, int captainGroupId, int entry);
+    void insertAverageScore(int event);
 
-	void insertEventPassedDeadlineCache();
+    void insertDiscloseCache(int tournamentId, int captainGroupId, int entry);
 
-	void insertSingleEventPassedDeadlineCache(int event);
+    void insertEventPassedDeadlineCache();
 
-	int getCurrentEvent();
+    void insertSingleEventPassedDeadlineCache(int event);
 
-	Map<String, String> getTeamNameMap(String season);
+    int getCurrentEvent();
 
-	Map<String, String> getTeamShortNameMap(String season);
+    Map<String, String> getTeamNameMap(String season);
 
-	String getUtcDeadlineByEvent(String season, int event);
+    Map<String, String> getTeamShortNameMap(String season);
 
-	String getDeadlineByEvent(String season, int event);
+    String getUtcDeadlineByEvent(String season, int event);
 
-	List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
+    String getDeadlineByEvent(String season, int event);
 
-	Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
+    List<EventFixtureEntity> getEventFixtureByEvent(String season, int event);
 
-	Map<Integer, Map<String, List<PlayerFixtureData>>> getTeamEventFixtureMap(String season);
+    Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId);
 
-	Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
+    Map<Integer, Map<String, List<PlayerFixtureData>>> getTeamEventFixtureMap(String season);
 
-	PlayerEntity getPlayerByElement(String season, int element);
+    Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
 
-	PlayerStatEntity getPlayerStatByElement(String season, int element);
+    PlayerEntity getPlayerByElement(String season, int element);
 
-	List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
+    PlayerStatEntity getPlayerStatByElement(String season, int element);
 
-	Map<String, EventLiveEntity> getEventLiveByEvent(int event);
+    List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
 
-	Map<String, String> getPositionMap();
+    Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
-	Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+    Map<String, String> getPositionMap();
 
-	List<Integer> getDiscloseList(int tournamentId, int captainGroupId);
+    Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+
+    List<Integer> getDiscloseList(int tournamentId, int captainGroupId);
 
 }

@@ -21,4 +21,9 @@ public interface IApiCommon {
      */
     void insertEventLiveCache(int event);
 
+    /**
+     * 获取每周平均分
+     */
+    Map<String, Integer> qryEventAverageScore();
+
 }

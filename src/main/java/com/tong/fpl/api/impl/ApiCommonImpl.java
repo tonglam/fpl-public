@@ -32,4 +32,8 @@ public class ApiCommonImpl implements IApiCommon {
         this.redisCacheService.insertLiveBonusCache();
     }
 
+    @Override
+    public Map<String, Integer> qryEventAverageScore() {
+        return this.apiQueryService.qryEventAverageScore();
+    }
 }
