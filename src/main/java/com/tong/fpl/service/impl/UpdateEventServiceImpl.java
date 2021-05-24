@@ -119,12 +119,12 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
             return;
         }
         // get event_live
-        Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
                 .stream()
-                .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         // entry_event_result
-        EntryEventResultEntity entryEventResult = this.calcEntryEventPoints(event, entry, userPick, elementPointsMap);
+        EntryEventResultEntity entryEventResult = this.calcEntryEventPoints(event, entry, userPick, eventLiveMap);
         if (entryEventResult == null) {
             return;
         }
@@ -154,10 +154,10 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // get event_live
-        Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
                 .stream()
-                .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         // upsert entry_event_result
         RedisUtils.removeCacheByKey("get");
         List<EntryEventResultEntity> insertEventResultList = Lists.newArrayList();
@@ -170,7 +170,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
             if (userPick == null) {
                 return;
             }
-            EntryEventResultEntity entryEventResultEntity = this.calcEntryEventPoints(event, entry, userPick, elementPointsMap);
+            EntryEventResultEntity entryEventResultEntity = this.calcEntryEventPoints(event, entry, userPick, eventLiveMap);
             if (entryEventResultEntity == null) {
                 return;
             }
@@ -187,7 +187,14 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
         log.info("tournament:{}, event:{}, update tournament entry event result size:{}!", tournamentId, event, updateEventResultList.size());
     }
 
-    private EntryEventResultEntity calcEntryEventPoints(int event, int entry, UserPicksRes userPick, Map<Integer, Integer> elementPointsMap) {
+    private EntryEventResultEntity calcEntryEventPoints(int event, int entry, UserPicksRes userPick, Map<Integer, EventLiveEntity> eventLiveMap) {
+        Map<Integer, Integer> elementPointsMap = Maps.newHashMap();
+        eventLiveMap.keySet().forEach(o -> {
+            EventLiveEntity eventLiveEntity = eventLiveMap.getOrDefault(o, new EventLiveEntity());
+            elementPointsMap.put(o, eventLiveEntity.getTotalPoints());
+        });
+        int captain = this.getPlayedCaptain(userPick.getPicks(), eventLiveMap);
+        EventLiveEntity captainEntity = eventLiveMap.getOrDefault(captain, new EventLiveEntity());
         return new EntryEventResultEntity()
                 .setEntry(entry)
                 .setEvent(event)
@@ -204,7 +211,29 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
                 .setOverallPoints(userPick.getEntryHistory().getTotalPoints())
                 .setOverallRank(userPick.getEntryHistory().getOverallRank())
                 .setTeamValue(userPick.getEntryHistory().getValue())
-                .setBank(userPick.getEntryHistory().getBank());
+                .setBank(userPick.getEntryHistory().getBank())
+                .setPlayedCaptain(captain)
+                .setCaptainPoints(captainEntity.getTotalPoints());
+    }
+
+    private int getPlayedCaptain(List<Pick> picks, Map<Integer, EventLiveEntity> eventLiveMap) {
+        Pick captain = picks
+                .stream()
+                .filter(Pick::isCaptain)
+                .findFirst()
+                .orElse(null);
+        Pick viceCaptain = picks
+                .stream()
+                .filter(Pick::isViceCaptain)
+                .findFirst()
+                .orElse(null);
+        if (captain == null || viceCaptain == null) {
+            return 0;
+        }
+        if (eventLiveMap.get(captain.getElement()).getMinutes() == 0 && eventLiveMap.get(viceCaptain.getElement()).getMinutes() > 0) {
+            return viceCaptain.getElement();
+        }
+        return captain.getElement();
     }
 
     private int calcAutoSubPoints(List<AutoSubs> automaticSubs, Map<Integer, Integer> elementPointsMap) {
@@ -1920,4 +1949,5 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
         this.eventLiveSummaryService.saveBatch(list);
         log.info("insert event_live_sunmary size:{}!", list.size());
     }
+
 }

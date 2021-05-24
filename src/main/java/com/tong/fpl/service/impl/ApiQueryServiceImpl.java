@@ -4,10 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
@@ -1816,16 +1813,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (CollectionUtils.isEmpty(entryEventPickEntityList)) {
             return data;
         }
-        Map<Integer, List<Pick>> eventPickMap = entryEventPickEntityList
-                .stream()
-                .collect(Collectors.toMap(EntryEventPickEntity::getEvent, o -> {
-                            List<Pick> list = JsonUtils.json2Collection(o.getPicks(), List.class, Pick.class);
-                            if (CollectionUtils.isEmpty(list)) {
-                                return Lists.newArrayList();
-                            }
-                            return list;
-                        })
-                );
         List<EntryEventTransfersEntity> entryEventTransfersEntityList = this.entryEventTransfersService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
                 .eq(EntryEventTransfersEntity::getEntry, entry));
         if (CollectionUtils.isEmpty(entryEventTransfersEntityList)) {
@@ -1839,19 +1826,25 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         data
                 .setEntry(entry)
                 .setEntryName(entryInfoEntity.getEntryName())
-                .setPlayerName(entryInfoEntity.getPlayerName());
+                .setPlayerName(entryInfoEntity.getPlayerName())
+                .setOverallPoints(entryInfoEntity.getOverallPoints())
+                .setOverallRank(entryInfoEntity.getOverallRank())
+                .setTotalTransfers(entryInfoEntity.getTotalTransfers())
+                .setValue(entryInfoEntity.getTeamValue() / 10.0)
+                .setBank(entryInfoEntity.getBank() / 10.0)
+                .setTeamValue((entryInfoEntity.getTeamValue() - entryInfoEntity.getBank()) / 10.0);
         // summary
         this.setEntrySeasonSummaryData(data, entryEventResultEntityList, webNameMap);
         // captain
-        this.setEntrySeasonCaptainData(data, eventPickMap, webNameMap);
+        this.setEntrySeasonCaptainData(data, entryEventResultEntityList, webNameMap);
         // transfers
-        this.setEntrySeasonTransfersData(data);
+        this.setEntrySeasonTransfersData(data, entryEventTransfersEntityList, webNameMap);
         // score
         this.setEntrySeasonScoreData(data);
         return data;
     }
 
-    private void setEntrySeasonSummaryData(EntrySeasonData entrySeasonData, List<EntryEventResultEntity> entryEventResultEntityList, Map<Integer, String> nameMap) {
+    private void setEntrySeasonSummaryData(EntrySeasonData entrySeasonData, List<EntryEventResultEntity> entryEventResultEntityList, Map<Integer, String> webNameMap) {
         EntrySummaryData data = new EntrySummaryData();
         // entry_event_result
         entryEventResultEntityList
@@ -1915,8 +1908,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             list.forEach(i ->
                                     i
                                             .setEvent(o.getEvent())
-                                            .setElementInWebName(nameMap.getOrDefault(i.getElementIn(), ""))
-                                            .setElementOutWebName(nameMap.getOrDefault(i.getElementOut(), ""))
+                                            .setElementInWebName(webNameMap.getOrDefault(i.getElementIn(), ""))
+                                            .setElementOutWebName(webNameMap.getOrDefault(i.getElementOut(), ""))
                             );
                             data
                                     .setHighestAutoSubsPoints(list);
@@ -1925,29 +1918,101 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         entrySeasonData.setSummaryData(data);
     }
 
-    private void setEntrySeasonCaptainData(EntrySeasonData entrySeasonData, Map<Integer, List<Pick>> eventPickMap, Map<Integer, String> nameMap) {
+    private void setEntrySeasonCaptainData(EntrySeasonData entrySeasonData, List<EntryEventResultEntity> entryEventResultEntityList, Map<Integer, String> webNameMap) {
         EntryCaptainData data = new EntryCaptainData();
-        // collect
-
-//        data
-//                .setTotalPoints()
-//                .setTotalPointsByPercent()
-//                .setViceTotalPoints()
-//                .setMaxPoints()
-//                .setMaxPointsEvent()
-//                .setMaxPointsWebName()
-//                .setMinPoints()
-//                .setMinPointsEvent()
-//                .setMinPointsWebName()
-//                .setMostSelected()
-//                .setMostSelectedWebName()
-//                .setMostSelectedTimes()
-//                .setBlankTimes()
-//                .setHitTimes();
-
+        // prepare
+        List<Integer> captainList = Lists.newArrayList();
+        entryEventResultEntityList
+                .forEach(o -> {
+                    List<Pick> pickList = JsonUtils.json2Collection(o.getEventPicks(), List.class, Pick.class);
+                    if (!CollectionUtils.isEmpty(pickList)) {
+                        captainList.addAll(
+                                pickList
+                                        .stream()
+                                        .filter(Pick::isCaptain)
+                                        .map(Pick::getElement)
+                                        .collect(Collectors.toList())
+                        );
+                    }
+                });
+        List<Integer> viceCaptainList = Lists.newArrayList();
+        entryEventResultEntityList.forEach(o -> {
+            if (!captainList.contains(o.getPlayedCaptain())) {
+                viceCaptainList.add(o.getPlayedCaptain());
+            }
+        });
+        data
+                .setTotalPoints(
+                        entryEventResultEntityList
+                                .stream()
+                                .mapToInt(o -> {
+                                    if (StringUtils.equals(Chip.TC.getValue(), o.getEventChip())) {
+                                        return 3 * o.getCaptainPoints();
+                                    }
+                                    return 2 * o.getCaptainPoints();
+                                })
+                                .reduce(0, Integer::sum)
+                )
+                .setViceTotalPoints(
+                        entryEventResultEntityList
+                                .stream()
+                                .filter(o -> viceCaptainList.contains(o.getPlayedCaptain()))
+                                .mapToInt(EntryEventResultEntity::getCaptainPoints)
+                                .sum()
+                );
+        // max
+        entryEventResultEntityList
+                .stream()
+                .max(Comparator.comparing(EntryEventResultEntity::getCaptainPoints))
+                .ifPresent(o ->
+                        data
+                                .setMaxPointsEvent(o.getEvent())
+                                .setMaxPoints(o.getCaptainPoints())
+                                .setMaxPointsWebName(webNameMap.getOrDefault(o.getPlayedCaptain(), ""))
+                );
+        // min
+        entryEventResultEntityList
+                .stream()
+                .min(Comparator.comparing(EntryEventResultEntity::getCaptainPoints))
+                .ifPresent(o ->
+                        data
+                                .setMinPointsEvent(o.getEvent())
+                                .setMinPoints(o.getCaptainPoints())
+                                .setMinPointsWebName(webNameMap.getOrDefault(o.getPlayedCaptain(), ""))
+                );
+        // tc
+        entryEventResultEntityList
+                .stream()
+                .filter(o -> StringUtils.equals(Chip.TC.getValue(), o.getEventChip()))
+                .findFirst()
+                .ifPresent(o ->
+                        data
+                                .setTcEvent(o.getEvent())
+                                .setTcPoints(o.getCaptainPoints())
+                                .setTcPointsWebName(webNameMap.getOrDefault(o.getPlayedCaptain(), ""))
+                );
+        // most selected
+        BiMap<Integer, Integer> countMap = HashBiMap.create();
+        entryEventResultEntityList.forEach(o -> {
+            int element = o.getPlayedCaptain();
+            int count = 1;
+            if (countMap.containsKey(element)) {
+                count = countMap.getOrDefault(element, 0) + 1;
+            }
+            countMap.put(element, count);
+        });
+        Map<String, Integer> mostSelectedMap = Maps.newHashMap();
+        countMap.values()
+                .stream()
+                .sorted(Comparator.comparing(Integer::intValue))
+                .limit(3)
+                .forEach(count -> mostSelectedMap.put(webNameMap.getOrDefault(countMap.inverse().get(count), ""), count));
+        data.setMostSelected(mostSelectedMap);
+        data.setTotalPointsByPercent(NumberUtil.div(data.getTotalPoints(), entrySeasonData.getOverallPoints(), 2) + "%");
+        entrySeasonData.setCaptainData(data);
     }
 
-    private void setEntrySeasonTransfersData(EntrySeasonData entrySeasonData) {
+    private void setEntrySeasonTransfersData(EntrySeasonData entrySeasonData, List<EntryEventTransfersEntity> entryEventTransfersEntityList, Map<Integer, String> webNameMap) {
         EntryTransfersData data = new EntryTransfersData();
 
 //        data
@@ -1987,4 +2052,5 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public TournamentSeasonData qryTournamentSeasonSummary(int tournamentId) {
         return null;
     }
+
 }
