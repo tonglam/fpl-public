@@ -2009,7 +2009,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         }
         return new EntrySeasonChipData()
                 .setEvent(event)
-                .setName(chip.getValue())
+                .setName(chip.name())
                 .setEventPoints(entryEventResultEntity.getEventPoints())
                 .setProfit(profit);
     }
