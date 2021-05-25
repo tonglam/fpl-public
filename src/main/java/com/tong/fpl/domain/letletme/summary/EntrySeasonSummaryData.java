@@ -30,5 +30,6 @@ public class EntrySeasonSummaryData {
     private int highestBenchPointsEvent; // 最高板凳得分周
     private int highestAutoSubsPoints; // 最高自动替补得分
     private List<EntryEventAutoSubsData> highestAutoSubs; // 最高自动替补
+    private List<EntrySeasonChipData> chipList; // 开卡结果
 
 }

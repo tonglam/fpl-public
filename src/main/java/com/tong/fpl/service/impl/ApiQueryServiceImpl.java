@@ -1945,7 +1945,73 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .mapToInt(EntryEventAutoSubsData::getElementOutPoints)
                                 .sum()
         );
+        // chips
+        data.setChipList(
+                entryEventResultEntityList
+                        .stream()
+                        .filter(o ->
+                                StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getEventChip()) ||
+                                        StringUtils.equalsIgnoreCase(Chip.BB.getValue(), o.getEventChip()) ||
+                                        StringUtils.equalsIgnoreCase(Chip.FH.getValue(), o.getEventChip())
+                        )
+                        .map(this::setEntryChipResult)
+                        .collect(Collectors.toList())
+        );
         return data;
+    }
+
+    private EntrySeasonChipData setEntryChipResult(EntryEventResultEntity entryEventResultEntity) {
+        int profit = 0;
+        // prepare
+        int event = entryEventResultEntity.getEvent();
+        Chip chip = Chip.getChipFromValue(entryEventResultEntity.getEventChip());
+        Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+        // calc profit
+        switch (chip) {
+            case TC: {
+                profit = entryEventResultEntity.getCaptainPoints();
+                break;
+            }
+            case BB: {
+                List<EntryPickData> pickList = JsonUtils.json2Collection(entryEventResultEntity.getEventPicks(), List.class, EntryPickData.class);
+                if (CollectionUtils.isEmpty(pickList)) {
+                    break;
+                }
+                profit = pickList
+                        .stream()
+                        .filter(o -> o.getPosition() > 11)
+                        .mapToInt(o -> pointsMap.getOrDefault(o.getElement(), 0))
+                        .sum();
+                break;
+            }
+            case FH: {
+                EntryEventResultEntity lastEventEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+                        .eq(EntryEventResultEntity::getEvent, event - 1)
+                        .eq(EntryEventResultEntity::getEntry, entryEventResultEntity.getEntry()));
+                if (lastEventEntity == null) {
+                    break;
+                }
+                List<EntryPickData> pickList = JsonUtils.json2Collection(lastEventEntity.getEventPicks(), List.class, EntryPickData.class);
+                if (CollectionUtils.isEmpty(pickList)) {
+                    break;
+                }
+                profit = entryEventResultEntity.getEventPoints() -
+                        pickList
+                                .stream()
+                                .filter(o -> o.getPosition() <= 11)
+                                .mapToInt(o -> pointsMap.getOrDefault(o.getElement(), 0))
+                                .sum();
+                break;
+            }
+        }
+        return new EntrySeasonChipData()
+                .setEvent(event)
+                .setName(chip.getValue())
+                .setEventPoints(entryEventResultEntity.getEventPoints())
+                .setProfit(profit);
     }
 
     @Cacheable(
