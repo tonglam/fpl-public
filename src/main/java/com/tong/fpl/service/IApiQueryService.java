@@ -135,6 +135,6 @@ public interface IApiQueryService {
 
     EntrySeasonScoreData qryEntrySeasonScore(int entry);
 
-    TournamentSeasonData qryTournamentSeasonSummary(int tournamentId);
+    TournamentSeasonInfoData qryTournamentSeasonInfo(int tournamentId);
 
 }

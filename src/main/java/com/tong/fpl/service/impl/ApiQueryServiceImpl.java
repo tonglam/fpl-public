@@ -1884,7 +1884,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 );
         entryEventResultEntityList
                 .stream()
-                .max(Comparator.comparing(EntryEventResultEntity::getOverallRank))
+                .min(Comparator.comparing(EntryEventResultEntity::getOverallRank))
                 .ifPresent(o ->
                         data
                                 .setHighestOverallRank(o.getOverallRank())
@@ -1892,7 +1892,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 );
         entryEventResultEntityList
                 .stream()
-                .min(Comparator.comparing(EntryEventResultEntity::getOverallRank))
+                .max(Comparator.comparing(EntryEventResultEntity::getOverallRank))
                 .ifPresent(o ->
                         data
                                 .setLowestOverallRank(o.getOverallRank())
@@ -1907,12 +1907,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .filter(o -> o.getEventPoints() < averageMap.getOrDefault(String.valueOf(o.getEvent()), 0))
                                 .collect(Collectors.toMap(EntryEventResultEntity::getEvent, EntryEventResultEntity::getEventPoints))
                 );
+        // bench
         entryEventResultEntityList
                 .stream()
                 .max(Comparator.comparing(EntryEventResultEntity::getEventBenchPoints))
                 .ifPresent(o ->
                         data
-                                .setHighestBenchPoints(o.getOverallRank())
+                                .setHighestBenchPoints(o.getEventBenchPoints())
                                 .setHighestBenchPointsEvent(o.getEvent())
                 );
         // autoSub
@@ -2460,7 +2461,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Override
-    public TournamentSeasonData qryTournamentSeasonSummary(int tournamentId) {
+    public TournamentSeasonInfoData qryTournamentSeasonInfo(int tournamentId) {
         return null;
     }
 
