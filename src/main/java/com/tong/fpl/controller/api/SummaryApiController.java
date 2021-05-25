@@ -24,9 +24,9 @@ public class SummaryApiController {
         return this.apiSummary.qryEntrySeasonInfo(entry);
     }
 
-    @GetMapping("/qrySeasonEntrySummary")
-    public EntrySeasonSummaryData qrySeasonEntrySummary(@RequestParam int entry) {
-        return this.apiSummary.qrySeasonEntrySummary(entry);
+    @GetMapping("/qryEntrySeasonSummary")
+    public EntrySeasonSummaryData qryEntrySeasonSummary(@RequestParam int entry) {
+        return this.apiSummary.qryEntrySeasonSummary(entry);
     }
 
     @GetMapping("/qryEntrySeasonCaptain")

@@ -12,7 +12,7 @@ public interface IApiSummary {
      */
     EntrySeasonInfoData qryEntrySeasonInfo(int entry);
 
-    EntrySeasonSummaryData qrySeasonEntrySummary(int entry);
+    EntrySeasonSummaryData qryEntrySeasonSummary(int entry);
 
     EntrySeasonCaptainData qryEntrySeasonCaptain(int entry);
 

@@ -127,7 +127,7 @@ public interface IApiQueryService {
      */
     EntrySeasonInfoData qryEntrySeasonInfo(int entry);
 
-    EntrySeasonSummaryData qrySeasonEntrySummary(int entry);
+    EntrySeasonSummaryData qryEntrySeasonSummary(int entry);
 
     EntrySeasonCaptainData qryEntrySeasonCaptain(int entry);
 

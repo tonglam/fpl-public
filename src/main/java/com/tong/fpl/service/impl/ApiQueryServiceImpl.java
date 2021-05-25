@@ -1837,13 +1837,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Cacheable(
-            value = "api::qrySeasonEntrySummary",
+            value = "api::qryEntrySeasonSummary",
             key = "#entry",
             cacheManager = "apiCacheManager",
             unless = "#result.entry eq 0"
     )
     @Override
-    public EntrySeasonSummaryData qrySeasonEntrySummary(int entry) {
+    public EntrySeasonSummaryData qryEntrySeasonSummary(int entry) {
         EntrySeasonSummaryData data = new EntrySeasonSummaryData();
         // prepare
         EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);

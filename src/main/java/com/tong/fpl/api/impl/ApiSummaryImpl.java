@@ -22,8 +22,8 @@ public class ApiSummaryImpl implements IApiSummary {
     }
 
     @Override
-    public EntrySeasonSummaryData qrySeasonEntrySummary(int entry) {
-        return this.apiQueryService.qrySeasonEntrySummary(entry);
+    public EntrySeasonSummaryData qryEntrySeasonSummary(int entry) {
+        return this.apiQueryService.qryEntrySeasonSummary(entry);
     }
 
     @Override
