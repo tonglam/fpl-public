@@ -1921,6 +1921,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                     pickList
                                             .stream()
                                             .filter(i -> i.getPosition() > 11)
+                                            .map(i -> i.setWebName(webNameMap.getOrDefault(i.getElement(), "")))
                                             .collect(Collectors.toList())
                             )
                             .setHighestBenchPoints(o.getEventBenchPoints())
@@ -1941,8 +1942,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                             .setElementInWebName(webNameMap.getOrDefault(i.getElementIn(), ""))
                                             .setElementOutWebName(webNameMap.getOrDefault(i.getElementOut(), ""))
                             );
-                    data
-                            .setHighestAutoSubsPointsEvent(o.getEvent())
+                            data
+                                    .setHighestAutoSubsPointsEvent(o.getEvent())
                                     .setHighestAutoSubs(list);
                         }
                 );
