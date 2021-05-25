@@ -58,9 +58,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final PlayerValueService playerValueService;
     private final EventFixtureService eventFixtureService;
     private final EventLiveService eventLiveService;
-    private final EventLiveSummaryService eventLiveSummaryService;
     private final EntryInfoService entryInfoService;
-    private final EntryEventPickService entryEventPickService;
     private final EntryEventTransfersService entryEventTransfersService;
     private final EntryEventResultService entryEventResultService;
     private final ScoutService scoutService;
@@ -1790,62 +1788,83 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     /**
      * @implNote summary
      */
-//    @Cacheable(
-//            value = "api::qryEntrySeasonSummary",
-//            key = "#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.entry eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryEntrySeasonInfo",
+            key = "#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.entry eq 0"
+    )
     @Override
-    public EntrySeasonData qryEntrySeasonSummary(int entry) {
-        EntrySeasonData data = new EntrySeasonData();
+    public EntrySeasonInfoData qryEntrySeasonInfo(int entry) {
         // prepare
-        Map<Integer, String> webNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        if (entryInfoEntity == null) {
+            return new EntrySeasonInfoData();
+        }
         List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
                 .eq(EntryEventResultEntity::getEntry, entry));
         if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
-            return data;
+            return new EntrySeasonInfoData();
         }
-        List<EntryEventPickEntity> entryEventPickEntityList = this.entryEventPickService.list(new QueryWrapper<EntryEventPickEntity>().lambda()
-                .eq(EntryEventPickEntity::getEntry, entry));
-        if (CollectionUtils.isEmpty(entryEventPickEntityList)) {
-            return data;
-        }
-        List<EntryEventTransfersEntity> entryEventTransfersEntityList = this.entryEventTransfersService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
-                .eq(EntryEventTransfersEntity::getEntry, entry));
-        if (CollectionUtils.isEmpty(entryEventTransfersEntityList)) {
-            return data;
-        }
-        // entry_info
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
-        if (entryInfoEntity == null) {
-            return data;
-        }
-        data
+        return new EntrySeasonInfoData()
                 .setEntry(entry)
                 .setEntryName(entryInfoEntity.getEntryName())
                 .setPlayerName(entryInfoEntity.getPlayerName())
                 .setOverallPoints(entryInfoEntity.getOverallPoints())
                 .setOverallRank(entryInfoEntity.getOverallRank())
                 .setTotalTransfers(entryInfoEntity.getTotalTransfers())
+                .setTotalTransfersCost(
+                        entryEventResultEntityList
+                                .stream()
+                                .mapToInt(EntryEventResultEntity::getEventTransfersCost)
+                                .sum()
+                )
+                .setTotalBenchPoints(
+                        entryEventResultEntityList
+                                .stream()
+                                .mapToInt(EntryEventResultEntity::getEventBenchPoints)
+                                .sum()
+                )
+                .setTotalAutoSubsPoints(
+                        entryEventResultEntityList
+                                .stream()
+                                .mapToInt(EntryEventResultEntity::getEventAutoSubPoints)
+                                .sum()
+                )
                 .setValue(entryInfoEntity.getTeamValue() / 10.0)
                 .setBank(entryInfoEntity.getBank() / 10.0)
                 .setTeamValue((entryInfoEntity.getTeamValue() - entryInfoEntity.getBank()) / 10.0);
-        // summary
-        this.setEntrySeasonSummaryData(data, entryEventResultEntityList, webNameMap);
-        // captain
-        this.setEntrySeasonCaptainData(data, entryEventResultEntityList, webNameMap);
-        // transfers
-        this.setEntrySeasonTransfersData(data, entryEventTransfersEntityList, webNameMap);
-        // score
-        this.setEntrySeasonScoreData(data);
-        return data;
     }
 
-    private void setEntrySeasonSummaryData(EntrySeasonData entrySeasonData, List<EntryEventResultEntity> entryEventResultEntityList, Map<Integer, String> webNameMap) {
-        EntrySummaryData data = new EntrySummaryData();
+    @Cacheable(
+            value = "api::qrySeasonEntrySummary",
+            key = "#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.entry eq 0"
+    )
+    @Override
+    public EntrySeasonSummaryData qrySeasonEntrySummary(int entry) {
+        EntrySeasonSummaryData data = new EntrySeasonSummaryData();
+        // prepare
+        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        if (entryInfoEntity == null) {
+            return data;
+        }
+        Map<Integer, String> webNameMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        if (CollectionUtils.isEmpty(webNameMap)) {
+            return data;
+        }
+        List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEntry, entry));
+        if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
+            return data;
+        }
+        data
+                .setEntry(entry)
+                .setEntryName(entryInfoEntity.getEntryName())
+                .setPlayerName(entryInfoEntity.getPlayerName());
         // entry_event_result
         entryEventResultEntityList
                 .stream()
@@ -1912,29 +1931,65 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                             .setElementOutWebName(webNameMap.getOrDefault(i.getElementOut(), ""))
                             );
                             data
-                                    .setHighestAutoSubsPoints(list);
+                                    .setHighestAutoSubs(list);
                         }
                 );
-        entrySeasonData.setSummaryData(data);
+        data.setHighestAutoSubsPoints(
+                data.getHighestAutoSubs()
+                        .stream()
+                        .mapToInt(EntryEventAutoSubsData::getElementInPoints)
+                        .sum() -
+                        data.getHighestAutoSubs()
+                                .stream()
+                                .mapToInt(EntryEventAutoSubsData::getElementOutPoints)
+                                .sum()
+        );
+        return data;
     }
 
-    private void setEntrySeasonCaptainData(EntrySeasonData entrySeasonData, List<EntryEventResultEntity> entryEventResultEntityList, Map<Integer, String> webNameMap) {
-        EntryCaptainData data = new EntryCaptainData();
+    @Cacheable(
+            value = "api::qryEntrySeasonCaptain",
+            key = "#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.entry eq 0"
+    )
+    @Override
+    public EntrySeasonCaptainData qryEntrySeasonCaptain(int entry) {
+        EntrySeasonCaptainData data = new EntrySeasonCaptainData();
         // prepare
+        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        if (entryInfoEntity == null) {
+            return data;
+        }
+        Map<Integer, String> webNameMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        if (CollectionUtils.isEmpty(webNameMap)) {
+            return data;
+        }
+        List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEntry, entry));
+        if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
+            return data;
+        }
+        data
+                .setEntry(entry)
+                .setEntryName(entryInfoEntity.getEntryName())
+                .setPlayerName(entryInfoEntity.getPlayerName());
+        // collect
         List<Integer> captainList = Lists.newArrayList();
-        entryEventResultEntityList
-                .forEach(o -> {
-                    List<Pick> pickList = JsonUtils.json2Collection(o.getEventPicks(), List.class, Pick.class);
-                    if (!CollectionUtils.isEmpty(pickList)) {
-                        captainList.addAll(
-                                pickList
-                                        .stream()
-                                        .filter(Pick::isCaptain)
-                                        .map(Pick::getElement)
-                                        .collect(Collectors.toList())
-                        );
-                    }
-                });
+        entryEventResultEntityList.forEach(o -> {
+            List<Pick> pickList = JsonUtils.json2Collection(o.getEventPicks(), List.class, Pick.class);
+            if (!CollectionUtils.isEmpty(pickList)) {
+                captainList.addAll(
+                        pickList
+                                .stream()
+                                .filter(Pick::isCaptain)
+                                .map(Pick::getElement)
+                                .collect(Collectors.toList())
+                );
+            }
+        });
         List<Integer> viceCaptainList = Lists.newArrayList();
         entryEventResultEntityList.forEach(o -> {
             if (!captainList.contains(o.getPlayedCaptain())) {
@@ -1992,60 +2047,416 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .setTcPointsWebName(webNameMap.getOrDefault(o.getPlayedCaptain(), ""))
                 );
         // most selected
-        BiMap<Integer, Integer> countMap = HashBiMap.create();
-        entryEventResultEntityList.forEach(o -> {
-            int element = o.getPlayedCaptain();
-            int count = 1;
-            if (countMap.containsKey(element)) {
-                count = countMap.getOrDefault(element, 0) + 1;
-            }
-            countMap.put(element, count);
-        });
-        Map<String, Integer> mostSelectedMap = Maps.newHashMap();
-        countMap.values()
+        Map<Integer, Long> countMap = entryEventResultEntityList.
+                stream()
+                .collect(Collectors.groupingBy(EntryEventResultEntity::getPlayedCaptain, Collectors.counting()));
+        List<Long> mostCountList = countMap.entrySet()
                 .stream()
-                .sorted(Comparator.comparing(Integer::intValue))
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .limit(3)
-                .forEach(count -> mostSelectedMap.put(webNameMap.getOrDefault(countMap.inverse().get(count), ""), count));
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        LinkedHashMap<String, Integer> mostSelectedMap = countMap.entrySet()
+                .stream()
+                .filter(o -> mostCountList.contains(o.getValue()))
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .collect(Collectors.toMap(k -> webNameMap.getOrDefault(k.getKey(), ""), v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
         data.setMostSelected(mostSelectedMap);
-        data.setTotalPointsByPercent(NumberUtil.div(data.getTotalPoints(), entrySeasonData.getOverallPoints(), 2) + "%");
-        entrySeasonData.setCaptainData(data);
+        int overallPoints = entryEventResultEntityList
+                .stream()
+                .max(Comparator.comparing(EntryEventResultEntity::getOverallRank))
+                .map(EntryEventResultEntity::getOverallPoints)
+                .orElse(0);
+        data.setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getTotalPoints(), overallPoints), 2));
+        return data;
     }
 
-    private void setEntrySeasonTransfersData(EntrySeasonData entrySeasonData, List<EntryEventTransfersEntity> entryEventTransfersEntityList, Map<Integer, String> webNameMap) {
-        EntryTransfersData data = new EntryTransfersData();
-
-//        data
-//                .setMostTransfers()
-//                .setMostTransfersCost()
-//                .setMostTransfersEvent()
-//                .setBestTransfer()
-//                .setWorstTransfer();
-
+    //    @Cacheable(
+//            value = "api::qryEntrySeasonTransfers",
+//            key = "#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.entry eq 0"
+//    )
+    @Override
+    public EntrySeasonTransfersData qryEntrySeasonTransfers(int entry) {
+        EntrySeasonTransfersData data = new EntrySeasonTransfersData();
+        // prepare
+        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        if (entryInfoEntity == null) {
+            return data;
+        }
+        Map<String, String> shortNameMap = this.getTeamShortNameMap();
+        if (CollectionUtils.isEmpty(shortNameMap)) {
+            return data;
+        }
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        if (CollectionUtils.isEmpty(playerMap)) {
+            return data;
+        }
+        List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEntry, entry));
+        if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
+            return data;
+        }
+        List<EntryEventTransfersEntity> entryEventTransfersEntityList = this.entryEventTransfersService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+                .eq(EntryEventTransfersEntity::getEntry, entry));
+        if (CollectionUtils.isEmpty(entryEventTransfersEntityList)) {
+            return data;
+        }
+        data
+                .setEntry(entry)
+                .setEntryName(entryInfoEntity.getEntryName())
+                .setPlayerName(entryInfoEntity.getPlayerName());
+        // chip event list
+        List<Integer> chipEventList = entryEventResultEntityList
+                .stream()
+                .filter(o -> StringUtils.equalsIgnoreCase(Chip.WC.getValue(), o.getEventChip()) || StringUtils.equalsIgnoreCase(Chip.FH.getValue(), o.getEventChip()))
+                .map(EntryEventResultEntity::getEvent)
+                .collect(Collectors.toList());
+        // most transfers event
+        Map<Integer, Long> mostTransfersCountMap = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .collect(Collectors.groupingBy(EntryEventTransfersEntity::getEvent, Collectors.counting()));
+        int mostTransfersEvent = mostTransfersCountMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .limit(1)
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(0);
+        int mostTransfersCost = entryEventResultEntityList
+                .stream()
+                .filter(o -> o.getEvent() == mostTransfersEvent)
+                .map(EntryEventResultEntity::getEventTransfersCost)
+                .findFirst()
+                .orElse(0);
+        List<EntryEventTransfersData> mostTransfersList = entryEventTransfersEntityList
+                .stream()
+                .filter(o -> o.getEvent() == mostTransfersEvent)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data
+                .setMostTransfersCost(mostTransfersCost)
+                .setMostTransfers(mostTransfersList);
+        // most transfers in
+        Map<Integer, Long> mostTransfersInCountMap = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .collect(Collectors.groupingBy(EntryEventTransfersEntity::getElementIn, Collectors.counting()));
+        int mostTransferInElement = mostTransfersInCountMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .limit(1)
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(0);
+        List<EntryEventTransfersData> mostTransfersInList = entryEventTransfersEntityList
+                .stream()
+                .filter(o -> o.getElementIn() == mostTransferInElement)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data.setMostTransfersIn(mostTransfersInList);
+        // most transfers out
+        Map<Integer, Long> mostTransfersOutCountMap = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .collect(Collectors.groupingBy(EntryEventTransfersEntity::getElementOut, Collectors.counting()));
+        int mostTransferOutElement = mostTransfersOutCountMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .limit(1)
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(0);
+        List<EntryEventTransfersData> mostTransfersOutList = entryEventTransfersEntityList
+                .stream()
+                .filter(o -> o.getElementOut() == mostTransferOutElement)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data.setMostTransfersOut(mostTransfersOutList);
+        // most transfers in points
+        int mostTransfersInPoints = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .map(EntryEventTransfersEntity::getElementInPoints)
+                .max(Comparator.comparing(Integer::intValue))
+                .orElse(0);
+        List<EntryEventTransfersData> mostTransfersInPointsList = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .filter(o -> o.getElementInPoints() == mostTransfersInPoints)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data.setMostTransferInPointsList(mostTransfersInPointsList);
+        // negative transfers in points
+        List<EntryEventTransfersData> negativeTransfersInPointsList = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .filter(o -> o.getElementInPoints() < 0)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data.setNegativeTransferInPointsList(negativeTransfersInPointsList);
+        // most transfers out points
+        int mostTransfersOutPoints = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .map(EntryEventTransfersEntity::getElementOutPoints)
+                .max(Comparator.comparing(Integer::intValue))
+                .orElse(0);
+        List<EntryEventTransfersData> mostTransfersOutPointsList = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .filter(o -> o.getElementOutPoints() == mostTransfersOutPoints)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data.setMostTransferOutPointsList(mostTransfersOutPointsList);
+        // best transfers
+        int bestProfit = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
+                .max()
+                .orElse(0);
+        List<EntryEventTransfersData> bestTransfersInList = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .filter(EntryEventTransfersEntity::getElementInPlayed)
+                .filter(o -> (o.getElementInPoints() - o.getElementOutPoints()) == bestProfit)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data.setBestTransferInList(bestTransfersInList);
+        // worst transfers
+        int worstProfit = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
+                .min()
+                .orElse(0);
+        List<EntryEventTransfersData> worstTransfersInList = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .filter(o -> (o.getElementInPoints() - o.getElementOutPoints()) == worstProfit)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data.setWorstTransferInList(worstTransfersInList);
+        return data;
 
     }
 
-    private void setEntrySeasonScoreData(EntrySeasonData entrySeasonData) {
-        EntryScoreData data = new EntryScoreData();
+    private EntryEventTransfersData initEntryEventTransfersData(EntryEventTransfersEntity entryEventTransfersEntity, Map<String, String> shortNameMap, Map<Integer, PlayerEntity> playerMap) {
+        PlayerEntity elementInEntity = playerMap.get(entryEventTransfersEntity.getElementIn());
+        PlayerEntity elementOutEntity = playerMap.get(entryEventTransfersEntity.getElementOut());
+        return BeanUtil.copyProperties(entryEventTransfersEntity, EntryEventTransfersData.class)
+                .setElementInName(elementInEntity.getWebName())
+                .setElementInTeamId(elementInEntity.getTeamId())
+                .setElementInTeamShortName(shortNameMap.getOrDefault(String.valueOf(elementInEntity.getTeamId()), ""))
+                .setElementInCost(entryEventTransfersEntity.getElementInCost() / 10.0)
+                .setElementOutName(elementOutEntity.getWebName())
+                .setElementOutTeamId(elementOutEntity.getTeamId())
+                .setElementOutTeamShortName(shortNameMap.getOrDefault(String.valueOf(elementOutEntity.getTeamId()), ""))
+                .setElementOutCost(entryEventTransfersEntity.getElementOutCost() / 10.0);
+    }
 
-//        data
-//                .setGkpTotalPoints()
-//                .setGkpTotalPointsByPercent()
-//                .setDefTotalPoints()
-//                .setDefTotalPointsByPercent()
-//                .setMidTotalPoints()
-//                .setMidTotalPointsByPercent()
-//                .setFwdTotalPoints()
-//                .setFwdTotalPointsByPercent()
-//                .setMostSelectedGkp()
-//                .setMostSelectedGkpName()
-//                .setMostSelectedDef()
-//                .setMostSelectedDefName()
-//                .setMostSelectedMid()
-//                .setMostSelectedMidName()
-//                .setMostSelectedFwd()
-//                .setMostSelectedFwdName()
-//                .setMostSelectedFormation();
+    @Cacheable(
+            value = "api::qryEntrySeasonScore",
+            key = "#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.entry eq 0"
+    )
+    @Override
+    public EntrySeasonScoreData qryEntrySeasonScore(int entry) {
+        EntrySeasonScoreData data = new EntrySeasonScoreData();
+        // prepare
+        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        if (entryInfoEntity == null) {
+            return data;
+        }
+        Map<String, String> shortNameMap = this.getTeamShortNameMap();
+        if (CollectionUtils.isEmpty(shortNameMap)) {
+            return data;
+        }
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        if (CollectionUtils.isEmpty(playerMap)) {
+            return data;
+        }
+        List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEntry, entry));
+        if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
+            return data;
+        }
+        // collect event score
+        Table<Integer, Integer, List<EntryPickData>> pickTable = HashBasedTable.create(); // elementType -> event -> dataList
+        entryEventResultEntityList.forEach(o -> {
+            List<EntryPickData> pickList = JsonUtils.json2Collection(o.getEventPicks(), List.class, EntryPickData.class);
+            if (CollectionUtils.isEmpty(pickList)) {
+                return;
+            }
+            int event = o.getEvent();
+            pickList.forEach(pick -> {
+                if (!StringUtils.equalsIgnoreCase(Chip.BB.getValue(), o.getEventChip()) && pick.getPosition() > 11) {
+                    return;
+                }
+                PlayerEntity playerEntity = playerMap.get(pick.getElement());
+                if (playerEntity == null) {
+                    return;
+                }
+                int elementType = playerEntity.getElementType();
+                List<EntryPickData> list = Lists.newArrayList();
+                if (pickTable.contains(elementType, event)) {
+                    list = pickTable.get(elementType, event);
+                }
+                if (CollectionUtils.isEmpty(list)) {
+                    list = Lists.newArrayList();
+                }
+                pick
+                        .setEvent(event)
+                        .setElementType(elementType)
+                        .setElementTypeName(Position.getNameFromElementType(elementType))
+                        .setWebName(playerEntity.getWebName())
+                        .setTeamId(playerEntity.getTeamId())
+                        .setTeamShortName(shortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""));
+                list.add(pick);
+                pickTable.put(elementType, event, list);
+            });
+        });
+        data
+                .setEntry(entry)
+                .setEntryName(entryInfoEntity.getEntryName())
+                .setPlayerName(entryInfoEntity.getPlayerName())
+                .setOverallPoints(entryInfoEntity.getOverallPoints());
+        // gkp
+        List<EntryPickData> gkpPickList = Lists.newArrayList();
+        pickTable.row(1).values().forEach(gkpPickList::addAll);
+        data
+                .setGkpTotalPoints(
+                        gkpPickList
+                                .stream()
+                                .mapToInt(EntryPickData::getPoints)
+                                .sum()
+                )
+                .setGkpTotalNum(
+                        (int) gkpPickList
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                );
+        data.setGkpTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpTotalPoints(), data.getOverallPoints()), 2));
+        Map<String, Long> mostSelectedGkpCountMap = gkpPickList.
+                stream()
+                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+        data.setMostSelectedGkp(
+                mostSelectedGkpCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(2)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        // def
+        List<EntryPickData> defPickList = Lists.newArrayList();
+        pickTable.row(2).values().forEach(defPickList::addAll);
+        data
+                .setDefTotalPoints(
+                        defPickList
+                                .stream()
+                                .mapToInt(EntryPickData::getPoints)
+                                .sum()
+                )
+                .setDefTotalNum(
+                        (int) defPickList
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                );
+        data.setDefTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefTotalPoints(), data.getOverallPoints()), 2));
+        Map<String, Long> mostSelectedDefCountMap = defPickList.
+                stream()
+                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+        data.setMostSelectedDef(
+                mostSelectedDefCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(5)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        // mid
+        List<EntryPickData> midPickList = Lists.newArrayList();
+        pickTable.row(3).values().forEach(midPickList::addAll);
+        data
+                .setMidTotalPoints(
+                        midPickList
+                                .stream()
+                                .mapToInt(EntryPickData::getPoints)
+                                .sum()
+                )
+                .setMidTotalNum(
+                        (int) midPickList
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                );
+        data.setMidTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getMidTotalPoints(), data.getOverallPoints()), 2));
+        Map<String, Long> mostSelectedMidCountMap = midPickList.
+                stream()
+                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+        data.setMostSelectedMid(
+                mostSelectedMidCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(5)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        // fwd
+        List<EntryPickData> fwdPickList = Lists.newArrayList();
+        pickTable.row(4).values().forEach(fwdPickList::addAll);
+        data
+                .setFwdTotalPoints(
+                        fwdPickList
+                                .stream()
+                                .mapToInt(EntryPickData::getPoints)
+                                .sum()
+                )
+                .setFwdTotalNum(
+                        (int) fwdPickList
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                );
+        data.setFwdTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getFwdTotalPoints(), data.getOverallPoints()), 2));
+        Map<String, Long> mostSelectedFwdCountMap = fwdPickList.
+                stream()
+                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+        data.setMostSelectedFwd(
+                mostSelectedFwdCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(3)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        // formation
+        List<String> formationList = pickTable.columnMap().values()
+                .stream()
+                .map(o -> StringUtils.joinWith("-", o.get(2).size(), o.get(3).size(), o.get(4).size()))
+                .collect(Collectors.toList());
+        Map<String, Long> mostSelectedFormationCountMap = formationList.
+                stream()
+                .collect(Collectors.groupingBy(String::toString, Collectors.counting()));
+        data.setMostSelectedFormation(
+                mostSelectedFormationCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(3)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        return data;
     }
 
     @Override

@@ -26,14 +26,14 @@ public class EntryEventResultEntity {
     private Integer eventAutoSubPoints;
     private Integer eventRank;
     private String eventChip;
+    private Integer playedCaptain;
+    private Integer captainPoints;
     private String eventPicks;
     private String eventAutoSubs;
     private Integer overallPoints;
     private Integer overallRank;
     private Integer teamValue;
     private Integer bank;
-    private Integer playedCaptain;
-    private Integer captainPoints;
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private String updateTime;
 

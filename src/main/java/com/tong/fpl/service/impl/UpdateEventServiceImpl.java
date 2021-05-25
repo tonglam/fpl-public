@@ -491,7 +491,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
     }
 
     @Override
-    public void updateEntryEventTransfersPlayed(int event, int entry) {
+    public void updateEntryEventTransfers(int event, int entry) {
         if (entry <= 0) {
             return;
         }
@@ -514,11 +514,20 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
         if (CollectionUtils.isEmpty(entryEventTransferEntityList)) {
             return;
         }
+        Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+        if (CollectionUtils.isEmpty(pointsMap)) {
+            return;
+        }
         List<EntryEventTransfersEntity> list = Lists.newArrayList();
         entryEventTransferEntityList.forEach(o -> {
-            o.setElementInPlayed(StringUtils.equals(Chip.BB.getValue(), entryEventResultEntity.getEventChip()) ?
-                    pickElementList.contains(o.getElementIn()) : pickElementList.subList(0, 11).contains(o.getElementIn())
-            );
+            o
+                    .setElementInPoints(pointsMap.getOrDefault(o.getElementIn(), 0))
+                    .setElementInPlayed(StringUtils.equals(Chip.BB.getValue(), entryEventResultEntity.getEventChip()) ?
+                            pickElementList.contains(o.getElementIn()) : pickElementList.subList(0, 11).contains(o.getElementIn()))
+                    .setElementOutPoints(pointsMap.getOrDefault(o.getElementOut(), 0));
             list.add(o);
         });
         this.entryEventTransferService.updateBatchById(list);
@@ -533,9 +542,11 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
                                 .setEvent(o.getEvent())
                                 .setElementIn(o.getElementIn())
                                 .setElementInPlayed(false)
+                                .setElementInPoints(0)
                                 .setElementInCost(o.getElementInCost())
                                 .setElementOut(o.getElementOut())
                                 .setElementOutCost(o.getElementOutCost())
+                                .setElementOutPoints(0)
                                 .setTime(o.getTime())
                 ));
         return list;
@@ -578,7 +589,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
     }
 
     @Override
-    public void updateTournamentEventTransfersPlayed(int event, int tournamentId) {
+    public void updateTournamentEventTransfers(int event, int tournamentId) {
         // get entry_list
         List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
         if (CollectionUtils.isEmpty(entryList)) {
@@ -591,6 +602,13 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         if (CollectionUtils.isEmpty(entryEventResultMap)) {
+            return;
+        }
+        Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+        if (CollectionUtils.isEmpty(pointsMap)) {
             return;
         }
         Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap = HashMultimap.create();
@@ -619,9 +637,11 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
                 return;
             }
             entryEventTransferMap.get(entry).forEach(o -> {
-                o.setElementInPlayed(StringUtils.equals(Chip.BB.getValue(), entryEventResultEntity.getEventChip()) ?
-                        pickElementList.contains(o.getElementIn()) : pickElementList.subList(0, 11).contains(o.getElementIn())
-                );
+                o
+                        .setElementInPoints(pointsMap.getOrDefault(o.getElementIn(), 0))
+                        .setElementInPlayed(StringUtils.equals(Chip.BB.getValue(), entryEventResultEntity.getEventChip()) ?
+                                pickElementList.contains(o.getElementIn()) : pickElementList.subList(0, 11).contains(o.getElementIn()))
+                        .setElementOutPoints(pointsMap.getOrDefault(o.getElementOut(), 0));
                 list.add(o);
             });
         });
@@ -1690,7 +1710,7 @@ public class UpdateEventServiceImpl implements IUpdateEventService {
                 .map(TournamentInfoEntity::getId)
                 .forEach(tournamentId -> {
                     this.upsertTournamentEntryEventResult(event, tournamentId);
-                    this.updateTournamentEventTransfersPlayed(event, tournamentId);
+                    this.updateTournamentEventTransfers(event, tournamentId);
                 });
         tournamentInfoEntityList
                 .stream()

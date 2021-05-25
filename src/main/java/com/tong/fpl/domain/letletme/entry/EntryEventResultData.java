@@ -22,15 +22,15 @@ public class EntryEventResultData {
     private int transfers;
     private int rank;
     private String chip;
+    private Integer playedCaptain;
+    private String captainName;
+    private Integer captainPoints;
     private double value;
     private double bank;
     private double teamValue;
     private int overallPoints;
     private int overallRank;
     private List<EntryPickData> picks;
-    private Integer playedCaptain;
-    private String captainName;
-    private Integer captainPoints;
     private List<ElementEventResultData> pickList;
 
 }

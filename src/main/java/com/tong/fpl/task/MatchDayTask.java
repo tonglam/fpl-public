@@ -87,7 +87,7 @@ public class MatchDayTask {
                 .map(TournamentInfoEntity::getId)
                 .forEach(tournamentId -> {
                     this.updateSingleTournamentResult(event, tournamentId);
-                    this.updateEventResultsService.updateEntryEventTransfersPlayed(event, tournamentId);
+                    this.updateEventResultsService.updateEntryEventTransfers(event, tournamentId);
                 });
     }
 
@@ -200,7 +200,7 @@ public class MatchDayTask {
         this.queryService.qryAllTournamentList()
                 .stream()
                 .map(TournamentInfoEntity::getId)
-                .forEach(tournamentId -> this.updateEventResultsService.updateTournamentEventTransfersPlayed(event, tournamentId));
+                .forEach(tournamentId -> this.updateEventResultsService.updateTournamentEventTransfers(event, tournamentId));
     }
 
 }

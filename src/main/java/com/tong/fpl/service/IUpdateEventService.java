@@ -24,11 +24,11 @@ public interface IUpdateEventService {
 
     void insertEntryEventTransfers(int entry);
 
-    void updateEntryEventTransfersPlayed(int event, int entry);
+    void updateEntryEventTransfers(int event, int entry);
 
     void insertTournamentEntryEventTransfers(int tournamentId);
 
-    void updateTournamentEventTransfersPlayed(int event, int tournamentId);
+    void updateTournamentEventTransfers(int event, int tournamentId);
 
     void updatePointsRaceGroupResult(int event, int tournamentId);
 

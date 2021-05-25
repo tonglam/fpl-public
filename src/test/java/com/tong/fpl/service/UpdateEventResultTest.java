@@ -72,10 +72,15 @@ public class UpdateEventResultTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"38"})
-    void updateTournamentEventTransferPlayed(int event, int tournamentId) {
-        this.updateEventResultsService.updateTournamentEventTransfersPlayed(event, tournamentId);
-        System.out.println("event: " + event + ", update finished!");
+    @CsvSource({"2, 1"})
+    void updateTournamentEventTransfer(int even1t, int tournament1Id) {
+        IntStream.rangeClosed(2, 38).forEach(event -> {
+            IntStream.rangeClosed(1, 14).forEach(tournamentId -> {
+                this.updateEventResultsService.updateTournamentEventTransfers(event, tournamentId);
+                System.out.println("event: " + event + ", update finished!");
+            });
+        });
+
     }
 
     @ParameterizedTest

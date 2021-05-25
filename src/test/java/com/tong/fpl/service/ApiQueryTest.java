@@ -13,7 +13,7 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
-import com.tong.fpl.domain.letletme.summary.EntrySeasonData;
+import com.tong.fpl.domain.letletme.summary.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
@@ -292,8 +292,36 @@ public class ApiQueryTest extends FplApplicationTests {
      */
     @ParameterizedTest
     @CsvSource({"1870"})
-    void qryEntrySeasonSummary(int entry) {
-        EntrySeasonData data = this.apiQueryService.qryEntrySeasonSummary(entry);
+    void qryEntrySeasonInfo(int entry) {
+        EntrySeasonInfoData data = this.apiQueryService.qryEntrySeasonInfo(entry);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1870"})
+    void qrySeasonEntrySummary(int entry) {
+        EntrySeasonSummaryData data = this.apiQueryService.qrySeasonEntrySummary(entry);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1870"})
+    void qryEntrySeasonCaptain(int entry) {
+        EntrySeasonCaptainData data = this.apiQueryService.qryEntrySeasonCaptain(entry);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1870"})
+    void qryEntrySeasonTransfers(int entry) {
+        EntrySeasonTransfersData data = this.apiQueryService.qryEntrySeasonTransfers(entry);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1870"})
+    void qryEntrySeasonScore(int entry) {
+        EntrySeasonScoreData data = this.apiQueryService.qryEntrySeasonScore(entry);
         System.out.println(1);
     }
 

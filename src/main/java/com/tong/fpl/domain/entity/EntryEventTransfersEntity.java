@@ -24,8 +24,10 @@ public class EntryEventTransfersEntity {
     private Integer elementIn;
     private Integer elementInCost;
     private Boolean elementInPlayed;
+    private Integer elementInPoints;
     private Integer elementOut;
     private Integer elementOutCost;
+    private Integer elementOutPoints;
     private String time;
 
 }
