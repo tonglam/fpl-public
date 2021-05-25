@@ -1,6 +1,7 @@
 package com.tong.fpl.domain.letletme.summary;
 
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -28,8 +29,10 @@ public class EntrySeasonSummaryData {
     private Map<Integer, Integer> belowAverageEvents; // 低于平均分
     private int highestBenchPoints; // 最高板凳得分
     private int highestBenchPointsEvent; // 最高板凳得分周
+    private List<EntryPickData> highestBench; // 最高板凳
     private int highestAutoSubsPoints; // 最高自动替补得分
+    private int highestAutoSubsPointsEvent; // 最高自动替补得周
     private List<EntryEventAutoSubsData> highestAutoSubs; // 最高自动替补
-    private List<EntrySeasonChipData> chipList; // 开卡结果
+    private List<EntrySeasonChipData> chips; // 开卡结果
 
 }

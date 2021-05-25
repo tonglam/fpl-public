@@ -1911,11 +1911,21 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         entryEventResultEntityList
                 .stream()
                 .max(Comparator.comparing(EntryEventResultEntity::getEventBenchPoints))
-                .ifPresent(o ->
-                        data
-                                .setHighestBenchPoints(o.getEventBenchPoints())
-                                .setHighestBenchPointsEvent(o.getEvent())
-                );
+                .ifPresent(o -> {
+                    List<EntryPickData> pickList = JsonUtils.json2Collection(o.getEventPicks(), List.class, EntryPickData.class);
+                    if (CollectionUtils.isEmpty(pickList)) {
+                        return;
+                    }
+                    data
+                            .setHighestBench(
+                                    pickList
+                                            .stream()
+                                            .filter(i -> i.getPosition() > 11)
+                                            .collect(Collectors.toList())
+                            )
+                            .setHighestBenchPoints(o.getEventBenchPoints())
+                            .setHighestBenchPointsEvent(o.getEvent());
+                });
         // autoSub
         entryEventResultEntityList
                 .stream()
@@ -1931,7 +1941,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                             .setElementInWebName(webNameMap.getOrDefault(i.getElementIn(), ""))
                                             .setElementOutWebName(webNameMap.getOrDefault(i.getElementOut(), ""))
                             );
-                            data
+                    data
+                            .setHighestAutoSubsPointsEvent(o.getEvent())
                                     .setHighestAutoSubs(list);
                         }
                 );
@@ -1946,7 +1957,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .sum()
         );
         // chips
-        data.setChipList(
+        data.setChips(
                 entryEventResultEntityList
                         .stream()
                         .filter(o ->
