@@ -2064,7 +2064,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         data.setMostSelected(mostSelectedMap);
         int overallPoints = entryEventResultEntityList
                 .stream()
-                .max(Comparator.comparing(EntryEventResultEntity::getOverallRank))
+                .max(Comparator.comparing(EntryEventResultEntity::getOverallPoints))
                 .map(EntryEventResultEntity::getOverallPoints)
                 .orElse(0);
         data.setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getTotalPoints(), overallPoints), 2));
