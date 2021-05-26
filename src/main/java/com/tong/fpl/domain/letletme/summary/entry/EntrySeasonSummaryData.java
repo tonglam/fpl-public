@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.letletme.summary;
+package com.tong.fpl.domain.letletme.summary.entry;
 
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;

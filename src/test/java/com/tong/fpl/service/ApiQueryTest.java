@@ -13,7 +13,7 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
-import com.tong.fpl.domain.letletme.summary.*;
+import com.tong.fpl.domain.letletme.summary.entry.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;

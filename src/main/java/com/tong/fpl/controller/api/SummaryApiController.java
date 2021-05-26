@@ -1,7 +1,7 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiSummary;
-import com.tong.fpl.domain.letletme.summary.*;
+import com.tong.fpl.domain.letletme.summary.entry.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

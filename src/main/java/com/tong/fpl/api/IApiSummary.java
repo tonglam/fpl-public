@@ -1,6 +1,6 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.summary.*;
+import com.tong.fpl.domain.letletme.summary.entry.*;
 
 /**
  * Create by tong on 2021/5/25
