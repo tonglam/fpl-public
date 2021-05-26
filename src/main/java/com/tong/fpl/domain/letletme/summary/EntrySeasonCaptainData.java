@@ -18,6 +18,7 @@ public class EntrySeasonCaptainData {
     private int totalPoints; // 队长总得分
     private String totalPointsByPercent; // 队长总得分占比
     private int viceTotalPoints; // 自动替补队长总得分
+    private String viceTotalPointsByPercent; // 自动替补队长总得分占比
     private int maxPoints; // 队长得分最高
     private String maxPointsWebName; // 队长得分最高球员
     private int maxPointsEvent; // 队长得分最高周

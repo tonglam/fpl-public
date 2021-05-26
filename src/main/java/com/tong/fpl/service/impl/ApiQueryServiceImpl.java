@@ -2067,24 +2067,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setEntryName(entryInfoEntity.getEntryName())
                 .setPlayerName(entryInfoEntity.getPlayerName());
         // collect
-        List<Integer> captainList = Lists.newArrayList();
+        Map<Integer, Integer> viceCaptainMap = Maps.newHashMap(); // event -> vice
         entryEventResultEntityList.forEach(o -> {
-            List<Pick> pickList = JsonUtils.json2Collection(o.getEventPicks(), List.class, Pick.class);
-            if (!CollectionUtils.isEmpty(pickList)) {
-                captainList.addAll(
-                        pickList
-                                .stream()
-                                .filter(Pick::isCaptain)
-                                .map(Pick::getElement)
-                                .collect(Collectors.toList())
-                );
+            List<EntryPickData> pickList = JsonUtils.json2Collection(o.getEventPicks(), List.class, EntryPickData.class);
+            if (CollectionUtils.isEmpty(pickList)) {
+                return;
             }
-        });
-        List<Integer> viceCaptainList = Lists.newArrayList();
-        entryEventResultEntityList.forEach(o -> {
-            if (!captainList.contains(o.getPlayedCaptain())) {
-                viceCaptainList.add(o.getPlayedCaptain());
-            }
+            pickList
+                    .stream()
+                    .filter(EntryPickData::isViceCaptain)
+                    .map(EntryPickData::getElement)
+                    .forEach(i -> viceCaptainMap.put(o.getEvent(), i));
         });
         data
                 .setTotalPoints(
@@ -2096,13 +2089,18 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                     }
                                     return 2 * o.getCaptainPoints();
                                 })
-                                .reduce(0, Integer::sum)
+                                .sum()
                 )
                 .setViceTotalPoints(
                         entryEventResultEntityList
                                 .stream()
-                                .filter(o -> viceCaptainList.contains(o.getPlayedCaptain()))
-                                .mapToInt(EntryEventResultEntity::getCaptainPoints)
+                                .filter(o -> o.getPlayedCaptain().equals(viceCaptainMap.getOrDefault(o.getEvent(), 0)))
+                                .mapToInt(o -> {
+                                    if (StringUtils.equals(Chip.TC.getValue(), o.getEventChip())) {
+                                        return 3 * o.getCaptainPoints();
+                                    }
+                                    return 2 * o.getCaptainPoints();
+                                })
                                 .sum()
                 );
         // max
@@ -2171,7 +2169,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .max(Comparator.comparing(EntryEventResultEntity::getOverallPoints))
                 .map(EntryEventResultEntity::getOverallPoints)
                 .orElse(0);
-        data.setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getTotalPoints(), overallPoints), 2));
+        data
+                .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getTotalPoints(), overallPoints), 2))
+                .setViceTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getViceTotalPoints(), overallPoints), 2));
         return data;
     }
 
