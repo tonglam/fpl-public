@@ -2267,6 +2267,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
                 .collect(Collectors.toList());
         data
+                .setMostTransfersEvent(mostTransfersList.get(0).getEvent())
                 .setMostTransfersCost(mostTransfersCost)
                 .setMostTransfersProfit(
                         mostTransfersList
@@ -2329,6 +2330,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
                 .collect(Collectors.toList());
         data
+                .setMostTransferInPointsEvent(mostTransfersInPointsList.get(0).getEvent())
                 .setMostTransferInPointsWebName(mostTransfersInPointsList.get(0).getElementInWebName())
                 .setMostTransferInPoints(mostTransfersInPointsList);
         // most transfers out points
@@ -2345,6 +2347,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
                 .collect(Collectors.toList());
         data
+                .setMostTransferOutPointsEvent(mostTransfersOutPointsList.get(0).getEvent())
                 .setMostTransferOutPointsWebName(mostTransfersOutPointsList.get(0).getElementOutWebName())
                 .setMostTransferOutPoints(mostTransfersOutPointsList);
         // negative transfers in points
@@ -2369,7 +2372,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .filter(o -> (o.getElementInPoints() - o.getElementOutPoints()) == bestProfit)
                 .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
                 .collect(Collectors.toList());
-        data.setBestTransferIn(bestTransfersInList);
+        data
+                .setBestTransfersEvent(bestTransfersInList.get(0).getEvent())
+                .setBestTransfersProfit(
+                        bestTransfersInList
+                                .stream()
+                                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
+                                .sum()
+                )
+                .setBestTransfers(bestTransfersInList);
         // worst transfers
         int worstProfit = entryEventTransfersEntityList.
                 stream()
@@ -2383,7 +2394,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .filter(o -> (o.getElementInPoints() - o.getElementOutPoints()) == worstProfit)
                 .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
                 .collect(Collectors.toList());
-        data.setWorstTransferIn(worstTransfersInList);
+        data
+                .setWorstTransfersEvent(worstTransfersInList.get(0).getEvent())
+                .setWorstTransfersProfit(
+                        worstTransfersInList
+                                .stream()
+                                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
+                                .sum()
+                )
+                .setWorstTransfers(worstTransfersInList);
         return data;
 
     }
