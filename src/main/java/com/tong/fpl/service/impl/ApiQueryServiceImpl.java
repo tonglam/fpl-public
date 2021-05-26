@@ -2324,40 +2324,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         data
                 .setMostTransfersOutWebName(mostTransfersOutList.get(0).getElementOutWebName())
                 .setMostTransfersOut(mostTransfersOutList);
-        // most transfers in points
-        int mostTransfersInPoints = entryEventTransfersEntityList.
-                stream()
-                .filter(o -> !chipEventList.contains(o.getEvent()))
-                .map(EntryEventTransfersEntity::getElementInPoints)
-                .max(Comparator.comparing(Integer::intValue))
-                .orElse(0);
-        List<EntryEventTransfersData> mostTransfersInPointsList = entryEventTransfersEntityList.
-                stream()
-                .filter(o -> !chipEventList.contains(o.getEvent()))
-                .filter(o -> o.getElementInPoints() == mostTransfersInPoints)
-                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
-                .collect(Collectors.toList());
-        data
-                .setMostTransferInPointsEvent(mostTransfersInPointsList.get(0).getEvent())
-                .setMostTransferInPointsWebName(mostTransfersInPointsList.get(0).getElementInWebName())
-                .setMostTransferInPoints(mostTransfersInPointsList);
-        // most transfers out points
-        int mostTransfersOutPoints = entryEventTransfersEntityList.
-                stream()
-                .filter(o -> !chipEventList.contains(o.getEvent()))
-                .map(EntryEventTransfersEntity::getElementOutPoints)
-                .max(Comparator.comparing(Integer::intValue))
-                .orElse(0);
-        List<EntryEventTransfersData> mostTransfersOutPointsList = entryEventTransfersEntityList.
-                stream()
-                .filter(o -> !chipEventList.contains(o.getEvent()))
-                .filter(o -> o.getElementOutPoints() == mostTransfersOutPoints)
-                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
-                .collect(Collectors.toList());
-        data
-                .setMostTransferOutPointsEvent(mostTransfersOutPointsList.get(0).getEvent())
-                .setMostTransferOutPointsWebName(mostTransfersOutPointsList.get(0).getElementOutWebName())
-                .setMostTransferOutPoints(mostTransfersOutPointsList);
         // negative transfers in points
         List<EntryEventTransfersData> negativeTransfersInPointsList = entryEventTransfersEntityList.
                 stream()
