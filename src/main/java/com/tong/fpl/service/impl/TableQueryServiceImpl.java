@@ -2131,7 +2131,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
             if (playerMap.containsKey(elementIn)) {
                 PlayerEntity elementInEntity = playerMap.get(elementIn);
                 entryEventTransferData
-                        .setElementInName(elementInEntity.getWebName())
+                        .setElementInWebName(elementInEntity.getWebName())
                         .setElementInType(elementInEntity.getElementType())
                         .setElementInTypeName(Position.getNameFromElementType(elementInEntity.getElementType()));
             }
@@ -2139,7 +2139,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
             if (playerMap.containsKey(elementOut)) {
                 PlayerEntity elementOutEntity = playerMap.get(elementOut);
                 entryEventTransferData
-                        .setElementOutName(elementOutEntity.getWebName())
+                        .setElementOutWebName(elementOutEntity.getWebName())
                         .setElementOutType(elementOutEntity.getElementType())
                         .setElementOutTypeName(Position.getNameFromElementType(elementOutEntity.getElementType()));
             }
