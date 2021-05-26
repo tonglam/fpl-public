@@ -13,7 +13,7 @@ public class EntryEventTransfersData {
     private int event;
     private int entry;
     private int elementIn;
-    private String elementInName;
+    private String elementInWebName;
     private int elementInType;
     private String elementInTypeName;
     private int elementInTeamId;
@@ -23,7 +23,7 @@ public class EntryEventTransfersData {
     private int elementInPoints;
     private boolean elementInPlayed;
     private int elementOut;
-    private String elementOutName;
+    private String elementOutWebName;
     private int elementOutTeamId;
     private String elementOutTeamName;
     private String elementOutTeamShortName;
