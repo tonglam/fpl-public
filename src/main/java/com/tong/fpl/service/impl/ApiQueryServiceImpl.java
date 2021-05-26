@@ -1901,11 +1901,18 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // average
         Map<String, Integer> averageMap = this.qryEventAverageScore();
         data
-                .setBelowAverageEvents(
+                .setBelowAverages(
                         entryEventResultEntityList
                                 .stream()
                                 .filter(o -> o.getEventPoints() < averageMap.getOrDefault(String.valueOf(o.getEvent()), 0))
-                                .collect(Collectors.toMap(EntryEventResultEntity::getEvent, EntryEventResultEntity::getEventPoints))
+                                .sorted()
+                                .map(o ->
+                                        new EntryBelowAverageData()
+                                                .setEvent(o.getEvent())
+                                                .setPoints(o.getEventPoints())
+                                                .setAveragePoints(averageMap.getOrDefault(String.valueOf(o.getEvent()), 0))
+                                )
+                                .collect(Collectors.toList())
                 );
         // bench
         entryEventResultEntityList

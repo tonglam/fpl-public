@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2021/5/24
@@ -26,7 +25,7 @@ public class EntrySeasonSummaryData {
     private int highestOverallRankEvent; // 最高排名周
     private int lowestOverallRank; // 最低排名
     private int lowestOverallRankEvent; // 最低排名周
-    private Map<Integer, Integer> belowAverageEvents; // 低于平均分
+    private List<EntryBelowAverageData> belowAverages; // 低于平均分
     private int highestBenchPoints; // 最高板凳得分
     private int highestBenchPointsEvent; // 最高板凳得分周
     private List<EntryPickData> highestBench; // 最高板凳
