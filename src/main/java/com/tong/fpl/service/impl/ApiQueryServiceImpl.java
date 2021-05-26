@@ -399,7 +399,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             PlayerEntity playerInEntity = playerMap.get(elementIn);
             if (playerInEntity != null) {
                 data
-                        .setElementInName(playerInEntity.getWebName())
+                        .setElementInWebName(playerInEntity.getWebName())
                         .setElementInType(playerInEntity.getElementType())
                         .setElementInTypeName(Position.getNameFromElementType(playerInEntity.getElementType()))
                         .setElementInTeamId(playerInEntity.getTeamId())
@@ -410,7 +410,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             PlayerEntity playerOutEntity = playerMap.get(o.getElementOut());
             if (playerInEntity != null) {
                 data
-                        .setElementOutName(playerOutEntity.getWebName())
+                        .setElementOutWebName(playerOutEntity.getWebName())
                         .setElementOutType(playerOutEntity.getElementType())
                         .setElementOutTypeName(Position.getNameFromElementType(playerOutEntity.getElementType()))
                         .setElementOutTeamId(playerOutEntity.getTeamId())
@@ -2354,11 +2354,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         PlayerEntity elementInEntity = playerMap.get(entryEventTransfersEntity.getElementIn());
         PlayerEntity elementOutEntity = playerMap.get(entryEventTransfersEntity.getElementOut());
         return BeanUtil.copyProperties(entryEventTransfersEntity, EntryEventTransfersData.class)
-                .setElementInName(elementInEntity.getWebName())
+                .setElementInWebName(elementInEntity.getWebName())
                 .setElementInTeamId(elementInEntity.getTeamId())
                 .setElementInTeamShortName(shortNameMap.getOrDefault(String.valueOf(elementInEntity.getTeamId()), ""))
                 .setElementInCost(entryEventTransfersEntity.getElementInCost() / 10.0)
-                .setElementOutName(elementOutEntity.getWebName())
+                .setElementOutWebName(elementOutEntity.getWebName())
                 .setElementOutTeamId(elementOutEntity.getTeamId())
                 .setElementOutTeamShortName(shortNameMap.getOrDefault(String.valueOf(elementOutEntity.getTeamId()), ""))
                 .setElementOutCost(entryEventTransfersEntity.getElementOutCost() / 10.0);
