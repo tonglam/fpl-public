@@ -18,6 +18,7 @@ public class EntryTransfersCostData {
     private int points;
     private int cost;
     private int netPoints;
+    private int profit;
     private List<EntryEventTransfersData> transfersList;
 
 }

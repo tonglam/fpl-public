@@ -2225,21 +2225,29 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 entryEventResultEntityList
                         .stream()
                         .filter(o -> o.getEventTransfersCost() > 0)
-                        .map(o ->
-                                new EntryTransfersCostData()
-                                        .setEvent(o.getEvent())
-                                        .setTransfers(o.getEventTransfers())
-                                        .setPoints(o.getEventPoints())
-                                        .setCost(o.getEventTransfersCost())
-                                        .setNetPoints(o.getEventNetPoints())
-                                        .setTransfersList(
-                                                entryEventTransfersEntityList
-                                                        .stream()
-                                                        .filter(i -> i.getEvent().equals(o.getEvent()))
-                                                        .map(i -> this.initEntryEventTransfersData(i, shortNameMap, playerMap))
-                                                        .collect(Collectors.toList())
-                                        )
-                        )
+                        .map(o -> {
+                            EntryTransfersCostData entryTransfersCostData = new EntryTransfersCostData()
+                                    .setEvent(o.getEvent())
+                                    .setTransfers(o.getEventTransfers())
+                                    .setPoints(o.getEventPoints())
+                                    .setCost(o.getEventTransfersCost())
+                                    .setNetPoints(o.getEventNetPoints())
+                                    .setTransfersList(
+                                            entryEventTransfersEntityList
+                                                    .stream()
+                                                    .filter(i -> i.getEvent().equals(o.getEvent()))
+                                                    .map(i -> this.initEntryEventTransfersData(i, shortNameMap, playerMap))
+                                                    .collect(Collectors.toList())
+                                    );
+                            entryTransfersCostData
+                                    .setProfit(
+                                            entryTransfersCostData.getTransfersList()
+                                                    .stream()
+                                                    .mapToInt(i -> i.getElementInPoints() - i.getElementOutPoints())
+                                                    .sum()
+                                    );
+                            return entryTransfersCostData;
+                        })
                         .collect(Collectors.toList())
         );
 
