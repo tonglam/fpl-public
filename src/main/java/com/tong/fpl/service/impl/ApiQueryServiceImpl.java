@@ -1905,7 +1905,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         entryEventResultEntityList
                                 .stream()
                                 .filter(o -> o.getEventPoints() < averageMap.getOrDefault(String.valueOf(o.getEvent()), 0))
-                                .sorted()
+                                .sorted(Comparator.comparing(EntryEventResultEntity::getEvent))
                                 .map(o ->
                                         new EntryBelowAverageData()
                                                 .setEvent(o.getEvent())
