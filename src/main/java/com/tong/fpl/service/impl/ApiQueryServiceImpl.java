@@ -2272,7 +2272,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         mostTransfersList
                                 .stream()
                                 .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
-                                .sum() - mostTransfersCost
+                                .sum()
                 )
                 .setMostTransfers(mostTransfersList);
         // most transfers in
