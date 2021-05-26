@@ -3,7 +3,7 @@ package com.tong.fpl.domain.letletme.summary;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Create by tong on 2021/5/24
@@ -27,6 +27,6 @@ public class EntrySeasonCaptainData {
     private int tcPoints; // 三倍队长得分
     private String tcPointsWebName; // 三倍队长球员
     private int tcEvent; // 三倍队长周
-    private LinkedHashMap<String, Integer> mostSelected; // 队长选择最多
+    private List<EntrySelectedCaptainData> mostSelected; // 队长选择最多
 
 }

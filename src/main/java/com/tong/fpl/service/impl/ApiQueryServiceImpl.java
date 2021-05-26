@@ -1979,7 +1979,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return data;
     }
 
-    private EntrySeasonChipData setEntryChipResult(EntryEventResultEntity entryEventResultEntity) {
+    private EntryChipData setEntryChipResult(EntryEventResultEntity entryEventResultEntity) {
         int profit = 0;
         // prepare
         int event = entryEventResultEntity.getEvent();
@@ -2026,7 +2026,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 break;
             }
         }
-        return new EntrySeasonChipData()
+        return new EntryChipData()
                 .setEvent(event)
                 .setName(chip.name())
                 .setEventPoints(entryEventResultEntity.getEventPoints())
@@ -2045,6 +2045,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // prepare
         EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
         if (entryInfoEntity == null) {
+            return data;
+        }
+        Map<String, String> shortNameMap = this.getTeamShortNameMap();
+        if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
         Map<Integer, String> webNameMap = this.playerService.list()
@@ -2136,18 +2140,32 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         Map<Integer, Long> countMap = entryEventResultEntityList.
                 stream()
                 .collect(Collectors.groupingBy(EntryEventResultEntity::getPlayedCaptain, Collectors.counting()));
-        List<Long> mostCountList = countMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                .limit(3)
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-        LinkedHashMap<String, Integer> mostSelectedMap = countMap.entrySet()
-                .stream()
-                .filter(o -> mostCountList.contains(o.getValue()))
-                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                .collect(Collectors.toMap(k -> webNameMap.getOrDefault(k.getKey(), ""), v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
-        data.setMostSelected(mostSelectedMap);
+        data.setMostSelected(
+                countMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                        .limit(3)
+                        .map(o ->
+                                new EntrySelectedCaptainData()
+                                        .setElement(o.getKey())
+                                        .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                        .setTimes(o.getValue().intValue())
+                                        .setTotalPoints(
+                                                entryEventResultEntityList
+                                                        .stream()
+                                                        .filter(i -> i.getPlayedCaptain().equals(o.getKey()))
+                                                        .mapToInt(i -> {
+                                                            if (StringUtils.equalsIgnoreCase(Chip.TC.getValue(), i.getEventChip())) {
+                                                                return 3 * i.getCaptainPoints();
+                                                            } else {
+                                                                return 2 * i.getCaptainPoints();
+                                                            }
+                                                        })
+                                                        .sum()
+                                        )
+                        )
+                        .collect(Collectors.toList())
+        );
         int overallPoints = entryEventResultEntityList
                 .stream()
                 .max(Comparator.comparing(EntryEventResultEntity::getOverallPoints))
@@ -2157,12 +2175,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return data;
     }
 
-    //    @Cacheable(
-//            value = "api::qryEntrySeasonTransfers",
-//            key = "#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.entry eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryEntrySeasonTransfers",
+            key = "#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.entry eq 0"
+    )
     @Override
     public EntrySeasonTransfersData qryEntrySeasonTransfers(int entry) {
         EntrySeasonTransfersData data = new EntrySeasonTransfersData();

@@ -32,6 +32,6 @@ public class EntrySeasonSummaryData {
     private int highestAutoSubsPoints; // 最高自动替补得分
     private int highestAutoSubsPointsEvent; // 最高自动替补得周
     private List<EntryEventAutoSubsData> highestAutoSubs; // 最高自动替补
-    private List<EntrySeasonChipData> chips; // 开卡结果
+    private List<EntryChipData> chips; // 开卡结果
 
 }

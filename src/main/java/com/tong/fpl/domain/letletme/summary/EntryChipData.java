@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class EntrySeasonChipData {
+public class EntryChipData {
 
     private int event;
     private String name;
