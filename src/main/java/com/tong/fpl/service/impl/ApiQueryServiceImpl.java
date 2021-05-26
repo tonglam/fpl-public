@@ -2220,70 +2220,35 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .filter(o -> StringUtils.equalsIgnoreCase(Chip.WC.getValue(), o.getEventChip()) || StringUtils.equalsIgnoreCase(Chip.FH.getValue(), o.getEventChip()))
                 .map(EntryEventResultEntity::getEvent)
                 .collect(Collectors.toList());
-        // transfersCost
-        data.setTransfersCost(
-                entryEventResultEntityList
-                        .stream()
-                        .filter(o -> o.getEventTransfersCost() > 0)
-                        .map(o -> {
-                            EntryTransfersCostData entryTransfersCostData = new EntryTransfersCostData()
-                                    .setEvent(o.getEvent())
-                                    .setTransfers(o.getEventTransfers())
-                                    .setPoints(o.getEventPoints())
-                                    .setCost(o.getEventTransfersCost())
-                                    .setNetPoints(o.getEventNetPoints())
-                                    .setTransfersList(
-                                            entryEventTransfersEntityList
-                                                    .stream()
-                                                    .filter(i -> i.getEvent().equals(o.getEvent()))
-                                                    .map(i -> this.initEntryEventTransfersData(i, shortNameMap, playerMap))
-                                                    .collect(Collectors.toList())
-                                    );
-                            entryTransfersCostData
-                                    .setProfit(
-                                            entryTransfersCostData.getTransfersList()
-                                                    .stream()
-                                                    .mapToInt(i -> i.getElementInPoints() - i.getElementOutPoints())
-                                                    .sum()
-                                    );
-                            return entryTransfersCostData;
-                        })
-                        .collect(Collectors.toList())
-        );
-
-        // most transfers event
-        Map<Integer, Long> mostTransfersCountMap = entryEventTransfersEntityList.
+        // best transfers
+        int bestProfit = entryEventTransfersEntityList.
                 stream()
                 .filter(o -> !chipEventList.contains(o.getEvent()))
-                .collect(Collectors.groupingBy(EntryEventTransfersEntity::getEvent, Collectors.counting()));
-        int mostTransfersEvent = mostTransfersCountMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                .limit(1)
-                .map(Map.Entry::getKey)
-                .findFirst()
+                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
+                .max()
                 .orElse(0);
-        int mostTransfersCost = entryEventResultEntityList
-                .stream()
-                .filter(o -> o.getEvent() == mostTransfersEvent)
-                .map(EntryEventResultEntity::getEventTransfersCost)
-                .findFirst()
-                .orElse(0);
-        List<EntryEventTransfersData> mostTransfersList = entryEventTransfersEntityList
-                .stream()
-                .filter(o -> o.getEvent() == mostTransfersEvent)
+        List<EntryEventTransfersData> bestTransfersInList = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .filter(EntryEventTransfersEntity::getElementInPlayed)
+                .filter(o -> (o.getElementInPoints() - o.getElementOutPoints()) == bestProfit)
                 .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
                 .collect(Collectors.toList());
-        data
-                .setMostTransfersEvent(mostTransfersList.get(0).getEvent())
-                .setMostTransfersCost(mostTransfersCost)
-                .setMostTransfersProfit(
-                        mostTransfersList
-                                .stream()
-                                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
-                                .sum()
-                )
-                .setMostTransfers(mostTransfersList);
+        data.setBestTransfers(bestTransfersInList);
+        // worst transfers
+        int worstProfit = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
+                .min()
+                .orElse(0);
+        List<EntryEventTransfersData> worstTransfersInList = entryEventTransfersEntityList.
+                stream()
+                .filter(o -> !chipEventList.contains(o.getEvent()))
+                .filter(o -> (o.getElementInPoints() - o.getElementOutPoints()) == worstProfit)
+                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
+                .collect(Collectors.toList());
+        data.setWorstTransfers(worstTransfersInList);
         // most transfers in
         Map<Integer, Long> mostTransfersInCountMap = entryEventTransfersEntityList.
                 stream()
@@ -2332,51 +2297,69 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
                 .collect(Collectors.toList());
         data.setNegativeTransferInPoints(negativeTransfersInPointsList);
-        // best transfers
-        int bestProfit = entryEventTransfersEntityList.
+        // most transfers event
+        Map<Integer, Long> mostTransfersCountMap = entryEventTransfersEntityList.
                 stream()
                 .filter(o -> !chipEventList.contains(o.getEvent()))
-                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
-                .max()
+                .collect(Collectors.groupingBy(EntryEventTransfersEntity::getEvent, Collectors.counting()));
+        int mostTransfersEvent = mostTransfersCountMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                .limit(1)
+                .map(Map.Entry::getKey)
+                .findFirst()
                 .orElse(0);
-        List<EntryEventTransfersData> bestTransfersInList = entryEventTransfersEntityList.
-                stream()
-                .filter(o -> !chipEventList.contains(o.getEvent()))
-                .filter(EntryEventTransfersEntity::getElementInPlayed)
-                .filter(o -> (o.getElementInPoints() - o.getElementOutPoints()) == bestProfit)
+        int mostTransfersCost = entryEventResultEntityList
+                .stream()
+                .filter(o -> o.getEvent() == mostTransfersEvent)
+                .map(EntryEventResultEntity::getEventTransfersCost)
+                .findFirst()
+                .orElse(0);
+        List<EntryEventTransfersData> mostTransfersList = entryEventTransfersEntityList
+                .stream()
+                .filter(o -> o.getEvent() == mostTransfersEvent)
                 .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
                 .collect(Collectors.toList());
         data
-                .setBestTransfersEvent(bestTransfersInList.get(0).getEvent())
-                .setBestTransfersProfit(
-                        bestTransfersInList
+                .setMostTransfersEvent(mostTransfersList.get(0).getEvent())
+                .setMostTransfersCost(mostTransfersCost)
+                .setMostTransfersProfit(
+                        mostTransfersList
                                 .stream()
                                 .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
                                 .sum()
                 )
-                .setBestTransfers(bestTransfersInList);
-        // worst transfers
-        int worstProfit = entryEventTransfersEntityList.
-                stream()
-                .filter(o -> !chipEventList.contains(o.getEvent()))
-                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
-                .min()
-                .orElse(0);
-        List<EntryEventTransfersData> worstTransfersInList = entryEventTransfersEntityList.
-                stream()
-                .filter(o -> !chipEventList.contains(o.getEvent()))
-                .filter(o -> (o.getElementInPoints() - o.getElementOutPoints()) == worstProfit)
-                .map(o -> this.initEntryEventTransfersData(o, shortNameMap, playerMap))
-                .collect(Collectors.toList());
-        data
-                .setWorstTransfersEvent(worstTransfersInList.get(0).getEvent())
-                .setWorstTransfersProfit(
-                        worstTransfersInList
-                                .stream()
-                                .mapToInt(o -> o.getElementInPoints() - o.getElementOutPoints())
-                                .sum()
-                )
-                .setWorstTransfers(worstTransfersInList);
+                .setMostTransfers(mostTransfersList);
+        // transfersCost
+        data.setTransfersCost(
+                entryEventResultEntityList
+                        .stream()
+                        .filter(o -> o.getEventTransfersCost() > 0)
+                        .map(o -> {
+                            EntryTransfersCostData entryTransfersCostData = new EntryTransfersCostData()
+                                    .setEvent(o.getEvent())
+                                    .setTransfers(o.getEventTransfers())
+                                    .setPoints(o.getEventPoints())
+                                    .setCost(o.getEventTransfersCost())
+                                    .setNetPoints(o.getEventNetPoints())
+                                    .setTransfersList(
+                                            entryEventTransfersEntityList
+                                                    .stream()
+                                                    .filter(i -> i.getEvent().equals(o.getEvent()))
+                                                    .map(i -> this.initEntryEventTransfersData(i, shortNameMap, playerMap))
+                                                    .collect(Collectors.toList())
+                                    );
+                            entryTransfersCostData
+                                    .setProfit(
+                                            entryTransfersCostData.getTransfersList()
+                                                    .stream()
+                                                    .mapToInt(i -> i.getElementInPoints() - i.getElementOutPoints())
+                                                    .sum()
+                                    );
+                            return entryTransfersCostData;
+                        })
+                        .collect(Collectors.toList())
+        );
         return data;
 
     }

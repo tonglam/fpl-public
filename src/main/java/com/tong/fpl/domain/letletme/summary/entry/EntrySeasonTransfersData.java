@@ -16,11 +16,8 @@ public class EntrySeasonTransfersData {
     private int entry;
     private String entryName;
     private String playerName;
-    private int bestTransfersEvent; // 最佳转会周
-    private int bestTransfersProfit; // 最佳转会收益
     private List<EntryEventTransfersData> bestTransfers; // 最佳转会
     private int worstTransfersEvent; // 最差转会周
-    private int worstTransfersProfit; // 最差转会收益
     private List<EntryEventTransfersData> worstTransfers; // 最差转会
     private String mostTransfersInWebName; // 最多转入球员
     private List<EntryEventTransfersData> mostTransfersIn; // 最多转入
