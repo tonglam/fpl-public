@@ -40,6 +40,7 @@ public class EntrySeasonScoreData {
     private String fwdTotalPointsByPercent;
     private int fwdTotalNum;
     private LinkedHashMap<String, Long> mostSelectedFwd;
+
     // formation
     private LinkedHashMap<String, Long> mostSelectedFormation;
 

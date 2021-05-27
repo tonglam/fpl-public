@@ -12,7 +12,8 @@ public class EntrySelectedCaptainData {
 
     private int element;
     private String webName;
-    private int times;
+    private long times;
     private int totalPoints;
+    private String totalPointsByPercent;
 
 }

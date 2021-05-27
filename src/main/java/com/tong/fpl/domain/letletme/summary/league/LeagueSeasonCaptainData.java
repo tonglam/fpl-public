@@ -17,17 +17,17 @@ public class LeagueSeasonCaptainData {
     private int leagueId;
     private String leagueType;
     private String leagueName;
-    private double averageCaptainPoints; // 联赛平均队长得分
-    private double averageEventCaptainPoints; // 联赛周平均队长得分
-    private List<EntrySelectedCaptainData> mostPointsCaptain; // 联赛得分最多队长
-    private List<EntrySelectedCaptainData> mostPointsViceCaptain; // 联赛得分最多副队长
-    private List<EntrySelectedCaptainData> mostSelectedCaptain; // 联赛队长选择最多
-    private List<EntrySelectedCaptainData> mostSelectedViceCaptain; // 联赛副队长选择最多
-    private List<EntrySelectedCaptainData> mostTcSelectedCaptain; // 联赛tc选择最多队长
-    private List<EntrySelectedCaptainData> leastTcSelectedCaptain; // 联赛tc选择最多队长
-    private List<EntrySeasonCaptainData> bestCaptainEntry;// 联赛队长得分最多球队
-    private List<EntrySeasonCaptainData> worstCaptainEntry;// 联赛队长得分最少球队
-    private List<EntrySeasonCaptainData> mostPointsByPercent; // 联赛队长得分占比最多球队
-    private List<EntrySeasonCaptainData> leastPointsByPercent; // 联赛队长得分占比最少球队
+    private int totalCaptain; // 队长总数
+    private int totalCaptainPoints;  // 队长总得分
+    private int totalViceCaptainPoints;  // 副队长总得分
+    private double averageCaptainPoints; // 平均队长得分
+    private double averageViceCaptainPoints; // 平均副队长得分
+    private List<EntrySelectedCaptainData> mostPointsCaptain; // 得分最多队长
+    private List<EntrySelectedCaptainData> mostSelectedCaptain; // 队长选择最多
+    private List<EntrySelectedCaptainData> mostTcSelectedCaptain; // tc选择最多队长
+    private List<EntrySeasonCaptainData> bestCaptainEntry;// 队长得分最多球队
+    private List<EntrySeasonCaptainData> worstCaptainEntry;// 队长得分最少球队
+    private List<EntrySeasonCaptainData> mostPointsByPercentEntry; // 队长得分占比最多球队
+    private List<EntrySeasonCaptainData> leastPointsByPercentEntry; // 队长得分占比最少球队
 
 }
