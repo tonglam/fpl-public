@@ -1,6 +1,7 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.summary.entry.*;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 
 /**
  * Create by tong on 2021/5/25
@@ -21,7 +22,8 @@ public interface IApiSummary {
     EntrySeasonScoreData qryEntrySeasonScore(int entry);
 
     /**
-     * @apiNote tournament
+     * @apiNote league
      */
+    LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType);
 
 }

@@ -10,7 +10,7 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.summary.entry.*;
-import com.tong.fpl.domain.letletme.summary.tournament.TournamentSeasonInfoData;
+import com.tong.fpl.domain.letletme.summary.league.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 
@@ -136,6 +136,15 @@ public interface IApiQueryService {
 
     EntrySeasonScoreData qryEntrySeasonScore(int entry);
 
-    TournamentSeasonInfoData qryTournamentSeasonInfo(int tournamentId);
+    LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType);
+
+    LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType);
+
+    LeagueSeasonTransfersData qryLeagueSeasonTransfers(int leagueId, String leagueType);
+
+    LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType);
+
+    LeagueSeasonEntryData qryLeagueSeasonEntry(int leagueId, String leagueType, int entry);
+
 
 }

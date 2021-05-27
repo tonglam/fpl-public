@@ -20,7 +20,7 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.summary.entry.*;
-import com.tong.fpl.domain.letletme.summary.tournament.TournamentSeasonInfoData;
+import com.tong.fpl.domain.letletme.summary.league.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.IApiQueryService;
@@ -2577,8 +2577,337 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return data;
     }
 
+    @Cacheable(
+            value = "api::qryLeagueSeasonSummary",
+            key = "#leagueId+'::'+#leagueType",
+            cacheManager = "apiCacheManager",
+            unless = "#result.leagueId eq 0"
+    )
     @Override
-    public TournamentSeasonInfoData qryTournamentSeasonInfo(int tournamentId) {
+    public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType) {
+        LeagueSeasonSummaryData data = new LeagueSeasonSummaryData();
+        // prepare
+        int event = this.queryService.getCurrentEvent();
+        Map<Integer, EntrySeasonInfoData> map = Maps.newHashMap();
+        this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .orderByAsc(LeagueEventReportEntity::getEvent))
+                .forEach(o -> {
+                    EntrySeasonInfoData entrySeasonInfoData = this.initLeagueEntryInfoData(o, map);
+                    if (entrySeasonInfoData != null) {
+                        map.put(o.getEntry(), entrySeasonInfoData);
+                    }
+                });
+        if (CollectionUtils.isEmpty(map)) {
+            return data;
+        }
+        // league info
+        LeagueEventReportEntity leagueEventReportEntity = this.leagueEventReportService.getOne(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getEvent, event)
+                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .last("limit 1"));
+        if (leagueEventReportEntity == null) {
+            return data;
+        }
+        data
+                .setLeagueId(leagueId)
+                .setLeagueType(leagueType)
+                .setLeagueName(leagueEventReportEntity.getLeagueName());
+        // rank
+        List<EntrySeasonInfoData> topRankList = map.values()
+                .stream()
+                .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallRank))
+                .limit(5)
+                .collect(Collectors.toList());
+        data
+                .setAverageOverallPoints(
+                        NumberUtil.round(
+                                map.values()
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getOverallPoints)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopAverageOverallPoints(
+                        NumberUtil.round(
+                                topRankList
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getOverallPoints)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopRank(topRankList);
+        // value
+        List<EntrySeasonInfoData> topValueList = map.values()
+                .stream()
+                .sorted(Comparator.comparing(EntrySeasonInfoData::getTeamValue).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
+        data
+                .setAverageValue(
+                        NumberUtil.round(
+                                map.values()
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getTeamValue)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopAverageValue(
+                        NumberUtil.round(
+                                topValueList
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getTeamValue)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopValue(topValueList);
+        // cost
+        List<EntrySeasonInfoData> topCostList = map.values()
+                .stream()
+                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfersCost).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
+        data
+                .setAverageCost(
+                        NumberUtil.round(
+                                map.values()
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getTotalTransfersCost)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopAverageCost(
+                        NumberUtil.round(
+                                topCostList
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getTotalTransfersCost)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopCost(topCostList);
+        // bench
+        List<EntrySeasonInfoData> topBenchList = map.values()
+                .stream()
+                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalBenchPoints).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
+        data
+                .setAverageBenchPoints(
+                        NumberUtil.round(
+                                map.values()
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getTotalBenchPoints)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopAverageBenchPoints(
+                        NumberUtil.round(
+                                topBenchList
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getTotalBenchPoints)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopBench(topBenchList);
+        // autoSubs
+        List<EntrySeasonInfoData> topAutoSubsList = map.values()
+                .stream()
+                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalAutoSubsPoints).reversed())
+                .limit(5)
+                .collect(Collectors.toList());
+        data
+                .setAverageAutoSubsPoints(
+                        NumberUtil.round(
+                                map.values()
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getTotalAutoSubsPoints)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopAverageAutoSubsPoints(
+                        NumberUtil.round(
+                                topAutoSubsList
+                                        .stream()
+                                        .mapToDouble(EntrySeasonInfoData::getTotalAutoSubsPoints)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setTopAutoSubs(topAutoSubsList);
+        return data;
+    }
+
+    private EntrySeasonInfoData initLeagueEntryInfoData(LeagueEventReportEntity leagueEventReportEntity, Map<Integer, EntrySeasonInfoData> map) {
+        int entry = leagueEventReportEntity.getEntry();
+        EntrySeasonInfoData data;
+        if (!map.containsKey(entry)) {
+            data = new EntrySeasonInfoData()
+                    .setEvent(leagueEventReportEntity.getEvent())
+                    .setEntry(leagueEventReportEntity.getEntry())
+                    .setEntryName(leagueEventReportEntity.getEntryName())
+                    .setPlayerName(leagueEventReportEntity.getPlayerName())
+                    .setOverallPoints(leagueEventReportEntity.getOverallPoints())
+                    .setOverallRank(leagueEventReportEntity.getOverallRank())
+                    .setValue(leagueEventReportEntity.getTeamValue() / 10.0)
+                    .setBank(leagueEventReportEntity.getBank() / 10.0)
+                    .setTeamValue((leagueEventReportEntity.getTeamValue() - leagueEventReportEntity.getBank()) / 10.0)
+                    .setTotalTransfers(leagueEventReportEntity.getEventTransfers())
+                    .setTotalTransfersCost(leagueEventReportEntity.getEventTransfersCost())
+                    .setTotalBenchPoints(leagueEventReportEntity.getEventBenchPoints())
+                    .setTotalAutoSubsPoints(leagueEventReportEntity.getEventAutoSubPoints());
+        } else {
+            data = map.get(entry);
+            data.setTotalTransfers(data.getTotalTransfers() + leagueEventReportEntity.getEventTransfers())
+                    .setTotalTransfersCost(data.getTotalTransfersCost() + leagueEventReportEntity.getEventTransfersCost())
+                    .setTotalBenchPoints(data.getTotalBenchPoints() + leagueEventReportEntity.getEventBenchPoints())
+                    .setTotalAutoSubsPoints(data.getTotalAutoSubsPoints() + leagueEventReportEntity.getEventAutoSubPoints());
+            if (data.getEvent() < leagueEventReportEntity.getEvent()) {
+                data
+                        .setOverallPoints(leagueEventReportEntity.getOverallPoints())
+                        .setOverallRank(leagueEventReportEntity.getOverallRank())
+                        .setValue(leagueEventReportEntity.getTeamValue() / 10.0)
+                        .setBank(leagueEventReportEntity.getBank() / 10.0)
+                        .setTeamValue((leagueEventReportEntity.getTeamValue() - leagueEventReportEntity.getBank()) / 10.0);
+            }
+        }
+        return data;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonCaptain",
+//            key = "#tournamentId",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueId eq 0"
+//    )
+    @Override
+    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType) {
+        LeagueSeasonCaptainData data = new LeagueSeasonCaptainData();
+        // prepare
+        int event = this.queryService.getCurrentEvent();
+        Multimap<Integer, LeagueEventReportEntity> map = HashMultimap.create();
+        this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .orderByAsc(LeagueEventReportEntity::getEvent))
+                .forEach(o -> map.put(o.getEntry(), o));
+        if (map.size() == 0) {
+            return data;
+        }
+        // league info
+        LeagueEventReportEntity
+                leagueEventReportEntity = this.leagueEventReportService.getOne(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getEvent, event)
+                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .last("limit 1"));
+        if (leagueEventReportEntity == null) {
+            return data;
+        }
+        data
+                .setLeagueId(leagueId)
+                .setLeagueType(leagueType)
+                .setLeagueName(leagueEventReportEntity.getLeagueName())
+                .setAverageCaptainPoints(
+                        NumberUtil.round(
+                                map.keySet()
+                                        .stream()
+                                        .map(entry ->
+                                                map.get(entry)
+                                                        .stream()
+                                                        .mapToDouble(o -> this.calcCaptionPoints(o.getCaptainPoints(), o.getEventChip()))
+                                                        .sum()
+                                        )
+                                        .collect(Collectors.toList())
+                                        .stream()
+                                        .mapToDouble(Double::doubleValue)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .setAverageEventCaptainPoints(
+                        NumberUtil.round(
+                                map.values()
+                                        .stream()
+                                        .mapToDouble(o -> this.calcCaptionPoints(o.getCaptainPoints(), o.getEventChip()))
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                );
+        // most points captain
+        // most points vice captain
+        // most selected captain
+        // most selected vice captain
+        // most 3xc selected captain
+        // least 3xc selected captain
+        // best captain entry
+        // worst captain entry
+        // most points by percent
+        // least points by percent
+
+
+        return data;
+    }
+
+    private int calcCaptionPoints(int points, String chip) {
+        if (StringUtils.equalsIgnoreCase(Chip.TC.getValue(), chip)) {
+            return 3 * points;
+        }
+        return 2 * points;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonTransfers",
+//            key = "#tournamentId",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueId eq 0"
+//    )
+    @Override
+    public LeagueSeasonTransfersData qryLeagueSeasonTransfers(int leagueId, String leagueType) {
+        return null;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonScore",
+//            key = "#tournamentId",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueId eq 0"
+//    )
+    @Override
+    public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType) {
+        return null;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonEntry",
+//            key = "#tournamentId+'::'+#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueId eq 0"
+//    )
+    @Override
+    public LeagueSeasonEntryData qryLeagueSeasonEntry(int leagueId, String leagueType, int entry) {
         return null;
     }
 

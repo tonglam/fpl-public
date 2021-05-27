@@ -10,17 +10,18 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class EntrySeasonInfoData {
 
+    private int event;
     private int entry;
     private String entryName;
     private String playerName;
     private int overallPoints;
     private int overallRank;
+    private double value;
+    private double bank;
+    private double teamValue;
     private int totalTransfers;
     private int totalTransfersCost;
     private int totalBenchPoints;
     private int totalAutoSubsPoints;
-    private double value;
-    private double bank;
-    private double teamValue;
 
 }

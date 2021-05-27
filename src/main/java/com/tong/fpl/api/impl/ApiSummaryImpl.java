@@ -2,6 +2,7 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiSummary;
 import com.tong.fpl.domain.letletme.summary.entry.*;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class ApiSummaryImpl implements IApiSummary {
 
     private final IApiQueryService apiQueryService;
 
+    /**
+     * @implNote entry
+     */
     @Override
     public EntrySeasonInfoData qryEntrySeasonInfo(int entry) {
         return this.apiQueryService.qryEntrySeasonInfo(entry);
@@ -39,5 +43,13 @@ public class ApiSummaryImpl implements IApiSummary {
     @Override
     public EntrySeasonScoreData qryEntrySeasonScore(int entry) {
         return this.apiQueryService.qryEntrySeasonScore(entry);
+    }
+
+    /**
+     * @implNote league
+     */
+    @Override
+    public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType) {
+        return this.apiQueryService.qryLeagueSeasonSummary(leagueId, leagueType);
     }
 }
