@@ -1,6 +1,9 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.summary.entry.*;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 
 /**
@@ -25,5 +28,11 @@ public interface IApiSummary {
      * @apiNote league
      */
     LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType);
+
+    LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType);
+
+    LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType);
+
+    LeagueSeasonEntryData qryLeagueSeasonEntry(int leagueId, String leagueType, int entry);
 
 }

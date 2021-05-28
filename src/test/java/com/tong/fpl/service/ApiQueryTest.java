@@ -14,7 +14,10 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.summary.entry.*;
-import com.tong.fpl.domain.letletme.summary.league.*;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
@@ -337,13 +340,6 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"3571, Classic"})
     void qryLeagueSeasonCaptain(int leagueId, String leagueType) {
         LeagueSeasonCaptainData data = this.apiQueryService.qryLeagueSeasonCaptain(leagueId, leagueType);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3571, Classic"})
-    void qryLeagueSeasonTransfers(int leagueId, String leagueType) {
-        LeagueSeasonTransfersData data = this.apiQueryService.qryLeagueSeasonTransfers(leagueId, leagueType);
         System.out.println(1);
     }
 

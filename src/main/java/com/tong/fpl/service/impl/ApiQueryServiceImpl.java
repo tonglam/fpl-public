@@ -20,7 +20,10 @@ import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.summary.entry.*;
-import com.tong.fpl.domain.letletme.summary.league.*;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.IApiQueryService;
@@ -1915,6 +1918,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 )
                                 .collect(Collectors.toList())
                 );
+        // above hundred
+        data.setAboveHundred(
+                entryEventResultEntityList
+                        .stream()
+                        .filter(o -> o.getEventPoints() >= 100)
+                        .collect(Collectors.toMap(EntryEventResultEntity::getEvent, EntryEventResultEntity::getEventPoints,
+                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
         // bench
         entryEventResultEntityList
                 .stream()
@@ -2449,7 +2460,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setOverallPoints(entryInfoEntity.getOverallPoints());
         // gkp
         List<EntryPickData> gkpPickList = Lists.newArrayList();
-        pickTable.row(1).values().forEach(gkpPickList::addAll);
+        pickTable.row(Position.GKP.getElementType()).values().forEach(gkpPickList::addAll);
         data
                 .setGkpTotalPoints(
                         gkpPickList
@@ -2477,7 +2488,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         );
         // def
         List<EntryPickData> defPickList = Lists.newArrayList();
-        pickTable.row(2).values().forEach(defPickList::addAll);
+        pickTable.row(Position.DEF.getElementType()).values().forEach(defPickList::addAll);
         data
                 .setDefTotalPoints(
                         defPickList
@@ -2505,7 +2516,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         );
         // mid
         List<EntryPickData> midPickList = Lists.newArrayList();
-        pickTable.row(3).values().forEach(midPickList::addAll);
+        pickTable.row(Position.MID.getElementType()).values().forEach(midPickList::addAll);
         data
                 .setMidTotalPoints(
                         midPickList
@@ -2533,7 +2544,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         );
         // fwd
         List<EntryPickData> fwdPickList = Lists.newArrayList();
-        pickTable.row(4).values().forEach(fwdPickList::addAll);
+        pickTable.row(Position.FWD.getElementType()).values().forEach(fwdPickList::addAll);
         data
                 .setFwdTotalPoints(
                         fwdPickList
@@ -2755,6 +2766,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .doubleValue()
                 )
                 .setTopAutoSubs(topAutoSubsList);
+        // above hundred
+//        Map<Integer, Long> entryAboveHundredCountMap = map.values()
+//                .stream()
+//                .filter();
+//        data.setTopAboveHundred();
         return data;
     }
 
@@ -3084,240 +3100,426 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return 2 * points;
     }
 
-    //    @Cacheable(
-//            value = "api::qryLeagueSeasonTransfers",
-//            key = "##leagueId+'::'+#leagueType",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.leagueId eq 0"
-//    )
-    @Override
-    public LeagueSeasonTransfersData qryLeagueSeasonTransfers(int leagueId, String leagueType) {
-        return null;
-    }
-
-    //    @Cacheable(
-//            value = "api::qryLeagueSeasonScore",
-//            key = "#leagueId+'::'+#leagueType",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.leagueId eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryLeagueSeasonScore",
+            key = "#leagueId+'::'+#leagueType",
+            cacheManager = "apiCacheManager",
+            unless = "#result.leagueId eq 0"
+    )
     @Override
     public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType) {
         LeagueSeasonScoreData data = new LeagueSeasonScoreData();
-//        // prepare
-//        int event = this.queryService.getCurrentEvent();
-//        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-//                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-//                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
-//                .orderByAsc(LeagueEventReportEntity::getEvent));
-//        if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
-//            return data;
-//        }
-//        Map<String, String> shortNameMap = this.getTeamShortNameMap();
-//        if (CollectionUtils.isEmpty(shortNameMap)) {
-//            return data;
-//        }
-//        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-//                .stream()
-//                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
-//        if (CollectionUtils.isEmpty(playerMap)) {
-//            return data;
-//        }
-//        // collect event score
-//        Table<Integer, Integer, List<ElementEventResultData>> pickTable = HashBasedTable.create(); // elementType -> event -> dataList
-//        leagueEventReportEntityList.forEach(o -> {
-//            List<ElementEventResultData> elementEventResultDataList = Lists.newArrayList();
-//            if (!StringUtils.equalsIgnoreCase(Chip.BB.getValue(), o.getEventChip())) {
-//                elementEventResultDataList.add(this.initLeagueEventElementData(o.getPosition1(),playerMap.get(o.getPosition1())));
-//            }else {
-//
-//            }
-//            PlayerEntity playerEntity = playerMap.get(pick.getElement());
-//            if (playerEntity == null) {
-//                return;
-//            }
-//            int elementType = playerEntity.getElementType();
-//            List<ElementEventResultData> list = Lists.newArrayList();
-//            if (pickTable.contains(elementType, event)) {
-//                list = pickTable.get(elementType, event);
-//            }
-//            if (CollectionUtils.isEmpty(list)) {
-//                list = Lists.newArrayList();
-//            }
-//            pick
-//                    .setEvent(event)
-//                    .setElementType(elementType)
-//                    .setElementTypeName(Position.getNameFromElementType(elementType))
-//                    .setWebName(playerEntity.getWebName())
-//                    .setTeamId(playerEntity.getTeamId())
-//                    .setTeamShortName(shortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""));
-//            list.add(pick);
-//            pickTable.put(elementType, event, list);
-//        });
-//        data
-//                .setLeagueId(leagueEventReportEntityList.get(0).getLeagueId())
-//                .setLeagueType(leagueEventReportEntityList.get(0).getLeagueType())
-//                .setLeagueName(leagueEventReportEntityList.get(0).getLeagueName())
-//                .setTotalOverallPoints(
-//                        leagueEventReportEntityList
-//                        .stream()
-//                        .mapToInt(LeagueEventReportEntity::getOverallPoints)
-//                        .sum()
-//                )
-//        .setAverageOverallPoints(
-//                leagueEventReportEntityList
-//                        .stream()
-//                        .mapToInt(LeagueEventReportEntity::getOverallPoints)
-//                        .sum()
-//        );
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//        // gkp
-//        List<EntryPickData> gkpPickList = Lists.newArrayList();
-//        pickTable.row(1).values().forEach(gkpPickList::addAll);
-//        data
-//                .setGkpTotalPoints(
-//                        gkpPickList
-//                                .stream()
-//                                .mapToInt(EntryPickData::getPoints)
-//                                .sum()
-//                )
-//                .setGkpTotalNum(
-//                        (int) gkpPickList
-//                                .stream()
-//                                .map(EntryPickData::getElement)
-//                                .distinct()
-//                                .count()
-//                );
-//        data.setGkpTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpTotalPoints(), data.getOverallPoints()), 2));
-//        Map<String, Long> mostSelectedGkpCountMap = gkpPickList.
-//                stream()
-//                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
-//        data.setMostSelectedGkp(
-//                mostSelectedGkpCountMap.entrySet()
-//                        .stream()
-//                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-//                        .limit(2)
-//                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
-//        );
-//        // def
-//        List<EntryPickData> defPickList = Lists.newArrayList();
-//        pickTable.row(2).values().forEach(defPickList::addAll);
-//        data
-//                .setDefTotalPoints(
-//                        defPickList
-//                                .stream()
-//                                .mapToInt(EntryPickData::getPoints)
-//                                .sum()
-//                )
-//                .setDefTotalNum(
-//                        (int) defPickList
-//                                .stream()
-//                                .map(EntryPickData::getElement)
-//                                .distinct()
-//                                .count()
-//                );
-//        data.setDefTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefTotalPoints(), data.getOverallPoints()), 2));
-//        Map<String, Long> mostSelectedDefCountMap = defPickList.
-//                stream()
-//                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
-//        data.setMostSelectedDef(
-//                mostSelectedDefCountMap.entrySet()
-//                        .stream()
-//                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-//                        .limit(5)
-//                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
-//        );
-//        // mid
-//        List<EntryPickData> midPickList = Lists.newArrayList();
-//        pickTable.row(3).values().forEach(midPickList::addAll);
-//        data
-//                .setMidTotalPoints(
-//                        midPickList
-//                                .stream()
-//                                .mapToInt(EntryPickData::getPoints)
-//                                .sum()
-//                )
-//                .setMidTotalNum(
-//                        (int) midPickList
-//                                .stream()
-//                                .map(EntryPickData::getElement)
-//                                .distinct()
-//                                .count()
-//                );
-//        data.setMidTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getMidTotalPoints(), data.getOverallPoints()), 2));
-//        Map<String, Long> mostSelectedMidCountMap = midPickList.
-//                stream()
-//                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
-//        data.setMostSelectedMid(
-//                mostSelectedMidCountMap.entrySet()
-//                        .stream()
-//                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-//                        .limit(5)
-//                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
-//        );
-//        // fwd
-//        List<EntryPickData> fwdPickList = Lists.newArrayList();
-//        pickTable.row(4).values().forEach(fwdPickList::addAll);
-//        data
-//                .setFwdTotalPoints(
-//                        fwdPickList
-//                                .stream()
-//                                .mapToInt(EntryPickData::getPoints)
-//                                .sum()
-//                )
-//                .setFwdTotalNum(
-//                        (int) fwdPickList
-//                                .stream()
-//                                .map(EntryPickData::getElement)
-//                                .distinct()
-//                                .count()
-//                );
-//        data.setFwdTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getFwdTotalPoints(), data.getOverallPoints()), 2));
-//        Map<String, Long> mostSelectedFwdCountMap = fwdPickList.
-//                stream()
-//                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
-//        data.setMostSelectedFwd(
-//                mostSelectedFwdCountMap.entrySet()
-//                        .stream()
-//                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-//                        .limit(3)
-//                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
-//        );
-//        // formation
-//        List<String> formationList = pickTable.columnMap().values()
-//                .stream()
-//                .map(o -> StringUtils.joinWith("-", o.get(2).size(), o.get(3).size(), o.get(4).size()))
-//                .collect(Collectors.toList());
-//        Map<String, Long> mostSelectedFormationCountMap = formationList.
-//                stream()
-//                .collect(Collectors.groupingBy(String::toString, Collectors.counting()));
-//        data.setMostSelectedFormation(
-//                mostSelectedFormationCountMap.entrySet()
-//                        .stream()
-//                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-//                        .limit(3)
-//                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> newValue, LinkedHashMap::new))
-//        );
-
-
+        // prepare
+        int current = this.queryService.getCurrentEvent();
+        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .ne(LeagueEventReportEntity::getEventPoints, 0)
+                .orderByAsc(LeagueEventReportEntity::getEvent));
+        if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+            return data;
+        }
+        Map<String, String> shortNameMap = this.getTeamShortNameMap();
+        if (CollectionUtils.isEmpty(shortNameMap)) {
+            return data;
+        }
+        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        if (CollectionUtils.isEmpty(playerMap)) {
+            return data;
+        }
+        Table<Integer, Integer, EventLiveEntity> eventLiveTable = HashBasedTable.create(); // element -> event -> data
+        this.eventLiveService.list().forEach(o -> eventLiveTable.put(o.getElement(), o.getEvent(), o));
+        // collect
+        List<EntryPickData> entryPickDataList = Lists.newArrayList();
+        leagueEventReportEntityList.forEach(o -> {
+            int event = o.getEvent();
+            int entry = o.getEntry();
+            if (StringUtils.equalsIgnoreCase(Chip.BB.getValue(), o.getEventChip())) {
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition1(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition2(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition3(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition4(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition5(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition6(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition7(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition8(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition9(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition10(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition11(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition12(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition13(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition14(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition15(), shortNameMap, playerMap, eventLiveTable));
+            } else {
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition1(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition2(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition3(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition4(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition5(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition6(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition7(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition8(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition9(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition10(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition11(), shortNameMap, playerMap, eventLiveTable));
+            }
+        });
+        Table<Integer, Integer, List<EntryPickData>> pickTable = HashBasedTable.create(); // elementType -> event -> dataList
+        entryPickDataList.forEach(o -> {
+            int event = o.getEvent();
+            int elementType = o.getElementType();
+            List<EntryPickData> list = Lists.newArrayList();
+            if (pickTable.contains(elementType, event)) {
+                list = pickTable.get(elementType, event);
+            }
+            if (CollectionUtils.isEmpty(list)) {
+                list = Lists.newArrayList();
+            }
+            list.add(o);
+            pickTable.put(elementType, event, list);
+        });
+        Table<Integer, Integer, Map<Integer, List<EntryPickData>>> entryPickTable = HashBasedTable.create();
+        entryPickDataList.forEach(o -> {
+            int event = o.getEvent();
+            int entry = o.getEntry();
+            Map<Integer, List<EntryPickData>> map = Maps.newHashMap();
+            if (entryPickTable.contains(entry, event)) {
+                map = entryPickTable.get(entry, event);
+            }
+            if (CollectionUtils.isEmpty(map)) {
+                map = Maps.newHashMap();
+            }
+            int elementType = o.getElementType();
+            List<EntryPickData> list = map.getOrDefault(elementType, Lists.newArrayList());
+            list.add(o);
+            map.put(elementType, list);
+            entryPickTable.put(entry, event, map);
+        });
+        data
+                .setLeagueId(leagueEventReportEntityList.get(0).getLeagueId())
+                .setLeagueType(leagueEventReportEntityList.get(0).getLeagueType())
+                .setLeagueName(leagueEventReportEntityList.get(0).getLeagueName())
+                .setTotalOverallPoints(
+                        leagueEventReportEntityList
+                                .stream()
+                                .filter(o -> o.getEvent() == current)
+                                .mapToInt(LeagueEventReportEntity::getOverallPoints)
+                                .sum()
+                )
+                .setAverageOverallPoints(
+                        NumberUtil.round(
+                                leagueEventReportEntityList
+                                        .stream()
+                                        .filter(o -> o.getEvent() == current)
+                                        .mapToInt(LeagueEventReportEntity::getOverallPoints)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                );
+        // gkp
+        List<EntryPickData> gkpPickList = Lists.newArrayList();
+        pickTable.row(Position.GKP.getElementType()).values().forEach(gkpPickList::addAll);
+        data.setGkpTotalPoints(
+                gkpPickList
+                        .stream()
+                        .mapToInt(EntryPickData::getPoints)
+                        .sum()
+        );
+        data.setGkpTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpTotalPoints(), data.getTotalOverallPoints()), 2));
+        Map<String, Long> mostSelectedGkpCountMap = gkpPickList.
+                stream()
+                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+        data.setMostSelectedGkpByPercent(
+                mostSelectedGkpCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(5)
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, gkpPickList.size() * 1.0), 2),
+                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        // entry gkp
+        Multimap<Integer, EntryPickData> entryGkpPickMap = HashMultimap.create();
+        entryPickTable.rowKeySet().forEach(entry -> entryPickTable.row(entry).values().forEach(i -> i.get(Position.GKP.getElementType()).forEach(j -> entryGkpPickMap.put(entry, j))));
+        data.setAverageEntryGkpTotalNum(
+                NumberUtil.round(
+                        entryGkpPickMap.keySet()
+                                .stream()
+                                .mapToDouble(o ->
+                                        entryGkpPickMap.get(o)
+                                                .stream()
+                                                .map(EntryPickData::getElement)
+                                                .distinct()
+                                                .count()
+                                )
+                                .average()
+                                .orElse(0)
+                        , 2)
+                        .doubleValue()
+        );
+        Map<Integer, Integer> entryGkpPointsMap = entryGkpPickMap.keySet()
+                .stream()
+                .collect(Collectors.toMap(k -> k, v ->
+                        entryGkpPickMap.get(v)
+                                .stream()
+                                .mapToInt(EntryPickData::getPoints)
+                                .sum()
+                ));
+        data.setAverageEntryGkpTotalPoints(
+                NumberUtil.round(
+                        entryGkpPointsMap.values()
+                                .stream()
+                                .mapToInt(Integer::intValue)
+                                .average()
+                                .orElse(0)
+                        , 2)
+                        .doubleValue()
+        )
+                .setMostEntryGkpPoints(
+                        entryGkpPointsMap.entrySet()
+                                .stream()
+                                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                                .limit(5)
+                                .collect(Collectors.toMap(k -> this.qryEntryInfo(k.getKey()), Map.Entry::getValue,
+                                        (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                );
+        // def
+        List<EntryPickData> defPickList = Lists.newArrayList();
+        pickTable.row(Position.DEF.getElementType()).values().forEach(defPickList::addAll);
+        data.setDefTotalPoints(
+                defPickList
+                        .stream()
+                        .mapToInt(EntryPickData::getPoints)
+                        .sum()
+        );
+        data.setDefTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefTotalPoints(), data.getTotalOverallPoints()), 2));
+        Map<String, Long> mostSelectedDefCountMap = defPickList.
+                stream()
+                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+        data.setMostSelectedDefByPercent(
+                mostSelectedDefCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(5)
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, defPickList.size() * 1.0), 2),
+                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        // entry def
+        Multimap<Integer, EntryPickData> entryDefPickMap = HashMultimap.create();
+        entryPickTable.rowKeySet().forEach(entry -> entryPickTable.row(entry).values().forEach(i -> i.get(Position.DEF.getElementType()).forEach(j -> entryDefPickMap.put(entry, j))));
+        data.setAverageEntryDefTotalNum(
+                NumberUtil.round(
+                        entryDefPickMap.keySet()
+                                .stream()
+                                .mapToDouble(o ->
+                                        entryDefPickMap.get(o)
+                                                .stream()
+                                                .map(EntryPickData::getElement)
+                                                .distinct()
+                                                .count()
+                                )
+                                .average()
+                                .orElse(0)
+                        , 2)
+                        .doubleValue()
+        );
+        Map<Integer, Integer> entryDefPointsMap = entryDefPickMap.keySet()
+                .stream()
+                .collect(Collectors.toMap(k -> k, v ->
+                        entryDefPickMap.get(v)
+                                .stream()
+                                .mapToInt(EntryPickData::getPoints)
+                                .sum()
+                ));
+        data.setAverageEntryDefTotalPoints(
+                NumberUtil.round(
+                        entryDefPointsMap.values()
+                                .stream()
+                                .mapToInt(Integer::intValue)
+                                .average()
+                                .orElse(0)
+                        , 2)
+                        .doubleValue()
+        )
+                .setMostEntryDefPoints(
+                        entryDefPointsMap.entrySet()
+                                .stream()
+                                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                                .limit(5)
+                                .collect(Collectors.toMap(k -> this.qryEntryInfo(k.getKey()), Map.Entry::getValue,
+                                        (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                );
+        // mid
+        List<EntryPickData> midPickList = Lists.newArrayList();
+        pickTable.row(Position.MID.getElementType()).values().forEach(midPickList::addAll);
+        data.setMidTotalPoints(
+                midPickList
+                        .stream()
+                        .mapToInt(EntryPickData::getPoints)
+                        .sum()
+        );
+        data.setMidTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getMidTotalPoints(), data.getTotalOverallPoints()), 2));
+        Map<String, Long> mostSelectedMidCountMap = midPickList.
+                stream()
+                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+        data.setMostSelectedMidByPercent(
+                mostSelectedMidCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(5)
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, midPickList.size() * 1.0), 2),
+                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        // entry mid
+        Multimap<Integer, EntryPickData> entryMidPickMap = HashMultimap.create();
+        entryPickTable.rowKeySet().forEach(entry -> entryPickTable.row(entry).values().forEach(i -> i.get(Position.MID.getElementType()).forEach(j -> entryMidPickMap.put(entry, j))));
+        data.setAverageEntryMidTotalNum(
+                NumberUtil.round(
+                        entryMidPickMap.keySet()
+                                .stream()
+                                .mapToDouble(o ->
+                                        entryMidPickMap.get(o)
+                                                .stream()
+                                                .map(EntryPickData::getElement)
+                                                .distinct()
+                                                .count()
+                                )
+                                .average()
+                                .orElse(0)
+                        , 2)
+                        .doubleValue()
+        );
+        Map<Integer, Integer> entryMidPointsMap = entryMidPickMap.keySet()
+                .stream()
+                .collect(Collectors.toMap(k -> k, v ->
+                        entryMidPickMap.get(v)
+                                .stream()
+                                .mapToInt(EntryPickData::getPoints)
+                                .sum()
+                ));
+        data.setAverageEntryMidTotalPoints(
+                NumberUtil.round(
+                        entryMidPointsMap.values()
+                                .stream()
+                                .mapToInt(Integer::intValue)
+                                .average()
+                                .orElse(0)
+                        , 2)
+                        .doubleValue()
+        )
+                .setMostEntryMidPoints(
+                        entryMidPointsMap.entrySet()
+                                .stream()
+                                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                                .limit(5)
+                                .collect(Collectors.toMap(k -> this.qryEntryInfo(k.getKey()), Map.Entry::getValue,
+                                        (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                );
+        // fwd
+        List<EntryPickData> fwdPickList = Lists.newArrayList();
+        pickTable.row(Position.FWD.getElementType()).values().forEach(fwdPickList::addAll);
+        data.setFwdTotalPoints(
+                fwdPickList
+                        .stream()
+                        .mapToInt(EntryPickData::getPoints)
+                        .sum()
+        );
+        data.setFwdTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getFwdTotalPoints(), data.getTotalOverallPoints()), 2));
+        Map<String, Long> mostSelectedFwdCountMap = fwdPickList.
+                stream()
+                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+        data.setMostSelectedFwdByPercent(
+                mostSelectedFwdCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(5)
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, fwdPickList.size() * 1.0), 2),
+                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
+        // entry fwd
+        Multimap<Integer, EntryPickData> entryFwdPickMap = HashMultimap.create();
+        entryPickTable.rowKeySet().forEach(entry -> entryPickTable.row(entry).values().forEach(i -> i.get(Position.FWD.getElementType()).forEach(j -> entryFwdPickMap.put(entry, j))));
+        data.setAverageEntryFwdTotalNum(
+                NumberUtil.round(
+                        entryFwdPickMap.keySet()
+                                .stream()
+                                .mapToDouble(o ->
+                                        entryFwdPickMap.get(o)
+                                                .stream()
+                                                .map(EntryPickData::getElement)
+                                                .distinct()
+                                                .count()
+                                )
+                                .average()
+                                .orElse(0)
+                        , 2)
+                        .doubleValue()
+        );
+        Map<Integer, Integer> entryFwdPointsMap = entryFwdPickMap.keySet()
+                .stream()
+                .collect(Collectors.toMap(k -> k, v ->
+                        entryFwdPickMap.get(v)
+                                .stream()
+                                .mapToInt(EntryPickData::getPoints)
+                                .sum()
+                ));
+        data.setAverageEntryFwdTotalPoints(
+                NumberUtil.round(
+                        entryFwdPointsMap.values()
+                                .stream()
+                                .mapToInt(Integer::intValue)
+                                .average()
+                                .orElse(0)
+                        , 2)
+                        .doubleValue()
+        )
+                .setMostEntryFwdPoints(
+                        entryFwdPointsMap.entrySet()
+                                .stream()
+                                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                                .limit(5)
+                                .collect(Collectors.toMap(k -> this.qryEntryInfo(k.getKey()), Map.Entry::getValue,
+                                        (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                );
+        // formation
+        List<String> formationList = Lists.newArrayList();
+        entryPickTable.columnMap().values().forEach(o ->
+                o.values().forEach(i -> formationList.add(StringUtils.joinWith("-", i.get(2).size(), i.get(3).size(), i.get(4).size())))
+        );
+        Map<String, Long> mostSelectedFormationCountMap = formationList.
+                stream()
+                .collect(Collectors.groupingBy(String::toString, Collectors.counting()));
+        data.setMostSelectedFormation(
+                mostSelectedFormationCountMap.entrySet()
+                        .stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                        .limit(5)
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, formationList.size() * 1.0), 2),
+                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+        );
         return data;
     }
 
-    private ElementEventResultData initLeagueEventElementData(int element, PlayerEntity playerEntity) {
-        return new ElementEventResultData()
+    private EntryPickData initLeagueEntryPickData(int event, int entry, int element, Map<String, String> shortNameMap, Map<Integer, PlayerEntity> playerMap, Table<Integer, Integer, EventLiveEntity> eventLiveTable) {
+        PlayerEntity playerEntity = playerMap.getOrDefault(element, null);
+        EventLiveEntity eventLiveEntity = eventLiveTable.get(element, event);
+        if (playerEntity == null || eventLiveEntity == null) {
+            return null;
+        }
+        int elementType = playerEntity.getElementType();
+        return new EntryPickData()
+                .setEvent(event)
+                .setEntry(entry)
                 .setElement(element)
-                .setElementType(playerEntity.getElementType())
+                .setWebName(playerEntity.getWebName())
+                .setElementType(elementType)
+                .setElementTypeName(Position.getNameFromElementType(elementType))
                 .setTeamId(playerEntity.getTeamId())
-                .setTotalPoints(0);
+                .setTeamShortName(shortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                .setMinutes(eventLiveEntity.getMinutes())
+                .setPoints(eventLiveEntity.getTotalPoints());
     }
 
     //    @Cacheable(

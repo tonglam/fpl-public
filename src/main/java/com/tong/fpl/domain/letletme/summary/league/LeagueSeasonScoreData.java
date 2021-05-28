@@ -1,5 +1,6 @@
 package com.tong.fpl.domain.letletme.summary.league;
 
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -21,36 +22,36 @@ public class LeagueSeasonScoreData {
     // gkp
     private int gkpTotalPoints;
     private String gkpTotalPointsByPercent;
-    private double averageGkpTotalPoints;
-    private String averageGkpTotalPointsByPercent;
-    private double averageGkpTotalNum;
-    private LinkedHashMap<String, Long> mostSelectedGkp;
+    private LinkedHashMap<String, String> mostSelectedGkpByPercent;
+    private double averageEntryGkpTotalNum;
+    private double averageEntryGkpTotalPoints;
+    private LinkedHashMap<EntryInfoData, Integer> mostEntryGkpPoints;
 
     // def
     private int defTotalPoints;
     private String defTotalPointsByPercent;
-    private double averageDefTotalPoints;
-    private String averageDefTotalPointsByPercent;
-    private double averageDefTotalNum;
-    private LinkedHashMap<String, Long> mostSelectedDef;
+    private LinkedHashMap<String, String> mostSelectedDefByPercent;
+    private double averageEntryDefTotalNum;
+    private double averageEntryDefTotalPoints;
+    private LinkedHashMap<EntryInfoData, Integer> mostEntryDefPoints;
 
     // mid
     private int midTotalPoints;
     private String midTotalPointsByPercent;
-    private double averageMidTotalPoints;
-    private String averageMidTotalPointsByPercent;
-    private double averageMidTotalNum;
-    private LinkedHashMap<String, Long> mostSelectedMid;
+    private LinkedHashMap<String, String> mostSelectedMidByPercent;
+    private double averageEntryMidTotalNum;
+    private double averageEntryMidTotalPoints;
+    private LinkedHashMap<EntryInfoData, Integer> mostEntryMidPoints;
 
     // fwd
     private int fwdTotalPoints;
     private String fwdTotalPointsByPercent;
-    private double averageFwdTotalPoints;
-    private String averageFwdTotalPointsByPercent;
-    private double averageFwdTotalNum;
-    private LinkedHashMap<String, Long> mostSelectedFwd;
+    private LinkedHashMap<String, String> mostSelectedFwdByPercent;
+    private double averageEntryFwdTotalNum;
+    private double averageEntryFwdTotalPoints;
+    private LinkedHashMap<EntryInfoData, Integer> mostEntryFwdPoints;
 
     // formation
-    private LinkedHashMap<String, Long> mostSelectedFormation;
+    private LinkedHashMap<String, String> mostSelectedFormation; // formation -> percent
 
 }

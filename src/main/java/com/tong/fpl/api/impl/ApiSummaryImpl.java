@@ -2,6 +2,9 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiSummary;
 import com.tong.fpl.domain.letletme.summary.entry.*;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
@@ -52,4 +55,20 @@ public class ApiSummaryImpl implements IApiSummary {
     public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType) {
         return this.apiQueryService.qryLeagueSeasonSummary(leagueId, leagueType);
     }
+
+    @Override
+    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType) {
+        return this.apiQueryService.qryLeagueSeasonCaptain(leagueId, leagueType);
+    }
+
+    @Override
+    public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType) {
+        return this.apiQueryService.qryLeagueSeasonScore(leagueId, leagueType);
+    }
+
+    @Override
+    public LeagueSeasonEntryData qryLeagueSeasonEntry(int leagueId, String leagueType, int entry) {
+        return this.apiQueryService.qryLeagueSeasonEntry(leagueId, leagueType, entry);
+    }
+
 }

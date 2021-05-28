@@ -14,5 +14,21 @@ public class LeagueSeasonEntryData {
     private String leagueType;
     private String leagueName;
     private int entry;
+    private String entryName;
+    private String playerName;
+    // summary
+    private int overallPoints;
+    private int pointsRank;
+    private double value;
+    private int valueRank;
+    private int totalTransfers;
+    private int transfersRank;
+    private int totalTransfersCost;
+    private int transfersCostRank;
+    private int totalBenchPoints;
+    private int benchPointsRank;
+    private int totalAutoSubsPoints;
+    private int autoSubsPointsRank;
+    
 
 }

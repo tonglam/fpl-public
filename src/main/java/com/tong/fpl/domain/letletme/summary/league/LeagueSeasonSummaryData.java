@@ -1,9 +1,11 @@
 package com.tong.fpl.domain.letletme.summary.league;
 
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.summary.entry.EntrySeasonInfoData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -31,5 +33,6 @@ public class LeagueSeasonSummaryData {
     private double averageAutoSubsPoints;
     private double topAverageAutoSubsPoints;
     private List<EntrySeasonInfoData> topAutoSubs;
+    private LinkedHashMap<EntryInfoData, Integer> topAboveHundred;
 
 }
