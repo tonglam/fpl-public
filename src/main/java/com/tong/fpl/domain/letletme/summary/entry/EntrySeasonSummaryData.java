@@ -5,7 +5,6 @@ import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -27,7 +26,7 @@ public class EntrySeasonSummaryData {
     private int lowestOverallRank; // 最低排名
     private int lowestOverallRankEvent; // 最低排名周
     private List<EntryBelowAverageData> belowAverages; // 低于平均分
-    private LinkedHashMap<Integer, Integer> aboveHundred; // 破百
+    private List<EntryAboveHundredData> aboveHundred; // 破百
     private int highestBenchPoints; // 最高板凳得分
     private int highestBenchPointsEvent; // 最高板凳得分周
     private List<EntryPickData> highestBench; // 最高板凳

@@ -19,12 +19,12 @@ public class EntrySeasonCaptainData {
     private String totalPointsByPercent; // 队长总得分占比
     private int viceTotalPoints; // 自动替补队长总得分
     private String viceTotalPointsByPercent; // 自动替补队长总得分占比
-    private int maxPoints; // 队长得分最高
-    private String maxPointsWebName; // 队长得分最高球员
-    private int maxPointsEvent; // 队长得分最高周
-    private int minPoints; // 队长得分最低
-    private String minPointsWebName; // 队长得分最低球员
-    private int minPointsEvent; // 队长得分最低周
+    private int mostPoints; // 队长得分最高
+    private String mostPointsWebName; // 队长得分最高球员
+    private int mostPointsEvent; // 队长得分最高周
+    private int leastPoints; // 队长得分最低
+    private String leastPointsWebName; // 队长得分最低球员
+    private int leastPointsEvent; // 队长得分最低周
     private int tcPoints; // 三倍队长得分
     private String tcPointsWebName; // 三倍队长球员
     private int tcEvent; // 三倍队长周

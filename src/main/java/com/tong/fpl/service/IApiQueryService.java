@@ -9,11 +9,6 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
-import com.tong.fpl.domain.letletme.summary.entry.*;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 
@@ -29,6 +24,12 @@ public interface IApiQueryService {
     /**
      * @apiNote common
      */
+    String getUtcDeadlineByEvent(int event);
+
+    String getDeadlineByEvent(int event);
+
+    int getCurrentEvent();
+
     Map<String, String> qryCurrentEventAndNextUtcDeadline();
 
     Map<String, Integer> qryEventAverageScore();
@@ -125,26 +126,5 @@ public interface IApiQueryService {
     List<TournamentPointsGroupEventResultData> qryTournamentEventSummary(int event, int tournamentId);
 
     List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry);
-
-    /**
-     * @apiNote summary
-     */
-    EntrySeasonInfoData qryEntrySeasonInfo(int entry);
-
-    EntrySeasonSummaryData qryEntrySeasonSummary(int entry);
-
-    EntrySeasonCaptainData qryEntrySeasonCaptain(int entry);
-
-    EntrySeasonTransfersData qryEntrySeasonTransfers(int entry);
-
-    EntrySeasonScoreData qryEntrySeasonScore(int entry);
-
-    LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType);
-
-    LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType);
-
-    LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType);
-
-    LeagueSeasonEntryData qryLeagueSeasonEntry(int leagueId, String leagueType, int entry);
 
 }

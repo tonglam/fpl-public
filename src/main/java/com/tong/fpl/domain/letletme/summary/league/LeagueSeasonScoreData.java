@@ -18,7 +18,6 @@ public class LeagueSeasonScoreData {
     private String leagueName;
     private int totalOverallPoints;
     private double averageOverallPoints;
-
     // gkp
     private int gkpTotalPoints;
     private String gkpTotalPointsByPercent;
@@ -26,7 +25,6 @@ public class LeagueSeasonScoreData {
     private double averageEntryGkpTotalNum;
     private double averageEntryGkpTotalPoints;
     private LinkedHashMap<EntryInfoData, Integer> mostEntryGkpPoints;
-
     // def
     private int defTotalPoints;
     private String defTotalPointsByPercent;
@@ -34,7 +32,6 @@ public class LeagueSeasonScoreData {
     private double averageEntryDefTotalNum;
     private double averageEntryDefTotalPoints;
     private LinkedHashMap<EntryInfoData, Integer> mostEntryDefPoints;
-
     // mid
     private int midTotalPoints;
     private String midTotalPointsByPercent;
@@ -42,7 +39,6 @@ public class LeagueSeasonScoreData {
     private double averageEntryMidTotalNum;
     private double averageEntryMidTotalPoints;
     private LinkedHashMap<EntryInfoData, Integer> mostEntryMidPoints;
-
     // fwd
     private int fwdTotalPoints;
     private String fwdTotalPointsByPercent;
@@ -50,7 +46,6 @@ public class LeagueSeasonScoreData {
     private double averageEntryFwdTotalNum;
     private double averageEntryFwdTotalPoints;
     private LinkedHashMap<EntryInfoData, Integer> mostEntryFwdPoints;
-
     // formation
     private LinkedHashMap<String, String> mostSelectedFormation; // formation -> percent
 

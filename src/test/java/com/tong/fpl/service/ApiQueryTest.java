@@ -13,11 +13,6 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
-import com.tong.fpl.domain.letletme.summary.entry.*;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
@@ -288,72 +283,6 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"1, 1870"})
     void qryTournamentEntryEventSummary(int tournamentId, int entry) {
         List<TournamentPointsGroupEventResultData> list = this.apiQueryService.qryTournamentEntryEventSummary(tournamentId, entry);
-        System.out.println(1);
-    }
-
-    /**
-     * @apiNote summary
-     */
-    @ParameterizedTest
-    @CsvSource({"1870"})
-    void qryEntrySeasonInfo(int entry) {
-        EntrySeasonInfoData data = this.apiQueryService.qryEntrySeasonInfo(entry);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1870"})
-    void qryEntrySeasonSummary(int entry) {
-        EntrySeasonSummaryData data = this.apiQueryService.qryEntrySeasonSummary(entry);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1870"})
-    void qryEntrySeasonCaptain(int entry) {
-        EntrySeasonCaptainData data = this.apiQueryService.qryEntrySeasonCaptain(entry);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1870"})
-    void qryEntrySeasonTransfers(int entry) {
-        EntrySeasonTransfersData data = this.apiQueryService.qryEntrySeasonTransfers(entry);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1870"})
-    void qryEntrySeasonScore(int entry) {
-        EntrySeasonScoreData data = this.apiQueryService.qryEntrySeasonScore(entry);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3571, Classic"})
-    void qryLeagueSeasonSummary(int leagueId, String leagueType) {
-        LeagueSeasonSummaryData data = this.apiQueryService.qryLeagueSeasonSummary(leagueId, leagueType);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3571, Classic"})
-    void qryLeagueSeasonCaptain(int leagueId, String leagueType) {
-        LeagueSeasonCaptainData data = this.apiQueryService.qryLeagueSeasonCaptain(leagueId, leagueType);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3571, Classic"})
-    void qryLeagueSeasonScore(int leagueId, String leagueType) {
-        LeagueSeasonScoreData data = this.apiQueryService.qryLeagueSeasonScore(leagueId, leagueType);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3571, Classic, 1870"})
-    void qryLeagueSeasonEntry(int leagueId, String leagueType, int entry) {
-        LeagueSeasonEntryData data = this.apiQueryService.qryLeagueSeasonEntry(leagueId, leagueType, entry);
         System.out.println(1);
     }
 

@@ -18,17 +18,48 @@ public class LeagueSeasonEntryData {
     private String playerName;
     // summary
     private int overallPoints;
-    private int pointsRank;
+    private int overallRank;
+    private int leagueRank;
     private double value;
     private int valueRank;
-    private int totalTransfers;
+    private int transfers;
     private int transfersRank;
-    private int totalTransfersCost;
+    private int transfersCost;
     private int transfersCostRank;
-    private int totalBenchPoints;
+    private int benchPoints;
     private int benchPointsRank;
-    private int totalAutoSubsPoints;
+    private int autoSubsPoints;
     private int autoSubsPointsRank;
-    
+    // captain
+    private int captainPoints;
+    private int captainRank;
+    private int mostCaptainPoints;
+    private int mostCaptainPointsRank;
+    private int tcCaptainPoints;
+    private int tcCaptainPointsRank;
+    // transfers
+    private int mostTransfersProfit;
+    private int mostTransfersProfitRank;
+    private int leastTransfersProfit;
+    private int leastTransfersProfitRank;
+    private int mostTransfersCost;
+    private int mostTransfersCostRank;
+    // score
+    private int gkpTotalPoints;
+    private int gkpTotalPointsRank;
+    private int gkpTotalNum;
+    private int gkpTotalNumRank;
+    private int defTotalPoints;
+    private int defTotalPointsRank;
+    private int defTotalNum;
+    private int defTotalNumRank;
+    private int midTotalPoints;
+    private int midTotalPointsRank;
+    private int midTotalNum;
+    private int midTotalNumRank;
+    private int fwdTotalPoints;
+    private int fwdTotalPointsRank;
+    private int fwdTotalNum;
+    private int fwdTotalNumRank;
 
 }
