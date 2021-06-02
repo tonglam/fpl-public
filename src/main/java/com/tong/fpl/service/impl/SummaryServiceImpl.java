@@ -1146,9 +1146,9 @@ public class SummaryServiceImpl implements ISummaryService {
                 .collect(Collectors.toMap(LeagueEventReportEntity::getPlayedCaptain,
                         v -> {
                             if (v.getPlayedCaptain() == v.getCaptain()) {
-                                return this.calcCaptionPoints(v.getCaptainPoints(), v.getEventChip());
+                                return this.calcCaptainPoints(v.getCaptainPoints(), v.getEventChip());
                             } else if (v.getPlayedCaptain() == v.getViceCaptain()) {
-                                return this.calcCaptionPoints(v.getViceCaptainPoints(), v.getEventChip());
+                                return this.calcCaptainPoints(v.getViceCaptainPoints(), v.getEventChip());
                             }
                             return 0;
                         }, Integer::sum, HashMap::new));
@@ -1170,14 +1170,14 @@ public class SummaryServiceImpl implements ISummaryService {
                 .setTotalCaptainPoints(
                         map.values()
                                 .stream()
-                                .mapToInt(o -> this.calcCaptionPoints(o.getCaptainPoints(), o.getEventChip()))
+                                .mapToInt(o -> this.calcCaptainPoints(o.getCaptainPoints(), o.getEventChip()))
                                 .sum()
                 )
                 .setTotalViceCaptainPoints(
                         map.values()
                                 .stream()
                                 .filter(o -> o.getPlayedCaptain() == o.getViceCaptain())
-                                .mapToInt(o -> this.calcCaptionPoints(o.getViceCaptainPoints(), o.getEventChip()))
+                                .mapToInt(o -> this.calcCaptainPoints(o.getViceCaptainPoints(), o.getEventChip()))
                                 .sum()
                 )
                 .setAverageCaptainPoints(
@@ -1187,7 +1187,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                         .map(entry ->
                                                 map.get(entry)
                                                         .stream()
-                                                        .mapToDouble(o -> this.calcCaptionPoints(o.getCaptainPoints(), o.getEventChip()))
+                                                        .mapToDouble(o -> this.calcCaptainPoints(o.getCaptainPoints(), o.getEventChip()))
                                                         .sum()
                                         )
                                         .collect(Collectors.toList())
@@ -1206,7 +1206,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                                 map.get(entry)
                                                         .stream()
                                                         .filter(o -> o.getPlayedCaptain() == o.getViceCaptain())
-                                                        .mapToDouble(o -> this.calcCaptionPoints(o.getViceCaptainPoints(), o.getEventChip()))
+                                                        .mapToDouble(o -> this.calcCaptainPoints(o.getViceCaptainPoints(), o.getEventChip()))
                                                         .sum()
                                         )
                                         .collect(Collectors.toList())
@@ -1296,9 +1296,9 @@ public class SummaryServiceImpl implements ISummaryService {
                 .collect(Collectors.toMap(LeagueEventReportEntity::getEntry,
                         v -> {
                             if (v.getPlayedCaptain() == v.getCaptain()) {
-                                return this.calcCaptionPoints(v.getCaptainPoints(), v.getEventChip());
+                                return this.calcCaptainPoints(v.getCaptainPoints(), v.getEventChip());
                             } else if (v.getPlayedCaptain() == v.getViceCaptain()) {
-                                return this.calcCaptionPoints(v.getViceCaptainPoints(), v.getEventChip());
+                                return this.calcCaptainPoints(v.getViceCaptainPoints(), v.getEventChip());
                             }
                             return 0;
                         }, Integer::sum, HashMap::new));
@@ -1398,7 +1398,7 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    private int calcCaptionPoints(int points, String chip) {
+    private int calcCaptainPoints(int points, String chip) {
         if (StringUtils.equalsIgnoreCase(Chip.TC.getValue(), chip)) {
             return 3 * points;
         }
@@ -1867,10 +1867,19 @@ public class SummaryServiceImpl implements ISummaryService {
                 .setOverallPoints(last.getOverallPoints())
                 .setOverallRank(last.getOverallRank())
                 .setValue(last.getTeamValue() / 10.0);
+        this.setEntryLeagueInfoData(current, leagueEventReportEntityList, entryLeagueEventReportMap, data);
+        // captain
+        this.setEntryLeagueCaptainData(entry, leagueEventReportEntityList, entryLeagueEventReportMap, data);
+        // score
+        this.setEntryLeagueScoreData(entry, leagueEventReportEntityList, entryLeagueEventReportMap, data);
+        return data;
+    }
+
+    private void setEntryLeagueInfoData(int event, List<LeagueEventReportEntity> leagueEventReportEntityList, Multimap<Integer, LeagueEventReportEntity> entryLeagueEventReportMap, LeagueSeasonEntryData data) {
         // league rank
         List<Integer> overallRankList = leagueEventReportEntityList
                 .stream()
-                .filter(o -> o.getEvent() == current)
+                .filter(o -> o.getEvent() == event)
                 .map(LeagueEventReportEntity::getOverallRank)
                 .sorted(Comparator.comparing(Integer::intValue))
                 .collect(Collectors.toList());
@@ -1883,7 +1892,7 @@ public class SummaryServiceImpl implements ISummaryService {
         // value rank
         List<Double> valueList = leagueEventReportEntityList
                 .stream()
-                .filter(o -> o.getEvent() == current)
+                .filter(o -> o.getEvent() == event)
                 .map(o -> o.getTeamValue() / 10.0)
                 .sorted(Comparator.comparing(Double::doubleValue).reversed())
                 .collect(Collectors.toList());
@@ -1896,7 +1905,7 @@ public class SummaryServiceImpl implements ISummaryService {
         // transfers
         List<Integer> transfersRankList = leagueEventReportEntityList
                 .stream()
-                .filter(o -> o.getEvent() == current)
+                .filter(o -> o.getEvent() == event)
                 .map(o ->
                         entryLeagueEventReportMap.get(o.getEntry())
                                 .stream()
@@ -1920,7 +1929,7 @@ public class SummaryServiceImpl implements ISummaryService {
         // transfers cost
         List<Integer> transfersCostRankList = leagueEventReportEntityList
                 .stream()
-                .filter(o -> o.getEvent() == current)
+                .filter(o -> o.getEvent() == event)
                 .map(o ->
                         entryLeagueEventReportMap.get(o.getEntry())
                                 .stream()
@@ -1944,7 +1953,7 @@ public class SummaryServiceImpl implements ISummaryService {
         // bench points
         List<Integer> benchPointsRankList = leagueEventReportEntityList
                 .stream()
-                .filter(o -> o.getEvent() == current)
+                .filter(o -> o.getEvent() == event)
                 .map(o ->
                         entryLeagueEventReportMap.get(o.getEntry())
                                 .stream()
@@ -1968,7 +1977,7 @@ public class SummaryServiceImpl implements ISummaryService {
         // autoSubs points
         List<Integer> autoSubsPointsRankList = leagueEventReportEntityList
                 .stream()
-                .filter(o -> o.getEvent() == current)
+                .filter(o -> o.getEvent() == event)
                 .map(o ->
                         entryLeagueEventReportMap.get(o.getEntry())
                                 .stream()
@@ -1989,8 +1998,102 @@ public class SummaryServiceImpl implements ISummaryService {
                         .sum()
         );
         data.setAutoSubsPointsRank(autoSubsPointsRankMap.get(data.getAutoSubsPoints()));
+    }
+
+    private void setEntryLeagueCaptainData(int entry, List<LeagueEventReportEntity> leagueEventReportEntityList, Multimap<Integer, LeagueEventReportEntity> entryLeagueEventReportMap, LeagueSeasonEntryData data) {
+        Multimap<Integer, Integer> entryLeagueEventCaptainMap = HashMultimap.create();
+        leagueEventReportEntityList.forEach(o -> entryLeagueEventCaptainMap.put(o.getEntry(), this.calcLeagueCaptainPoints(o)));
+        data
+                .setCaptainPoints(
+                        entryLeagueEventCaptainMap.get(entry)
+                                .stream()
+                                .mapToInt(Integer::intValue)
+                                .sum()
+                )
+                .setMostCaptainPoints(
+                        entryLeagueEventReportMap.get(entry)
+                                .stream()
+                                .map(this::getLeaguePlayedCaptainPoints)
+                                .max(Comparator.comparing(Integer::intValue))
+                                .orElse(0)
+                )
+                .setTcCaptainPoints(
+                        entryLeagueEventReportMap.get(entry)
+                                .stream()
+                                .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getEventChip()))
+                                .map(this::getLeaguePlayedCaptainPoints)
+                                .findFirst()
+                                .orElse(0)
+                );
         // captain points
-        return data;
+        List<Integer> captainPointsRankList = entryLeagueEventCaptainMap.keySet()
+                .stream()
+                .map(o ->
+                        entryLeagueEventCaptainMap.get(o)
+                                .stream()
+                                .mapToInt(Integer::intValue)
+                                .sum()
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> captainPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, captainPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, captainPointsRankList, captainPointsRankMap);
+            captainPointsRankMap.put(captainPointsRankList.get(i), rank);
+        });
+        data.setCaptainRank(captainPointsRankMap.get(data.getCaptainPoints()));
+        // most captain points
+        List<Integer> mostCaptainPointsRankList = entryLeagueEventCaptainMap.keySet()
+                .stream()
+                .map(o ->
+                        entryLeagueEventReportMap.get(o)
+                                .stream()
+                                .map(this::getLeaguePlayedCaptainPoints)
+                                .max(Comparator.comparing(Integer::intValue))
+                                .orElse(0)
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> mostCaptainPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, mostCaptainPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, mostCaptainPointsRankList, mostCaptainPointsRankMap);
+            mostCaptainPointsRankMap.put(mostCaptainPointsRankList.get(i), rank);
+        });
+        data.setMostCaptainPointsRank(mostCaptainPointsRankMap.get(data.getMostCaptainPoints()));
+        // tc captain points
+        List<Integer> tcCaptainPointsRankList = entryLeagueEventCaptainMap.keySet()
+                .stream()
+                .map(o ->
+                        entryLeagueEventReportMap.get(o)
+                                .stream()
+                                .filter(i -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), i.getEventChip()))
+                                .map(this::getLeaguePlayedCaptainPoints)
+                                .max(Comparator.comparing(Integer::intValue))
+                                .orElse(0)
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> tcCaptainPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, tcCaptainPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, tcCaptainPointsRankList, tcCaptainPointsRankMap);
+            tcCaptainPointsRankMap.put(tcCaptainPointsRankList.get(i), rank);
+        });
+        data.setTcCaptainPointsRank(tcCaptainPointsRankMap.get(data.getTcCaptainPoints()));
+    }
+
+    private int getLeaguePlayedCaptainPoints(LeagueEventReportEntity leagueEventReportEntity) {
+        int points = leagueEventReportEntity.getCaptainPoints();
+        if (leagueEventReportEntity.getPlayedCaptain() == leagueEventReportEntity.getViceCaptain()) {
+            points = leagueEventReportEntity.getViceCaptainPoints();
+        }
+        return points;
+    }
+
+    private int calcLeagueCaptainPoints(LeagueEventReportEntity leagueEventReportEntity) {
+        return this.calcCaptainPoints(this.getLeaguePlayedCaptainPoints(leagueEventReportEntity), leagueEventReportEntity.getEventChip());
+    }
+
+    private void setEntryLeagueScoreData(int entry, List<LeagueEventReportEntity> leagueEventReportEntityList, Multimap<Integer, LeagueEventReportEntity> entryLeagueEventReportMap, LeagueSeasonEntryData data) {
     }
 
     private <T> int calcRealRank(int index, List<T> rankList, LinkedHashMap<T, Integer> rankMap) {
@@ -2003,9 +2106,9 @@ public class SummaryServiceImpl implements ISummaryService {
         if (rankList.get(index) == lastValue) {
             rank = lastRank;
         } else {
-            int size = (int) rankMap.values()
+            int size = (int) rankList
                     .stream()
-                    .filter(o -> o == lastRank)
+                    .filter(o -> o == lastValue)
                     .count();
             rank = lastRank + size;
         }

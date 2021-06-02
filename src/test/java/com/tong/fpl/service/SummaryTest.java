@@ -13,11 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Create by tong on 2021/6/2
  */
-public class SummartTest extends FplApplicationTests {
+public class SummaryTest extends FplApplicationTests {
 
     @Autowired
     private ISummaryService summaryService;
-
 
     /**
      * @apiNote entry
