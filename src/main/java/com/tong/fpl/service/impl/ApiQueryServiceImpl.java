@@ -8,7 +8,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
@@ -41,8 +40,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -74,31 +71,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     /**
      * @implNote common
      */
-    @Override
-    public String getUtcDeadlineByEvent(int event) {
-        return this.redisCacheService.getUtcDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
-    }
-
-    @Override
-    public String getDeadlineByEvent(int event) {
-        return this.redisCacheService.getDeadlineByEvent(CommonUtils.getCurrentSeason(), event);
-    }
-
-    @Override
-    public int getCurrentEvent() {
-        int event = 1;
-        for (int i = 1; i < 39; i++) {
-            String deadline = this.getDeadlineByEvent(i);
-            if (LocalDateTime.now()
-                    .isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
-                event = i;
-            } else {
-                break;
-            }
-        }
-        return event;
-    }
-
     @Cacheable(
             value = "api::qryCurrentEventAndNextUtcDeadline",
             cacheManager = "apiCacheManager",
@@ -107,9 +79,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Override
     public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
         Map<String, String> map = Maps.newHashMap();
-        int event = this.getCurrentEvent();
+        int event = this.queryService.getCurrentEvent();
         map.put("event", String.valueOf(event));
-        String utcDeadline = this.getUtcDeadlineByEvent(event + 1);
+        String utcDeadline = this.queryService.getUtcDeadlineByEvent(event + 1);
         map.put("utcDeadline", utcDeadline);
         return map;
     }
@@ -122,7 +94,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Override
     public Map<String, Integer> qryEventAverageScore() {
         Map<String, Integer> map = Maps.newHashMap();
-        int current = this.getCurrentEvent();
+        int current = this.queryService.getCurrentEvent();
         IntStream.rangeClosed(1, current).forEach(event -> {
             String key = StringUtils.joinWith("::", "AverageScore", event);
             int score = (int) RedisUtils.getValueByKey(key).orElse(0);
@@ -165,7 +137,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public List<EntryInfoData> fuzzyQueryEntry(EntryQueryParam param) {
         List<EntryInfoData> list = Lists.newArrayList();
         LambdaQueryWrapper<LeagueEventReportEntity> queryWrapper = new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getEvent, this.getCurrentEvent());
+                .eq(LeagueEventReportEntity::getEvent, this.queryService.getCurrentEvent());
         if (StringUtils.isNotBlank(param.getEntryName())) {
             queryWrapper.like(LeagueEventReportEntity::getEntryName, param.getEntryName());
             list.addAll(this.fuzzyQueryLeagueReport(queryWrapper));
@@ -339,8 +311,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public List<ElementEventResultData> qryEntryEventPicksResult(int event, String chip, List<EntryPickData> pickList) {
         List<ElementEventResultData> list = Lists.newArrayList();
         // prepare
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
@@ -403,8 +375,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry) {
         List<EntryEventTransfersData> list = Lists.newArrayList();
         //prepare
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
@@ -493,7 +465,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public List<EntryEventResultData> qryEntryEventSummary(int entry) {
-        int event = this.getCurrentEvent();
+        int event = this.queryService.getCurrentEvent();
         List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
                 .eq(EntryEventResultEntity::getEntry, entry)
                 .le(EntryEventResultEntity::getEvent, event)
@@ -528,9 +500,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Override
     public List<LiveMatchData> qryLiveMatchByStatus(String playStatus) {
         // prepare
-        int event = this.getCurrentEvent();
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        int event = this.queryService.getCurrentEvent();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         // next event
         if (StringUtils.equalsIgnoreCase(MatchPlayStatus.Next_Event.name(), playStatus)) {
             return this.qryNextEventMatch(event, teamNameMap, teamShortNameMap);
@@ -666,19 +638,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     /**
-     * @implNote team
-     */
-    @Override
-    public Map<String, String> getTeamNameMap() {
-        return this.redisCacheService.getTeamNameMap(CommonUtils.getCurrentSeason());
-    }
-
-    @Override
-    public Map<String, String> getTeamShortNameMap() {
-        return this.redisCacheService.getTeamShortNameMap(CommonUtils.getCurrentSeason());
-    }
-
-    /**
      * @implNote player
      */
     @Cacheable(
@@ -696,8 +655,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
         return BeanUtil.copyProperties(playerEntity, PlayerInfoData.class)
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setTeamName(this.getTeamNameByTeam(playerEntity.getTeamId()))
-                .setTeamShortName(this.getShortTeamNameByTeam(playerEntity.getTeamId()))
+                .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
+                .setTeamShortName(this.queryService.getShortTeamNameByTeam(playerEntity.getTeamId()))
                 .setPrice(playerEntity.getPrice() / 10.0)
                 .setPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints());
     }
@@ -713,8 +672,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         LinkedHashMap<String, List<PlayerInfoData>> map = Maps.newLinkedHashMap();
         Multimap<String, PlayerInfoData> multimap = HashMultimap.create();
         // prepare
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         // init
         this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
                 .eq(PlayerEntity::getElementType, elementType))
@@ -777,8 +736,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public Map<String, List<PlayerValueData>> qryPlayerValueByDate(String date) {
         Map<String, List<PlayerValueData>> map = Maps.newHashMap();
         // prepare
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         List<PlayerValueEntity> playerValueList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
                 .eq(PlayerValueEntity::getChangeDate, date));
         if (CollectionUtils.isEmpty(playerValueList)) {
@@ -830,8 +789,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     @Override
     public List<PlayerValueData> qryPlayerValueByElement(int element) {
         // prepare
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         List<PlayerValueEntity> playerValueList = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
                 .eq(PlayerValueEntity::getElement, element)
                 .orderByAsc(PlayerValueEntity::getChangeDate));
@@ -863,8 +822,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId) {
         Map<String, List<PlayerValueData>> map = Maps.newHashMap();
         // prepare
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         // element list
         List<Integer> teamElementList = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
                 .eq(PlayerEntity::getTeamId, teamId))
@@ -930,7 +889,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public List<String> qryAllLeagueName() {
-        int event = this.getCurrentEvent();
+        int event = this.queryService.getCurrentEvent();
         return this.leagueEventReportService.getBaseMapper().qryLeagueNameListByEvent(event);
     }
 
@@ -1562,8 +1521,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return Lists.newArrayList();
         }
         // prepare
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
@@ -1792,7 +1751,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry) {
-        int event = this.getCurrentEvent();
+        int event = this.queryService.getCurrentEvent();
         return this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
                 .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
                 .eq(TournamentPointsGroupResultEntity::getEntry, entry)

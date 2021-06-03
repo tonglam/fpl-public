@@ -114,6 +114,14 @@ public class QueryServiceImpl implements IQueryService {
         return playerEntity == null ? "" : playerEntity.getWebName();
     }
 
+    @Cacheable(value = "qryPlayerWebNameMap", key = "#season", unless = "#result.size() eq 0")
+    @Override
+    public Map<Integer, String> qryPlayerWebNameMap(String season) {
+        return this.playerService.list()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+    }
+
     @Override
     public int qryPlayerPriceByElement(int element) {
         PlayerEntity playerEntity = this.playerService.getById(element);

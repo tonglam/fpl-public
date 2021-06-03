@@ -50,7 +50,14 @@ public interface IQueryService {
         return this.qryPlayerWebNameByElement(CommonUtils.getCurrentSeason(), element);
     }
 
+
     String qryPlayerWebNameByElement(String season, int element);
+
+    default Map<Integer, String> qryPlayerWebNameMap() {
+        return this.qryPlayerWebNameMap(CommonUtils.getCurrentSeason());
+    }
+
+    Map<Integer, String> qryPlayerWebNameMap(String season);
 
     int qryPlayerPriceByElement(int element);
 
@@ -169,11 +176,19 @@ public interface IQueryService {
     /**
      * @apiNote team
      */
+    default String getShortTeamNameByTeam(int teamId) {
+        return this.getTeamShortNameMap().getOrDefault(String.valueOf(teamId), "");
+    }
+
     default Map<String, String> getTeamNameMap() {
         return this.getTeamNameMap(CommonUtils.getCurrentSeason());
     }
 
     Map<String, String> getTeamNameMap(String season);
+
+    default String getTeamNameByTeam(int teamId) {
+        return this.getTeamNameMap().getOrDefault(String.valueOf(teamId), "");
+    }
 
     default Map<String, String> getTeamShortNameMap() {
         return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());

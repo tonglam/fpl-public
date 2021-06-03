@@ -5,7 +5,6 @@ import com.tong.fpl.domain.letletme.summary.entry.EntrySeasonInfoData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -17,22 +16,33 @@ public class LeagueSeasonSummaryData {
 
     private int leagueId;
     private String leagueType;
-    private String leagueName;
-    private double averageOverallPoints;
-    private double topAverageOverallPoints;
+    // overall points
     private List<EntrySeasonInfoData> topRank;
-    private double averageValue;
-    private double topAverageValue;
+    private int entryOverallRank;
+    private int entryLeagueRank;
+    // value
     private List<EntrySeasonInfoData> topValue;
-    private double averageCost;
-    private double topAverageCost;
+    private double entryValue;
+    private int entryValueRank;
+    // transfers
+    private List<EntrySeasonInfoData> topTransfers;
+    private int entryTransfers;
+    private int entryTransfersRank;
+    // cost
     private List<EntrySeasonInfoData> topCost;
-    private double averageBenchPoints;
-    private double topAverageBenchPoints;
+    private int entryCost;
+    private int entryCostRank;
+    // bench points
     private List<EntrySeasonInfoData> topBench;
-    private double averageAutoSubsPoints;
-    private double topAverageAutoSubsPoints;
+    private int entryBenchPoints;
+    private int entryBenchPointsRank;
+    // autoSubs points
     private List<EntrySeasonInfoData> topAutoSubs;
-    private LinkedHashMap<String, List<EntryAboveHundredData>> topAboveHundred;
+    private int entryAutoSubsPoints;
+    private int entryAutoSubsPointsRank;
+    // above hundred
+    private List<EntryAboveHundredData> topAboveHundred;
+    private int entryAboveHundredTimes;
+    private int entryAboveHundredRank;
 
 }

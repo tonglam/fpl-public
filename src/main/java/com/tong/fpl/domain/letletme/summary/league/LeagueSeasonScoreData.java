@@ -15,7 +15,6 @@ public class LeagueSeasonScoreData {
 
     private int leagueId;
     private String leagueType;
-    private String leagueName;
     private int totalOverallPoints;
     private double averageOverallPoints;
     // gkp
@@ -25,6 +24,10 @@ public class LeagueSeasonScoreData {
     private double averageEntryGkpTotalNum;
     private double averageEntryGkpTotalPoints;
     private LinkedHashMap<EntryInfoData, Integer> mostEntryGkpPoints;
+    private int entryGkpTotalPoints;
+    private int entryGkpTotalPointsRank;
+    private int entryGkpTotalNum;
+    private int entryGkpTotalNumRank;
     // def
     private int defTotalPoints;
     private String defTotalPointsByPercent;
@@ -32,6 +35,10 @@ public class LeagueSeasonScoreData {
     private double averageEntryDefTotalNum;
     private double averageEntryDefTotalPoints;
     private LinkedHashMap<EntryInfoData, Integer> mostEntryDefPoints;
+    private int entryDefTotalPoints;
+    private int entryDefTotalPointsRank;
+    private int entryDefTotalNum;
+    private int entryDefTotalNumRank;
     // mid
     private int midTotalPoints;
     private String midTotalPointsByPercent;
@@ -39,6 +46,10 @@ public class LeagueSeasonScoreData {
     private double averageEntryMidTotalNum;
     private double averageEntryMidTotalPoints;
     private LinkedHashMap<EntryInfoData, Integer> mostEntryMidPoints;
+    private int entryMidTotalPoints;
+    private int entryMidTotalPointsRank;
+    private int entryMidTotalNum;
+    private int entryMidTotalNumRank;
     // fwd
     private int fwdTotalPoints;
     private String fwdTotalPointsByPercent;
@@ -46,6 +57,10 @@ public class LeagueSeasonScoreData {
     private double averageEntryFwdTotalNum;
     private double averageEntryFwdTotalPoints;
     private LinkedHashMap<EntryInfoData, Integer> mostEntryFwdPoints;
+    private int entryFwdTotalPoints;
+    private int entryFwdTotalPointsRank;
+    private int entryFwdTotalNum;
+    private int entryFwdTotalNumRank;
     // formation
     private LinkedHashMap<String, String> mostSelectedFormation; // formation -> percent
 

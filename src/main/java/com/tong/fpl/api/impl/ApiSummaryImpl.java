@@ -3,7 +3,7 @@ package com.tong.fpl.api.impl;
 import com.tong.fpl.api.IApiSummary;
 import com.tong.fpl.domain.letletme.summary.entry.*;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.service.ISummaryService;
@@ -52,23 +52,23 @@ public class ApiSummaryImpl implements IApiSummary {
      * @implNote league
      */
     @Override
-    public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType) {
-        return this.summaryService.qryLeagueSeasonSummary(leagueId, leagueType);
+    public LeagueSeasonInfoData qryLeagueSeasonInfo(int leagueId, String leagueType) {
+        return this.summaryService.qryLeagueSeasonInfo(leagueId, leagueType);
     }
 
     @Override
-    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType) {
-        return this.summaryService.qryLeagueSeasonCaptain(leagueId, leagueType);
+    public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType, int entry) {
+        return this.summaryService.qryLeagueSeasonSummary(leagueId, leagueType, entry);
     }
 
     @Override
-    public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType) {
-        return this.summaryService.qryLeagueSeasonScore(leagueId, leagueType);
+    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType, int entry) {
+        return this.summaryService.qryLeagueSeasonCaptain(leagueId, leagueType, entry);
     }
 
     @Override
-    public LeagueSeasonEntryData qryLeagueSeasonEntry(int leagueId, String leagueType, int entry) {
-        return this.summaryService.qryLeagueSeasonEntry(leagueId, leagueType, entry);
+    public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType, int entry) {
+        return this.summaryService.qryLeagueSeasonScore(leagueId, leagueType, entry);
     }
 
 }

@@ -8,14 +8,16 @@ import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
+import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
 import com.tong.fpl.domain.letletme.entry.EntryEventTransfersData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.summary.entry.*;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.service.IApiQueryService;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ISummaryService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.JsonUtils;
@@ -40,9 +42,9 @@ import java.util.stream.IntStream;
 public class SummaryServiceImpl implements ISummaryService {
 
     private final IApiQueryService apiQueryService;
+    private final IQueryService queryService;
     private final PlayerService playerService;
     private final EventLiveService eventLiveService;
-    private final EntryInfoService entryInfoService;
     private final EntryEventResultService entryEventResultService;
     private final EntryEventTransfersService entryEventTransfersService;
     private final LeagueEventReportService leagueEventReportService;
@@ -60,7 +62,7 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public EntrySeasonInfoData qryEntrySeasonInfo(int entry) {
         // prepare
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
             return new EntrySeasonInfoData();
         }
@@ -109,13 +111,11 @@ public class SummaryServiceImpl implements ISummaryService {
     public EntrySeasonSummaryData qryEntrySeasonSummary(int entry) {
         EntrySeasonSummaryData data = new EntrySeasonSummaryData();
         // prepare
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
             return data;
         }
-        Map<Integer, String> webNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<Integer, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         if (CollectionUtils.isEmpty(webNameMap)) {
             return data;
         }
@@ -325,17 +325,15 @@ public class SummaryServiceImpl implements ISummaryService {
     public EntrySeasonCaptainData qryEntrySeasonCaptain(int entry) {
         EntrySeasonCaptainData data = new EntrySeasonCaptainData();
         // prepare
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
             return data;
         }
-        Map<String, String> shortNameMap = this.apiQueryService.getTeamShortNameMap();
+        Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
-        Map<Integer, String> webNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<Integer, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         if (CollectionUtils.isEmpty(webNameMap)) {
             return data;
         }
@@ -467,11 +465,11 @@ public class SummaryServiceImpl implements ISummaryService {
     public EntrySeasonTransfersData qryEntrySeasonTransfers(int entry) {
         EntrySeasonTransfersData data = new EntrySeasonTransfersData();
         // prepare
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
             return data;
         }
-        Map<String, String> shortNameMap = this.apiQueryService.getTeamShortNameMap();
+        Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
@@ -669,11 +667,11 @@ public class SummaryServiceImpl implements ISummaryService {
     public EntrySeasonScoreData qryEntrySeasonScore(int entry) {
         EntrySeasonScoreData data = new EntrySeasonScoreData();
         // prepare
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
             return data;
         }
-        Map<String, String> shortNameMap = this.apiQueryService.getTeamShortNameMap();
+        Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
@@ -861,16 +859,15 @@ public class SummaryServiceImpl implements ISummaryService {
     /**
      * @implNote league
      */
-
     @Cacheable(
-            value = "api::qryLeagueSeasonSummary",
+            value = "api::qryLeagueSeasonInfo",
             key = "#leagueId+'::'+#leagueType",
             cacheManager = "apiCacheManager",
             unless = "#result.leagueId eq 0"
     )
     @Override
-    public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType) {
-        LeagueSeasonSummaryData data = new LeagueSeasonSummaryData();
+    public LeagueSeasonInfoData qryLeagueSeasonInfo(int leagueId, String leagueType) {
+        LeagueSeasonInfoData data = new LeagueSeasonInfoData();
         // prepare
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueId, leagueId)
@@ -898,17 +895,10 @@ public class SummaryServiceImpl implements ISummaryService {
         if (leagueEventReportEntity == null) {
             return data;
         }
-        data
+        return data
                 .setLeagueId(leagueId)
                 .setLeagueType(leagueType)
-                .setLeagueName(leagueEventReportEntity.getLeagueName());
-        // rank
-        List<EntrySeasonInfoData> topRankList = map.values()
-                .stream()
-                .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallRank))
-                .limit(5)
-                .collect(Collectors.toList());
-        data
+                .setLeagueName(leagueEventReportEntity.getLeagueName())
                 .setAverageOverallPoints(
                         NumberUtil.round(
                                 map.values()
@@ -921,22 +911,16 @@ public class SummaryServiceImpl implements ISummaryService {
                 )
                 .setTopAverageOverallPoints(
                         NumberUtil.round(
-                                topRankList
+                                map.values()
                                         .stream()
+                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallRank))
+                                        .limit(5)
                                         .mapToDouble(EntrySeasonInfoData::getOverallPoints)
                                         .average()
                                         .orElse(0)
                                 , 2)
                                 .doubleValue()
                 )
-                .setTopRank(topRankList);
-        // value
-        List<EntrySeasonInfoData> topValueList = map.values()
-                .stream()
-                .sorted(Comparator.comparing(EntrySeasonInfoData::getTeamValue).reversed())
-                .limit(5)
-                .collect(Collectors.toList());
-        data
                 .setAverageValue(
                         NumberUtil.round(
                                 map.values()
@@ -949,22 +933,16 @@ public class SummaryServiceImpl implements ISummaryService {
                 )
                 .setTopAverageValue(
                         NumberUtil.round(
-                                topValueList
+                                map.values()
                                         .stream()
+                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTeamValue).reversed())
+                                        .limit(5)
                                         .mapToDouble(EntrySeasonInfoData::getTeamValue)
                                         .average()
                                         .orElse(0)
                                 , 2)
                                 .doubleValue()
                 )
-                .setTopValue(topValueList);
-        // cost
-        List<EntrySeasonInfoData> topCostList = map.values()
-                .stream()
-                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfersCost).reversed())
-                .limit(5)
-                .collect(Collectors.toList());
-        data
                 .setAverageCost(
                         NumberUtil.round(
                                 map.values()
@@ -977,22 +955,16 @@ public class SummaryServiceImpl implements ISummaryService {
                 )
                 .setTopAverageCost(
                         NumberUtil.round(
-                                topCostList
+                                map.values()
                                         .stream()
+                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfersCost).reversed())
+                                        .limit(5)
                                         .mapToDouble(EntrySeasonInfoData::getTotalTransfersCost)
                                         .average()
                                         .orElse(0)
                                 , 2)
                                 .doubleValue()
                 )
-                .setTopCost(topCostList);
-        // bench
-        List<EntrySeasonInfoData> topBenchList = map.values()
-                .stream()
-                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalBenchPoints).reversed())
-                .limit(5)
-                .collect(Collectors.toList());
-        data
                 .setAverageBenchPoints(
                         NumberUtil.round(
                                 map.values()
@@ -1005,22 +977,16 @@ public class SummaryServiceImpl implements ISummaryService {
                 )
                 .setTopAverageBenchPoints(
                         NumberUtil.round(
-                                topBenchList
+                                map.values()
                                         .stream()
+                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalBenchPoints).reversed())
+                                        .limit(5)
                                         .mapToDouble(EntrySeasonInfoData::getTotalBenchPoints)
                                         .average()
                                         .orElse(0)
                                 , 2)
                                 .doubleValue()
                 )
-                .setTopBench(topBenchList);
-        // autoSubs
-        List<EntrySeasonInfoData> topAutoSubsList = map.values()
-                .stream()
-                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalAutoSubsPoints).reversed())
-                .limit(5)
-                .collect(Collectors.toList());
-        data
                 .setAverageAutoSubsPoints(
                         NumberUtil.round(
                                 map.values()
@@ -1033,48 +999,208 @@ public class SummaryServiceImpl implements ISummaryService {
                 )
                 .setTopAverageAutoSubsPoints(
                         NumberUtil.round(
-                                topAutoSubsList
+                                map.values()
                                         .stream()
+                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalAutoSubsPoints).reversed())
+                                        .limit(5)
                                         .mapToDouble(EntrySeasonInfoData::getTotalAutoSubsPoints)
                                         .average()
                                         .orElse(0)
                                 , 2)
                                 .doubleValue()
-                )
-                .setTopAutoSubs(topAutoSubsList);
+                );
+    }
+
+    @Cacheable(
+            value = "api::qryLeagueSeasonSummary",
+            key = "#leagueId+'::'+#leagueType+'::'+#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.leagueId eq 0"
+    )
+    @Override
+    public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType, int entry) {
+        LeagueSeasonSummaryData data = new LeagueSeasonSummaryData();
+        // prepare
+        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .ne(LeagueEventReportEntity::getEventPoints, 0)
+                .orderByAsc(LeagueEventReportEntity::getEvent));
+        if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+            return data;
+        }
+        Map<Integer, EntrySeasonInfoData> map = Maps.newHashMap();
+        leagueEventReportEntityList.forEach(o -> {
+            EntrySeasonInfoData entrySeasonInfoData = this.initLeagueEntryInfoData(o, map);
+            if (entrySeasonInfoData != null) {
+                map.put(o.getEntry(), entrySeasonInfoData);
+            }
+        });
+        if (CollectionUtils.isEmpty(map)) {
+            return data;
+        }
+        data
+                .setLeagueId(leagueId)
+                .setLeagueType(leagueType);
+        // overall points
+        data.setTopRank(
+                map.values()
+                        .stream()
+                        .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallRank))
+                        .limit(5)
+                        .collect(Collectors.toList())
+        );
+        List<Integer> overallRankList = map.values()
+                .stream()
+                .map(EntrySeasonInfoData::getOverallRank)
+                .sorted(Comparator.comparing(Integer::intValue))
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> leagueRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, overallRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, overallRankList, leagueRankMap);
+            leagueRankMap.put(overallRankList.get(i), rank);
+        });
+        data.setEntryOverallRank(map.get(entry).getOverallRank());
+        data.setEntryLeagueRank(leagueRankMap.get(data.getEntryOverallRank()));
+        // value
+        data.setTopValue(
+                map.values()
+                        .stream()
+                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTeamValue).reversed())
+                        .limit(5)
+                        .collect(Collectors.toList())
+        );
+        List<Double> valueList = map.values()
+                .stream()
+                .map(EntrySeasonInfoData::getTeamValue)
+                .sorted(Comparator.comparing(Double::doubleValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Double, Integer> valueRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, valueList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, valueList, valueRankMap);
+            valueRankMap.put(valueList.get(i), rank);
+        });
+        data.setEntryValue(map.get(entry).getValue());
+        data.setEntryValueRank(valueRankMap.get(data.getEntryValue()));
+        // transfers
+        data.setTopTransfers(
+                map.values()
+                        .stream()
+                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfers).reversed())
+                        .limit(5)
+                        .collect(Collectors.toList())
+        );
+        List<Integer> transfersRankList = map.values()
+                .stream()
+                .map(EntrySeasonInfoData::getTotalTransfers)
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> transfersRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, transfersRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, transfersRankList, transfersRankMap);
+            transfersRankMap.put(transfersRankList.get(i), rank);
+        });
+        data.setEntryTransfers(map.get(entry).getTotalTransfers());
+        data.setEntryTransfersRank(transfersRankMap.get(data.getEntryTransfers()));
+        // cost
+        data.setTopCost(
+                map.values()
+                        .stream()
+                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfersCost).reversed())
+                        .limit(5)
+                        .collect(Collectors.toList())
+        );
+        List<Integer> costRankList = map.values()
+                .stream()
+                .map(EntrySeasonInfoData::getTotalTransfersCost)
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> costRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, costRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, costRankList, costRankMap);
+            costRankMap.put(costRankList.get(i), rank);
+        });
+        data.setEntryCost(map.get(entry).getTotalTransfersCost());
+        data.setEntryCostRank(costRankMap.get(data.getEntryCost()));
+        // bench
+        data.setTopBench(
+                map.values()
+                        .stream()
+                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalBenchPoints).reversed())
+                        .limit(5)
+                        .collect(Collectors.toList())
+        );
+        List<Integer> benchPointsRankList = map.values()
+                .stream()
+                .map(EntrySeasonInfoData::getTotalBenchPoints)
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> benchPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, benchPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, benchPointsRankList, benchPointsRankMap);
+            benchPointsRankMap.put(benchPointsRankList.get(i), rank);
+        });
+        data.setEntryBenchPoints(map.get(entry).getTotalBenchPoints());
+        data.setEntryBenchPointsRank(benchPointsRankMap.get(data.getEntryBenchPoints()));
+        // autoSubs
+        data.setTopAutoSubs(
+                map.values()
+                        .stream()
+                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalAutoSubsPoints).reversed())
+                        .limit(5)
+                        .collect(Collectors.toList())
+        );
+        List<Integer> autoSubsPointsRankList = map.values()
+                .stream()
+                .map(EntrySeasonInfoData::getTotalAutoSubsPoints)
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> autoSubsPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, autoSubsPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, autoSubsPointsRankList, autoSubsPointsRankMap);
+            autoSubsPointsRankMap.put(autoSubsPointsRankList.get(i), rank);
+        });
+        data.setEntryAutoSubsPoints(map.get(entry).getTotalAutoSubsPoints());
+        data.setEntryAutoSubsPointsRank(autoSubsPointsRankMap.get(data.getEntryAutoSubsPoints()));
         // above hundred
-        List<LeagueEventReportEntity> aboveHundredEntityList = leagueEventReportEntityList
+        Multimap<Integer, EntryAboveHundredData> aboveHundredEntityMap = HashMultimap.create();
+        leagueEventReportEntityList
                 .stream()
                 .filter(o -> o.getEventPoints() >= 100)
-                .collect(Collectors.toList());
-        Map<String, Long> entryAboveHundredCountMap = aboveHundredEntityList
+                .forEach(o -> aboveHundredEntityMap.put(o.getEntry(),
+                        new EntryAboveHundredData()
+                                .setEvent(o.getEvent())
+                                .setEntry(o.getEntry())
+                                .setEntryName(o.getEntryName())
+                                .setPlayerName(o.getPlayerName())
+                                .setPoint(o.getEventPoints())
+                                .setTransfers(o.getEventTransfers())
+                                .setCost(o.getEventTransfersCost())
+                                .setNetPoints(o.getEventNetPoints())
+                                .setChip(o.getEventChip()))
+                );
+        Map<Integer, Long> entryAboveHundredCountMap = aboveHundredEntityMap.values()
                 .stream()
-                .collect(Collectors.groupingBy(LeagueEventReportEntity::getEntryName, Collectors.counting()));
-        LinkedHashMap<String, List<EntryAboveHundredData>> topAboveHundred = Maps.newLinkedHashMap();
+                .collect(Collectors.groupingBy(EntryAboveHundredData::getEntry, Collectors.counting()));
+        List<EntryAboveHundredData> topAboveHundred = Lists.newArrayList();
         entryAboveHundredCountMap.entrySet()
                 .stream()
-                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .limit(5)
-                .forEach(o ->
-                        topAboveHundred.put(o.getKey(),
-                                aboveHundredEntityList
-                                        .stream()
-                                        .filter(i -> StringUtils.equals(o.getKey(), i.getEntryName()))
-                                        .map(i ->
-                                                new EntryAboveHundredData()
-                                                        .setEvent(i.getEvent())
-                                                        .setEntry(i.getEntry())
-                                                        .setEntryName(i.getEntryName())
-                                                        .setPlayerName(i.getPlayerName())
-                                                        .setPoint(i.getEventPoints())
-                                                        .setTransfers(i.getEventTransfers())
-                                                        .setCost(i.getEventTransfersCost())
-                                                        .setNetPoints(i.getEventNetPoints())
-                                                        .setChip(i.getEventChip())
-                                        )
-                                        .collect(Collectors.toList())
-                        ));
+                .forEach(o -> topAboveHundred.addAll(aboveHundredEntityMap.get(entry)));
         data.setTopAboveHundred(topAboveHundred);
+        List<Integer> aboveHundredRankList = aboveHundredEntityMap.keySet()
+                .stream()
+                .map(o -> aboveHundredEntityMap.get(o).size())
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> aboveHundredRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, aboveHundredRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, aboveHundredRankList, aboveHundredRankMap);
+            aboveHundredRankMap.put(aboveHundredRankList.get(i), rank);
+        });
+        data.setEntryAboveHundredTimes(aboveHundredEntityMap.get(entry).size());
+        data.setEntryAboveHundredRank(aboveHundredRankMap.get(data.getEntryAboveHundredTimes()));
         return data;
     }
 
@@ -1114,213 +1240,231 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    @Cacheable(
-            value = "api::qryLeagueSeasonCaptain",
-            key = "#leagueId+'::'+#leagueType",
-            cacheManager = "apiCacheManager",
-            unless = "#result.leagueId eq 0"
-    )
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonCaptain",
+//            key = "#leagueId+'::'+#leagueType+'::'+#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueId eq 0"
+//    )
     @Override
-    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType) {
+    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType, int entry) {
         LeagueSeasonCaptainData data = new LeagueSeasonCaptainData();
         // prepare
-        int event = this.apiQueryService.getCurrentEvent();
-        Multimap<Integer, LeagueEventReportEntity> map = HashMultimap.create();
+        Multimap<Integer, EntryEventCaptainData> map = HashMultimap.create();
         this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueId, leagueId)
                 .eq(LeagueEventReportEntity::getLeagueType, leagueType)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
                 .orderByAsc(LeagueEventReportEntity::getEvent))
-                .forEach(o -> map.put(o.getEntry(), o));
+                .forEach(o -> {
+                    EntryEventCaptainData entryEventCaptainData = new EntryEventCaptainData()
+                            .setEvent(o.getEvent())
+                            .setEntry(o.getEntry())
+                            .setCaptain(o.getCaptain())
+                            .setViceCaptain(o.getViceCaptain())
+                            .setPlayedCaptain(o.getPlayedCaptain())
+                            .setPlayedCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
+                            .setPoints(o.getEventPoints())
+                            .setChip(o.getEventChip())
+                            .setOverallPoints(o.getOverallPoints());
+                    entryEventCaptainData.setCaptainPoints(StringUtils.equalsIgnoreCase(Chip.TC.getValue(), entryEventCaptainData.getChip()) ?
+                            3 * entryEventCaptainData.getPlayedCaptainPoints() : 2 * entryEventCaptainData.getPlayedCaptainPoints());
+                    map.put(o.getEntry(), entryEventCaptainData);
+                });
         if (map.size() == 0) {
             return data;
         }
+        Map<Integer, Integer> entryCaptainPointsMap = map.keySet()
+                .stream()
+                .collect(Collectors.toMap(k -> k,
+                        v -> map.get(v)
+                                .stream()
+                                .mapToInt(EntryEventCaptainData::getCaptainPoints)
+                                .sum()
+                ));
         Map<Integer, String> webNameMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
         if (CollectionUtils.isEmpty(webNameMap)) {
             return data;
         }
-        Map<Integer, Integer> captainPointsMap = map.values()
-                .stream()
-                .collect(Collectors.toMap(LeagueEventReportEntity::getPlayedCaptain,
-                        v -> {
-                            if (v.getPlayedCaptain() == v.getCaptain()) {
-                                return this.calcCaptainPoints(v.getCaptainPoints(), v.getEventChip());
-                            } else if (v.getPlayedCaptain() == v.getViceCaptain()) {
-                                return this.calcCaptainPoints(v.getViceCaptainPoints(), v.getEventChip());
-                            }
-                            return 0;
-                        }, Integer::sum, HashMap::new));
-        // league info
-        LeagueEventReportEntity
-                leagueEventReportEntity = this.leagueEventReportService.getOne(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getEvent, event)
-                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
-                .last("limit 1"));
-        if (leagueEventReportEntity == null) {
-            return data;
-        }
+        // collect
         data
                 .setLeagueId(leagueId)
                 .setLeagueType(leagueType)
-                .setLeagueName(leagueEventReportEntity.getLeagueName())
-                .setTotalCaptain(captainPointsMap.size())
+                .setTotalCaptainNum(
+                        (int) map.values()
+                                .stream()
+                                .map(EntryEventCaptainData::getPlayedCaptain)
+                                .distinct()
+                                .count()
+                )
+                .setAverageCaptainNum(
+                        NumberUtil.round(
+                                map.keySet()
+                                        .stream()
+                                        .mapToLong(o ->
+                                                map.get(o)
+                                                        .stream()
+                                                        .map(EntryEventCaptainData::getPlayedCaptain)
+                                                        .distinct()
+                                                        .count()
+                                        )
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
                 .setTotalCaptainPoints(
                         map.values()
                                 .stream()
-                                .mapToInt(o -> this.calcCaptainPoints(o.getCaptainPoints(), o.getEventChip()))
-                                .sum()
-                )
-                .setTotalViceCaptainPoints(
-                        map.values()
-                                .stream()
-                                .filter(o -> o.getPlayedCaptain() == o.getViceCaptain())
-                                .mapToInt(o -> this.calcCaptainPoints(o.getViceCaptainPoints(), o.getEventChip()))
+                                .mapToInt(EntryEventCaptainData::getCaptainPoints)
                                 .sum()
                 )
                 .setAverageCaptainPoints(
                         NumberUtil.round(
                                 map.keySet()
                                         .stream()
-                                        .map(entry ->
-                                                map.get(entry)
+                                        .mapToDouble(o ->
+                                                map.get(o)
                                                         .stream()
-                                                        .mapToDouble(o -> this.calcCaptainPoints(o.getCaptainPoints(), o.getEventChip()))
-                                                        .sum()
+                                                        .mapToInt(EntryEventCaptainData::getCaptainPoints)
+                                                        .average()
+                                                        .orElse(0)
                                         )
-                                        .collect(Collectors.toList())
-                                        .stream()
-                                        .mapToDouble(Double::doubleValue)
                                         .average()
                                         .orElse(0)
                                 , 2)
                                 .doubleValue()
                 )
-                .setAverageViceCaptainPoints(
+                .setEntryCaptainTotalPoints(entryCaptainPointsMap.get(entry))
+                .setEntryAverageCaptainPoints(
                         NumberUtil.round(
-                                map.keySet()
+                                map.get(entry)
                                         .stream()
-                                        .map(entry ->
-                                                map.get(entry)
-                                                        .stream()
-                                                        .filter(o -> o.getPlayedCaptain() == o.getViceCaptain())
-                                                        .mapToDouble(o -> this.calcCaptainPoints(o.getViceCaptainPoints(), o.getEventChip()))
-                                                        .sum()
-                                        )
-                                        .collect(Collectors.toList())
-                                        .stream()
-                                        .mapToDouble(Double::doubleValue)
+                                        .mapToInt(EntryEventCaptainData::getCaptainPoints)
                                         .average()
                                         .orElse(0)
                                 , 2)
                                 .doubleValue()
                 );
-        // most points
-        data.setMostPointsCaptain(
-                captainPointsMap.entrySet()
-                        .stream()
-                        .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                        .limit(5)
-                        .map(o ->
-                                new EntrySelectedCaptainData()
-                                        .setElement(o.getKey())
-                                        .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
-                                        .setTimes(
-                                                map.values()
-                                                        .stream()
-                                                        .filter(i -> i.getPlayedCaptain() == o.getKey())
-                                                        .count()
-                                        )
-                                        .setTotalPoints(o.getValue())
-                                        .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, data.getTotalCaptainPoints() * 1.0), 2))
-                        )
-                        .collect(Collectors.toList())
-        );
-        // most selected
-        Map<Integer, Long> captainSelectedMap = map.values()
+        // captain points rank
+        List<Integer> captainTotalPointsRankList = map.keySet()
                 .stream()
-                .collect(Collectors.groupingBy(LeagueEventReportEntity::getCaptain, Collectors.counting()));
-        data.setMostSelectedCaptain(
-                captainSelectedMap.entrySet()
-                        .stream()
-                        .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                        .limit(5)
-                        .map(o ->
-                                new EntrySelectedCaptainData()
-                                        .setElement(o.getKey())
-                                        .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
-                                        .setTimes(o.getValue())
-                                        .setTotalPoints(captainPointsMap.get(o.getKey()))
-                                        .setTotalPointsByPercent("")
-                        )
-                        .collect(Collectors.toList())
-        );
-        // tc selected
-        Map<Integer, Long> tcSelectedMap = map.values()
+                .map(o ->
+                        map.get(o)
+                                .stream()
+                                .mapToInt(EntryEventCaptainData::getCaptainPoints)
+                                .sum()
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> captainTotalPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, captainTotalPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, captainTotalPointsRankList, captainTotalPointsRankMap);
+            captainTotalPointsRankMap.put(captainTotalPointsRankList.get(i), rank);
+        });
+        data.setEntryCaptainTotalPointsRank(captainTotalPointsRankMap.get(data.getEntryCaptainTotalPoints()));
+        // average captain points rank
+        List<Double> averageCaptainTotalPointsRankList = map.keySet()
                 .stream()
-                .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getEventChip()))
-                .collect(Collectors.groupingBy(LeagueEventReportEntity::getCaptain, Collectors.counting()));
-        data.setMostTcSelectedCaptain(
-                tcSelectedMap.entrySet()
-                        .stream()
-                        .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                        .limit(3)
-                        .map(o ->
-                                new EntrySelectedCaptainData()
-                                        .setElement(o.getKey())
-                                        .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
-                                        .setTimes(o.getValue())
-                                        .setTotalPoints(
-                                                map.values()
-                                                        .stream()
-                                                        .filter(i -> o.getKey() == i.getPlayedCaptain() && StringUtils.equalsIgnoreCase(Chip.TC.getValue(), i.getEventChip()))
-                                                        .mapToInt(i -> {
-                                                            if (i.getPlayedCaptain() == i.getCaptain()) {
-                                                                return 3 * i.getCaptainPoints();
-                                                            } else if (i.getPlayedCaptain() == i.getViceCaptain()) {
-                                                                return 3 * i.getViceCaptainPoints();
-                                                            }
-                                                            return 0;
-                                                        })
-                                                        .sum()
-                                        )
-                                        .setTotalPointsByPercent("")
-                        )
-                        .collect(Collectors.toList())
-        );
-        // entry captain points
-        Map<Integer, Integer> entryCaptainPointsMap = map.values()
-                .stream()
-                .collect(Collectors.toMap(LeagueEventReportEntity::getEntry,
-                        v -> {
-                            if (v.getPlayedCaptain() == v.getCaptain()) {
-                                return this.calcCaptainPoints(v.getCaptainPoints(), v.getEventChip());
-                            } else if (v.getPlayedCaptain() == v.getViceCaptain()) {
-                                return this.calcCaptainPoints(v.getViceCaptainPoints(), v.getEventChip());
-                            }
-                            return 0;
-                        }, Integer::sum, HashMap::new));
-        data
+                .map(o ->
+                        NumberUtil.round(
+                                map.get(o)
+                                        .stream()
+                                        .mapToInt(EntryEventCaptainData::getCaptainPoints)
+                                        .average()
+                                        .orElse(0)
+                                , 2)
+                                .doubleValue()
+                )
+                .sorted(Comparator.comparing(Double::doubleValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Double, Integer> averageCaptainTotalPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, averageCaptainTotalPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, averageCaptainTotalPointsRankList, averageCaptainTotalPointsRankMap);
+            averageCaptainTotalPointsRankMap.put(averageCaptainTotalPointsRankList.get(i), rank);
+        });
+        data.setEntryAverageCaptainPointsRank(averageCaptainTotalPointsRankMap.get(data.getEntryAverageCaptainPoints()))
+                .setMostPointsCaptain(
+                        map.values()
+                                .stream()
+                                .collect(Collectors.toMap(EntryEventCaptainData::getPlayedCaptain, EntryEventCaptainData::getCaptainPoints, Integer::sum, HashMap::new))
+                                .entrySet()
+                                .stream()
+                                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+                                .limit(5)
+                                .map(o ->
+                                        new EntrySelectedCaptainData()
+                                                .setElement(o.getKey())
+                                                .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                                .setTimes(
+                                                        map.values()
+                                                                .stream()
+                                                                .filter(i -> i.getPlayedCaptain() == o.getKey())
+                                                                .count()
+                                                )
+                                                .setTotalPoints(o.getValue())
+                                                .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, data.getTotalCaptainPoints() * 1.0), 2))
+                                )
+                                .collect(Collectors.toList())
+                )
+                .setMostSelectedCaptain(
+                        map.values()
+                                .stream()
+                                .collect(Collectors.groupingBy(EntryEventCaptainData::getCaptain, Collectors.counting()))
+                                .entrySet()
+                                .stream()
+                                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                                .limit(5)
+                                .map(o ->
+                                        new EntrySelectedCaptainData()
+                                                .setElement(o.getKey())
+                                                .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                                .setTimes(o.getValue())
+                                                .setTotalPoints(0)
+                                                .setTotalPointsByPercent("")
+                                )
+                                .collect(Collectors.toList())
+                )
+                .setMostTcSelectedCaptain(
+                        map.values()
+                                .stream()
+                                .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getChip()))
+                                .collect(Collectors.groupingBy(EntryEventCaptainData::getPlayedCaptain, Collectors.counting()))
+                                .entrySet()
+                                .stream()
+                                .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+                                .limit(3)
+                                .map(o ->
+                                        new EntrySelectedCaptainData()
+                                                .setElement(o.getKey())
+                                                .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                                .setTimes(o.getValue())
+                                                .setTotalPoints(0)
+                                                .setTotalPointsByPercent("")
+                                )
+                                .collect(Collectors.toList())
+                )
                 .setBestCaptainEntry(
                         entryCaptainPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                                 .limit(5)
                                 .map(o -> {
-                                    int entry = o.getKey();
-                                    LeagueEventReportEntity entity = map.get(entry)
-                                            .stream()
-                                            .max(Comparator.comparing(LeagueEventReportEntity::getEvent))
-                                            .orElse(new LeagueEventReportEntity());
+                                    int leagueEntry = o.getKey();
+                                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
+                                    if (entryInfoEntity == null) {
+                                        return null;
+                                    }
                                     return new EntrySeasonCaptainData()
-                                            .setEntry(entry)
-                                            .setEntryName(entity.getEntryName())
-                                            .setPlayerName(entity.getPlayerName())
+                                            .setEntry(leagueEntry)
+                                            .setEntryName(entryInfoEntity.getEntryName())
+                                            .setPlayerName(entryInfoEntity.getPlayerName())
                                             .setTotalPoints(o.getValue())
-                                            .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, entity.getOverallPoints() * 1.0), 2));
+                                            .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, entryInfoEntity.getOverallPoints() * 1.0), 2));
                                 })
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toList())
                 )
                 .setWorstCaptainEntry(
@@ -1329,30 +1473,32 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .sorted(Map.Entry.comparingByValue())
                                 .limit(5)
                                 .map(o -> {
-                                    int entry = o.getKey();
-                                    LeagueEventReportEntity entity = map.get(entry)
-                                            .stream()
-                                            .max(Comparator.comparing(LeagueEventReportEntity::getEvent))
-                                            .orElse(new LeagueEventReportEntity());
+                                    int leagueEntry = o.getKey();
+                                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
+                                    if (entryInfoEntity == null) {
+                                        return null;
+                                    }
                                     return new EntrySeasonCaptainData()
-                                            .setEntry(entry)
-                                            .setEntryName(entity.getEntryName())
-                                            .setPlayerName(entity.getPlayerName())
+                                            .setEntry(leagueEntry)
+                                            .setEntryName(entryInfoEntity.getEntryName())
+                                            .setPlayerName(entryInfoEntity.getPlayerName())
                                             .setTotalPoints(o.getValue())
-                                            .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, entity.getOverallPoints() * 1.0), 2));
+                                            .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, entryInfoEntity.getOverallPoints() * 1.0), 2));
                                 })
+                                .filter(Objects::nonNull)
                                 .collect(Collectors.toList())
                 );
-        // entry captain points by percent
+        // captain points by percent
         Map<Integer, Double> entryCaptainPointsByPercentMap = Maps.newHashMap();
-        entryCaptainPointsMap.keySet().forEach(entry -> entryCaptainPointsByPercentMap.put(entry,
-                NumberUtil.div(entryCaptainPointsMap.get(entry) * 1.0,
-                        map.get(entry)
-                                .stream()
-                                .max(Comparator.comparing(LeagueEventReportEntity::getEvent))
-                                .orElse(new LeagueEventReportEntity())
-                                .getOverallPoints() * 1.0
-                )
+        entryCaptainPointsMap.keySet().forEach(leagueEntry -> entryCaptainPointsByPercentMap.put(leagueEntry,
+                NumberUtil.round(
+                        NumberUtil.div(entryCaptainPointsMap.get(leagueEntry) * 1.0,
+                                map.get(leagueEntry)
+                                        .stream()
+                                        .max(Comparator.comparing(EntryEventCaptainData::getEvent))
+                                        .orElse(new EntryEventCaptainData())
+                                        .getOverallPoints() * 1.),
+                        2).doubleValue()
         ));
         data
                 .setMostPointsByPercentEntry(
@@ -1361,16 +1507,16 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
                                 .limit(5)
                                 .map(o -> {
-                                    int entry = o.getKey();
-                                    LeagueEventReportEntity entity = map.get(entry)
-                                            .stream()
-                                            .max(Comparator.comparing(LeagueEventReportEntity::getEvent))
-                                            .orElse(new LeagueEventReportEntity());
+                                    int leagueEntry = o.getKey();
+                                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
+                                    if (entryInfoEntity == null) {
+                                        return null;
+                                    }
                                     return new EntrySeasonCaptainData()
-                                            .setEntry(entry)
-                                            .setEntryName(entity.getEntryName())
-                                            .setPlayerName(entity.getPlayerName())
-                                            .setTotalPoints(entryCaptainPointsMap.get(entry))
+                                            .setEntry(leagueEntry)
+                                            .setEntryName(entryInfoEntity.getEntryName())
+                                            .setPlayerName(entryInfoEntity.getPlayerName())
+                                            .setTotalPoints(entryCaptainPointsMap.get(leagueEntry))
                                             .setTotalPointsByPercent(NumberUtil.formatPercent(o.getValue(), 2));
                                 })
                                 .collect(Collectors.toList())
@@ -1381,41 +1527,92 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .sorted(Map.Entry.comparingByValue())
                                 .limit(5)
                                 .map(o -> {
-                                    int entry = o.getKey();
-                                    LeagueEventReportEntity entity = map.get(entry)
-                                            .stream()
-                                            .max(Comparator.comparing(LeagueEventReportEntity::getEvent))
-                                            .orElse(new LeagueEventReportEntity());
+                                    int leagueEntry = o.getKey();
+                                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
+                                    if (entryInfoEntity == null) {
+                                        return null;
+                                    }
                                     return new EntrySeasonCaptainData()
-                                            .setEntry(entry)
-                                            .setEntryName(entity.getEntryName())
-                                            .setPlayerName(entity.getPlayerName())
-                                            .setTotalPoints(entryCaptainPointsMap.get(entry))
+                                            .setEntry(leagueEntry)
+                                            .setEntryName(entryInfoEntity.getEntryName())
+                                            .setPlayerName(entryInfoEntity.getPlayerName())
+                                            .setTotalPoints(entryCaptainPointsMap.get(leagueEntry))
                                             .setTotalPointsByPercent(NumberUtil.formatPercent(o.getValue(), 2));
                                 })
                                 .collect(Collectors.toList())
                 );
+        // entry most captain points
+        data.setEntryMostCaptainPoints(
+                map.get(entry)
+                        .stream()
+                        .map(EntryEventCaptainData::getPlayedCaptainPoints)
+                        .max(Comparator.comparing(Integer::intValue))
+                        .orElse(0)
+        );
+        List<Integer> entryMostCaptainPointsRankList = map.keySet()
+                .stream()
+                .map(o ->
+                        map.get(o)
+                                .stream()
+                                .map(EntryEventCaptainData::getPlayedCaptainPoints)
+                                .max(Comparator.comparing(Integer::intValue))
+                                .orElse(0)
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryMostCaptainPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryMostCaptainPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryMostCaptainPointsRankList, entryMostCaptainPointsRankMap);
+            entryMostCaptainPointsRankMap.put(entryMostCaptainPointsRankList.get(i), rank);
+        });
+        data.setEntryMostCaptainPointsRank(entryMostCaptainPointsRankMap.get(data.getEntryMostCaptainPoints()));
+        // entry tc captain points
+        data.setEntryTcCaptainPoints(
+                map.get(entry)
+                        .stream()
+                        .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getChip()))
+                        .map(EntryEventCaptainData::getPlayedCaptainPoints)
+                        .findFirst()
+                        .orElse(0)
+        );
+        List<Integer> entryTcCaptainPointsRankList = map.values()
+                .stream()
+                .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getChip()))
+                .map(EntryEventCaptainData::getPlayedCaptainPoints)
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryTcCaptainPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryTcCaptainPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryTcCaptainPointsRankList, entryTcCaptainPointsRankMap);
+            entryTcCaptainPointsRankMap.put(entryTcCaptainPointsRankList.get(i), rank);
+        });
+        data.setEntryTcCaptainPointsRank(entryTcCaptainPointsRankMap.get(data.getEntryTcCaptainPoints()));
+        // entry captain points by percent
+        data.setEntryCaptainPointsByPercent(NumberUtil.formatPercent(entryCaptainPointsByPercentMap.get(entry), 2));
+        List<Double> entryCaptainPointsByPercentRankList = entryCaptainPointsByPercentMap.values()
+                .stream()
+                .sorted(Comparator.comparing(Double::doubleValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Double, Integer> entryCaptainPointsByPercentRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryCaptainPointsByPercentRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryCaptainPointsByPercentRankList, entryCaptainPointsByPercentRankMap);
+            entryCaptainPointsByPercentRankMap.put(entryCaptainPointsByPercentRankList.get(i), rank);
+        });
+        data.setEntryCaptainPointsByPercentRank(entryCaptainPointsByPercentRankMap.get(entryCaptainPointsByPercentMap.get(entry)));
         return data;
     }
 
-    private int calcCaptainPoints(int points, String chip) {
-        if (StringUtils.equalsIgnoreCase(Chip.TC.getValue(), chip)) {
-            return 3 * points;
-        }
-        return 2 * points;
-    }
-
-    @Cacheable(
-            value = "api::qryLeagueSeasonScore",
-            key = "#leagueId+'::'+#leagueType",
-            cacheManager = "apiCacheManager",
-            unless = "#result.leagueId eq 0"
-    )
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonScore",
+//            key = "#leagueId+'::'+#leagueType+'::'+#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueId eq 0"
+//    )
     @Override
-    public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType) {
+    public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType, int entry) {
         LeagueSeasonScoreData data = new LeagueSeasonScoreData();
         // prepare
-        int current = this.apiQueryService.getCurrentEvent();
+        int current = this.queryService.getCurrentEvent();
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueId, leagueId)
                 .eq(LeagueEventReportEntity::getLeagueType, leagueType)
@@ -1424,7 +1621,7 @@ public class SummaryServiceImpl implements ISummaryService {
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
-        Map<String, String> shortNameMap = this.apiQueryService.getTeamShortNameMap();
+        Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
@@ -1440,35 +1637,35 @@ public class SummaryServiceImpl implements ISummaryService {
         List<EntryPickData> entryPickDataList = Lists.newArrayList();
         leagueEventReportEntityList.forEach(o -> {
             int event = o.getEvent();
-            int entry = o.getEntry();
+            int leagueEntry = o.getEntry();
             if (StringUtils.equalsIgnoreCase(Chip.BB.getValue(), o.getEventChip())) {
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition1(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition2(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition3(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition4(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition5(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition6(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition7(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition8(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition9(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition10(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition11(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition12(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition13(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition14(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition15(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition1(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition2(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition3(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition4(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition5(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition6(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition7(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition8(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition9(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition10(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition11(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition12(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition13(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition14(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition15(), shortNameMap, playerMap, eventLiveTable));
             } else {
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition1(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition2(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition3(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition4(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition5(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition6(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition7(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition8(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition9(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition10(), shortNameMap, playerMap, eventLiveTable));
-                entryPickDataList.add(this.initLeagueEntryPickData(event, entry, o.getPosition11(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition1(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition2(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition3(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition4(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition5(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition6(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition7(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition8(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition9(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition10(), shortNameMap, playerMap, eventLiveTable));
+                entryPickDataList.add(this.initLeagueEntryPickData(event, leagueEntry, o.getPosition11(), shortNameMap, playerMap, eventLiveTable));
             }
         });
         Table<Integer, Integer, List<EntryPickData>> pickTable = HashBasedTable.create(); // elementType -> event -> dataList
@@ -1488,10 +1685,10 @@ public class SummaryServiceImpl implements ISummaryService {
         Table<Integer, Integer, Map<Integer, List<EntryPickData>>> entryPickTable = HashBasedTable.create();
         entryPickDataList.forEach(o -> {
             int event = o.getEvent();
-            int entry = o.getEntry();
+            int leagueEntry = o.getEntry();
             Map<Integer, List<EntryPickData>> map = Maps.newHashMap();
-            if (entryPickTable.contains(entry, event)) {
-                map = entryPickTable.get(entry, event);
+            if (entryPickTable.contains(leagueEntry, event)) {
+                map = entryPickTable.get(leagueEntry, event);
             }
             if (CollectionUtils.isEmpty(map)) {
                 map = Maps.newHashMap();
@@ -1500,12 +1697,11 @@ public class SummaryServiceImpl implements ISummaryService {
             List<EntryPickData> list = map.getOrDefault(elementType, Lists.newArrayList());
             list.add(o);
             map.put(elementType, list);
-            entryPickTable.put(entry, event, map);
+            entryPickTable.put(leagueEntry, event, map);
         });
         data
                 .setLeagueId(leagueEventReportEntityList.get(0).getLeagueId())
                 .setLeagueType(leagueEventReportEntityList.get(0).getLeagueType())
-                .setLeagueName(leagueEventReportEntityList.get(0).getLeagueName())
                 .setTotalOverallPoints(
                         leagueEventReportEntityList
                                 .stream()
@@ -1547,7 +1743,7 @@ public class SummaryServiceImpl implements ISummaryService {
         );
         // entry gkp
         Multimap<Integer, EntryPickData> entryGkpPickMap = HashMultimap.create();
-        entryPickTable.rowKeySet().forEach(entry -> entryPickTable.row(entry).values().forEach(i -> i.get(Position.GKP.getElementType()).forEach(j -> entryGkpPickMap.put(entry, j))));
+        entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.GKP.getElementType()).forEach(j -> entryGkpPickMap.put(leagueEntry, j))));
         data.setAverageEntryGkpTotalNum(
                 NumberUtil.round(
                         entryGkpPickMap.keySet()
@@ -1613,7 +1809,7 @@ public class SummaryServiceImpl implements ISummaryService {
         );
         // entry def
         Multimap<Integer, EntryPickData> entryDefPickMap = HashMultimap.create();
-        entryPickTable.rowKeySet().forEach(entry -> entryPickTable.row(entry).values().forEach(i -> i.get(Position.DEF.getElementType()).forEach(j -> entryDefPickMap.put(entry, j))));
+        entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.DEF.getElementType()).forEach(j -> entryDefPickMap.put(leagueEntry, j))));
         data.setAverageEntryDefTotalNum(
                 NumberUtil.round(
                         entryDefPickMap.keySet()
@@ -1679,7 +1875,7 @@ public class SummaryServiceImpl implements ISummaryService {
         );
         // entry mid
         Multimap<Integer, EntryPickData> entryMidPickMap = HashMultimap.create();
-        entryPickTable.rowKeySet().forEach(entry -> entryPickTable.row(entry).values().forEach(i -> i.get(Position.MID.getElementType()).forEach(j -> entryMidPickMap.put(entry, j))));
+        entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.MID.getElementType()).forEach(j -> entryMidPickMap.put(leagueEntry, j))));
         data.setAverageEntryMidTotalNum(
                 NumberUtil.round(
                         entryMidPickMap.keySet()
@@ -1745,7 +1941,7 @@ public class SummaryServiceImpl implements ISummaryService {
         );
         // entry fwd
         Multimap<Integer, EntryPickData> entryFwdPickMap = HashMultimap.create();
-        entryPickTable.rowKeySet().forEach(entry -> entryPickTable.row(entry).values().forEach(i -> i.get(Position.FWD.getElementType()).forEach(j -> entryFwdPickMap.put(entry, j))));
+        entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.FWD.getElementType()).forEach(j -> entryFwdPickMap.put(leagueEntry, j))));
         data.setAverageEntryFwdTotalNum(
                 NumberUtil.round(
                         entryFwdPickMap.keySet()
@@ -1825,275 +2021,6 @@ public class SummaryServiceImpl implements ISummaryService {
                 .setTeamShortName(shortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
                 .setMinutes(eventLiveEntity.getMinutes())
                 .setPoints(eventLiveEntity.getTotalPoints());
-    }
-
-    //    @Cacheable(
-//            value = "api::qryLeagueSeasonEntry",
-//            key = "#leagueId+'::'+#leagueType+'::'+#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.leagueId eq 0"
-//    )
-    @Override
-    public LeagueSeasonEntryData qryLeagueSeasonEntry(int leagueId, String leagueType, int entry) {
-        LeagueSeasonEntryData data = new LeagueSeasonEntryData();
-        // prepare
-        int current = this.apiQueryService.getCurrentEvent();
-        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
-                .ne(LeagueEventReportEntity::getEventPoints, 0)
-                .orderByAsc(LeagueEventReportEntity::getEvent));
-        if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
-            return data;
-        }
-        LeagueEventReportEntity last = leagueEventReportEntityList
-                .stream()
-                .filter(o -> o.getEntry() == entry)
-                .max(Comparator.comparing(LeagueEventReportEntity::getEvent))
-                .orElse(null);
-        if (last == null) {
-            return data;
-        }
-        Multimap<Integer, LeagueEventReportEntity> entryLeagueEventReportMap = HashMultimap.create();
-        leagueEventReportEntityList.forEach(o -> entryLeagueEventReportMap.put(o.getEntry(), o));
-        // info
-        data
-                .setLeagueId(last.getLeagueId())
-                .setLeagueType(last.getLeagueType())
-                .setLeagueName(last.getLeagueName())
-                .setEntry(entry)
-                .setEntryName(last.getEntryName())
-                .setPlayerName(last.getPlayerName())
-                .setOverallPoints(last.getOverallPoints())
-                .setOverallRank(last.getOverallRank())
-                .setValue(last.getTeamValue() / 10.0);
-        this.setEntryLeagueInfoData(current, leagueEventReportEntityList, entryLeagueEventReportMap, data);
-        // captain
-        this.setEntryLeagueCaptainData(entry, leagueEventReportEntityList, entryLeagueEventReportMap, data);
-        // score
-        this.setEntryLeagueScoreData(entry, leagueEventReportEntityList, entryLeagueEventReportMap, data);
-        return data;
-    }
-
-    private void setEntryLeagueInfoData(int event, List<LeagueEventReportEntity> leagueEventReportEntityList, Multimap<Integer, LeagueEventReportEntity> entryLeagueEventReportMap, LeagueSeasonEntryData data) {
-        // league rank
-        List<Integer> overallRankList = leagueEventReportEntityList
-                .stream()
-                .filter(o -> o.getEvent() == event)
-                .map(LeagueEventReportEntity::getOverallRank)
-                .sorted(Comparator.comparing(Integer::intValue))
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> leagueRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, overallRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, overallRankList, leagueRankMap);
-            leagueRankMap.put(overallRankList.get(i), rank);
-        });
-        data.setLeagueRank(leagueRankMap.get(data.getOverallRank()));
-        // value rank
-        List<Double> valueList = leagueEventReportEntityList
-                .stream()
-                .filter(o -> o.getEvent() == event)
-                .map(o -> o.getTeamValue() / 10.0)
-                .sorted(Comparator.comparing(Double::doubleValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Double, Integer> valueRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, valueList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, valueList, valueRankMap);
-            valueRankMap.put(valueList.get(i), rank);
-        });
-        data.setValueRank(valueRankMap.get(data.getValue()));
-        // transfers
-        List<Integer> transfersRankList = leagueEventReportEntityList
-                .stream()
-                .filter(o -> o.getEvent() == event)
-                .map(o ->
-                        entryLeagueEventReportMap.get(o.getEntry())
-                                .stream()
-                                .mapToInt(LeagueEventReportEntity::getEventTransfers)
-                                .sum()
-                )
-                .sorted(Comparator.comparing(Integer::intValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> transfersRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, transfersRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, transfersRankList, transfersRankMap);
-            transfersRankMap.put(transfersRankList.get(i), rank);
-        });
-        data.setTransfers(
-                entryLeagueEventReportMap.get(data.getEntry())
-                        .stream()
-                        .mapToInt(LeagueEventReportEntity::getEventTransfers)
-                        .sum()
-        );
-        data.setTransfersRank(transfersRankMap.get(data.getTransfers()));
-        // transfers cost
-        List<Integer> transfersCostRankList = leagueEventReportEntityList
-                .stream()
-                .filter(o -> o.getEvent() == event)
-                .map(o ->
-                        entryLeagueEventReportMap.get(o.getEntry())
-                                .stream()
-                                .mapToInt(LeagueEventReportEntity::getEventTransfersCost)
-                                .sum()
-                )
-                .sorted(Comparator.comparing(Integer::intValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> transfersCostRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, transfersCostRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, transfersCostRankList, transfersCostRankMap);
-            transfersCostRankMap.put(transfersCostRankList.get(i), rank);
-        });
-        data.setTransfersCost(
-                entryLeagueEventReportMap.get(data.getEntry())
-                        .stream()
-                        .mapToInt(LeagueEventReportEntity::getEventTransfersCost)
-                        .sum()
-        );
-        data.setTransfersCostRank(transfersCostRankMap.get(data.getTransfersCost()));
-        // bench points
-        List<Integer> benchPointsRankList = leagueEventReportEntityList
-                .stream()
-                .filter(o -> o.getEvent() == event)
-                .map(o ->
-                        entryLeagueEventReportMap.get(o.getEntry())
-                                .stream()
-                                .mapToInt(LeagueEventReportEntity::getEventBenchPoints)
-                                .sum()
-                )
-                .sorted(Comparator.comparing(Integer::intValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> benchPointsRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, benchPointsRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, benchPointsRankList, benchPointsRankMap);
-            benchPointsRankMap.put(benchPointsRankList.get(i), rank);
-        });
-        data.setBenchPoints(
-                entryLeagueEventReportMap.get(data.getEntry())
-                        .stream()
-                        .mapToInt(LeagueEventReportEntity::getEventBenchPoints)
-                        .sum()
-        );
-        data.setBenchPointsRank(benchPointsRankMap.get(data.getBenchPoints()));
-        // autoSubs points
-        List<Integer> autoSubsPointsRankList = leagueEventReportEntityList
-                .stream()
-                .filter(o -> o.getEvent() == event)
-                .map(o ->
-                        entryLeagueEventReportMap.get(o.getEntry())
-                                .stream()
-                                .mapToInt(LeagueEventReportEntity::getEventAutoSubPoints)
-                                .sum()
-                )
-                .sorted(Comparator.comparing(Integer::intValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> autoSubsPointsRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, autoSubsPointsRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, autoSubsPointsRankList, autoSubsPointsRankMap);
-            autoSubsPointsRankMap.put(autoSubsPointsRankList.get(i), rank);
-        });
-        data.setAutoSubsPoints(
-                entryLeagueEventReportMap.get(data.getEntry())
-                        .stream()
-                        .mapToInt(LeagueEventReportEntity::getEventAutoSubPoints)
-                        .sum()
-        );
-        data.setAutoSubsPointsRank(autoSubsPointsRankMap.get(data.getAutoSubsPoints()));
-    }
-
-    private void setEntryLeagueCaptainData(int entry, List<LeagueEventReportEntity> leagueEventReportEntityList, Multimap<Integer, LeagueEventReportEntity> entryLeagueEventReportMap, LeagueSeasonEntryData data) {
-        Multimap<Integer, Integer> entryLeagueEventCaptainMap = HashMultimap.create();
-        leagueEventReportEntityList.forEach(o -> entryLeagueEventCaptainMap.put(o.getEntry(), this.calcLeagueCaptainPoints(o)));
-        data
-                .setCaptainPoints(
-                        entryLeagueEventCaptainMap.get(entry)
-                                .stream()
-                                .mapToInt(Integer::intValue)
-                                .sum()
-                )
-                .setMostCaptainPoints(
-                        entryLeagueEventReportMap.get(entry)
-                                .stream()
-                                .map(this::getLeaguePlayedCaptainPoints)
-                                .max(Comparator.comparing(Integer::intValue))
-                                .orElse(0)
-                )
-                .setTcCaptainPoints(
-                        entryLeagueEventReportMap.get(entry)
-                                .stream()
-                                .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getEventChip()))
-                                .map(this::getLeaguePlayedCaptainPoints)
-                                .findFirst()
-                                .orElse(0)
-                );
-        // captain points
-        List<Integer> captainPointsRankList = entryLeagueEventCaptainMap.keySet()
-                .stream()
-                .map(o ->
-                        entryLeagueEventCaptainMap.get(o)
-                                .stream()
-                                .mapToInt(Integer::intValue)
-                                .sum()
-                )
-                .sorted(Comparator.comparing(Integer::intValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> captainPointsRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, captainPointsRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, captainPointsRankList, captainPointsRankMap);
-            captainPointsRankMap.put(captainPointsRankList.get(i), rank);
-        });
-        data.setCaptainRank(captainPointsRankMap.get(data.getCaptainPoints()));
-        // most captain points
-        List<Integer> mostCaptainPointsRankList = entryLeagueEventCaptainMap.keySet()
-                .stream()
-                .map(o ->
-                        entryLeagueEventReportMap.get(o)
-                                .stream()
-                                .map(this::getLeaguePlayedCaptainPoints)
-                                .max(Comparator.comparing(Integer::intValue))
-                                .orElse(0)
-                )
-                .sorted(Comparator.comparing(Integer::intValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> mostCaptainPointsRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, mostCaptainPointsRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, mostCaptainPointsRankList, mostCaptainPointsRankMap);
-            mostCaptainPointsRankMap.put(mostCaptainPointsRankList.get(i), rank);
-        });
-        data.setMostCaptainPointsRank(mostCaptainPointsRankMap.get(data.getMostCaptainPoints()));
-        // tc captain points
-        List<Integer> tcCaptainPointsRankList = entryLeagueEventCaptainMap.keySet()
-                .stream()
-                .map(o ->
-                        entryLeagueEventReportMap.get(o)
-                                .stream()
-                                .filter(i -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), i.getEventChip()))
-                                .map(this::getLeaguePlayedCaptainPoints)
-                                .max(Comparator.comparing(Integer::intValue))
-                                .orElse(0)
-                )
-                .sorted(Comparator.comparing(Integer::intValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> tcCaptainPointsRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, tcCaptainPointsRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, tcCaptainPointsRankList, tcCaptainPointsRankMap);
-            tcCaptainPointsRankMap.put(tcCaptainPointsRankList.get(i), rank);
-        });
-        data.setTcCaptainPointsRank(tcCaptainPointsRankMap.get(data.getTcCaptainPoints()));
-    }
-
-    private int getLeaguePlayedCaptainPoints(LeagueEventReportEntity leagueEventReportEntity) {
-        int points = leagueEventReportEntity.getCaptainPoints();
-        if (leagueEventReportEntity.getPlayedCaptain() == leagueEventReportEntity.getViceCaptain()) {
-            points = leagueEventReportEntity.getViceCaptainPoints();
-        }
-        return points;
-    }
-
-    private int calcLeagueCaptainPoints(LeagueEventReportEntity leagueEventReportEntity) {
-        return this.calcCaptainPoints(this.getLeaguePlayedCaptainPoints(leagueEventReportEntity), leagueEventReportEntity.getEventChip());
-    }
-
-    private void setEntryLeagueScoreData(int entry, List<LeagueEventReportEntity> leagueEventReportEntityList, Multimap<Integer, LeagueEventReportEntity> entryLeagueEventReportMap, LeagueSeasonEntryData data) {
     }
 
     private <T> int calcRealRank(int index, List<T> rankList, LinkedHashMap<T, Integer> rankMap) {

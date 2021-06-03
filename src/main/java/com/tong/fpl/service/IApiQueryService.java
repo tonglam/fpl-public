@@ -24,12 +24,6 @@ public interface IApiQueryService {
     /**
      * @apiNote common
      */
-    String getUtcDeadlineByEvent(int event);
-
-    String getDeadlineByEvent(int event);
-
-    int getCurrentEvent();
-
     Map<String, String> qryCurrentEventAndNextUtcDeadline();
 
     Map<String, Integer> qryEventAverageScore();
@@ -57,21 +51,6 @@ public interface IApiQueryService {
      * @apiNote live
      */
     List<LiveMatchData> qryLiveMatchByStatus(String playStatus);
-
-    /**
-     * @apiNote team
-     */
-    Map<String, String> getTeamNameMap();
-
-    default String getTeamNameByTeam(int teamId) {
-        return this.getTeamNameMap().getOrDefault(String.valueOf(teamId), "");
-    }
-
-    Map<String, String> getTeamShortNameMap();
-
-    default String getShortTeamNameByTeam(int teamId) {
-        return this.getTeamShortNameMap().getOrDefault(String.valueOf(teamId), "");
-    }
 
     /**
      * @apiNote player

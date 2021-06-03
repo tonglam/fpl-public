@@ -3,7 +3,7 @@ package com.tong.fpl.controller.api;
 import com.tong.fpl.api.IApiSummary;
 import com.tong.fpl.domain.letletme.summary.entry.*;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
-import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonEntryData;
+import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,9 @@ public class SummaryApiController {
 
     private final IApiSummary apiSummary;
 
+    /**
+     * @implNote entry
+     */
     @GetMapping("/qryEntrySeasonInfo")
     public EntrySeasonInfoData qryEntrySeasonInfo(@RequestParam int entry) {
         return this.apiSummary.qryEntrySeasonInfo(entry);
@@ -48,24 +51,27 @@ public class SummaryApiController {
         return this.apiSummary.qryEntrySeasonScore(entry);
     }
 
+    /**
+     * @implNote league
+     */
+    @GetMapping("/qryLeagueSeasonInfo")
+    public LeagueSeasonInfoData qryLeagueSeasonInfo(@RequestParam int leagueId, @RequestParam String leagueType) {
+        return this.apiSummary.qryLeagueSeasonInfo(leagueId, leagueType);
+    }
+
     @GetMapping("/qryLeagueSeasonSummary")
-    public LeagueSeasonSummaryData qryLeagueSeasonSummary(@RequestParam int leagueId, @RequestParam String leagueType) {
-        return this.apiSummary.qryLeagueSeasonSummary(leagueId, leagueType);
+    public LeagueSeasonSummaryData qryLeagueSeasonSummary(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+        return this.apiSummary.qryLeagueSeasonSummary(leagueId, leagueType, entry);
     }
 
     @GetMapping("/qryLeagueSeasonCaptain")
-    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(@RequestParam int leagueId, @RequestParam String leagueType) {
-        return this.apiSummary.qryLeagueSeasonCaptain(leagueId, leagueType);
+    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+        return this.apiSummary.qryLeagueSeasonCaptain(leagueId, leagueType, entry);
     }
 
     @GetMapping("/qryLeagueSeasonScore")
-    public LeagueSeasonScoreData qryLeagueSeasonScore(@RequestParam int leagueId, @RequestParam String leagueType) {
-        return this.apiSummary.qryLeagueSeasonScore(leagueId, leagueType);
-    }
-
-    @GetMapping("/qryLeagueSeasonEntry")
-    public LeagueSeasonEntryData qryLeagueSeasonEntry(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
-        return this.apiSummary.qryLeagueSeasonEntry(leagueId, leagueType, entry);
+    public LeagueSeasonScoreData qryLeagueSeasonScore(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+        return this.apiSummary.qryLeagueSeasonScore(leagueId, leagueType, entry);
     }
 
 }
