@@ -1,7 +1,5 @@
 package com.tong.fpl.service;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.data.response.*;
@@ -83,20 +81,7 @@ public interface IQueryService {
 
     PlayerEntity getPlayerByElement(String season, int element);
 
-    default PlayerStatEntity getPlayerStatByElement(int element) {
-        return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
-    }
-
     PlayerStatEntity getPlayerStatByElement(String season, int element);
-
-    List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay);
-
-    default PlayerShowData qryPlayerShowData(int event, int element) {
-        return this
-                .qryPlayerShowData(event, element, Maps.newHashMap(), Maps.newHashMap(),
-                        Maps.newHashMap(),
-                        Maps.newHashMap(), HashMultimap.create(), Maps.newHashMap());
-    }
 
     PlayerShowData qryPlayerShowData(int event, int element,
                                      Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
@@ -124,8 +109,6 @@ public interface IQueryService {
     List<Integer> qryEntryTournamentEntryList(int entry);
 
     List<TransferRes> getTransfer(int entry);
-
-    List<TournamentInfoEntity> qryEntryAllTournamentList(int entry);
 
     /**
      * @apiNote event
@@ -168,8 +151,6 @@ public interface IQueryService {
     boolean isMatchDay(int event);
 
     boolean isMatchDayTime(int event);
-
-    boolean isLastMatchDay(int event);
 
     boolean isSelectTime(int event);
 
@@ -265,8 +246,7 @@ public interface IQueryService {
 
     PlayerPickData qryEntryPickDataForTransfers(int event, int entry);
 
-    List<PlayerPickData> qryLeaguePickDataList(int leagueId, String leagueType,
-                                               List<Integer> entryList);
+    List<PlayerPickData> qryLeaguePickDataList(int leagueId, String leagueType, List<Integer> entryList);
 
     List<PlayerPickData> qryLeagueEventPickDataList(int event, int leagueId, String leagueType);
 
@@ -280,15 +260,9 @@ public interface IQueryService {
 
     List<EntryEventAutoSubsData> qryEntryAutoSubDataList(String season, int event, int entry);
 
-    default List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(int event, String autoSubs) {
-        return this.qryAutoSubListFromAutoSubs(CommonUtils.getCurrentSeason(), event, autoSubs);
-    }
+    List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String season, int event, String autoSubs);
 
-    List<EntryEventAutoSubsData> qryAutoSubListFromAutoSubs(String season, int event,
-                                                            String autoSubs);
-
-    List<EntryEventAutoSubsData> qryLeagueEventAutoSubDataList(int event, int leagueId,
-                                                               String leagueType);
+    List<EntryEventAutoSubsData> qryLeagueEventAutoSubDataList(int event, int leagueId, String leagueType);
 
     Map<Integer, Integer> qryEntryFreeTransfersMap(int entry);
 
@@ -314,8 +288,6 @@ public interface IQueryService {
 
     List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId);
 
-    List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId);
-
     KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
 
     List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
@@ -335,8 +307,6 @@ public interface IQueryService {
     Map<String, Integer> qryZjTournamentPhaseTwoRankMap(int tournamentId);
 
     Map<String, Integer> qryZjTournamentPkRankMap(int tournamentId);
-
-    Map<String, Integer> qryZjTournamentRankMap(List<ZjTournamentResultData> list);
 
     Map<String, Integer> qryZjTournamentGroupEntryGroupIdMap(int tournamentId);
 
@@ -376,8 +346,6 @@ public interface IQueryService {
      * @apiNote scout
      */
     ScoutData qryScoutEntryEventData(int event, int entry);
-
-    Map<Object, Object> getScoutMap();
 
     /**
      * @apiNote simulate

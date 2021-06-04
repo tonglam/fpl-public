@@ -269,11 +269,6 @@ public class QueryServiceImpl implements IQueryService {
         return this.redisCacheService.getPlayerStatByElement(season, element);
     }
 
-    @Override
-    public List<PlayerValueEntity> getPlayerValueByChangeDay(String changeDay) {
-        return this.redisCacheService.getPlayerValueByChangeDay(changeDay);
-    }
-
     // do not cache here
     @Override
     public PlayerShowData qryPlayerShowData(int event, int element,
@@ -511,13 +506,6 @@ public class QueryServiceImpl implements IQueryService {
         return this.staticService.getTransfer(entry).orElse(null);
     }
 
-    @Cacheable(value = "qryEntryAllTournamentList", key = "#entry", unless = "#result == null")
-    @Override
-    public List<TournamentInfoEntity> qryEntryAllTournamentList(int entry) {
-        return this.tournamentInfoService.list(new QueryWrapper<TournamentInfoEntity>().lambda()
-                .in(TournamentInfoEntity::getId, this.qryEntryTournamentEntryList(entry)));
-    }
-
     /**
      * @implNote event
      */
@@ -560,7 +548,7 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public List<LocalDate> getMatchDayByEvent(int event) {
         List<LocalDate> matchDayList = Lists.newArrayList();
-        this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event)
+        this.getEventFixtureByEvent(event)
                 .forEach(eventFixtureEntity -> {
                             String matchDay = StringUtils.substringBefore(eventFixtureEntity.getKickoffTime(), " ");
                             LocalDate date = LocalDate.parse(matchDay);
@@ -579,7 +567,7 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public List<LocalDateTime> getMatchDayTimeByEvent(int event) {
         List<LocalDateTime> matchDayTimeList = Lists.newArrayList();
-        this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event)
+        this.getEventFixtureByEvent(event)
                 .forEach(eventFixtureEntity -> {
                             String kickoffTime = eventFixtureEntity.getKickoffTime().replace(" ", "T");
                             LocalDateTime dateTime = LocalDateTime.parse(kickoffTime);
@@ -609,18 +597,6 @@ public class QueryServiceImpl implements IQueryService {
             return false;
         }
         return LocalDateTime.now().isAfter(start) && LocalDateTime.now().minusHours(2).isBefore(last);
-    }
-
-    @Override
-    public boolean isLastMatchDay(int event) {
-        LocalDate eventLastDay = this.getMatchDayByEvent(event)
-                .stream()
-                .max(LocalDate::compareTo)
-                .orElse(null);
-        if (eventLastDay == null) {
-            return false;
-        }
-        return eventLastDay.isEqual(LocalDate.now());
     }
 
     @Override
@@ -1827,12 +1803,6 @@ public class QueryServiceImpl implements IQueryService {
         return list;
     }
 
-    @Override
-    public List<TournamentKnockoutEntity> qryKnockoutListByTournamentId(int tournamentId) {
-        return this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId));
-    }
-
     @Cacheable(value = "qryKnockoutBracketResultByTournament", key = "#tournamentId", unless = "#result == null")
     @Override
     public KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId) {
@@ -2340,40 +2310,6 @@ public class QueryServiceImpl implements IQueryService {
         return map;
     }
 
-    @Cacheable(value = "qryZjTournamentRankMap", key = "#list.get(0).tournamentId", unless = "#result == null")
-    @Override
-    public Map<String, Integer> qryZjTournamentRankMap(List<ZjTournamentResultData> list) {
-        Map<String, Integer> map = Maps.newHashMap();
-        List<ZjTournamentResultData> zjTournamentResultDataList = list
-                .stream()
-                .sorted(Comparator.comparing(ZjTournamentResultData::getTournamentTotalGroupPoints)
-                        .thenComparing(ZjTournamentResultData::getTournamentTotalPoints)
-                        .reversed())
-                .collect(Collectors.toList());
-        int rank = 1;
-        int levelCount = 0;
-        for (int i = 0; i < zjTournamentResultDataList.size(); i++) {
-            ZjTournamentResultData zjTournamentResultData = zjTournamentResultDataList.get(i);
-            int totalGroupPoints = zjTournamentResultData.getTournamentTotalGroupPoints();
-            int totalPoints = zjTournamentResultData.getTournamentTotalPoints();
-            if (i > 0) {
-                if (totalGroupPoints != zjTournamentResultDataList.get(i - 1)
-                        .getTournamentTotalGroupPoints()) {
-                    rank = rank + 1 + levelCount;
-                    levelCount = 0;
-                } else if (totalPoints != zjTournamentResultDataList.get(i - 1)
-                        .getTournamentTotalPoints()) {
-                    rank = rank + 1 + levelCount;
-                    levelCount = 0;
-                } else {
-                    levelCount++;
-                }
-            }
-            map.put(String.valueOf(zjTournamentResultData.getGroupId()), rank);
-        }
-        return map;
-    }
-
     @Cacheable(value = "qryZjTournamentGroupEntryGroupIdMap", key = "#tournamentId")
     @Override
     public Map<String, Integer> qryZjTournamentGroupEntryGroupIdMap(int tournamentId) {
@@ -2799,11 +2735,6 @@ public class QueryServiceImpl implements IQueryService {
             return playerEntity.getPrice() / 10.0;
         }
         return 0;
-    }
-
-    @Override
-    public Map<Object, Object> getScoutMap() {
-        return RedisUtils.getHashByKey("scoutEntry");
     }
 
     /**
