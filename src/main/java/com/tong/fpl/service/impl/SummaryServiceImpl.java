@@ -648,10 +648,14 @@ public class SummaryServiceImpl implements ISummaryService {
         PlayerEntity elementOutEntity = playerMap.get(entryEventTransfersEntity.getElementOut());
         return BeanUtil.copyProperties(entryEventTransfersEntity, EntryEventTransfersData.class)
                 .setElementInWebName(elementInEntity.getWebName())
+                .setElementInType(elementInEntity.getElementType())
+                .setElementInTypeName(Position.getNameFromElementType(elementInEntity.getElementType()))
                 .setElementInTeamId(elementInEntity.getTeamId())
                 .setElementInTeamShortName(shortNameMap.getOrDefault(String.valueOf(elementInEntity.getTeamId()), ""))
                 .setElementInCost(entryEventTransfersEntity.getElementInCost() / 10.0)
                 .setElementOutWebName(elementOutEntity.getWebName())
+                .setElementOutType(elementOutEntity.getElementType())
+                .setElementOutTypeName(Position.getNameFromElementType(elementOutEntity.getElementType()))
                 .setElementOutTeamId(elementOutEntity.getTeamId())
                 .setElementOutTeamShortName(shortNameMap.getOrDefault(String.valueOf(elementOutEntity.getTeamId()), ""))
                 .setElementOutCost(entryEventTransfersEntity.getElementOutCost() / 10.0);
