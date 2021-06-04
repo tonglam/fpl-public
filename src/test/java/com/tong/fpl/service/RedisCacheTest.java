@@ -243,7 +243,7 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"qry"})
+    @CsvSource({"api"})
     void redisClear(String key) {
         RedisUtils.removeCacheByKey(key);
     }

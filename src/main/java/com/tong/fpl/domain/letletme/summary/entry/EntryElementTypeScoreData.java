@@ -13,7 +13,6 @@ public class EntryElementTypeScoreData {
     private int entry;
     private String entryName;
     private String playerName;
-    private int capTotalPoints;
     private int totalPoints;
 
 }
