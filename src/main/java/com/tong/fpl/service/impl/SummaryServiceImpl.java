@@ -207,7 +207,11 @@ public class SummaryServiceImpl implements ISummaryService {
                                     pickList
                                             .stream()
                                             .filter(i -> i.getPosition() > 11)
-                                            .map(i -> i.setWebName(webNameMap.getOrDefault(i.getElement(), "")))
+                                            .map(i -> i
+                                                    .setEvent(i.getEvent())
+                                                    .setEntry(entry)
+                                                    .setWebName(webNameMap.getOrDefault(i.getElement(), ""))
+                                            )
                                             .collect(Collectors.toList())
                             )
                             .setHighestBenchPoints(o.getEventBenchPoints())
@@ -225,6 +229,7 @@ public class SummaryServiceImpl implements ISummaryService {
                             list.forEach(i ->
                                     i
                                             .setEvent(o.getEvent())
+                                            .setEntry(entry)
                                             .setElementInWebName(webNameMap.getOrDefault(i.getElementIn(), ""))
                                             .setElementOutWebName(webNameMap.getOrDefault(i.getElementOut(), ""))
                             );
@@ -1224,12 +1229,14 @@ public class SummaryServiceImpl implements ISummaryService {
                     .setTotalAutoSubsPoints(leagueEventReportEntity.getEventAutoSubPoints());
         } else {
             data = map.get(entry);
-            data.setTotalTransfers(data.getTotalTransfers() + leagueEventReportEntity.getEventTransfers())
+            data
+                    .setTotalTransfers(data.getTotalTransfers() + leagueEventReportEntity.getEventTransfers())
                     .setTotalTransfersCost(data.getTotalTransfersCost() + leagueEventReportEntity.getEventTransfersCost())
                     .setTotalBenchPoints(data.getTotalBenchPoints() + leagueEventReportEntity.getEventBenchPoints())
                     .setTotalAutoSubsPoints(data.getTotalAutoSubsPoints() + leagueEventReportEntity.getEventAutoSubPoints());
             if (data.getEvent() < leagueEventReportEntity.getEvent()) {
                 data
+                        .setEvent(leagueEventReportEntity.getEvent())
                         .setOverallPoints(leagueEventReportEntity.getOverallPoints())
                         .setOverallRank(leagueEventReportEntity.getOverallRank())
                         .setValue(leagueEventReportEntity.getTeamValue() / 10.0)
