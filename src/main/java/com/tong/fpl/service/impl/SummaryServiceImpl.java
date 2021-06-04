@@ -1508,7 +1508,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                         .max(Comparator.comparing(EntryEventCaptainData::getEvent))
                                         .orElse(new EntryEventCaptainData())
                                         .getOverallPoints()),
-                        2).doubleValue()
+                        4).doubleValue()
         ));
         data
                 .setMostPointsByPercentEntry(
