@@ -1240,12 +1240,12 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    //    @Cacheable(
-//            value = "api::qryLeagueSeasonCaptain",
-//            key = "#leagueId+'::'+#leagueType+'::'+#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.leagueId eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryLeagueSeasonCaptain",
+            key = "#leagueId+'::'+#leagueType+'::'+#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.leagueId eq 0"
+    )
     @Override
     public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType, int entry) {
         LeagueSeasonCaptainData data = new LeagueSeasonCaptainData();
@@ -1602,12 +1602,12 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    //    @Cacheable(
-//            value = "api::qryLeagueSeasonScore",
-//            key = "#leagueId+'::'+#leagueType+'::'+#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.leagueId eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryLeagueSeasonScore",
+            key = "#leagueId+'::'+#leagueType+'::'+#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.leagueId eq 0"
+    )
     @Override
     public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType, int entry) {
         LeagueSeasonScoreData data = new LeagueSeasonScoreData();
@@ -1741,7 +1741,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, gkpPickList.size() * 1.0), 2),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
-        // entry gkp
+        // league entry gkp
         Multimap<Integer, EntryPickData> entryGkpPickMap = HashMultimap.create();
         entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.GKP.getElementType()).forEach(j -> entryGkpPickMap.put(leagueEntry, j))));
         data.setAverageEntryGkpTotalNum(
@@ -1786,6 +1786,43 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .collect(Collectors.toMap(k -> this.apiQueryService.qryEntryInfo(k.getKey()), Map.Entry::getValue,
                                         (oldValue, newValue) -> newValue, LinkedHashMap::new))
                 );
+        // entry gkp
+        data
+                .setEntryGkpTotalNum(
+                        (int) entryGkpPickMap.get(entry)
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                )
+                .setEntryGkpTotalPoints(entryGkpPointsMap.get(entry));
+        List<Integer> entryGkpNumRankList = entryGkpPickMap.keySet()
+                .stream()
+                .map(o ->
+                        (int) entryGkpPickMap.get(o)
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryGkpNumRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryGkpNumRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryGkpNumRankList, entryGkpNumRankMap);
+            entryGkpNumRankMap.put(entryGkpNumRankList.get(i), rank);
+        });
+        data.setEntryGkpTotalNumRank(entryGkpNumRankMap.get(data.getEntryGkpTotalNum()));
+        List<Integer> entryGkpPointsRankList = entryGkpPointsMap.values()
+                .stream()
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryGkpPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryGkpPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryGkpPointsRankList, entryGkpPointsRankMap);
+            entryGkpPointsRankMap.put(entryGkpPointsRankList.get(i), rank);
+        });
+        data.setEntryGkpTotalPointsRank(entryGkpPointsRankMap.get(data.getEntryGkpTotalPoints()));
         // def
         List<EntryPickData> defPickList = Lists.newArrayList();
         pickTable.row(Position.DEF.getElementType()).values().forEach(defPickList::addAll);
@@ -1807,7 +1844,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, defPickList.size() * 1.0), 2),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
-        // entry def
+        // league entry def
         Multimap<Integer, EntryPickData> entryDefPickMap = HashMultimap.create();
         entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.DEF.getElementType()).forEach(j -> entryDefPickMap.put(leagueEntry, j))));
         data.setAverageEntryDefTotalNum(
@@ -1852,6 +1889,43 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .collect(Collectors.toMap(k -> this.apiQueryService.qryEntryInfo(k.getKey()), Map.Entry::getValue,
                                         (oldValue, newValue) -> newValue, LinkedHashMap::new))
                 );
+        // entry def
+        data
+                .setEntryDefTotalNum(
+                        (int) entryDefPickMap.get(entry)
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                )
+                .setEntryDefTotalPoints(entryDefPointsMap.get(entry));
+        List<Integer> entryDefNumRankList = entryDefPickMap.keySet()
+                .stream()
+                .map(o ->
+                        (int) entryDefPickMap.get(o)
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryDefNumRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryDefNumRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryDefNumRankList, entryDefNumRankMap);
+            entryDefNumRankMap.put(entryDefNumRankList.get(i), rank);
+        });
+        data.setEntryDefTotalNumRank(entryDefNumRankMap.get(data.getEntryDefTotalNum()));
+        List<Integer> entryDefPointsRankList = entryDefPointsMap.values()
+                .stream()
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryDefPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryDefPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryDefPointsRankList, entryDefPointsRankMap);
+            entryDefPointsRankMap.put(entryDefPointsRankList.get(i), rank);
+        });
+        data.setEntryDefTotalPointsRank(entryDefPointsRankMap.get(data.getEntryDefTotalPoints()));
         // mid
         List<EntryPickData> midPickList = Lists.newArrayList();
         pickTable.row(Position.MID.getElementType()).values().forEach(midPickList::addAll);
@@ -1873,7 +1947,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, midPickList.size() * 1.0), 2),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
-        // entry mid
+        // league entry mid
         Multimap<Integer, EntryPickData> entryMidPickMap = HashMultimap.create();
         entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.MID.getElementType()).forEach(j -> entryMidPickMap.put(leagueEntry, j))));
         data.setAverageEntryMidTotalNum(
@@ -1918,6 +1992,43 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .collect(Collectors.toMap(k -> this.apiQueryService.qryEntryInfo(k.getKey()), Map.Entry::getValue,
                                         (oldValue, newValue) -> newValue, LinkedHashMap::new))
                 );
+        // entry mid
+        data
+                .setEntryMidTotalNum(
+                        (int) entryMidPickMap.get(entry)
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                )
+                .setEntryMidTotalPoints(entryMidPointsMap.get(entry));
+        List<Integer> entryMidNumRankList = entryMidPickMap.keySet()
+                .stream()
+                .map(o ->
+                        (int) entryMidPickMap.get(o)
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryMidNumRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryMidNumRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryMidNumRankList, entryMidNumRankMap);
+            entryMidNumRankMap.put(entryMidNumRankList.get(i), rank);
+        });
+        data.setEntryMidTotalNumRank(entryMidNumRankMap.get(data.getEntryMidTotalNum()));
+        List<Integer> entryMidPointsRankList = entryMidPointsMap.values()
+                .stream()
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryMidPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryMidPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryMidPointsRankList, entryMidPointsRankMap);
+            entryMidPointsRankMap.put(entryMidPointsRankList.get(i), rank);
+        });
+        data.setEntryMidTotalPointsRank(entryMidPointsRankMap.get(data.getEntryMidTotalPoints()));
         // fwd
         List<EntryPickData> fwdPickList = Lists.newArrayList();
         pickTable.row(Position.FWD.getElementType()).values().forEach(fwdPickList::addAll);
@@ -1939,7 +2050,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, fwdPickList.size() * 1.0), 2),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
-        // entry fwd
+        // league entry fwd
         Multimap<Integer, EntryPickData> entryFwdPickMap = HashMultimap.create();
         entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.FWD.getElementType()).forEach(j -> entryFwdPickMap.put(leagueEntry, j))));
         data.setAverageEntryFwdTotalNum(
@@ -1984,6 +2095,43 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .collect(Collectors.toMap(k -> this.apiQueryService.qryEntryInfo(k.getKey()), Map.Entry::getValue,
                                         (oldValue, newValue) -> newValue, LinkedHashMap::new))
                 );
+        // entry fwd
+        data
+                .setEntryFwdTotalNum(
+                        (int) entryFwdPickMap.get(entry)
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                )
+                .setEntryFwdTotalPoints(entryFwdPointsMap.get(entry));
+        List<Integer> entryFwdNumRankList = entryFwdPickMap.keySet()
+                .stream()
+                .map(o ->
+                        (int) entryFwdPickMap.get(o)
+                                .stream()
+                                .map(EntryPickData::getElement)
+                                .distinct()
+                                .count()
+                )
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryFwdNumRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryFwdNumRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryFwdNumRankList, entryFwdNumRankMap);
+            entryFwdNumRankMap.put(entryFwdNumRankList.get(i), rank);
+        });
+        data.setEntryFwdTotalNumRank(entryFwdNumRankMap.get(data.getEntryFwdTotalNum()));
+        List<Integer> entryFwdPointsRankList = entryFwdPointsMap.values()
+                .stream()
+                .sorted(Comparator.comparing(Integer::intValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Integer, Integer> entryFwdPointsRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, entryFwdPointsRankList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, entryFwdPointsRankList, entryFwdPointsRankMap);
+            entryFwdPointsRankMap.put(entryFwdPointsRankList.get(i), rank);
+        });
+        data.setEntryFwdTotalPointsRank(entryFwdPointsRankMap.get(data.getEntryFwdTotalPoints()));
         // formation
         List<String> formationList = Lists.newArrayList();
         entryPickTable.columnMap().values().forEach(o ->
