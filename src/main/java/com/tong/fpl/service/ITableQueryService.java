@@ -1,6 +1,5 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventCupData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
@@ -94,8 +93,6 @@ public interface ITableQueryService {
     TableData<EntryPickData> qryEntryEventResult(int event, int entry);
 
     TableData<EntryEventResultData> qryEntryResultList(int entry);
-
-    TableData<ElementEventResultData> qryElementEventResult(int event, int element);
 
     /**
      * @apiNote report

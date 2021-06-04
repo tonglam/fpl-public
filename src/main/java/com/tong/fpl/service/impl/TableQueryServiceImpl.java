@@ -11,7 +11,6 @@ import com.tong.fpl.config.collector.PlayerValueCollector;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.entity.*;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.global.StepDetailData;
 import com.tong.fpl.domain.letletme.global.StepsData;
@@ -1251,18 +1250,6 @@ public class TableQueryServiceImpl implements ITableQueryService {
                         .setChip(o.getEventChip())
                 ));
         return new TableData<>(list);
-    }
-
-    @Cacheable(value = "qryElementEventResult", key = "#event+'::'+#element", unless = "#result==null")
-    @Override
-    public TableData<ElementEventResultData> qryElementEventResult(int event, int element) {
-        EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event)
-                .eq(EventLiveEntity::getElement, element));
-        if (eventLiveEntity == null) {
-            return new TableData<>();
-        }
-        return new TableData<>(BeanUtil.copyProperties(eventLiveEntity, ElementEventResultData.class));
     }
 
     /**
