@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class LiveService implements ILiveService {
+public class LiveServiceImpl implements ILiveService {
 
     private final IQueryService queryService;
     private final EntryEventPickService entryEventPickService;
