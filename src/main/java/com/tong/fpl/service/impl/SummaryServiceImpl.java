@@ -7,10 +7,7 @@ import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.domain.entity.*;
-import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
-import com.tong.fpl.domain.letletme.entry.EntryEventCaptainData;
-import com.tong.fpl.domain.letletme.entry.EntryEventTransfersData;
-import com.tong.fpl.domain.letletme.entry.EntryPickData;
+import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.summary.entry.*;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
@@ -640,7 +637,6 @@ public class SummaryServiceImpl implements ISummaryService {
                         .collect(Collectors.toList())
         );
         return data;
-
     }
 
     private EntryEventTransfersData initEntryEventTransfersData(EntryEventTransfersEntity entryEventTransfersEntity, Map<String, String> shortNameMap, Map<Integer, PlayerEntity> playerMap) {
@@ -1787,8 +1783,19 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                                 .limit(5)
-                                .collect(Collectors.toMap(k -> this.apiQueryService.qryEntryInfo(k.getKey()), Map.Entry::getValue,
-                                        (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                                .map(o -> {
+                                    EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
+                                    if (entryInfoData == null) {
+                                        return null;
+                                    }
+                                    return new EntryElementTypeScoreData()
+                                            .setEntry(o.getKey())
+                                            .setEntryName(entryInfoData.getEntryName())
+                                            .setPlayerName(entryInfoData.getPlayerName())
+                                            .setTotalPoints(o.getValue());
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList())
                 );
         // entry gkp
         data
@@ -1890,8 +1897,19 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                                 .limit(5)
-                                .collect(Collectors.toMap(k -> this.apiQueryService.qryEntryInfo(k.getKey()), Map.Entry::getValue,
-                                        (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                                .map(o -> {
+                                    EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
+                                    if (entryInfoData == null) {
+                                        return null;
+                                    }
+                                    return new EntryElementTypeScoreData()
+                                            .setEntry(o.getKey())
+                                            .setEntryName(entryInfoData.getEntryName())
+                                            .setPlayerName(entryInfoData.getPlayerName())
+                                            .setTotalPoints(o.getValue());
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList())
                 );
         // entry def
         data
@@ -1993,8 +2011,19 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                                 .limit(5)
-                                .collect(Collectors.toMap(k -> this.apiQueryService.qryEntryInfo(k.getKey()), Map.Entry::getValue,
-                                        (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                                .map(o -> {
+                                    EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
+                                    if (entryInfoData == null) {
+                                        return null;
+                                    }
+                                    return new EntryElementTypeScoreData()
+                                            .setEntry(o.getKey())
+                                            .setEntryName(entryInfoData.getEntryName())
+                                            .setPlayerName(entryInfoData.getPlayerName())
+                                            .setTotalPoints(o.getValue());
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList())
                 );
         // entry mid
         data
@@ -2096,8 +2125,19 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                                 .limit(5)
-                                .collect(Collectors.toMap(k -> this.apiQueryService.qryEntryInfo(k.getKey()), Map.Entry::getValue,
-                                        (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                                .map(o -> {
+                                    EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
+                                    if (entryInfoData == null) {
+                                        return null;
+                                    }
+                                    return new EntryElementTypeScoreData()
+                                            .setEntry(o.getKey())
+                                            .setEntryName(entryInfoData.getEntryName())
+                                            .setPlayerName(entryInfoData.getPlayerName())
+                                            .setTotalPoints(o.getValue());
+                                })
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList())
                 );
         // entry fwd
         data

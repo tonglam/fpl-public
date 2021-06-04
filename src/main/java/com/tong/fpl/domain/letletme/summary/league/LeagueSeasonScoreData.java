@@ -1,10 +1,11 @@
 package com.tong.fpl.domain.letletme.summary.league;
 
-import com.tong.fpl.domain.letletme.entry.EntryInfoData;
+import com.tong.fpl.domain.letletme.summary.entry.EntryElementTypeScoreData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Create by tong on 2021/5/27
@@ -23,7 +24,7 @@ public class LeagueSeasonScoreData {
     private LinkedHashMap<String, String> mostSelectedGkpByPercent;
     private double averageEntryGkpTotalNum;
     private double averageEntryGkpTotalPoints;
-    private LinkedHashMap<EntryInfoData, Integer> mostEntryGkpPoints;
+    private List<EntryElementTypeScoreData> mostEntryGkpPoints;
     private int entryGkpTotalPoints;
     private int entryGkpTotalPointsRank;
     private int entryGkpTotalNum;
@@ -34,7 +35,7 @@ public class LeagueSeasonScoreData {
     private LinkedHashMap<String, String> mostSelectedDefByPercent;
     private double averageEntryDefTotalNum;
     private double averageEntryDefTotalPoints;
-    private LinkedHashMap<EntryInfoData, Integer> mostEntryDefPoints;
+    private List<EntryElementTypeScoreData> mostEntryDefPoints;
     private int entryDefTotalPoints;
     private int entryDefTotalPointsRank;
     private int entryDefTotalNum;
@@ -45,7 +46,7 @@ public class LeagueSeasonScoreData {
     private LinkedHashMap<String, String> mostSelectedMidByPercent;
     private double averageEntryMidTotalNum;
     private double averageEntryMidTotalPoints;
-    private LinkedHashMap<EntryInfoData, Integer> mostEntryMidPoints;
+    private List<EntryElementTypeScoreData> mostEntryMidPoints;
     private int entryMidTotalPoints;
     private int entryMidTotalPointsRank;
     private int entryMidTotalNum;
@@ -56,7 +57,7 @@ public class LeagueSeasonScoreData {
     private LinkedHashMap<String, String> mostSelectedFwdByPercent;
     private double averageEntryFwdTotalNum;
     private double averageEntryFwdTotalPoints;
-    private LinkedHashMap<EntryInfoData, Integer> mostEntryFwdPoints;
+    private List<EntryElementTypeScoreData> mostEntryFwdPoints;
     private int entryFwdTotalPoints;
     private int entryFwdTotalPointsRank;
     private int entryFwdTotalNum;
