@@ -17,6 +17,7 @@ import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ISummaryService;
 import com.tong.fpl.service.db.*;
+import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -425,25 +426,27 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                         .limit(3)
-                        .map(o ->
-                                new EntrySelectedCaptainData()
-                                        .setElement(o.getKey())
-                                        .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
-                                        .setTimes(o.getValue().intValue())
-                                        .setTotalPoints(
-                                                entryEventResultEntityList
-                                                        .stream()
-                                                        .filter(i -> i.getPlayedCaptain().equals(o.getKey()))
-                                                        .mapToInt(i -> {
-                                                            if (StringUtils.equalsIgnoreCase(Chip.TC.getValue(), i.getEventChip())) {
-                                                                return 3 * i.getCaptainPoints();
-                                                            } else {
-                                                                return 2 * i.getCaptainPoints();
-                                                            }
-                                                        })
-                                                        .sum()
-                                        )
-                        )
+                        .map(o -> {
+                            EntrySelectedCaptainData entrySelectedCaptainData = new EntrySelectedCaptainData()
+                                    .setElement(o.getKey())
+                                    .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                    .setTimes(o.getValue().intValue())
+                                    .setTotalPoints(
+                                            entryEventResultEntityList
+                                                    .stream()
+                                                    .filter(i -> i.getPlayedCaptain().equals(o.getKey()))
+                                                    .mapToInt(i -> {
+                                                        if (StringUtils.equalsIgnoreCase(Chip.TC.getValue(), i.getEventChip())) {
+                                                            return 3 * i.getCaptainPoints();
+                                                        } else {
+                                                            return 2 * i.getCaptainPoints();
+                                                        }
+                                                    })
+                                                    .sum()
+                                    );
+                            entrySelectedCaptainData.setTotalPointsByPercent(CommonUtils.getPercentResult(entrySelectedCaptainData.getTotalPoints(), data.getTotalPoints()));
+                            return entrySelectedCaptainData;
+                        })
                         .collect(Collectors.toList())
         );
         int overallPoints = entryEventResultEntityList
@@ -452,8 +455,8 @@ public class SummaryServiceImpl implements ISummaryService {
                 .map(EntryEventResultEntity::getOverallPoints)
                 .orElse(0);
         data
-                .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getTotalPoints(), overallPoints), 2))
-                .setViceTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getViceTotalPoints(), overallPoints), 2));
+                .setTotalPointsByPercent(CommonUtils.getPercentResult(data.getTotalPoints(), overallPoints))
+                .setViceTotalPointsByPercent(CommonUtils.getPercentResult(data.getViceTotalPoints(), overallPoints));
         return data;
     }
 
@@ -748,7 +751,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .distinct()
                                 .count()
                 );
-        data.setGkpTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpTotalPoints(), data.getOverallPoints()), 2));
+        data.setGkpTotalPointsByPercent(CommonUtils.getPercentResult(data.getGkpTotalPoints(), data.getOverallPoints()));
         Map<String, Long> mostSelectedGkpCountMap = gkpPickList.
                 stream()
                 .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
@@ -776,7 +779,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .distinct()
                                 .count()
                 );
-        data.setDefTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefTotalPoints(), data.getOverallPoints()), 2));
+        data.setDefTotalPointsByPercent(CommonUtils.getPercentResult(data.getDefTotalPoints(), data.getOverallPoints()));
         Map<String, Long> mostSelectedDefCountMap = defPickList.
                 stream()
                 .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
@@ -804,7 +807,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .distinct()
                                 .count()
                 );
-        data.setMidTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getMidTotalPoints(), data.getOverallPoints()), 2));
+        data.setMidTotalPointsByPercent(CommonUtils.getPercentResult(data.getMidTotalPoints(), data.getOverallPoints()));
         Map<String, Long> mostSelectedMidCountMap = midPickList.
                 stream()
                 .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
@@ -832,7 +835,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .distinct()
                                 .count()
                 );
-        data.setFwdTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getFwdTotalPoints(), data.getOverallPoints()), 2));
+        data.setFwdTotalPointsByPercent(CommonUtils.getPercentResult(data.getFwdTotalPoints(), data.getOverallPoints()));
         Map<String, Long> mostSelectedFwdCountMap = fwdPickList.
                 stream()
                 .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
@@ -1412,7 +1415,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                                                 .count()
                                                 )
                                                 .setTotalPoints(o.getValue())
-                                                .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, data.getTotalCaptainPoints() * 1.0), 2))
+                                                .setTotalPointsByPercent(CommonUtils.getPercentResult(o.getValue(), data.getTotalCaptainPoints()))
                                 )
                                 .collect(Collectors.toList())
                 )
@@ -1469,7 +1472,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                             .setEntryName(entryInfoEntity.getEntryName())
                                             .setPlayerName(entryInfoEntity.getPlayerName())
                                             .setTotalPoints(o.getValue())
-                                            .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, entryInfoEntity.getOverallPoints() * 1.0), 2));
+                                            .setTotalPointsByPercent(CommonUtils.getPercentResult(o.getValue(), entryInfoEntity.getOverallPoints()));
                                 })
                                 .filter(Objects::nonNull)
                                 .collect(Collectors.toList())
@@ -1490,7 +1493,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                             .setEntryName(entryInfoEntity.getEntryName())
                                             .setPlayerName(entryInfoEntity.getPlayerName())
                                             .setTotalPoints(o.getValue())
-                                            .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(o.getValue() * 1.0, entryInfoEntity.getOverallPoints() * 1.0), 2));
+                                            .setTotalPointsByPercent(CommonUtils.getPercentResult(o.getValue(), entryInfoEntity.getOverallPoints()));
                                 })
                                 .filter(Objects::nonNull)
                                 .collect(Collectors.toList())
@@ -1504,7 +1507,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                         .stream()
                                         .max(Comparator.comparing(EntryEventCaptainData::getEvent))
                                         .orElse(new EntryEventCaptainData())
-                                        .getOverallPoints() * 1.),
+                                        .getOverallPoints()),
                         2).doubleValue()
         ));
         data
@@ -1736,7 +1739,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .mapToInt(EntryPickData::getPoints)
                         .sum()
         );
-        data.setGkpTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getGkpTotalPoints(), data.getTotalOverallPoints()), 2));
+        data.setGkpTotalPointsByPercent(CommonUtils.getPercentResult(data.getGkpTotalPoints(), data.getTotalOverallPoints()));
         Map<String, Long> mostSelectedGkpCountMap = gkpPickList.
                 stream()
                 .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
@@ -1745,7 +1748,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(5)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, gkpPickList.size() * 1.0), 2),
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), gkpPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
         // league entry gkp
@@ -1850,7 +1853,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .mapToInt(EntryPickData::getPoints)
                         .sum()
         );
-        data.setDefTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getDefTotalPoints(), data.getTotalOverallPoints()), 2));
+        data.setDefTotalPointsByPercent(CommonUtils.getPercentResult(data.getDefTotalPoints(), data.getTotalOverallPoints()));
         Map<String, Long> mostSelectedDefCountMap = defPickList.
                 stream()
                 .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
@@ -1859,7 +1862,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(5)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, defPickList.size() * 1.0), 2),
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), defPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
         // league entry def
@@ -1964,7 +1967,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .mapToInt(EntryPickData::getPoints)
                         .sum()
         );
-        data.setMidTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getMidTotalPoints(), data.getTotalOverallPoints()), 2));
+        data.setMidTotalPointsByPercent(CommonUtils.getPercentResult(data.getMidTotalPoints(), data.getTotalOverallPoints()));
         Map<String, Long> mostSelectedMidCountMap = midPickList.
                 stream()
                 .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
@@ -1973,7 +1976,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(5)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, midPickList.size() * 1.0), 2),
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), midPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
         // league entry mid
@@ -2078,7 +2081,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .mapToInt(EntryPickData::getPoints)
                         .sum()
         );
-        data.setFwdTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getFwdTotalPoints(), data.getTotalOverallPoints()), 2));
+        data.setFwdTotalPointsByPercent(CommonUtils.getPercentResult(data.getFwdTotalPoints(), data.getTotalOverallPoints()));
         Map<String, Long> mostSelectedFwdCountMap = fwdPickList.
                 stream()
                 .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
@@ -2087,7 +2090,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(5)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, fwdPickList.size() * 1.0), 2),
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), fwdPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
         // league entry fwd
@@ -2196,7 +2199,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(5)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> NumberUtil.formatPercent(NumberUtil.div(v.getValue() * 1.0, formationList.size() * 1.0), 2),
+                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), formationList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
         return data;
