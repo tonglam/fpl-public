@@ -11,46 +11,32 @@ import java.util.Map;
  */
 public interface ILiveService {
 
-	/**
-	 * calculate entry live points
-	 *
-	 * @param event event
-	 * @param entry entry
-	 */
-	LiveCalcData calcLivePointsByEntry(int event, int entry);
+    /**
+     * calculate entry live points
+     */
+    LiveCalcData calcLivePointsByEntry(int event, int entry);
 
-	/**
-	 * calculate entry live points(do not has entry)
-	 *
-	 * @param event       event
-	 * @param elementMap  elementMap(key->position, value->element)
-	 * @param chip        chip
-	 * @param captain     captain
-	 * @param viceCaptain viceCaptain
-	 */
-	LiveCalcData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, String chip, int captain, int viceCaptain);
+    /**
+     * calculate entry live points(do not has entry)
+     */
+    LiveCalcData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, String chip, int captain, int viceCaptain);
 
-	/**
-	 * calculate entry live points in the tournament
-	 *
-	 * @param event        event
-	 * @param tournamentId tournamentId
-	 */
-	List<LiveCalcData> calcLivePointsByTournament(int event, int tournamentId);
+    /**
+     * calculate entry live points in the tournament
+     *
+     * @param event        event
+     * @param tournamentId tournamentId
+     */
+    List<LiveCalcData> calcLivePointsByTournament(int event, int tournamentId);
 
-	/**
-	 * calculate element live points
-	 *
-	 * @param event   event
-	 * @param element element
-	 */
-	int calcElementLivePoints(int event, int element);
+    /**
+     * calculate element live points
+     */
+    int calcElementLivePoints(int event, int element);
 
-	/**
-	 * calculate element live points
-	 *
-	 * @param eventLiveEntity event_live
-	 */
-	int calcElementLivePoints(EventLiveEntity eventLiveEntity);
+    /**
+     * calculate element live points
+     */
+    int calcElementLivePoints(EventLiveEntity eventLiveEntity);
 
 }
