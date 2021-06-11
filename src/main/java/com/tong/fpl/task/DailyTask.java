@@ -1,9 +1,9 @@
 package com.tong.fpl.task;
 
 import com.tong.fpl.log.TaskLog;
+import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
-import com.tong.fpl.service.IUpdateEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,7 +18,7 @@ public class DailyTask {
 
     private final IRedisCacheService redisCacheService;
     private final IQueryService queryService;
-    private final IUpdateEventService updateEventResultsService;
+    private final IEventDataService eventDataService;
 
     @Scheduled(cron = "0 35 6 * * *")
     public void insertEvent() {
@@ -52,7 +52,7 @@ public class DailyTask {
     @Scheduled(cron = "0 50 9 * * *")
     public void updateEntryInfo() {
         try {
-            this.updateEventResultsService.updateEntryInfo();
+            this.eventDataService.updateEntryInfo();
         } catch (Exception e) {
             e.printStackTrace();
             TaskLog.error(e.getMessage());

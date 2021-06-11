@@ -13,14 +13,13 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum RedisExpirationKey {
 
-	EventPassedDeadline;
+    EventAfterDeadline, EventMatchDay, EventMatch;
 
-	public static boolean needListen(String redisKey) {
-		return Arrays.stream(RedisExpirationKey.values())
-				.filter(o -> StringUtils.equals(o.name(), StringUtils.substringBefore(redisKey, "::")))
-				.map(o -> true)
-				.findFirst()
-				.orElse(false);
-	}
+    public static RedisExpirationKey getExpirationKey(String redisKey) {
+        return Arrays.stream(RedisExpirationKey.values())
+                .filter(o -> StringUtils.equalsIgnoreCase(o.name(), StringUtils.substringBefore(redisKey, "::")))
+                .findFirst()
+                .orElse(null);
+    }
 
 }

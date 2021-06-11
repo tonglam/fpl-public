@@ -22,7 +22,7 @@ public class MatchDayTask {
     private final IQueryService queryService;
     private final IRedisCacheService redisCacheService;
     private final ITournamentService tournamentService;
-    private final IUpdateEventService updateEventResultsService;
+    private final IEventDataService eventDataService;
     private final IGroupService scoutService;
 
     @Scheduled(cron = "0 */1 0-7,19-23 * * *")
@@ -60,7 +60,7 @@ public class MatchDayTask {
         this.queryService.qryAllTournamentList()
                 .stream()
                 .map(TournamentInfoEntity::getId)
-                .forEach(tournamentId -> this.updateEventResultsService.insertTournamentEntryEventPick(event, tournamentId));
+                .forEach(tournamentId -> this.eventDataService.insertTournamentEntryEventPick(event, tournamentId));
     }
 
     @Scheduled(cron = "0 0/5 0-4,18-23 * * *")
@@ -72,7 +72,7 @@ public class MatchDayTask {
         this.queryService.qryAllTournamentList()
                 .stream()
                 .map(TournamentInfoEntity::getId)
-                .forEach(this.updateEventResultsService::insertTournamentEntryEventTransfers);
+                .forEach(this.eventDataService::insertTournamentEntryEventTransfers);
     }
 
     @Scheduled(cron = "0 0 8,11 * * *")
@@ -87,7 +87,7 @@ public class MatchDayTask {
                 .map(TournamentInfoEntity::getId)
                 .forEach(tournamentId -> {
                     this.updateSingleTournamentResult(event, tournamentId);
-                    this.updateEventResultsService.updateEntryEventTransfers(event, tournamentId);
+                    this.eventDataService.updateEntryEventTransfers(event, tournamentId);
                 });
     }
 
@@ -96,7 +96,7 @@ public class MatchDayTask {
             TaskLog.info("start add tournament new entry, event:{}, tournament:{}", event, tournamentId);
             this.tournamentService.addTournamentNewEntry(tournamentId);
             TaskLog.info("start update tournament result, event:{}, tournament:{}", event, tournamentId);
-            this.updateEventResultsService.upsertTournamentEntryEventResult(event, tournamentId);
+            this.eventDataService.upsertTournamentEntryEventResult(event, tournamentId);
             TaskLog.info("end update tournament result, event:{}, tournament:{}", event, tournamentId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,7 +122,7 @@ public class MatchDayTask {
     private void updateSinglePointsRaceGroupResult(int event, int tournamentId) {
         try {
             TaskLog.info("start update points_race group result, event:{}, tournament:{}", event, tournamentId);
-            this.updateEventResultsService.updatePointsRaceGroupResult(event, tournamentId);
+            this.eventDataService.updatePointsRaceGroupResult(event, tournamentId);
             TaskLog.info("end update points_race group result, event:{}, tournament:{}", event, tournamentId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -148,7 +148,7 @@ public class MatchDayTask {
     private void updateSingleBattleRaceGroupResult(int event, int tournamentId) {
         try {
             TaskLog.info("start update battle_race group result, event:{}, tournament:{}", event, tournamentId);
-            this.updateEventResultsService.updateBattleRaceGroupResult(event, tournamentId);
+            this.eventDataService.updateBattleRaceGroupResult(event, tournamentId);
             TaskLog.info("end update battle_race group result, event:{}, tournament:{}", event, tournamentId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -174,7 +174,7 @@ public class MatchDayTask {
     private void updateSingleKnockoutResult(int event, int tournamentId) {
         try {
             TaskLog.info("start update knockout result, event:{}, tournament:{}", event, tournamentId);
-            this.updateEventResultsService.updateKnockoutResult(event, tournamentId);
+            this.eventDataService.updateKnockoutResult(event, tournamentId);
             TaskLog.info("end update knockout result, event:{}, tournament:{}", event, tournamentId);
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,7 +200,7 @@ public class MatchDayTask {
         this.queryService.qryAllTournamentList()
                 .stream()
                 .map(TournamentInfoEntity::getId)
-                .forEach(tournamentId -> this.updateEventResultsService.updateTournamentEventTransfers(event, tournamentId));
+                .forEach(tournamentId -> this.eventDataService.updateTournamentEventTransfers(event, tournamentId));
     }
 
 }

@@ -13,4 +13,5 @@ public enum MatchPlayStatus {
     Next_Event(-1), Playing(0), Finished(1), Not_Start(2), Event_Not_Finished(3), Blank(4);
 
     private final int status;
+
 }

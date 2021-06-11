@@ -11,4 +11,5 @@ import lombok.Getter;
 public enum LeagueType {
 
     Classic, H2h, Custom
+
 }

@@ -4,15 +4,17 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.entity.ScoutEntity;
+import com.tong.fpl.constant.enums.FollowAccount;
+import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulatePickData;
+import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
+import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.service.IGroupService;
 import com.tong.fpl.service.IQueryService;
-import com.tong.fpl.service.db.EventLiveService;
-import com.tong.fpl.service.db.PlayerService;
-import com.tong.fpl.service.db.ScoutService;
+import com.tong.fpl.service.db.*;
+import com.tong.fpl.utils.JsonUtils;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,8 @@ public class GroupServiceImpl implements IGroupService {
     private final PlayerService playerService;
     private final EventLiveService eventLiveService;
     private final ScoutService scoutService;
+    private final EntryEventSimulatePickService entryEventSimulatePickService;
+    private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
 
     @Override
     public void upsertEventScout(ScoutData scoutData) {
@@ -137,6 +141,99 @@ public class GroupServiceImpl implements IGroupService {
             RedisUtils.removeCacheByKey(key);
         }
         RedisUtils.removeCacheByKey("api::qryEventScoutResult::0");
+    }
+
+    @Override
+    public void upsertEventScoutSimulatePick(EntryEventSimulatePickData entryEventSimulatePickData) {
+        EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventSimulatePickData.getEvent(), FollowAccount.Offiaccount.getEntry());
+        if (entryEventResultData == null) {
+            return;
+        }
+        EntryEventSimulatePickEntity entryEventSimulatePickEntity = new EntryEventSimulatePickEntity()
+                .setEntry(entryEventSimulatePickData.getEntry())
+                .setEvent(entryEventSimulatePickData.getEvent())
+                .setOperator(entryEventSimulatePickData.getOperator())
+                .setLineup(JsonUtils.obj2json(entryEventSimulatePickData.getLineup()));
+        EntryEventSimulatePickEntity entryEventSimulatePick = this.entryEventSimulatePickService.getOne(new QueryWrapper<EntryEventSimulatePickEntity>().lambda()
+                .eq(EntryEventSimulatePickEntity::getEntry, entryEventSimulatePickData.getEntry())
+                .eq(EntryEventSimulatePickEntity::getEvent, entryEventSimulatePickData.getEvent())
+                .eq(EntryEventSimulatePickEntity::getOperator, entryEventSimulatePickData.getOperator()));
+        if (entryEventSimulatePick == null) {
+            this.entryEventSimulatePickService.save(entryEventSimulatePickEntity);
+        } else {
+            entryEventSimulatePickEntity.setId(entryEventSimulatePick.getId());
+            this.entryEventSimulatePickService.updateById(entryEventSimulatePickEntity);
+        }
+    }
+
+    @Override
+    public void upsertEventScoutSimulateTransfers(EntryEventSimulateTransfersData entryEventSimulateTransfersData) {
+        // prepare
+        EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(entryEventSimulateTransfersData.getEvent() - 1, FollowAccount.Offiaccount.getEntry());
+        if (entryEventResultData == null) {
+            return;
+        }
+        List<Integer> entryPickList = entryEventResultData.getPicks()
+                .stream()
+                .map(EntryPickData::getElement)
+                .collect(Collectors.toList());
+        List<Integer> lineupList = entryEventSimulateTransfersData.getLineup()
+                .stream()
+                .map(EntryPickData::getElement)
+                .collect(Collectors.toList());
+        List<Integer> transfersIns = Lists.newArrayList();
+        lineupList.forEach(o -> {
+            if (!entryPickList.contains(o)) {
+                transfersIns.add(o);
+            }
+        });
+        String transfersIn = "";
+        for (Integer o :
+                transfersIns) {
+            if (StringUtils.isEmpty(transfersIn)) {
+                transfersIn = o + "";
+                continue;
+            }
+            transfersIn = StringUtils.joinWith(",", transfersIn, o);
+        }
+        List<Integer> transfersOuts = Lists.newArrayList();
+        entryPickList.forEach(o -> {
+            if (!lineupList.contains(o)) {
+                transfersOuts.add(o);
+            }
+        });
+        String transfersOut = "";
+        for (Integer o :
+                transfersOuts) {
+            if (StringUtils.isEmpty(transfersOut)) {
+                transfersOut = o + "";
+                continue;
+            }
+            transfersOut = StringUtils.joinWith(",", transfersOut, o);
+        }
+        // upsert
+        EntryEventSimulateTransfersEntity entryEventSimulateTransfersEntity = new EntryEventSimulateTransfersEntity()
+                .setEntry(entryEventSimulateTransfersData.getEntry())
+                .setEvent(entryEventSimulateTransfersData.getEvent())
+                .setOperator(entryEventSimulateTransfersData.getOperator())
+                .setTeamValue(entryEventSimulateTransfersData.getTeamValue())
+                .setBank(entryEventSimulateTransfersData.getBank())
+                .setFreeTransfers(entryEventSimulateTransfersData.getFreeTransfers())
+                .setTransfers(transfersIns.size())
+                .setTransfersCost(entryEventSimulateTransfersData.getTransfersCost())
+                .setTransfersIn(transfersIn)
+                .setTransfersOut(transfersOut)
+                .setLineup(JsonUtils.obj2json(entryEventSimulateTransfersData.getLineup()));
+        EntryEventSimulateTransfersEntity entryEventSimulateTransfers = this.entryEventSimulateTransfersService.getOne(new QueryWrapper<EntryEventSimulateTransfersEntity>().lambda()
+                .eq(EntryEventSimulateTransfersEntity::getEntry, entryEventSimulateTransfersData.getEntry())
+                .eq(EntryEventSimulateTransfersEntity::getEvent, entryEventSimulateTransfersData.getEvent())
+                .eq(EntryEventSimulateTransfersEntity::getOperator, entryEventSimulateTransfersData.getOperator()));
+        if (entryEventSimulateTransfers == null) {
+            this.entryEventSimulateTransfersService.save(entryEventSimulateTransfersEntity);
+        } else {
+            entryEventSimulateTransfersEntity.setId(entryEventSimulateTransfers.getId());
+            this.entryEventSimulateTransfersService.updateById(entryEventSimulateTransfersEntity);
+        }
     }
 
 }

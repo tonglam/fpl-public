@@ -10,8 +10,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum HistorySeason {
 
-	Season_1920("1920");
+    Season_1920("1920"), Season_2021("2021");
 
-	private final String season;
+    private final String season;
 
 }

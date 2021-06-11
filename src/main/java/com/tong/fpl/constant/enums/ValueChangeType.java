@@ -10,6 +10,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ValueChangeType {
 
-	Start, Rise, Faller
+    Start, Rise, Faller
 
 }

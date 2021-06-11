@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
+ * 每赛季开始前更新
+ * <p>
  * Create by tong on 2022/02/04
  */
 @Getter

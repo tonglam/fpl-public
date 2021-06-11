@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.stream.Stream;
 
 /**
+ * 每赛季开始前更新
+ * <p>
  * Create by tong on 2020/12/15
  */
 @Getter

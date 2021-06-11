@@ -19,111 +19,101 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class CacheController {
 
-	private final String accessToken = Base64.encode("letletguanlaoshi");
-	private final ICacheApi cacheApi;
+    private final String accessToken = Base64.encode("letletguanlaoshi");
+    private final ICacheApi cacheApi;
 
-	@TraceHttpCall
-	@RequestMapping("/insertTeam")
-	@ResponseBody
-	public void insertTeam(@RequestParam String token) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertTeam();
-	}
+    @TraceHttpCall
+    @RequestMapping("/insertTeam")
+    @ResponseBody
+    public void insertTeam(@RequestParam String token) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.insertTeam();
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/insertEvent")
-	@ResponseBody
-	public void insertEvent(@RequestParam String token) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertEvent();
-	}
+    @TraceHttpCall
+    @RequestMapping("/insertEvent")
+    @ResponseBody
+    public void insertEvent(@RequestParam String token) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.insertEvent();
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/insertEventFixture")
-	@ResponseBody
-	public void insertEventFixture(@RequestParam String token) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertEventFixture();
-	}
+    @TraceHttpCall
+    @RequestMapping("/insertEventFixture")
+    @ResponseBody
+    public void insertEventFixture(@RequestParam String token) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.insertEventFixture();
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/insertSingleEventFixture")
-	@ResponseBody
-	public void insertSingleEventFixture(@RequestParam String token, @RequestParam int event) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertSingleEventFixture(event);
-	}
+    @TraceHttpCall
+    @RequestMapping("/insertSingleEventFixture")
+    @ResponseBody
+    public void insertSingleEventFixture(@RequestParam String token, @RequestParam int event) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.insertSingleEventFixture(event);
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/insertPlayer")
-	@ResponseBody
-	public void insertPlayer(@RequestParam String token) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertPlayer();
-	}
+    @TraceHttpCall
+    @RequestMapping("/insertPlayer")
+    @ResponseBody
+    public void insertPlayer(@RequestParam String token) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.insertPlayer();
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/insertPlayerStat")
-	@ResponseBody
-	public void insertPlayerStat(@RequestParam String token) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertPlayerStat();
-	}
+    @TraceHttpCall
+    @RequestMapping("/insertPlayerStat")
+    @ResponseBody
+    public void insertPlayerStat(@RequestParam String token) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.insertPlayerStat();
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/insertPlayerValue")
-	@ResponseBody
-	public void insertPlayerValue(@RequestParam String token) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertPlayerValue();
-	}
+    @TraceHttpCall
+    @RequestMapping("/insertPlayerValue")
+    @ResponseBody
+    public void insertPlayerValue(@RequestParam String token) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.insertPlayerValue();
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/insertEventLive")
-	@ResponseBody
-	public void insertEventLive(@RequestParam String token, @RequestParam int event) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.insertEventLive(event);
-	}
+    @TraceHttpCall
+    @RequestMapping("/insertEventLive")
+    @ResponseBody
+    public void insertEventLive(@RequestParam String token, @RequestParam int event) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.insertEventLive(event);
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/updateAllEventResult")
-	@ResponseBody
-	public void updateAllEventResult(@RequestParam String token, @RequestParam int event) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.updateAllEventResult(event);
-	}
+    @TraceHttpCall
+    @RequestMapping("/deleteKeys")
+    @ResponseBody
+    public void deleteKeys(@RequestParam String token, @RequestParam String pattern) {
+        if (this.checkToken(token)) {
+            return;
+        }
+        this.cacheApi.deleteKeys(pattern);
+    }
 
-	@TraceHttpCall
-	@RequestMapping("/deleteKeys")
-	@ResponseBody
-	public void deleteKeys(@RequestParam String token, @RequestParam String pattern) {
-		if (this.checkToken(token)) {
-			return;
-		}
-		this.cacheApi.deleteKeys(pattern);
-	}
-
-	private boolean checkToken(String token) {
-		return !StringUtils.equals(token, accessToken);
-	}
+    private boolean checkToken(String token) {
+        return !StringUtils.equals(token, this.accessToken);
+    }
 
 }

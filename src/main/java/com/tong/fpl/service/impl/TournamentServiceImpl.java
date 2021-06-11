@@ -47,7 +47,7 @@ public class TournamentServiceImpl implements ITournamentService {
     private final ApplicationContext context;
     private final IStaticService staticService;
     private final IQueryService queryService;
-    private final IUpdateEventService updateEventResultService;
+    private final IEventDataService eventDataService;
     private final IReportService reportService;
     private final EntryInfoService entryInfoService;
     private final EntryEventPickService entryEventPickService;
@@ -641,13 +641,13 @@ public class TournamentServiceImpl implements ITournamentService {
         int current = this.queryService.getCurrentEvent();
         IntStream.rangeClosed(current, current).forEach(event -> {
             // entry_event_result
-            this.updateEventResultService.upsertTournamentEntryEventResult(event, tournamentId);
+            this.eventDataService.upsertTournamentEntryEventResult(event, tournamentId);
             // points_group_result
-            this.updateEventResultService.updatePointsRaceGroupResult(event, tournamentId);
+            this.eventDataService.updatePointsRaceGroupResult(event, tournamentId);
             // battle_group_result
-            this.updateEventResultService.updateBattleRaceGroupResult(event, tournamentId);
+            this.eventDataService.updateBattleRaceGroupResult(event, tournamentId);
             // knockout_result
-            this.updateEventResultService.updateKnockoutResult(event, tournamentId);
+            this.eventDataService.updateKnockoutResult(event, tournamentId);
         });
         log.info("tournament:{}, update gw result success!", tournamentId);
     }
@@ -1140,7 +1140,7 @@ public class TournamentServiceImpl implements ITournamentService {
         }
         IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event ->
                 newEntryList.forEach(entry ->
-                        this.updateEventResultService.insertEntryEventPick(event, entry)));
+                        this.eventDataService.insertEntryEventPick(event, entry)));
         log.info("tournament:{}, update new entry event pick success!", tournamentId);
     }
 
@@ -1153,7 +1153,7 @@ public class TournamentServiceImpl implements ITournamentService {
         }
         IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event ->
                 newEntryList.forEach(entry ->
-                        this.updateEventResultService.upsertEntryEventResult(event, entry)));
+                        this.eventDataService.upsertEntryEventResult(event, entry)));
         log.info("tournament:{}, update new entry event result success!", tournamentId);
     }
 
@@ -1165,7 +1165,7 @@ public class TournamentServiceImpl implements ITournamentService {
             currentEvent = groupEndGw;
         }
         IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event ->
-                this.updateEventResultService.updatePointsRaceGroupResult(event, tournamentId));
+                this.eventDataService.updatePointsRaceGroupResult(event, tournamentId));
         log.info("tournament:{}, update points group result success!", tournamentId);
     }
 
