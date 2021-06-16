@@ -781,7 +781,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             }
             int average = eventEntity.getAverageEntryScore();
             // set cache
-            String key = StringUtils.joinWith("::", "AverageScore", event);
+            String key = StringUtils.joinWith("::", "AverageScore", CommonUtils.getCurrentSeason(), event);
             RedisUtils.removeCacheByKey(key);
             Map<String, Object> cacheMap = Maps.newHashMap();
             cacheMap.put(key, average);

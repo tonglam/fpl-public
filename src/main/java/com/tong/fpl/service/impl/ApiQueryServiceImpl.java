@@ -96,7 +96,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         Map<String, Integer> map = Maps.newHashMap();
         int current = this.queryService.getCurrentEvent();
         IntStream.rangeClosed(1, current).forEach(event -> {
-            String key = StringUtils.joinWith("::", "AverageScore", event);
+            String key = StringUtils.joinWith("::", "AverageScore", CommonUtils.getCurrentSeason(), event);
             int score = (int) RedisUtils.getValueByKey(key).orElse(0);
             map.put(String.valueOf(event), score);
         });
