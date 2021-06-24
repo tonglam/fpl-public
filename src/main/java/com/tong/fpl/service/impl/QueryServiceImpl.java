@@ -511,7 +511,7 @@ public class QueryServiceImpl implements IQueryService {
      */
     @Override
     public int getCurrentEvent() {
-        int event = 1;
+        int event = 0;
         for (int i = 1; i < 39; i++) {
             String deadline = this.getDeadlineByEvent(i);
             if (LocalDateTime.now()

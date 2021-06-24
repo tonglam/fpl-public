@@ -81,7 +81,7 @@ public class CommonUtils {
     }
 
     public static String getCurrentSeason() {
-        if (LocalDate.now().getMonth().getValue() < 8) {
+        if (LocalDate.now().getMonth().getValue() < 6) {
             return String.valueOf(LocalDate.now().minusYears(1).getYear()).substring(2, 4) +
                     String.valueOf(LocalDate.now().getYear()).substring(2, 4);
         }
