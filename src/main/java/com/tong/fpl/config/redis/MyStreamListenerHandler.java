@@ -1,4 +1,4 @@
-package com.tong.fpl.mq;
+package com.tong.fpl.config.redis;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,10 +14,10 @@ import java.util.Map;
 /**
  * Create by tong on 2021/6/11
  */
-@Component
 @Slf4j
+@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class RedisStreamListener implements StreamListener<String, MapRecord<String, String, String>> {
+public class MyStreamListenerHandler implements StreamListener<String, MapRecord<String, String, String>> {
 
     private final StringRedisTemplate stringRedisTemplate;
 

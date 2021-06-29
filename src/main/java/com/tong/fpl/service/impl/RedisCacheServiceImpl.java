@@ -881,7 +881,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     private void setEventMatchCache(int event, int index, LocalDateTime localDateTime) {
         LocalDateTime now = LocalDateTime.now();
         Duration duration = Duration.between(now, localDateTime);
-        String key = StringUtils.joinWith("::", RedisExpirationKey.EventMatchDay.name(), event, index);
+        String key = StringUtils.joinWith("::", RedisExpirationKey.EventMatch.name(), event, index);
         this.redisTemplate.opsForValue().set(key, localDateTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), duration);
     }
 
