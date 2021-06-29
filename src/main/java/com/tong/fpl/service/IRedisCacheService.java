@@ -50,9 +50,11 @@ public interface IRedisCacheService {
 
     void insertDiscloseCache(int tournamentId, int captainGroupId, int entry);
 
-    void insertEventPassedDeadlineCache();
+    void insertEventAfterDeadlineCache(int event);
 
-    void insertSingleEventPassedDeadlineCache(int event);
+    void insertEventMatchDayCache(int event);
+
+    void insertEventMatchCache(int event);
 
     int getCurrentEvent();
 

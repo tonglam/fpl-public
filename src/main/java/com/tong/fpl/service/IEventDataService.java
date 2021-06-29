@@ -36,11 +36,6 @@ public interface IEventDataService {
     void insertTournamentEntryEventCupResult(int event, int tournamentId);
 
     /**
-     * @apiNote during match
-     */
-    void updateEventLiveCache(int event);
-
-    /**
      * @apiNote after matchDay
      */
     void updateEventLiveData(int event);
@@ -70,6 +65,11 @@ public interface IEventDataService {
     void updateZjPkResult(int event, int tournamentId);
 
     void updateZjTournamentResult(int tournamentId);
+
+    /**
+     * @apiNote during match
+     */
+    void updateEventLiveCache(int event);
 
     /**
      * @apiNote after season

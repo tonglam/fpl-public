@@ -13,6 +13,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * Create by tong on 2021/4/12
@@ -54,23 +55,38 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
     }
 
     private void afterDeadlineStream(int event) {
-        String key = StringUtils.joinWith("::", "Afterdeadline", event);
-        StringRecord stringRecord = StreamRecords.string(Collections.singletonMap("action", "KevinBlandy")).withStreamKey(key);
-        this.stringRedisTemplate.opsForStream().add(stringRecord);
+        String key = StringUtils.joinWith("::", RedisExpirationKey.EventAfterDeadline.name(), event);
+        this.addStringRecord(key, Collections.singletonMap("action", "insert_entry_event_pick"));
+        this.addStringRecord(key, Collections.singletonMap("action", "insert_entry_event_transfers"));
+        this.addStringRecord(key, Collections.singletonMap("action", "insert_entry_event_cup_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "insert_league_event_report"));
     }
 
     private void matchDayStream(int event) {
-        String key = StringUtils.joinWith("::", "MatchDay", event);
+        String key = StringUtils.joinWith("::", RedisExpirationKey.EventMatchDay.name(), event);
+        this.addStringRecord(key, Collections.singletonMap("action", "update_event_live"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_enty_event_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_entry_event_transfers"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_entry_event_cup_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_points_race_group_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_battle_race_group_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_knockout_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_zj_phase_one_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_zj_phase_two_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_zj_pk_result"));
+        this.addStringRecord(key, Collections.singletonMap("action", "update_zj_tournament_result"));
+    }
+
+    private void matchStream(int event) {
+        String key = StringUtils.joinWith("::", RedisExpirationKey.EventMatch.name(), event);
         StringRecord stringRecord = StreamRecords.string(Collections.singletonMap("name", "KevinBlandy")).withStreamKey(key);
 
 
     }
 
-    private void matchStream(int event) {
-        String key = StringUtils.joinWith("::", "Match", event);
-        StringRecord stringRecord = StreamRecords.string(Collections.singletonMap("name", "KevinBlandy")).withStreamKey(key);
-
-
+    private void addStringRecord(String key, Map<String, String> valueMap) {
+        StringRecord stringRecord = StreamRecords.string(valueMap).withStreamKey(key);
+        this.stringRedisTemplate.opsForStream().add(stringRecord);
     }
 
 }

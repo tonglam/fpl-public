@@ -65,7 +65,6 @@ public class EventDataServiceImpl implements IEventDataService {
     public void updateEventData() {
         this.redisCacheService.insertEvent();
         this.redisCacheService.insertEventFixture();
-        this.redisCacheService.insertSingleEventPassedDeadlineCache(this.queryService.getNextEvent());
     }
 
     @Override
@@ -361,17 +360,6 @@ public class EventDataServiceImpl implements IEventDataService {
         });
         this.entryEventCupResultService.saveBatch(insertEventCupResultList);
         log.info("tournament:{}, event:{}, insert tournament entry event cup result size:{}!", tournamentId, event, insertEventCupResultList.size());
-    }
-
-    /**
-     * @implNote during match
-     */
-    @Override
-    public void updateEventLiveCache(int event) {
-        this.redisCacheService.insertSingleEventFixtureCache(event);
-        this.redisCacheService.insertLiveFixtureCache();
-        this.redisCacheService.insertLiveBonusCache();
-        this.redisCacheService.insertEventLiveCache(event);
     }
 
     /**
@@ -1818,6 +1806,17 @@ public class EventDataServiceImpl implements IEventDataService {
             map.put(String.valueOf(zjTournamentResultEntity.getGroupId()), rank);
         }
         return map;
+    }
+
+    /**
+     * @implNote during match
+     */
+    @Override
+    public void updateEventLiveCache(int event) {
+        this.redisCacheService.insertSingleEventFixtureCache(event);
+        this.redisCacheService.insertLiveFixtureCache();
+        this.redisCacheService.insertLiveBonusCache();
+        this.redisCacheService.insertEventLiveCache(event);
     }
 
     /**

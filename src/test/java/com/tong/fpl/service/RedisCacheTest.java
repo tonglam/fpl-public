@@ -135,9 +135,24 @@ public class RedisCacheTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @Test
-    void insertEventPassedDeadlineCache() {
-        this.redisCacheSerive.insertEventPassedDeadlineCache();
+    @ParameterizedTest
+    @CsvSource({"1"})
+    void insertEventAfterDeadlineCache(int event) {
+        this.redisCacheSerive.insertEventAfterDeadlineCache(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1"})
+    void insertEventMatchDayCache(int event) {
+        this.redisCacheSerive.insertEventMatchDayCache(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1"})
+    void insertEventMatchCache(int event) {
+        this.redisCacheSerive.insertEventMatchCache(event);
         System.out.println(1);
     }
 

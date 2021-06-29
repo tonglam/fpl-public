@@ -10,6 +10,7 @@ import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.MatchPlayStatus;
 import com.tong.fpl.constant.enums.Position;
+import com.tong.fpl.constant.enums.RedisExpirationKey;
 import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.data.bootstrapStaic.Event;
 import com.tong.fpl.domain.data.eventLive.ElementStat;
@@ -803,15 +804,18 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertEventPassedDeadlineCache() {
+    public void insertEventAfterDeadlineCache(int event) {
         // get event deadline
         Map<Integer, String> deadlineMap = Maps.newHashMap();
-        Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        result.ifPresent(staticRes ->
-                staticRes.getEvents().forEach(bootstrapEvent -> deadlineMap.put(bootstrapEvent.getId(), bootstrapEvent.getDeadlineTime()))
-        );
+        this.interfaceService.getBootstrapStatic()
+                .ifPresent(staticRes ->
+                        staticRes.getEvents()
+                                .stream()
+                                .filter(o -> o.getId() == event)
+                                .forEach(bootstrapEvent -> deadlineMap.put(bootstrapEvent.getId(), bootstrapEvent.getDeadlineTime()))
+                );
         // set cache
-        deadlineMap.forEach((event, deadline) -> {
+        deadlineMap.forEach((o, deadline) -> {
             LocalDateTime deadlineTime = LocalDateTime.parse(StringUtils.substringBefore(deadline, "Z"));
             LocalDateTime now = LocalDateTime.now();
             if (deadlineTime.isBefore(now)) {
@@ -819,36 +823,66 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             }
             deadlineTime = deadlineTime.plusHours(1);
             Duration duration = Duration.between(now, deadlineTime);
-            String key = StringUtils.joinWith("::", "EventPassedDeadline", event);
+            String key = StringUtils.joinWith("::", RedisExpirationKey.EventAfterDeadline.name(), o);
             this.redisTemplate.opsForValue().set(key, deadlineTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), duration);
         });
     }
 
     @Override
-    public void insertSingleEventPassedDeadlineCache(int event) {
-        // get event deadline
-        Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        result.ifPresent(staticRes -> {
-            String deadline = staticRes.getEvents()
-                    .stream()
-                    .filter(o -> o.getId() == event)
-                    .map(Event::getDeadlineTime)
-                    .findFirst()
-                    .orElse(null);
-            if (StringUtils.isEmpty(deadline)) {
+    public void insertEventMatchDayCache(int event) {
+        this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event)
+                .stream()
+                .map(o -> LocalDate.parse(StringUtils.substringBefore(o.getKickoffTime(), " ")).format(DateTimeFormatter.ofPattern(Constant.DATE)))
+                .distinct()
+                .forEach(o -> {
+                    this.setEventMatchDayCache(event, 1, o);
+                    this.setEventMatchDayCache(event, 2, o);
+                    this.setEventMatchDayCache(event, 3, o);
+                });
+    }
+
+    private void setEventMatchDayCache(int event, int index, String matchDay) {
+        LocalDateTime localDateTime;
+        switch (index) {
+            case 1: {
+                localDateTime = LocalDateTime.parse(StringUtils.join(matchDay, "T", "07:00:00"));
+                break;
+            }
+            case 2: {
+                localDateTime = LocalDateTime.parse(StringUtils.join(matchDay, "T", "11:00:00"));
+                break;
+            }
+            case 3: {
+                localDateTime = LocalDateTime.parse(StringUtils.join(matchDay, "T", "14:00:00"));
+                break;
+            }
+            default: {
                 return;
             }
-            // set cache
-            LocalDateTime deadlineTime = LocalDateTime.parse(StringUtils.substringBefore(deadline, "Z"));
-            LocalDateTime now = LocalDateTime.now();
-            if (deadlineTime.isBefore(now)) {
-                return;
-            }
-            deadlineTime = deadlineTime.plusHours(1);
-            Duration duration = Duration.between(now, deadlineTime);
-            String key = StringUtils.joinWith("::", "EventPassedDeadline", event);
-            this.redisTemplate.opsForValue().set(key, deadlineTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), duration);
-        });
+        }
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(now, localDateTime);
+        String key = StringUtils.joinWith("::", RedisExpirationKey.EventMatchDay.name(), event, matchDay, index);
+        this.redisTemplate.opsForValue().set(key, localDateTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), duration);
+    }
+
+    @Override
+    public void insertEventMatchCache(int event) {
+        List<LocalDateTime> list = this.getEventFixtureByEvent(CommonUtils.getCurrentSeason(), event)
+                .stream()
+                .sorted(Comparator.comparing(EventFixtureEntity::getId))
+                .map(o -> LocalDateTime.parse(o.getKickoffTime().replaceAll(" ", "T")))
+                .collect(Collectors.toList());
+        for (int i = 0; i < list.size(); i++) {
+            this.setEventMatchCache(event, i + 1, list.get(i));
+        }
+    }
+
+    private void setEventMatchCache(int event, int index, LocalDateTime localDateTime) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(now, localDateTime);
+        String key = StringUtils.joinWith("::", RedisExpirationKey.EventMatchDay.name(), event, index);
+        this.redisTemplate.opsForValue().set(key, localDateTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), duration);
     }
 
     @Override
