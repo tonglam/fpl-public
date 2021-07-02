@@ -29,7 +29,7 @@ import java.time.Duration;
  * Create by tong on 2020/8/22
  */
 @Configuration
-public class MyRedisConfig extends CachingConfigurerSupport {
+public class RedisConfig extends CachingConfigurerSupport {
 
     @Override
     public KeyGenerator keyGenerator() {

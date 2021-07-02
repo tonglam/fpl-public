@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.stream.StreamInfo;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,8 @@ import java.util.Set;
  */
 public class RedisCacheTest extends FplApplicationTests {
 
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private IRedisCacheService redisCacheSerive;
 
@@ -254,6 +258,14 @@ public class RedisCacheTest extends FplApplicationTests {
         String key = "scoutEntry";
         Map<Object, Object> map = RedisUtils.getHashByKey(key);
         Set<Object> set = map.keySet();
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource("Stream::EventAfterDeadline")
+    void stream(String key) {
+        StreamInfo.XInfoGroups groups = this.stringRedisTemplate.opsForStream().groups(key);
+        StreamInfo.XInfoConsumers consumers = this.stringRedisTemplate.opsForStream().consumers(key, "fpl");
         System.out.println(1);
     }
 

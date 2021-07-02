@@ -18,11 +18,11 @@ import java.util.Map;
  * Create by tong on 2021/4/12
  */
 @Component
-public class MyKeyExpirationListener extends KeyExpirationEventMessageListener {
+public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    public MyKeyExpirationListener(RedisMessageListenerContainer listenerContainer, StringRedisTemplate stringRedisTemplate) {
+    public RedisKeyExpirationListener(RedisMessageListenerContainer listenerContainer, StringRedisTemplate stringRedisTemplate) {
         super(listenerContainer);
         this.stringRedisTemplate = stringRedisTemplate;
     }
