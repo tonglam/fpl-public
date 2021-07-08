@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.service.impl.EventDataServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -15,6 +16,8 @@ public class EventDataTest extends FplApplicationTests {
 
     @Autowired
     private IEventDataService eventDataService;
+    @Autowired
+    private EventDataServiceImpl a;
 
     @Test
     void updateEntryInfo() {
@@ -60,6 +63,13 @@ public class EventDataTest extends FplApplicationTests {
             this.eventDataService.insertTournamentEntryEventPick(event, tournamentId);
             System.out.println("event:" + event);
         });
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1"})
+    void insertEntryEventTransfers(int entry) {
+        this.a.insertEntryEventTransfers(entry);
         System.out.println(1);
     }
 

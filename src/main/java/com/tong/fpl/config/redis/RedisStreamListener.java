@@ -8,13 +8,12 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
-import org.springframework.data.redis.connection.stream.ReadOffset;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
@@ -22,7 +21,7 @@ import java.time.Duration;
  * Create by tong on 2021/6/30
  */
 @Slf4j
-@Configuration
+@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RedisStreamListener implements ApplicationRunner, DisposableBean {
 
@@ -43,9 +42,9 @@ public class RedisStreamListener implements ApplicationRunner, DisposableBean {
                                 .build()
                 );
         Consumer consumer = Consumer.from("fpl", "fpl-1");
-        container.receive(consumer, StreamOffset.create(StringUtils.joinWith("::", "Stream", RedisExpirationKey.EventAfterDeadline.name()), ReadOffset.lastConsumed()), this.redisStreamListenerService);
-        container.receive(consumer, StreamOffset.create(StringUtils.joinWith("::", "Stream", RedisExpirationKey.EventMatchDay.name()), ReadOffset.lastConsumed()), this.redisStreamListenerService);
-        container.receive(consumer, StreamOffset.create(StringUtils.joinWith("::", "Stream", RedisExpirationKey.EventMatch.name()), ReadOffset.lastConsumed()), this.redisStreamListenerService);
+        container.receive(consumer, StreamOffset.fromStart(StringUtils.joinWith("::", "Stream", RedisExpirationKey.EventAfterDeadline.name())), this.redisStreamListenerService);
+//        container.receive(consumer, StreamOffset.create(StringUtils.joinWith("::", "Stream", RedisExpirationKey.EventMatchDay.name()), ReadOffset.lastConsumed()), this.redisStreamListenerService);
+//        container.receive(consumer, StreamOffset.create(StringUtils.joinWith("::", "Stream", RedisExpirationKey.EventMatch.name()), ReadOffset.lastConsumed()), this.redisStreamListenerService);
         this.container = container;
         this.container.start();
     }

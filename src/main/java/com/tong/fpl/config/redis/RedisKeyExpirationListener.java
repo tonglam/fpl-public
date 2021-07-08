@@ -30,6 +30,7 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
     @Override
     public void onMessage(Message message, @Nullable byte[] pattern) {
         super.onMessage(message, pattern);
+        String event = StringUtils.substringAfter(message.toString(), "::");
         RedisExpirationKey redisExpirationKey = RedisExpirationKey.getExpirationKey(StringUtils.substringBefore(message.toString(), "::"));
         if (redisExpirationKey == null) {
             return;
@@ -37,11 +38,11 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
         String key = StringUtils.joinWith("::", "Stream", redisExpirationKey.name());
         switch (redisExpirationKey) {
             case EventAfterDeadline: {
-                this.afterDeadlineStream(key);
+                this.afterDeadlineStream(key, event);
                 break;
             }
             case EventMatchDay: {
-                this.matchDayStream(key);
+                this.matchDayStream(key, event);
                 break;
             }
             case EventMatch: {
@@ -51,25 +52,22 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
         }
     }
 
-    private void afterDeadlineStream(String key) {
-        this.addStringRecord(key, Collections.singletonMap("entry_event_pick", "insert"));
-        this.addStringRecord(key, Collections.singletonMap("entry_event_transfers", "insert"));
-        this.addStringRecord(key, Collections.singletonMap("entry_event_cup_result", "insert"));
-        this.addStringRecord(key, Collections.singletonMap("league_event_report", "insert"));
+    private void afterDeadlineStream(String key, String event) {
+        this.addStringRecord(key, Collections.singletonMap("insertTournamentEntryEventTransfers", event));
+        this.addStringRecord(key, Collections.singletonMap("insertTournamentEntryEventCupResult", event));
     }
 
-    private void matchDayStream(String key) {
-        this.addStringRecord(key, Collections.singletonMap("event_live", "update"));
-        this.addStringRecord(key, Collections.singletonMap("entry_event_result", "update"));
-        this.addStringRecord(key, Collections.singletonMap("entry_event_transfers", "update"));
-        this.addStringRecord(key, Collections.singletonMap("entry_event_cup_result", "update"));
-        this.addStringRecord(key, Collections.singletonMap("points_race_group_result", "update"));
-        this.addStringRecord(key, Collections.singletonMap("battle_race_group_result", "update"));
-        this.addStringRecord(key, Collections.singletonMap("knockout_result", "update"));
-        this.addStringRecord(key, Collections.singletonMap("zj_phase_one_result", "update"));
-        this.addStringRecord(key, Collections.singletonMap("zj_phase_two_result", "update"));
-        this.addStringRecord(key, Collections.singletonMap("zj_pk_result", "update"));
-        this.addStringRecord(key, Collections.singletonMap("zj_tournament_result", "update"));
+    private void matchDayStream(String key, String event) {
+        this.addStringRecord(key, Collections.singletonMap("updateEventLiveData", event));
+        this.addStringRecord(key, Collections.singletonMap("updateTournamentEventTransfers", event));
+        this.addStringRecord(key, Collections.singletonMap("upsertTournamentEntryEventCupResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updatePointsRaceGroupResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateBattleRaceGroupResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateKnockoutResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateZjPhaseOneResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateZjPhaseTwoResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateZjPkResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateZjTournamentResult", event));
     }
 
     private void matchStream(String key) {
