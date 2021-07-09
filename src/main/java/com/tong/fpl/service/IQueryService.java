@@ -320,6 +320,14 @@ public interface IQueryService {
 
     List<EntryEventPickEntity> qryTournamentEntryEventPick(int event, int tournamentId);
 
+    List<Integer> qryActiveTournamentEntryList();
+
+    List<Integer> qryPointsRaceGroupTournamentList(int event);
+
+    List<Integer> qryBattleRaceGroupTournamentList(int event);
+
+    List<Integer> qryKnockoutTournamentList(int event);
+
     /**
      * @apiNote report
      */

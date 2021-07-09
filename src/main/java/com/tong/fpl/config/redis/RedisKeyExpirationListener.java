@@ -53,21 +53,17 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
     }
 
     private void afterDeadlineStream(String key, String event) {
-        this.addStringRecord(key, Collections.singletonMap("insertTournamentEntryEventTransfers", event));
-        this.addStringRecord(key, Collections.singletonMap("insertTournamentEntryEventCupResult", event));
+        this.addStringRecord(key, Collections.singletonMap("insertEventTransfersByEntryList", event));
+        this.addStringRecord(key, Collections.singletonMap("insertEventCupResultByEntryList", event));
     }
 
     private void matchDayStream(String key, String event) {
         this.addStringRecord(key, Collections.singletonMap("updateEventLiveData", event));
-        this.addStringRecord(key, Collections.singletonMap("updateTournamentEventTransfers", event));
-        this.addStringRecord(key, Collections.singletonMap("upsertTournamentEntryEventCupResult", event));
-        this.addStringRecord(key, Collections.singletonMap("updatePointsRaceGroupResult", event));
-        this.addStringRecord(key, Collections.singletonMap("updateBattleRaceGroupResult", event));
-        this.addStringRecord(key, Collections.singletonMap("updateKnockoutResult", event));
-        this.addStringRecord(key, Collections.singletonMap("updateZjPhaseOneResult", event));
-        this.addStringRecord(key, Collections.singletonMap("updateZjPhaseTwoResult", event));
-        this.addStringRecord(key, Collections.singletonMap("updateZjPkResult", event));
-        this.addStringRecord(key, Collections.singletonMap("updateZjTournamentResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateEventTransfersByEntryList", event));
+        this.addStringRecord(key, Collections.singletonMap("upsertEventCupResultByEntryList", event));
+        this.addStringRecord(key, Collections.singletonMap("updateEventPointsRaceGroupResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateEventBattleRaceGroupResult", event));
+        this.addStringRecord(key, Collections.singletonMap("updateEventKnockoutResult", event));
     }
 
     private void matchStream(String key) {

@@ -1,12 +1,12 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.service.impl.EventDataServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.stream.IntStream;
 
 /**
@@ -15,9 +15,9 @@ import java.util.stream.IntStream;
 public class EventDataTest extends FplApplicationTests {
 
     @Autowired
-    private IEventDataService eventDataService;
+    private IQueryService queryService;
     @Autowired
-    private EventDataServiceImpl a;
+    private IEventDataService eventDataService;
 
     @Test
     void updateEntryInfo() {
@@ -42,9 +42,10 @@ public class EventDataTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"25, 1"})
-    void upsertTournamentEntryEventCupResult(int event, int tournamentId) {
-        this.eventDataService.upsertTournamentEntryEventCupResult(event, tournamentId);
+    @CsvSource({"1"})
+    void upsertEventCupResultByEntryList(int event) {
+        List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();
+        this.eventDataService.upsertEventCupResultByEntryList(event, entryList);
         System.out.println("event: " + event + ", update finished!");
     }
 
@@ -55,41 +56,34 @@ public class EventDataTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @Test
-    void insertTournamentEntryEventPicks() {
-        int event = 32;
-        IntStream.rangeClosed(1, 14).forEach(tournamentId -> {
-            System.out.println("tournament:" + tournamentId);
-            this.eventDataService.insertTournamentEntryEventPick(event, tournamentId);
-            System.out.println("event:" + event);
-        });
+    @ParameterizedTest
+    @CsvSource({"1"})
+    void insertEventPickByEntryList(int event) {
+        List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();
+        this.eventDataService.insertEventPickByEntryList(event, entryList);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"1"})
     void insertEntryEventTransfers(int entry) {
-        this.a.insertEntryEventTransfers(entry);
+        this.eventDataService.insertEntryEventTransfers(entry);
+        System.out.println(1);
+    }
+
+    @Test
+    void insertEventTransfersByEntryList() {
+        List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();
+        this.eventDataService.insertEventTransfersByEntryList(entryList);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"14"})
-    void insertTournamentEntryEventTransfer(int tournamentId) {
-        this.eventDataService.insertTournamentEntryEventTransfers(tournamentId);
+    @CsvSource({"1"})
+    void updateEventTransfersByEntryList(int event) {
+        List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();
+        this.eventDataService.updateEventTransfersByEntryList(event, entryList);
         System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"2, 1"})
-    void updateTournamentEventTransfer(int even1t, int tournament1Id) {
-        IntStream.rangeClosed(2, 38).forEach(event -> {
-            IntStream.rangeClosed(1, 14).forEach(tournamentId -> {
-                this.eventDataService.updateTournamentEventTransfers(event, tournamentId);
-                System.out.println("event: " + event + ", update finished!");
-            });
-        });
-
     }
 
     @ParameterizedTest

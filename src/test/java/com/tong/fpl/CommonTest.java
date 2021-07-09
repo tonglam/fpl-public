@@ -116,8 +116,8 @@ public class CommonTest extends FplApplicationTests {
 
     @ParameterizedTest
     @CsvSource("updateEventData")
-    void invokeEventDataService(String methodName) throws Exception {
-        CommonUtils.invokeEventDataService(methodName, NullWrapperBean.class);
+    void invokeRedisEventDataService(String methodName) {
+        CommonUtils.invokeRedisEventDataService(methodName, NullWrapperBean.class);
     }
 
 }

@@ -2466,6 +2466,55 @@ public class QueryServiceImpl implements IQueryService {
                 .in(EntryEventPickEntity::getEntry, entryList));
     }
 
+    @Cacheable(value = "qryActiveTournamentEntryList", unless = "#result.size() eq 0")
+    @Override
+    public List<Integer> qryActiveTournamentEntryList() {
+        return this.tournamentEntryService.list()
+                .stream()
+                .map(TournamentEntryEntity::getEntry)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Cacheable(value = "qryPointsRaceGroupTournamentList", key = "#event", unless = "#result.size() eq 0")
+    @Override
+    public List<Integer> qryPointsRaceGroupTournamentList(int event) {
+        return this.qryAllTournamentList()
+                .stream()
+                .filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
+                .filter(o -> StringUtils.equals(o.getGroupMode(), GroupMode.Points_race.name()))
+                .filter(o -> o.getGroupStartGw() <= event && o.getGroupEndGw() >= event)
+                .map(TournamentInfoEntity::getId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Cacheable(value = "qryBattleRaceGroupTournamentList", key = "#event", unless = "#result.size() eq 0")
+    @Override
+    public List<Integer> qryBattleRaceGroupTournamentList(int event) {
+        return this.qryAllTournamentList()
+                .stream()
+                .filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
+                .filter(o -> StringUtils.equals(o.getGroupMode(), GroupMode.Battle_race.name()))
+                .filter(o -> o.getGroupStartGw() <= event && o.getGroupEndGw() >= event)
+                .map(TournamentInfoEntity::getId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Cacheable(value = "qryKnockoutTournamentList", key = "#event", unless = "#result.size() eq 0")
+    @Override
+    public List<Integer> qryKnockoutTournamentList(int event) {
+        return this.qryAllTournamentList()
+                .stream()
+                .filter(o -> StringUtils.equals(o.getTournamentMode(), TournamentMode.Normal.name()))
+                .filter(o -> !StringUtils.equals(o.getKnockoutMode(), KnockoutMode.No_knockout.name()))
+                .filter(o -> o.getKnockoutStartGw() <= event && o.getKnockoutEndGw() >= event)
+                .map(TournamentInfoEntity::getId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
     /**
      * @implNote report
      */

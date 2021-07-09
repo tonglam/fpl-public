@@ -168,13 +168,7 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     @Override
-    public void insertTournamentEntryEventPick(int event, int tournamentId) {
-        // get entry_list
-        List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
-        if (CollectionUtils.isEmpty(entryList)) {
-            log.error("tournament_info not exists, tournament:{}!", tournamentId);
-            return;
-        }
+    public void insertEventPickByEntryList(int event, List<Integer> entryList) {
         // init
         List<Integer> existsList = this.entryEventPickService.list(new QueryWrapper<EntryEventPickEntity>().lambda()
                 .eq(EntryEventPickEntity::getEvent, event)
@@ -197,7 +191,7 @@ public class EventDataServiceImpl implements IEventDataService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         this.entryEventPickService.saveBatch(list);
-        log.info("tournament:{}, event:{}, insert tournament entry event pick size:{}!", tournamentId, event, list.size());
+        log.info("event:{}, insert event pick size:{}!", event, list.size());
     }
 
     @Override
@@ -229,13 +223,7 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     @Override
-    public void insertTournamentEntryEventTransfers(int tournamentId) {
-        // get entry_list
-        List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
-        if (CollectionUtils.isEmpty(entryList)) {
-            log.error("tournament_info not exists, tournament:{}!", tournamentId);
-            return;
-        }
+    public void insertEventTransfersByEntryList(List<Integer> entryList) {
         Map<String, EntryEventTransfersEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
                 .in(EntryEventTransfersEntity::getEntry, entryList))
                 .stream()
@@ -261,7 +249,7 @@ public class EventDataServiceImpl implements IEventDataService {
             });
         });
         this.entryEventTransferService.saveBatch(list);
-        log.info("tournament:{}, insert tournament entry event transfers size:{}!", tournamentId, list.size());
+        log.info("insert event transfers size:{}!", list.size());
     }
 
     @Override
@@ -310,13 +298,8 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     @Override
-    public void insertTournamentEntryEventCupResult(int event, int tournamentId) {
+    public void insertEventCupResultByEntryList(int event, List<Integer> entryList) {
         // get entry_list
-        List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
-        if (CollectionUtils.isEmpty(entryList)) {
-            log.error("tournament:{}, tournament_info not exists!", tournamentId);
-            return;
-        }
         if (this.entryEventCupResultService.count(new QueryWrapper<EntryEventCupResultEntity>().lambda()
                 .eq(EntryEventCupResultEntity::getEvent, event)
                 .in(EntryEventCupResultEntity::getEntry, entryList)) > 0) {
@@ -359,7 +342,7 @@ public class EventDataServiceImpl implements IEventDataService {
             }
         });
         this.entryEventCupResultService.saveBatch(insertEventCupResultList);
-        log.info("tournament:{}, event:{}, insert tournament entry event cup result size:{}!", tournamentId, event, insertEventCupResultList.size());
+        log.info("event:{}, insert tournament entry event cup result size:{}!", event, insertEventCupResultList.size());
     }
 
     /**
@@ -450,6 +433,48 @@ public class EventDataServiceImpl implements IEventDataService {
         log.info("tournament:{}, event:{}, insert tournament entry event result size:{}!", tournamentId, event, insertEventResultList.size());
         this.entryEventResultService.updateBatchById(updateEventResultList);
         log.info("tournament:{}, event:{}, update tournament entry event result size:{}!", tournamentId, event, updateEventResultList.size());
+    }
+
+    @Override
+    public void upsertEventResultByEntryList(int event, List<Integer> entryList) {
+        // get entry_list
+        Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, event)
+                .in(EntryEventResultEntity::getEntry, entryList))
+                .stream()
+                .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
+        // get event_live
+        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+        // upsert entry_event_result
+        RedisUtils.removeCacheByKey("get");
+        List<EntryEventResultEntity> insertEventResultList = Lists.newArrayList();
+        List<EntryEventResultEntity> updateEventResultList = Lists.newArrayList();
+        entryList.forEach(entry -> {
+            if (entry <= 0) {
+                return;
+            }
+            UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
+            if (userPick == null) {
+                return;
+            }
+            EntryEventResultEntity entryEventResultEntity = this.calcEntryEventPoints(event, entry, userPick, eventLiveMap);
+            if (entryEventResultEntity == null) {
+                return;
+            }
+            if (!entryEventResultMap.containsKey(entry)) {
+                insertEventResultList.add(entryEventResultEntity);
+            } else {
+                entryEventResultEntity.setId(entryEventResultMap.get(entry).getId());
+                updateEventResultList.add(entryEventResultEntity);
+            }
+        });
+        this.entryEventResultService.saveBatch(insertEventResultList);
+        log.info("event:{}, insert event result size:{}!", event, insertEventResultList.size());
+        this.entryEventResultService.updateBatchById(updateEventResultList);
+        log.info("event:{}, update event result size:{}!", event, updateEventResultList.size());
     }
 
     private EntryEventResultEntity calcEntryEventPoints(int event, int entry, UserPicksRes
@@ -604,13 +629,8 @@ public class EventDataServiceImpl implements IEventDataService {
 
 
     @Override
-    public void updateTournamentEventTransfers(int event, int tournamentId) {
+    public void updateEventTransfersByEntryList(int event, List<Integer> entryList) {
         // get entry_list
-        List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
-        if (CollectionUtils.isEmpty(entryList)) {
-            log.error("tournament_info not exists, tournament:{}!", tournamentId);
-            return;
-        }
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
                 .eq(EntryEventResultEntity::getEvent, event)
                 .in(EntryEventResultEntity::getEntry, entryList))
@@ -661,7 +681,7 @@ public class EventDataServiceImpl implements IEventDataService {
             });
         });
         this.entryEventTransferService.updateBatchById(list);
-        log.info("tournament:{}, update tournament entry event transfers size:{}", tournamentId, list.size());
+        log.info("update event transfers size:{}", list.size());
     }
 
     @Override
@@ -705,13 +725,8 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     @Override
-    public void upsertTournamentEntryEventCupResult(int event, int tournamentId) {
+    public void upsertEventCupResultByEntryList(int event, List<Integer> entryList) {
         // get entry_list
-        List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
-        if (CollectionUtils.isEmpty(entryList)) {
-            log.error("tournament:{}, tournament_info not exists!", tournamentId);
-            return;
-        }
         Map<Integer, EntryEventCupResultEntity> entryEventCupResultMap = this.entryEventCupResultService.list(new QueryWrapper<EntryEventCupResultEntity>().lambda()
                 .eq(EntryEventCupResultEntity::getEvent, event)
                 .in(EntryEventCupResultEntity::getEntry, entryList))
@@ -753,7 +768,7 @@ public class EventDataServiceImpl implements IEventDataService {
             updateEventCupResultList.add(entryEventCupResult);
         });
         this.entryEventCupResultService.updateBatchById(updateEventCupResultList);
-        log.info("tournament:{}, event:{}, update tournament entry event cup result size:{}!", tournamentId, event, updateEventCupResultList.size());
+        log.info("event:{}, update tournament entry event cup result size:{}!", event, updateEventCupResultList.size());
     }
 
     @Override

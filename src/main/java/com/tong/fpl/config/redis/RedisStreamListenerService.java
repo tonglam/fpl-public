@@ -29,7 +29,22 @@ public class RedisStreamListenerService implements StreamListener<String, MapRec
         Map<String, String> body = message.getValue();
         log.info("stream message。messageId={}, stream={}, body={}", recordId, message.getStream(), body);
 //        // 通过RedisTemplate手动确认消息
-        this.stringRedisTemplate.opsForStream().acknowledge("fpl", message);
+//        this.stringRedisTemplate.opsForStream().acknowledge("fpl", message);
+//
+//        RedisExpirationKey redisExpirationKey = RedisExpirationKey.getExpirationKey(StringUtils.substringAfter(message.getStream(), "Stream::"));
+//        if (redisExpirationKey == null) {
+//            return;
+//        }
+//        switch (redisExpirationKey) {
+//            case EventAfterDeadline:
+//            case EventMatch: {
+//                CommonUtils.invokeRedisEventDataService("");
+//            }
+//            case EventMatchDay: {
+//                this.doSomething();
+//            }
+//        }
+
     }
 
 }

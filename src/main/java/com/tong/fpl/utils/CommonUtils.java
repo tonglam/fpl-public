@@ -114,14 +114,14 @@ public class CommonUtils {
         return NumberUtil.formatPercent(NumberUtil.div(number1, number2), 2);
     }
 
-    public static void invokeEventDataService(String methodName, Object... args) throws Exception {
-        Class<?> entryClass = ClassUtil.loadClass("com.tong.fpl.service.impl.EventDataServiceImpl");
+    public static void invokeRedisEventDataService(String methodName, Object... args) {
+        Class<?> entryClass = ClassUtil.loadClass("com.tong.fpl.config.redis.RedisEventDataService");
         Method method = Arrays.stream(entryClass.getMethods())
                 .filter(o -> StringUtils.equals(o.getName(), methodName))
                 .findFirst()
                 .orElse(null);
         if (method == null) {
-            throw new Exception("reflect method crossPlatformService error, method not exists!");
+            return;
         }
         Class<?>[] constructorClass = entryClass.getDeclaredConstructors()[0].getParameterTypes();
         Object[] params = new Object[constructorClass.length];

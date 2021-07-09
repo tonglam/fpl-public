@@ -1,5 +1,7 @@
 package com.tong.fpl.service;
 
+import java.util.List;
+
 /**
  * 四种更新节点：
  * 1.每日更新 => 自然日
@@ -25,15 +27,15 @@ public interface IEventDataService {
      */
     void insertEntryEventPick(int event, int entry);
 
-    void insertTournamentEntryEventPick(int event, int tournamentId);
+    void insertEventPickByEntryList(int event, List<Integer> entryList);
 
     void insertEntryEventTransfers(int entry);
 
-    void insertTournamentEntryEventTransfers(int tournamentId);
+    void insertEventTransfersByEntryList(List<Integer> entryList);
 
     void insertEntryEventCupResult(int event, int entry);
 
-    void insertTournamentEntryEventCupResult(int event, int tournamentId);
+    void insertEventCupResultByEntryList(int event, List<Integer> entryList);
 
     /**
      * @apiNote after matchDay
@@ -44,13 +46,15 @@ public interface IEventDataService {
 
     void upsertTournamentEntryEventResult(int event, int tournamentId);
 
+    void upsertEventResultByEntryList(int event, List<Integer> entryList);
+
     void updateEntryEventTransfers(int event, int entry);
 
-    void updateTournamentEventTransfers(int event, int tournamentId);
+    void updateEventTransfersByEntryList(int event, List<Integer> entryList);
 
     void upsertEntryEventCupResult(int event, int entry);
 
-    void upsertTournamentEntryEventCupResult(int event, int tournamentId);
+    void upsertEventCupResultByEntryList(int event, List<Integer> entryList);
 
     void updatePointsRaceGroupResult(int event, int tournamentId);
 
