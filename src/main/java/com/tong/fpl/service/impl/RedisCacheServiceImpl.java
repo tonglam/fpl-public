@@ -174,7 +174,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     private List<EventFixtureEntity> insertEventFixtureByEvent(Map<String, Set<Object>> cacheMap, int event) {
-        log.info("start insert event{} fixtures!", event);
+        log.info("start insert event:{} fixtures!", event);
         this.eventFixtureService.remove(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, event));
         List<EventFixtureEntity> eventFixtureList = Lists.newArrayList();
         Optional<List<EventFixturesRes>> result = this.interfaceService.getEventFixture(event);
