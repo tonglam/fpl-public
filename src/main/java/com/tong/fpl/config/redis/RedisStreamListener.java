@@ -13,7 +13,6 @@ import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.stream.StreamMessageListenerContainer;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
@@ -21,7 +20,7 @@ import java.time.Duration;
  * Create by tong on 2021/6/30
  */
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RedisStreamListener implements ApplicationRunner, DisposableBean {
 

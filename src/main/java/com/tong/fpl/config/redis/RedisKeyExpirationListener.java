@@ -9,7 +9,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.KeyExpirationEventMessageListener;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Map;
@@ -17,7 +16,7 @@ import java.util.Map;
 /**
  * Create by tong on 2021/4/12
  */
-@Component
+//@Component
 public class RedisKeyExpirationListener extends KeyExpirationEventMessageListener {
 
     private final StringRedisTemplate stringRedisTemplate;
