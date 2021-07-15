@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,26 +29,41 @@ public class SummaryApiController {
      */
     @GetMapping("/qryEntrySeasonInfo")
     public EntrySeasonInfoData qryEntrySeasonInfo(@RequestParam int entry) {
+        if (entry <= 0) {
+            return new EntrySeasonInfoData();
+        }
         return this.apiSummary.qryEntrySeasonInfo(entry);
     }
 
     @GetMapping("/qryEntrySeasonSummary")
     public EntrySeasonSummaryData qryEntrySeasonSummary(@RequestParam int entry) {
+        if (entry <= 0) {
+            return new EntrySeasonSummaryData();
+        }
         return this.apiSummary.qryEntrySeasonSummary(entry);
     }
 
     @GetMapping("/qryEntrySeasonCaptain")
     public EntrySeasonCaptainData qryEntrySeasonCaptain(@RequestParam int entry) {
+        if (entry <= 0) {
+            return new EntrySeasonCaptainData();
+        }
         return this.apiSummary.qryEntrySeasonCaptain(entry);
     }
 
     @GetMapping("/qryEntrySeasonTransfers")
     public EntrySeasonTransfersData qryEntrySeasonTransfers(@RequestParam int entry) {
+        if (entry <= 0) {
+            return new EntrySeasonTransfersData();
+        }
         return this.apiSummary.qryEntrySeasonTransfers(entry);
     }
 
     @GetMapping("/qryEntrySeasonScore")
     public EntrySeasonScoreData qryEntrySeasonScore(@RequestParam int entry) {
+        if (entry <= 0) {
+            return new EntrySeasonScoreData();
+        }
         return this.apiSummary.qryEntrySeasonScore(entry);
     }
 
@@ -56,21 +72,33 @@ public class SummaryApiController {
      */
     @GetMapping("/qryLeagueSeasonInfo")
     public LeagueSeasonInfoData qryLeagueSeasonInfo(@RequestParam int leagueId, @RequestParam String leagueType) {
+        if (leagueId <= 0 || StringUtils.isEmpty(leagueType)) {
+            return new LeagueSeasonInfoData();
+        }
         return this.apiSummary.qryLeagueSeasonInfo(leagueId, leagueType);
     }
 
     @GetMapping("/qryLeagueSeasonSummary")
     public LeagueSeasonSummaryData qryLeagueSeasonSummary(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+        if (leagueId <= 0 || StringUtils.isEmpty(leagueType)) {
+            return new LeagueSeasonSummaryData();
+        }
         return this.apiSummary.qryLeagueSeasonSummary(leagueId, leagueType, entry);
     }
 
     @GetMapping("/qryLeagueSeasonCaptain")
     public LeagueSeasonCaptainData qryLeagueSeasonCaptain(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+        if (leagueId <= 0 || StringUtils.isEmpty(leagueType)) {
+            return new LeagueSeasonCaptainData();
+        }
         return this.apiSummary.qryLeagueSeasonCaptain(leagueId, leagueType, entry);
     }
 
     @GetMapping("/qryLeagueSeasonScore")
     public LeagueSeasonScoreData qryLeagueSeasonScore(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
+        if (leagueId <= 0 || StringUtils.isEmpty(leagueType)) {
+            return new LeagueSeasonScoreData();
+        }
         return this.apiSummary.qryLeagueSeasonScore(leagueId, leagueType, entry);
     }
 

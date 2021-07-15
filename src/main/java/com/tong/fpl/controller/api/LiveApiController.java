@@ -1,9 +1,11 @@
 package com.tong.fpl.controller.api;
 
+import com.google.common.collect.Lists;
 import com.tong.fpl.api.IApiLive;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,17 +24,26 @@ public class LiveApiController {
     @RequestMapping("/calcLivePointsByEntry")
     @ResponseBody
     public LiveCalcData calcLivePointsByEntry(@RequestParam int event, @RequestParam int entry) {
+        if (event <= 0 || entry <= 0) {
+            return new LiveCalcData();
+        }
         return this.apiLive.calcLivePointsByEntry(event, entry);
     }
 
     @RequestMapping("/calcLivePointsByTournament")
     @ResponseBody
     public List<LiveCalcData> calcLivePointsByTournament(@RequestParam int event, @RequestParam int tournamentId) {
+        if (event <= 0 || tournamentId <= 0) {
+            return Lists.newArrayList();
+        }
         return this.apiLive.calcLivePointsByTournament(event, tournamentId);
     }
 
     @GetMapping("/qryLiveMatchByStatus")
     public List<LiveMatchData> qryLiveMatchByStatus(@RequestParam String playStatus) {
+        if (StringUtils.isEmpty(playStatus)) {
+            return Lists.newArrayList();
+        }
         return this.apiLive.qryLiveMatchByStatus(playStatus);
     }
 

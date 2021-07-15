@@ -27,6 +27,9 @@ public class CommonApiController {
 
     @GetMapping("/insertEventLiveCache")
     public void insertEventLiveCache(@RequestParam int event) {
+        if (event <= 0) {
+            return;
+        }
         this.apiCommon.insertEventLiveCache(event);
     }
 

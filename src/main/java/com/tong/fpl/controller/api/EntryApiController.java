@@ -1,5 +1,6 @@
 package com.tong.fpl.controller.api;
 
+import com.google.common.collect.Lists;
 import com.tong.fpl.api.IApiEntry;
 import com.tong.fpl.domain.letletme.entry.*;
 import lombok.RequiredArgsConstructor;
@@ -31,26 +32,41 @@ public class EntryApiController {
 
     @GetMapping("/qryEntryLeagueInfo")
     public EntryLeagueInfoData qryEntryLeagueInfo(@RequestParam int entry) {
+        if (entry <= 0) {
+            return new EntryLeagueInfoData();
+        }
         return this.apiEntry.qryEntryLeagueInfo(entry);
     }
 
     @GetMapping("/qryEntryHistoryInfo")
     public EntryHistoryInfoData qryEntryHistoryInfo(@RequestParam int entry) {
+        if (entry <= 0) {
+            return new EntryHistoryInfoData();
+        }
         return this.apiEntry.qryEntryHistoryInfo(entry);
     }
 
     @GetMapping("/qryEntryEventResult")
     public EntryEventResultData qryEntryEventResult(@RequestParam int event, @RequestParam int entry) {
+        if (event <= 0 || entry <= 0) {
+            return new EntryEventResultData();
+        }
         return this.apiEntry.qryEntryEventResult(event, entry);
     }
 
     @GetMapping("/qryEntryEventTransfers")
     public List<EntryEventTransfersData> qryEntryEventTransfers(@RequestParam int event, @RequestParam int entry) {
+        if (event <= 0 || entry <= 0) {
+            return Lists.newArrayList();
+        }
         return this.apiEntry.qryEntryEventTransfers(event, entry);
     }
 
     @GetMapping("/qryEntryEventSummary")
     public List<EntryEventResultData> qryEntryEventSummary(@RequestParam int entry) {
+        if (entry <= 0) {
+            return Lists.newArrayList();
+        }
         return this.apiEntry.qryEntryEventSummary(entry);
     }
 
