@@ -15,9 +15,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -96,11 +95,17 @@ public class CommonTest extends FplApplicationTests {
 
     @Test
     void test() {
-        String deadline = "2020-05-11T17:15:00Z";
-        deadline = StringUtils.substringBefore(deadline, "Z");
-        LocalDateTime localDateTime = LocalDateTime.parse(deadline).plusHours(1);
-        Duration duration = Duration.between(localDateTime, LocalDateTime.now());
-        System.out.println(1);
+//        String deadline = "2020-05-11T17:15:00Z";
+//        deadline = StringUtils.substringBefore(deadline, "Z");
+//        LocalDateTime localDateTime = LocalDateTime.parse(deadline).plusHours(1);
+//        Duration duration = Duration.between(localDateTime, LocalDateTime.now());
+//        System.out.println(1);
+        Random random = new Random();
+        IntStream.rangeClosed(1, 100).forEach(i -> {
+            System.out.println(i + ": " + (random.nextInt(3) + 1));
+        });
+
+
     }
 
     @ParameterizedTest
