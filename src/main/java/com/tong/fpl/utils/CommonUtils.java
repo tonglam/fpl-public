@@ -91,13 +91,12 @@ public class CommonUtils {
     }
 
     public static String getCurrentSeason() {
-        return "1920";
-//        if (LocalDate.now().getMonth().getValue() < 6) {
-//            return String.valueOf(LocalDate.now().minusYears(1).getYear()).substring(2, 4) +
-//                    String.valueOf(LocalDate.now().getYear()).substring(2, 4);
-//        }
-//        return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
-//                String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
+        if (LocalDate.now().getMonth().getValue() < 6) {
+            return String.valueOf(LocalDate.now().minusYears(1).getYear()).substring(2, 4) +
+                    String.valueOf(LocalDate.now().getYear()).substring(2, 4);
+        }
+        return String.valueOf(LocalDate.now().getYear()).substring(2, 4) +
+                String.valueOf(LocalDate.now().plusYears(1).getYear()).substring(2, 4);
     }
 
     public static int getLeagueIdByType(String url, String leagueType) {
