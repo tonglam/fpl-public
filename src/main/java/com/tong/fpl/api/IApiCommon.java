@@ -39,4 +39,13 @@ public interface IApiCommon {
      */
     List<String> qryAllLeagueName();
 
+    /**
+     * 刷新player_value：
+     * 1.player cache
+     * 2.player_stat cache
+     * 3.player_value
+     * 4.cache
+     */
+    void refreshPlayerValue();
+
 }

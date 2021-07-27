@@ -50,4 +50,9 @@ public class CommonApiController {
         return this.apiCommon.qryAllLeagueName();
     }
 
+    @GetMapping("/refreshPlayerValue")
+    public void refreshPlayerValue() {
+        this.apiCommon.refreshPlayerValue();
+    }
+
 }
