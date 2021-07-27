@@ -9,6 +9,7 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
+import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 
@@ -62,6 +63,11 @@ public interface IApiQueryService {
     PlayerDetailData qryPlayerDetailByElement(int element);
 
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
+
+    /**
+     * @apiNote team
+     */
+    List<TeamData> qryTeamList();
 
     /**
      * @apiNote stat

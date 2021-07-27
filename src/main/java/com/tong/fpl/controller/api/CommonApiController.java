@@ -1,6 +1,7 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiCommon;
+import com.tong.fpl.domain.letletme.team.TeamData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +38,11 @@ public class CommonApiController {
     @GetMapping("/qryEventAverageScore")
     public Map<String, Integer> qryEventAverageScore() {
         return this.apiCommon.qryEventAverageScore();
+    }
+
+    @GetMapping("/qryTeamList")
+    public List<TeamData> qryTeamList() {
+        return this.apiCommon.qryTeamList();
     }
 
 }

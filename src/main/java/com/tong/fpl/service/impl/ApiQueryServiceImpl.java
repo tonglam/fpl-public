@@ -22,6 +22,7 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
+import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.IApiQueryService;
@@ -724,6 +725,22 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     /**
+     * @apiNote team
+     */
+    @Cacheable(
+            value = "api::qryTeamList",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<TeamData> qryTeamList() {
+        return this.teamService.list()
+                .stream()
+                .map(o -> BeanUtil.copyProperties(o, TeamData.class))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * @implNote stat
      */
     @Cacheable(
@@ -877,6 +894,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
                     .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                     .setValue(playerValueEntity.getValue() / 10.0)
+                    .setChangeDate(StringUtils.joinWith("-", data.getChangeDate().substring(0, 4), data.getChangeDate().substring(4, 6), data.getChangeDate().substring(6, 8)))
                     .setLastValue(playerValueEntity.getLastValue() / 10.0);
         }
         return data;

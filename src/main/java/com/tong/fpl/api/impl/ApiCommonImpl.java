@@ -1,12 +1,14 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiCommon;
+import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IRedisCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,4 +38,10 @@ public class ApiCommonImpl implements IApiCommon {
     public Map<String, Integer> qryEventAverageScore() {
         return this.apiQueryService.qryEventAverageScore();
     }
+
+    @Override
+    public List<TeamData> qryTeamList() {
+        return this.apiQueryService.qryTeamList();
+    }
+
 }

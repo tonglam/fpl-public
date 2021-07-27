@@ -2,6 +2,7 @@ package com.tong.fpl.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
@@ -173,6 +174,7 @@ public class ApiQueryTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"302"})
     void qryPlayerValueByElement(int element) {
+        MybatisPlusConfig.season.set("2021");
         List<PlayerValueData> list = this.apiQueryService.qryPlayerValueByElement(element);
         System.out.println(1);
     }

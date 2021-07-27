@@ -1,5 +1,8 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.team.TeamData;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,5 +28,10 @@ public interface IApiCommon {
      * 获取每周平均分
      */
     Map<String, Integer> qryEventAverageScore();
+
+    /**
+     * 获取球队缩写列表
+     */
+    List<TeamData> qryTeamList();
 
 }
