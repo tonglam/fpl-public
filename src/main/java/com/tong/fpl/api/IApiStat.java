@@ -27,11 +27,6 @@ public interface IApiStat {
     Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId);
 
     /**
-     * 查询存储的所有联赛
-     */
-    List<String> qryAllLeagueName();
-
-    /**
      * 根据联赛名称查询阵容选择结果
      */
     LeagueStatData qryTeamSelectByLeagueName(int event, String leagueName);

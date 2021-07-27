@@ -34,4 +34,9 @@ public interface IApiCommon {
      */
     List<TeamData> qryTeamList();
 
+    /**
+     * 查询存储的所有联赛
+     */
+    List<String> qryAllLeagueName();
+
 }

@@ -14,6 +14,7 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
+import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
@@ -49,6 +50,13 @@ public class ApiQueryTest extends FplApplicationTests {
     @Test
     void qryEventAverageScore() {
         Map<String, Integer> map = this.apiQueryService.qryEventAverageScore();
+        System.out.println(1);
+    }
+
+    @Test
+    void qryTeamList() {
+        MybatisPlusConfig.season.set("2021");
+        List<TeamData> list = this.apiQueryService.qryTeamList();
         System.out.println(1);
     }
 
@@ -188,6 +196,7 @@ public class ApiQueryTest extends FplApplicationTests {
 
     @Test
     void qryAllLeagueName() {
+        MybatisPlusConfig.season.set("2021");
         List<String> list = this.apiQueryService.qryAllLeagueName();
         System.out.println(1);
     }
@@ -200,7 +209,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"35, 集合吧！FPL2021让让群小联赛"})
+    @CsvSource({"1, 集合吧！FPL2021让让群小联赛"})
     void qryTeamSelectByLeagueName(int event, String leagueName) {
         LeagueStatData data = this.apiQueryService.qryTeamSelectByLeagueName(event, leagueName);
         System.out.println(1);

@@ -36,11 +36,6 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
-    public List<String> qryAllLeagueName() {
-        return this.apiQueryService.qryAllLeagueName();
-    }
-
-    @Override
     public LeagueStatData qryTeamSelectByLeagueName(int event, String leagueName) {
         return this.apiQueryService.qryTeamSelectByLeagueName(event, leagueName);
     }

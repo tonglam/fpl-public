@@ -53,11 +53,6 @@ public class StatApiController {
         return this.apiStat.qryPlayerValueByTeamId(teamId);
     }
 
-    @GetMapping("/qryAllLeagueName")
-    public List<String> qryAllLeagueName() {
-        return this.apiStat.qryAllLeagueName();
-    }
-
     @GetMapping("/qryTeamSelectByLeagueName")
     public LeagueStatData qryTeamSelectByLeagueName(@RequestParam int event, @RequestParam String leagueName) {
         if (event <= 0 || StringUtils.isEmpty(leagueName)) {
