@@ -1003,7 +1003,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         data.setMostSelectPlayer(mostSelectPlayer);
         // most select team
         Map<Integer, List<PlayerSelectData>> mostSelectTeam = this.getMostSelectTeam(leagueEventReportList, teamSize, playerMap, teamNameMap, teamShortNameMap, leagueEventEoMap);
-        data.setMostSelectTeam(mostSelectTeam);
+        data
+                .setMostSelectTeamGkp(mostSelectTeam.get(1))
+                .setMostSelectTeamDef(mostSelectTeam.get(2))
+                .setMostSelectTeamMid(mostSelectTeam.get(3))
+                .setMostSelectTeamFwd(mostSelectTeam.get(4));
         return data;
     }
 

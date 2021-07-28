@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2020/9/18
@@ -21,6 +20,9 @@ public class LeagueEventSelectData {
     private List<PlayerSelectData> mostTransferIn;
     private List<PlayerSelectData> mostTransferOut;
     private List<PlayerSelectData> mostSelectPlayer;
-    private Map<Integer, List<PlayerSelectData>> mostSelectTeam;
+    private List<PlayerSelectData> mostSelectTeamGkp;
+    private List<PlayerSelectData> mostSelectTeamDef;
+    private List<PlayerSelectData> mostSelectTeamMid;
+    private List<PlayerSelectData> mostSelectTeamFwd;
 
 }
