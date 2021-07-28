@@ -3,7 +3,7 @@ package com.tong.fpl.controller.api;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.api.IApiStat;
-import com.tong.fpl.domain.letletme.league.LeagueStatData;
+import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -54,9 +54,9 @@ public class StatApiController {
     }
 
     @GetMapping("/qryTeamSelectByLeagueName")
-    public LeagueStatData qryTeamSelectByLeagueName(@RequestParam int event, @RequestParam String leagueName) {
+    public LeagueEventSelectData qryTeamSelectByLeagueName(@RequestParam int event, @RequestParam String leagueName) {
         if (event <= 0 || StringUtils.isEmpty(leagueName)) {
-            return new LeagueStatData();
+            return new LeagueEventSelectData();
         }
         return this.apiStat.qryTeamSelectByLeagueName(event, leagueName);
     }

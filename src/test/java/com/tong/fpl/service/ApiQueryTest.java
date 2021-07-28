@@ -7,7 +7,7 @@ import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
-import com.tong.fpl.domain.letletme.league.LeagueStatData;
+import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
@@ -204,6 +204,7 @@ public class ApiQueryTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"37, 3571, Classic"})
     void qryLeagueEventEoWebNameMap(int event, int leagueId, String leagueType) {
+        MybatisPlusConfig.season.set("2021");
         Map<String, String> map = this.apiQueryService.qryLeagueEventEoWebNameMap(event, leagueId, leagueType);
         System.out.println(1);
     }
@@ -211,7 +212,8 @@ public class ApiQueryTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"1, 集合吧！FPL2021让让群小联赛"})
     void qryTeamSelectByLeagueName(int event, String leagueName) {
-        LeagueStatData data = this.apiQueryService.qryTeamSelectByLeagueName(event, leagueName);
+        MybatisPlusConfig.season.set("2021");
+        LeagueEventSelectData data = this.apiQueryService.qryTeamSelectByLeagueName(event, leagueName);
         System.out.println(1);
     }
 

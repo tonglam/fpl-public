@@ -14,13 +14,10 @@ import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
-import com.tong.fpl.domain.letletme.league.LeagueStatData;
+import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.player.PlayerDetailData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -966,12 +963,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             value = "api::qryTeamSelectByLeagueName",
             key = "#event+'::'+#leagueName",
             cacheManager = "apiCacheManager",
-            unless = "#result.captainSelectedMap.size() eq 0"
+            unless = "#result.captainSelect.size() eq 0"
     )
     @Override
-    public LeagueStatData qryTeamSelectByLeagueName(int event, String leagueName) {
-        LeagueStatData data = new LeagueStatData().setEvent(event).setName(leagueName);
-        // player_info
+    public LeagueEventSelectData qryTeamSelectByLeagueName(int event, String leagueName) {
+        LeagueEventSelectData data = new LeagueEventSelectData()
+                .setEvent(event)
+                .setName(leagueName);
+        // prepare
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
@@ -986,35 +987,30 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // league_eo_map
         Map<String, String> leagueEventEoMap = this.qryLeagueEventEoWebNameMap(event, leagueEventReportList.get(0).getLeagueId(), leagueEventReportList.get(0).getLeagueType());
         // most transfer in
-        LinkedHashMap<String, String> mostTransferInMap = this.getMostTransferInMap(leagueName, event, leagueEventReportList, teamSize, playerMap);
-        data.setMostTransferIn(mostTransferInMap);
+        List<PlayerSelectData> mostTransferIn = this.getMostTransferIn(leagueName, event, leagueEventReportList, teamSize, playerMap, teamNameMap, teamShortNameMap);
+        data.setMostTransferIn(mostTransferIn);
         // most transfer out
-        LinkedHashMap<String, String> mostTransferOutMap = this.getMostTransferOutMap(leagueName, event, leagueEventReportList, teamSize, playerMap);
-        data.setMostTransferOut(mostTransferOutMap);
-        // captain selected
-        LinkedHashMap<String, String> captainSelectedMap = this.getCaptainSelectedMap(leagueEventReportList, teamSize, playerMap);
-        data.setCaptainSelectedMap(captainSelectedMap);
-        // captain selected eo
-        LinkedHashMap<String, String> captainSelectedEoMap = this.getCaptainSelectedEoMap(captainSelectedMap, leagueEventEoMap);
-        data.setCaptainSelectedEoMap(captainSelectedEoMap);
-        // vice captain selected
-        LinkedHashMap<String, String> viceCaptainSelectedMap = this.getViceCaptainSelectedMap(leagueEventReportList, teamSize, playerMap);
-        data.setViceCaptainSelectedMap(viceCaptainSelectedMap);
-        // top selected player
-        LinkedHashMap<String, String> topSelectedPlayerMap = this.getTopSelectedPlayerMap(leagueEventReportList, teamSize, playerMap);
-        data.setTopSelectedPlayerMap(topSelectedPlayerMap);
-        // top selected player eo
-        LinkedHashMap<String, String> topSelectedPlayerEoMap = this.getTopSelectedPlayerEoMap(topSelectedPlayerMap, leagueEventEoMap);
-        data.setTopSelectedPlayerEoMap(topSelectedPlayerEoMap);
-        // top selected team
-        LinkedHashMap<Integer, Map<String, String>> topSelectedTeamMap = this.getTopSelectedTeamMap(leagueEventReportList, teamSize, playerMap);
-        data.setTopSelectedTeamMap(topSelectedTeamMap);
+        List<PlayerSelectData> mostTransferOut = this.getMostTransferOut(leagueName, event, leagueEventReportList, teamSize, playerMap, teamNameMap, teamShortNameMap);
+        data.setMostTransferOut(mostTransferOut);
+        // captain select
+        List<PlayerSelectData> captainSelect = this.getCaptainSelect(leagueEventReportList, teamSize, playerMap, teamNameMap, teamShortNameMap, leagueEventEoMap);
+        data.setCaptainSelect(captainSelect);
+        // vice captain select
+        List<PlayerSelectData> viceCaptainSelect = this.getViceCaptainSelect(leagueEventReportList, teamSize, playerMap, teamNameMap, teamShortNameMap, leagueEventEoMap);
+        data.setViceCaptainSelect(viceCaptainSelect);
+        // most select player
+        List<PlayerSelectData> mostSelectPlayer = this.getMostSelectPlayer(leagueEventReportList, teamSize, playerMap, teamNameMap, teamShortNameMap, leagueEventEoMap);
+        data.setMostSelectPlayer(mostSelectPlayer);
+        // most select team
+        Map<Integer, List<PlayerSelectData>> mostSelectTeam = this.getMostSelectTeam(leagueEventReportList, teamSize, playerMap, teamNameMap, teamShortNameMap, leagueEventEoMap);
+        data.setMostSelectTeam(mostSelectTeam);
         return data;
     }
 
-    private LinkedHashMap<String, String> getMostTransferInMap(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private List<PlayerSelectData> getMostTransferIn(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
+                                                     Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap) {
         if (event <= 1) {
-            return Maps.newLinkedHashMap();
+            return Lists.newArrayList();
         }
         // current gw
         Map<Integer, List<Integer>> currentSelectMap = this.collectEntrySelectedMap(leagueEventReportList);
@@ -1030,12 +1026,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .filter(o -> !previousList.contains(o))
                     .forEach(elementList::add);
         });
-        return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
+        return this.collectSelectDataList(elementList, teamSize, 5, playerMap, teamNameMap, teamShortNameMap, Maps.newHashMap());
     }
 
-    private LinkedHashMap<String, String> getMostTransferOutMap(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private List<PlayerSelectData> getMostTransferOut(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
+                                                      Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap) {
         if (event <= 1) {
-            return Maps.newLinkedHashMap();
+            return Lists.newArrayList();
         }
         // current gw
         Map<Integer, List<Integer>> currentSelectMap = this.collectEntrySelectedMap(leagueEventReportList);
@@ -1051,7 +1048,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .filter(o -> !currentList.contains(o))
                     .forEach(elementList::add);
         });
-        return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
+        return this.collectSelectDataList(elementList, teamSize, 5, playerMap, teamNameMap, teamShortNameMap, Maps.newHashMap());
     }
 
     private Map<Integer, List<Integer>> collectPreviousEntrySelectedMap(String leagueName, int event) {
@@ -1074,30 +1071,27 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return teamSelectMap;
     }
 
-    private LinkedHashMap<String, String> getCaptainSelectedMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private List<PlayerSelectData> getCaptainSelect(List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
+                                                    Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         List<Integer> elementList = leagueEventReportList
                 .stream()
                 .map(LeagueEventReportEntity::getCaptain)
                 .collect(Collectors.toList());
-        return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
+        return this.collectSelectDataList(elementList, teamSize, 5, playerMap, teamNameMap, teamShortNameMap, leagueEventEoMap);
     }
 
-    private LinkedHashMap<String, String> getCaptainSelectedEoMap(LinkedHashMap<String, String> captainSelectedMap, Map<String, String> leagueEventEoMap) {
-        LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
-        captainSelectedMap.keySet().forEach(o -> map.put(o, leagueEventEoMap.getOrDefault(o, "")));
-        return map;
-    }
-
-    private LinkedHashMap<String, String> getViceCaptainSelectedMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private List<PlayerSelectData> getViceCaptainSelect(List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
+                                                        Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         // collect
         List<Integer> elementList = leagueEventReportList
                 .stream()
                 .map(LeagueEventReportEntity::getViceCaptain)
                 .collect(Collectors.toList());
-        return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
+        return this.collectSelectDataList(elementList, teamSize, 5, playerMap, teamNameMap, teamShortNameMap, leagueEventEoMap);
     }
 
-    private LinkedHashMap<String, String> getTopSelectedPlayerMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private List<PlayerSelectData> getMostSelectPlayer(List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
+                                                       Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         List<Integer> elementList = Lists.newArrayList();
         leagueEventReportList.forEach(o -> {
             elementList.add(o.getPosition1());
@@ -1116,17 +1110,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             elementList.add(o.getPosition14());
             elementList.add(o.getPosition15());
         });
-        return this.collectSelectedMap(elementList, teamSize, 10, playerMap);
+        return this.collectSelectDataList(elementList, teamSize, 10, playerMap, teamNameMap, teamShortNameMap, leagueEventEoMap);
     }
 
-    private LinkedHashMap<String, String> getTopSelectedPlayerEoMap(LinkedHashMap<String, String> topSelectedPlayerMap, Map<String, String> leagueEventEoMap) {
-        LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
-        topSelectedPlayerMap.keySet().forEach(o -> map.put(o, leagueEventEoMap.getOrDefault(o, "")));
-        return map;
-    }
-
-    private LinkedHashMap<String, String> collectSelectedMap(List<Integer> elementList, int teamSize, int limit, Map<Integer, PlayerEntity> playerMap) {
-        LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
+    private List<PlayerSelectData> collectSelectDataList(List<Integer> elementList, int teamSize, int limit,
+                                                         Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         Map<Integer, Long> groupingMap = elementList
                 .stream()
                 .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
@@ -1135,12 +1123,25 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
                 .limit(limit)
                 .collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
-        result.forEach((k, v) ->
-                map.put(playerMap.get(k).getWebName(), NumberUtil.formatPercent(NumberUtil.div(v.intValue(), teamSize), 1)));
-        return map;
+        return result.entrySet()
+                .stream()
+                .filter(o -> playerMap.containsKey(o.getKey()))
+                .map(o -> this.initCollectSelectData(o.getValue(), teamSize, playerMap.get(o.getKey()), teamNameMap, teamShortNameMap, leagueEventEoMap))
+                .collect(Collectors.toList());
     }
 
-    private LinkedHashMap<Integer, Map<String, String>> getTopSelectedTeamMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private PlayerSelectData initCollectSelectData(int number, int teamSize, PlayerEntity playerEntity, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
+        return new PlayerSelectData()
+                .setElement(playerEntity.getElement())
+                .setWebName(playerEntity.getWebName())
+                .setTeamName(teamNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                .setSelectByPercent(CommonUtils.getPercentResult(number, teamSize))
+                .setEoByPercent(leagueEventEoMap.getOrDefault(playerEntity.getWebName(), ""));
+    }
+
+    private Map<Integer, List<PlayerSelectData>> getMostSelectTeam(List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
+                                                                   Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         // element list
         List<PlayerEntity> elementPlayerInfoList = Lists.newArrayList();
         leagueEventReportList.forEach(o -> {
@@ -1175,27 +1176,36 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             result.forEach(playerSelectedMap::put);
         });
         // add key:element_type
-        Map<Integer, Map<Integer, Integer>> elementTypeMap = this.collectPlayerSelectedMap(playerSelectedMap, playerMap); // key:element_type -> value: elementCountMap
-        // sort by selected
-        LinkedHashMap<Integer, Integer> elementSelectedSortMap = playerSelectedMap.entrySet() // key:element -> value: count (sort by count)
+        Map<Integer, Map<Integer, Integer>> elementTypeMap = this.collectPlayerSelectedMap(playerSelectedMap, playerMap); // element_type -> elementCountMap
+        // sort by select
+        LinkedHashMap<Integer, Integer> elementSelectedSortMap = playerSelectedMap.entrySet() // element -> count(sort by count)
                 .stream()
                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldVal, newVal) -> oldVal, LinkedHashMap::new));
         List<PlayerEntity> elementList = Lists.newArrayList();
         elementSelectedSortMap.forEach((k, v) -> elementList.add(playerMap.get(k)));
-        // selected line up
-        LinkedHashMap<Integer, Map<String, String>> map = Maps.newLinkedHashMap(); // key:element_type -> value:elementCountMap(key:element -> value:percent)
-        LinkedHashMap<Integer, Integer> lineupMap = this.getLineupMapByElementList(elementTypeMap, elementList); // key:position -> value:element
+        // select line up
+        Map<Integer, List<PlayerSelectData>> map = Maps.newHashMap(); // element_type -> list
+        LinkedHashMap<Integer, Integer> lineupMap = this.getLineupMapByElementList(elementTypeMap, elementList); // position -> element
         lineupMap.forEach((position, element) -> {
             long count = playerSelectedMap.get(element);
             PlayerEntity playerEntity = playerMap.get(element);
             int elementType = playerEntity.getElementType();
-            Map<String, String> valueMap = Maps.newHashMap();
+            List<PlayerSelectData> valueList = Lists.newArrayList();
             if (map.containsKey(elementType)) {
-                valueMap = map.get(elementType);
+                valueList = map.get(elementType);
             }
-            valueMap.put(playerEntity.getWebName(), NumberUtil.decimalFormat("#.##%", NumberUtil.div(count, teamSize)));
-            map.put(elementType, valueMap);
+            valueList.add(
+                    new PlayerSelectData()
+                            .setElement(playerEntity.getElement())
+                            .setWebName(playerEntity.getWebName())
+                            .setTeamName(teamNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                            .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                            .setSelectByPercent(CommonUtils.getPercentResult((int) count, teamSize))
+                            .setEoByPercent(leagueEventEoMap.getOrDefault(playerEntity.getWebName(), ""))
+
+            );
+            map.put(elementType, valueList);
         });
         return map;
     }

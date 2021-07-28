@@ -1,7 +1,7 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiStat;
-import com.tong.fpl.domain.letletme.league.LeagueStatData;
+import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
-    public LeagueStatData qryTeamSelectByLeagueName(int event, String leagueName) {
+    public LeagueEventSelectData qryTeamSelectByLeagueName(int event, String leagueName) {
         return this.apiQueryService.qryTeamSelectByLeagueName(event, leagueName);
     }
 

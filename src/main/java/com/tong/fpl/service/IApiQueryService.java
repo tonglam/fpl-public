@@ -2,7 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
-import com.tong.fpl.domain.letletme.league.LeagueStatData;
+import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
@@ -82,7 +82,7 @@ public interface IApiQueryService {
 
     Map<String, String> qryLeagueEventEoWebNameMap(int event, int leagueId, String leagueType);
 
-    LeagueStatData qryTeamSelectByLeagueName(int event, String leagueName);
+    LeagueEventSelectData qryTeamSelectByLeagueName(int event, String leagueName);
 
     /**
      * @apiNote scout
