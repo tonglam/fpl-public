@@ -4,10 +4,7 @@ import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.player.PlayerDetailData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -56,13 +53,15 @@ public interface IApiQueryService {
     /**
      * @apiNote player
      */
-    PlayerInfoData qryPlayerInfoByElement(int event, int element);
-
     LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
     PlayerDetailData qryPlayerDetailByElement(int element);
 
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
+
+    PlayerInfoData qryPlayerInfoByElement(int element);
+
+    PlayerSummaryData qryPlayerSummaryByElement(int element);
 
     /**
      * @apiNote team

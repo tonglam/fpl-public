@@ -51,4 +51,12 @@ public class PlayerApiController {
         return this.apiPlayer.qryTeamFixtureByShortName(shortName);
     }
 
+    @GetMapping("/qryPlayerInfoByElement")
+    public PlayerInfoData qryPlayerInfoByElement(@RequestParam int element) {
+        if (element <= 0) {
+            return new PlayerInfoData();
+        }
+        return this.apiPlayer.qryPlayerInfoByElement(element);
+    }
+
 }

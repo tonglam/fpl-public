@@ -9,10 +9,7 @@ import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.player.PlayerDetailData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -142,13 +139,6 @@ public class ApiQueryTest extends FplApplicationTests {
      * @apiNote player
      */
     @ParameterizedTest
-    @CsvSource({"37, 302"})
-    void qryPlayerInfoByElement(int event, int element) {
-        PlayerInfoData data = this.apiQueryService.qryPlayerInfoByElement(event, element);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
     @CsvSource({"1"})
     void qryPlayerInfoListByElementType(int elementType) {
         LinkedHashMap<String, List<PlayerInfoData>> map = this.apiQueryService.qryPlayerInfoByElementType(elementType);
@@ -158,6 +148,7 @@ public class ApiQueryTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"302"})
     void qryPlayerDetailByElement(int element) {
+        MybatisPlusConfig.season.set("2021");
         PlayerDetailData data = this.apiQueryService.qryPlayerDetailByElement(element);
         System.out.println(1);
     }
@@ -166,6 +157,21 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"ARS"})
     void qryTeamFixtureByShortName(String shortName) {
         Map<String, List<PlayerFixtureData>> map = this.apiQueryService.qryTeamFixtureByShortName(shortName);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"302"})
+    void qryPlayerInfoByElement(int element) {
+        MybatisPlusConfig.season.set("2021");
+        PlayerInfoData data = this.apiQueryService.qryPlayerInfoByElement(element);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"233"})
+    void qryPlayerSummaryByElement(int element) {
+        PlayerSummaryData data = this.apiQueryService.qryPlayerSummaryByElement(element);
         System.out.println(1);
     }
 

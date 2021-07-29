@@ -455,7 +455,8 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                 }
                 // insert table
                 PlayerStatEntity playerStatEntity = new PlayerStatEntity();
-                playerStatEntity.setEvent(event)
+                playerStatEntity
+                        .setEvent(event)
                         .setElement(o.getId())
                         .setMatchPlayed(insertTeamMap.get(o.getTeam()));
                 BeanUtil.copyProperties(o, playerStatEntity, CopyOptions.create().ignoreNullValue());

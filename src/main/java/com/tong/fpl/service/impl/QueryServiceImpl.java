@@ -66,6 +66,7 @@ public class QueryServiceImpl implements IQueryService {
     private final PlayerService playerService;
     private final EntryInfoService entryInfoService;
     private final EventLiveService eventLiveService;
+    private final EventLiveSummaryService eventLiveSummaryService;
     private final EntryEventSimulatePickService entryEventSimulatePickService;
     private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
     private final EntryEventPickService entryEventPickService;
@@ -237,8 +238,7 @@ public class QueryServiceImpl implements IQueryService {
         if (playerStatEntity == null) {
             return playerDetailData;
         }
-        BeanUtil
-                .copyProperties(playerStatEntity, playerDetailData, CopyOptions.create().ignoreNullValue());
+        BeanUtil.copyProperties(playerStatEntity, playerDetailData, CopyOptions.create().ignoreNullValue());
         return playerDetailData;
     }
 
@@ -246,8 +246,11 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public List<PlayerDetailData> qryHistorySeasonData(int code) {
         List<PlayerDetailData> historySeasonList = Lists.newArrayList();
-        Arrays.stream(HistorySeason.values()).forEach(o ->
-                historySeasonList.add(this.qryPlayerDetailData(o.getSeason(), code)));
+        Arrays.stream(HistorySeason.values()).forEach(o -> {
+            String season = o.getSeason();
+            int element = this.qryPlayerElementByCode(season, code);
+            historySeasonList.add(this.qryPlayerDetailData(o.getSeason(), element));
+        });
         return historySeasonList;
     }
 
@@ -812,6 +815,14 @@ public class QueryServiceImpl implements IQueryService {
                 .eq(EventLiveEntity::getElement, element));
         MybatisPlusConfig.season.remove();
         return eventLiveEntity;
+    }
+
+    @Override
+    public EventLiveSummaryEntity qryEventLiveSummary(String season, int element) {
+        MybatisPlusConfig.season.set(season);
+        EventLiveSummaryEntity eventLiveSummaryEntity = this.eventLiveSummaryService.getById(element);
+        MybatisPlusConfig.season.remove();
+        return eventLiveSummaryEntity;
     }
 
     /**

@@ -37,4 +37,9 @@ public class ApiPlayerImpl implements IApiPlayer {
         return this.apiQueryService.qryTeamFixtureByShortName(shortName);
     }
 
+    @Override
+    public PlayerInfoData qryPlayerInfoByElement(int element) {
+        return this.apiQueryService.qryPlayerInfoByElement(element);
+    }
+
 }

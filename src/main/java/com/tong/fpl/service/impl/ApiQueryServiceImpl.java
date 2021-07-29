@@ -639,27 +639,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
      * @implNote player
      */
     @Cacheable(
-            value = "api::qryPlayerInfoByElement",
-            key = "#event+'::'+#element",
-            cacheManager = "apiCacheManager",
-            unless = "#result.element eq 0"
-    )
-    @Override
-    public PlayerInfoData qryPlayerInfoByElement(int event, int element) {
-        PlayerEntity playerEntity = this.playerService.getById(element);
-        if (playerEntity == null) {
-            return new PlayerInfoData();
-        }
-        EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
-        return BeanUtil.copyProperties(playerEntity, PlayerInfoData.class)
-                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
-                .setTeamShortName(this.queryService.getShortTeamNameByTeam(playerEntity.getTeamId()))
-                .setPrice(playerEntity.getPrice() / 10.0)
-                .setPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints());
-    }
-
-    @Cacheable(
             value = "api::qryPlayerInfoByElementType",
             key = "#elementType",
             cacheManager = "apiCacheManager",
@@ -719,6 +698,58 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         int teamId = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
                 .eq(TeamEntity::getShortName, shortName)).getId();
         return this.queryService.getEventFixtureByTeamId(teamId);
+    }
+
+    @Cacheable(
+            value = "api::qryPlayerInfoByElement",
+            key = "#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.element eq 0"
+    )
+    @Override
+    public PlayerInfoData qryPlayerInfoByElement(int element) {
+        PlayerEntity playerEntity = this.playerService.getById(element);
+        if (playerEntity == null) {
+            return new PlayerInfoData();
+        }
+        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummary(element);
+        return new PlayerInfoData()
+                .setElement(playerEntity.getElement())
+                .setCode(playerEntity.getCode())
+                .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
+                .setTeamShortName(this.queryService.getTeamShortNameByTeam(playerEntity.getTeamId()))
+                .setPrice(playerEntity.getPrice() / 10.0)
+                .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
+    }
+
+    //    @Cacheable(
+//            value = "api::qryPlayerSummaryByElement",
+//            key = "#element",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.element eq 0"
+//    )
+    @Override
+    public PlayerSummaryData qryPlayerSummaryByElement(int element) {
+        PlayerEntity playerEntity = this.playerService.getById(element);
+        if (playerEntity == null) {
+            return new PlayerSummaryData();
+        }
+        return new PlayerSummaryData()
+                .setElement(playerEntity.getElement())
+                .setCode(playerEntity.getCode())
+                .setPrice(NumberUtil.div(playerEntity.getPrice() * 1.0, 10))
+                .setElementType(playerEntity.getElementType())
+                .setWebName(playerEntity.getWebName())
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
+                .setTeamShortName(this.queryService.getTeamShortNameByTeam(playerEntity.getTeamId()))
+                .setDetailData(this.queryService.qryPlayerDetailData(element))
+                .setFixtureList(this.queryService.qryPlayerFixtureList(playerEntity.getTeamId(), 2, 3))
+                .setHistoryList(this.queryService.qryHistorySeasonData(playerEntity.getCode()));
     }
 
     /**
@@ -1363,7 +1394,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (scoutEntity == null) {
             return new EventScoutData();
         }
-        return this.initScoutData(event, scoutEntity);
+        return this.initScoutData(scoutEntity);
     }
 
     @Cacheable(
@@ -1383,7 +1414,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
                 .eq(ScoutEntity::getEvent, event))
                 .stream()
-                .map(o -> this.initScoutData(event, o))
+                .map(this::initScoutData)
                 .sorted(Comparator.comparing(EventScoutData::getEventPoints).reversed())
                 .collect(Collectors.toList());
     }
@@ -1468,16 +1499,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    private EventScoutData initScoutData(int event, ScoutEntity scoutEntity) {
+    private EventScoutData initScoutData(ScoutEntity scoutEntity) {
         return new EventScoutData()
                 .setEvent(scoutEntity.getEvent())
                 .setEntry(scoutEntity.getEntry())
                 .setScoutName(scoutEntity.getScoutName())
-                .setGkpInfo(this.qryPlayerInfoByElement(event, scoutEntity.getGkp()))
-                .setDefInfo(this.qryPlayerInfoByElement(event, scoutEntity.getDef()))
-                .setMidInfo(this.qryPlayerInfoByElement(event, scoutEntity.getMid()))
-                .setFwdInfo(this.qryPlayerInfoByElement(event, scoutEntity.getFwd()))
-                .setCaptainInfo(this.qryPlayerInfoByElement(event, scoutEntity.getCaptain()))
+                .setGkpInfo(this.qryPlayerInfoByElement(scoutEntity.getGkp()))
+                .setDefInfo(this.qryPlayerInfoByElement(scoutEntity.getDef()))
+                .setMidInfo(this.qryPlayerInfoByElement(scoutEntity.getMid()))
+                .setFwdInfo(this.qryPlayerInfoByElement(scoutEntity.getFwd()))
+                .setCaptainInfo(this.qryPlayerInfoByElement(scoutEntity.getCaptain()))
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(scoutEntity.getEventPoints())
                 .setTotalPoints(scoutEntity.getTotalPoints());

@@ -29,4 +29,9 @@ public interface IApiPlayer {
      */
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
+    /**
+     * 获取球员信息
+     */
+    PlayerInfoData qryPlayerInfoByElement(int element);
+
 }
