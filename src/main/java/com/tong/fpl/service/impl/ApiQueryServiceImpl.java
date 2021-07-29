@@ -726,12 +726,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
     }
 
-    //    @Cacheable(
-//            value = "api::qryPlayerSummaryByElement",
-//            key = "#element",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.element eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryPlayerSummaryByElement",
+            key = "#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.element eq 0"
+    )
     @Override
     public PlayerSummaryData qryPlayerSummaryByElement(int element) {
         PlayerEntity playerEntity = this.playerService.getById(element);
@@ -743,6 +743,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setCode(playerEntity.getCode())
                 .setPrice(NumberUtil.div(playerEntity.getPrice() * 1.0, 10))
                 .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                 .setWebName(playerEntity.getWebName())
                 .setTeamId(playerEntity.getTeamId())
                 .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))

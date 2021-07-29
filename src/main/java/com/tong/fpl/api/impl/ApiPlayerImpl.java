@@ -4,6 +4,7 @@ import com.tong.fpl.api.IApiPlayer;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,4 +43,9 @@ public class ApiPlayerImpl implements IApiPlayer {
         return this.apiQueryService.qryPlayerInfoByElement(element);
     }
 
+    @Override
+    public PlayerSummaryData qryPlayerSummaryByElement(int element) {
+        return this.apiQueryService.qryPlayerSummaryByElement(element);
+    }
+    
 }

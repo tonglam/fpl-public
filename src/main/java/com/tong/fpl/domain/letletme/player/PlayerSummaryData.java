@@ -16,6 +16,7 @@ public class PlayerSummaryData {
     private int code;
     private double price;
     private int elementType;
+    private String elementTypeName;
     private String webName;
     private int teamId;
     private String teamName;

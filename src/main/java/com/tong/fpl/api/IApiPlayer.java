@@ -3,6 +3,7 @@ package com.tong.fpl.api;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.LinkedHashMap;
@@ -33,5 +34,10 @@ public interface IApiPlayer {
      * 获取球员信息
      */
     PlayerInfoData qryPlayerInfoByElement(int element);
+
+    /**
+     * 获取球员数据
+     */
+    PlayerSummaryData qryPlayerSummaryByElement(int element);
 
 }

@@ -5,6 +5,7 @@ import com.tong.fpl.api.IApiPlayer;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,14 @@ public class PlayerApiController {
             return new PlayerInfoData();
         }
         return this.apiPlayer.qryPlayerInfoByElement(element);
+    }
+
+    @GetMapping("/qryPlayerSummaryByElement")
+    public PlayerSummaryData qryPlayerSummaryByElement(@RequestParam int element) {
+        if (element <= 0) {
+            return new PlayerSummaryData();
+        }
+        return this.apiPlayer.qryPlayerSummaryByElement(element);
     }
 
 }
