@@ -57,6 +57,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final PlayerService playerService;
     private final PlayerValueService playerValueService;
     private final EventFixtureService eventFixtureService;
+    private final EventLiveSummaryService eventLiveSummaryService;
     private final EventLiveService eventLiveService;
     private final EntryEventTransfersService entryEventTransfersService;
     private final EntryEventResultService entryEventResultService;
@@ -651,6 +652,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        Map<Integer, Integer> totalPointsMap = this.eventLiveSummaryService.list()
+                .stream()
+                .collect(Collectors.toMap(EventLiveSummaryEntity::getElement, EventLiveSummaryEntity::getTotalPoints));
         // init
         this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
                 .eq(PlayerEntity::getElementType, elementType))
@@ -661,7 +665,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             .setTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamId()), ""))
                             .setTeamShortName(
                                     teamShortNameMap.getOrDefault(String.valueOf(o.getTeamId()), ""))
-                            .setPrice(o.getPrice() / 10.0);
+                            .setPrice(o.getPrice() / 10.0)
+                            .setPoints(totalPointsMap.getOrDefault(o.getElement(), 0));
                     multimap.put(data.getTeamShortName(), data);
                 });
         // collect
