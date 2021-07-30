@@ -743,16 +743,20 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (playerEntity == null) {
             return new PlayerSummaryData();
         }
+        int event = this.queryService.getCurrentEvent();
+        EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
         return new PlayerSummaryData()
+                .setEvent(event)
                 .setElement(playerEntity.getElement())
                 .setCode(playerEntity.getCode())
-                .setPrice(NumberUtil.div(playerEntity.getPrice() * 1.0, 10))
+                .setPrice(playerEntity.getPrice() / 10.0)
                 .setElementType(playerEntity.getElementType())
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                 .setWebName(playerEntity.getWebName())
                 .setTeamId(playerEntity.getTeamId())
                 .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
                 .setTeamShortName(this.queryService.getTeamShortNameByTeam(playerEntity.getTeamId()))
+                .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
                 .setDetailData(this.queryService.qryPlayerDetailData(element))
                 .setFixtureList(this.queryService.qryPlayerFixtureList(playerEntity.getTeamId(), 2, 3))
                 .setHistoryList(this.queryService.qryHistorySeasonData(playerEntity.getCode()));
