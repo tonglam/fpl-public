@@ -49,7 +49,7 @@ public class QueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"16, 0, 5"})
+    @CsvSource({"16, -1, -1"})
     void qryPlayerFixtureList(int teamId, int previous, int next) {
         List<PlayerFixtureData> list = this.querySerivce.qryPlayerFixtureList(teamId, previous, next);
         System.out.println(1);

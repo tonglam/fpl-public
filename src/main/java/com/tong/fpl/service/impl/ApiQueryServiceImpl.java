@@ -758,7 +758,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamShortName(this.queryService.getTeamShortNameByTeam(playerEntity.getTeamId()))
                 .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
                 .setDetailData(this.queryService.qryPlayerDetailData(element))
-                .setFixtureList(this.queryService.qryPlayerFixtureList(playerEntity.getTeamId(), 2, 3))
+                .setFixtureList(this.queryService.qryPlayerFixtureList(playerEntity.getTeamId(), -1, -1))
                 .setHistoryList(this.queryService.qryHistorySeasonData(playerEntity.getCode()));
     }
 

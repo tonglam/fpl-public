@@ -180,8 +180,14 @@ public class QueryServiceImpl implements IQueryService {
         if (startEvent < 1) {
             startEvent = 1;
         }
+        if (previous == -1) {
+            startEvent = 1;
+        }
         int endEvent = currentEvent + next;
         if (endEvent > 38) {
+            endEvent = 38;
+        }
+        if (next == -1) {
             endEvent = 38;
         }
         // fixture
