@@ -44,8 +44,8 @@ public class ApiPlayerImpl implements IApiPlayer {
     }
 
     @Override
-    public PlayerSummaryData qryPlayerSummaryByElement(int element) {
-        return this.apiQueryService.qryPlayerSummaryByElement(element);
+    public PlayerSummaryData qryPlayerSummary(int element, String season) {
+        return this.apiQueryService.qryPlayerSummary(element, season);
     }
-    
+
 }

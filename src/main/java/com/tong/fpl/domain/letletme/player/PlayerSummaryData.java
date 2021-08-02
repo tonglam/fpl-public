@@ -25,6 +25,5 @@ public class PlayerSummaryData {
     private int eventPoints;
     private PlayerDetailData detailData;
     private List<PlayerFixtureData> fixtureList;
-    private List<PlayerDetailData> historyList;
 
 }

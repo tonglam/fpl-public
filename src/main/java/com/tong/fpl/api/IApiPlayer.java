@@ -38,6 +38,6 @@ public interface IApiPlayer {
     /**
      * 获取球员数据
      */
-    PlayerSummaryData qryPlayerSummaryByElement(int element);
+    PlayerSummaryData qryPlayerSummary(int element, String season);
 
 }

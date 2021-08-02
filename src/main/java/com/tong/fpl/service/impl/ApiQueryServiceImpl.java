@@ -8,6 +8,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
@@ -731,22 +732,47 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
     }
 
-    @Cacheable(
-            value = "api::qryPlayerSummaryByElement",
-            key = "#element",
-            cacheManager = "apiCacheManager",
-            unless = "#result.element eq 0"
-    )
+    //    @Cacheable(
+//            value = "api::qryPlayerSummary",
+//            key = "#element+'::'+#season",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.element eq 0"
+//    )
     @Override
-    public PlayerSummaryData qryPlayerSummaryByElement(int element) {
+    public PlayerSummaryData qryPlayerSummary(int element, String season) {
         PlayerEntity playerEntity = this.playerService.getById(element);
         if (playerEntity == null) {
             return new PlayerSummaryData();
         }
-        int event = this.queryService.getCurrentEvent();
-        EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
-        return new PlayerSummaryData()
-                .setEvent(event)
+        String current = CommonUtils.getCurrentSeason();
+        if (StringUtils.equals(current, season)) {
+            int event = this.queryService.getCurrentEvent();
+            EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
+            return new PlayerSummaryData()
+                    .setEvent(event)
+                    .setElement(playerEntity.getElement())
+                    .setCode(playerEntity.getCode())
+                    .setPrice(playerEntity.getPrice() / 10.0)
+                    .setElementType(playerEntity.getElementType())
+                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                    .setWebName(playerEntity.getWebName())
+                    .setTeamId(playerEntity.getTeamId())
+                    .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
+                    .setTeamShortName(this.queryService.getTeamShortNameByTeam(playerEntity.getTeamId()))
+                    .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
+                    .setDetailData(this.queryService.qryPlayerDetailData(element))
+                    .setFixtureList(this.queryService.qryPlayerFixtureList(playerEntity.getTeamId(), -1, -1));
+        }
+        PlayerSummaryData data = new PlayerSummaryData();
+        MybatisPlusConfig.season.set(season);
+        playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getCode, playerEntity.getCode()));
+        if (playerEntity == null) {
+            return data;
+        }
+
+        data
+                .setEvent(0)
                 .setElement(playerEntity.getElement())
                 .setCode(playerEntity.getCode())
                 .setPrice(playerEntity.getPrice() / 10.0)
@@ -754,12 +780,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                 .setWebName(playerEntity.getWebName())
                 .setTeamId(playerEntity.getTeamId())
-                .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
-                .setTeamShortName(this.queryService.getTeamShortNameByTeam(playerEntity.getTeamId()))
-                .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
-                .setDetailData(this.queryService.qryPlayerDetailData(element))
-                .setFixtureList(this.queryService.qryPlayerFixtureList(playerEntity.getTeamId(), -1, -1))
-                .setHistoryList(this.queryService.qryHistorySeasonData(playerEntity.getCode()));
+                .setEventPoints(0)
+                .setFixtureList(Lists.newArrayList());
+        TeamEntity teamEntity = this.teamService.getById(playerEntity.getTeamId());
+        if (teamEntity != null) {
+            data
+                    .setTeamName(teamEntity.getName())
+                    .setTeamShortName(teamEntity.getShortName());
+        }
+        MybatisPlusConfig.season.remove();
+        data.setDetailData(this.queryService.qryPlayerDetailData(season, element));
+        return data;
     }
 
     /**

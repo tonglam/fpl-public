@@ -60,12 +60,12 @@ public class PlayerApiController {
         return this.apiPlayer.qryPlayerInfoByElement(element);
     }
 
-    @GetMapping("/qryPlayerSummaryByElement")
-    public PlayerSummaryData qryPlayerSummaryByElement(@RequestParam int element) {
+    @GetMapping("/qryPlayerSummary")
+    public PlayerSummaryData qryPlayerSummary(@RequestParam int element, @RequestParam String season) {
         if (element <= 0) {
             return new PlayerSummaryData();
         }
-        return this.apiPlayer.qryPlayerSummaryByElement(element);
+        return this.apiPlayer.qryPlayerSummary(element, season);
     }
 
 }
