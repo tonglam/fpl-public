@@ -166,15 +166,20 @@ public class QueryServiceImpl implements IQueryService {
                 .setPrice(NumberUtil.div(playerEntity.getPrice().intValue(), 10, 2));
     }
 
-    @Cacheable(value = "qryPlayerFixtureList", key = "#teamId+'::'+#previous+'::'+#next", unless = "#result == null")
+    @Cacheable(value = "qryPlayerFixtureList", key = "#season+'::'+#teamId+'::'+#previous+'::'+#next", unless = "#result.size() eq 0")
     @Override
-    public List<PlayerFixtureData> qryPlayerFixtureList(int teamId, int previous, int next) {
+    public List<PlayerFixtureData> qryPlayerFixtureList(String season, int teamId, int previous, int next) {
+        MybatisPlusConfig.season.set(season);
         List<PlayerFixtureData> list = Lists.newArrayList();
         // prepare
-        int currentEvent = this.getCurrentEvent();
-        Map<String, String> teamNameMap = this.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.getTeamShortNameMap();
-        Map<String, List<PlayerFixtureData>> teamFixtureMap = this.getEventFixtureByTeamId(teamId);
+        String currentSeason = CommonUtils.getCurrentSeason();
+        int currentEvent = 38;
+        if (StringUtils.equals(currentSeason, season)) {
+            currentEvent = this.getCurrentEvent();
+        }
+        Map<String, String> teamNameMap = this.getTeamNameMap(season);
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap(season);
+        Map<String, List<PlayerFixtureData>> teamFixtureMap = this.getEventFixtureByTeamId(season, teamId);
         // calc event
         int startEvent = currentEvent - previous + 1;
         if (startEvent < 1) {
@@ -208,6 +213,7 @@ public class QueryServiceImpl implements IQueryService {
                         o.
                                 setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())))
                                 .setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())))
+                                .setKickoffTime(eventFixtureList.get(0).getKickoffTime())
                                 .setBgw(false)
                                 .setDgw(true);
                         list.add(o);
@@ -231,6 +237,7 @@ public class QueryServiceImpl implements IQueryService {
                 );
             }
         });
+        MybatisPlusConfig.season.remove();
         return list;
     }
 

@@ -169,9 +169,9 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"233, 2021"})
-    void qryPlayerSummary(int element, String season) {
-        PlayerSummaryData data = this.apiQueryService.qryPlayerSummary(element, season);
+    @CsvSource({"2021, 233"})
+    void qryPlayerSummary(String season, int element) {
+        PlayerSummaryData data = this.apiQueryService.qryPlayerSummary(season, element);
         System.out.println(1);
     }
 

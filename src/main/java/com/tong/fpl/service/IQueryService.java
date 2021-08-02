@@ -63,7 +63,11 @@ public interface IQueryService {
 
     PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity);
 
-    List<PlayerFixtureData> qryPlayerFixtureList(int teamId, int previous, int next);
+    default List<PlayerFixtureData> qryPlayerFixtureList(int teamId, int previous, int next) {
+        return this.qryPlayerFixtureList(CommonUtils.getCurrentSeason(), teamId, previous, next);
+    }
+
+    List<PlayerFixtureData> qryPlayerFixtureList(String season, int teamId, int previous, int next);
 
     default PlayerDetailData qryPlayerDetailData(int element) {
         return this.qryPlayerDetailData(CommonUtils.getCurrentSeason(), element);
@@ -157,18 +161,18 @@ public interface IQueryService {
     /**
      * @apiNote team
      */
-    default String getTeamShortNameByTeam(int teamId) {
-        return this.getTeamShortNameMap().getOrDefault(String.valueOf(teamId), "");
-    }
-
     default Map<String, String> getTeamNameMap() {
         return this.getTeamNameMap(CommonUtils.getCurrentSeason());
     }
 
     Map<String, String> getTeamNameMap(String season);
 
+    default String getTeamNameByTeam(String season, int teamId) {
+        return this.getTeamNameMap(season).getOrDefault(String.valueOf(teamId), "");
+    }
+
     default String getTeamNameByTeam(int teamId) {
-        return this.getTeamNameMap().getOrDefault(String.valueOf(teamId), "");
+        return this.getTeamNameByTeam(CommonUtils.getCurrentSeason(), teamId);
     }
 
     default Map<String, String> getTeamShortNameMap() {
@@ -176,6 +180,14 @@ public interface IQueryService {
     }
 
     Map<String, String> getTeamShortNameMap(String season);
+
+    default String getTeamShortNameByTeam(String season, int teamId) {
+        return this.getTeamShortNameMap(season).getOrDefault(String.valueOf(teamId), "");
+    }
+
+    default String getTeamShortNameByTeam(int teamId) {
+        return this.getTeamShortNameByTeam(CommonUtils.getCurrentSeason(), teamId);
+    }
 
     /**
      * @apiNote fixture

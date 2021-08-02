@@ -61,7 +61,7 @@ public interface IApiQueryService {
 
     PlayerInfoData qryPlayerInfoByElement(int element);
 
-    PlayerSummaryData qryPlayerSummary(int element, String season);
+    PlayerSummaryData qryPlayerSummary(String season, int element);
 
     /**
      * @apiNote team

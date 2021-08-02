@@ -732,36 +732,25 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
     }
 
-    //    @Cacheable(
-//            value = "api::qryPlayerSummary",
-//            key = "#element+'::'+#season",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.element eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryPlayerSummary",
+            key = "#season+'::'+#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.element eq 0"
+    )
     @Override
-    public PlayerSummaryData qryPlayerSummary(int element, String season) {
+    public PlayerSummaryData qryPlayerSummary(String season, int element) {
         PlayerEntity playerEntity = this.playerService.getById(element);
         if (playerEntity == null) {
             return new PlayerSummaryData();
         }
         String current = CommonUtils.getCurrentSeason();
+        int event = 0;
+        EventLiveEntity eventLiveEntity = null;
         if (StringUtils.equals(current, season)) {
-            int event = this.queryService.getCurrentEvent();
-            EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
-            return new PlayerSummaryData()
-                    .setEvent(event)
-                    .setElement(playerEntity.getElement())
-                    .setCode(playerEntity.getCode())
-                    .setPrice(playerEntity.getPrice() / 10.0)
-                    .setElementType(playerEntity.getElementType())
-                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                    .setWebName(playerEntity.getWebName())
-                    .setTeamId(playerEntity.getTeamId())
-                    .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
-                    .setTeamShortName(this.queryService.getTeamShortNameByTeam(playerEntity.getTeamId()))
-                    .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
-                    .setDetailData(this.queryService.qryPlayerDetailData(element))
-                    .setFixtureList(this.queryService.qryPlayerFixtureList(playerEntity.getTeamId(), -1, -1));
+            event = this.queryService.getCurrentEvent();
+            eventLiveEntity = this.queryService.qryEventLive(event, element);
+
         }
         PlayerSummaryData data = new PlayerSummaryData();
         MybatisPlusConfig.season.set(season);
@@ -770,9 +759,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (playerEntity == null) {
             return data;
         }
-
-        data
-                .setEvent(0)
+        MybatisPlusConfig.season.remove();
+        return new PlayerSummaryData()
+                .setEvent(event)
                 .setElement(playerEntity.getElement())
                 .setCode(playerEntity.getCode())
                 .setPrice(playerEntity.getPrice() / 10.0)
@@ -780,17 +769,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                 .setWebName(playerEntity.getWebName())
                 .setTeamId(playerEntity.getTeamId())
-                .setEventPoints(0)
-                .setFixtureList(Lists.newArrayList());
-        TeamEntity teamEntity = this.teamService.getById(playerEntity.getTeamId());
-        if (teamEntity != null) {
-            data
-                    .setTeamName(teamEntity.getName())
-                    .setTeamShortName(teamEntity.getShortName());
-        }
-        MybatisPlusConfig.season.remove();
-        data.setDetailData(this.queryService.qryPlayerDetailData(season, element));
-        return data;
+                .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
+                .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
+                .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
+                .setDetailData(this.queryService.qryPlayerDetailData(season, element))
+                .setFixtureList(this.queryService.qryPlayerFixtureList(season, playerEntity.getTeamId(), -1, -1));
     }
 
     /**
