@@ -4,7 +4,6 @@ import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ public interface IApiPlayer {
     /**
      * 获取球员详情
      */
-    PlayerDetailData qryPlayerDetailByElement(@RequestParam int element);
+    PlayerDetailData qryPlayerDetailByElement(int element);
 
     /**
      * 根据球队缩写获取赛程(team_short_name -> player_fixture)
@@ -33,7 +32,7 @@ public interface IApiPlayer {
     /**
      * 获取球员信息
      */
-    PlayerInfoData qryPlayerInfoByElement(int element);
+    PlayerInfoData qryPlayerInfo(String season, int element);
 
     /**
      * 获取球员数据

@@ -1,6 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.config.mp.MybatisPlusConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -137,7 +138,9 @@ public class EventDataTest extends FplApplicationTests {
 
     @Test
     void upsertEventLiveSummary() {
+        MybatisPlusConfig.season.set("1920");
         this.eventDataService.upsertEventLiveSummary();
+        MybatisPlusConfig.season.remove();
         System.out.println(1);
     }
 

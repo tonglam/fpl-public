@@ -707,18 +707,28 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Cacheable(
-            value = "api::qryPlayerInfoByElement",
-            key = "#element",
+            value = "api::qryPlayerInfo",
+            key = "#season+'::'+#element",
             cacheManager = "apiCacheManager",
             unless = "#result.element eq 0"
     )
     @Override
-    public PlayerInfoData qryPlayerInfoByElement(int element) {
+    public PlayerInfoData qryPlayerInfo(String season, int element) {
         PlayerEntity playerEntity = this.playerService.getById(element);
         if (playerEntity == null) {
             return new PlayerInfoData();
         }
-        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummary(element);
+        String current = CommonUtils.getCurrentSeason();
+        MybatisPlusConfig.season.set(season);
+        if (!StringUtils.equals(current, season)) {
+            playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                    .eq(PlayerEntity::getCode, playerEntity.getCode()));
+            if (playerEntity == null) {
+                return new PlayerInfoData();
+            }
+        }
+        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummary(season, playerEntity.getElement());
+        MybatisPlusConfig.season.remove();
         return new PlayerInfoData()
                 .setElement(playerEntity.getElement())
                 .setCode(playerEntity.getCode())
@@ -726,8 +736,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setElementType(playerEntity.getElementType())
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                 .setTeamId(playerEntity.getTeamId())
-                .setTeamName(this.queryService.getTeamNameByTeam(playerEntity.getTeamId()))
-                .setTeamShortName(this.queryService.getTeamShortNameByTeam(playerEntity.getTeamId()))
+                .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
+                .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
                 .setPrice(playerEntity.getPrice() / 10.0)
                 .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
     }
@@ -1524,15 +1534,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private EventScoutData initScoutData(ScoutEntity scoutEntity) {
+        String season = CommonUtils.getCurrentSeason();
         return new EventScoutData()
                 .setEvent(scoutEntity.getEvent())
                 .setEntry(scoutEntity.getEntry())
                 .setScoutName(scoutEntity.getScoutName())
-                .setGkpInfo(this.qryPlayerInfoByElement(scoutEntity.getGkp()))
-                .setDefInfo(this.qryPlayerInfoByElement(scoutEntity.getDef()))
-                .setMidInfo(this.qryPlayerInfoByElement(scoutEntity.getMid()))
-                .setFwdInfo(this.qryPlayerInfoByElement(scoutEntity.getFwd()))
-                .setCaptainInfo(this.qryPlayerInfoByElement(scoutEntity.getCaptain()))
+                .setGkpInfo(this.qryPlayerInfo(season, scoutEntity.getGkp()))
+                .setDefInfo(this.qryPlayerInfo(season, scoutEntity.getDef()))
+                .setMidInfo(this.qryPlayerInfo(season, scoutEntity.getMid()))
+                .setFwdInfo(this.qryPlayerInfo(season, scoutEntity.getFwd()))
+                .setCaptainInfo(this.qryPlayerInfo(season, scoutEntity.getCaptain()))
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(scoutEntity.getEventPoints())
                 .setTotalPoints(scoutEntity.getTotalPoints());

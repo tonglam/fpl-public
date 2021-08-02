@@ -186,22 +186,22 @@ public class DBTest extends FplApplicationTests {
                 .eq(LeagueEventReportEntity::getLeagueType, "Classic"))
                 .forEach(o -> {
                     int count = 0;
-                    count = verify(count, o.getPosition1());
-                    count = verify(count, o.getPosition2());
-                    count = verify(count, o.getPosition3());
-                    count = verify(count, o.getPosition4());
-                    count = verify(count, o.getPosition5());
-                    count = verify(count, o.getPosition6());
-                    count = verify(count, o.getPosition7());
-                    count = verify(count, o.getPosition8());
-                    count = verify(count, o.getPosition9());
-                    count = verify(count, o.getPosition10());
-                    count = verify(count, o.getPosition11());
+                    count = this.verify(count, o.getPosition1());
+                    count = this.verify(count, o.getPosition2());
+                    count = this.verify(count, o.getPosition3());
+                    count = this.verify(count, o.getPosition4());
+                    count = this.verify(count, o.getPosition5());
+                    count = this.verify(count, o.getPosition6());
+                    count = this.verify(count, o.getPosition7());
+                    count = this.verify(count, o.getPosition8());
+                    count = this.verify(count, o.getPosition9());
+                    count = this.verify(count, o.getPosition10());
+                    count = this.verify(count, o.getPosition11());
                     if (StringUtils.equals(Chip.BB.getValue(), o.getEventChip())) {
-                        count = verify(count, o.getPosition12());
-                        count = verify(count, o.getPosition13());
-                        count = verify(count, o.getPosition14());
-                        count = verify(count, o.getPosition15());
+                        count = this.verify(count, o.getPosition12());
+                        count = this.verify(count, o.getPosition13());
+                        count = this.verify(count, o.getPosition14());
+                        count = this.verify(count, o.getPosition15());
                     }
                     if (count >= 2) {
                         list.add(o);
@@ -236,21 +236,21 @@ public class DBTest extends FplApplicationTests {
                 .eq(LeagueEventReportEntity::getLeagueType, "Classic"))
                 .forEach(o -> {
                     int count = 0;
-                    count = zero(count, o.getPosition1(), eventLiveMap);
-                    count = zero(count, o.getPosition2(), eventLiveMap);
-                    count = zero(count, o.getPosition3(), eventLiveMap);
-                    count = zero(count, o.getPosition4(), eventLiveMap);
-                    count = zero(count, o.getPosition5(), eventLiveMap);
-                    count = zero(count, o.getPosition6(), eventLiveMap);
-                    count = zero(count, o.getPosition7(), eventLiveMap);
-                    count = zero(count, o.getPosition8(), eventLiveMap);
-                    count = zero(count, o.getPosition9(), eventLiveMap);
-                    count = zero(count, o.getPosition10(), eventLiveMap);
-                    count = zero(count, o.getPosition11(), eventLiveMap);
-                    count = zero(count, o.getPosition12(), eventLiveMap);
-                    count = zero(count, o.getPosition13(), eventLiveMap);
-                    count = zero(count, o.getPosition14(), eventLiveMap);
-                    count = zero(count, o.getPosition15(), eventLiveMap);
+                    count = this.zero(count, o.getPosition1(), eventLiveMap);
+                    count = this.zero(count, o.getPosition2(), eventLiveMap);
+                    count = this.zero(count, o.getPosition3(), eventLiveMap);
+                    count = this.zero(count, o.getPosition4(), eventLiveMap);
+                    count = this.zero(count, o.getPosition5(), eventLiveMap);
+                    count = this.zero(count, o.getPosition6(), eventLiveMap);
+                    count = this.zero(count, o.getPosition7(), eventLiveMap);
+                    count = this.zero(count, o.getPosition8(), eventLiveMap);
+                    count = this.zero(count, o.getPosition9(), eventLiveMap);
+                    count = this.zero(count, o.getPosition10(), eventLiveMap);
+                    count = this.zero(count, o.getPosition11(), eventLiveMap);
+                    count = this.zero(count, o.getPosition12(), eventLiveMap);
+                    count = this.zero(count, o.getPosition13(), eventLiveMap);
+                    count = this.zero(count, o.getPosition14(), eventLiveMap);
+                    count = this.zero(count, o.getPosition15(), eventLiveMap);
                     if (count >= 12) {
                         list.add(o);
                     }

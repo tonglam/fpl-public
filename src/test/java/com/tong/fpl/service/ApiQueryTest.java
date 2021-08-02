@@ -161,10 +161,9 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"302"})
-    void qryPlayerInfoByElement(int element) {
-        MybatisPlusConfig.season.set("2021");
-        PlayerInfoData data = this.apiQueryService.qryPlayerInfoByElement(element);
+    @CsvSource({"2021, 233"})
+    void qryPlayerInfo(String season, int element) {
+        PlayerInfoData data = this.apiQueryService.qryPlayerInfo(season, element);
         System.out.println(1);
     }
 

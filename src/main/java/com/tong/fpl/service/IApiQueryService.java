@@ -59,7 +59,7 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
-    PlayerInfoData qryPlayerInfoByElement(int element);
+    PlayerInfoData qryPlayerInfo(String season, int element);
 
     PlayerSummaryData qryPlayerSummary(String season, int element);
 

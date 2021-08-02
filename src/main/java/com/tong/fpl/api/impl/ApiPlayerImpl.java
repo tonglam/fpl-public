@@ -39,8 +39,8 @@ public class ApiPlayerImpl implements IApiPlayer {
     }
 
     @Override
-    public PlayerInfoData qryPlayerInfoByElement(int element) {
-        return this.apiQueryService.qryPlayerInfoByElement(element);
+    public PlayerInfoData qryPlayerInfo(String season, int element) {
+        return this.apiQueryService.qryPlayerInfo(season, element);
     }
 
     @Override
