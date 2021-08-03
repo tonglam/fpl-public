@@ -193,7 +193,11 @@ public class QueryServiceImpl implements IQueryService {
             endEvent = 38;
         }
         if (next == -1) {
-            endEvent = 38;
+            if (StringUtils.equals("1920", season)) {
+                endEvent = 47;
+            } else {
+                endEvent = 38;
+            }
         }
         // fixture
         IntStream.rangeClosed(startEvent, endEvent).forEach(event -> {
@@ -204,6 +208,7 @@ public class QueryServiceImpl implements IQueryService {
                         o.
                                 setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())))
                                 .setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())))
+                                .setKickoffTime(StringUtils.substringBefore(o.getKickoffTime(), " "))
                                 .setBgw(false)
                                 .setDgw(false);
                         list.add(o);
@@ -213,7 +218,7 @@ public class QueryServiceImpl implements IQueryService {
                         o.
                                 setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())))
                                 .setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())))
-                                .setKickoffTime(eventFixtureList.get(0).getKickoffTime())
+                                .setKickoffTime(StringUtils.substringBefore(o.getKickoffTime(), " "))
                                 .setBgw(false)
                                 .setDgw(true);
                         list.add(o);

@@ -55,7 +55,7 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1920"})
+    @CsvSource({"2021"})
     void insertHisEvent(String season) {
         this.redisCacheSerive.insertHisEvent(season);
     }
@@ -114,7 +114,7 @@ public class RedisCacheTest extends FplApplicationTests {
     void insertPlayerValue() {
         this.redisCacheSerive.insertPlayerValue();
     }
-    
+
     @ParameterizedTest
     @CsvSource({"1"})
     void insertEventLive(int event) {
