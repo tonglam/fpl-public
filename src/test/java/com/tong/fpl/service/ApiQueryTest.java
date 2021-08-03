@@ -139,7 +139,7 @@ public class ApiQueryTest extends FplApplicationTests {
      * @apiNote player
      */
     @ParameterizedTest
-    @CsvSource({"1"})
+    @CsvSource({"3"})
     void qryPlayerInfoListByElementType(int elementType) {
         LinkedHashMap<String, List<PlayerInfoData>> map = this.apiQueryService.qryPlayerInfoByElementType(elementType);
         System.out.println(1);

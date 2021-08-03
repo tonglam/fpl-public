@@ -1,6 +1,8 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
+import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 
 import java.util.List;
@@ -29,6 +31,16 @@ public interface IApiStat {
     /**
      * 根据联赛名称查询阵容选择结果
      */
-    LeagueEventSelectData qryTeamSelectByLeagueName(int event, String leagueName);
+    LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName);
+
+    /**
+     * 获取球员信息
+     */
+    PlayerInfoData qryPlayerInfo(String season, int code);
+
+    /**
+     * 获取球员数据
+     */
+    PlayerSummaryData qryPlayerSummary(String season, int code);
 
 }

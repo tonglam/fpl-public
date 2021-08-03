@@ -706,75 +706,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return this.queryService.getEventFixtureByTeamId(teamId);
     }
 
-    @Cacheable(
-            value = "api::qryPlayerInfo",
-            key = "#season+'::'+#code",
-            cacheManager = "apiCacheManager",
-            unless = "#result.element eq 0"
-    )
-    @Override
-    public PlayerInfoData qryPlayerInfo(String season, int code) {
-        MybatisPlusConfig.season.set(season);
-        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
-                .eq(PlayerEntity::getCode, code));
-        if (playerEntity == null) {
-            return new PlayerInfoData();
-        }
-        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummary(season, playerEntity.getElement());
-        MybatisPlusConfig.season.remove();
-        return new PlayerInfoData()
-                .setElement(playerEntity.getElement())
-                .setCode(playerEntity.getCode())
-                .setWebName(playerEntity.getWebName())
-                .setElementType(playerEntity.getElementType())
-                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setTeamId(playerEntity.getTeamId())
-                .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
-                .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
-                .setPrice(playerEntity.getPrice() / 10.0)
-                .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
-    }
-
-    @Cacheable(
-            value = "api::qryPlayerSummary",
-            key = "#season+'::'+#code",
-            cacheManager = "apiCacheManager",
-            unless = "#result.element eq 0"
-    )
-    @Override
-    public PlayerSummaryData qryPlayerSummary(String season, int code) {
-        MybatisPlusConfig.season.set(season);
-        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
-                .eq(PlayerEntity::getCode, code));
-        if (playerEntity == null) {
-            return new PlayerSummaryData();
-        }
-        int element = playerEntity.getElement();
-        String current = CommonUtils.getCurrentSeason();
-        int event = 0;
-        EventLiveEntity eventLiveEntity = null;
-        if (StringUtils.equals(current, season)) {
-            event = this.queryService.getCurrentEvent();
-            eventLiveEntity = this.queryService.qryEventLive(event, element);
-
-        }
-        MybatisPlusConfig.season.remove();
-        return new PlayerSummaryData()
-                .setEvent(event)
-                .setElement(playerEntity.getElement())
-                .setCode(playerEntity.getCode())
-                .setPrice(playerEntity.getPrice() / 10.0)
-                .setElementType(playerEntity.getElementType())
-                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setWebName(playerEntity.getWebName())
-                .setTeamId(playerEntity.getTeamId())
-                .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
-                .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
-                .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
-                .setDetailData(this.queryService.qryPlayerDetailData(season, element))
-                .setFixtureList(this.queryService.qryPlayerFixtureList(season, playerEntity.getTeamId(), -1, -1));
-    }
-
     /**
      * @apiNote team
      */
@@ -953,23 +884,28 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     @Cacheable(
             value = "api::qryAllLeagueName",
+            key = "#season",
             cacheManager = "apiCacheManager",
             unless = "#result.size() eq 0"
     )
     @Override
-    public List<String> qryAllLeagueName() {
-        int event = this.queryService.getCurrentEvent();
+    public List<String> qryAllLeagueName(String season) {
+        int event = 38;
+        String currentSeason = CommonUtils.getCurrentSeason();
+        if (StringUtils.equals(currentSeason, season)) {
+            event = this.queryService.getCurrentEvent();
+        }
         return this.leagueEventReportService.getBaseMapper().qryLeagueNameListByEvent(event);
     }
 
     @Cacheable(
             value = "api::qryLeagueEventEoWebNameMap",
-            key = "#event+'::'+#leagueId+'::'+#leagueType",
+            key = "#season+'::'+#event+'::'+#leagueId+'::'+#leagueType",
             cacheManager = "apiCacheManager",
             unless = "#result.size() eq 0"
     )
     @Override
-    public Map<String, String> qryLeagueEventEoWebNameMap(int event, int leagueId, String leagueType) {
+    public Map<String, String> qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType) {
         Map<String, String> map = Maps.newHashMap();
         // prepare
         Map<Integer, String> webNameMap = this.playerService.list()
@@ -1015,18 +951,18 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     @Cacheable(
             value = "api::qryTeamSelectByLeagueName",
-            key = "#event+'::'+#leagueName",
+            key = "#season+'::'+#event+'::'+#leagueName",
             cacheManager = "apiCacheManager",
             unless = "#result.captainSelect.size() eq 0"
     )
     @Override
-    public LeagueEventSelectData qryTeamSelectByLeagueName(int event, String leagueName) {
+    public LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName) {
         LeagueEventSelectData data = new LeagueEventSelectData()
                 .setEvent(event)
                 .setName(leagueName);
         // prepare
-        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap(season);
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap(season);
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
@@ -1039,7 +975,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return data;
         }
         // league_eo_map
-        Map<String, String> leagueEventEoMap = this.qryLeagueEventEoWebNameMap(event, leagueEventReportList.get(0).getLeagueId(), leagueEventReportList.get(0).getLeagueType());
+        Map<String, String> leagueEventEoMap = this.qryLeagueEventEoWebNameMap(season, event, leagueEventReportList.get(0).getLeagueId(), leagueEventReportList.get(0).getLeagueType());
         // most transfer in
         List<PlayerSelectData> mostTransferIn = this.getMostTransferIn(leagueName, event, leagueEventReportList, teamSize, playerMap, teamNameMap, teamShortNameMap);
         data.setMostTransferIn(mostTransferIn);
@@ -1391,6 +1327,75 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 return 3;
         }
         return 0;
+    }
+
+    @Cacheable(
+            value = "api::qryPlayerInfo",
+            key = "#season+'::'+#code",
+            cacheManager = "apiCacheManager",
+            unless = "#result.element eq 0"
+    )
+    @Override
+    public PlayerInfoData qryPlayerInfo(String season, int code) {
+        MybatisPlusConfig.season.set(season);
+        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getCode, code));
+        if (playerEntity == null) {
+            return new PlayerInfoData();
+        }
+        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummary(season, playerEntity.getElement());
+        MybatisPlusConfig.season.remove();
+        return new PlayerInfoData()
+                .setElement(playerEntity.getElement())
+                .setCode(playerEntity.getCode())
+                .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
+                .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
+                .setPrice(playerEntity.getPrice() / 10.0)
+                .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
+    }
+
+    @Cacheable(
+            value = "api::qryPlayerSummary",
+            key = "#season+'::'+#code",
+            cacheManager = "apiCacheManager",
+            unless = "#result.element eq 0"
+    )
+    @Override
+    public PlayerSummaryData qryPlayerSummary(String season, int code) {
+        MybatisPlusConfig.season.set(season);
+        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getCode, code));
+        if (playerEntity == null) {
+            return new PlayerSummaryData();
+        }
+        int element = playerEntity.getElement();
+        String current = CommonUtils.getCurrentSeason();
+        int event = 0;
+        EventLiveEntity eventLiveEntity = null;
+        if (StringUtils.equals(current, season)) {
+            event = this.queryService.getCurrentEvent();
+            eventLiveEntity = this.queryService.qryEventLive(event, element);
+
+        }
+        MybatisPlusConfig.season.remove();
+        return new PlayerSummaryData()
+                .setEvent(event)
+                .setElement(playerEntity.getElement())
+                .setCode(playerEntity.getCode())
+                .setPrice(playerEntity.getPrice() / 10.0)
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setWebName(playerEntity.getWebName())
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
+                .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
+                .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
+                .setDetailData(this.queryService.qryPlayerDetailData(season, element))
+                .setFixtureList(this.queryService.qryPlayerFixtureList(season, playerEntity.getTeamId(), -1, -1));
     }
 
     /**

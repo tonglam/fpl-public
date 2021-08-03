@@ -59,10 +59,6 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
-    PlayerInfoData qryPlayerInfo(String season, int code);
-
-    PlayerSummaryData qryPlayerSummary(String season, int code);
-
     /**
      * @apiNote team
      */
@@ -77,11 +73,15 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId);
 
-    List<String> qryAllLeagueName();
+    List<String> qryAllLeagueName(String season);
 
-    Map<String, String> qryLeagueEventEoWebNameMap(int event, int leagueId, String leagueType);
+    Map<String, String> qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType);
 
-    LeagueEventSelectData qryTeamSelectByLeagueName(int event, String leagueName);
+    LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName);
+
+    PlayerInfoData qryPlayerInfo(String season, int code);
+
+    PlayerSummaryData qryPlayerSummary(String season, int code);
 
     /**
      * @apiNote scout

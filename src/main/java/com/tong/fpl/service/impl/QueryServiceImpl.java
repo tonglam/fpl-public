@@ -227,6 +227,7 @@ public class QueryServiceImpl implements IQueryService {
                                 setAgainstTeamName(teamNameMap.get(String.valueOf(o.getAgainstTeamId())))
                                 .setAgainstTeamShortName(teamShortNameMap.get(String.valueOf(o.getAgainstTeamId())))
                                 .setKickoffTime(StringUtils.substringBefore(o.getKickoffTime(), " "))
+                                .setDifficulty(-1)
                                 .setBgw(false)
                                 .setDgw(true);
                         list.add(o);

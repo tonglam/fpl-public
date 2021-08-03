@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
+import com.tong.fpl.domain.letletme.player.PlayerInfoData;
+import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -54,11 +56,27 @@ public class StatApiController {
     }
 
     @GetMapping("/qryTeamSelectByLeagueName")
-    public LeagueEventSelectData qryTeamSelectByLeagueName(@RequestParam int event, @RequestParam String leagueName) {
+    public LeagueEventSelectData qryTeamSelectByLeagueName(@RequestParam String season, @RequestParam int event, @RequestParam String leagueName) {
         if (event <= 0 || StringUtils.isEmpty(leagueName)) {
             return new LeagueEventSelectData();
         }
-        return this.apiStat.qryTeamSelectByLeagueName(event, leagueName);
+        return this.apiStat.qryTeamSelectByLeagueName(season, event, leagueName);
+    }
+
+    @GetMapping("/qryPlayerInfo")
+    public PlayerInfoData qryPlayerInfo(@RequestParam String season, @RequestParam int code) {
+        if (code <= 0) {
+            return new PlayerInfoData();
+        }
+        return this.apiStat.qryPlayerInfo(season, code);
+    }
+
+    @GetMapping("/qryPlayerSummary")
+    public PlayerSummaryData qryPlayerSummary(@RequestParam String season, @RequestParam int code) {
+        if (code <= 0) {
+            return new PlayerSummaryData();
+        }
+        return this.apiStat.qryPlayerSummary(season, code);
     }
 
 }

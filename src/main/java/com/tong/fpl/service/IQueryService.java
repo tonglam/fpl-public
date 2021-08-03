@@ -177,10 +177,6 @@ public interface IQueryService {
         return this.getTeamNameMap(season).getOrDefault(String.valueOf(teamId), "");
     }
 
-    default String getTeamNameByTeam(int teamId) {
-        return this.getTeamNameByTeam(CommonUtils.getCurrentSeason(), teamId);
-    }
-
     default Map<String, String> getTeamShortNameMap() {
         return this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
     }
@@ -189,10 +185,6 @@ public interface IQueryService {
 
     default String getTeamShortNameByTeam(String season, int teamId) {
         return this.getTeamShortNameMap(season).getOrDefault(String.valueOf(teamId), "");
-    }
-
-    default String getTeamShortNameByTeam(int teamId) {
-        return this.getTeamShortNameByTeam(CommonUtils.getCurrentSeason(), teamId);
     }
 
     /**
@@ -232,10 +224,6 @@ public interface IQueryService {
     EventLiveEntity qryEventLive(String season, int event, int element);
 
     EventLiveSummaryEntity qryEventLiveSummary(String season, int element);
-
-    default EventLiveSummaryEntity qryEventLiveSummary(int element) {
-        return this.qryEventLiveSummary(CommonUtils.getCurrentSeason(), element);
-    }
 
     /**
      * @apiNote entry_event_result

@@ -3,7 +3,6 @@ package com.tong.fpl.api;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
-import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,15 +27,5 @@ public interface IApiPlayer {
      * 根据球队缩写获取赛程(team_short_name -> player_fixture)
      */
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
-
-    /**
-     * 获取球员信息
-     */
-    PlayerInfoData qryPlayerInfo(String season, int code);
-
-    /**
-     * 获取球员数据
-     */
-    PlayerSummaryData qryPlayerSummary(String season, int code);
 
 }
