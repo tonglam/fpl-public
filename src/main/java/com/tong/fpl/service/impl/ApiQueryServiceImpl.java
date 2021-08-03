@@ -708,24 +708,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     @Cacheable(
             value = "api::qryPlayerInfo",
-            key = "#season+'::'+#element",
+            key = "#season+'::'+#code",
             cacheManager = "apiCacheManager",
             unless = "#result.element eq 0"
     )
     @Override
-    public PlayerInfoData qryPlayerInfo(String season, int element) {
-        PlayerEntity playerEntity = this.playerService.getById(element);
+    public PlayerInfoData qryPlayerInfo(String season, int code) {
+        MybatisPlusConfig.season.set(season);
+        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getCode, code));
         if (playerEntity == null) {
             return new PlayerInfoData();
-        }
-        String current = CommonUtils.getCurrentSeason();
-        MybatisPlusConfig.season.set(season);
-        if (!StringUtils.equals(current, season)) {
-            playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
-                    .eq(PlayerEntity::getCode, playerEntity.getCode()));
-            if (playerEntity == null) {
-                return new PlayerInfoData();
-            }
         }
         EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummary(season, playerEntity.getElement());
         MybatisPlusConfig.season.remove();
@@ -744,16 +737,19 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     @Cacheable(
             value = "api::qryPlayerSummary",
-            key = "#season+'::'+#element",
+            key = "#season+'::'+#code",
             cacheManager = "apiCacheManager",
             unless = "#result.element eq 0"
     )
     @Override
-    public PlayerSummaryData qryPlayerSummary(String season, int element) {
-        PlayerEntity playerEntity = this.playerService.getById(element);
+    public PlayerSummaryData qryPlayerSummary(String season, int code) {
+        MybatisPlusConfig.season.set(season);
+        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getCode, code));
         if (playerEntity == null) {
             return new PlayerSummaryData();
         }
+        int element = playerEntity.getElement();
         String current = CommonUtils.getCurrentSeason();
         int event = 0;
         EventLiveEntity eventLiveEntity = null;
@@ -761,13 +757,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             event = this.queryService.getCurrentEvent();
             eventLiveEntity = this.queryService.qryEventLive(event, element);
 
-        }
-        PlayerSummaryData data = new PlayerSummaryData();
-        MybatisPlusConfig.season.set(season);
-        playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
-                .eq(PlayerEntity::getCode, playerEntity.getCode()));
-        if (playerEntity == null) {
-            return data;
         }
         MybatisPlusConfig.season.remove();
         return new PlayerSummaryData()
@@ -1539,11 +1528,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setEvent(scoutEntity.getEvent())
                 .setEntry(scoutEntity.getEntry())
                 .setScoutName(scoutEntity.getScoutName())
-                .setGkpInfo(this.qryPlayerInfo(season, scoutEntity.getGkp()))
-                .setDefInfo(this.qryPlayerInfo(season, scoutEntity.getDef()))
-                .setMidInfo(this.qryPlayerInfo(season, scoutEntity.getMid()))
-                .setFwdInfo(this.qryPlayerInfo(season, scoutEntity.getFwd()))
-                .setCaptainInfo(this.qryPlayerInfo(season, scoutEntity.getCaptain()))
+                .setGkpInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getGkp())))
+                .setDefInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getDef())))
+                .setMidInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getMid())))
+                .setFwdInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getFwd())))
+                .setCaptainInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getCaptain())))
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(scoutEntity.getEventPoints())
                 .setTotalPoints(scoutEntity.getTotalPoints());

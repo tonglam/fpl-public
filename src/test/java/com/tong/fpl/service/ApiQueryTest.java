@@ -161,16 +161,16 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2021, 233"})
-    void qryPlayerInfo(String season, int element) {
-        PlayerInfoData data = this.apiQueryService.qryPlayerInfo(season, element);
+    @CsvSource({"2021, 173515"})
+    void qryPlayerInfo(String season, int code) {
+        PlayerInfoData data = this.apiQueryService.qryPlayerInfo(season, code);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"2021, 233"})
-    void qryPlayerSummary(String season, int element) {
-        PlayerSummaryData data = this.apiQueryService.qryPlayerSummary(season, element);
+    @CsvSource({"2021, 173515"})
+    void qryPlayerSummary(String season, int code) {
+        PlayerSummaryData data = this.apiQueryService.qryPlayerSummary(season, code);
         System.out.println(1);
     }
 

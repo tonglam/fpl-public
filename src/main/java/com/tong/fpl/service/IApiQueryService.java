@@ -59,9 +59,9 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
-    PlayerInfoData qryPlayerInfo(String season, int element);
+    PlayerInfoData qryPlayerInfo(String season, int code);
 
-    PlayerSummaryData qryPlayerSummary(String season, int element);
+    PlayerSummaryData qryPlayerSummary(String season, int code);
 
     /**
      * @apiNote team

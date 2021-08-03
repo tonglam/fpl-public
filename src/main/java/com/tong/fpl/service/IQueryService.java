@@ -32,6 +32,12 @@ public interface IQueryService {
     /**
      * @apiNote player
      */
+    default int qryPlayerCodeByElement(int element) {
+        return this.qryPlayerCodeByElement(CommonUtils.getCurrentSeason(), element);
+    }
+
+    int qryPlayerCodeByElement(String season, int element);
+
     default int qryPlayerElementByCode(int code) {
         return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
     }

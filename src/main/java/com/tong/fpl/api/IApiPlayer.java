@@ -32,11 +32,11 @@ public interface IApiPlayer {
     /**
      * 获取球员信息
      */
-    PlayerInfoData qryPlayerInfo(String season, int element);
+    PlayerInfoData qryPlayerInfo(String season, int code);
 
     /**
      * 获取球员数据
      */
-    PlayerSummaryData qryPlayerSummary(String season, int element);
+    PlayerSummaryData qryPlayerSummary(String season, int code);
 
 }

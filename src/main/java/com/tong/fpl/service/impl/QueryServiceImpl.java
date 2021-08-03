@@ -85,10 +85,18 @@ public class QueryServiceImpl implements IQueryService {
      * @implNote player
      */
     @Override
+    public int qryPlayerCodeByElement(String season, int element) {
+        MybatisPlusConfig.season.set(season);
+        PlayerEntity playerEntity = this.playerService.getById(element);
+        MybatisPlusConfig.season.remove();
+        return playerEntity == null ? 0 : playerEntity.getCode();
+    }
+
+    @Override
     public int qryPlayerElementByCode(String season, int code) {
         MybatisPlusConfig.season.set(season);
-        PlayerEntity playerEntity = this.playerService
-                .getOne(new QueryWrapper<PlayerEntity>().lambda().eq(PlayerEntity::getCode, code));
+        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getCode, code));
         MybatisPlusConfig.season.remove();
         return playerEntity == null ? 0 : playerEntity.getElement();
     }
@@ -96,8 +104,8 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public int qryPlayerElementByWebName(String season, String webName) throws Exception {
         MybatisPlusConfig.season.set(season);
-        List<PlayerEntity> playerList = this.playerService
-                .list(new QueryWrapper<PlayerEntity>().lambda().eq(PlayerEntity::getWebName, webName));
+        List<PlayerEntity> playerList = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getWebName, webName));
         MybatisPlusConfig.season.remove();
         if (CollectionUtils.isEmpty(playerList)) {
             return 0;

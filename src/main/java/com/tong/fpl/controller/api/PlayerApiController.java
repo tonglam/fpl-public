@@ -53,19 +53,19 @@ public class PlayerApiController {
     }
 
     @GetMapping("/qryPlayerInfo")
-    public PlayerInfoData qryPlayerInfo(@RequestParam String season, @RequestParam int element) {
-        if (element <= 0) {
+    public PlayerInfoData qryPlayerInfo(@RequestParam String season, @RequestParam int code) {
+        if (code <= 0) {
             return new PlayerInfoData();
         }
-        return this.apiPlayer.qryPlayerInfo(season, element);
+        return this.apiPlayer.qryPlayerInfo(season, code);
     }
 
     @GetMapping("/qryPlayerSummary")
-    public PlayerSummaryData qryPlayerSummary(@RequestParam String season, @RequestParam int element) {
-        if (element <= 0) {
+    public PlayerSummaryData qryPlayerSummary(@RequestParam String season, @RequestParam int code) {
+        if (code <= 0) {
             return new PlayerSummaryData();
         }
-        return this.apiPlayer.qryPlayerSummary(season, element);
+        return this.apiPlayer.qryPlayerSummary(season, code);
     }
 
 }
