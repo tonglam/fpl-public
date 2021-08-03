@@ -2582,7 +2582,11 @@ public class QueryServiceImpl implements IQueryService {
     @Cacheable(value = "qryTeamSelectStatList")
     @Override
     public List<String> qryTeamSelectStatList() {
-        return this.leagueEventReportService.getBaseMapper().qryLeagueNameList();
+        return this.leagueEventReportService.list()
+                .stream()
+                .map(LeagueEventReportEntity::getLeagueName)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     @Cacheable(value = "qryLeagueEventEoMap", key = "#event+'::'+#leagueId+'::'+#leagueType")

@@ -895,7 +895,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (StringUtils.equals(currentSeason, season)) {
             event = this.queryService.getCurrentEvent();
         }
-        return this.leagueEventReportService.getBaseMapper().qryLeagueNameListByEvent(event);
+        MybatisPlusConfig.season.set(season);
+        List<String> list = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getEvent, event))
+                .stream()
+                .map(LeagueEventReportEntity::getLeagueName)
+                .distinct()
+                .collect(Collectors.toList());
+        MybatisPlusConfig.season.remove();
+        return list;
     }
 
     @Cacheable(

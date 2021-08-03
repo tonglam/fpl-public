@@ -57,6 +57,13 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"1920"})
+    void qryAllLeagueName(String season) {
+        List<String> list = this.apiQueryService.qryAllLeagueName(season);
+        System.out.println(1);
+    }
+
     /**
      * @apiNote entry
      */
@@ -199,26 +206,19 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @Test
-    void qryAllLeagueName() {
+    @ParameterizedTest
+    @CsvSource({"2021, 37, 3571, Classic"})
+    void qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType) {
         MybatisPlusConfig.season.set("2021");
-        List<String> list = this.apiQueryService.qryAllLeagueName();
+        Map<String, String> map = this.apiQueryService.qryLeagueEventEoWebNameMap(season, event, leagueId, leagueType);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"37, 3571, Classic"})
-    void qryLeagueEventEoWebNameMap(int event, int leagueId, String leagueType) {
+    @CsvSource({"2021, 1, 集合吧！FPL2021让让群小联赛"})
+    void qryTeamSelectByLeagueName(String season, int event, String leagueName) {
         MybatisPlusConfig.season.set("2021");
-        Map<String, String> map = this.apiQueryService.qryLeagueEventEoWebNameMap(event, leagueId, leagueType);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1, 集合吧！FPL2021让让群小联赛"})
-    void qryTeamSelectByLeagueName(int event, String leagueName) {
-        MybatisPlusConfig.season.set("2021");
-        LeagueEventSelectData data = this.apiQueryService.qryTeamSelectByLeagueName(event, leagueName);
+        LeagueEventSelectData data = this.apiQueryService.qryTeamSelectByLeagueName(season, event, leagueName);
         System.out.println(1);
     }
 
