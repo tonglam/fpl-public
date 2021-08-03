@@ -46,8 +46,8 @@ public class ApiCommonImpl implements IApiCommon {
     }
 
     @Override
-    public List<String> qryAllLeagueName() {
-        return this.apiQueryService.qryAllLeagueName();
+    public List<String> qryAllLeagueName(String season) {
+        return this.apiQueryService.qryAllLeagueName(season);
     }
 
     @Override

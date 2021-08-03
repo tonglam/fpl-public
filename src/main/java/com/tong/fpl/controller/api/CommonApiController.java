@@ -46,8 +46,8 @@ public class CommonApiController {
     }
 
     @GetMapping("/qryAllLeagueName")
-    public List<String> qryAllLeagueName() {
-        return this.apiCommon.qryAllLeagueName();
+    public List<String> qryAllLeagueName(String season) {
+        return this.apiCommon.qryAllLeagueName(season);
     }
 
     @GetMapping("/refreshPlayerValue")

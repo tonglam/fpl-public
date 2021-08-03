@@ -37,7 +37,7 @@ public interface IApiCommon {
     /**
      * 查询存储的所有联赛
      */
-    List<String> qryAllLeagueName();
+    List<String> qryAllLeagueName(String season);
 
     /**
      * 刷新player_value：
