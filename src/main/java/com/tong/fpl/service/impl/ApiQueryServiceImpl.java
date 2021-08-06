@@ -972,6 +972,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName) {
+        MybatisPlusConfig.season.set(season);
         LeagueEventSelectData data = new LeagueEventSelectData()
                 .setEvent(event)
                 .setName(leagueName);
@@ -1013,6 +1014,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setMostSelectTeamDef(mostSelectTeam.get(2))
                 .setMostSelectTeamMid(mostSelectTeam.get(3))
                 .setMostSelectTeamFwd(mostSelectTeam.get(4));
+        MybatisPlusConfig.season.remove();
         return data;
     }
 

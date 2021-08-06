@@ -202,9 +202,8 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2021, 1, 集合吧！FPL2021让让群小联赛"})
+    @CsvSource({"2021, 38, 集合吧！FPL2021让让群小联赛"})
     void qryTeamSelectByLeagueName(String season, int event, String leagueName) {
-        MybatisPlusConfig.season.set("2021");
         LeagueEventSelectData data = this.apiQueryService.qryTeamSelectByLeagueName(season, event, leagueName);
         System.out.println(1);
     }
