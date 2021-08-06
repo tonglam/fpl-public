@@ -12,6 +12,8 @@ public class PlayerDetailData {
 
     private int element;
     private String season;
+    private int event;
+    private int eventPoints;
     private String selectedByPercent;
     private int chanceOfPlayingNextRound;
     private int chanceOfPlayingThisRound;

@@ -266,6 +266,18 @@ public class QueryServiceImpl implements IQueryService {
             return playerDetailData;
         }
         BeanUtil.copyProperties(playerStatEntity, playerDetailData, CopyOptions.create().ignoreNullValue());
+        // event_live
+        MybatisPlusConfig.season.set(season);
+        int event = playerStatEntity.getEvent();
+        EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event)
+                .eq(EventLiveEntity::getElement, playerStatEntity.getElement()));
+        if (eventLiveEntity != null) {
+            playerDetailData
+                    .setEvent(event)
+                    .setEventPoints(eventLiveEntity.getTotalPoints());
+        }
+        MybatisPlusConfig.season.remove();
         return playerDetailData;
     }
 

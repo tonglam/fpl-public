@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,11 @@ public class ApiStatImpl implements IApiStat {
     @Override
     public PlayerSummaryData qryPlayerSummary(String season, int code) {
         return this.apiQueryService.qryPlayerSummary(season, code);
+    }
+
+    @Override
+    public TeamSummaryData qryTeamSummary(String season, String shortName) {
+        return this.apiQueryService.qryTeamSummary(season, shortName);
     }
 
 }

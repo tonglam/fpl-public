@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +78,11 @@ public class StatApiController {
             return new PlayerSummaryData();
         }
         return this.apiStat.qryPlayerSummary(season, code);
+    }
+
+    @GetMapping("/qryTeamSummary")
+    public TeamSummaryData qryTeamSummary(@RequestParam String season, @RequestParam String shortName) {
+        return this.apiStat.qryTeamSummary(season, shortName);
     }
 
 }

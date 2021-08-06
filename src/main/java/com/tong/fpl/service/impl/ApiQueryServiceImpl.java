@@ -21,6 +21,8 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
+import com.tong.fpl.domain.letletme.team.TeamDetailData;
+import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.IApiQueryService;
@@ -56,6 +58,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final IQueryService queryService;
     private final TeamService teamService;
     private final PlayerService playerService;
+    private final PlayerStatService playerStatService;
     private final PlayerValueService playerValueService;
     private final EventFixtureService eventFixtureService;
     private final EventLiveSummaryService eventLiveSummaryService;
@@ -667,6 +670,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             .setTeamShortName(
                                     teamShortNameMap.getOrDefault(String.valueOf(o.getTeamId()), ""))
                             .setPrice(o.getPrice() / 10.0)
+                            .setStartPrice(o.getStartPrice() / 10.0)
                             .setPoints(totalPointsMap.getOrDefault(o.getElement(), 0));
                     multimap.put(data.getTeamShortName(), data);
                 });
@@ -715,11 +719,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             unless = "#result.size() eq 0"
     )
     @Override
-    public List<TeamData> qryTeamList() {
-        return this.teamService.list()
+    public List<TeamData> qryTeamList(String season) {
+        MybatisPlusConfig.season.set(season);
+        List<TeamData> list = this.teamService.list()
                 .stream()
                 .map(o -> BeanUtil.copyProperties(o, TeamData.class))
                 .collect(Collectors.toList());
+        MybatisPlusConfig.season.remove();
+        return list;
     }
 
     /**
@@ -1363,6 +1370,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
                 .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
                 .setPrice(playerEntity.getPrice() / 10.0)
+                .setStartPrice(playerEntity.getStartPrice() / 10.0)
                 .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
     }
 
@@ -1380,18 +1388,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (playerEntity == null) {
             return new PlayerSummaryData();
         }
-        int element = playerEntity.getElement();
-        String current = CommonUtils.getCurrentSeason();
-        int event = 0;
-        EventLiveEntity eventLiveEntity = null;
-        if (StringUtils.equals(current, season)) {
-            event = this.queryService.getCurrentEvent();
-            eventLiveEntity = this.queryService.qryEventLive(event, element);
-
-        }
         MybatisPlusConfig.season.remove();
         return new PlayerSummaryData()
-                .setEvent(event)
                 .setElement(playerEntity.getElement())
                 .setCode(playerEntity.getCode())
                 .setPrice(playerEntity.getPrice() / 10.0)
@@ -1401,9 +1399,232 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamId(playerEntity.getTeamId())
                 .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
                 .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
-                .setEventPoints(eventLiveEntity == null ? 0 : eventLiveEntity.getTotalPoints())
-                .setDetailData(this.queryService.qryPlayerDetailData(season, element))
+                .setDetailData(this.queryService.qryPlayerDetailData(season, playerEntity.getElement()))
                 .setFixtureList(this.queryService.qryPlayerFixtureList(season, playerEntity.getTeamId(), -1, -1));
+    }
+
+    //    @Cacheable(
+//            value = "api::qryTeamSummary",
+//            key = "#season+'::'+#shortName",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.teamId eq 0"
+//    )
+    @Override
+    public TeamSummaryData qryTeamSummary(String season, String shortName) {
+        TeamSummaryData data = new TeamSummaryData();
+        MybatisPlusConfig.season.set(season);
+        TeamEntity teamEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
+                .eq(TeamEntity::getShortName, shortName));
+        if (teamEntity == null) {
+            return data;
+        }
+        int teamId = teamEntity.getId();
+        List<PlayerEntity> playerList = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getTeamId, teamId));
+        if (CollectionUtils.isEmpty(playerList)) {
+            return data;
+        }
+        MybatisPlusConfig.season.remove();
+        List<Integer> playerElementList = playerList
+                .stream()
+                .map(PlayerEntity::getElement)
+                .collect(Collectors.toList());
+        Map<Integer, String> webNameMap = playerList
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        data
+                .setTeamId(teamId)
+                .setSeason(season)
+                .setTeamName(teamEntity.getName())
+                .setTeamShortName(teamEntity.getShortName())
+                .setPlayerList(this.qryTeamPlayerDetailList(season, playerList))
+                .setFixtureList(this.queryService.qryPlayerFixtureList(season, teamId, -1, -1))
+                .setCornersAndIndirectFreekicksOrders(Lists.newArrayList())
+                .setDirectFreekicksOrders(Lists.newArrayList())
+                .setPenaltiesOrders(Lists.newArrayList());
+        if (StringUtils.equals(season, "2122")) {
+            int event = this.queryService.getCurrentEvent();
+            if (event <= 0) {
+                event = 1;
+            }
+            List<PlayerStatEntity> playerStatList = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                    .eq(PlayerStatEntity::getEvent, event)
+                    .in(PlayerStatEntity::getElement, playerElementList));
+            data
+                    .setCornersAndIndirectFreekicksOrders(
+                            playerStatList
+                                    .stream()
+                                    .filter(o -> o.getCornersAndIndirectFreekicksOrder() > 0)
+                                    .sorted(Comparator.comparing(PlayerStatEntity::getCornersAndIndirectFreekicksOrder))
+                                    .map(o -> webNameMap.getOrDefault(o.getElement(), ""))
+                                    .collect(Collectors.toList())
+                    )
+                    .setDirectFreekicksOrders(
+                            playerStatList
+                                    .stream()
+                                    .filter(o -> o.getDirectFreekicksOrder() > 0)
+                                    .sorted(Comparator.comparing(PlayerStatEntity::getDirectFreekicksOrder))
+                                    .map(o -> webNameMap.getOrDefault(o.getElement(), ""))
+                                    .collect(Collectors.toList())
+                    )
+                    .setPenaltiesOrders(
+                            playerStatList
+                                    .stream()
+                                    .filter(o -> o.getPenaltiesOrder() > 0)
+                                    .sorted(Comparator.comparing(PlayerStatEntity::getPenaltiesOrder))
+                                    .map(o -> webNameMap.getOrDefault(o.getElement(), ""))
+                                    .collect(Collectors.toList())
+                    );
+        }
+        List<PlayerDetailData> playerDetailDataList = data.getPlayerList()
+                .stream()
+                .map(PlayerSummaryData::getDetailData)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(playerDetailDataList)) {
+            return data;
+        }
+        List<PlayerFixtureData> fixtureList = data.getFixtureList();
+        if (CollectionUtils.isEmpty(fixtureList)) {
+            return data;
+        }
+        data.setDetailData(
+                new TeamDetailData()
+                        .setTeamId(data.getTeamId())
+                        .setSeason(data.getSeason())
+                        .setWin(
+                                (int) fixtureList
+                                        .stream()
+                                        .filter(o -> !o.isBgw() || o.isFinished())
+                                        .filter(o -> StringUtils.equalsIgnoreCase("W", o.getResult()))
+                                        .count()
+                        )
+                        .setLose(
+                                (int) fixtureList
+                                        .stream()
+                                        .filter(o -> !o.isBgw() || o.isFinished())
+                                        .filter(o -> StringUtils.equalsIgnoreCase("L", o.getResult()))
+                                        .count()
+                        )
+                        .setDraw(
+                                (int) fixtureList
+                                        .stream()
+                                        .filter(o -> !o.isBgw() || o.isFinished())
+                                        .filter(o -> StringUtils.equalsIgnoreCase("D", o.getResult()))
+                                        .count()
+                        )
+                        .setForm(this.getTeamForm(fixtureList))
+                        .setGoalsScored(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getGoalsScored)
+                                        .sum()
+                        )
+                        .setAssists(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getAssists)
+                                        .sum()
+                        )
+                        .setCleanSheets(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getCleanSheets)
+                                        .sum()
+                        )
+                        .setGoalsConceded(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getGoalsConceded)
+                                        .sum()
+                        )
+                        .setOwnGoals(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getOwnGoals)
+                                        .sum()
+                        )
+                        .setPenaltiesSaved(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getPenaltiesSaved)
+                                        .sum()
+                        )
+                        .setPenaltiesMissed(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getPenaltiesMissed)
+                                        .sum()
+                        )
+                        .setYellowCards(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getYellowCards)
+                                        .sum()
+                        )
+                        .setRedCards(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getRedCards)
+                                        .sum()
+                        )
+                        .setSaves(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getSaves)
+                                        .sum()
+                        )
+                        .setBonus(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getBonus)
+                                        .sum()
+                        )
+        );
+        return data;
+    }
+
+    private String getTeamForm(List<PlayerFixtureData> fixtureList) {
+        fixtureList = fixtureList
+                .stream()
+                .filter(o -> !o.isBgw() || o.isFinished())
+                .filter(o -> !StringUtils.isEmpty(o.getResult()))
+                .sorted(Comparator.comparing(PlayerFixtureData::getEvent))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(fixtureList)) {
+            return "";
+        }
+        if (fixtureList.size() > 5) {
+            fixtureList = fixtureList
+                    .stream()
+                    .sorted(Comparator.comparing(PlayerFixtureData::getEvent).reversed())
+                    .limit(5)
+                    .sorted(Comparator.comparing(PlayerFixtureData::getEvent))
+                    .collect(Collectors.toList());
+        }
+        StringBuilder builder = new StringBuilder();
+        for (PlayerFixtureData data :
+                fixtureList) {
+            builder.append(data.getResult()).append(",");
+        }
+        return builder.substring(0, builder.lastIndexOf(","));
+    }
+
+    private List<PlayerSummaryData> qryTeamPlayerDetailList(String season, List<PlayerEntity> playerList) {
+        return playerList
+                .stream()
+                .sorted(Comparator.comparing(PlayerEntity::getElementType)
+                        .thenComparing(PlayerEntity::getElement))
+                .map(o ->
+                        new PlayerSummaryData()
+                                .setElement(o.getElement())
+                                .setCode(o.getCode())
+                                .setPrice(o.getPrice() / 10.0)
+                                .setElementType(o.getElementType())
+                                .setElementTypeName(Position.getNameFromElementType(o.getElementType()))
+                                .setWebName(o.getWebName())
+                                .setDetailData(this.queryService.qryPlayerDetailData(season, o.getElement()))
+                )
+                .collect(Collectors.toList());
     }
 
     /**

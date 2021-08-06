@@ -12,6 +12,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
+import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
@@ -50,10 +51,10 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @Test
-    void qryTeamList() {
-        MybatisPlusConfig.season.set("2021");
-        List<TeamData> list = this.apiQueryService.qryTeamList();
+    @ParameterizedTest
+    @CsvSource({"2021"})
+    void qryTeamList(String season) {
+        List<TeamData> list = this.apiQueryService.qryTeamList(season);
         System.out.println(1);
     }
 
@@ -167,20 +168,6 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @ParameterizedTest
-    @CsvSource({"2021, 173515"})
-    void qryPlayerInfo(String season, int code) {
-        PlayerInfoData data = this.apiQueryService.qryPlayerInfo(season, code);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"2021, 173515"})
-    void qryPlayerSummary(String season, int code) {
-        PlayerSummaryData data = this.apiQueryService.qryPlayerSummary(season, code);
-        System.out.println(1);
-    }
-
     /**
      * @apiNote stat
      */
@@ -219,6 +206,27 @@ public class ApiQueryTest extends FplApplicationTests {
     void qryTeamSelectByLeagueName(String season, int event, String leagueName) {
         MybatisPlusConfig.season.set("2021");
         LeagueEventSelectData data = this.apiQueryService.qryTeamSelectByLeagueName(season, event, leagueName);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2021, 173515"})
+    void qryPlayerInfo(String season, int code) {
+        PlayerInfoData data = this.apiQueryService.qryPlayerInfo(season, code);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2021, 173515"})
+    void qryPlayerSummary(String season, int code) {
+        PlayerSummaryData data = this.apiQueryService.qryPlayerSummary(season, code);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2021, WBA"})
+    void qryTeamSummary(String season, String shorName) {
+        TeamSummaryData data = this.apiQueryService.qryTeamSummary(season, shorName);
         System.out.println(1);
     }
 

@@ -32,7 +32,7 @@ public interface IApiCommon {
     /**
      * 获取球队缩写列表
      */
-    List<TeamData> qryTeamList();
+    List<TeamData> qryTeamList(String season);
 
     /**
      * 查询存储的所有联赛

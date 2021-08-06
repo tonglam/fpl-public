@@ -41,8 +41,8 @@ public class ApiCommonImpl implements IApiCommon {
     }
 
     @Override
-    public List<TeamData> qryTeamList() {
-        return this.apiQueryService.qryTeamList();
+    public List<TeamData> qryTeamList(String season) {
+        return this.apiQueryService.qryTeamList(season);
     }
 
     @Override

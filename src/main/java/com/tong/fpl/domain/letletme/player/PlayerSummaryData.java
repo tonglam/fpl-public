@@ -12,7 +12,6 @@ import java.util.List;
 @Accessors(chain = true)
 public class PlayerSummaryData {
 
-    private int event;
     private int element;
     private int code;
     private double price;
@@ -22,7 +21,6 @@ public class PlayerSummaryData {
     private int teamId;
     private String teamName;
     private String teamShortName;
-    private int eventPoints;
     private PlayerDetailData detailData;
     private List<PlayerFixtureData> fixtureList;
 

@@ -232,7 +232,10 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                         .setStarted(o.getStarted())
                         .setFinished(o.getFinished())
                         .setWasHome(true)
+                        .setTeamScore(o.getTeamHScore())
+                        .setAgianstTeamScore(o.getTeamAScore())
                         .setScore(o.getTeamHScore() + "-" + o.getTeamAScore())
+                        .setResult(this.getTeamEventFixtureResult(o.getFinished(), o.getTeamHScore(), o.getTeamAScore()))
                 ));
         // away game
         fixtureList.stream()
@@ -248,7 +251,10 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                         .setStarted(o.getStarted())
                         .setFinished(o.getFinished())
                         .setWasHome(false)
+                        .setTeamScore(o.getTeamAScore())
+                        .setAgianstTeamScore(o.getTeamHScore())
                         .setScore(o.getTeamAScore() + "-" + o.getTeamHScore())
+                        .setResult(this.getTeamEventFixtureResult(o.getFinished(), o.getTeamAScore(), o.getTeamHScore()))
                 ));
         Map<String, Object> valueMap = Maps.newHashMap();
         eventFixtureMap.keySet().forEach(event -> {
@@ -259,6 +265,18 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         return valueMap;
     }
 
+    private String getTeamEventFixtureResult(boolean finished, int teamScore, int againstTeamScore) {
+        if (!finished) {
+            return "";
+        }
+        if (teamScore > againstTeamScore) {
+            return "W";
+        } else if (teamScore < againstTeamScore) {
+            return "L";
+        }
+        return "D";
+    }
+
     @Override
     public void insertHisEventFixture(String season) {
         MybatisPlusConfig.season.set(season);
@@ -267,8 +285,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         MybatisPlusConfig.season.remove();
         // set cache by event
         Map<String, Set<Object>> cacheMap = Maps.newHashMap();
-        eventFixtureMap.keySet().forEach(event ->
-                this.setEventFixtureCacheBySingleEvent(cacheMap, season, event, eventFixtureMap.get(event)));
+        eventFixtureMap.keySet().forEach(event -> this.setEventFixtureCacheBySingleEvent(cacheMap, season, event, eventFixtureMap.get(event)));
         // set cache by team
         this.insertEventFixtureCacheByTeam(season, eventFixtureMap.values());
         RedisUtils.pipelineSetCache(cacheMap, -1, null);

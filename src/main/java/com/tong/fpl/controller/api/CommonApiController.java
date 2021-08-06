@@ -41,8 +41,8 @@ public class CommonApiController {
     }
 
     @GetMapping("/qryTeamList")
-    public List<TeamData> qryTeamList() {
-        return this.apiCommon.qryTeamList();
+    public List<TeamData> qryTeamList(@RequestParam String season) {
+        return this.apiCommon.qryTeamList(season);
     }
 
     @GetMapping("/qryAllLeagueName")

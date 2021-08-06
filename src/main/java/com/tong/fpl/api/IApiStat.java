@@ -4,6 +4,7 @@ import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 
 import java.util.List;
 import java.util.Map;
@@ -42,5 +43,10 @@ public interface IApiStat {
      * 获取球员数据
      */
     PlayerSummaryData qryPlayerSummary(String season, int code);
+
+    /**
+     * 获取球队数据
+     */
+    TeamSummaryData qryTeamSummary(String season, String shortName);
 
 }

@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
+import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 
@@ -62,7 +63,7 @@ public interface IApiQueryService {
     /**
      * @apiNote team
      */
-    List<TeamData> qryTeamList();
+    List<TeamData> qryTeamList(String season);
 
     /**
      * @apiNote stat
@@ -82,6 +83,8 @@ public interface IApiQueryService {
     PlayerInfoData qryPlayerInfo(String season, int code);
 
     PlayerSummaryData qryPlayerSummary(String season, int code);
+
+    TeamSummaryData qryTeamSummary(String season, String shortName);
 
     /**
      * @apiNote scout
