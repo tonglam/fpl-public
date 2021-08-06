@@ -1405,18 +1405,18 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setFixtureList(this.queryService.qryPlayerFixtureList(season, playerEntity.getTeamId(), -1, -1));
     }
 
-    //    @Cacheable(
-//            value = "api::qryTeamSummary",
-//            key = "#season+'::'+#shortName",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.teamId eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryTeamSummary",
+            key = "#season+'::'+#name",
+            cacheManager = "apiCacheManager",
+            unless = "#result.teamId eq 0"
+    )
     @Override
-    public TeamSummaryData qryTeamSummary(String season, String shortName) {
+    public TeamSummaryData qryTeamSummary(String season, String name) {
         TeamSummaryData data = new TeamSummaryData();
         MybatisPlusConfig.season.set(season);
         TeamEntity teamEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
-                .eq(TeamEntity::getShortName, shortName));
+                .eq(TeamEntity::getName, name));
         if (teamEntity == null) {
             return data;
         }

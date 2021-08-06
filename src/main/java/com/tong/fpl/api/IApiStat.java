@@ -47,6 +47,6 @@ public interface IApiStat {
     /**
      * 获取球队数据
      */
-    TeamSummaryData qryTeamSummary(String season, String shortName);
+    TeamSummaryData qryTeamSummary(String season, String name);
 
 }

@@ -81,8 +81,8 @@ public class StatApiController {
     }
 
     @GetMapping("/qryTeamSummary")
-    public TeamSummaryData qryTeamSummary(@RequestParam String season, @RequestParam String shortName) {
-        return this.apiStat.qryTeamSummary(season, shortName);
+    public TeamSummaryData qryTeamSummary(@RequestParam String season, @RequestParam String name) {
+        return this.apiStat.qryTeamSummary(season, name);
     }
 
 }

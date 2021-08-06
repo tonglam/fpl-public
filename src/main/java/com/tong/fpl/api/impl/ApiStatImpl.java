@@ -54,8 +54,8 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
-    public TeamSummaryData qryTeamSummary(String season, String shortName) {
-        return this.apiQueryService.qryTeamSummary(season, shortName);
+    public TeamSummaryData qryTeamSummary(String season, String name) {
+        return this.apiQueryService.qryTeamSummary(season, name);
     }
 
 }

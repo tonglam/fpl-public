@@ -84,7 +84,7 @@ public interface IApiQueryService {
 
     PlayerSummaryData qryPlayerSummary(String season, int code);
 
-    TeamSummaryData qryTeamSummary(String season, String shortName);
+    TeamSummaryData qryTeamSummary(String season, String name);
 
     /**
      * @apiNote scout
