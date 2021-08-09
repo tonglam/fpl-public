@@ -106,6 +106,43 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return map;
     }
 
+    @Cacheable(
+            value = "api::qryNextFixture",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() == 0"
+    )
+    @Override
+    public List<PlayerFixtureData> qryNextFixture() {
+        int nextEvent = this.queryService.getNextEvent();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        return this.queryService.getEventFixtureByEvent(nextEvent)
+                .stream()
+                .map(o ->
+                        new PlayerFixtureData()
+                                .setEvent(nextEvent)
+                                .setTeamId(o.getTeamH())
+                                .setTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
+                                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamH()), ""))
+                                .setAgainstTeamId(o.getTeamA())
+                                .setAgainstTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
+                                .setAgainstTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
+                                .setDifficulty(0)
+                                .setKickoffTime(StringUtils.substringBefore(o.getKickoffTime(), " "))
+                                .setStarted(false)
+                                .setFinished(false)
+                                .setWasHome(false)
+                                .setTeamScore(0)
+                                .setAgianstTeamScore(0)
+                                .setScore("")
+                                .setResult("")
+                                .setBgw(false)
+                                .setDgw(false)
+                )
+                .sorted(Comparator.comparing(PlayerFixtureData::getKickoffTime))
+                .collect(Collectors.toList());
+    }
+
     /**
      * @implNote entry
      */

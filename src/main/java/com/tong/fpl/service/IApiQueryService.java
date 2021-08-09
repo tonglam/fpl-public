@@ -27,6 +27,8 @@ public interface IApiQueryService {
 
     Map<String, Integer> qryEventAverageScore();
 
+    List<PlayerFixtureData> qryNextFixture();
+
     /**
      * @apiNote entry
      */

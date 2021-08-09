@@ -1,10 +1,10 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiCommon;
+import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IRedisCacheService;
-import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,9 +52,12 @@ public class ApiCommonImpl implements IApiCommon {
 
     @Override
     public void refreshPlayerValue() {
-        this.redisCacheService.insertPlayer();
-        this.redisCacheService.insertPlayerStat();
-        this.redisCacheService.insertPlayerValue();
-        RedisUtils.removeCacheByKey("api::qryPlayerValueByDate");
+        // TODO: 2021/8/9 改为插入redis事件
     }
+
+    @Override
+    public List<PlayerFixtureData> qryNextFixture() {
+        return this.apiQueryService.qryNextFixture();
+    }
+
 }

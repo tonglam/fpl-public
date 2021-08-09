@@ -263,6 +263,7 @@ public class QueryServiceImpl implements IQueryService {
                 .setSeason(season);
         PlayerStatEntity playerStatEntity = this.getPlayerStatByElement(season, element);
         if (playerStatEntity == null) {
+            playerDetailData.setSelectedByPercent("0");
             return playerDetailData;
         }
         BeanUtil.copyProperties(playerStatEntity, playerDetailData, CopyOptions.create().ignoreNullValue());

@@ -65,6 +65,12 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
+    @Test
+    void qryNextFixture() {
+        List<PlayerFixtureData> list = this.apiQueryService.qryNextFixture();
+        System.out.println(1);
+    }
+
     /**
      * @apiNote entry
      */

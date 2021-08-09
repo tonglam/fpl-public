@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 
 import java.util.List;
@@ -47,5 +48,10 @@ public interface IApiCommon {
      * 4.cache
      */
     void refreshPlayerValue();
+
+    /**
+     * 获取下一比赛周赛程
+     */
+    List<PlayerFixtureData> qryNextFixture();
 
 }

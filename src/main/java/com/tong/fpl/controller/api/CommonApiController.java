@@ -1,6 +1,7 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiCommon;
+import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,11 @@ public class CommonApiController {
     @GetMapping("/refreshPlayerValue")
     public void refreshPlayerValue() {
         this.apiCommon.refreshPlayerValue();
+    }
+
+    @GetMapping("/qryNextFixture")
+    public List<PlayerFixtureData> qryNextFixture() {
+        return this.apiCommon.qryNextFixture();
     }
 
 }
