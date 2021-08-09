@@ -20,11 +20,10 @@ public class TeamDetailData {
     private int assists;
     private int cleanSheets;
     private int goalsConceded;
-    private int ownGoals;
-    private int penaltiesSaved;
-    private int penaltiesMissed;
     private int yellowCards;
     private int redCards;
+    private int penaltiesSaved;
+    private int penaltiesMissed;
     private int saves;
     private int bonus;
 

@@ -223,7 +223,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2021, WBA"})
+    @CsvSource({"2021, ARSENAL"})
     void qryTeamSummary(String season, String shorName) {
         TeamSummaryData data = this.apiQueryService.qryTeamSummary(season, shorName);
         System.out.println(1);

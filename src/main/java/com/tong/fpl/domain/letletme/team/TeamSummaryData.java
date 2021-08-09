@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2021/8/5
@@ -18,7 +19,7 @@ public class TeamSummaryData {
     private String season;
     private String teamName;
     private String teamShortName;
-    private List<PlayerSummaryData> playerList;
+    private Map<Integer, List<PlayerSummaryData>> playerMap;
     private List<PlayerFixtureData> fixtureList;
     private List<String> cornersAndIndirectFreekicksOrders;
     private List<String> directFreekicksOrders;

@@ -1439,7 +1439,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setSeason(season)
                 .setTeamName(teamEntity.getName())
                 .setTeamShortName(teamEntity.getShortName())
-                .setPlayerList(this.qryTeamPlayerDetailList(season, playerList))
+                .setPlayerMap(this.qryTeamPlayerDetailMap(playerList))
                 .setFixtureList(this.queryService.qryPlayerFixtureList(season, teamId, -1, -1))
                 .setCornersAndIndirectFreekicksOrders(Lists.newArrayList())
                 .setDirectFreekicksOrders(Lists.newArrayList())
@@ -1478,10 +1478,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                     .collect(Collectors.toList())
                     );
         }
-        List<PlayerDetailData> playerDetailDataList = data.getPlayerList()
-                .stream()
-                .map(PlayerSummaryData::getDetailData)
-                .collect(Collectors.toList());
+        List<PlayerDetailData> playerDetailDataList = Lists.newArrayList();
+        data.getPlayerMap().values().forEach(o -> o.forEach(i -> playerDetailDataList.add(i.getDetailData())));
         if (CollectionUtils.isEmpty(playerDetailDataList)) {
             return data;
         }
@@ -1539,10 +1537,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                         .mapToInt(PlayerDetailData::getGoalsConceded)
                                         .sum()
                         )
-                        .setOwnGoals(
+                        .setYellowCards(
                                 playerDetailDataList
                                         .stream()
-                                        .mapToInt(PlayerDetailData::getOwnGoals)
+                                        .mapToInt(PlayerDetailData::getYellowCards)
+                                        .sum()
+                        )
+                        .setRedCards(
+                                playerDetailDataList
+                                        .stream()
+                                        .mapToInt(PlayerDetailData::getRedCards)
                                         .sum()
                         )
                         .setPenaltiesSaved(
@@ -1555,18 +1559,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 playerDetailDataList
                                         .stream()
                                         .mapToInt(PlayerDetailData::getPenaltiesMissed)
-                                        .sum()
-                        )
-                        .setYellowCards(
-                                playerDetailDataList
-                                        .stream()
-                                        .mapToInt(PlayerDetailData::getYellowCards)
-                                        .sum()
-                        )
-                        .setRedCards(
-                                playerDetailDataList
-                                        .stream()
-                                        .mapToInt(PlayerDetailData::getRedCards)
                                         .sum()
                         )
                         .setSaves(
@@ -1611,12 +1603,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return builder.substring(0, builder.lastIndexOf(","));
     }
 
-    private List<PlayerSummaryData> qryTeamPlayerDetailList(String season, List<PlayerEntity> playerList) {
-        return playerList
+    private Map<Integer, List<PlayerSummaryData>> qryTeamPlayerDetailMap(List<PlayerEntity> playerList) {
+        Multimap<Integer, PlayerSummaryData> multimap = HashMultimap.create();
+        playerList
                 .stream()
                 .sorted(Comparator.comparing(PlayerEntity::getElementType)
                         .thenComparing(PlayerEntity::getElement))
-                .map(o ->
+                .forEach(o -> multimap.put(o.getElementType(),
                         new PlayerSummaryData()
                                 .setElement(o.getElement())
                                 .setCode(o.getCode())
@@ -1624,9 +1617,34 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .setElementType(o.getElementType())
                                 .setElementTypeName(Position.getNameFromElementType(o.getElementType()))
                                 .setWebName(o.getWebName())
-                                .setDetailData(this.queryService.qryPlayerDetailData(season, o.getElement()))
-                )
-                .collect(Collectors.toList());
+                                .setDetailData(this.queryService.qryPlayerDetailData(o.getElement()))
+                ));
+        Map<Integer, List<PlayerSummaryData>> map = Maps.newHashMap();
+        // gkp
+        map.put(1, multimap.get(1)
+                .stream()
+                .sorted(Comparator.comparing(PlayerSummaryData::getPrice))
+                .collect(Collectors.toList())
+        );
+        // def
+        map.put(2, multimap.get(2)
+                .stream()
+                .sorted(Comparator.comparing(PlayerSummaryData::getPrice).reversed())
+                .collect(Collectors.toList())
+        );
+        // mid
+        map.put(3, multimap.get(3)
+                .stream()
+                .sorted(Comparator.comparing(PlayerSummaryData::getPrice).reversed())
+                .collect(Collectors.toList())
+        );
+        // fwd
+        map.put(4, multimap.get(4)
+                .stream()
+                .sorted(Comparator.comparing(PlayerSummaryData::getPrice).reversed())
+                .collect(Collectors.toList())
+        );
+        return map;
     }
 
     /**
