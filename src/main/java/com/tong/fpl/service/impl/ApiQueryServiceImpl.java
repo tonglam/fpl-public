@@ -128,7 +128,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .setAgainstTeamName(teamNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
                                 .setAgainstTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamA()), ""))
                                 .setDifficulty(0)
-                                .setKickoffTime(StringUtils.substringBefore(o.getKickoffTime(), " "))
+                                .setKickoffTime(o.getKickoffTime())
                                 .setStarted(false)
                                 .setFinished(false)
                                 .setWasHome(false)
