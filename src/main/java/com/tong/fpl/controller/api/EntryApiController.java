@@ -49,7 +49,13 @@ public class EntryApiController {
     @GetMapping("/qryEntryEventResult")
     public EntryEventResultData qryEntryEventResult(@RequestParam int event, @RequestParam int entry) {
         if (event <= 0 || entry <= 0) {
-            return new EntryEventResultData();
+            return new EntryEventResultData()
+                    .setChip("")
+                    .setPlayedCaptain(0)
+                    .setCaptainName("")
+                    .setCaptainPoints(0)
+                    .setPicks(Lists.newArrayList())
+                    .setPickList(Lists.newArrayList());
         }
         return this.apiEntry.qryEntryEventResult(event, entry);
     }

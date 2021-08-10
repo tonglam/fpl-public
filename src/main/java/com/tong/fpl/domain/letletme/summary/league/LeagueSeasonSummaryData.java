@@ -14,8 +14,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class LeagueSeasonSummaryData {
 
-    private int leagueId;
-    private String leagueType;
+    private String leagueName;
     // overall points
     private List<EntrySeasonInfoData> topRank;
     private int entryOverallRank;

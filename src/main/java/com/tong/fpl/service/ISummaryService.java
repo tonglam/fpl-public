@@ -27,12 +27,12 @@ public interface ISummaryService {
     /**
      * @apiNote league
      */
-    LeagueSeasonInfoData qryLeagueSeasonInfo(int leagueId, String leagueType);
+    LeagueSeasonInfoData qryLeagueSeasonInfo(String leagueName);
 
-    LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType, int entry);
+    LeagueSeasonSummaryData qryLeagueSeasonSummary(String leagueName, int entry);
 
-    LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType, int entry);
+    LeagueSeasonCaptainData qryLeagueSeasonCaptain(String leagueName, int entry);
 
-    LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType, int entry);
+    LeagueSeasonScoreData qryLeagueSeasonScore(String leagueName, int entry);
 
 }

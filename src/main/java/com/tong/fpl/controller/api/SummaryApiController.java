@@ -71,35 +71,35 @@ public class SummaryApiController {
      * @implNote league
      */
     @GetMapping("/qryLeagueSeasonInfo")
-    public LeagueSeasonInfoData qryLeagueSeasonInfo(@RequestParam int leagueId, @RequestParam String leagueType) {
-        if (leagueId <= 0 || StringUtils.isEmpty(leagueType)) {
+    public LeagueSeasonInfoData qryLeagueSeasonInfo(@RequestParam String leagueName) {
+        if (StringUtils.isEmpty(leagueName)) {
             return new LeagueSeasonInfoData();
         }
-        return this.apiSummary.qryLeagueSeasonInfo(leagueId, leagueType);
+        return this.apiSummary.qryLeagueSeasonInfo(leagueName);
     }
 
     @GetMapping("/qryLeagueSeasonSummary")
-    public LeagueSeasonSummaryData qryLeagueSeasonSummary(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
-        if (leagueId <= 0 || StringUtils.isEmpty(leagueType)) {
+    public LeagueSeasonSummaryData qryLeagueSeasonSummary(@RequestParam String leagueName, @RequestParam int entry) {
+        if (StringUtils.isEmpty(leagueName) || entry <= 0) {
             return new LeagueSeasonSummaryData();
         }
-        return this.apiSummary.qryLeagueSeasonSummary(leagueId, leagueType, entry);
+        return this.apiSummary.qryLeagueSeasonSummary(leagueName, entry);
     }
 
     @GetMapping("/qryLeagueSeasonCaptain")
-    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
-        if (leagueId <= 0 || StringUtils.isEmpty(leagueType)) {
+    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(@RequestParam String leagueName, @RequestParam int entry) {
+        if (StringUtils.isEmpty(leagueName) || entry <= 0) {
             return new LeagueSeasonCaptainData();
         }
-        return this.apiSummary.qryLeagueSeasonCaptain(leagueId, leagueType, entry);
+        return this.apiSummary.qryLeagueSeasonCaptain(leagueName, entry);
     }
 
     @GetMapping("/qryLeagueSeasonScore")
-    public LeagueSeasonScoreData qryLeagueSeasonScore(@RequestParam int leagueId, @RequestParam String leagueType, @RequestParam int entry) {
-        if (leagueId <= 0 || StringUtils.isEmpty(leagueType)) {
+    public LeagueSeasonScoreData qryLeagueSeasonScore(@RequestParam String leagueName, @RequestParam int entry) {
+        if (StringUtils.isEmpty(leagueName) || entry <= 0) {
             return new LeagueSeasonScoreData();
         }
-        return this.apiSummary.qryLeagueSeasonScore(leagueId, leagueType, entry);
+        return this.apiSummary.qryLeagueSeasonScore(leagueName, entry);
     }
 
 }

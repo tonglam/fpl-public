@@ -869,17 +869,16 @@ public class SummaryServiceImpl implements ISummaryService {
      */
     @Cacheable(
             value = "api::qryLeagueSeasonInfo",
-            key = "#leagueId+'::'+#leagueType",
+            key = "#leagueName",
             cacheManager = "apiCacheManager",
-            unless = "#result.leagueId eq 0"
+            unless = "#result.leagueName == ''"
     )
     @Override
-    public LeagueSeasonInfoData qryLeagueSeasonInfo(int leagueId, String leagueType) {
+    public LeagueSeasonInfoData qryLeagueSeasonInfo(String leagueName) {
         LeagueSeasonInfoData data = new LeagueSeasonInfoData();
         // prepare
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
                 .orderByAsc(LeagueEventReportEntity::getEvent));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
@@ -904,9 +903,7 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         return data
-                .setLeagueId(leagueId)
-                .setLeagueType(leagueType)
-                .setLeagueName(leagueEventReportEntity.getLeagueName())
+                .setLeagueName(leagueName)
                 .setAverageOverallPoints(
                         NumberUtil.round(
                                 map.values()
@@ -1021,17 +1018,16 @@ public class SummaryServiceImpl implements ISummaryService {
 
     @Cacheable(
             value = "api::qryLeagueSeasonSummary",
-            key = "#leagueId+'::'+#leagueType+'::'+#entry",
+            key = "#leagueName+'::'+#entry",
             cacheManager = "apiCacheManager",
-            unless = "#result.leagueId eq 0"
+            unless = "#result.leagueName == ''"
     )
     @Override
-    public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType, int entry) {
+    public LeagueSeasonSummaryData qryLeagueSeasonSummary(String leagueName, int entry) {
         LeagueSeasonSummaryData data = new LeagueSeasonSummaryData();
         // prepare
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
                 .orderByAsc(LeagueEventReportEntity::getEvent));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
@@ -1047,9 +1043,7 @@ public class SummaryServiceImpl implements ISummaryService {
         if (CollectionUtils.isEmpty(map)) {
             return data;
         }
-        data
-                .setLeagueId(leagueId)
-                .setLeagueType(leagueType);
+        data.setLeagueName(leagueName);
         // overall points
         data.setTopRank(
                 map.values()
@@ -1252,18 +1246,17 @@ public class SummaryServiceImpl implements ISummaryService {
 
     @Cacheable(
             value = "api::qryLeagueSeasonCaptain",
-            key = "#leagueId+'::'+#leagueType+'::'+#entry",
+            key = "#leagueName+'::'+#entry",
             cacheManager = "apiCacheManager",
-            unless = "#result.leagueId eq 0"
+            unless = "#result.leagueName == ''"
     )
     @Override
-    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType, int entry) {
+    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(String leagueName, int entry) {
         LeagueSeasonCaptainData data = new LeagueSeasonCaptainData();
         // prepare
         Multimap<Integer, EntryEventCaptainData> map = HashMultimap.create();
         this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
                 .orderByAsc(LeagueEventReportEntity::getEvent))
                 .forEach(o -> {
@@ -1300,8 +1293,7 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         // collect
         data
-                .setLeagueId(leagueId)
-                .setLeagueType(leagueType)
+                .setLeagueName(leagueName)
                 .setTotalCaptainNum(
                         (int) map.values()
                                 .stream()
@@ -1614,18 +1606,17 @@ public class SummaryServiceImpl implements ISummaryService {
 
     @Cacheable(
             value = "api::qryLeagueSeasonScore",
-            key = "#leagueId+'::'+#leagueType+'::'+#entry",
+            key = "#leagueName+'::'+#entry",
             cacheManager = "apiCacheManager",
-            unless = "#result.leagueId eq 0"
+            unless = "#result.leagueName == ''"
     )
     @Override
-    public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType, int entry) {
+    public LeagueSeasonScoreData qryLeagueSeasonScore(String leagueName, int entry) {
         LeagueSeasonScoreData data = new LeagueSeasonScoreData();
         // prepare
         int current = this.queryService.getCurrentEvent();
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-                .eq(LeagueEventReportEntity::getLeagueType, leagueType)
+                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
                 .orderByAsc(LeagueEventReportEntity::getEvent));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
@@ -1710,8 +1701,7 @@ public class SummaryServiceImpl implements ISummaryService {
             entryPickTable.put(leagueEntry, event, map);
         });
         data
-                .setLeagueId(leagueEventReportEntityList.get(0).getLeagueId())
-                .setLeagueType(leagueEventReportEntityList.get(0).getLeagueType())
+                .setLeagueName(leagueName)
                 .setTotalOverallPoints(
                         leagueEventReportEntityList
                                 .stream()

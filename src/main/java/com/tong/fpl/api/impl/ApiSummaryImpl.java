@@ -52,23 +52,23 @@ public class ApiSummaryImpl implements IApiSummary {
      * @implNote league
      */
     @Override
-    public LeagueSeasonInfoData qryLeagueSeasonInfo(int leagueId, String leagueType) {
-        return this.summaryService.qryLeagueSeasonInfo(leagueId, leagueType);
+    public LeagueSeasonInfoData qryLeagueSeasonInfo(String leagueName) {
+        return this.summaryService.qryLeagueSeasonInfo(leagueName);
     }
 
     @Override
-    public LeagueSeasonSummaryData qryLeagueSeasonSummary(int leagueId, String leagueType, int entry) {
-        return this.summaryService.qryLeagueSeasonSummary(leagueId, leagueType, entry);
+    public LeagueSeasonSummaryData qryLeagueSeasonSummary(String leagueName, int entry) {
+        return this.summaryService.qryLeagueSeasonSummary(leagueName, entry);
     }
 
     @Override
-    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(int leagueId, String leagueType, int entry) {
-        return this.summaryService.qryLeagueSeasonCaptain(leagueId, leagueType, entry);
+    public LeagueSeasonCaptainData qryLeagueSeasonCaptain(String leagueName, int entry) {
+        return this.summaryService.qryLeagueSeasonCaptain(leagueName, entry);
     }
 
     @Override
-    public LeagueSeasonScoreData qryLeagueSeasonScore(int leagueId, String leagueType, int entry) {
-        return this.summaryService.qryLeagueSeasonScore(leagueId, leagueType, entry);
+    public LeagueSeasonScoreData qryLeagueSeasonScore(String leagueName, int entry) {
+        return this.summaryService.qryLeagueSeasonScore(leagueName, entry);
     }
 
 }

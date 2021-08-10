@@ -14,8 +14,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class LeagueSeasonScoreData {
 
-    private int leagueId;
-    private String leagueType;
+    private String leagueName;
     private int totalOverallPoints;
     private double averageOverallPoints;
     // gkp

@@ -22,52 +22,37 @@ public class SummaryTest extends FplApplicationTests {
      * @apiNote entry
      */
     @ParameterizedTest
-    @CsvSource({"1870"})
+    @CsvSource({"1713"})
     void qryEntrySeasonInfo(int entry) {
-        long start = System.currentTimeMillis();
         EntrySeasonInfoData data = this.summaryService.qryEntrySeasonInfo(entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"1870"})
+    @CsvSource({"1713"})
     void qryEntrySeasonSummary(int entry) {
-        long start = System.currentTimeMillis();
         EntrySeasonSummaryData data = this.summaryService.qryEntrySeasonSummary(entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"1870"})
+    @CsvSource({"1713"})
     void qryEntrySeasonCaptain(int entry) {
-        long start = System.currentTimeMillis();
         EntrySeasonCaptainData data = this.summaryService.qryEntrySeasonCaptain(entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"1870"})
+    @CsvSource({"1713"})
     void qryEntrySeasonTransfers(int entry) {
-        long start = System.currentTimeMillis();
         EntrySeasonTransfersData data = this.summaryService.qryEntrySeasonTransfers(entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"1870"})
+    @CsvSource({"1713"})
     void qryEntrySeasonScore(int entry) {
-        long start = System.currentTimeMillis();
         EntrySeasonScoreData data = this.summaryService.qryEntrySeasonScore(entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
         System.out.println(1);
     }
 
@@ -75,42 +60,30 @@ public class SummaryTest extends FplApplicationTests {
      * @apiNote league
      */
     @ParameterizedTest
-    @CsvSource({"3571, Classic"})
-    void qryLeagueSeasonInfo(int leagueId, String leagueType) {
-        long start = System.currentTimeMillis();
-        LeagueSeasonInfoData data = this.summaryService.qryLeagueSeasonInfo(leagueId, leagueType);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
+    @CsvSource({"集合吧！FPL2021让让群小联赛"})
+    void qryLeagueSeasonInfo(String leagueName) {
+        LeagueSeasonInfoData data = this.summaryService.qryLeagueSeasonInfo(leagueName);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"3571, Classic, 1870"})
-    void qryLeagueSeasonSummary(int leagueId, String leagueType, int entry) {
-        long start = System.currentTimeMillis();
-        LeagueSeasonSummaryData data = this.summaryService.qryLeagueSeasonSummary(leagueId, leagueType, entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
+    @CsvSource({"集合吧！FPL2021让让群小联赛, 1870"})
+    void qryLeagueSeasonSummary(String leagueName, int entry) {
+        LeagueSeasonSummaryData data = this.summaryService.qryLeagueSeasonSummary(leagueName, entry);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"3571, Classic, 1870"})
-    void qryLeagueSeasonCaptain(int leagueId, String leagueType, int entry) {
-        long start = System.currentTimeMillis();
-        LeagueSeasonCaptainData data = this.summaryService.qryLeagueSeasonCaptain(leagueId, leagueType, entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
+    @CsvSource({"集合吧！FPL2021让让群小联赛, 1870"})
+    void qryLeagueSeasonCaptain(String leagueName, int entry) {
+        LeagueSeasonCaptainData data = this.summaryService.qryLeagueSeasonCaptain(leagueName, entry);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"3571, Classic, 1870"})
-    void qryLeagueSeasonScore(int leagueId, String leagueType, int entry) {
-        long start = System.currentTimeMillis();
-        LeagueSeasonScoreData data = this.summaryService.qryLeagueSeasonScore(leagueId, leagueType, entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
+    @CsvSource({"集合吧！FPL2021让让群小联赛, 1870"})
+    void qryLeagueSeasonScore(String leagueName, int entry) {
+        LeagueSeasonScoreData data = this.summaryService.qryLeagueSeasonScore(leagueName, entry);
         System.out.println(1);
     }
 

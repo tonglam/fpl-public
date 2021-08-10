@@ -14,8 +14,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class LeagueSeasonCaptainData {
 
-    private int leagueId;
-    private String leagueType;
+    private String leagueName;
     private int totalCaptainNum; // 队长总数
     private double averageCaptainNum; // 平均队长数量
     private int totalCaptainPoints;  // 队长总得分

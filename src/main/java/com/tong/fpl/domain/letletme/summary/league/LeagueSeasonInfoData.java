@@ -10,8 +10,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class LeagueSeasonInfoData {
 
-    private int leagueId;
-    private String leagueType;
     private String leagueName;
     private double averageOverallPoints;
     private double topAverageOverallPoints;
