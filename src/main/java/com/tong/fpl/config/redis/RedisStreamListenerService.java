@@ -28,8 +28,8 @@ public class RedisStreamListenerService implements StreamListener<String, MapRec
         // 消息的key和value
         Map<String, String> body = message.getValue();
         log.info("stream message。messageId={}, stream={}, body={}", recordId, message.getStream(), body);
-//        // 通过RedisTemplate手动确认消息
-//        this.stringRedisTemplate.opsForStream().acknowledge("fpl", message);
+        // 通过RedisTemplate手动确认消息
+        this.stringRedisTemplate.opsForStream().acknowledge("fpl", message);
 //
 //        RedisExpirationKey redisExpirationKey = RedisExpirationKey.getExpirationKey(StringUtils.substringAfter(message.getStream(), "Stream::"));
 //        if (redisExpirationKey == null) {

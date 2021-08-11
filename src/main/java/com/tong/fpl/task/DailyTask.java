@@ -26,6 +26,7 @@ public class DailyTask {
     @Scheduled(cron = "0 40 6 * * *")
     public void insertEventFixture() {
         this.redisCacheService.insertEventFixture();
+        this.redisCacheService.insertEventAfterDeadlineCache(this.redisCacheService.getCurrentEvent());
     }
 
     @Scheduled(cron = "0 25-35 9 * * *")

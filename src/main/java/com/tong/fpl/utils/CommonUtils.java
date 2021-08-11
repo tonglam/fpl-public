@@ -38,7 +38,7 @@ public class CommonUtils {
         return "GW" + gw;
     }
 
-    public static String getLocalZoneDate(String time) {
+    public static String getLocalZoneDateTime(String time) {
         ZoneId zoneId = ZonedDateTime.now().getZone();
         return LocalDateTime.ofInstant(Instant.parse(time), zoneId).atZone(zoneId).format(DateTimeFormatter.ofPattern(Constant.DATETIME));
     }
