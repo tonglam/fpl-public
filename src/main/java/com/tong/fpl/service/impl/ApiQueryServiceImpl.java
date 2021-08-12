@@ -1726,7 +1726,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (scoutEntity == null) {
             return -1;
         }
-        return Math.min(scoutEntity.getLeftTransfers() + 1, 4);
+        int leftTransfers = scoutEntity.getLeftTransfers();
+        if (leftTransfers == -1) {
+            leftTransfers = 0;
+        }
+        return Math.min(leftTransfers + 1, 4);
     }
 
     @Cacheable(
