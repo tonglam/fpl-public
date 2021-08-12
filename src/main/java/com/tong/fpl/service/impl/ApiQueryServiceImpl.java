@@ -1712,9 +1712,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private int calcEventScoutLeftTransfers(int entry, int event) {
-        if (event <= 0 || event > 38) {
-            return 0;
-        } else if (event == 1) {
+        if (event <= 0 || event > 38 || event == 1) {
             return -1;
         }
         ScoutEntity scoutEntity = this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
