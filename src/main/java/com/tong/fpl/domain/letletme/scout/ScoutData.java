@@ -36,17 +36,18 @@ public class ScoutData {
     private int midPoints;
     private int fwd;
     private String fwdName;
-  private int fwdTeamId;
-  private String fwdTeamShortName;
-  private double fwdPrice;
-  private int fwdPoints;
-  private int captain;
-  private String captainName;
-  private int captainTeamId;
-  private String captainTeamShortName;
-  private int captainPoints;
-  private double captainPrice;
-  private String reason;
-  private int eventPoints;
-  private int totalPoints;
+    private int fwdTeamId;
+    private String fwdTeamShortName;
+    private double fwdPrice;
+    private int fwdPoints;
+    private int captain;
+    private String captainName;
+    private int captainTeamId;
+    private String captainTeamShortName;
+    private int captainPoints;
+    private double captainPrice;
+    private String reason;
+    private int eventPoints;
+    private int totalPoints;
+
 }

@@ -55,8 +55,8 @@ public class GroupServiceImpl implements IGroupService {
                     .setEvent(scoutData.getEvent())
                     .setEntry(scoutData.getEntry())
                     .setScoutName(scoutData.getScoutName())
-                    .setTransfers(0)
-                    .setLeftTransfers(0)
+                    .setTransfers(scoutData.getTransfers())
+                    .setLeftTransfers(scoutData.getLeftTransfers())
                     .setGkp(scoutData.getGkp())
                     .setGkpPoints(0)
                     .setDef(scoutData.getDef())
@@ -78,6 +78,9 @@ public class GroupServiceImpl implements IGroupService {
                     .setCaptainTeamId(elementTeamMap.getOrDefault(scoutData.getCaptain(), 0));
             this.scoutService.save(scoutEntity);
         } else {
+            scoutEntity
+                    .setTransfers(scoutData.getTransfers())
+                    .setLeftTransfers(scoutData.getLeftTransfers());
             if (scoutData.getGkp() > 0) {
                 scoutEntity
                         .setGkp(scoutData.getGkp())
@@ -113,14 +116,14 @@ public class GroupServiceImpl implements IGroupService {
         List<ScoutEntity> list = Lists.newArrayList();
         Multimap<Integer, ScoutEntity> entryPointsMap = HashMultimap.create();
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                .lt(ScoutEntity::getEvent, event))
+                        .lt(ScoutEntity::getEvent, event))
                 .forEach(o -> entryPointsMap.put(o.getEntry(), o));
         Map<Integer, Integer> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                .eq(ScoutEntity::getEvent, event))
+                        .eq(ScoutEntity::getEvent, event))
                 .forEach(o -> {
                     o
                             .setGkpPoints(eventLiveMap.getOrDefault(o.getGkp(), 0))
