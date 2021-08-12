@@ -55,8 +55,8 @@ public class GroupServiceImpl implements IGroupService {
                     .setEvent(scoutData.getEvent())
                     .setEntry(scoutData.getEntry())
                     .setScoutName(scoutData.getScoutName())
-                    .setTransfers(scoutData.getTransfers())
-                    .setLeftTransfers(scoutData.getLeftTransfers())
+                    .setTransfers(0)
+                    .setLeftTransfers(-1)
                     .setGkp(scoutData.getGkp())
                     .setGkpPoints(0)
                     .setDef(scoutData.getDef())
@@ -79,8 +79,8 @@ public class GroupServiceImpl implements IGroupService {
             this.scoutService.save(scoutEntity);
         } else {
             scoutEntity
-                    .setTransfers(scoutData.getTransfers())
-                    .setLeftTransfers(scoutData.getLeftTransfers());
+                    .setTransfers(0)
+                    .setLeftTransfers(-1);
             if (scoutData.getGkp() > 0) {
                 scoutEntity
                         .setGkp(scoutData.getGkp())
