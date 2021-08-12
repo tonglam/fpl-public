@@ -15,6 +15,8 @@ public class EventScoutData {
     private int event;
     private int entry;
     private String scoutName;
+    private int transfers;
+    private int leftTransfers;
     private PlayerInfoData gkpInfo;
     private PlayerInfoData defInfo;
     private PlayerInfoData midInfo;
@@ -23,4 +25,5 @@ public class EventScoutData {
     private String reason;
     private int eventPoints;
     private int totalPoints;
+
 }

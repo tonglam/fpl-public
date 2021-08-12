@@ -55,6 +55,8 @@ public class GroupServiceImpl implements IGroupService {
                     .setEvent(scoutData.getEvent())
                     .setEntry(scoutData.getEntry())
                     .setScoutName(scoutData.getScoutName())
+                    .setTransfers(0)
+                    .setLeftTransfers(0)
                     .setGkp(scoutData.getGkp())
                     .setGkpPoints(0)
                     .setDef(scoutData.getDef())
