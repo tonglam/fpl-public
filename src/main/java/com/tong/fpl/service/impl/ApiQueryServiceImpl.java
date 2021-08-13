@@ -941,7 +941,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .forEach(teamId -> {
                     List<PlayerFixtureData> fixtureList = Lists.newArrayList();
                     this.queryService.getEventFixtureByTeamId(teamId).values().forEach(fixtureList::addAll);
-                    fixtureList.forEach(o -> list.add(Lists.newArrayList(o.getTeamId() - 1, o.getEvent() - 1, o.getDifficulty())));
+                    fixtureList.forEach(o -> list.add(Lists.newArrayList(o.getEvent() - 1, o.getTeamId() - 1, o.getDifficulty())));
                 });
         return list;
     }
