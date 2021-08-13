@@ -1767,7 +1767,12 @@ public class QueryServiceImpl implements IQueryService {
     /**
      * @implNote league
      */
-    @Cacheable(value = "qryCountTournamentLeagueTeams")
+    @Cacheable(
+            value = "qryCountTournamentLeagueTeams",
+            key = "#url",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public int qryCountTournamentLeagueTeams(String url) {
         int event = this.getCurrentEvent();

@@ -76,6 +76,8 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId);
 
+    LinkedHashMap<String, List<PlayerFixtureData>> qrySeasonFixture();
+
     List<String> qryAllLeagueName(String season);
 
     Map<String, String> qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType);

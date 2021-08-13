@@ -927,6 +927,35 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Cacheable(
+            value = "api::qrySeasonFixture",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public LinkedHashMap<String, List<PlayerFixtureData>> qrySeasonFixture() {
+        LinkedHashMap<String, List<PlayerFixtureData>> map = Maps.newLinkedHashMap();
+        // prepare
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        // fixture
+        teamShortNameMap.keySet()
+                .stream()
+                .mapToInt(Integer::parseInt)
+                .sorted()
+                .forEach(teamId -> {
+                    String teamShortName = teamShortNameMap.get(String.valueOf(teamId));
+                    List<PlayerFixtureData> fixtureList = Lists.newArrayList();
+                    this.queryService.getEventFixtureByTeamId(teamId).values().forEach(fixtureList::addAll);
+                    fixtureList = fixtureList
+                            .stream()
+                            .sorted(Comparator.comparing(PlayerFixtureData::getEvent)
+                                    .thenComparing(PlayerFixtureData::getKickoffTime))
+                            .collect(Collectors.toList());
+                    map.put(teamShortName, fixtureList);
+                });
+        return map;
+    }
+
+    @Cacheable(
             value = "api::qryAllLeagueName",
             key = "#season",
             cacheManager = "apiCacheManager",

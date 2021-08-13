@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
+import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +64,11 @@ public class StatApiController {
             return new LeagueEventSelectData();
         }
         return this.apiStat.qryTeamSelectByLeagueName(season, event, leagueName);
+    }
+
+    @GetMapping("/qrySeasonFixture")
+    public LinkedHashMap<String, List<PlayerFixtureData>> qrySeasonFixture() {
+        return this.apiStat.qrySeasonFixture();
     }
 
     @GetMapping("/qryPlayerInfo")

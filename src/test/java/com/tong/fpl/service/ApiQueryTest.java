@@ -199,6 +199,12 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
+    @Test
+    void qrySeasonFixture() {
+        LinkedHashMap<String, List<PlayerFixtureData>> map = this.apiQueryService.qrySeasonFixture();
+        System.out.println(1);
+    }
+
     @ParameterizedTest
     @CsvSource({"2021, 37, 3571, Classic"})
     void qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType) {
