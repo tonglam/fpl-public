@@ -29,6 +29,107 @@ public class StaticServiceImpl implements IStaticService {
     private final IInterfaceService interfaceService;
 
     @Override
+    public List<EntryInfoData> getNewEntryInfoListFromClassic(int classicId) {
+        return this.getOnePageNewEntryListFromClassic(new LeagueInfoData(), classicId, 1, 0).getEntryInfoList();
+    }
+
+    @Override
+    public List<EntryInfoData> getNewEntryInfoListFromH2h(int h2hId) {
+        return this.getOnePageNewEntryListFromH2h(new LeagueInfoData(), h2hId, 1, 0).getEntryInfoList();
+    }
+
+    private LeagueInfoData getOnePageNewEntryListFromClassic(LeagueInfoData leagueInfoData, int classicId, int page, int endPage) {
+        Optional<LeagueClassicRes> resResult = this.interfaceService.getNewLeaguesClassic(classicId, page);
+        if (resResult.isPresent()) {
+            LeagueClassicRes leagueClassicRes = resResult.get();
+            if (page == 1) {
+                // league info
+                ClassicInfo classicInfo = leagueClassicRes.getLeague();
+                leagueInfoData
+                        .setId(classicInfo.getId())
+                        .setType(LeagueType.Classic.name())
+                        .setName(classicInfo.getName())
+                        .setCreated(classicInfo.getCreated())
+                        .setAdminEntry(classicInfo.getAdminEntry())
+                        .setStartEvent(classicInfo.getStartEvent());
+            }
+            if (!CollectionUtils.isEmpty(leagueClassicRes.getNewEntries().getResults())) {
+                List<EntryInfoData> list = Lists.newArrayList();
+                leagueClassicRes.getNewEntries().getResults().forEach(o ->
+                        list.add(
+                                new EntryInfoData()
+                                        .setEntry(o.getEntry())
+                                        .setEntryName(o.getEntryName())
+                                        .setPlayerName(o.getPlayerName())
+                        )
+                );
+                // set entry info list
+                if (CollectionUtils.isEmpty(leagueInfoData.getEntryInfoList())) {
+                    leagueInfoData.setEntryInfoList(list);
+                } else {
+                    List<EntryInfoData> entryInfoDataList = leagueInfoData.getEntryInfoList();
+                    entryInfoDataList.addAll(list);
+                    leagueInfoData.setEntryInfoList(entryInfoDataList);
+                }
+            }
+            if (leagueClassicRes.getNewEntries().isHasNext()) {
+                page++;
+                if (endPage > 0 && page > endPage) {
+                    return leagueInfoData;
+                }
+                this.getOnePageNewEntryListFromClassic(leagueInfoData, classicId, page, endPage);
+            }
+        }
+        return leagueInfoData;
+    }
+
+    private LeagueInfoData getOnePageNewEntryListFromH2h(LeagueInfoData leagueInfoData, int h2hId, int page, int endPage) {
+        Optional<LeagueH2hRes> resResult = this.interfaceService.getNewLeagueH2H(h2hId, page);
+        if (resResult.isPresent()) {
+            LeagueH2hRes leagueH2hRes = resResult.get();
+            if (page == 1) {
+                // league info
+                H2hInfo h2hInfo = leagueH2hRes.getLeague();
+                leagueInfoData
+                        .setId(h2hInfo.getId())
+                        .setType(LeagueType.H2h.name())
+                        .setName(h2hInfo.getName())
+                        .setCreated(h2hInfo.getCreated())
+                        .setAdminEntry(h2hInfo.getAdminEntry())
+                        .setStartEvent(h2hInfo.getStartEvent())
+                        .setEntryInfoList(Lists.newArrayList());
+            }
+            if (!CollectionUtils.isEmpty(leagueH2hRes.getNewEntries().getResults())) {
+                List<EntryInfoData> list = Lists.newArrayList();
+                leagueH2hRes.getNewEntries().getResults().forEach(o ->
+                        list.add(
+                                new EntryInfoData()
+                                        .setEntry(o.getEntry())
+                                        .setEntryName(o.getEntryName())
+                                        .setPlayerName(o.getPlayerName())
+                        )
+                );
+                // set entry info list
+                if (CollectionUtils.isEmpty(leagueInfoData.getEntryInfoList())) {
+                    leagueInfoData.setEntryInfoList(list);
+                } else {
+                    List<EntryInfoData> entryInfoDataList = leagueInfoData.getEntryInfoList();
+                    entryInfoDataList.addAll(list);
+                    leagueInfoData.setEntryInfoList(entryInfoDataList);
+                }
+                if (leagueH2hRes.getNewEntries().isHasNext()) {
+                    page++;
+                    if (endPage > 0 && page > endPage) {
+                        return leagueInfoData;
+                    }
+                    this.getOnePageNewEntryListFromH2h(leagueInfoData, h2hId, page, endPage);
+                }
+            }
+        }
+        return leagueInfoData;
+    }
+
+    @Override
     public List<EntryInfoData> getEntryInfoListFromClassic(int classicId) {
         return this.getOnePageEntryListFromClassic(new LeagueInfoData(), classicId, 1, 0).getEntryInfoList();
     }
@@ -75,10 +176,12 @@ public class StaticServiceImpl implements IStaticService {
             if (!CollectionUtils.isEmpty(leagueClassicRes.getStandings().getResults())) {
                 List<EntryInfoData> list = Lists.newArrayList();
                 leagueClassicRes.getStandings().getResults().forEach(o ->
-                        list.add(new EntryInfoData()
-                                .setEntry(o.getEntry())
-                                .setEntryName(o.getEntryName())
-                                .setPlayerName(o.getPlayerName()))
+                        list.add(
+                                new EntryInfoData()
+                                        .setEntry(o.getEntry())
+                                        .setEntryName(o.getEntryName())
+                                        .setPlayerName(o.getPlayerName())
+                        )
                 );
                 // set entry info list
                 if (CollectionUtils.isEmpty(leagueInfoData.getEntryInfoList())) {
@@ -119,10 +222,12 @@ public class StaticServiceImpl implements IStaticService {
             if (!CollectionUtils.isEmpty(leagueH2hRes.getStandings().getResults())) {
                 List<EntryInfoData> list = Lists.newArrayList();
                 leagueH2hRes.getStandings().getResults().forEach(o ->
-                        list.add(new EntryInfoData()
-                                .setEntry(o.getEntry())
-                                .setEntryName(o.getEntryName())
-                                .setPlayerName(o.getPlayerName()))
+                        list.add(
+                                new EntryInfoData()
+                                        .setEntry(o.getEntry())
+                                        .setEntryName(o.getEntryName())
+                                        .setPlayerName(o.getPlayerName())
+                        )
                 );
                 // set entry info list
                 if (CollectionUtils.isEmpty(leagueInfoData.getEntryInfoList())) {

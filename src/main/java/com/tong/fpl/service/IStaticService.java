@@ -12,6 +12,10 @@ import java.util.Optional;
  */
 public interface IStaticService {
 
+    List<EntryInfoData> getNewEntryInfoListFromClassic(int classicId);
+
+    List<EntryInfoData> getNewEntryInfoListFromH2h(int h2hId);
+
     List<EntryInfoData> getEntryInfoListFromClassic(int classicId);
 
     List<EntryInfoData> getEntryInfoListFromH2h(int h2hId);

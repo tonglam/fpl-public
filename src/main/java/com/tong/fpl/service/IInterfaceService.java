@@ -12,24 +12,28 @@ import java.util.Optional;
  */
 public interface IInterfaceService {
 
-	Optional<EntryRes> getEntry(int entry);
+    Optional<EntryRes> getEntry(int entry);
 
-	Optional<EntryCupRes> getEntryCup(int entry);
+    Optional<EntryCupRes> getEntryCup(int entry);
 
-	Optional<UserPicksRes> getUserPicks(int event, int entry);
+    Optional<UserPicksRes> getUserPicks(int event, int entry);
 
-	Optional<UserHistoryRes> getUserHistory(int entry);
+    Optional<UserHistoryRes> getUserHistory(int entry);
 
-	Optional<LeagueClassicRes> getLeaguesClassic(int classicId, int page);
+    Optional<LeagueClassicRes> getNewLeaguesClassic(int classicId, int page);
 
-	Optional<LeagueH2hRes> getLeagueH2H(int h2hId, int page);
+    Optional<LeagueH2hRes> getNewLeagueH2H(int h2hId, int page);
 
-	Optional<EventLiveRes> getEventLive(int event);
+    Optional<LeagueClassicRes> getLeaguesClassic(int classicId, int page);
 
-	Optional<List<EventFixturesRes>> getEventFixture(int event);
+    Optional<LeagueH2hRes> getLeagueH2H(int h2hId, int page);
 
-	Optional<StaticRes> getBootstrapStatic();
+    Optional<EventLiveRes> getEventLive(int event);
 
-	Optional<List<TransferRes>> getTransfer(int entry);
+    Optional<List<EventFixturesRes>> getEventFixture(int event);
+
+    Optional<StaticRes> getBootstrapStatic();
+
+    Optional<List<TransferRes>> getTransfer(int entry);
 
 }

@@ -21,6 +21,8 @@ public class Constant {
     public static final String USER_PICKS = PREFIX + "entry/%s/event/%s/picks/";
     public static final String LEAGUES_CLASSIC = PREFIX + "leagues-classic/%s/standings/?page_standings=%s";
     public static final String LEAGUES_H2H = PREFIX + "leagues-h2h/%s/standings/?page_standings=%s";
+    public static final String LEAGUES_CLASSIC_NEW = PREFIX + "leagues-classic/%s/standings/?page_new_entries=%s";
+    public static final String LEAGUES_H2H_NEW = PREFIX + "leagues-h2h/%s/standings/?page_new_entries=%s";
     public static final String EVENT_LIVE = PREFIX + "event/%s/live/";
     public static final String EVENT_FIXTURES = PREFIX + "fixtures/?event=%s";
     public static final String ELEMENT = PREFIX + "element-summary/%s/";

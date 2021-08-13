@@ -84,8 +84,8 @@ public class ApiQueryTest extends FplApplicationTests {
     @Test
     void fuzzyQueryEntry() {
         EntryQueryParam param = new EntryQueryParam()
-                .setEntryName("")
-                .setPlayerName("让让群");
+                .setEntryName("杀猪会")
+                .setPlayerName("");
         List<EntryInfoData> list = this.apiQueryService.fuzzyQueryEntry(param);
         System.out.println(1);
     }

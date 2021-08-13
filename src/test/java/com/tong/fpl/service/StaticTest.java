@@ -24,12 +24,23 @@ public class StaticTest extends FplApplicationTests {
     private IStaticService staticSerive;
 
     @ParameterizedTest
-    @CsvSource({"3571"})
+    @CsvSource({"1353"})
+    void getNewEntryInfoListFromClassic(int classicId) {
+        List<EntryInfoData> list = this.staticSerive.getNewEntryInfoListFromClassic(classicId);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"748496"})
+    void getNewEntryInfoListFromH2h(int h2hId) {
+        List<EntryInfoData> list = this.staticSerive.getNewEntryInfoListFromH2h(h2hId);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1353"})
     void getEntryInfoListFromClassic(int classicId) {
-        long startTime = System.currentTimeMillis();
         List<EntryInfoData> list = this.staticSerive.getEntryInfoListFromClassic(classicId);
-        long endTime = System.currentTimeMillis();
-        System.out.println(endTime - startTime);
         System.out.println(1);
     }
 

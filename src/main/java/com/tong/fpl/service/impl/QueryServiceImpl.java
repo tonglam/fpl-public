@@ -1770,12 +1770,15 @@ public class QueryServiceImpl implements IQueryService {
     @Cacheable(value = "qryCountTournamentLeagueTeams")
     @Override
     public int qryCountTournamentLeagueTeams(String url) {
+        int event = this.getCurrentEvent();
+        if (event == 0) {
+            return url.contains("/standings/c") ?
+                    this.staticService.getNewEntryInfoListFromClassic(CommonUtils.getLeagueIdByType(url, LeagueType.Classic.name())).size()
+                    : this.staticService.getNewEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name())).size();
+        }
         return url.contains("/standings/c") ?
-                this.staticService.getEntryInfoListFromClassic(
-                        CommonUtils.getLeagueIdByType(url, LeagueType.Classic.name())).size()
-                : this.staticService
-                .getEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name()))
-                .size();
+                this.staticService.getEntryInfoListFromClassic(CommonUtils.getLeagueIdByType(url, LeagueType.Classic.name())).size()
+                : this.staticService.getEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name())).size();
     }
 
     @Override
