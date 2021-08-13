@@ -4,7 +4,6 @@ import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
-import com.tong.fpl.domain.letletme.team.TeamFixtureColumnData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 
 import java.util.List;
@@ -38,7 +37,7 @@ public interface IApiStat {
     /**
      * 获取所有赛程
      */
-    List<TeamFixtureColumnData> qrySeasonFixture();
+    List<List<Integer>> qrySeasonFixture();
 
     /**
      * 获取球员信息

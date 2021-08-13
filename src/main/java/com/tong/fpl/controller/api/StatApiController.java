@@ -7,7 +7,6 @@ import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
-import com.tong.fpl.domain.letletme.team.TeamFixtureColumnData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -66,7 +65,7 @@ public class StatApiController {
     }
 
     @GetMapping("/qrySeasonFixture")
-    public List<TeamFixtureColumnData> qrySeasonFixture() {
+    public List<List<Integer>> qrySeasonFixture() {
         return this.apiStat.qrySeasonFixture();
     }
 
