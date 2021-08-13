@@ -37,7 +37,7 @@ public interface IApiStat {
     /**
      * 获取所有赛程
      */
-    List<List<Integer>> qrySeasonFixture();
+    List<List<String>> qrySeasonFixture();
 
     /**
      * 获取球员信息

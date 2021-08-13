@@ -201,7 +201,7 @@ public class ApiQueryTest extends FplApplicationTests {
 
     @Test
     void qrySeasonFixture() {
-        List<List<Integer>> list = this.apiQueryService.qrySeasonFixture();
+        List<List<String>> list = this.apiQueryService.qrySeasonFixture();
         System.out.println(1);
     }
 

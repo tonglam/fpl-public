@@ -932,16 +932,25 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 //            unless = "#result.size() eq 0"
 //    )
     @Override
-    public List<List<Integer>> qrySeasonFixture() {
-        List<List<Integer>> list = Lists.newArrayList();
+    public List<List<String>> qrySeasonFixture() {
+        List<List<String>> list = Lists.newArrayList();
+        // prepare
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        // fixture
         this.queryService.getTeamShortNameMap().keySet()
                 .stream()
                 .mapToInt(Integer::parseInt)
                 .sorted()
                 .forEach(teamId -> {
+                    List<String> elementList = Lists.newArrayList(teamShortNameMap.get(String.valueOf(teamId)));
                     List<PlayerFixtureData> fixtureList = Lists.newArrayList();
                     this.queryService.getEventFixtureByTeamId(teamId).values().forEach(fixtureList::addAll);
-                    fixtureList.forEach(o -> list.add(Lists.newArrayList(o.getEvent() - 1, o.getTeamId() - 1, o.getDifficulty())));
+                    fixtureList
+                            .stream()
+                            .sorted(Comparator.comparing(PlayerFixtureData::getEvent)
+                                    .thenComparing(PlayerFixtureData::getKickoffTime))
+                            .forEach(o -> elementList.add(o.getAgainstTeamShortName()));
+                    list.add(elementList);
                 });
         return list;
     }

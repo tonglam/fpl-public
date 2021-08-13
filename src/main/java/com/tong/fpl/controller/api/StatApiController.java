@@ -65,7 +65,7 @@ public class StatApiController {
     }
 
     @GetMapping("/qrySeasonFixture")
-    public List<List<Integer>> qrySeasonFixture() {
+    public List<List<String>> qrySeasonFixture() {
         return this.apiStat.qrySeasonFixture();
     }
 

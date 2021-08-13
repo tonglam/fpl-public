@@ -44,7 +44,7 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
-    public List<List<Integer>> qrySeasonFixture() {
+    public List<List<String>> qrySeasonFixture() {
         return this.apiQueryService.qrySeasonFixture();
     }
 

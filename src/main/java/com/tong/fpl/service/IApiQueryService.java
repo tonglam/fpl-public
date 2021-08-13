@@ -76,7 +76,7 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId);
 
-    List<List<Integer>> qrySeasonFixture();
+    List<List<String>> qrySeasonFixture();
 
     List<String> qryAllLeagueName(String season);
 
