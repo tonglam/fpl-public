@@ -926,11 +926,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return data;
     }
 
-    //    @Cacheable(
-//            value = "api::qrySeasonFixture",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.size() eq 0"
-//    )
+    @Cacheable(
+            value = "api::qrySeasonFixture",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public List<List<String>> qrySeasonFixture() {
         List<List<String>> list = Lists.newArrayList();

@@ -1771,7 +1771,7 @@ public class QueryServiceImpl implements IQueryService {
             value = "qryCountTournamentLeagueTeams",
             key = "#url",
             cacheManager = "apiCacheManager",
-            unless = "#result.size() eq 0"
+            unless = "#result eq 0"
     )
     @Override
     public int qryCountTournamentLeagueTeams(String url) {
