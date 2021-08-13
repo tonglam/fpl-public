@@ -1,13 +1,12 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.team.TeamFixtureColumnData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public interface IApiStat {
     /**
      * 获取所有赛程
      */
-    LinkedHashMap<String, List<PlayerFixtureData>> qrySeasonFixture();
+    List<TeamFixtureColumnData> qrySeasonFixture();
 
     /**
      * 获取球员信息

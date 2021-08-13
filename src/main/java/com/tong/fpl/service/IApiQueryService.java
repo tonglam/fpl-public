@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
+import com.tong.fpl.domain.letletme.team.TeamFixtureColumnData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
@@ -76,7 +77,7 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId);
 
-    LinkedHashMap<String, List<PlayerFixtureData>> qrySeasonFixture();
+    List<TeamFixtureColumnData> qrySeasonFixture();
 
     List<String> qryAllLeagueName(String season);
 

@@ -2,17 +2,16 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
-import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.team.TeamFixtureColumnData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +45,7 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
-    public LinkedHashMap<String, List<PlayerFixtureData>> qrySeasonFixture() {
+    public List<TeamFixtureColumnData> qrySeasonFixture() {
         return this.apiQueryService.qrySeasonFixture();
     }
 

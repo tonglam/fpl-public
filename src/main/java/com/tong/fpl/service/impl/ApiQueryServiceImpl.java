@@ -22,6 +22,7 @@ import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.team.TeamDetailData;
+import com.tong.fpl.domain.letletme.team.TeamFixtureColumnData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
@@ -926,14 +927,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return data;
     }
 
-    @Cacheable(
-            value = "api::qrySeasonFixture",
-            cacheManager = "apiCacheManager",
-            unless = "#result.size() eq 0"
-    )
+    //    @Cacheable(
+//            value = "api::qrySeasonFixture",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.size() eq 0"
+//    )
     @Override
-    public LinkedHashMap<String, List<PlayerFixtureData>> qrySeasonFixture() {
-        LinkedHashMap<String, List<PlayerFixtureData>> map = Maps.newLinkedHashMap();
+    public List<TeamFixtureColumnData> qrySeasonFixture() {
+        List<TeamFixtureColumnData> list = Lists.newArrayList();
         // prepare
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         // fixture
@@ -950,9 +951,50 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             .sorted(Comparator.comparing(PlayerFixtureData::getEvent)
                                     .thenComparing(PlayerFixtureData::getKickoffTime))
                             .collect(Collectors.toList());
-                    map.put(teamShortName, fixtureList);
+                    list.add(
+                            new TeamFixtureColumnData()
+                                    .setTeamShortName(teamShortName)
+                                    .setAgainst1(fixtureList.get(0).getAgainstTeamShortName())
+                                    .setAgainst2(fixtureList.get(1).getAgainstTeamShortName())
+                                    .setAgainst3(fixtureList.get(2).getAgainstTeamShortName())
+                                    .setAgainst4(fixtureList.get(3).getAgainstTeamShortName())
+                                    .setAgainst5(fixtureList.get(4).getAgainstTeamShortName())
+                                    .setAgainst6(fixtureList.get(5).getAgainstTeamShortName())
+                                    .setAgainst7(fixtureList.get(6).getAgainstTeamShortName())
+                                    .setAgainst8(fixtureList.get(7).getAgainstTeamShortName())
+                                    .setAgainst9(fixtureList.get(8).getAgainstTeamShortName())
+                                    .setAgainst10(fixtureList.get(9).getAgainstTeamShortName())
+                                    .setAgainst11(fixtureList.get(10).getAgainstTeamShortName())
+                                    .setAgainst12(fixtureList.get(11).getAgainstTeamShortName())
+                                    .setAgainst13(fixtureList.get(12).getAgainstTeamShortName())
+                                    .setAgainst14(fixtureList.get(13).getAgainstTeamShortName())
+                                    .setAgainst15(fixtureList.get(14).getAgainstTeamShortName())
+                                    .setAgainst16(fixtureList.get(15).getAgainstTeamShortName())
+                                    .setAgainst17(fixtureList.get(16).getAgainstTeamShortName())
+                                    .setAgainst18(fixtureList.get(17).getAgainstTeamShortName())
+                                    .setAgainst19(fixtureList.get(18).getAgainstTeamShortName())
+                                    .setAgainst20(fixtureList.get(19).getAgainstTeamShortName())
+                                    .setAgainst21(fixtureList.get(20).getAgainstTeamShortName())
+                                    .setAgainst22(fixtureList.get(21).getAgainstTeamShortName())
+                                    .setAgainst23(fixtureList.get(22).getAgainstTeamShortName())
+                                    .setAgainst24(fixtureList.get(23).getAgainstTeamShortName())
+                                    .setAgainst25(fixtureList.get(24).getAgainstTeamShortName())
+                                    .setAgainst26(fixtureList.get(25).getAgainstTeamShortName())
+                                    .setAgainst27(fixtureList.get(26).getAgainstTeamShortName())
+                                    .setAgainst28(fixtureList.get(27).getAgainstTeamShortName())
+                                    .setAgainst29(fixtureList.get(28).getAgainstTeamShortName())
+                                    .setAgainst30(fixtureList.get(29).getAgainstTeamShortName())
+                                    .setAgainst31(fixtureList.get(30).getAgainstTeamShortName())
+                                    .setAgainst32(fixtureList.get(31).getAgainstTeamShortName())
+                                    .setAgainst33(fixtureList.get(32).getAgainstTeamShortName())
+                                    .setAgainst34(fixtureList.get(33).getAgainstTeamShortName())
+                                    .setAgainst35(fixtureList.get(34).getAgainstTeamShortName())
+                                    .setAgainst36(fixtureList.get(35).getAgainstTeamShortName())
+                                    .setAgainst37(fixtureList.get(36).getAgainstTeamShortName())
+                                    .setAgainst38(fixtureList.get(37).getAgainstTeamShortName())
+                    );
                 });
-        return map;
+        return list;
     }
 
     @Cacheable(
