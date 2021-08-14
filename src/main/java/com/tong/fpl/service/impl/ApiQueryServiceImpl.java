@@ -1738,11 +1738,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return new EventScoutData()
                     .setLeftTransfers(this.calcEventScoutLeftTransfers(entry, event));
         }
-        return this.initScoutData(scoutEntity);
+        return this.initScoutData(scoutEntity, this.queryService.getTeamShortNameMap());
     }
 
     private int calcEventScoutLeftTransfers(int entry, int event) {
-        if (event <= 0 || event > 38 || event == 1) {
+        if (event <= 0 || event > 38 || event == 1 || event == 2) {
             return -1;
         }
         ScoutEntity scoutEntity = this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
@@ -1775,10 +1775,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (event > 38) {
             return Lists.newArrayList();
         }
+        // prepare
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        // return
         return this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
                         .eq(ScoutEntity::getEvent, event))
                 .stream()
-                .map(this::initScoutData)
+                .map(o -> this.initScoutData(o, teamShortNameMap))
                 .sorted(Comparator.comparing(EventScoutData::getEventPoints).reversed())
                 .collect(Collectors.toList());
     }
@@ -1863,28 +1866,30 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    private EventScoutData initScoutData(ScoutEntity scoutEntity) {
-        String season = CommonUtils.getCurrentSeason();
-        EventScoutData data = new EventScoutData()
+    private EventScoutData initScoutData(ScoutEntity scoutEntity, Map<String, String> teamShortNameMap) {
+        return new EventScoutData()
                 .setEvent(scoutEntity.getEvent())
                 .setEntry(scoutEntity.getEntry())
                 .setScoutName(scoutEntity.getScoutName())
                 .setTransfers(scoutEntity.getTransfers())
                 .setLeftTransfers(scoutEntity.getLeftTransfers())
-                .setGkpInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getGkp())))
-                .setDefInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getDef())))
-                .setMidInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getMid())))
-                .setFwdInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getFwd())))
-                .setCaptainInfo(this.qryPlayerInfo(season, this.queryService.qryPlayerCodeByElement(scoutEntity.getCaptain())))
+                .setGkpInfo(this.initScoutElementData(scoutEntity.getGkp(), scoutEntity.getGkpTeamId(), scoutEntity.getGkpPoints(), teamShortNameMap))
+                .setDefInfo(this.initScoutElementData(scoutEntity.getDef(), scoutEntity.getDefTeamId(), scoutEntity.getDefPoints(), teamShortNameMap))
+                .setMidInfo(this.initScoutElementData(scoutEntity.getMid(), scoutEntity.getMidTeamId(), scoutEntity.getMidPoints(), teamShortNameMap))
+                .setFwdInfo(this.initScoutElementData(scoutEntity.getFwd(), scoutEntity.getFwdTeamId(), scoutEntity.getFwdPoints(), teamShortNameMap))
+                .setCaptainInfo(this.initScoutElementData(scoutEntity.getCaptain(), scoutEntity.getCaptainTeamId(), scoutEntity.getCaptainPoints(), teamShortNameMap))
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(scoutEntity.getEventPoints())
                 .setTotalPoints(scoutEntity.getTotalPoints());
-        data.getGkpInfo().setPoints(scoutEntity.getGkpPoints());
-        data.getDefInfo().setPoints(scoutEntity.getDefPoints());
-        data.getMidInfo().setPoints(scoutEntity.getMidPoints());
-        data.getFwdInfo().setPoints(scoutEntity.getFwdPoints());
-        data.getCaptainInfo().setPoints(scoutEntity.getCaptainPoints());
-        return data;
+    }
+
+    private PlayerInfoData initScoutElementData(int element, int teamId, int points, Map<String, String> teamShortNameMap) {
+        return new PlayerInfoData()
+                .setElement(element)
+                .setWebName(this.queryService.qryPlayerWebNameByElement(element))
+                .setTeamId(teamId)
+                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
+                .setPoints(points);
     }
 
     /**
