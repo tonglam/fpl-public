@@ -13,7 +13,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum RedisExpirationKey {
 
-    EventAfterDeadline, EventMatchDay, EventMatch;
+    EventDeadline, EventAfterDeadline, EventMatchDay, EventMatch;
 
     public static RedisExpirationKey getExpirationKey(String redisKey) {
         return Arrays.stream(RedisExpirationKey.values())

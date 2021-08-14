@@ -200,6 +200,9 @@ public class StaticServiceImpl implements IStaticService {
                 this.getOnePageEntryListFromClassic(leagueInfoData, classicId, page, endPage);
             }
         }
+        if (CollectionUtils.isEmpty(leagueInfoData.getEntryInfoList())) {
+            return this.getOnePageNewEntryListFromClassic(leagueInfoData, classicId, page, endPage);
+        }
         return leagueInfoData;
     }
 
@@ -245,6 +248,9 @@ public class StaticServiceImpl implements IStaticService {
                     this.getOnePageEntryListFromH2h(leagueInfoData, h2hId, page, endPage);
                 }
             }
+        }
+        if (CollectionUtils.isEmpty(leagueInfoData.getEntryInfoList())) {
+            return this.getOnePageNewEntryListFromH2h(leagueInfoData, h2hId, page, endPage);
         }
         return leagueInfoData;
     }

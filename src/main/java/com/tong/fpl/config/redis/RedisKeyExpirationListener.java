@@ -1,6 +1,7 @@
 package com.tong.fpl.config.redis;
 
 import com.tong.fpl.constant.enums.RedisExpirationKey;
+import com.tong.fpl.utils.RedisUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.stream.StreamRecords;
@@ -37,6 +38,11 @@ public class RedisKeyExpirationListener extends KeyExpirationEventMessageListene
         }
         String key = StringUtils.joinWith("::", "Stream", redisExpirationKey.name());
         switch (redisExpirationKey) {
+            case EventDeadline: {
+                RedisUtils.removeCacheByKey("api::qryCurrentEventAndNextUtcDeadline::ApiQueryServiceImpl");
+                RedisUtils.removeCacheByKey("api::qryNextFixture::ApiQueryServiceImpl");
+                break;
+            }
             case EventAfterDeadline: {
                 this.afterDeadlineStream(key, event);
                 break;

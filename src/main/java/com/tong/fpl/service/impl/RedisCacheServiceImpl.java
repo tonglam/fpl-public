@@ -843,10 +843,15 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             if (deadlineTime.isBefore(now)) {
                 return;
             }
+            Duration eventDeadlineDuration = Duration.between(now, deadlineTime);
+            // event_deadline
+            String eventDeadlineKey = StringUtils.joinWith("::", RedisExpirationKey.EventDeadline.name(), o);
+            this.redisTemplate.opsForValue().set(eventDeadlineKey, deadlineTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), eventDeadlineDuration);
+            // event_after_deadline
             deadlineTime = deadlineTime.plusHours(1);
-            Duration duration = Duration.between(now, deadlineTime);
-            String key = StringUtils.joinWith("::", RedisExpirationKey.EventAfterDeadline.name(), o);
-            this.redisTemplate.opsForValue().set(key, deadlineTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), duration);
+            Duration eventAfterDeadlineDuration = Duration.between(now, deadlineTime);
+            String eventAfterDeadlineKey = StringUtils.joinWith("::", RedisExpirationKey.EventAfterDeadline.name(), o);
+            this.redisTemplate.opsForValue().set(eventAfterDeadlineKey, deadlineTime.format(DateTimeFormatter.ofPattern(Constant.DATETIME)), eventAfterDeadlineDuration);
         });
     }
 

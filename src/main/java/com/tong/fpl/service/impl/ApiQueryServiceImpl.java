@@ -1735,7 +1735,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .eq(ScoutEntity::getEvent, event)
                 .eq(ScoutEntity::getEntry, entry));
         if (scoutEntity == null) {
-            return new EventScoutData().setLeftTransfers(this.calcEventScoutLeftTransfers(entry, event));
+            return new EventScoutData()
+                    .setLeftTransfers(this.calcEventScoutLeftTransfers(entry, event));
         }
         return this.initScoutData(scoutEntity);
     }
@@ -1864,7 +1865,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     private EventScoutData initScoutData(ScoutEntity scoutEntity) {
         String season = CommonUtils.getCurrentSeason();
-        return new EventScoutData()
+        EventScoutData data = new EventScoutData()
                 .setEvent(scoutEntity.getEvent())
                 .setEntry(scoutEntity.getEntry())
                 .setScoutName(scoutEntity.getScoutName())
@@ -1878,6 +1879,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(scoutEntity.getEventPoints())
                 .setTotalPoints(scoutEntity.getTotalPoints());
+        data.getGkpInfo().setPoints(scoutEntity.getGkpPoints());
+        data.getDefInfo().setPoints(scoutEntity.getDefPoints());
+        data.getMidInfo().setPoints(scoutEntity.getMidPoints());
+        data.getFwdInfo().setPoints(scoutEntity.getFwdPoints());
+        data.getCaptainInfo().setPoints(scoutEntity.getCaptainPoints());
+        return data;
     }
 
     /**

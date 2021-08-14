@@ -329,7 +329,7 @@ public class QueryServiceImpl implements IQueryService {
         }
         if (eventLiveMap.size() == 0) {
             this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                    .eq(EventLiveEntity::getElement, element))
+                            .eq(EventLiveEntity::getElement, element))
                     .forEach(o -> eventLiveMap.put(o.getElement(), o));
         }
         // player
@@ -1232,7 +1232,7 @@ public class QueryServiceImpl implements IQueryService {
         // prepare
         Multimap<Integer, EntryEventResultEntity> entryEventResultMap = HashMultimap.create();
         this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .forEach(o -> entryEventResultMap.put(o.getEntry(), o));
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
@@ -1775,15 +1775,15 @@ public class QueryServiceImpl implements IQueryService {
     )
     @Override
     public int qryCountTournamentLeagueTeams(String url) {
-        int event = this.getCurrentEvent();
-        if (event == 0) {
-            return url.contains("/standings/c") ?
+        int count = url.contains("/standings/c") ?
+                this.staticService.getEntryInfoListFromClassic(CommonUtils.getLeagueIdByType(url, LeagueType.Classic.name())).size()
+                : this.staticService.getEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name())).size();
+        if (count == 0) {
+            count = url.contains("/standings/c") ?
                     this.staticService.getNewEntryInfoListFromClassic(CommonUtils.getLeagueIdByType(url, LeagueType.Classic.name())).size()
                     : this.staticService.getNewEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name())).size();
         }
-        return url.contains("/standings/c") ?
-                this.staticService.getEntryInfoListFromClassic(CommonUtils.getLeagueIdByType(url, LeagueType.Classic.name())).size()
-                : this.staticService.getEntryInfoListFromH2h(CommonUtils.getLeagueIdByType(url, LeagueType.H2h.name())).size();
+        return count;
     }
 
     @Override
@@ -1836,7 +1836,7 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public List<Integer> qryEntryListByTournament(int tournamentId) {
         return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                        .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
@@ -1998,7 +1998,7 @@ public class QueryServiceImpl implements IQueryService {
     public List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId) {
         List<ZjTournamentCaptainData> list = Lists.newArrayList();
         this.zjTournamentCaptainService.list(new QueryWrapper<ZjTournamentCaptainEntity>().lambda()
-                .eq(ZjTournamentCaptainEntity::getTournamentId, tournamentId))
+                        .eq(ZjTournamentCaptainEntity::getTournamentId, tournamentId))
                 .forEach(o -> {
                     ZjTournamentCaptainData zjTournamentCaptainData = new ZjTournamentCaptainData();
                     BeanUtil
@@ -2025,8 +2025,8 @@ public class QueryServiceImpl implements IQueryService {
             return groupNameMap;
         }
         this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .in(TournamentGroupEntity::getGroupId, groupList))
+                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                        .in(TournamentGroupEntity::getGroupId, groupList))
                 .forEach(o -> groupNameMap.put(String.valueOf(o.getGroupId()), o.getGroupName()));
         return groupNameMap;
     }
@@ -2383,8 +2383,8 @@ public class QueryServiceImpl implements IQueryService {
             return Maps.newHashMap();
         }
         return this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .in(TournamentGroupEntity::getGroupId, groupList))
+                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                        .in(TournamentGroupEntity::getGroupId, groupList))
                 .stream()
                 .collect(
                         Collectors.toMap(o -> String.valueOf(o.getEntry()), TournamentGroupEntity::getGroupId));
@@ -2404,8 +2404,8 @@ public class QueryServiceImpl implements IQueryService {
             return Maps.newHashMap();
         }
         return this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .in(TournamentGroupEntity::getGroupId, groupList))
+                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                        .in(TournamentGroupEntity::getGroupId, groupList))
                 .stream()
                 .collect(Collectors
                         .toMap(o -> String.valueOf(o.getEntry()), TournamentGroupEntity::getGroupName));
@@ -2461,11 +2461,11 @@ public class QueryServiceImpl implements IQueryService {
     public List<TournamentKnockoutEventFixtureData> qryZjPkPickListById(int tournamentId) {
         List<TournamentKnockoutEventFixtureData> list = Lists.newArrayList();
         this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutEntity::getRound, 1)
-                .gt(TournamentKnockoutEntity::getHomeEntry, 0)
-                .gt(TournamentKnockoutEntity::getAwayEntry, 0)
-                .orderByAsc(TournamentKnockoutEntity::getMatchId))
+                        .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutEntity::getRound, 1)
+                        .gt(TournamentKnockoutEntity::getHomeEntry, 0)
+                        .gt(TournamentKnockoutEntity::getAwayEntry, 0)
+                        .orderByAsc(TournamentKnockoutEntity::getMatchId))
                 .forEach(o -> {
                     int homeEntry = o.getHomeEntry();
                     int awayEntry = o.getAwayEntry();
