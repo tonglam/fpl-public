@@ -1,6 +1,5 @@
 package com.tong.fpl.controller.api;
 
-import com.google.common.collect.Lists;
 import com.tong.fpl.api.IApiGroup;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
@@ -28,7 +27,7 @@ public class GroupApiController {
 
     @GetMapping("/qryEventEntryScoutResult")
     public EventScoutData qryEventEntryScoutResult(@RequestParam int event, @RequestParam int entry) {
-        if (entry <= 0) {
+        if (event <= 0 || entry <= 0) {
             return new EventScoutData();
         }
         return this.apiGroup.qryEventEntryScoutResult(event, entry);
@@ -36,9 +35,6 @@ public class GroupApiController {
 
     @GetMapping("/qryEventScoutResult")
     public List<EventScoutData> qryEventScoutResult(@RequestParam int event) {
-        if (event <= 0) {
-            return Lists.newArrayList();
-        }
         return this.apiGroup.qryEventScoutResult(event);
     }
 
