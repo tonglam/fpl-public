@@ -28,7 +28,7 @@ public class GroupApiController {
 
     @GetMapping("/qryEventEntryScoutResult")
     public EventScoutData qryEventEntryScoutResult(@RequestParam int event, @RequestParam int entry) {
-        if (event <= 0 || entry <= 0) {
+        if (entry <= 0) {
             return new EventScoutData();
         }
         return this.apiGroup.qryEventEntryScoutResult(event, entry);
