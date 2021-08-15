@@ -21,6 +21,11 @@ public interface IApiLive {
     List<LiveCalcData> calcLivePointsByTournament(int event, int tournamentId);
 
     /**
+     * 获取搜索球员后的实时联赛得分
+     */
+    List<LiveCalcData> calcSearchLivePointsByTournament(int event, int tournamentId, int element);
+
+    /**
      * 获取实时比赛数据
      */
     List<LiveMatchData> qryLiveMatchByStatus(String playStatus);

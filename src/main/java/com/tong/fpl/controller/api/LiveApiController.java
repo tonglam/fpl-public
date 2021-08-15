@@ -39,6 +39,15 @@ public class LiveApiController {
         return this.apiLive.calcLivePointsByTournament(event, tournamentId);
     }
 
+    @RequestMapping("/calcSearchLivePointsByTournament")
+    @ResponseBody
+    public List<LiveCalcData> calcSearchLivePointsByTournament(@RequestParam int event, @RequestParam int tournamentId, @RequestParam int element) {
+        if (event <= 0 || tournamentId <= 0 || element <= 0) {
+            return Lists.newArrayList();
+        }
+        return this.apiLive.calcSearchLivePointsByTournament(event, tournamentId, element);
+    }
+
     @GetMapping("/qryLiveMatchByStatus")
     public List<LiveMatchData> qryLiveMatchByStatus(@RequestParam String playStatus) {
         if (StringUtils.isEmpty(playStatus)) {

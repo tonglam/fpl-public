@@ -32,6 +32,11 @@ public class ApiLiveImpl implements IApiLive {
     }
 
     @Override
+    public List<LiveCalcData> calcSearchLivePointsByTournament(int event, int tournamentId, int element) {
+        return this.liveService.calcSearchLivePointsByTournament(event, tournamentId, element);
+    }
+
+    @Override
     public List<LiveMatchData> qryLiveMatchByStatus(String playStatus) {
         return this.apiQueryService.qryLiveMatchByStatus(playStatus);
     }

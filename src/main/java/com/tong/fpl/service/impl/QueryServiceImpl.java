@@ -1833,6 +1833,11 @@ public class QueryServiceImpl implements IQueryService {
                 .eq(TournamentInfoEntity::getState, 1));
     }
 
+    @Cacheable(
+            value = "qryEntryListByTournament",
+            key = "#tournamentId",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public List<Integer> qryEntryListByTournament(int tournamentId) {
         return this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()

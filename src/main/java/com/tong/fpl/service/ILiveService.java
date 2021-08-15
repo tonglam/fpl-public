@@ -27,6 +27,11 @@ public interface ILiveService {
     List<LiveCalcData> calcLivePointsByTournament(int event, int tournamentId);
 
     /**
+     * calculate entry live points in the tournament
+     */
+    List<LiveCalcData> calcSearchLivePointsByTournament(int event, int tournamentId, int element);
+
+    /**
      * calculate element live points
      */
     int calcElementLivePoints(int event, int element);
