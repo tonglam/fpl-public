@@ -1731,14 +1731,36 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     // do not cache
     @Override
     public EventScoutData qryEventScoutPickResult(int event, int entry) {
+        EventScoutData data = new EventScoutData();
+        // prepare
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
                 .eq(ScoutEntity::getEvent, event)
                 .eq(ScoutEntity::getEntry, entry));
-        if (scoutEntity == null) {
-            return new EventScoutData()
-                    .setLeftTransfers(this.calcEventScoutLeftTransfers(entry, event));
+        if (scoutEntity != null) {
+            return this.initScoutData(scoutEntity, teamShortNameMap);
         }
-        return this.initScoutData(scoutEntity, this.queryService.getTeamShortNameMap());
+        scoutEntity = this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
+                        .lt(ScoutEntity::getEvent, event)
+                        .eq(ScoutEntity::getEntry, entry))
+                .stream()
+                .max(Comparator.comparing(ScoutEntity::getEvent))
+                .orElse(new ScoutEntity());
+        data
+                .setEvent(event)
+                .setEntry(entry)
+                .setScoutName(scoutEntity.getScoutName())
+                .setTransfers(0)
+                .setLeftTransfers(this.calcEventScoutLeftTransfers(entry, event))
+                .setGkpInfo(this.initScoutElementData(scoutEntity.getGkp(), scoutEntity.getGkpTeamId(), 0, teamShortNameMap))
+                .setDefInfo(this.initScoutElementData(scoutEntity.getDef(), scoutEntity.getDefTeamId(), 0, teamShortNameMap))
+                .setMidInfo(this.initScoutElementData(scoutEntity.getMid(), scoutEntity.getMidTeamId(), 0, teamShortNameMap))
+                .setFwdInfo(this.initScoutElementData(scoutEntity.getFwd(), scoutEntity.getFwdTeamId(), 0, teamShortNameMap))
+                .setCaptainInfo(this.initScoutElementData(scoutEntity.getCaptain(), scoutEntity.getCaptainTeamId(), 0, teamShortNameMap))
+                .setReason("")
+                .setEventPoints(0)
+                .setTotalPoints(0);
+        return data;
     }
 
     private int calcEventScoutLeftTransfers(int entry, int event) {
