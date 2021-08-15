@@ -641,7 +641,7 @@ public class LiveServiceImpl implements ILiveService {
     private int calcElementPlayingPoints(int minutes) {
         if (minutes > 0 && minutes < 60) {
             return 1;
-        } else if (minutes > 60 && minutes <= 90) {
+        } else if (minutes >= 60 && minutes <= 90) {
             return 2;
         }
         return 0;
