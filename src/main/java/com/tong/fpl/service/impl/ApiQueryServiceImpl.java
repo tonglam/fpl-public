@@ -1917,7 +1917,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setWebName(playerEntity.getWebName())
                 .setTeamId(teamId)
                 .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
-                .setPrice(playerEntity.getPrice())
+                .setPrice(playerEntity.getPrice() / 10.0)
                 .setPoints(points);
     }
 
