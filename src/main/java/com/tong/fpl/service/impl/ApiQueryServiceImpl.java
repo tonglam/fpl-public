@@ -1760,7 +1760,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setMidInfo(this.initScoutElementData(scoutEntity.getMid(), scoutEntity.getMidTeamId(), 0, playerMap.get(scoutEntity.getMid()), teamShortNameMap))
                 .setFwdInfo(this.initScoutElementData(scoutEntity.getFwd(), scoutEntity.getFwdTeamId(), 0, playerMap.get(scoutEntity.getFwd()), teamShortNameMap))
                 .setCaptainInfo(this.initScoutElementData(scoutEntity.getCaptain(), scoutEntity.getCaptainTeamId(), 0, playerMap.get(scoutEntity.getCaptain()), teamShortNameMap))
-                .setReason("")
+                .setReason(scoutEntity.getReason())
                 .setEventPoints(0)
                 .setTotalPoints(0);
         return data;
