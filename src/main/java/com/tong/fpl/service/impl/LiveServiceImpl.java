@@ -198,7 +198,7 @@ public class LiveServiceImpl implements ILiveService {
                 .setElement(element)
                 .setWebName(playerInfoMap.get(element).getWebName())
                 .setSelectByPercent(searchList.size() == 0 ? "0%"
-                        : CommonUtils.getPercentResult(searchList.size(), list.size()))
+                        : CommonUtils.getPercentResult(searchList.size(), entryList.size()))
                 .setLiveCalcDataList(liveCalcList);
     }
 
@@ -639,7 +639,7 @@ public class LiveServiceImpl implements ILiveService {
                 pickList.forEach(o -> o.setPickActive(true));
                 return pickList.stream().filter(o -> o.getElement() != activeCaptain).mapToInt(ElementEventResultData::getTotalPoints).sum()
                         + pickList.stream().filter(o -> o.getElement() == activeCaptain).mapToInt(o -> 2 * o.getTotalPoints()).sum();
-            // only 3c and bb change the calculate rule
+            // only 3c and bb change calculate rule
             case NONE:
             case WC:
             case FH:
