@@ -2098,7 +2098,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     @Cacheable(
             value = "api::qryTournamentEventSearchResult",
-            key = "#event+'::'+#tournamentId+'::+#element",
+            key = "#event+'::'+#tournamentId+'::'+#element",
             cacheManager = "apiCacheManager",
             unless = "#result.size() eq 0"
     )
