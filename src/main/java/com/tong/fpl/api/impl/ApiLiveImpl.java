@@ -3,6 +3,7 @@ package com.tong.fpl.api.impl;
 import com.tong.fpl.api.IApiLive;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
+import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.ILiveService;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class ApiLiveImpl implements IApiLive {
     }
 
     @Override
-    public List<LiveCalcData> calcSearchLivePointsByTournament(int event, int tournamentId, int element) {
+    public SearchLiveCalcData calcSearchLivePointsByTournament(int event, int tournamentId, int element) {
         return this.liveService.calcSearchLivePointsByTournament(event, tournamentId, element);
     }
 

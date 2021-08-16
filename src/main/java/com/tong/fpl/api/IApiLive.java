@@ -2,6 +2,7 @@ package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
+import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public interface IApiLive {
     /**
      * 获取搜索球员后的实时联赛得分
      */
-    List<LiveCalcData> calcSearchLivePointsByTournament(int event, int tournamentId, int element);
+    SearchLiveCalcData calcSearchLivePointsByTournament(int event, int tournamentId, int element);
 
     /**
      * 获取实时比赛数据

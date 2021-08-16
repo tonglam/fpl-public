@@ -2,6 +2,7 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiTournament;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.SearchEntryEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.IApiQueryService;
@@ -36,7 +37,7 @@ public class ApiTournamentImpl implements IApiTournament {
     }
 
     @Override
-    public List<EntryEventResultData> qryTournamentEventSearchResult(int event, int tournamentId, int element) {
+    public SearchEntryEventResultData qryTournamentEventSearchResult(int event, int tournamentId, int element) {
         return this.apiQueryService.qryTournamentEventSearchResult(event, tournamentId, element);
     }
 

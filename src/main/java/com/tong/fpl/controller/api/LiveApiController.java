@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.tong.fpl.api.IApiLive;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
+import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +42,9 @@ public class LiveApiController {
 
     @RequestMapping("/calcSearchLivePointsByTournament")
     @ResponseBody
-    public List<LiveCalcData> calcSearchLivePointsByTournament(@RequestParam int event, @RequestParam int tournamentId, @RequestParam int element) {
+    public SearchLiveCalcData calcSearchLivePointsByTournament(@RequestParam int event, @RequestParam int tournamentId, @RequestParam int element) {
         if (event <= 0 || tournamentId <= 0 || element <= 0) {
-            return Lists.newArrayList();
+            return new SearchLiveCalcData();
         }
         return this.apiLive.calcSearchLivePointsByTournament(event, tournamentId, element);
     }

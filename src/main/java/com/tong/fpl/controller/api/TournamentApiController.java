@@ -3,6 +3,7 @@ package com.tong.fpl.controller.api;
 import com.google.common.collect.Lists;
 import com.tong.fpl.api.IApiTournament;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.SearchEntryEventResultData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import lombok.RequiredArgsConstructor;
@@ -49,9 +50,9 @@ public class TournamentApiController {
     }
 
     @GetMapping("/qryTournamentEventSearchResult")
-    List<EntryEventResultData> qryTournamentEventSearchResult(int event, int tournamentId, int element) {
+    SearchEntryEventResultData qryTournamentEventSearchResult(int event, int tournamentId, int element) {
         if (event <= 0 || tournamentId <= 0 || element <= 0) {
-            return Lists.newArrayList();
+            return new SearchEntryEventResultData();
         }
         return this.apiTournament.qryTournamentEventSearchResult(event, tournamentId, element);
     }

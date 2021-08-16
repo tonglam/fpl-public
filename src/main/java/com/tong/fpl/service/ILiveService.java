@@ -2,6 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
+import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public interface ILiveService {
     /**
      * calculate entry live points in the tournament
      */
-    List<LiveCalcData> calcSearchLivePointsByTournament(int event, int tournamentId, int element);
+    SearchLiveCalcData calcSearchLivePointsByTournament(int event, int tournamentId, int element);
 
     /**
      * calculate element live points

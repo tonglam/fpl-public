@@ -2096,14 +2096,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setPickList(this.qryTournamentEntryPickList(event, entryEventResultEntity.getEventPicks(), teamNameMap, teamShortNameMap, playerMap, eventLiveMap));
     }
 
-    @Cacheable(
-            value = "api::qryTournamentEventSearchResult",
-            key = "#event+'::'+#tournamentId+'::'+#element",
-            cacheManager = "apiCacheManager",
-            unless = "#result.size() eq 0"
-    )
+    //    @Cacheable(
+//            value = "api::qryTournamentEventSearchResult",
+//            key = "#event+'::'+#tournamentId+'::'+#element",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.eventResultList.size() eq 0"
+//    )
     @Override
-    public List<EntryEventResultData> qryTournamentEventSearchResult(int event, int tournamentId, int element) {
+    public SearchEntryEventResultData qryTournamentEventSearchResult(int event, int tournamentId, int element) {
         // entry list
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
                         .eq(TournamentEntryEntity::getTournamentId, tournamentId))
@@ -2111,7 +2111,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(entryList)) {
-            return Lists.newArrayList();
+            return new SearchEntryEventResultData();
         }
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
@@ -2132,15 +2132,22 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .eq(TournamentGroupEntity::getTournamentId, tournamentId))
                 .stream()
                 .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getGroupRank));
+        List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, event)
+                .in(EntryEventResultEntity::getEntry, entryList));
         // entry_event_result
-        return this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                        .eq(EntryEventResultEntity::getEvent, event)
-                        .in(EntryEventResultEntity::getEntry, entryList))
+        List<EntryEventResultData> list = entryEventResultEntityList
                 .stream()
                 .filter(o -> this.entryContainElement(element, o.getEventPicks(), o.getEventChip()))
                 .map(o -> this.initEntryEventResultData(event, o, eventGroupRankMap, eventTournamentRankMap, teamNameMap, teamShortNameMap, playerMap, eventLiveMap))
                 .sorted(Comparator.comparing(EntryEventResultData::getPoints).reversed())
                 .collect(Collectors.toList());
+        // return
+        return new SearchEntryEventResultData()
+                .setElement(element)
+                .setWebName(playerMap.get(element).getWebName())
+                .setSelectByPercent(CommonUtils.getPercentResult(list.size(), entryEventResultEntityList.size()))
+                .setEventResultList(list);
     }
 
     private boolean entryContainElement(int element, String eventPicks, String eventChip) {

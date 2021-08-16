@@ -296,9 +296,9 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1, 1, 337"})
+    @CsvSource({"1, 1, 233"})
     void qryTournamentEventSearchResult(int event, int tournamentId, int element) {
-        List<EntryEventResultData> list = this.apiQueryService.qryTournamentEventSearchResult(event, tournamentId, element);
+        SearchEntryEventResultData data = this.apiQueryService.qryTournamentEventSearchResult(event, tournamentId, element);
         System.out.println(1);
     }
 
