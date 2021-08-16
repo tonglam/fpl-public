@@ -14,6 +14,8 @@ import java.util.List;
 public class EntryEventResultData {
 
     private int event;
+    private String entryName;
+    private String playerName;
     private int entry;
     private int points;
     private int netPoints;
