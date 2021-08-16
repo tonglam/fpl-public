@@ -197,7 +197,8 @@ public class LiveServiceImpl implements ILiveService {
         return new SearchLiveCalcData()
                 .setElement(element)
                 .setWebName(playerInfoMap.get(element).getWebName())
-                .setSelectByPercent(CommonUtils.getPercentResult(searchList.size(), list.size()))
+                .setSelectByPercent(searchList.size() == 0 ? "0%"
+                        : CommonUtils.getPercentResult(searchList.size(), list.size()))
                 .setLiveCalcDataList(liveCalcList);
     }
 

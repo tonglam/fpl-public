@@ -2096,12 +2096,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setPickList(this.qryTournamentEntryPickList(event, entryEventResultEntity.getEventPicks(), teamNameMap, teamShortNameMap, playerMap, eventLiveMap));
     }
 
-    //    @Cacheable(
-//            value = "api::qryTournamentEventSearchResult",
-//            key = "#event+'::'+#tournamentId+'::'+#element",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.eventResultList.size() eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryTournamentEventSearchResult",
+            key = "#event+'::'+#tournamentId+'::'+#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.eventResultList.size() eq 0"
+    )
     @Override
     public SearchEntryEventResultData qryTournamentEventSearchResult(int event, int tournamentId, int element) {
         // entry list
@@ -2146,7 +2146,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return new SearchEntryEventResultData()
                 .setElement(element)
                 .setWebName(playerMap.get(element).getWebName())
-                .setSelectByPercent(CommonUtils.getPercentResult(list.size(), entryEventResultEntityList.size()))
+                .setSelectByPercent(list.size() == 0 ? "0%"
+                        : CommonUtils.getPercentResult(list.size(), entryEventResultEntityList.size()))
                 .setEventResultList(list);
     }
 

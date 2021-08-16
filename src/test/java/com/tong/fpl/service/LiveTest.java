@@ -3,6 +3,7 @@ package com.tong.fpl.service;
 import com.google.common.collect.Maps;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
+import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,9 +60,9 @@ public class LiveTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1, 1, 275"})
+    @CsvSource({"1, 1, 1"})
     void calcSearchLivePointsByTournament(int event, int tournamentId, int element) {
-        List<LiveCalcData> list = this.liveCalcService.calcSearchLivePointsByTournament(event, tournamentId, element);
+        SearchLiveCalcData data = this.liveCalcService.calcSearchLivePointsByTournament(event, tournamentId, element);
         System.out.println(1);
     }
 
