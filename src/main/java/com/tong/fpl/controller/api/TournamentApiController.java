@@ -48,20 +48,12 @@ public class TournamentApiController {
         return this.apiTournament.qryTournamentEventResult(event, tournamentId);
     }
 
-    @GetMapping("/qryTournamentEntryContainElement")
-    List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element) {
+    @GetMapping("/qryTournamentEventSearchResult")
+    List<EntryEventResultData> qryTournamentEventSearchResult(int event, int tournamentId, int element) {
         if (event <= 0 || tournamentId <= 0 || element <= 0) {
             return Lists.newArrayList();
         }
-        return this.apiTournament.qryTournamentEntryContainElement(event, tournamentId, element);
-    }
-
-    @GetMapping("/qryTournamentEntryPlayElement")
-    List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element) {
-        if (event <= 0 || tournamentId <= 0 || element <= 0) {
-            return Lists.newArrayList();
-        }
-        return this.apiTournament.qryTournamentEntryPlayElement(event, tournamentId, element);
+        return this.apiTournament.qryTournamentEventSearchResult(event, tournamentId, element);
     }
 
     @GetMapping("/qryTournamentEventSummary")

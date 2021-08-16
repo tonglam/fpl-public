@@ -29,14 +29,9 @@ public interface IApiTournament {
     List<EntryEventResultData> qryTournamentEventResult(int event, int tournamentId);
 
     /**
-     * 获取联赛成员是否拥有球员
+     * 获取搜索后的联赛周得分
      */
-    List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element);
-
-    /**
-     * 获取联赛成员是否出场球员
-     */
-    List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element);
+    List<EntryEventResultData> qryTournamentEventSearchResult(int event, int tournamentId, int element);
 
     /**
      * 指定周获取联赛周得分总结

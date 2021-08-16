@@ -25,6 +25,7 @@ public class EntrySeasonCaptainData {
     private int leastPoints; // 队长得分最低
     private String leastPointsWebName; // 队长得分最低球员
     private int leastPointsEvent; // 队长得分最低周
+    private boolean tcPlayed; // 是否已开三倍卡
     private int tcPoints; // 三倍队长得分
     private String tcPointsWebName; // 三倍队长球员
     private int tcEvent; // 三倍队长周

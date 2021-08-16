@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.stream.Consumer;
-import org.springframework.data.redis.connection.stream.StreamOffset;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
@@ -72,13 +70,13 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"36"})
+    @CsvSource({"1"})
     void insertSingleEventFixture(int event) {
         this.redisCacheSerive.insertSingleEventFixture(event);
     }
 
     @ParameterizedTest
-    @CsvSource({"31"})
+    @CsvSource({"1"})
     void insertSingleEventFixtureCache(int event) {
         this.redisCacheSerive.insertSingleEventFixtureCache(event);
     }
@@ -122,7 +120,7 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"27"})
+    @CsvSource({"1"})
     void insertEventLiveCache(int event) {
         this.redisCacheSerive.insertEventLiveCache(event);
     }
@@ -259,23 +257,6 @@ public class RedisCacheTest extends FplApplicationTests {
         String key = "scoutEntry";
         Map<Object, Object> map = RedisUtils.getHashByKey(key);
         Set<Object> set = map.keySet();
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource("Stream::Test")
-    void stream(String key) {
-//        StringRecord stringRecord = StreamRecords.string(Collections.singletonMap("test", "test")).withStreamKey(key);
-//        this.stringRedisTemplate.opsForStream().add(stringRecord);
-//        this.stringRedisTemplate.opsForStream().createGroup(key, "fpl");
-//        List list = this.stringRedisTemplate.opsForStream().range(key, Range.unbounded());
-        Consumer consumer = Consumer.from("fpl", "fpl-1");
-        this.stringRedisTemplate.opsForStream().read(StreamOffset.fromStart(key))
-                .forEach(o -> {
-                    long a = this.stringRedisTemplate.opsForStream().acknowledge("fpl", o.withId(o.getId()));
-                    System.out.println(a);
-                });
-
         System.out.println(1);
     }
 

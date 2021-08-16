@@ -36,13 +36,8 @@ public class ApiTournamentImpl implements IApiTournament {
     }
 
     @Override
-    public List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element) {
-        return this.apiQueryService.qryTournamentEntryContainElement(event, tournamentId, element);
-    }
-
-    @Override
-    public List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element) {
-        return this.apiQueryService.qryTournamentEntryPlayElement(event, tournamentId, element);
+    public List<EntryEventResultData> qryTournamentEventSearchResult(int event, int tournamentId, int element) {
+        return this.apiQueryService.qryTournamentEventSearchResult(event, tournamentId, element);
     }
 
     @Override

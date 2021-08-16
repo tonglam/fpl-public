@@ -13,6 +13,7 @@ import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.RedisExpirationKey;
 import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.data.bootstrapStaic.Event;
+import com.tong.fpl.domain.data.bootstrapStaic.Player;
 import com.tong.fpl.domain.data.eventLive.ElementStat;
 import com.tong.fpl.domain.data.response.EventFixturesRes;
 import com.tong.fpl.domain.data.response.EventLiveRes;
@@ -464,38 +465,52 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 
     @Override
     public void insertPlayerStat() {
+        List<PlayerStatEntity> insertList = Lists.newArrayList();
+        List<PlayerStatEntity> updateList = Lists.newArrayList();
+        // prepare
         int event = this.getCurrentEvent();
-        Map<Integer, Integer> insertTeamMap = this.getInsertTeamList(event);
+        Map<Integer, Integer> insertTeamMap = this.getInsertTeamList();
+        Map<Integer, Integer> playerStatIdMap = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(PlayerStatEntity::getElement, PlayerStatEntity::getId));
+        // get from fpl server
         Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
         result.ifPresent(staticRes -> {
-            List<PlayerStatEntity> playerStatList = Lists.newArrayList();
             staticRes.getElements().forEach(o -> {
                 if (!insertTeamMap.containsKey(o.getTeam())) {
                     return;
                 }
-                // insert table
-                PlayerStatEntity playerStatEntity = new PlayerStatEntity();
-                playerStatEntity
-                        .setEvent(event)
-                        .setElement(o.getId())
-                        .setMatchPlayed(insertTeamMap.get(o.getTeam()));
-                BeanUtil.copyProperties(o, playerStatEntity, CopyOptions.create().ignoreNullValue());
-                playerStatList.add(playerStatEntity);
+                // insert or update table
+                PlayerStatEntity playerStatEntity = this.initPlayStat(event, o, insertTeamMap);
+                int element = playerStatEntity.getElement();
+                if (!playerStatIdMap.containsKey(element)) {
+                    insertList.add(playerStatEntity);
+                } else {
+                    playerStatEntity.setId(playerStatIdMap.get(element));
+                    updateList.add(playerStatEntity);
+                }
             });
-            this.playerStatService.saveBatch(playerStatList);
-            log.info("insert player_stat size:{}", playerStatList.size());
-            // set cache
-            Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
-            String key = StringUtils.joinWith("::", PlayerStatEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
-            Map<String, Object> valueMap = Maps.newConcurrentMap();
-            RedisUtils.removeCacheByKey(key);
-            playerStatList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
-            cacheMap.put(key, valueMap);
-            RedisUtils.pipelineHashCache(cacheMap, -1, null);
         });
+        // insert
+        this.playerStatService.saveBatch(insertList);
+        log.info("insert player_stat size:{}", insertList.size());
+        // update
+        this.playerStatService.updateBatchById(updateList);
+        log.info("update player_stat size:{}", updateList.size());
+        // set cache
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", PlayerStatEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
+        Map<String, Object> valueMap = Maps.newConcurrentMap();
+        RedisUtils.removeCacheByKey(key);
+        this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getEvent, event))
+                .forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
+        cacheMap.put(key, valueMap);
+        RedisUtils.pipelineHashCache(cacheMap, -1, null);
     }
 
-    private Map<Integer, Integer> getInsertTeamList(int event) {
+    private Map<Integer, Integer> getInsertTeamList() {
         Map<Integer, Integer> insertTeamMap = Maps.newHashMap();
         IntStream.rangeClosed(1, 20).forEach(teamId -> {
             // match_played
@@ -504,13 +519,51 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                     .and(a -> a.eq(EventFixtureEntity::getTeamH, teamId)
                             .or(i -> i.eq(EventFixtureEntity::getTeamA, teamId)))
             );
-            this.playerStatService.remove(new QueryWrapper<PlayerStatEntity>().lambda()
-                    .eq(PlayerStatEntity::getMatchPlayed, matchPlayed)
-                    .eq(PlayerStatEntity::getEvent, event)
-            );
             insertTeamMap.put(teamId, matchPlayed);
         });
         return insertTeamMap;
+    }
+
+    private PlayerStatEntity initPlayStat(int event, Player player, Map<Integer, Integer> insertTeamMap) {
+        return new PlayerStatEntity()
+                .setEvent(event)
+                .setElement(player.getId())
+                .setCode(player.getCode())
+                .setMatchPlayed(insertTeamMap.get(player.getTeam()))
+                .setChanceOfPlayingNextRound(player.getChanceOfPlayingNextRound())
+                .setChanceOfPlayingThisRound(player.getChanceOfPlayingThisRound())
+                .setDreamteamCount(player.getDreamteamCount())
+                .setEventPoints(player.getEventPoints())
+                .setForm(player.getForm())
+                .setInDreamteam(player.isInDreamteam())
+                .setNews(player.getNews())
+                .setNewsAdded(player.getNewsAdded())
+                .setPointsPerGame(player.getPointsPerGame())
+                .setSelectedByPercent(player.getSelectedByPercent())
+                .setMinutes(player.getMinutes())
+                .setGoalsScored(player.getGoalsScored())
+                .setAssists(player.getAssists())
+                .setCleanSheets(player.getCleanSheets())
+                .setGoalsConceded(player.getGoalsConceded())
+                .setOwnGoals(player.getOwnGoals())
+                .setPenaltiesSaved(player.getPenaltiesSaved())
+                .setPenaltiesMissed(player.getPenaltiesMissed())
+                .setYellowCards(player.getYellowCards())
+                .setRedCards(player.getRedCards())
+                .setSaves(player.getSaves())
+                .setBonus(player.getBonus())
+                .setBps(player.getBps())
+                .setInfluence(player.getInfluence())
+                .setCreativity(player.getCreativity())
+                .setThreat(player.getThreat())
+                .setIctIndex(player.getIctIndex())
+                .setTransfersInEvent(player.getTransfersInEvent())
+                .setTransfersOutEvent(player.getTransfersOutEvent())
+                .setTransfersIn(player.getTransfersIn())
+                .setTransfersOut(player.getTransfersOut())
+                .setCornersAndIndirectFreekicksOrder(player.getCornersAndIndirectFreekicksOrder())
+                .setDirectFreekicksOrder(player.getDirectFreekicksOrder())
+                .setPenaltiesOrder(player.getPenaltiesOrder());
     }
 
     @Override

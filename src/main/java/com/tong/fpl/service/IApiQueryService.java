@@ -110,9 +110,7 @@ public interface IApiQueryService {
 
     List<EntryEventResultData> qryTournamentEventResult(int event, int tournamentId);
 
-    List<Integer> qryTournamentEntryContainElement(int event, int tournamentId, int element);
-
-    List<Integer> qryTournamentEntryPlayElement(int event, int tournamentId, int element);
+    List<EntryEventResultData> qryTournamentEventSearchResult(int event, int tournamentId, int element);
 
     List<TournamentPointsGroupEventResultData> qryTournamentEventSummary(int event, int tournamentId);
 

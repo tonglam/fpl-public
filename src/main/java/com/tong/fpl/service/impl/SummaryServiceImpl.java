@@ -413,6 +413,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 .findFirst()
                 .ifPresent(o ->
                         data
+                                .setTcPlayed(true)
                                 .setTcEvent(o.getEvent())
                                 .setTcPoints(o.getCaptainPoints())
                                 .setTcPointsWebName(webNameMap.getOrDefault(o.getPlayedCaptain(), ""))
@@ -469,6 +470,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public EntrySeasonTransfersData qryEntrySeasonTransfers(int entry) {
         EntrySeasonTransfersData data = new EntrySeasonTransfersData();
+        if (this.queryService.getCurrentEvent() <= 1) {
+            return data;
+        }
         // prepare
         EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
@@ -1016,12 +1020,12 @@ public class SummaryServiceImpl implements ISummaryService {
                 );
     }
 
-    @Cacheable(
-            value = "api::qryLeagueSeasonSummary",
-            key = "#leagueName+'::'+#entry",
-            cacheManager = "apiCacheManager",
-            unless = "#result.leagueName == ''"
-    )
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonSummary",
+//            key = "#leagueName+'::'+#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueName == ''"
+//    )
     @Override
     public LeagueSeasonSummaryData qryLeagueSeasonSummary(String leagueName, int entry) {
         LeagueSeasonSummaryData data = new LeagueSeasonSummaryData();
@@ -1033,6 +1037,7 @@ public class SummaryServiceImpl implements ISummaryService {
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
+        int defalutNum = Math.min(leagueEventReportEntityList.size(), 5);
         Map<Integer, EntrySeasonInfoData> map = Maps.newHashMap();
         leagueEventReportEntityList.forEach(o -> {
             EntrySeasonInfoData entrySeasonInfoData = this.initLeagueEntryInfoData(o, map);
@@ -1049,7 +1054,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 map.values()
                         .stream()
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallRank))
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toList())
         );
         List<Integer> overallRankList = map.values()
@@ -1068,13 +1073,14 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setTopValue(
                 map.values()
                         .stream()
-                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTeamValue).reversed())
-                        .limit(5)
+                        .sorted(Comparator.comparing(EntrySeasonInfoData::getValue).reversed())
+                        .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallPoints).reversed())
+                        .limit(defalutNum)
                         .collect(Collectors.toList())
         );
         List<Double> valueList = map.values()
                 .stream()
-                .map(EntrySeasonInfoData::getTeamValue)
+                .map(EntrySeasonInfoData::getValue)
                 .sorted(Comparator.comparing(Double::doubleValue).reversed())
                 .collect(Collectors.toList());
         LinkedHashMap<Double, Integer> valueRankMap = Maps.newLinkedHashMap();
@@ -1088,8 +1094,9 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setTopTransfers(
                 map.values()
                         .stream()
+                        .filter(o -> o.getTotalTransfers() > 0)
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfers).reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toList())
         );
         List<Integer> transfersRankList = map.values()
@@ -1108,8 +1115,9 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setTopCost(
                 map.values()
                         .stream()
+                        .filter(o -> o.getTotalTransfersCost() > 0)
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfersCost).reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toList())
         );
         List<Integer> costRankList = map.values()
@@ -1128,8 +1136,9 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setTopBench(
                 map.values()
                         .stream()
+                        .filter(o -> o.getBank() > 0)
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalBenchPoints).reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toList())
         );
         List<Integer> benchPointsRankList = map.values()
@@ -1148,8 +1157,9 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setTopAutoSubs(
                 map.values()
                         .stream()
+                        .filter(o -> o.getTotalAutoSubsPoints() > 0)
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalAutoSubsPoints).reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toList())
         );
         List<Integer> autoSubsPointsRankList = map.values()
@@ -1188,8 +1198,8 @@ public class SummaryServiceImpl implements ISummaryService {
         entryAboveHundredCountMap.entrySet()
                 .stream()
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                .limit(5)
-                .forEach(o -> topAboveHundred.addAll(aboveHundredEntityMap.get(entry)));
+                .limit(Math.min(entryAboveHundredCountMap.size(), defalutNum))
+                .forEach(o -> topAboveHundred.addAll(aboveHundredEntityMap.get(o.getKey())));
         data.setTopAboveHundred(topAboveHundred);
         List<Integer> aboveHundredRankList = aboveHundredEntityMap.keySet()
                 .stream()
@@ -1201,8 +1211,13 @@ public class SummaryServiceImpl implements ISummaryService {
             int rank = this.calcRealRank(i, aboveHundredRankList, aboveHundredRankMap);
             aboveHundredRankMap.put(aboveHundredRankList.get(i), rank);
         });
-        data.setEntryAboveHundredTimes(aboveHundredEntityMap.get(entry).size());
-        data.setEntryAboveHundredRank(aboveHundredRankMap.get(data.getEntryAboveHundredTimes()));
+        if (aboveHundredEntityMap.containsKey(entry)) {
+            data.setEntryAboveHundredTimes(aboveHundredEntityMap.get(entry).size());
+            data.setEntryAboveHundredRank(aboveHundredRankMap.get(data.getEntryAboveHundredTimes()));
+        } else {
+            data.setEntryAboveHundredTimes(0);
+            data.setEntryAboveHundredRank(aboveHundredRankList.size() + 1);
+        }
         return data;
     }
 
@@ -1244,12 +1259,12 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    @Cacheable(
-            value = "api::qryLeagueSeasonCaptain",
-            key = "#leagueName+'::'+#entry",
-            cacheManager = "apiCacheManager",
-            unless = "#result.leagueName == ''"
-    )
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonCaptain",
+//            key = "#leagueName+'::'+#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueName == ''"
+//    )
     @Override
     public LeagueSeasonCaptainData qryLeagueSeasonCaptain(String leagueName, int entry) {
         LeagueSeasonCaptainData data = new LeagueSeasonCaptainData();
@@ -1277,6 +1292,7 @@ public class SummaryServiceImpl implements ISummaryService {
         if (map.size() == 0) {
             return data;
         }
+        int defalutNum = Math.min(map.size(), 5);
         Map<Integer, Integer> entryCaptainPointsMap = map.keySet()
                 .stream()
                 .collect(Collectors.toMap(k -> k,
@@ -1395,7 +1411,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o ->
                                         new EntrySelectedCaptainData()
                                                 .setElement(o.getKey())
@@ -1418,7 +1434,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o ->
                                         new EntrySelectedCaptainData()
                                                 .setElement(o.getKey())
@@ -1452,7 +1468,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryCaptainPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o -> {
                                     int leagueEntry = o.getKey();
                                     EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
@@ -1473,7 +1489,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryCaptainPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.comparingByValue())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o -> {
                                     int leagueEntry = o.getKey();
                                     EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
@@ -1507,7 +1523,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryCaptainPointsByPercentMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o -> {
                                     int leagueEntry = o.getKey();
                                     EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
@@ -1527,7 +1543,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryCaptainPointsByPercentMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.comparingByValue())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o -> {
                                     int leagueEntry = o.getKey();
                                     EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
@@ -1569,26 +1585,28 @@ public class SummaryServiceImpl implements ISummaryService {
         });
         data.setEntryMostCaptainPointsRank(entryMostCaptainPointsRankMap.get(data.getEntryMostCaptainPoints()));
         // entry tc captain points
-        data.setEntryTcCaptainPoints(
-                map.get(entry)
-                        .stream()
-                        .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getChip()))
-                        .map(EntryEventCaptainData::getPlayedCaptainPoints)
-                        .findFirst()
-                        .orElse(0)
-        );
-        List<Integer> entryTcCaptainPointsRankList = map.values()
+        EntryEventCaptainData tcCaptainData = map.get(entry)
                 .stream()
                 .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getChip()))
-                .map(EntryEventCaptainData::getPlayedCaptainPoints)
-                .sorted(Comparator.comparing(Integer::intValue).reversed())
-                .collect(Collectors.toList());
-        LinkedHashMap<Integer, Integer> entryTcCaptainPointsRankMap = Maps.newLinkedHashMap();
-        IntStream.range(0, entryTcCaptainPointsRankList.size()).forEach(i -> {
-            int rank = this.calcRealRank(i, entryTcCaptainPointsRankList, entryTcCaptainPointsRankMap);
-            entryTcCaptainPointsRankMap.put(entryTcCaptainPointsRankList.get(i), rank);
-        });
-        data.setEntryTcCaptainPointsRank(entryTcCaptainPointsRankMap.get(data.getEntryTcCaptainPoints()));
+                .max(Comparator.comparing(EntryEventCaptainData::getPlayedCaptainPoints))
+                .orElse(null);
+        if (tcCaptainData != null) {
+            data
+                    .setEntryTcCaptainPlayed(true)
+                    .setEntryTcCaptainPoints(tcCaptainData.getPlayedCaptainPoints());
+            List<Integer> entryTcCaptainPointsRankList = map.values()
+                    .stream()
+                    .filter(o -> StringUtils.equalsIgnoreCase(Chip.TC.getValue(), o.getChip()))
+                    .map(EntryEventCaptainData::getPlayedCaptainPoints)
+                    .sorted(Comparator.comparing(Integer::intValue).reversed())
+                    .collect(Collectors.toList());
+            LinkedHashMap<Integer, Integer> entryTcCaptainPointsRankMap = Maps.newLinkedHashMap();
+            IntStream.range(0, entryTcCaptainPointsRankList.size()).forEach(i -> {
+                int rank = this.calcRealRank(i, entryTcCaptainPointsRankList, entryTcCaptainPointsRankMap);
+                entryTcCaptainPointsRankMap.put(entryTcCaptainPointsRankList.get(i), rank);
+            });
+            data.setEntryTcCaptainPointsRank(entryTcCaptainPointsRankMap.get(data.getEntryTcCaptainPoints()));
+        }
         // entry captain points by percent
         data.setEntryCaptainPointsByPercent(NumberUtil.formatPercent(entryCaptainPointsByPercentMap.get(entry), 2));
         List<Double> entryCaptainPointsByPercentRankList = entryCaptainPointsByPercentMap.values()
@@ -1622,6 +1640,7 @@ public class SummaryServiceImpl implements ISummaryService {
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
+        int defalutNum = Math.min(leagueEventReportEntityList.size(), 5);
         Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
@@ -1737,7 +1756,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 mostSelectedGkpCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), gkpPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
@@ -1782,7 +1801,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryGkpPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o -> {
                                     EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
                                     if (entryInfoData == null) {
@@ -1851,7 +1870,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 mostSelectedDefCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), defPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
@@ -1896,7 +1915,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryDefPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o -> {
                                     EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
                                     if (entryInfoData == null) {
@@ -1965,7 +1984,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 mostSelectedMidCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), midPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
@@ -2010,7 +2029,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryMidPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o -> {
                                     EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
                                     if (entryInfoData == null) {
@@ -2079,7 +2098,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 mostSelectedFwdCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), fwdPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
@@ -2124,7 +2143,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryFwdPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(5)
+                                .limit(defalutNum)
                                 .map(o -> {
                                     EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
                                     if (entryInfoData == null) {
@@ -2188,7 +2207,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 mostSelectedFormationCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(5)
+                        .limit(defalutNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), formationList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );

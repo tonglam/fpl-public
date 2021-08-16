@@ -13,21 +13,21 @@ public class ReportTest extends FplApplicationTests {
     private IReportService reportService;
 
     @ParameterizedTest
-    @CsvSource({"1, 65, Classic, 0"})
+    @CsvSource({"2, 65, Classic, 0"})
     void insertLeagueEventSelectStat(int event, int leagueId, String leagueType, int limit) {
         this.reportService.insertLeagueEventSelect(event, leagueId, leagueType, limit);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"38, 314, Classic"})
+    @CsvSource({"1, 314, Classic"})
     void updateLeagueEventResultStat(int event, int leagueId, String leagueType) {
         this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
         System.out.println("event: " + event + ", update finished!");
     }
 
     @ParameterizedTest
-    @CsvSource({"38, 65, Classic, 100"})
+    @CsvSource({"1, 65, Classic, 100"})
     void calcEventStat(int event, int leagueId, String leagueType, int topNum) {
         Map<String, Object> map = this.reportService.calcEventStat(event, leagueId, leagueType, topNum);
         System.out.println(1);

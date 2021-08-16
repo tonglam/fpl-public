@@ -32,6 +32,7 @@ public class LeagueSeasonCaptainData {
     private List<EntrySeasonCaptainData> leastPointsByPercentEntry; // 队长得分占比最少球队
     private int entryMostCaptainPoints; // 球队队长最高分
     private int entryMostCaptainPointsRank;// 球队队长最高分排名
+    private boolean entryTcCaptainPlayed; // 球队tc队长是否已使用
     private int entryTcCaptainPoints; // 球队tc队长得分
     private int entryTcCaptainPointsRank; // 球队tc队长排名
     private String entryCaptainPointsByPercent; // 球队队长得分占比

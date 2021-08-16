@@ -127,7 +127,7 @@ public class ReportServiceImpl implements IReportService {
         String leagueType = "Tournament";
         String leagueName = tournamentInfoEntity.getName();
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                        .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
@@ -136,7 +136,7 @@ public class ReportServiceImpl implements IReportService {
         }
         List<EntryInfoData> entryInfoDataList = Lists.newArrayList();
         this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
-                        .in(EntryInfoEntity::getEntry, entryList))
+                .in(EntryInfoEntity::getEntry, entryList))
                 .forEach(o -> entryInfoDataList.add(BeanUtil.copyProperties(o, EntryInfoData.class)));
         List<CompletableFuture<LeagueEventReportEntity>> future = entryInfoDataList
                 .stream()
@@ -253,7 +253,7 @@ public class ReportServiceImpl implements IReportService {
         // prepare
         Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                        .eq(PlayerStatEntity::getEvent, event))
+                .eq(PlayerStatEntity::getEvent, event))
                 .forEach(o -> {
                     int element = o.getElement();
                     if (playerStatMap.containsKey(element)) {
@@ -267,12 +267,12 @@ public class ReportServiceImpl implements IReportService {
                     }
                 });
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
+                .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                        .eq(EntryEventResultEntity::getEvent, event)
-                        .eq(EntryEventResultEntity::getEntry, entry))
+                .eq(EntryEventResultEntity::getEvent, event)
+                .eq(EntryEventResultEntity::getEntry, entry))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // collect
@@ -299,7 +299,7 @@ public class ReportServiceImpl implements IReportService {
         // prepare
         Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                        .eq(PlayerStatEntity::getEvent, event))
+                .eq(PlayerStatEntity::getEvent, event))
                 .forEach(o -> {
                     int element = o.getElement();
                     if (playerStatMap.containsKey(element)) {
@@ -316,7 +316,7 @@ public class ReportServiceImpl implements IReportService {
             return;
         }
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
+                .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         if (CollectionUtils.isEmpty(eventLiveMap)) {
@@ -324,8 +324,8 @@ public class ReportServiceImpl implements IReportService {
             this.updateLeagueEventResult(event, leagueId, leagueType);
         }
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                        .eq(EntryEventResultEntity::getEvent, event)
-                        .in(EntryEventResultEntity::getEntry, entryList))
+                .eq(EntryEventResultEntity::getEvent, event)
+                .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         if (CollectionUtils.isEmpty(entryEventResultMap)) {
@@ -521,19 +521,20 @@ public class ReportServiceImpl implements IReportService {
                 .count();
         map.put("above100Num", above100Num);
         // max
-        LeagueEventReportEntity maxEntity = list
+        int maxPoints = list
                 .stream()
                 .max(Comparator.comparingInt(LeagueEventReportEntity::getEventPoints))
-                .orElse(new LeagueEventReportEntity());
-        map.put("max", maxEntity.getEventPoints());
-        map.put("maxEntry", maxEntity.getEntry());
-        // min
-        LeagueEventReportEntity minEntity = list
-                .stream()
-                .min(Comparator.comparingInt(LeagueEventReportEntity::getEventPoints))
-                .orElse(new LeagueEventReportEntity());
-        map.put("min", minEntity.getEventPoints());
-        map.put("minEntry", minEntity.getEntry());
+                .map(LeagueEventReportEntity::getEventPoints)
+                .orElse(0);
+        if (maxPoints > 0) {
+            List<Integer> maxEntityList = list
+                    .stream()
+                    .filter(o -> o.getEventPoints() == maxPoints)
+                    .map(LeagueEventReportEntity::getEntry)
+                    .collect(Collectors.toList());
+            map.put("max", maxPoints);
+            map.put("maxEntryList", maxEntityList);
+        }
         return map;
     }
 
