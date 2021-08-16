@@ -30,6 +30,8 @@ public class EntryEventResultData {
     private double teamValue;
     private int overallPoints;
     private int overallRank;
+    private int eventTournamentRank;
+    private int tournamentRank;
     private List<EntryPickData> picks;
     private List<ElementEventResultData> pickList;
 
