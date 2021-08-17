@@ -1020,12 +1020,12 @@ public class SummaryServiceImpl implements ISummaryService {
                 );
     }
 
-    //    @Cacheable(
-//            value = "api::qryLeagueSeasonSummary",
-//            key = "#leagueName+'::'+#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.leagueName == ''"
-//    )
+    @Cacheable(
+            value = "api::qryLeagueSeasonSummary",
+            key = "#leagueName+'::'+#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.leagueName == ''"
+    )
     @Override
     public LeagueSeasonSummaryData qryLeagueSeasonSummary(String leagueName, int entry) {
         LeagueSeasonSummaryData data = new LeagueSeasonSummaryData();
@@ -1035,6 +1035,14 @@ public class SummaryServiceImpl implements ISummaryService {
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
                 .orderByAsc(LeagueEventReportEntity::getEvent));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+            return data;
+        }
+        List<Integer> entryList = leagueEventReportEntityList
+                .stream()
+                .map(LeagueEventReportEntity::getEntry)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!entryList.contains(entry)) {
             return data;
         }
         int defalutNum = Math.min(leagueEventReportEntityList.size(), 5);
@@ -1259,39 +1267,47 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    //    @Cacheable(
-//            value = "api::qryLeagueSeasonCaptain",
-//            key = "#leagueName+'::'+#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.leagueName == ''"
-//    )
+    @Cacheable(
+            value = "api::qryLeagueSeasonCaptain",
+            key = "#leagueName+'::'+#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.leagueName == ''"
+    )
     @Override
     public LeagueSeasonCaptainData qryLeagueSeasonCaptain(String leagueName, int entry) {
         LeagueSeasonCaptainData data = new LeagueSeasonCaptainData();
         // prepare
-        Multimap<Integer, EntryEventCaptainData> map = HashMultimap.create();
-        this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
-                .orderByAsc(LeagueEventReportEntity::getEvent))
-                .forEach(o -> {
-                    EntryEventCaptainData entryEventCaptainData = new EntryEventCaptainData()
-                            .setEvent(o.getEvent())
-                            .setEntry(o.getEntry())
-                            .setCaptain(o.getCaptain())
-                            .setViceCaptain(o.getViceCaptain())
-                            .setPlayedCaptain(o.getPlayedCaptain())
-                            .setPlayedCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
-                            .setPoints(o.getEventPoints())
-                            .setChip(o.getEventChip())
-                            .setOverallPoints(o.getOverallPoints());
-                    entryEventCaptainData.setCaptainPoints(StringUtils.equalsIgnoreCase(Chip.TC.getValue(), entryEventCaptainData.getChip()) ?
-                            3 * entryEventCaptainData.getPlayedCaptainPoints() : 2 * entryEventCaptainData.getPlayedCaptainPoints());
-                    map.put(o.getEntry(), entryEventCaptainData);
-                });
-        if (map.size() == 0) {
+                .orderByAsc(LeagueEventReportEntity::getEvent));
+        if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
+        List<Integer> entryList = leagueEventReportEntityList
+                .stream()
+                .map(LeagueEventReportEntity::getEntry)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!entryList.contains(entry)) {
+            return data;
+        }
+        Multimap<Integer, EntryEventCaptainData> map = HashMultimap.create();
+        leagueEventReportEntityList.forEach(o -> {
+            EntryEventCaptainData entryEventCaptainData = new EntryEventCaptainData()
+                    .setEvent(o.getEvent())
+                    .setEntry(o.getEntry())
+                    .setCaptain(o.getCaptain())
+                    .setViceCaptain(o.getViceCaptain())
+                    .setPlayedCaptain(o.getPlayedCaptain())
+                    .setPlayedCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
+                    .setPoints(o.getEventPoints())
+                    .setChip(o.getEventChip())
+                    .setOverallPoints(o.getOverallPoints());
+            entryEventCaptainData.setCaptainPoints(StringUtils.equalsIgnoreCase(Chip.TC.getValue(), entryEventCaptainData.getChip()) ?
+                    3 * entryEventCaptainData.getPlayedCaptainPoints() : 2 * entryEventCaptainData.getPlayedCaptainPoints());
+            map.put(o.getEntry(), entryEventCaptainData);
+        });
         int defalutNum = Math.min(map.size(), 5);
         Map<Integer, Integer> entryCaptainPointsMap = map.keySet()
                 .stream()
@@ -1638,6 +1654,14 @@ public class SummaryServiceImpl implements ISummaryService {
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
                 .orderByAsc(LeagueEventReportEntity::getEvent));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
+            return data;
+        }
+        List<Integer> entryList = leagueEventReportEntityList
+                .stream()
+                .map(LeagueEventReportEntity::getEntry)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!entryList.contains(entry)) {
             return data;
         }
         int defalutNum = Math.min(leagueEventReportEntityList.size(), 5);
