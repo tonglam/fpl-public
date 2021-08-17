@@ -27,9 +27,6 @@ public class GroupApiController {
 
     @GetMapping("/qryEventEntryScoutResult")
     public EventScoutData qryEventEntryScoutResult(@RequestParam int event, @RequestParam int entry) {
-        if (event <= 0 || entry <= 0) {
-            return new EventScoutData();
-        }
         return this.apiGroup.qryEventEntryScoutResult(event, entry);
     }
 
@@ -41,18 +38,12 @@ public class GroupApiController {
     @PostMapping("/upsertEventScout")
     @ResponseBody
     public void upsertEventScout(@RequestBody ScoutData scoutData) {
-        if (scoutData.getEvent() <= 0 || scoutData.getEntry() <= 0) {
-            return;
-        }
         this.apiGroup.upsertEventScout(scoutData);
     }
 
     @GetMapping("/updateEventScoutResult")
     @ResponseBody
     public void updateEventScoutResult(@RequestParam int event) {
-        if (event <= 0) {
-            return;
-        }
         this.apiGroup.updateEventScoutResult(event);
     }
 

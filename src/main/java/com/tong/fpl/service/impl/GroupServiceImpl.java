@@ -43,6 +43,9 @@ public class GroupServiceImpl implements IGroupService {
 
     @Override
     public void upsertEventScout(ScoutData scoutData) {
+        if (scoutData.getEvent() <= 0 || scoutData.getEntry() <= 0) {
+            return;
+        }
         Map<Integer, Integer> elementTeamMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getTeamId));
@@ -113,17 +116,20 @@ public class GroupServiceImpl implements IGroupService {
 
     @Override
     public void updateEventScoutResult(int event) {
+        if (event <= 0) {
+            return;
+        }
         List<ScoutEntity> list = Lists.newArrayList();
         Multimap<Integer, ScoutEntity> entryPointsMap = HashMultimap.create();
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                        .lt(ScoutEntity::getEvent, event))
+                .lt(ScoutEntity::getEvent, event))
                 .forEach(o -> entryPointsMap.put(o.getEntry(), o));
         Map<Integer, Integer> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
+                .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                        .eq(ScoutEntity::getEvent, event))
+                .eq(ScoutEntity::getEvent, event))
                 .forEach(o -> {
                     o
                             .setGkpPoints(eventLiveMap.getOrDefault(o.getGkp(), 0))

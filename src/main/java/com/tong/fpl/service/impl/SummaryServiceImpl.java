@@ -59,6 +59,9 @@ public class SummaryServiceImpl implements ISummaryService {
     )
     @Override
     public EntrySeasonInfoData qryEntrySeasonInfo(int entry) {
+        if (entry <= 0) {
+            return new EntrySeasonInfoData();
+        }
         // prepare
         EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
@@ -108,6 +111,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public EntrySeasonSummaryData qryEntrySeasonSummary(int entry) {
         EntrySeasonSummaryData data = new EntrySeasonSummaryData();
+        if (entry <= 0) {
+            return data;
+        }
         // prepare
         EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
@@ -327,6 +333,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public EntrySeasonCaptainData qryEntrySeasonCaptain(int entry) {
         EntrySeasonCaptainData data = new EntrySeasonCaptainData();
+        if (entry <= 0) {
+            return data;
+        }
         // prepare
         EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
@@ -470,6 +479,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public EntrySeasonTransfersData qryEntrySeasonTransfers(int entry) {
         EntrySeasonTransfersData data = new EntrySeasonTransfersData();
+        if (entry <= 0) {
+            return data;
+        }
         if (this.queryService.getCurrentEvent() <= 1) {
             return data;
         }
@@ -678,6 +690,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public EntrySeasonScoreData qryEntrySeasonScore(int entry) {
         EntrySeasonScoreData data = new EntrySeasonScoreData();
+        if (entry <= 0) {
+            return data;
+        }
         // prepare
         EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
         if (entryInfoEntity == null) {
@@ -880,6 +895,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public LeagueSeasonInfoData qryLeagueSeasonInfo(String leagueName) {
         LeagueSeasonInfoData data = new LeagueSeasonInfoData();
+        if (StringUtils.isEmpty(leagueName)) {
+            return data;
+        }
         // prepare
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
@@ -1029,6 +1047,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public LeagueSeasonSummaryData qryLeagueSeasonSummary(String leagueName, int entry) {
         LeagueSeasonSummaryData data = new LeagueSeasonSummaryData();
+        if (StringUtils.isEmpty(leagueName) || entry <= 0) {
+            return data;
+        }
         // prepare
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
@@ -1276,6 +1297,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public LeagueSeasonCaptainData qryLeagueSeasonCaptain(String leagueName, int entry) {
         LeagueSeasonCaptainData data = new LeagueSeasonCaptainData();
+        if (StringUtils.isEmpty(leagueName) || entry <= 0) {
+            return data;
+        }
         // prepare
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
@@ -1647,6 +1671,9 @@ public class SummaryServiceImpl implements ISummaryService {
     @Override
     public LeagueSeasonScoreData qryLeagueSeasonScore(String leagueName, int entry) {
         LeagueSeasonScoreData data = new LeagueSeasonScoreData();
+        if (StringUtils.isEmpty(leagueName) || entry <= 0) {
+            return data;
+        }
         // prepare
         int current = this.queryService.getCurrentEvent();
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()

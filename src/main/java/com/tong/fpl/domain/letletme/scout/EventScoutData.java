@@ -11,7 +11,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class EventScoutData {
 
-    private int id;
     private int event;
     private int entry;
     private String scoutName;
