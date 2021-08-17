@@ -8,6 +8,7 @@ import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 
@@ -115,5 +116,7 @@ public interface IApiQueryService {
     List<TournamentPointsGroupEventResultData> qryTournamentEventSummary(int event, int tournamentId);
 
     List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry);
+
+    TournamentGroupEventChampionData qryTournamentEventChampion(int tournamentId);
 
 }

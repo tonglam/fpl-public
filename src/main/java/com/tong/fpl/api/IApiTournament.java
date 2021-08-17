@@ -2,6 +2,7 @@ package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.SearchEntryEventResultData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 
@@ -44,5 +45,9 @@ public interface IApiTournament {
      */
     List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry);
 
+    /**
+     * 获取联赛周冠军榜
+     */
+    TournamentGroupEventChampionData qryTournamentEventChampion(int tournamentId);
 
 }

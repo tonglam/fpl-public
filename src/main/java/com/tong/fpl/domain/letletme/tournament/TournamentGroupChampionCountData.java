@@ -14,8 +14,11 @@ public class TournamentGroupChampionCountData {
     private int entry;
     private String entryName;
     private String playerName;
+    private int overallPoints;
+    private int overallRank;
     private int championNum;
     private int runnerUpNum;
     private int secondRunnerUpNum;
+    private int totalNum;
 
 }

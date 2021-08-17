@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.tong.fpl.api.IApiTournament;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.SearchEntryEventResultData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,7 @@ public class TournamentApiController {
     }
 
     @GetMapping("/qryTournamentEventSearchResult")
-    SearchEntryEventResultData qryTournamentEventSearchResult(int event, int tournamentId, int element) {
+    SearchEntryEventResultData qryTournamentEventSearchResult(@RequestParam int event, @RequestParam int tournamentId, @RequestParam int element) {
         if (event <= 0 || tournamentId <= 0 || element <= 0) {
             return new SearchEntryEventResultData();
         }
@@ -58,7 +59,7 @@ public class TournamentApiController {
     }
 
     @GetMapping("/qryTournamentEventSummary")
-    List<TournamentPointsGroupEventResultData> qryTournamentEventSummary(int event, int tournamentId) {
+    List<TournamentPointsGroupEventResultData> qryTournamentEventSummary(@RequestParam int event, @RequestParam int tournamentId) {
         if (event <= 0 || tournamentId <= 0) {
             return Lists.newArrayList();
         }
@@ -66,11 +67,16 @@ public class TournamentApiController {
     }
 
     @GetMapping("/qryTournamentEntryEventSummary")
-    List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry) {
+    List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(@RequestParam int tournamentId, @RequestParam int entry) {
         if (tournamentId <= 0 || entry <= 0) {
             return Lists.newArrayList();
         }
         return this.apiTournament.qryTournamentEntryEventSummary(tournamentId, entry);
+    }
+
+    @GetMapping("/qryTournamentEventChampion")
+    TournamentGroupEventChampionData qryTournamentEventChampion(@RequestParam int tournamentId) {
+        return this.apiTournament.qryTournamentEventChampion(tournamentId);
     }
 
 }

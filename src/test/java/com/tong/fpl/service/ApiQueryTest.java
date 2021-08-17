@@ -13,6 +13,7 @@ import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.db.EntryEventResultService;
@@ -313,6 +314,13 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"1, 1870"})
     void qryTournamentEntryEventSummary(int tournamentId, int entry) {
         List<TournamentPointsGroupEventResultData> list = this.apiQueryService.qryTournamentEntryEventSummary(tournamentId, entry);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1"})
+    void qryTournamentEventChampion(int tournamentId) {
+        TournamentGroupEventChampionData data = this.apiQueryService.qryTournamentEventChampion(tournamentId);
         System.out.println(1);
     }
 
