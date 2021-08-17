@@ -289,6 +289,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setOverallRank(entryEventResultEntity.getOverallRank());
             data.setPickList(this.getPickListFromDB(event, data.getChip(), entryEventResultEntity.getEventPicks()));
             data.setCaptainName(this.getPlayedCaptainName(data.getPickList()));
+            return data;
         }
         // from fpl server
         UserPicksRes userPick = this.queryService.getUserPicks(event, entry);

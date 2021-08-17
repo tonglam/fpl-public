@@ -30,6 +30,9 @@ public class ApiCommonImpl implements IApiCommon {
 
     @Override
     public void insertEventLiveCache(int event) {
+        if (event <= 0 || event > 38) {
+            return;
+        }
         this.redisCacheService.insertEventLive(event);
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
