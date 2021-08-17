@@ -1999,6 +1999,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return new PlayerInfoData()
                 .setElement(element)
                 .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
                 .setTeamId(teamId)
                 .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(teamId), ""))
                 .setPrice(playerEntity.getPrice() / 10.0)
