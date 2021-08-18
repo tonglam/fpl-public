@@ -8,6 +8,7 @@ import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.*;
+import com.tong.fpl.domain.letletme.global.MapData;
 import com.tong.fpl.domain.letletme.summary.entry.*;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
@@ -278,7 +279,7 @@ public class SummaryServiceImpl implements ISummaryService {
         int event = entryEventResultEntity.getEvent();
         Chip chip = Chip.getChipFromValue(entryEventResultEntity.getEventChip());
         Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         // calc profit
@@ -926,112 +927,112 @@ public class SummaryServiceImpl implements ISummaryService {
                 .setLeagueName(leagueName)
                 .setAverageOverallPoints(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .mapToDouble(EntrySeasonInfoData::getOverallPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .mapToDouble(EntrySeasonInfoData::getOverallPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setTopAverageOverallPoints(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallRank))
-                                        .limit(5)
-                                        .mapToDouble(EntrySeasonInfoData::getOverallPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallRank))
+                                                .limit(5)
+                                                .mapToDouble(EntrySeasonInfoData::getOverallPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setAverageValue(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .mapToDouble(EntrySeasonInfoData::getTeamValue)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .mapToDouble(EntrySeasonInfoData::getTeamValue)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setTopAverageValue(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTeamValue).reversed())
-                                        .limit(5)
-                                        .mapToDouble(EntrySeasonInfoData::getTeamValue)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .sorted(Comparator.comparing(EntrySeasonInfoData::getTeamValue).reversed())
+                                                .limit(5)
+                                                .mapToDouble(EntrySeasonInfoData::getTeamValue)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setAverageCost(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .mapToDouble(EntrySeasonInfoData::getTotalTransfersCost)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .mapToDouble(EntrySeasonInfoData::getTotalTransfersCost)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setTopAverageCost(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfersCost).reversed())
-                                        .limit(5)
-                                        .mapToDouble(EntrySeasonInfoData::getTotalTransfersCost)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfersCost).reversed())
+                                                .limit(5)
+                                                .mapToDouble(EntrySeasonInfoData::getTotalTransfersCost)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setAverageBenchPoints(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .mapToDouble(EntrySeasonInfoData::getTotalBenchPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .mapToDouble(EntrySeasonInfoData::getTotalBenchPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setTopAverageBenchPoints(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalBenchPoints).reversed())
-                                        .limit(5)
-                                        .mapToDouble(EntrySeasonInfoData::getTotalBenchPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalBenchPoints).reversed())
+                                                .limit(5)
+                                                .mapToDouble(EntrySeasonInfoData::getTotalBenchPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setAverageAutoSubsPoints(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .mapToDouble(EntrySeasonInfoData::getTotalAutoSubsPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .mapToDouble(EntrySeasonInfoData::getTotalAutoSubsPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setTopAverageAutoSubsPoints(
                         NumberUtil.round(
-                                map.values()
-                                        .stream()
-                                        .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalAutoSubsPoints).reversed())
-                                        .limit(5)
-                                        .mapToDouble(EntrySeasonInfoData::getTotalAutoSubsPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.values()
+                                                .stream()
+                                                .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalAutoSubsPoints).reversed())
+                                                .limit(5)
+                                                .mapToDouble(EntrySeasonInfoData::getTotalAutoSubsPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 );
     }
@@ -1355,18 +1356,18 @@ public class SummaryServiceImpl implements ISummaryService {
                 )
                 .setAverageCaptainNum(
                         NumberUtil.round(
-                                map.keySet()
-                                        .stream()
-                                        .mapToLong(o ->
-                                                map.get(o)
-                                                        .stream()
-                                                        .map(EntryEventCaptainData::getPlayedCaptain)
-                                                        .distinct()
-                                                        .count()
-                                        )
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.keySet()
+                                                .stream()
+                                                .mapToLong(o ->
+                                                        map.get(o)
+                                                                .stream()
+                                                                .map(EntryEventCaptainData::getPlayedCaptain)
+                                                                .distinct()
+                                                                .count()
+                                                )
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setTotalCaptainPoints(
@@ -1377,29 +1378,29 @@ public class SummaryServiceImpl implements ISummaryService {
                 )
                 .setAverageCaptainPoints(
                         NumberUtil.round(
-                                map.keySet()
-                                        .stream()
-                                        .mapToDouble(o ->
-                                                map.get(o)
-                                                        .stream()
-                                                        .mapToInt(EntryEventCaptainData::getCaptainPoints)
-                                                        .average()
-                                                        .orElse(0)
-                                        )
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.keySet()
+                                                .stream()
+                                                .mapToDouble(o ->
+                                                        map.get(o)
+                                                                .stream()
+                                                                .mapToInt(EntryEventCaptainData::getCaptainPoints)
+                                                                .average()
+                                                                .orElse(0)
+                                                )
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .setEntryCaptainTotalPoints(entryCaptainPointsMap.get(entry))
                 .setEntryAverageCaptainPoints(
                         NumberUtil.round(
-                                map.get(entry)
-                                        .stream()
-                                        .mapToInt(EntryEventCaptainData::getCaptainPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.get(entry)
+                                                .stream()
+                                                .mapToInt(EntryEventCaptainData::getCaptainPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 );
         // captain points rank
@@ -1424,12 +1425,12 @@ public class SummaryServiceImpl implements ISummaryService {
                 .stream()
                 .map(o ->
                         NumberUtil.round(
-                                map.get(o)
-                                        .stream()
-                                        .mapToInt(EntryEventCaptainData::getCaptainPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        map.get(o)
+                                                .stream()
+                                                .mapToInt(EntryEventCaptainData::getCaptainPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 )
                 .sorted(Comparator.comparing(Double::doubleValue).reversed())
@@ -1658,12 +1659,12 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    @Cacheable(
-            value = "api::qryLeagueSeasonScore",
-            key = "#leagueName+'::'+#entry",
-            cacheManager = "apiCacheManager",
-            unless = "#result.leagueName == ''"
-    )
+    //    @Cacheable(
+//            value = "api::qryLeagueSeasonScore",
+//            key = "#leagueName+'::'+#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.leagueName == ''"
+//    )
     @Override
     public LeagueSeasonScoreData qryLeagueSeasonScore(String leagueName, int entry) {
         LeagueSeasonScoreData data = new LeagueSeasonScoreData();
@@ -1775,13 +1776,13 @@ public class SummaryServiceImpl implements ISummaryService {
                 )
                 .setAverageOverallPoints(
                         NumberUtil.round(
-                                leagueEventReportEntityList
-                                        .stream()
-                                        .filter(o -> o.getEvent() == current)
-                                        .mapToInt(LeagueEventReportEntity::getOverallPoints)
-                                        .average()
-                                        .orElse(0)
-                                , 2)
+                                        leagueEventReportEntityList
+                                                .stream()
+                                                .filter(o -> o.getEvent() == current)
+                                                .mapToInt(LeagueEventReportEntity::getOverallPoints)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
                                 .doubleValue()
                 );
         // gkp
@@ -1802,26 +1803,30 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(defaultNum)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), gkpPickList.size()),
-                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                        .map(o ->
+                                new MapData<String>()
+                                        .setKey(o.getKey())
+                                        .setValue(CommonUtils.getPercentResult(o.getValue().intValue(), gkpPickList.size()))
+                        )
+                        .collect(Collectors.toList())
         );
         // league entry gkp
         Multimap<Integer, EntryPickData> entryGkpPickMap = HashMultimap.create();
         entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.GKP.getElementType()).forEach(j -> entryGkpPickMap.put(leagueEntry, j))));
         data.setAverageEntryGkpTotalNum(
                 NumberUtil.round(
-                        entryGkpPickMap.keySet()
-                                .stream()
-                                .mapToDouble(o ->
-                                        entryGkpPickMap.get(o)
-                                                .stream()
-                                                .map(EntryPickData::getElement)
-                                                .distinct()
-                                                .count()
-                                )
-                                .average()
-                                .orElse(0)
-                        , 2)
+                                entryGkpPickMap.keySet()
+                                        .stream()
+                                        .mapToDouble(o ->
+                                                entryGkpPickMap.get(o)
+                                                        .stream()
+                                                        .map(EntryPickData::getElement)
+                                                        .distinct()
+                                                        .count()
+                                        )
+                                        .average()
+                                        .orElse(0)
+                                , 2)
                         .doubleValue()
         );
         Map<Integer, Integer> entryGkpPointsMap = entryGkpPickMap.keySet()
@@ -1833,15 +1838,15 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .sum()
                 ));
         data.setAverageEntryGkpTotalPoints(
-                NumberUtil.round(
-                        entryGkpPointsMap.values()
-                                .stream()
-                                .mapToInt(Integer::intValue)
-                                .average()
-                                .orElse(0)
-                        , 2)
-                        .doubleValue()
-        )
+                        NumberUtil.round(
+                                        entryGkpPointsMap.values()
+                                                .stream()
+                                                .mapToInt(Integer::intValue)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
+                                .doubleValue()
+                )
                 .setMostEntryGkpPoints(
                         entryGkpPointsMap.entrySet()
                                 .stream()
@@ -1916,26 +1921,30 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(defaultNum)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), defPickList.size()),
-                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                        .map(o ->
+                                new MapData<String>()
+                                        .setKey(o.getKey())
+                                        .setValue(CommonUtils.getPercentResult(o.getValue().intValue(), defPickList.size()))
+                        )
+                        .collect(Collectors.toList())
         );
         // league entry def
         Multimap<Integer, EntryPickData> entryDefPickMap = HashMultimap.create();
         entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.DEF.getElementType()).forEach(j -> entryDefPickMap.put(leagueEntry, j))));
         data.setAverageEntryDefTotalNum(
                 NumberUtil.round(
-                        entryDefPickMap.keySet()
-                                .stream()
-                                .mapToDouble(o ->
-                                        entryDefPickMap.get(o)
-                                                .stream()
-                                                .map(EntryPickData::getElement)
-                                                .distinct()
-                                                .count()
-                                )
-                                .average()
-                                .orElse(0)
-                        , 2)
+                                entryDefPickMap.keySet()
+                                        .stream()
+                                        .mapToDouble(o ->
+                                                entryDefPickMap.get(o)
+                                                        .stream()
+                                                        .map(EntryPickData::getElement)
+                                                        .distinct()
+                                                        .count()
+                                        )
+                                        .average()
+                                        .orElse(0)
+                                , 2)
                         .doubleValue()
         );
         Map<Integer, Integer> entryDefPointsMap = entryDefPickMap.keySet()
@@ -1947,15 +1956,15 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .sum()
                 ));
         data.setAverageEntryDefTotalPoints(
-                NumberUtil.round(
-                        entryDefPointsMap.values()
-                                .stream()
-                                .mapToInt(Integer::intValue)
-                                .average()
-                                .orElse(0)
-                        , 2)
-                        .doubleValue()
-        )
+                        NumberUtil.round(
+                                        entryDefPointsMap.values()
+                                                .stream()
+                                                .mapToInt(Integer::intValue)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
+                                .doubleValue()
+                )
                 .setMostEntryDefPoints(
                         entryDefPointsMap.entrySet()
                                 .stream()
@@ -2030,26 +2039,30 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(defaultNum)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), midPickList.size()),
-                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                        .map(o ->
+                                new MapData<String>()
+                                        .setKey(o.getKey())
+                                        .setValue(CommonUtils.getPercentResult(o.getValue().intValue(), midPickList.size()))
+                        )
+                        .collect(Collectors.toList())
         );
         // league entry mid
         Multimap<Integer, EntryPickData> entryMidPickMap = HashMultimap.create();
         entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.MID.getElementType()).forEach(j -> entryMidPickMap.put(leagueEntry, j))));
         data.setAverageEntryMidTotalNum(
                 NumberUtil.round(
-                        entryMidPickMap.keySet()
-                                .stream()
-                                .mapToDouble(o ->
-                                        entryMidPickMap.get(o)
-                                                .stream()
-                                                .map(EntryPickData::getElement)
-                                                .distinct()
-                                                .count()
-                                )
-                                .average()
-                                .orElse(0)
-                        , 2)
+                                entryMidPickMap.keySet()
+                                        .stream()
+                                        .mapToDouble(o ->
+                                                entryMidPickMap.get(o)
+                                                        .stream()
+                                                        .map(EntryPickData::getElement)
+                                                        .distinct()
+                                                        .count()
+                                        )
+                                        .average()
+                                        .orElse(0)
+                                , 2)
                         .doubleValue()
         );
         Map<Integer, Integer> entryMidPointsMap = entryMidPickMap.keySet()
@@ -2061,15 +2074,15 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .sum()
                 ));
         data.setAverageEntryMidTotalPoints(
-                NumberUtil.round(
-                        entryMidPointsMap.values()
-                                .stream()
-                                .mapToInt(Integer::intValue)
-                                .average()
-                                .orElse(0)
-                        , 2)
-                        .doubleValue()
-        )
+                        NumberUtil.round(
+                                        entryMidPointsMap.values()
+                                                .stream()
+                                                .mapToInt(Integer::intValue)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
+                                .doubleValue()
+                )
                 .setMostEntryMidPoints(
                         entryMidPointsMap.entrySet()
                                 .stream()
@@ -2144,26 +2157,30 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(defaultNum)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), fwdPickList.size()),
-                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                        .map(o ->
+                                new MapData<String>()
+                                        .setKey(o.getKey())
+                                        .setValue(CommonUtils.getPercentResult(o.getValue().intValue(), fwdPickList.size()))
+                        )
+                        .collect(Collectors.toList())
         );
         // league entry fwd
         Multimap<Integer, EntryPickData> entryFwdPickMap = HashMultimap.create();
         entryPickTable.rowKeySet().forEach(leagueEntry -> entryPickTable.row(leagueEntry).values().forEach(i -> i.get(Position.FWD.getElementType()).forEach(j -> entryFwdPickMap.put(leagueEntry, j))));
         data.setAverageEntryFwdTotalNum(
                 NumberUtil.round(
-                        entryFwdPickMap.keySet()
-                                .stream()
-                                .mapToDouble(o ->
-                                        entryFwdPickMap.get(o)
-                                                .stream()
-                                                .map(EntryPickData::getElement)
-                                                .distinct()
-                                                .count()
-                                )
-                                .average()
-                                .orElse(0)
-                        , 2)
+                                entryFwdPickMap.keySet()
+                                        .stream()
+                                        .mapToDouble(o ->
+                                                entryFwdPickMap.get(o)
+                                                        .stream()
+                                                        .map(EntryPickData::getElement)
+                                                        .distinct()
+                                                        .count()
+                                        )
+                                        .average()
+                                        .orElse(0)
+                                , 2)
                         .doubleValue()
         );
         Map<Integer, Integer> entryFwdPointsMap = entryFwdPickMap.keySet()
@@ -2175,15 +2192,15 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .sum()
                 ));
         data.setAverageEntryFwdTotalPoints(
-                NumberUtil.round(
-                        entryFwdPointsMap.values()
-                                .stream()
-                                .mapToInt(Integer::intValue)
-                                .average()
-                                .orElse(0)
-                        , 2)
-                        .doubleValue()
-        )
+                        NumberUtil.round(
+                                        entryFwdPointsMap.values()
+                                                .stream()
+                                                .mapToInt(Integer::intValue)
+                                                .average()
+                                                .orElse(0)
+                                        , 2)
+                                .doubleValue()
+                )
                 .setMostEntryFwdPoints(
                         entryFwdPointsMap.entrySet()
                                 .stream()
@@ -2253,8 +2270,12 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                         .limit(defaultNum)
-                        .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), formationList.size()),
-                                (oldValue, newValue) -> newValue, LinkedHashMap::new))
+                        .map(o ->
+                                new MapData<String>()
+                                        .setKey(o.getKey())
+                                        .setValue(CommonUtils.getPercentResult(o.getValue().intValue(), formationList.size()))
+                        )
+                        .collect(Collectors.toList())
         );
         return data;
     }

@@ -1,10 +1,10 @@
 package com.tong.fpl.domain.letletme.summary.league;
 
+import com.tong.fpl.domain.letletme.global.MapData;
 import com.tong.fpl.domain.letletme.summary.entry.EntryElementTypeScoreData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -20,7 +20,7 @@ public class LeagueSeasonScoreData {
     // gkp
     private int gkpTotalPoints;
     private String gkpTotalPointsByPercent;
-    private LinkedHashMap<String, String> mostSelectedGkpByPercent;
+    private List<MapData<String>> mostSelectedGkpByPercent;
     private double averageEntryGkpTotalNum;
     private double averageEntryGkpTotalPoints;
     private List<EntryElementTypeScoreData> mostEntryGkpPoints;
@@ -31,7 +31,7 @@ public class LeagueSeasonScoreData {
     // def
     private int defTotalPoints;
     private String defTotalPointsByPercent;
-    private LinkedHashMap<String, String> mostSelectedDefByPercent;
+    private List<MapData<String>> mostSelectedDefByPercent;
     private double averageEntryDefTotalNum;
     private double averageEntryDefTotalPoints;
     private List<EntryElementTypeScoreData> mostEntryDefPoints;
@@ -42,7 +42,7 @@ public class LeagueSeasonScoreData {
     // mid
     private int midTotalPoints;
     private String midTotalPointsByPercent;
-    private LinkedHashMap<String, String> mostSelectedMidByPercent;
+    private List<MapData<String>> mostSelectedMidByPercent;
     private double averageEntryMidTotalNum;
     private double averageEntryMidTotalPoints;
     private List<EntryElementTypeScoreData> mostEntryMidPoints;
@@ -53,7 +53,7 @@ public class LeagueSeasonScoreData {
     // fwd
     private int fwdTotalPoints;
     private String fwdTotalPointsByPercent;
-    private LinkedHashMap<String, String> mostSelectedFwdByPercent;
+    private List<MapData<String>> mostSelectedFwdByPercent;
     private double averageEntryFwdTotalNum;
     private double averageEntryFwdTotalPoints;
     private List<EntryElementTypeScoreData> mostEntryFwdPoints;
@@ -62,6 +62,6 @@ public class LeagueSeasonScoreData {
     private int entryFwdTotalNum;
     private int entryFwdTotalNumRank;
     // formation
-    private LinkedHashMap<String, String> mostSelectedFormation; // formation -> percent
+    private List<MapData<String>> mostSelectedFormation; // formation -> percent
 
 }
