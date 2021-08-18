@@ -16,7 +16,7 @@ spring:
       flush-mode: immediate
     store-type: redis
   redis:
-    host: 10.0.12.7
+    host: 42.193.222.127
     port: 6379
     lettuce:
       pool:
