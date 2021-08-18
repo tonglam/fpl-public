@@ -515,7 +515,7 @@ public class QueryServiceImpl implements IQueryService {
         EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
         MybatisPlusConfig.season.remove();
         if (entryInfoEntity != null) {
-            return new EntryInfoData();
+            return BeanUtil.copyProperties(entryInfoEntity, EntryInfoData.class);
         }
         if (!StringUtils.equals(CommonUtils.getCurrentSeason(), season)) {
             return new EntryInfoData();
