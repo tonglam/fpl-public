@@ -19,6 +19,7 @@ import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
@@ -26,7 +27,6 @@ import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.EntryEventPickService;
 import com.tong.fpl.service.db.EntryInfoService;
-import com.tong.fpl.service.db.PlayerService;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +53,6 @@ public class LiveServiceImpl implements ILiveService {
     private final IQueryService queryService;
     private final EntryEventPickService entryEventPickService;
     private final EntryInfoService entryInfoService;
-    private final PlayerService playerService;
 
     @Override
     public LiveCalcData calcLivePointsByEntry(int event, int entry) {
@@ -61,7 +60,7 @@ public class LiveServiceImpl implements ILiveService {
             return new LiveCalcData();
         }
         // prepare
-        Map<Integer, PlayerEntity> playerInfoMap = Maps.newHashMap();
+        Map<String, PlayerEntity> playerInfoMap = Maps.newHashMap();
         Map<Integer, EventLiveEntity> eventLiveMap = this.getEventLiveByEvent(event);
         Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.getEventLiveFixtureMap();
         Table<Integer, Integer, Integer> liveBonusTable = this.getLiveBonusTable();
@@ -69,14 +68,14 @@ public class LiveServiceImpl implements ILiveService {
         LiveCalcData liveCalcData = this.calcLiveSingleEntryPoints(event, entry, playerInfoMap,
                 teamLiveFixtureMap, Maps.newHashMap(), eventLiveMap, liveBonusTable, new ForkJoinPool(4));
         // entry info
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-        if (entryInfoEntity != null) {
-            BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+        if (entryInfoData != null) {
+            BeanUtil.copyProperties(entryInfoData, liveCalcData);
             liveCalcData
-                    .setValue(entryInfoEntity.getTeamValue() / 10.0)
-                    .setBank(entryInfoEntity.getBank() / 10.0)
-                    .setTeamValue((entryInfoEntity.getTeamValue() - entryInfoEntity.getBank()) / 10.0)
-                    .setLastValue(entryInfoEntity.getLastTeamValue() / 10.0)
+                    .setValue(entryInfoData.getTeamValue() / 10.0)
+                    .setBank(entryInfoData.getBank() / 10.0)
+                    .setTeamValue((entryInfoData.getTeamValue() - entryInfoData.getBank()) / 10.0)
+                    .setLastValue(entryInfoData.getLastTeamValue() / 10.0)
                     .setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
         }
         return liveCalcData;
@@ -88,9 +87,7 @@ public class LiveServiceImpl implements ILiveService {
             return Lists.newArrayList();
         }
         // prepare
-        Map<Integer, PlayerEntity> playerInfoMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerInfoMap = this.queryService.getPlayerMap();
         Map<Integer, EntryEventPickEntity> entryEventPickMap = this.qryTournamentEntryEventPickMap(event, tournamentId);
         Map<Integer, EventLiveEntity> eventLiveMap = this.getEventLiveByEvent(event);
         Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.getEventLiveFixtureMap();
@@ -157,9 +154,7 @@ public class LiveServiceImpl implements ILiveService {
             return new SearchLiveCalcData();
         }
         // prepare
-        Map<Integer, PlayerEntity> playerInfoMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerInfoMap = this.queryService.getPlayerMap();
         Map<Integer, EntryEventPickEntity> entryEventPickMap = this.qryTournamentEntryEventPickMap(event, tournamentId);
         Map<Integer, EventLiveEntity> eventLiveMap = this.getEventLiveByEvent(event);
         Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.getEventLiveFixtureMap();
@@ -205,7 +200,7 @@ public class LiveServiceImpl implements ILiveService {
                 .collect(Collectors.toList());
         return new SearchLiveCalcData()
                 .setElement(element)
-                .setWebName(playerInfoMap.get(element).getWebName())
+                .setWebName(playerInfoMap.get(String.valueOf(element)).getWebName())
                 .setSelectByPercent(searchList.size() == 0 ? "0%"
                         : CommonUtils.getPercentResult(searchList.size(), entryList.size()))
                 .setLiveCalcDataList(liveCalcList);
@@ -229,7 +224,7 @@ public class LiveServiceImpl implements ILiveService {
     @Override
     public LiveCalcData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, String chip, int captain, int viceCaptain) {
         // prepare
-        Map<Integer, PlayerEntity> playerInfoMap = Maps.newHashMap();
+        Map<String, PlayerEntity> playerInfoMap = Maps.newHashMap();
         Map<Integer, EventLiveEntity> eventLiveMap = this.getEventLiveByEvent(event);
         Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap = this.getEventLiveFixtureMap();
         Table<Integer, Integer, Integer> liveBonusTable = this.getLiveBonusTable();
@@ -294,7 +289,11 @@ public class LiveServiceImpl implements ILiveService {
         return table;
     }
 
-    private LiveCalcData calcLiveSingleEntryPoints(int event, int entry, Map<Integer, PlayerEntity> playerInfoMap, Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap, Map<Integer, EntryEventPickEntity> entryEventPickMap, Map<Integer, EventLiveEntity> eventLiveMap, Table<Integer, Integer, Integer> liveBonusTable, ForkJoinPool forkJoinPool) {
+    private LiveCalcData calcLiveSingleEntryPoints(int event, int entry, Map<String, PlayerEntity> playerInfoMap,
+                                                   Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap,
+                                                   Map<Integer, EntryEventPickEntity> entryEventPickMap, Map<Integer, EventLiveEntity> eventLiveMap,
+                                                   Table<Integer, Integer, Integer> liveBonusTable,
+                                                   ForkJoinPool forkJoinPool) {
         // get user pick
         EntryEventPickEntity entryEventPickEntity = this.getEntryEventPick(event, entry, entryEventPickMap);
         if (entryEventPickEntity == null) {
@@ -365,7 +364,7 @@ public class LiveServiceImpl implements ILiveService {
         return entryEventPickEntity;
     }
 
-    public List<ElementEventResultData> qryEntryLiveStaticData(int event, List<Pick> picks, Map<Integer, PlayerEntity> playerInfoMap, Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap, ForkJoinPool forkJoinPool) {
+    public List<ElementEventResultData> qryEntryLiveStaticData(int event, List<Pick> picks, Map<String, PlayerEntity> playerInfoMap, Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap, ForkJoinPool forkJoinPool) {
         List<CompletableFuture<ElementEventResultData>> future = picks.stream()
                 .map(o ->
                         CompletableFuture.supplyAsync(() ->
@@ -377,7 +376,7 @@ public class LiveServiceImpl implements ILiveService {
                 .collect(Collectors.toList());
     }
 
-    public ElementEventResultData qryElementLiveStaticData(int event, int element, Pick pick, Map<Integer, PlayerEntity> playerInfoMap, Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
+    public ElementEventResultData qryElementLiveStaticData(int event, int element, Pick pick, Map<String, PlayerEntity> playerInfoMap, Map<Integer, Map<String, List<LiveFixtureData>>> teamLiveFixtureMap) {
         // from user pick
         ElementEventResultData elementEventResultData = new ElementEventResultData();
         elementEventResultData
@@ -389,8 +388,8 @@ public class LiveServiceImpl implements ILiveService {
                 .setViceCaptain(pick.isViceCaptain());
         // player info
         PlayerEntity playerEntity;
-        if (playerInfoMap.containsKey(element)) {
-            playerEntity = playerInfoMap.get(element);
+        if (playerInfoMap.containsKey(String.valueOf(element))) {
+            playerEntity = playerInfoMap.get(String.valueOf(element));
         } else {
             playerEntity = this.queryService.getPlayerByElement(element);
         }

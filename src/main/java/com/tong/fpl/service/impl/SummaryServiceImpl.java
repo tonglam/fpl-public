@@ -16,7 +16,10 @@ import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ISummaryService;
-import com.tong.fpl.service.db.*;
+import com.tong.fpl.service.db.EntryEventResultService;
+import com.tong.fpl.service.db.EntryEventTransfersService;
+import com.tong.fpl.service.db.EventLiveService;
+import com.tong.fpl.service.db.LeagueEventReportService;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +44,6 @@ public class SummaryServiceImpl implements ISummaryService {
 
     private final IApiQueryService apiQueryService;
     private final IQueryService queryService;
-    private final PlayerService playerService;
     private final EventLiveService eventLiveService;
     private final EntryEventResultService entryEventResultService;
     private final EntryEventTransfersService entryEventTransfersService;
@@ -63,8 +65,8 @@ public class SummaryServiceImpl implements ISummaryService {
             return new EntrySeasonInfoData();
         }
         // prepare
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+        if (entryInfoData == null) {
             return new EntrySeasonInfoData();
         }
         List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
@@ -74,11 +76,11 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         return new EntrySeasonInfoData()
                 .setEntry(entry)
-                .setEntryName(entryInfoEntity.getEntryName())
-                .setPlayerName(entryInfoEntity.getPlayerName())
-                .setOverallPoints(entryInfoEntity.getOverallPoints())
-                .setOverallRank(entryInfoEntity.getOverallRank())
-                .setTotalTransfers(entryInfoEntity.getTotalTransfers())
+                .setEntryName(entryInfoData.getEntryName())
+                .setPlayerName(entryInfoData.getPlayerName())
+                .setOverallPoints(entryInfoData.getOverallPoints())
+                .setOverallRank(entryInfoData.getOverallRank())
+                .setTotalTransfers(entryInfoData.getTotalTransfers())
                 .setTotalTransfersCost(
                         entryEventResultEntityList
                                 .stream()
@@ -97,9 +99,9 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .mapToInt(EntryEventResultEntity::getEventAutoSubPoints)
                                 .sum()
                 )
-                .setValue(entryInfoEntity.getTeamValue() / 10.0)
-                .setBank(entryInfoEntity.getBank() / 10.0)
-                .setTeamValue((entryInfoEntity.getTeamValue() - entryInfoEntity.getBank()) / 10.0);
+                .setValue(entryInfoData.getTeamValue() / 10.0)
+                .setBank(entryInfoData.getBank() / 10.0)
+                .setTeamValue((entryInfoData.getTeamValue() - entryInfoData.getBank()) / 10.0);
     }
 
     @Cacheable(
@@ -115,11 +117,11 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         // prepare
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+        if (entryInfoData == null) {
             return data;
         }
-        Map<Integer, String> webNameMap = this.queryService.qryPlayerWebNameMap();
+        Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         if (CollectionUtils.isEmpty(webNameMap)) {
             return data;
         }
@@ -130,8 +132,8 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         data
                 .setEntry(entry)
-                .setEntryName(entryInfoEntity.getEntryName())
-                .setPlayerName(entryInfoEntity.getPlayerName());
+                .setEntryName(entryInfoData.getEntryName())
+                .setPlayerName(entryInfoData.getPlayerName());
         // entry_event_result
         entryEventResultEntityList
                 .stream()
@@ -190,8 +192,8 @@ public class SummaryServiceImpl implements ISummaryService {
                                 new EntryAboveHundredData()
                                         .setEvent(o.getEvent())
                                         .setEntry(o.getEntry())
-                                        .setEntryName(entryInfoEntity.getEntryName())
-                                        .setPlayerName(entryInfoEntity.getPlayerName())
+                                        .setEntryName(entryInfoData.getEntryName())
+                                        .setPlayerName(entryInfoData.getPlayerName())
                                         .setPoint(o.getEventPoints())
                                         .setTransfers(o.getEventTransfers())
                                         .setCost(o.getEventTransfersCost())
@@ -217,7 +219,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                             .map(i -> i
                                                     .setEvent(i.getEvent())
                                                     .setEntry(entry)
-                                                    .setWebName(webNameMap.getOrDefault(i.getElement(), ""))
+                                                    .setWebName(webNameMap.getOrDefault(String.valueOf(i.getElement()), ""))
                                             )
                                             .collect(Collectors.toList())
                             )
@@ -237,8 +239,8 @@ public class SummaryServiceImpl implements ISummaryService {
                                     i
                                             .setEvent(o.getEvent())
                                             .setEntry(entry)
-                                            .setElementInWebName(webNameMap.getOrDefault(i.getElementIn(), ""))
-                                            .setElementOutWebName(webNameMap.getOrDefault(i.getElementOut(), ""))
+                                            .setElementInWebName(webNameMap.getOrDefault(String.valueOf(i.getElementIn()), ""))
+                                            .setElementOutWebName(webNameMap.getOrDefault(String.valueOf(i.getElementOut()), ""))
                             );
                             data
                                     .setHighestAutoSubsPointsEvent(o.getEvent())
@@ -337,15 +339,15 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         // prepare
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+        if (entryInfoData == null) {
             return data;
         }
         Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
-        Map<Integer, String> webNameMap = this.queryService.qryPlayerWebNameMap();
+        Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         if (CollectionUtils.isEmpty(webNameMap)) {
             return data;
         }
@@ -356,8 +358,8 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         data
                 .setEntry(entry)
-                .setEntryName(entryInfoEntity.getEntryName())
-                .setPlayerName(entryInfoEntity.getPlayerName());
+                .setEntryName(entryInfoData.getEntryName())
+                .setPlayerName(entryInfoData.getPlayerName());
         // collect
         Map<Integer, Integer> viceCaptainMap = Maps.newHashMap(); // event -> vice
         entryEventResultEntityList.forEach(o -> {
@@ -403,7 +405,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         data
                                 .setMostPointsEvent(o.getEvent())
                                 .setMostPoints(o.getCaptainPoints())
-                                .setMostPointsWebName(webNameMap.getOrDefault(o.getPlayedCaptain(), ""))
+                                .setMostPointsWebName(webNameMap.getOrDefault(String.valueOf(o.getPlayedCaptain()), ""))
                 );
         // min
         entryEventResultEntityList
@@ -413,7 +415,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         data
                                 .setLeastPointsEvent(o.getEvent())
                                 .setLeastPoints(o.getCaptainPoints())
-                                .setLeastPointsWebName(webNameMap.getOrDefault(o.getPlayedCaptain(), ""))
+                                .setLeastPointsWebName(webNameMap.getOrDefault(String.valueOf(o.getPlayedCaptain()), ""))
                 );
         // tc
         entryEventResultEntityList
@@ -425,7 +427,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .setTcPlayed(true)
                                 .setTcEvent(o.getEvent())
                                 .setTcPoints(o.getCaptainPoints())
-                                .setTcPointsWebName(webNameMap.getOrDefault(o.getPlayedCaptain(), ""))
+                                .setTcPointsWebName(webNameMap.getOrDefault(String.valueOf(o.getPlayedCaptain()), ""))
                 );
         // most selected
         Map<Integer, Long> countMap = entryEventResultEntityList.
@@ -439,7 +441,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .map(o -> {
                             EntrySelectedCaptainData entrySelectedCaptainData = new EntrySelectedCaptainData()
                                     .setElement(o.getKey())
-                                    .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                    .setWebName(webNameMap.getOrDefault(String.valueOf(o.getKey()), ""))
                                     .setTimes(o.getValue().intValue())
                                     .setTotalPoints(
                                             entryEventResultEntityList
@@ -486,17 +488,15 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         // prepare
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+        if (entryInfoData == null) {
             return data;
         }
         Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         if (CollectionUtils.isEmpty(playerMap)) {
             return data;
         }
@@ -512,8 +512,8 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         data
                 .setEntry(entry)
-                .setEntryName(entryInfoEntity.getEntryName())
-                .setPlayerName(entryInfoEntity.getPlayerName());
+                .setEntryName(entryInfoData.getEntryName())
+                .setPlayerName(entryInfoData.getPlayerName());
         // chip event list
         List<Integer> chipEventList = entryEventResultEntityList
                 .stream()
@@ -663,9 +663,9 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    private EntryEventTransfersData initEntryEventTransfersData(EntryEventTransfersEntity entryEventTransfersEntity, Map<String, String> shortNameMap, Map<Integer, PlayerEntity> playerMap) {
-        PlayerEntity elementInEntity = playerMap.get(entryEventTransfersEntity.getElementIn());
-        PlayerEntity elementOutEntity = playerMap.get(entryEventTransfersEntity.getElementOut());
+    private EntryEventTransfersData initEntryEventTransfersData(EntryEventTransfersEntity entryEventTransfersEntity, Map<String, String> shortNameMap, Map<String, PlayerEntity> playerMap) {
+        PlayerEntity elementInEntity = playerMap.getOrDefault(String.valueOf(entryEventTransfersEntity.getElementIn()), new PlayerEntity());
+        PlayerEntity elementOutEntity = playerMap.getOrDefault(String.valueOf(entryEventTransfersEntity.getElementOut()), new PlayerEntity());
         return BeanUtil.copyProperties(entryEventTransfersEntity, EntryEventTransfersData.class)
                 .setElementInWebName(elementInEntity.getWebName())
                 .setElementInType(elementInEntity.getElementType())
@@ -694,17 +694,15 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         // prepare
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+        if (entryInfoData == null) {
             return data;
         }
         Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         if (CollectionUtils.isEmpty(playerMap)) {
             return data;
         }
@@ -725,7 +723,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 if (!StringUtils.equalsIgnoreCase(Chip.BB.getValue(), o.getEventChip()) && pick.getPosition() > 11) {
                     return;
                 }
-                PlayerEntity playerEntity = playerMap.get(pick.getElement());
+                PlayerEntity playerEntity = playerMap.get(String.valueOf(pick.getElement()));
                 if (playerEntity == null) {
                     return;
                 }
@@ -750,9 +748,9 @@ public class SummaryServiceImpl implements ISummaryService {
         });
         data
                 .setEntry(entry)
-                .setEntryName(entryInfoEntity.getEntryName())
-                .setPlayerName(entryInfoEntity.getPlayerName())
-                .setOverallPoints(entryInfoEntity.getOverallPoints());
+                .setEntryName(entryInfoData.getEntryName())
+                .setPlayerName(entryInfoData.getPlayerName())
+                .setOverallPoints(entryInfoData.getOverallPoints());
         // gkp
         List<EntryPickData> gkpPickList = Lists.newArrayList();
         pickTable.row(Position.GKP.getElementType()).values().forEach(gkpPickList::addAll);
@@ -773,7 +771,7 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setGkpTotalPointsByPercent(CommonUtils.getPercentResult(data.getGkpTotalPoints(), data.getOverallPoints()));
         Map<String, Long> mostSelectedGkpCountMap = gkpPickList.
                 stream()
-                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+                .collect(Collectors.groupingBy(o -> playerMap.get(String.valueOf(o.getElement())).getWebName(), Collectors.counting()));
         data.setMostSelectedGkp(
                 mostSelectedGkpCountMap.entrySet()
                         .stream()
@@ -801,7 +799,7 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setDefTotalPointsByPercent(CommonUtils.getPercentResult(data.getDefTotalPoints(), data.getOverallPoints()));
         Map<String, Long> mostSelectedDefCountMap = defPickList.
                 stream()
-                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+                .collect(Collectors.groupingBy(o -> playerMap.get(String.valueOf(o.getElement())).getWebName(), Collectors.counting()));
         data.setMostSelectedDef(
                 mostSelectedDefCountMap.entrySet()
                         .stream()
@@ -829,7 +827,7 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setMidTotalPointsByPercent(CommonUtils.getPercentResult(data.getMidTotalPoints(), data.getOverallPoints()));
         Map<String, Long> mostSelectedMidCountMap = midPickList.
                 stream()
-                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+                .collect(Collectors.groupingBy(o -> playerMap.get(String.valueOf(o.getElement())).getWebName(), Collectors.counting()));
         data.setMostSelectedMid(
                 mostSelectedMidCountMap.entrySet()
                         .stream()
@@ -857,7 +855,7 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setFwdTotalPointsByPercent(CommonUtils.getPercentResult(data.getFwdTotalPoints(), data.getOverallPoints()));
         Map<String, Long> mostSelectedFwdCountMap = fwdPickList.
                 stream()
-                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+                .collect(Collectors.groupingBy(o -> playerMap.get(String.valueOf(o.getElement())).getWebName(), Collectors.counting()));
         data.setMostSelectedFwd(
                 mostSelectedFwdCountMap.entrySet()
                         .stream()
@@ -1066,7 +1064,7 @@ public class SummaryServiceImpl implements ISummaryService {
         if (!entryList.contains(entry)) {
             return data;
         }
-        int defalutNum = Math.min(leagueEventReportEntityList.size(), 5);
+        int defaultNum = Math.min(leagueEventReportEntityList.size(), 5);
         Map<Integer, EntrySeasonInfoData> map = Maps.newHashMap();
         leagueEventReportEntityList.forEach(o -> {
             EntrySeasonInfoData entrySeasonInfoData = this.initLeagueEntryInfoData(o, map);
@@ -1083,7 +1081,7 @@ public class SummaryServiceImpl implements ISummaryService {
                 map.values()
                         .stream()
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallRank))
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toList())
         );
         List<Integer> overallRankList = map.values()
@@ -1104,7 +1102,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getValue).reversed())
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallPoints).reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toList())
         );
         List<Double> valueList = map.values()
@@ -1125,7 +1123,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .filter(o -> o.getTotalTransfers() > 0)
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfers).reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toList())
         );
         List<Integer> transfersRankList = map.values()
@@ -1146,7 +1144,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .filter(o -> o.getTotalTransfersCost() > 0)
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalTransfersCost).reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toList())
         );
         List<Integer> costRankList = map.values()
@@ -1167,7 +1165,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .filter(o -> o.getBank() > 0)
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalBenchPoints).reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toList())
         );
         List<Integer> benchPointsRankList = map.values()
@@ -1188,7 +1186,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         .stream()
                         .filter(o -> o.getTotalAutoSubsPoints() > 0)
                         .sorted(Comparator.comparing(EntrySeasonInfoData::getTotalAutoSubsPoints).reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toList())
         );
         List<Integer> autoSubsPointsRankList = map.values()
@@ -1227,7 +1225,7 @@ public class SummaryServiceImpl implements ISummaryService {
         entryAboveHundredCountMap.entrySet()
                 .stream()
                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                .limit(Math.min(entryAboveHundredCountMap.size(), defalutNum))
+                .limit(Math.min(entryAboveHundredCountMap.size(), defaultNum))
                 .forEach(o -> topAboveHundred.addAll(aboveHundredEntityMap.get(o.getKey())));
         data.setTopAboveHundred(topAboveHundred);
         List<Integer> aboveHundredRankList = aboveHundredEntityMap.keySet()
@@ -1332,7 +1330,7 @@ public class SummaryServiceImpl implements ISummaryService {
                     3 * entryEventCaptainData.getPlayedCaptainPoints() : 2 * entryEventCaptainData.getPlayedCaptainPoints());
             map.put(o.getEntry(), entryEventCaptainData);
         });
-        int defalutNum = Math.min(map.size(), 5);
+        int defaultNum = Math.min(map.size(), 5);
         Map<Integer, Integer> entryCaptainPointsMap = map.keySet()
                 .stream()
                 .collect(Collectors.toMap(k -> k,
@@ -1341,9 +1339,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .mapToInt(EntryEventCaptainData::getCaptainPoints)
                                 .sum()
                 ));
-        Map<Integer, String> webNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         if (CollectionUtils.isEmpty(webNameMap)) {
             return data;
         }
@@ -1451,11 +1447,11 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o ->
                                         new EntrySelectedCaptainData()
                                                 .setElement(o.getKey())
-                                                .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                                .setWebName(webNameMap.getOrDefault(String.valueOf(o.getKey()), ""))
                                                 .setTimes(
                                                         map.values()
                                                                 .stream()
@@ -1474,11 +1470,11 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o ->
                                         new EntrySelectedCaptainData()
                                                 .setElement(o.getKey())
-                                                .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                                .setWebName(webNameMap.getOrDefault(String.valueOf(o.getKey()), ""))
                                                 .setTimes(o.getValue())
                                                 .setTotalPoints(0)
                                                 .setTotalPointsByPercent("")
@@ -1497,7 +1493,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                 .map(o ->
                                         new EntrySelectedCaptainData()
                                                 .setElement(o.getKey())
-                                                .setWebName(webNameMap.getOrDefault(o.getKey(), ""))
+                                                .setWebName(webNameMap.getOrDefault(String.valueOf(o.getKey()), ""))
                                                 .setTimes(o.getValue())
                                                 .setTotalPoints(0)
                                                 .setTotalPointsByPercent("")
@@ -1508,19 +1504,19 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryCaptainPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o -> {
                                     int leagueEntry = o.getKey();
-                                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
-                                    if (entryInfoEntity == null) {
+                                    EntryInfoData entryInfoData = this.queryService.qryEntryInfo(leagueEntry);
+                                    if (entryInfoData == null) {
                                         return null;
                                     }
                                     return new EntrySeasonCaptainData()
                                             .setEntry(leagueEntry)
-                                            .setEntryName(entryInfoEntity.getEntryName())
-                                            .setPlayerName(entryInfoEntity.getPlayerName())
+                                            .setEntryName(entryInfoData.getEntryName())
+                                            .setPlayerName(entryInfoData.getPlayerName())
                                             .setTotalPoints(o.getValue())
-                                            .setTotalPointsByPercent(CommonUtils.getPercentResult(o.getValue(), entryInfoEntity.getOverallPoints()));
+                                            .setTotalPointsByPercent(CommonUtils.getPercentResult(o.getValue(), entryInfoData.getOverallPoints()));
                                 })
                                 .filter(Objects::nonNull)
                                 .collect(Collectors.toList())
@@ -1529,19 +1525,19 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryCaptainPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.comparingByValue())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o -> {
                                     int leagueEntry = o.getKey();
-                                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
-                                    if (entryInfoEntity == null) {
+                                    EntryInfoData entryInfoData = this.queryService.qryEntryInfo(leagueEntry);
+                                    if (entryInfoData == null) {
                                         return null;
                                     }
                                     return new EntrySeasonCaptainData()
                                             .setEntry(leagueEntry)
-                                            .setEntryName(entryInfoEntity.getEntryName())
-                                            .setPlayerName(entryInfoEntity.getPlayerName())
+                                            .setEntryName(entryInfoData.getEntryName())
+                                            .setPlayerName(entryInfoData.getPlayerName())
                                             .setTotalPoints(o.getValue())
-                                            .setTotalPointsByPercent(CommonUtils.getPercentResult(o.getValue(), entryInfoEntity.getOverallPoints()));
+                                            .setTotalPointsByPercent(CommonUtils.getPercentResult(o.getValue(), entryInfoData.getOverallPoints()));
                                 })
                                 .filter(Objects::nonNull)
                                 .collect(Collectors.toList())
@@ -1563,17 +1559,17 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryCaptainPointsByPercentMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o -> {
                                     int leagueEntry = o.getKey();
-                                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
-                                    if (entryInfoEntity == null) {
+                                    EntryInfoData entryInfoData = this.queryService.qryEntryInfo(leagueEntry);
+                                    if (entryInfoData == null) {
                                         return null;
                                     }
                                     return new EntrySeasonCaptainData()
                                             .setEntry(leagueEntry)
-                                            .setEntryName(entryInfoEntity.getEntryName())
-                                            .setPlayerName(entryInfoEntity.getPlayerName())
+                                            .setEntryName(entryInfoData.getEntryName())
+                                            .setPlayerName(entryInfoData.getPlayerName())
                                             .setTotalPoints(entryCaptainPointsMap.get(leagueEntry))
                                             .setTotalPointsByPercent(NumberUtil.formatPercent(o.getValue(), 2));
                                 })
@@ -1583,17 +1579,17 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryCaptainPointsByPercentMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.comparingByValue())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o -> {
                                     int leagueEntry = o.getKey();
-                                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(leagueEntry);
-                                    if (entryInfoEntity == null) {
+                                    EntryInfoData entryInfoData = this.queryService.qryEntryInfo(leagueEntry);
+                                    if (entryInfoData == null) {
                                         return null;
                                     }
                                     return new EntrySeasonCaptainData()
                                             .setEntry(leagueEntry)
-                                            .setEntryName(entryInfoEntity.getEntryName())
-                                            .setPlayerName(entryInfoEntity.getPlayerName())
+                                            .setEntryName(entryInfoData.getEntryName())
+                                            .setPlayerName(entryInfoData.getPlayerName())
                                             .setTotalPoints(entryCaptainPointsMap.get(leagueEntry))
                                             .setTotalPointsByPercent(NumberUtil.formatPercent(o.getValue(), 2));
                                 })
@@ -1691,14 +1687,12 @@ public class SummaryServiceImpl implements ISummaryService {
         if (!entryList.contains(entry)) {
             return data;
         }
-        int defalutNum = Math.min(leagueEventReportEntityList.size(), 5);
+        int defaultNum = Math.min(leagueEventReportEntityList.size(), 5);
         Map<String, String> shortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(shortNameMap)) {
             return data;
         }
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         if (CollectionUtils.isEmpty(playerMap)) {
             return data;
         }
@@ -1802,12 +1796,12 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setGkpTotalPointsByPercent(CommonUtils.getPercentResult(data.getGkpTotalPoints(), data.getTotalOverallPoints()));
         Map<String, Long> mostSelectedGkpCountMap = gkpPickList.
                 stream()
-                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+                .collect(Collectors.groupingBy(o -> playerMap.get(String.valueOf(o.getElement())).getWebName(), Collectors.counting()));
         data.setMostSelectedGkpByPercent(
                 mostSelectedGkpCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), gkpPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
@@ -1852,7 +1846,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryGkpPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o -> {
                                     EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
                                     if (entryInfoData == null) {
@@ -1916,12 +1910,12 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setDefTotalPointsByPercent(CommonUtils.getPercentResult(data.getDefTotalPoints(), data.getTotalOverallPoints()));
         Map<String, Long> mostSelectedDefCountMap = defPickList.
                 stream()
-                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+                .collect(Collectors.groupingBy(o -> playerMap.get(String.valueOf(o.getElement())).getWebName(), Collectors.counting()));
         data.setMostSelectedDefByPercent(
                 mostSelectedDefCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), defPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
@@ -1966,7 +1960,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryDefPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o -> {
                                     EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
                                     if (entryInfoData == null) {
@@ -2030,12 +2024,12 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setMidTotalPointsByPercent(CommonUtils.getPercentResult(data.getMidTotalPoints(), data.getTotalOverallPoints()));
         Map<String, Long> mostSelectedMidCountMap = midPickList.
                 stream()
-                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+                .collect(Collectors.groupingBy(o -> playerMap.get(String.valueOf(o.getElement())).getWebName(), Collectors.counting()));
         data.setMostSelectedMidByPercent(
                 mostSelectedMidCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), midPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
@@ -2080,7 +2074,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryMidPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o -> {
                                     EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
                                     if (entryInfoData == null) {
@@ -2144,12 +2138,12 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setFwdTotalPointsByPercent(CommonUtils.getPercentResult(data.getFwdTotalPoints(), data.getTotalOverallPoints()));
         Map<String, Long> mostSelectedFwdCountMap = fwdPickList.
                 stream()
-                .collect(Collectors.groupingBy(o -> playerMap.get(o.getElement()).getWebName(), Collectors.counting()));
+                .collect(Collectors.groupingBy(o -> playerMap.get(String.valueOf(o.getElement())).getWebName(), Collectors.counting()));
         data.setMostSelectedFwdByPercent(
                 mostSelectedFwdCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), fwdPickList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
@@ -2194,7 +2188,7 @@ public class SummaryServiceImpl implements ISummaryService {
                         entryFwdPointsMap.entrySet()
                                 .stream()
                                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                                .limit(defalutNum)
+                                .limit(defaultNum)
                                 .map(o -> {
                                     EntryInfoData entryInfoData = this.apiQueryService.qryEntryInfo(o.getKey());
                                     if (entryInfoData == null) {
@@ -2258,15 +2252,15 @@ public class SummaryServiceImpl implements ISummaryService {
                 mostSelectedFormationCountMap.entrySet()
                         .stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-                        .limit(defalutNum)
+                        .limit(defaultNum)
                         .collect(Collectors.toMap(Map.Entry::getKey, v -> CommonUtils.getPercentResult(v.getValue().intValue(), formationList.size()),
                                 (oldValue, newValue) -> newValue, LinkedHashMap::new))
         );
         return data;
     }
 
-    private EntryPickData initLeagueEntryPickData(int event, int entry, int element, Map<String, String> shortNameMap, Map<Integer, PlayerEntity> playerMap, Table<Integer, Integer, EventLiveEntity> eventLiveTable) {
-        PlayerEntity playerEntity = playerMap.getOrDefault(element, null);
+    private EntryPickData initLeagueEntryPickData(int event, int entry, int element, Map<String, String> shortNameMap, Map<String, PlayerEntity> playerMap, Table<Integer, Integer, EventLiveEntity> eventLiveTable) {
+        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
         EventLiveEntity eventLiveEntity = eventLiveTable.get(element, event);
         if (playerEntity == null || eventLiveEntity == null) {
             return null;

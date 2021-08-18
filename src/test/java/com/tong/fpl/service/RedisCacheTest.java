@@ -225,12 +225,30 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
+    @CsvSource({"2122"})
+    void getPlayerMap(String season) {
+        Map<String, PlayerEntity> map = this.redisCacheSerive.getPlayerMap(season);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2122, 233"})
+    void getPlayerByElement(String season, int element) {
+        PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElement(season, element);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2122"})
+    void getPlayerStatMap(String season) {
+        Map<String, PlayerStatEntity> map = this.redisCacheSerive.getPlayerStatMap(season);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
     @CsvSource({"1920, 221"})
     void getPlayerStatByElement(String season, int element) {
-        long startTime = System.currentTimeMillis();
         PlayerStatEntity playerStatEntity = this.redisCacheSerive.getPlayerStatByElement(season, element);
-        long endTime = System.currentTimeMillis();
-        System.out.println("escape: " + (endTime - startTime) + "ms");
         System.out.println(1);
     }
 

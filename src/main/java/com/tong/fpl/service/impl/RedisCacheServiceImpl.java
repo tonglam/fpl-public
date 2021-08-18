@@ -397,7 +397,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             Multimap<Integer, PlayerValueEntity> playerValueMap = HashMultimap.create();
             this.playerValueService.list().forEach(o -> playerValueMap.put(o.getElement(), o));
             // insert table
-            this.playerService.remove(new QueryWrapper<PlayerEntity>().eq("1", 1));
+//            this.playerService.remove(new QueryWrapper<PlayerEntity>().eq("1", 1));
             List<PlayerEntity> playerList = Lists.newArrayList();
             staticRes.getElements().forEach(o ->
                     playerList.add(
@@ -412,16 +412,16 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                                     .setWebName(o.getWebName())
                                     .setTeamId(o.getTeam())
                     ));
-            this.playerService.saveBatch(playerList);
+//            this.playerService.saveBatch(playerList);
             log.info("insert player size:{}!", playerList.size());
             // set cache
-            Map<String, Map<Object, Double>> cacheMap = Maps.newHashMap();
+            Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
             String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
-            Map<Object, Double> valueMap = Maps.newConcurrentMap();
+            Map<String, Object> valueMap = Maps.newHashMap();
             RedisUtils.removeCacheByKey(key);
-            playerList.forEach(o -> valueMap.put(o, (double) o.getElement()));
+            playerList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
             cacheMap.put(key, valueMap);
-            RedisUtils.pipelineSortedSetCache(cacheMap, -1, null);
+            RedisUtils.pipelineHashCache(cacheMap, -1, null);
         });
     }
 
@@ -454,13 +454,13 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         List<PlayerEntity> playerList = this.playerService.list();
         MybatisPlusConfig.season.remove();
         // set cache
-        Map<String, Map<Object, Double>> cacheMap = Maps.newHashMap();
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
         String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), season);
-        Map<Object, Double> valueMap = Maps.newConcurrentMap();
-        RedisUtils.removeCacheByKey(key);
-        playerList.forEach(o -> valueMap.put(o, (double) o.getElement()));
+        Map<String, Object> valueMap = Maps.newHashMap();
+//        RedisUtils.removeCacheByKey(key);
+        playerList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
-        RedisUtils.pipelineSortedSetCache(cacheMap, -1, null);
+        RedisUtils.pipelineHashCache(cacheMap, -1, null);
     }
 
     @Override
@@ -476,22 +476,21 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                 .collect(Collectors.toMap(PlayerStatEntity::getElement, PlayerStatEntity::getId));
         // get from fpl server
         Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        result.ifPresent(staticRes -> {
-            staticRes.getElements().forEach(o -> {
-                if (!insertTeamMap.containsKey(o.getTeam())) {
-                    return;
-                }
-                // insert or update table
-                PlayerStatEntity playerStatEntity = this.initPlayStat(event, o, insertTeamMap);
-                int element = playerStatEntity.getElement();
-                if (!playerStatIdMap.containsKey(element)) {
-                    insertList.add(playerStatEntity);
-                } else {
-                    playerStatEntity.setId(playerStatIdMap.get(element));
-                    updateList.add(playerStatEntity);
-                }
-            });
-        });
+        result.ifPresent(staticRes ->
+                staticRes.getElements().forEach(o -> {
+                    if (!insertTeamMap.containsKey(o.getTeam())) {
+                        return;
+                    }
+                    // insert or update table
+                    PlayerStatEntity playerStatEntity = this.initPlayStat(event, o, insertTeamMap);
+                    int element = playerStatEntity.getElement();
+                    if (!playerStatIdMap.containsKey(element)) {
+                        insertList.add(playerStatEntity);
+                    } else {
+                        playerStatEntity.setId(playerStatIdMap.get(element));
+                        updateList.add(playerStatEntity);
+                    }
+                }));
         // insert
         this.playerStatService.saveBatch(insertList);
         log.info("insert player_stat size:{}", insertList.size());
@@ -501,7 +500,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         // set cache
         Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
         String key = StringUtils.joinWith("::", PlayerStatEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
-        Map<String, Object> valueMap = Maps.newConcurrentMap();
+        Map<String, Object> valueMap = Maps.newHashMap();
         RedisUtils.removeCacheByKey(key);
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
                 .eq(PlayerStatEntity::getEvent, event))
@@ -574,7 +573,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         // set cache
         Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
         String key = StringUtils.joinWith("::", PlayerStatEntity.class.getSimpleName(), season);
-        Map<String, Object> valueMap = Maps.newConcurrentMap();
+        Map<String, Object> valueMap = Maps.newHashMap();
         RedisUtils.removeCacheByKey(key);
         playerStatList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
@@ -1086,13 +1085,25 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
+    public Map<String, PlayerEntity> getPlayerMap(String season) {
+        Map<String, PlayerEntity> map = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), season);
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(String.valueOf(k), (PlayerEntity) v));
+        return map;
+    }
+
+    @Override
     public PlayerEntity getPlayerByElement(String season, int element) {
         String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), season);
-        Set<Object> set = this.redisTemplate.opsForZSet().rangeByScore(key, element, element);
-        if (CollectionUtils.isEmpty(set)) {
-            return null;
-        }
-        return set.stream().map(PlayerEntity.class::cast).findFirst().orElse(null);
+        return (PlayerEntity) this.redisTemplate.opsForHash().get(key, String.valueOf(element));
+    }
+
+    @Override
+    public Map<String, PlayerStatEntity> getPlayerStatMap(String season) {
+        Map<String, PlayerStatEntity> map = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", PlayerStatEntity.class.getSimpleName(), season);
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(String.valueOf(k), (PlayerStatEntity) v));
+        return map;
     }
 
     @Override
@@ -1125,8 +1136,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     public Map<String, String> getPositionMap() {
         Map<String, String> map = Maps.newHashMap();
         String key = StringUtils.joinWith("::", Position.class.getSimpleName());
-        this.redisTemplate.opsForHash().entries(key).forEach((k, v) ->
-                map.put(String.valueOf(k), String.valueOf(v)));
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(String.valueOf(k), String.valueOf(v)));
         return map;
     }
 
@@ -1134,8 +1144,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     public Map<String, Map<String, Integer>> getLiveBonusCacheMap() {
         Map<String, Map<String, Integer>> map = Maps.newHashMap();
         String key = StringUtils.joinWith("::", "LiveBonusData");
-        this.redisTemplate.opsForHash().entries(key).forEach((k, v) ->
-                map.put(String.valueOf(k), (Map<String, Integer>) v));
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(String.valueOf(k), (Map<String, Integer>) v));
         return map;
     }
 

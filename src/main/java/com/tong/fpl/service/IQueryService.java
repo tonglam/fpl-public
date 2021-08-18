@@ -32,17 +32,29 @@ public interface IQueryService {
     /**
      * @apiNote player
      */
-    default int qryPlayerCodeByElement(int element) {
-        return this.qryPlayerCodeByElement(CommonUtils.getCurrentSeason(), element);
+    default Map<String, PlayerEntity> getPlayerMap() {
+        return this.getPlayerMap(CommonUtils.getCurrentSeason());
     }
 
-    int qryPlayerCodeByElement(String season, int element);
+    Map<String, PlayerEntity> getPlayerMap(String season);
 
-    default int qryPlayerElementByCode(int code) {
-        return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
+    default PlayerEntity getPlayerByElement(int element) {
+        return this.getPlayerByElement(CommonUtils.getCurrentSeason(), element);
     }
 
-    int qryPlayerElementByCode(String season, int code);
+    PlayerEntity getPlayerByElement(String season, int element);
+
+    default Map<String, PlayerStatEntity> getPlayerStatMap() {
+        return this.getPlayerStatMap(CommonUtils.getCurrentSeason());
+    }
+
+    Map<String, PlayerStatEntity> getPlayerStatMap(String season);
+
+    default PlayerStatEntity getPlayerStatByElement(int element) {
+        return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
+    }
+
+    PlayerStatEntity getPlayerStatByElement(String season, int element);
 
     default int qryPlayerElementByWebName(String webName) throws Exception {
         return this.qryPlayerElementByWebName(CommonUtils.getCurrentSeason(), webName);
@@ -50,18 +62,17 @@ public interface IQueryService {
 
     int qryPlayerElementByWebName(String season, String webName) throws Exception;
 
-    default String qryPlayerWebNameByElement(int element) {
-        return this.qryPlayerWebNameByElement(CommonUtils.getCurrentSeason(), element);
-    }
-
-
-    String qryPlayerWebNameByElement(String season, int element);
-
-    default Map<Integer, String> qryPlayerWebNameMap() {
+    default Map<String, String> qryPlayerWebNameMap() {
         return this.qryPlayerWebNameMap(CommonUtils.getCurrentSeason());
     }
 
-    Map<Integer, String> qryPlayerWebNameMap(String season);
+    Map<String, String> qryPlayerWebNameMap(String season);
+
+    default int qryPlayerElementByCode(int code) {
+        return this.qryPlayerElementByCode(CommonUtils.getCurrentSeason(), code);
+    }
+
+    int qryPlayerElementByCode(String season, int code);
 
     int qryPlayerPriceByElement(int element);
 
@@ -85,28 +96,20 @@ public interface IQueryService {
 
     List<PlayerInfoData> qryAllPlayers(String season);
 
-    default PlayerEntity getPlayerByElement(int element) {
-        return this.getPlayerByElement(CommonUtils.getCurrentSeason(), element);
-    }
-
-    PlayerEntity getPlayerByElement(String season, int element);
-
-    PlayerStatEntity getPlayerStatByElement(String season, int element);
-
     PlayerShowData qryPlayerShowData(int event, int element,
                                      Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
-                                     Map<Integer, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap,
+                                     Map<String, PlayerEntity> playerMap, Map<Integer, PlayerStatEntity> playerStatMap,
                                      Multimap<Integer, EventLiveEntity> eventLiveMap,
                                      Map<Integer, Map<String, List<PlayerFixtureData>>> teamFixtureMap);
 
     /**
      * @apiNote entry
      */
-    default EntryInfoEntity qryEntryInfo(int entry) {
+    default EntryInfoData qryEntryInfo(int entry) {
         return this.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
     }
 
-    EntryInfoEntity qryEntryInfo(String season, int entry);
+    EntryInfoData qryEntryInfo(String season, int entry);
 
     EntryRes getEntry(int entry);
 

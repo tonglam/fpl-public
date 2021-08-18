@@ -1,5 +1,6 @@
 package com.tong.fpl.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
 import com.tong.fpl.constant.Constant;
@@ -202,11 +203,11 @@ public class TournamentServiceImpl implements ITournamentService {
 
     private void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, List<Integer> inputEntryList, boolean groupFillAverage) {
         // save entry_info
-        List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
+        List<EntryInfoData> entryInfoEntityList = Lists.newArrayList();
         if (CollectionUtils.isEmpty(inputEntryList)) {
             entryInfoEntityList = this.saveEntryInfoFromFplServer(leagueType, leagueId);
         } else {
-            List<EntryInfoEntity> inputEntryInfoList = inputEntryList
+            List<EntryInfoData> inputEntryInfoList = inputEntryList
                     .stream()
                     .map(this.queryService::qryEntryInfo)
                     .collect(Collectors.toList());
@@ -217,7 +218,7 @@ public class TournamentServiceImpl implements ITournamentService {
         log.info("tournament:{}, save entry info success!", tournamentId);
     }
 
-    private List<EntryInfoEntity> saveEntryInfoFromFplServer(String leagueType, int leagueId) {
+    private List<EntryInfoData> saveEntryInfoFromFplServer(String leagueType, int leagueId) {
         List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
         List<EntryInfoData> entryInfoList = Lists.newArrayList();
         if (LeagueType.valueOf(leagueType) == LeagueType.Classic) {
@@ -253,10 +254,13 @@ public class TournamentServiceImpl implements ITournamentService {
             );
         });
         this.entryInfoService.saveOrUpdateBatch(entryInfoEntityList);
-        return entryInfoEntityList;
+        return entryInfoEntityList
+                .stream()
+                .map(o -> BeanUtil.copyProperties(o, EntryInfoData.class))
+                .collect(Collectors.toList());
     }
 
-    private void saveTournamentEntry(int tournamentId, int leagueId, boolean groupFillAverage, List<EntryInfoEntity> entryInfoEntityList) {
+    private void saveTournamentEntry(int tournamentId, int leagueId, boolean groupFillAverage, List<EntryInfoData> entryInfoEntityList) {
         List<TournamentEntryEntity> tournamentEntryEntityList = Lists.newArrayList();
         entryInfoEntityList.forEach(entryInfoEntity -> tournamentEntryEntityList.add(new TournamentEntryEntity()
                 .setTournamentId(tournamentId)
@@ -384,9 +388,9 @@ public class TournamentServiceImpl implements ITournamentService {
         List<TournamentPointsGroupResultEntity> pointsGroupResultList = Lists.newArrayList();
         // tournament_group
         Map<Integer, Integer> entryGroupIdMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                        .orderByAsc(TournamentGroupEntity::getGroupId)
-                        .orderByAsc(TournamentGroupEntity::getGroupIndex))
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .orderByAsc(TournamentGroupEntity::getGroupId)
+                .orderByAsc(TournamentGroupEntity::getGroupIndex))
                 .stream()
                 .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getGroupId));
         // tournament_group_result
@@ -428,9 +432,9 @@ public class TournamentServiceImpl implements ITournamentService {
         // get group entry list
         BiMap<Integer, Integer> groupIndexMap = HashBiMap.create();
         this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                        .eq(TournamentGroupEntity::getGroupId, groupId)
-                        .orderByAsc(TournamentGroupEntity::getGroupIndex))
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .eq(TournamentGroupEntity::getGroupId, groupId)
+                .orderByAsc(TournamentGroupEntity::getGroupIndex))
                 .forEach(tournamentGroupEntity -> groupIndexMap.put(tournamentGroupEntity.getGroupIndex(), tournamentGroupEntity.getEntry()));
         if (CollectionUtils.isEmpty(groupIndexMap)) {
             return;
@@ -906,9 +910,9 @@ public class TournamentServiceImpl implements ITournamentService {
         List<Integer> groupList = Lists.newArrayList();
         IntStream.rangeClosed(1, groupNum).forEach(groupList::add);
         this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                        .in(TournamentGroupEntity::getGroupId, groupList)
-                        .eq(TournamentGroupEntity::getGroupIndex, 1))
+                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                .in(TournamentGroupEntity::getGroupId, groupList)
+                .eq(TournamentGroupEntity::getGroupIndex, 1))
                 .forEach(o ->
                         zjTournamentResultEntityList.add(new ZjTournamentResultEntity()
                                 .setTournamentId(tournamentId)
@@ -1019,7 +1023,7 @@ public class TournamentServiceImpl implements ITournamentService {
     private List<EntryInfoData> saveTournamentNewEntryInfo(int tournamentId, TournamentInfoEntity tournamentInfoEntity, String leagueType, int leagueId) {
         // tournament_entry
         List<Integer> tournamentEntryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                        .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
@@ -1266,8 +1270,8 @@ public class TournamentServiceImpl implements ITournamentService {
         int groupNum = tournamentInfoEntity.getGroupNum();
         // group tournament rank
         List<Integer> groupRankList = this.zjTournamentResultService.list(new QueryWrapper<ZjTournamentResultEntity>().lambda()
-                        .eq(ZjTournamentResultEntity::getTournamentId, tournamentId)
-                        .orderByAsc(ZjTournamentResultEntity::getTournamentRank))
+                .eq(ZjTournamentResultEntity::getTournamentId, tournamentId)
+                .orderByAsc(ZjTournamentResultEntity::getTournamentRank))
                 .stream()
                 .map(ZjTournamentResultEntity::getGroupId)
                 .collect(Collectors.toList());
@@ -1297,8 +1301,8 @@ public class TournamentServiceImpl implements ITournamentService {
                 .orElse(0);
         int pickCaptain = pickOrderMap.get(pickMatchId);
         if (pickCaptain != captainEntry) {
-            EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(pickCaptain);
-            return "不是你的分配轮次，请等待：" + entryInfoEntity.getEntryName() + " (" + entryInfoEntity.getPlayerName() + ") 分配！";
+            EntryInfoData entryInfoData = this.queryService.qryEntryInfo(pickCaptain);
+            return "不是你的分配轮次，请等待：" + entryInfoData.getEntryName() + " (" + entryInfoData.getPlayerName() + ") 分配！";
         }
         // tournament_knockout
         tournamentKnockoutEntityList

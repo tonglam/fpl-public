@@ -97,9 +97,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
     @Override
     public TableData<PlayerValueData> qryPriceChangeList() {
         // prepare
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, String> teamNameMap = Maps.newHashMap();
         this.queryService.getTeamNameMap().forEach((k, v) -> teamNameMap.put(Integer.valueOf(k), v));
         Map<Integer, String> teamShortNameMap = Maps.newHashMap();
@@ -109,7 +107,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         this.playerValueService.list().forEach(o -> {
             PlayerValueData playerValueData = new PlayerValueData();
             BeanUtil.copyProperties(o, playerValueData, CopyOptions.create().ignoreNullValue());
-            PlayerEntity playerEntity = playerMap.get(o.getElement());
+            PlayerEntity playerEntity = playerMap.get(String.valueOf(o.getElement()));
             if (playerEntity != null) {
                 int teamId = playerEntity.getTeamId();
                 playerValueData
@@ -139,9 +137,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        Map<Integer, PlayerEntity> playerMap = playerEntityList
+        Map<String, PlayerEntity> playerMap = playerEntityList
                 .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+                .collect(Collectors.toMap(k -> String.valueOf(k.getElement()), v -> v));
         Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
                 .in(PlayerStatEntity::getElement, elementList))
@@ -192,10 +190,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
-                .in(PlayerEntity::getElement, elementList))
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
                 .in(PlayerStatEntity::getElement, elementList))
@@ -290,10 +285,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
-                .in(PlayerEntity::getElement, elementList))
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
                 .in(PlayerStatEntity::getElement, elementList))
@@ -387,10 +379,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
-                .in(PlayerEntity::getElement, elementList))
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
                 .in(PlayerStatEntity::getElement, elementList))
@@ -635,7 +624,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                                 tournamentGroupData.setPkGroupName(tournamentGroupEntity.getGroupName());
                             }
                             // pk entry_info
-                            EntryInfoEntity pkEntryInfo = this.queryService.qryEntryInfo(pkEntry);
+                            EntryInfoData pkEntryInfo = this.queryService.qryEntryInfo(pkEntry);
                             if (pkEntryInfo != null) {
                                 BeanUtil.copyProperties(pkEntryInfo, tournamentGroupData, CopyOptions.create().ignoreNullValue());
 
@@ -661,7 +650,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                                     tournamentGroupData.setPkGroupName(tournamentGroupEntity.getGroupName());
                                 }
                                 // pk entry_info
-                                EntryInfoEntity pkEntryInfo = this.queryService.qryEntryInfo(pkEntry);
+                                EntryInfoData pkEntryInfo = this.queryService.qryEntryInfo(pkEntry);
                                 if (pkEntryInfo != null) {
                                     BeanUtil.copyProperties(pkEntryInfo, tournamentGroupData, CopyOptions.create().ignoreNullValue());
 
@@ -729,9 +718,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     }
                     tournamentGroupData.setDiscloseList(discloseList);
                     if (entry > 0) {
-                        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-                        if (entryInfoEntity != null) {
-                            BeanUtil.copyProperties(entryInfoEntity, tournamentGroupData, CopyOptions.create().ignoreNullValue());
+                        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+                        if (entryInfoData != null) {
+                            BeanUtil.copyProperties(entryInfoData, tournamentGroupData, CopyOptions.create().ignoreNullValue());
 
                         }
                     }
@@ -810,9 +799,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .setNetPoints(tournamentPointsGroupResultEntity.getEventNetPoints())
                 .setRank(tournamentPointsGroupResultEntity.getEventRank());
         // entry_info
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(tournamentPointsGroupResultEntity.getEntry());
-        if (entryInfoEntity != null) {
-            BeanUtil.copyProperties(entryInfoEntity, tournamentPointsGroupEventResultData, CopyOptions.create().ignoreNullValue());
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(tournamentPointsGroupResultEntity.getEntry());
+        if (entryInfoData != null) {
+            BeanUtil.copyProperties(entryInfoData, tournamentPointsGroupEventResultData, CopyOptions.create().ignoreNullValue());
         }
         return tournamentPointsGroupEventResultData;
     }
@@ -861,11 +850,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
             entryChampionCountData = entryChampionCountMap.get(entry);
         } else {
             entryChampionCountData = new TournamentGroupChampionCountData().setEntry(entry);
-            EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-            if (entryInfoEntity != null) {
+            EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+            if (entryInfoData != null) {
                 entryChampionCountData
-                        .setEntryName(entryInfoEntity.getEntryName())
-                        .setPlayerName(entryInfoEntity.getPlayerName());
+                        .setEntryName(entryInfoData.getEntryName())
+                        .setPlayerName(entryInfoData.getPlayerName());
             }
         }
         return entryChampionCountData;
@@ -1054,11 +1043,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
         } else if (entry == 0) {
             return "轮空";
         }
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(entry);
-        if (entryInfoEntity == null) {
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(entry);
+        if (entryInfoData == null) {
             return "";
         }
-        return entryInfoEntity.getEntryName();
+        return entryInfoData.getEntryName();
     }
 
     @Cacheable(value = "qryZjTournamentResultById", key = "#tournamentId")
@@ -1166,16 +1155,16 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .in(TournamentGroupEntity::getGroupId, groupList)
                 .notIn(TournamentGroupEntity::getEntry, pickedEntryList))
                 .forEach(o -> {
-                    EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(o.getEntry());
-                    if (entryInfoEntity == null) {
+                    EntryInfoData entryInfoData = this.queryService.qryEntryInfo(o.getEntry());
+                    if (entryInfoData == null) {
                         return;
                     }
                     list.add(new TournamentGroupData()
                             .setGroupId(o.getGroupId())
                             .setGroupName(o.getGroupName())
                             .setEntry(o.getEntry())
-                            .setEntryName(entryInfoEntity.getEntryName())
-                            .setPlayerName(entryInfoEntity.getPlayerName())
+                            .setEntryName(entryInfoData.getEntryName())
+                            .setPlayerName(entryInfoData.getPlayerName())
                     );
                 });
         return new TableData<>(list);
@@ -1260,9 +1249,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
     public TableData<LeagueStatData> qryTeamSelectStatByName(int event, String leagueName) {
         LeagueStatData leagueStatData = new LeagueStatData().setName(leagueName).setEvent(event);
         // player info
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         // team select
         List<LeagueEventReportEntity> leagueEventReportList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
@@ -1292,7 +1279,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return new TableData<>(leagueStatData);
     }
 
-    private LinkedHashMap<String, String> getMostTransferInMap(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private LinkedHashMap<String, String> getMostTransferInMap(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<String, PlayerEntity> playerMap) {
         if (event <= 1) {
             return Maps.newLinkedHashMap();
         }
@@ -1313,7 +1300,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
     }
 
-    private LinkedHashMap<String, String> getMostTransferOutMap(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private LinkedHashMap<String, String> getMostTransferOutMap(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<String, PlayerEntity> playerMap) {
         if (event <= 1) {
             return Maps.newLinkedHashMap();
         }
@@ -1354,7 +1341,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return teamSelectMap;
     }
 
-    private LinkedHashMap<String, String> getCaptainSelectedMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private LinkedHashMap<String, String> getCaptainSelectedMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<String, PlayerEntity> playerMap) {
         List<Integer> elementList = leagueEventReportList
                 .stream()
                 .map(LeagueEventReportEntity::getCaptain)
@@ -1362,7 +1349,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
     }
 
-    private LinkedHashMap<String, String> getViceCaptainSelectedMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private LinkedHashMap<String, String> getViceCaptainSelectedMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<String, PlayerEntity> playerMap) {
         // collect
         List<Integer> elementList = leagueEventReportList
                 .stream()
@@ -1371,7 +1358,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return this.collectSelectedMap(elementList, teamSize, 5, playerMap);
     }
 
-    private LinkedHashMap<String, String> getTopSelectedPlayerMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private LinkedHashMap<String, String> getTopSelectedPlayerMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<String, PlayerEntity> playerMap) {
         List<Integer> elementList = Lists.newArrayList();
         leagueEventReportList.forEach(o -> {
             elementList.add(o.getPosition1());
@@ -1393,25 +1380,25 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return this.collectSelectedMap(elementList, teamSize, 20, playerMap);
     }
 
-    private LinkedHashMap<Integer, Map<String, String>> getTopSelectedTeamMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<Integer, PlayerEntity> playerMap) {
+    private LinkedHashMap<Integer, Map<String, String>> getTopSelectedTeamMap(List<LeagueEventReportEntity> leagueEventReportList, int teamSize, Map<String, PlayerEntity> playerMap) {
         // element list
         List<PlayerEntity> elementPlayerInfoList = Lists.newArrayList();
         leagueEventReportList.forEach(o -> {
-            elementPlayerInfoList.add(playerMap.get(o.getPosition1()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition2()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition3()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition4()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition5()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition6()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition7()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition8()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition9()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition10()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition11()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition12()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition13()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition14()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition15()));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition1())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition2())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition3())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition4())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition5())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition6())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition7())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition8())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition9())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition10())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition11())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition12())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition13())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition14())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition15())));
         });
         // collect
         Map<Integer, Map<Integer, Long>> elementTypeCountMap = elementPlayerInfoList
@@ -1435,13 +1422,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldVal, newVal) -> oldVal, LinkedHashMap::new));
         List<PlayerEntity> elementList = Lists.newArrayList();
-        elementSelectedSortMap.forEach((k, v) -> elementList.add(playerMap.get(k)));
+        elementSelectedSortMap.forEach((k, v) -> elementList.add(playerMap.get(String.valueOf(k))));
         // selected line up
         LinkedHashMap<Integer, Map<String, String>> map = Maps.newLinkedHashMap(); // key:element_type -> value:elementCountMap(key:element -> value:percent)
         LinkedHashMap<Integer, Integer> lineupMap = this.getLineupMapByElementList(elementTypeMap, elementList); // key:position -> value:element
         lineupMap.forEach((position, element) -> {
             long count = playerSelectedMap.get(element);
-            PlayerEntity playerEntity = playerMap.get(element);
+            PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
             int elementType = playerEntity.getElementType();
             Map<String, String> valueMap = Maps.newHashMap();
             if (map.containsKey(elementType)) {
@@ -1453,10 +1440,10 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return map;
     }
 
-    private Map<Integer, Map<Integer, Integer>> collectPlayerSelectedMap(Map<Integer, Integer> playerSelectedMap, Map<Integer, PlayerEntity> playerMap) {
+    private Map<Integer, Map<Integer, Integer>> collectPlayerSelectedMap(Map<Integer, Integer> playerSelectedMap, Map<String, PlayerEntity> playerMap) {
         Map<Integer, Map<Integer, Integer>> map = Maps.newHashMap();
         playerSelectedMap.forEach((k, v) -> {
-            int elementType = playerMap.get(k).getElementType();
+            int elementType = playerMap.get(String.valueOf(k)).getElementType();
             Map<Integer, Integer> valueMap = Maps.newHashMap();
             if (map.containsKey(elementType)) {
                 valueMap = map.get(elementType);
@@ -1582,9 +1569,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
     @Override
     public TableData<LeagueEventReportStatData> qryLeagueCaptainReportStat(int leagueId, String leagueType) {
         // prepare
-        Map<Integer, String> webNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueId, leagueId)
                 .eq(LeagueEventReportEntity::getLeagueType, leagueType)
@@ -1615,7 +1600,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         );
     }
 
-    private LeagueEventReportStatData qryEntryCaptainReportStat(Collection<LeagueEventReportEntity> leagueEventReportEntities, Map<Integer, String> webNameMap) {
+    private LeagueEventReportStatData qryEntryCaptainReportStat(Collection<LeagueEventReportEntity> leagueEventReportEntities, Map<String, String> webNameMap) {
         int size = leagueEventReportEntities.size();
         if (size == 0) {
             return null;
@@ -1665,12 +1650,12 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .setTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(captainTotalPoints, overallPoints), 1))
                 .setMaxPointsEvent(captainMaxEntity.getEvent())
                 .setMaxPoints(captainMaxPoints)
-                .setMaxPointsWebName(webNameMap.getOrDefault(captainMax, ""))
+                .setMaxPointsWebName(webNameMap.getOrDefault(String.valueOf(captainMax), ""))
                 .setMinPointsEvent(captainMinEntity.getEvent())
                 .setMinPoints(captainMinPoints)
-                .setMinPointsWebName(webNameMap.getOrDefault(captainMin, ""))
+                .setMinPointsWebName(webNameMap.getOrDefault(String.valueOf(captainMin), ""))
                 .setMostSelected(mostSelectedCaptain)
-                .setMostSelectedWebName(webNameMap.getOrDefault(mostSelectedCaptain, ""))
+                .setMostSelectedWebName(webNameMap.getOrDefault(String.valueOf(mostSelectedCaptain), ""))
                 .setMostSelectedTimes(captainSelectMap.get(mostSelectedCaptain).intValue())
                 .setBlankTimes((int) leagueEventReportEntities
                         .stream()
@@ -1737,9 +1722,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         }
         List<LeagueEventReportData> list = Lists.newArrayList();
         // prepare
-        Map<Integer, String> webNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         Map<String, String> elementEoMap = this.queryService.qryLeagueEventEoMap(event, leagueId, leagueType);
         // collect
         leagueEventReportEntityList.forEach(o -> {
@@ -1750,13 +1733,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
             int captainPoints = captain == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints();
             data
                     .setPlayedCaptain(captain)
-                    .setCaptainWebName(webNameMap.getOrDefault(captain, ""))
+                    .setCaptainWebName(webNameMap.getOrDefault(String.valueOf(captain), ""))
                     .setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * captainPoints : 2 * captainPoints)
                     .setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(captainPoints, data.getEventPoints()), 1))
                     .setCaptainBlank(captain == o.getCaptain() ? o.getCaptainBlank() : o.getViceCaptainBlank())
                     .setCaptainSelected(captain == o.getCaptain() ? o.getCaptainSelected() : o.getViceCaptainSelected())
                     .setCaptainEffectiveOwnerShipRate(elementEoMap.get(String.valueOf(captain)))
-                    .setHighestScoreWebName(webNameMap.getOrDefault(o.getHighestScore(), ""))
+                    .setHighestScoreWebName(webNameMap.getOrDefault(String.valueOf(o.getHighestScore()), ""))
                     .setHighestScorePointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getHighestScorePoints(), data.getEventPoints()), 1))
                     .setHighestScoreEffectiveOwnerShipRate(elementEoMap.get(String.valueOf(o.getHighestScore())));
             list.add(data);
@@ -1813,9 +1796,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         }
         List<LeagueEventReportData> list = Lists.newArrayList();
         // prepare
-        Map<Integer, String> webNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         // collect
         leagueEventReportEntityList.forEach(o -> {
             Map<String, String> elementEoMap = this.queryService.qryLeagueEventEoMap(o.getEvent(), leagueId, leagueType);
@@ -1826,13 +1807,13 @@ public class TableQueryServiceImpl implements ITableQueryService {
             int captainPoints = captain == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints();
             data
                     .setPlayedCaptain(captain)
-                    .setCaptainWebName(webNameMap.getOrDefault(captain, ""))
+                    .setCaptainWebName(webNameMap.getOrDefault(String.valueOf(captain), ""))
                     .setCaptainPoints(StringUtils.equals(Chip.TC.getValue(), o.getEventChip()) ? 3 * captainPoints : 2 * captainPoints)
                     .setCaptainPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(captainPoints, data.getEventPoints()), 1))
                     .setCaptainBlank(captain == o.getCaptain() ? o.getCaptainBlank() : o.getViceCaptainBlank())
                     .setCaptainSelected(captain == o.getCaptain() ? o.getCaptainSelected() : o.getViceCaptainSelected())
                     .setCaptainEffectiveOwnerShipRate(elementEoMap.get(String.valueOf(captain)))
-                    .setHighestScoreWebName(webNameMap.getOrDefault(o.getHighestScore(), ""))
+                    .setHighestScoreWebName(webNameMap.getOrDefault(String.valueOf(o.getHighestScore()), ""))
                     .setHighestScorePointsByPercent(NumberUtil.formatPercent(NumberUtil.div(data.getHighestScorePoints(), data.getEventPoints()), 1))
                     .setHighestScoreEffectiveOwnerShipRate(elementEoMap.get(String.valueOf(o.getHighestScore())));
             list.add(data);
@@ -2005,9 +1986,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .collect(Collectors.toList());
         List<LeagueEventReportData> list = Lists.newArrayList();
         // prepare
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, Integer> elementPointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
                 .stream()
@@ -2099,7 +2078,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .sum();
     }
 
-    private List<EntryEventTransfersData> setEntryTransferList(Collection<EntryEventTransfersEntity> entryEventTransferEntities, Map<Integer, PlayerEntity> playerMap, Map<Integer, Integer> elementPointsMap) {
+    private List<EntryEventTransfersData> setEntryTransferList(Collection<EntryEventTransfersEntity> entryEventTransferEntities, Map<String, PlayerEntity> playerMap, Map<Integer, Integer> elementPointsMap) {
         List<EntryEventTransfersData> list = Lists.newArrayList();
         entryEventTransferEntities.forEach(o -> {
             EntryEventTransfersData entryEventTransferData = new EntryEventTransfersData();
@@ -2115,16 +2094,16 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     .setElementOutPoints(elementPointsMap.getOrDefault(o.getElementOut(), 0))
                     .setTime(LocalDateTime.parse(StringUtils.substringBefore(o.getTime(), ".")).format(DateTimeFormatter.ofPattern(Constant.DATETIME)));
             int elementIn = o.getElementIn();
-            if (playerMap.containsKey(elementIn)) {
-                PlayerEntity elementInEntity = playerMap.get(elementIn);
+            if (playerMap.containsKey(String.valueOf(elementIn))) {
+                PlayerEntity elementInEntity = playerMap.get(String.valueOf(elementIn));
                 entryEventTransferData
                         .setElementInWebName(elementInEntity.getWebName())
                         .setElementInType(elementInEntity.getElementType())
                         .setElementInTypeName(Position.getNameFromElementType(elementInEntity.getElementType()));
             }
             int elementOut = o.getElementOut();
-            if (playerMap.containsKey(elementOut)) {
-                PlayerEntity elementOutEntity = playerMap.get(elementOut);
+            if (playerMap.containsKey(String.valueOf(elementOut))) {
+                PlayerEntity elementOutEntity = playerMap.get(String.valueOf(elementOut));
                 entryEventTransferData
                         .setElementOutWebName(elementOutEntity.getWebName())
                         .setElementOutType(elementOutEntity.getElementType())
@@ -2177,9 +2156,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         }
         List<LeagueEventReportData> list = Lists.newArrayList();
         // prepare
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap = HashMultimap.create();
         this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
                 .eq(EntryEventTransfersEntity::getEntry, entry))
@@ -2279,9 +2256,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
             eventEventPickTable.put(o.getEntry(), Position.FWD.getElementType(), o.getFwds());
             eventEventPickTable.put(o.getEntry(), Position.SUB.getElementType(), o.getFwds());
         });
-        Map<Integer, String> playerNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<String, String> playerNameMap = this.queryService.qryPlayerWebNameMap();
         // collect
         List<LeagueEventReportStatData> list = Lists.newArrayList();
         entryLeagueReportMap.keySet().forEach(entry -> {
@@ -2416,11 +2391,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     .setMidTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(leagueEventScoringData.getMidTotalPoints(), data.getOverallPoints()), 1))
                     .setFwdTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(leagueEventScoringData.getFwdTotalPoints(), data.getOverallPoints()), 1))
                     .setCaptainTotalPointsByPercent(NumberUtil.formatPercent(NumberUtil.div(leagueEventScoringData.getCaptainTotalPoints(), data.getOverallPoints()), 1))
-                    .setMostSelectedGkpName(playerNameMap.getOrDefault(leagueEventScoringData.getMostSelectedGkp(), ""))
-                    .setMostSelectedDefName(playerNameMap.getOrDefault(leagueEventScoringData.getMostSelectedDef(), ""))
-                    .setMostSelectedMidName(playerNameMap.getOrDefault(leagueEventScoringData.getMostSelectedMid(), ""))
-                    .setMostSelectedFwdName(playerNameMap.getOrDefault(leagueEventScoringData.getMostSelectedFwd(), ""))
-                    .setMostSelectedCaptainName(playerNameMap.getOrDefault(leagueEventScoringData.getMostSelectedCaptain(), ""));
+                    .setMostSelectedGkpName(playerNameMap.getOrDefault(String.valueOf(leagueEventScoringData.getMostSelectedGkp()), ""))
+                    .setMostSelectedDefName(playerNameMap.getOrDefault(String.valueOf(leagueEventScoringData.getMostSelectedDef()), ""))
+                    .setMostSelectedMidName(playerNameMap.getOrDefault(String.valueOf(leagueEventScoringData.getMostSelectedMid()), ""))
+                    .setMostSelectedFwdName(playerNameMap.getOrDefault(String.valueOf(leagueEventScoringData.getMostSelectedFwd()), ""))
+                    .setMostSelectedCaptainName(playerNameMap.getOrDefault(String.valueOf(leagueEventScoringData.getMostSelectedCaptain()), ""));
             data.setScoringData(leagueEventScoringData);
             list.add(data);
         });
@@ -2480,9 +2455,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         });
         Multimap<Integer, EntryEventAutoSubsData> eventEventAutoSubMap = HashMultimap.create();
         this.queryService.qryLeagueEventAutoSubDataList(event, leagueId, leagueType).forEach(o -> eventEventAutoSubMap.put(o.getEntry(), o));
-        Map<Integer, String> playerNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<String, String> playerNameMap = this.queryService.qryPlayerWebNameMap();
         // collect
         List<LeagueEventReportData> list = Lists.newArrayList();
         leagueEventReportEntityList.forEach(o -> {
@@ -2518,7 +2491,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     .setMidPoints(this.calcEntryEventElementTypePoints(entry, Position.MID.getElementType(), eventEventPickTable))
                     .setFwdPoints(this.calcEntryEventElementTypePoints(entry, Position.FWD.getElementType(), eventEventPickTable))
                     .setCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
-                    .setCaptainWebName(playerNameMap.getOrDefault(data.getPlayedCaptain(), ""))
+                    .setCaptainWebName(playerNameMap.getOrDefault(String.valueOf(data.getPlayedCaptain()), ""))
                     .setPlayedNum(
                             (int) Objects.requireNonNull(eventEventPickTable.get(entry, Position.GKP.getElementType()))
                                     .stream()
@@ -2627,9 +2600,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
             return new TableData<>();
         }
         // prepare
-        Map<Integer, String> playerNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<String, String> playerNameMap = this.queryService.qryPlayerWebNameMap();
         // collect
         List<CompletableFuture<LeagueEventReportData>> future = leagueEventReportEntityList.stream()
                 .map(o -> CompletableFuture.supplyAsync(() -> this.collectEntryScoringEventReportList(o, playerNameMap), new ForkJoinPool(4)))
@@ -2643,7 +2614,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         );
     }
 
-    private LeagueEventReportData collectEntryScoringEventReportList(LeagueEventReportEntity o, Map<Integer, String> playerNameMap) {
+    private LeagueEventReportData collectEntryScoringEventReportList(LeagueEventReportEntity o, Map<String, String> playerNameMap) {
         int entry = o.getEntry();
         int event = o.getEvent();
         LeagueEventReportData data = new LeagueEventReportData();
@@ -2698,7 +2669,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                                 .sum()
                 )
                 .setCaptainPoints(o.getPlayedCaptain() == o.getCaptain() ? o.getCaptainPoints() : o.getViceCaptainPoints())
-                .setCaptainWebName(playerNameMap.getOrDefault(data.getPlayedCaptain(), ""))
+                .setCaptainWebName(playerNameMap.getOrDefault(String.valueOf(data.getPlayedCaptain()), ""))
                 .setPlayedNum(
                         (int) pickData.getGkps()
                                 .stream()
@@ -2740,7 +2711,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
         return data;
     }
 
-    private LinkedHashMap<String, String> collectSelectedMap(List<Integer> elementList, int teamSize, int limit, Map<Integer, PlayerEntity> playerMap) {
+    private LinkedHashMap<String, String> collectSelectedMap(List<Integer> elementList, int teamSize, int limit, Map<String, PlayerEntity> playerMap) {
         LinkedHashMap<String, String> map = Maps.newLinkedHashMap();
         Map<Integer, Long> groupingMap = elementList
                 .stream()
@@ -2751,7 +2722,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .limit(limit)
                 .collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
         result.forEach((k, v) ->
-                map.put(playerMap.get(k).getWebName(), NumberUtil.formatPercent(NumberUtil.div(v.intValue(), teamSize), 1)));
+                map.put(playerMap.get(String.valueOf(k)).getWebName(), NumberUtil.formatPercent(NumberUtil.div(v.intValue(), teamSize), 1)));
         return map;
     }
 
@@ -2770,15 +2741,15 @@ public class TableQueryServiceImpl implements ITableQueryService {
                                 .setEvent(event)
                                 .setEntry(o.getEntry())
                                 .setScoutName(o.getScoutName())
-                                .setGkpName(this.queryService.qryPlayerWebNameByElement(o.getGkp()))
+                                .setGkpName(this.qryPlayerWebNameByElement(o.getGkp()))
                                 .setGkpTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getGkpTeamId()), ""))
-                                .setDefName(this.queryService.qryPlayerWebNameByElement(o.getDef()))
+                                .setDefName(this.qryPlayerWebNameByElement(o.getDef()))
                                 .setDefTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getDefTeamId()), ""))
-                                .setMidName(this.queryService.qryPlayerWebNameByElement(o.getMid()))
+                                .setMidName(this.qryPlayerWebNameByElement(o.getMid()))
                                 .setMidTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getMidTeamId()), ""))
-                                .setFwdName(this.queryService.qryPlayerWebNameByElement(o.getFwd()))
+                                .setFwdName(this.qryPlayerWebNameByElement(o.getFwd()))
                                 .setFwdTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getFwdTeamId()), ""))
-                                .setCaptainName(this.queryService.qryPlayerWebNameByElement(o.getCaptain()))
+                                .setCaptainName(this.qryPlayerWebNameByElement(o.getCaptain()))
                                 .setCaptainTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getCaptainTeamId()), ""))
                                 .setReason(o.getReason())
                         ));
@@ -2786,6 +2757,11 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .stream()
                 .sorted(Comparator.comparing(ScoutData::getEntry))
                 .collect(Collectors.toList()));
+    }
+
+    private String qryPlayerWebNameByElement(int element) {
+        PlayerEntity playerEntity = this.queryService.getPlayerByElement(element);
+        return playerEntity == null ? "" : playerEntity.getWebName();
     }
 
     @Cacheable(value = "qryEventScoutList", key = "#event")
@@ -2803,19 +2779,19 @@ public class TableQueryServiceImpl implements ITableQueryService {
                                 .setEvent(event)
                                 .setEntry(o.getEntry())
                                 .setScoutName(o.getScoutName())
-                                .setGkpName(this.queryService.qryPlayerWebNameByElement(o.getGkp()))
+                                .setGkpName(this.qryPlayerWebNameByElement(o.getGkp()))
                                 .setGkpTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getGkpTeamId()), ""))
                                 .setGkpPoints(o.getGkpPoints())
-                                .setDefName(this.queryService.qryPlayerWebNameByElement(o.getDef()))
+                                .setDefName(this.qryPlayerWebNameByElement(o.getDef()))
                                 .setDefTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getDefTeamId()), ""))
                                 .setDefPoints(o.getDefPoints())
-                                .setMidName(this.queryService.qryPlayerWebNameByElement(o.getMid()))
+                                .setMidName(this.qryPlayerWebNameByElement(o.getMid()))
                                 .setMidTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getMidTeamId()), ""))
                                 .setMidPoints(o.getMidPoints())
-                                .setFwdName(this.queryService.qryPlayerWebNameByElement(o.getFwd()))
+                                .setFwdName(this.qryPlayerWebNameByElement(o.getFwd()))
                                 .setFwdTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getFwdTeamId()), ""))
                                 .setFwdPoints(o.getFwdPoints())
-                                .setCaptainName(this.queryService.qryPlayerWebNameByElement(o.getCaptain()))
+                                .setCaptainName(this.qryPlayerWebNameByElement(o.getCaptain()))
                                 .setCaptainTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getCaptainTeamId()), ""))
                                 .setCaptainPoints(o.getCaptainPoints())
                                 .setEventPoints(o.getEventPoints())

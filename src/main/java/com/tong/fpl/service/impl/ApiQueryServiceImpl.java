@@ -161,22 +161,22 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (entry <= 0) {
             return new EntryInfoData();
         }
-        EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
-        if (entryInfoEntity == null) {
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(CommonUtils.getCurrentSeason(), entry);
+        if (entryInfoData == null) {
             return new EntryInfoData();
         }
         return new EntryInfoData()
-                .setEntry(entryInfoEntity.getEntry())
-                .setEntryName(entryInfoEntity.getEntryName())
-                .setPlayerName(entryInfoEntity.getPlayerName())
-                .setRegion(entryInfoEntity.getRegion())
-                .setStartedEvent(entryInfoEntity.getStartedEvent())
-                .setOverallPoints(entryInfoEntity.getOverallPoints())
-                .setOverallRank(entryInfoEntity.getOverallRank())
-                .setTotalTransfers(entryInfoEntity.getTotalTransfers())
-                .setValue(entryInfoEntity.getTeamValue() / 10.0)
-                .setBank(entryInfoEntity.getBank() / 10.0)
-                .setTeamValue((entryInfoEntity.getTeamValue() - entryInfoEntity.getBank()) / 10.0);
+                .setEntry(entryInfoData.getEntry())
+                .setEntryName(entryInfoData.getEntryName())
+                .setPlayerName(entryInfoData.getPlayerName())
+                .setRegion(entryInfoData.getRegion())
+                .setStartedEvent(entryInfoData.getStartedEvent())
+                .setOverallPoints(entryInfoData.getOverallPoints())
+                .setOverallRank(entryInfoData.getOverallRank())
+                .setTotalTransfers(entryInfoData.getTotalTransfers())
+                .setValue(entryInfoData.getTeamValue() / 10.0)
+                .setBank(entryInfoData.getBank() / 10.0)
+                .setTeamValue((entryInfoData.getTeamValue() - entryInfoData.getBank()) / 10.0);
     }
 
     // do not cache
@@ -371,9 +371,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
                 .stream()
@@ -381,10 +379,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // collect
         pickList.forEach(pick -> {
             int element = pick.getElement();
-            if (!playerMap.containsKey(element)) {
+            if (!playerMap.containsKey(String.valueOf(element))) {
                 return;
             }
-            PlayerEntity playerEntity = playerMap.get(element);
+            PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
             ElementEventResultData data = BeanUtil.copyProperties(pick, ElementEventResultData.class);
             data
                     .setEvent(event)
@@ -437,9 +435,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         //prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
                 .stream()
@@ -458,7 +454,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                     .setElementOut(elementOut)
                     .setElementOutCost(o.getElementOutCost() / 10.0)
                     .setTime(o.getTime());
-            PlayerEntity playerInEntity = playerMap.get(elementIn);
+            PlayerEntity playerInEntity = playerMap.get(String.valueOf(elementIn));
             if (playerInEntity != null) {
                 data
                         .setElementInWebName(playerInEntity.getWebName())
@@ -469,7 +465,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .setElementInTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
                         .setElementInPoints(pointsMap.getOrDefault(elementIn, 0));
             }
-            PlayerEntity playerOutEntity = playerMap.get(o.getElementOut());
+            PlayerEntity playerOutEntity = playerMap.get(String.valueOf(o.getElementOut()));
             if (playerInEntity != null) {
                 data
                         .setElementOutWebName(playerOutEntity.getWebName())
@@ -574,9 +570,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (StringUtils.equalsIgnoreCase(MatchPlayStatus.Next_Event.name(), playStatus)) {
             return this.qryNextEventMatch(event, teamNameMap, teamShortNameMap);
         }
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Collection<EventLiveEntity> eventLiveList = this.queryService.getEventLiveByEvent(event).values();
         // collect
         List<LiveMatchData> list = Lists.newArrayList();
@@ -647,7 +641,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return list;
     }
 
-    private List<ElementEventResultData> qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+    private List<ElementEventResultData> qryLiveTeamData(int teamId, Collection<EventLiveEntity> eventLiveList, Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
         List<ElementEventResultData> list = Lists.newArrayList();
         // team data
         Map<Integer, Integer> liveBonusMap = this.getLiveBonusMap(teamId);
@@ -658,10 +652,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             ElementEventResultData elementEventResultData = new ElementEventResultData()
                     .setEvent(o.getEvent())
                     .setElement(o.getElement())
-                    .setWebName(playerMap.containsKey(o.getElement()) ? playerMap.get(o.getElement()).getWebName() : "")
+                    .setWebName(playerMap.containsKey(String.valueOf(o.getElement())) ? playerMap.get(String.valueOf(o.getElement())).getWebName() : "")
                     .setElementType(o.getElementType())
                     .setElementTypeName(Position.getNameFromElementType(o.getElementType()))
-                    .setTeamId(playerMap.containsKey(o.getElement()) ? playerMap.get(o.getElement()).getTeamId() : 0)
+                    .setTeamId(playerMap.containsKey(String.valueOf(o.getElement())) ? playerMap.get(String.valueOf(o.getElement())).getTeamId() : 0)
                     .setMinutes(o.getMinutes())
                     .setGoalsScored(o.getGoalsScored())
                     .setAssists(o.getAssists())
@@ -831,14 +825,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (CollectionUtils.isEmpty(playerValueList)) {
             return map;
         }
-        List<Integer> elementList = playerValueList
-                .stream()
-                .map(PlayerValueEntity::getElement)
-                .collect(Collectors.toList());
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
-                .in(PlayerEntity::getElement, elementList))
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         // collect
         List<PlayerValueData> playerValueDataList = playerValueList
                 .stream()
@@ -888,14 +875,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (CollectionUtils.isEmpty(playerValueList)) {
             return Lists.newArrayList();
         }
-        List<Integer> elementList = playerValueList
-                .stream()
-                .map(PlayerValueEntity::getElement)
-                .collect(Collectors.toList());
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
-                .in(PlayerEntity::getElement, elementList))
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         // collect
         return playerValueList
                 .stream()
@@ -937,14 +917,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (CollectionUtils.isEmpty(playerValueList)) {
             return map;
         }
-        List<Integer> elementList = playerValueList
-                .stream()
-                .map(PlayerValueEntity::getElement)
-                .collect(Collectors.toList());
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
-                .in(PlayerEntity::getElement, elementList))
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         // collect
         playerValueList
                 .stream()
@@ -962,10 +935,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return map;
     }
 
-    private PlayerValueData initPlayerValueData(PlayerValueEntity playerValueEntity, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<Integer, PlayerEntity> playerMap) {
+    private PlayerValueData initPlayerValueData(PlayerValueEntity playerValueEntity, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, PlayerEntity> playerMap) {
         int element = playerValueEntity.getElement();
         PlayerValueData data = BeanUtil.copyProperties(playerValueEntity, PlayerValueData.class);
-        PlayerEntity playerEntity = playerMap.get(element);
+        PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
         if (playerEntity != null) {
             data
                     .setWebName(playerEntity.getWebName())
@@ -1046,9 +1019,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public Map<String, String> qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType) {
         Map<String, String> map = Maps.newHashMap();
         // prepare
-        Map<Integer, String> webNameMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap();
         // collect
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService
                 .list(new QueryWrapper<LeagueEventReportEntity>().lambda()
@@ -1082,7 +1053,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         Map<Integer, Long> countMap = elementList
                 .stream()
                 .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
-        countMap.forEach((element, count) -> map.put(webNameMap.getOrDefault(element, ""),
+        countMap.forEach((element, count) -> map.put(webNameMap.getOrDefault(String.valueOf(element), ""),
                 NumberUtil.formatPercent(NumberUtil.div(count.doubleValue(), size), 1)));
         return map;
     }
@@ -1108,9 +1079,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap(season);
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap(season);
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         // team_select
         List<LeagueEventReportEntity> leagueEventReportList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getEvent, event)
@@ -1148,7 +1117,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private List<PlayerSelectData> getMostTransferIn(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
-                                                     Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap) {
+                                                     Map<String, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap) {
         if (event <= 1) {
             return Lists.newArrayList();
         }
@@ -1170,7 +1139,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private List<PlayerSelectData> getMostTransferOut(String leagueName, int event, List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
-                                                      Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap) {
+                                                      Map<String, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap) {
         if (event <= 1) {
             return Lists.newArrayList();
         }
@@ -1212,7 +1181,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private List<PlayerSelectData> getCaptainSelect(List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
-                                                    Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
+                                                    Map<String, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         List<Integer> elementList = leagueEventReportList
                 .stream()
                 .map(LeagueEventReportEntity::getCaptain)
@@ -1221,7 +1190,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private List<PlayerSelectData> getViceCaptainSelect(List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
-                                                        Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
+                                                        Map<String, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         // collect
         List<Integer> elementList = leagueEventReportList
                 .stream()
@@ -1231,7 +1200,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private List<PlayerSelectData> getMostSelectPlayer(List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
-                                                       Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
+                                                       Map<String, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         List<Integer> elementList = Lists.newArrayList();
         leagueEventReportList.forEach(o -> {
             elementList.add(o.getPosition1());
@@ -1254,7 +1223,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private List<PlayerSelectData> collectSelectDataList(List<Integer> elementList, int teamSize, int limit,
-                                                         Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
+                                                         Map<String, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         Map<Integer, Long> groupingMap = elementList
                 .stream()
                 .collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()));
@@ -1265,8 +1234,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue().intValue(), (oldVal, newVal) -> oldVal, LinkedHashMap::new));
         return result.entrySet()
                 .stream()
-                .filter(o -> playerMap.containsKey(o.getKey()))
-                .map(o -> this.initCollectSelectData(o.getValue(), teamSize, playerMap.get(o.getKey()), teamNameMap, teamShortNameMap, leagueEventEoMap))
+                .filter(o -> playerMap.containsKey(String.valueOf(o.getKey())))
+                .map(o -> this.initCollectSelectData(o.getValue(), teamSize, playerMap.get(String.valueOf(o.getKey())), teamNameMap, teamShortNameMap, leagueEventEoMap))
                 .collect(Collectors.toList());
     }
 
@@ -1281,25 +1250,25 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     private Map<Integer, List<PlayerSelectData>> getMostSelectTeam(List<LeagueEventReportEntity> leagueEventReportList, int teamSize,
-                                                                   Map<Integer, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
+                                                                   Map<String, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap, Map<String, String> leagueEventEoMap) {
         // element list
         List<PlayerEntity> elementPlayerInfoList = Lists.newArrayList();
         leagueEventReportList.forEach(o -> {
-            elementPlayerInfoList.add(playerMap.get(o.getPosition1()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition2()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition3()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition4()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition5()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition6()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition7()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition8()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition9()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition10()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition11()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition12()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition13()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition14()));
-            elementPlayerInfoList.add(playerMap.get(o.getPosition15()));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition1())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition2())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition3())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition4())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition5())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition6())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition7())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition8())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition9())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition10())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition11())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition12())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition13())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition14())));
+            elementPlayerInfoList.add(playerMap.get(String.valueOf(o.getPosition15())));
         });
         // collect
         Map<Integer, Map<Integer, Long>> elementTypeCountMap = elementPlayerInfoList
@@ -1323,13 +1292,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldVal, newVal) -> oldVal, LinkedHashMap::new));
         List<PlayerEntity> elementList = Lists.newArrayList();
-        elementSelectedSortMap.forEach((k, v) -> elementList.add(playerMap.get(k)));
+        elementSelectedSortMap.forEach((k, v) -> elementList.add(playerMap.get(String.valueOf(k))));
         // select line up
         Map<Integer, List<PlayerSelectData>> map = Maps.newHashMap(); // element_type -> list
         LinkedHashMap<Integer, Integer> lineupMap = this.getLineupMapByElementList(elementTypeMap, elementList); // position -> element
         lineupMap.forEach((position, element) -> {
             long count = playerSelectedMap.get(element);
-            PlayerEntity playerEntity = playerMap.get(element);
+            PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
             int elementType = playerEntity.getElementType();
             List<PlayerSelectData> valueList = Lists.newArrayList();
             if (map.containsKey(elementType)) {
@@ -1350,10 +1319,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return map;
     }
 
-    private Map<Integer, Map<Integer, Integer>> collectPlayerSelectedMap(Map<Integer, Integer> playerSelectedMap, Map<Integer, PlayerEntity> playerMap) {
+    private Map<Integer, Map<Integer, Integer>> collectPlayerSelectedMap(Map<Integer, Integer> playerSelectedMap, Map<String, PlayerEntity> playerMap) {
         Map<Integer, Map<Integer, Integer>> map = Maps.newHashMap();
         playerSelectedMap.forEach((k, v) -> {
-            int elementType = playerMap.get(k).getElementType();
+            int elementType = playerMap.get(String.valueOf(k)).getElementType();
             Map<Integer, Integer> valueMap = Maps.newHashMap();
             if (map.containsKey(elementType)) {
                 valueMap = map.get(elementType);
@@ -1817,9 +1786,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return data;
         }
         // prepare
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
                 .eq(ScoutEntity::getEvent, event)
@@ -1839,11 +1806,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setScoutName(scoutEntity.getScoutName())
                 .setTransfers(0)
                 .setLeftTransfers(this.calcEventScoutLeftTransfers(entry, event))
-                .setGkpInfo(this.initScoutElementData(scoutEntity.getGkp(), scoutEntity.getGkpTeamId(), 0, playerMap.get(scoutEntity.getGkp()), teamShortNameMap))
-                .setDefInfo(this.initScoutElementData(scoutEntity.getDef(), scoutEntity.getDefTeamId(), 0, playerMap.get(scoutEntity.getDef()), teamShortNameMap))
-                .setMidInfo(this.initScoutElementData(scoutEntity.getMid(), scoutEntity.getMidTeamId(), 0, playerMap.get(scoutEntity.getMid()), teamShortNameMap))
-                .setFwdInfo(this.initScoutElementData(scoutEntity.getFwd(), scoutEntity.getFwdTeamId(), 0, playerMap.get(scoutEntity.getFwd()), teamShortNameMap))
-                .setCaptainInfo(this.initScoutElementData(scoutEntity.getCaptain(), scoutEntity.getCaptainTeamId(), 0, playerMap.get(scoutEntity.getCaptain()), teamShortNameMap))
+                .setGkpInfo(this.initScoutElementData(scoutEntity.getGkp(), scoutEntity.getGkpTeamId(), 0, playerMap.get(String.valueOf(scoutEntity.getGkp())), teamShortNameMap))
+                .setDefInfo(this.initScoutElementData(scoutEntity.getDef(), scoutEntity.getDefTeamId(), 0, playerMap.get(String.valueOf(scoutEntity.getDef())), teamShortNameMap))
+                .setMidInfo(this.initScoutElementData(scoutEntity.getMid(), scoutEntity.getMidTeamId(), 0, playerMap.get(String.valueOf(scoutEntity.getMid())), teamShortNameMap))
+                .setFwdInfo(this.initScoutElementData(scoutEntity.getFwd(), scoutEntity.getFwdTeamId(), 0, playerMap.get(String.valueOf(scoutEntity.getFwd())), teamShortNameMap))
+                .setCaptainInfo(this.initScoutElementData(scoutEntity.getCaptain(), scoutEntity.getCaptainTeamId(), 0, playerMap.get(String.valueOf(scoutEntity.getCaptain())), teamShortNameMap))
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(0)
                 .setTotalPoints(0);
@@ -1885,9 +1852,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return Lists.newArrayList();
         }
         // prepare
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         // return
         return this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
@@ -1978,18 +1943,18 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    private EventScoutData initScoutData(ScoutEntity scoutEntity, Map<Integer, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+    private EventScoutData initScoutData(ScoutEntity scoutEntity, Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
         return new EventScoutData()
                 .setEvent(scoutEntity.getEvent())
                 .setEntry(scoutEntity.getEntry())
                 .setScoutName(scoutEntity.getScoutName())
                 .setTransfers(scoutEntity.getTransfers())
                 .setLeftTransfers(scoutEntity.getLeftTransfers())
-                .setGkpInfo(this.initScoutElementData(scoutEntity.getGkp(), scoutEntity.getGkpTeamId(), scoutEntity.getGkpPoints(), playerMap.get(scoutEntity.getGkp()), teamShortNameMap))
-                .setDefInfo(this.initScoutElementData(scoutEntity.getDef(), scoutEntity.getDefTeamId(), scoutEntity.getDefPoints(), playerMap.get(scoutEntity.getDef()), teamShortNameMap))
-                .setMidInfo(this.initScoutElementData(scoutEntity.getMid(), scoutEntity.getMidTeamId(), scoutEntity.getMidPoints(), playerMap.get(scoutEntity.getMid()), teamShortNameMap))
-                .setFwdInfo(this.initScoutElementData(scoutEntity.getFwd(), scoutEntity.getFwdTeamId(), scoutEntity.getFwdPoints(), playerMap.get(scoutEntity.getFwd()), teamShortNameMap))
-                .setCaptainInfo(this.initScoutElementData(scoutEntity.getCaptain(), scoutEntity.getCaptainTeamId(), scoutEntity.getCaptainPoints(), playerMap.get(scoutEntity.getCaptain()), teamShortNameMap))
+                .setGkpInfo(this.initScoutElementData(scoutEntity.getGkp(), scoutEntity.getGkpTeamId(), scoutEntity.getGkpPoints(), playerMap.get(String.valueOf(scoutEntity.getGkp())), teamShortNameMap))
+                .setDefInfo(this.initScoutElementData(scoutEntity.getDef(), scoutEntity.getDefTeamId(), scoutEntity.getDefPoints(), playerMap.get(String.valueOf(scoutEntity.getDef())), teamShortNameMap))
+                .setMidInfo(this.initScoutElementData(scoutEntity.getMid(), scoutEntity.getMidTeamId(), scoutEntity.getMidPoints(), playerMap.get(String.valueOf(scoutEntity.getMid())), teamShortNameMap))
+                .setFwdInfo(this.initScoutElementData(scoutEntity.getFwd(), scoutEntity.getFwdTeamId(), scoutEntity.getFwdPoints(), playerMap.get(String.valueOf(scoutEntity.getFwd())), teamShortNameMap))
+                .setCaptainInfo(this.initScoutElementData(scoutEntity.getCaptain(), scoutEntity.getCaptainTeamId(), scoutEntity.getCaptainPoints(), playerMap.get(String.valueOf(scoutEntity.getCaptain())), teamShortNameMap))
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(scoutEntity.getEventPoints())
                 .setTotalPoints(scoutEntity.getTotalPoints());
@@ -2098,9 +2063,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
                 .stream()
@@ -2126,7 +2089,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     private List<ElementEventResultData> qryTournamentEntryPickList(int event, String eventPicks,
                                                                     Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
-                                                                    Map<Integer, PlayerEntity> playerMap, Map<Integer, EventLiveEntity> eventLiveMap) {
+                                                                    Map<String, PlayerEntity> playerMap, Map<Integer, EventLiveEntity> eventLiveMap) {
         List<EntryPickData> pickList = JsonUtils.json2Collection(eventPicks, List.class, EntryPickData.class);
         if (CollectionUtils.isEmpty(pickList)) {
             return Lists.newArrayList();
@@ -2134,10 +2097,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         List<ElementEventResultData> list = Lists.newArrayList();
         pickList.forEach(o -> {
             int element = o.getElement();
-            if (!playerMap.containsKey(element)) {
+            if (!playerMap.containsKey(String.valueOf(element))) {
                 return;
             }
-            PlayerEntity playerEntity = playerMap.get(element);
+            PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
             ElementEventResultData data = BeanUtil.copyProperties(o, ElementEventResultData.class);
             data
                     .setEvent(event)
@@ -2174,7 +2137,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private EntryEventResultData initEntryEventResultData(int event, EntryEventResultEntity entryEventResultEntity, Map<Integer, EntryInfoEntity> entryInfoMap,
                                                           Map<Integer, Integer> eventGroupRankMap, Map<Integer, Integer> eventTournamentRankMap,
                                                           Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
-                                                          Map<Integer, PlayerEntity> playerMap, Map<Integer, EventLiveEntity> eventLiveMap) {
+                                                          Map<String, PlayerEntity> playerMap, Map<Integer, EventLiveEntity> eventLiveMap) {
         int entry = entryEventResultEntity.getEntry();
         EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(entry, new EntryInfoEntity());
         return new EntryEventResultData()
@@ -2190,7 +2153,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setRank(entryEventResultEntity.getEventRank())
                 .setChip(StringUtils.isBlank(entryEventResultEntity.getEventChip()) ? Chip.NONE.getValue() : entryEventResultEntity.getEventChip())
                 .setPlayedCaptain(entryEventResultEntity.getPlayedCaptain())
-                .setCaptainName(playerMap.get(entryEventResultEntity.getPlayedCaptain()).getWebName())
+                .setCaptainName(playerMap.get(String.valueOf(entryEventResultEntity.getPlayedCaptain())).getWebName())
                 .setCaptainPoints(eventLiveMap.get(entryEventResultEntity.getPlayedCaptain()).getTotalPoints())
                 .setValue(entryEventResultEntity.getTeamValue() / 10.0)
                 .setBank(entryEventResultEntity.getBank() / 10.0)
@@ -2235,9 +2198,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // prepare
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        Map<Integer, PlayerEntity> playerMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
                 .stream()
@@ -2264,7 +2225,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         // return
         return new SearchEntryEventResultData()
                 .setElement(element)
-                .setWebName(playerMap.get(element).getWebName())
+                .setWebName(playerMap.get(String.valueOf(element)).getWebName())
                 .setSelectByPercent(list.size() == 0 ? "0%"
                         : CommonUtils.getPercentResult(list.size(), entryEventResultEntityList.size()))
                 .setEventResultList(list);

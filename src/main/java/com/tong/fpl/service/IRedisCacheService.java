@@ -39,7 +39,7 @@ public interface IRedisCacheService {
     void insertHisPlayerStat(String season);
 
     void insertPlayerValue();
-    
+
     void insertEventLive(int event);
 
     void insertEventLiveCache(int event);
@@ -74,7 +74,11 @@ public interface IRedisCacheService {
 
     Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap();
 
+    Map<String, PlayerEntity> getPlayerMap(String season);
+
     PlayerEntity getPlayerByElement(String season, int element);
+
+    Map<String, PlayerStatEntity> getPlayerStatMap(String season);
 
     PlayerStatEntity getPlayerStatByElement(String season, int element);
 

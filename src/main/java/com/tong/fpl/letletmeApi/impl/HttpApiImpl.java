@@ -3,10 +3,10 @@ package com.tong.fpl.letletmeApi.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import com.google.common.collect.Lists;
-import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.domain.entity.EventLiveEntity;
 import com.tong.fpl.domain.letletme.entry.EntryEventData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerQueryParam;
@@ -28,84 +28,80 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class HttpApiImpl implements IHttpApi {
 
-	private final IQueryService queryService;
+    private final IQueryService queryService;
 
-	@Override
-	public EntryEventData qryEntryResult(String season, int entry) {
-		EntryEventData entryEventData = new EntryEventData();
-		EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(season, entry);
-		if (entryInfoEntity == null) {
-			return entryEventData;
-		}
-		BeanUtil.copyProperties(entryInfoEntity, entryEventData, CopyOptions.create().ignoreNullValue());
-		entryEventData.setEventResultList(this.queryService.qryEntryResult(season, entry));
-		return entryEventData;
-	}
+    @Override
+    public EntryEventData qryEntryResult(String season, int entry) {
+        EntryEventData entryEventData = new EntryEventData();
+        EntryInfoData entryInfoData = this.queryService.qryEntryInfo(season, entry);
+        if (entryInfoData == null) {
+            return entryEventData;
+        }
+        BeanUtil.copyProperties(entryInfoData, entryEventData, CopyOptions.create().ignoreNullValue());
+        entryEventData.setEventResultList(this.queryService.qryEntryResult(season, entry));
+        return entryEventData;
+    }
 
-	@Override
-	public EntryEventData qryEntryEventResult(String season, int event, int entry) {
-		EntryEventData entryEventData = new EntryEventData();
-		EntryInfoEntity entryInfoEntity = this.queryService.qryEntryInfo(season, entry);
-		if (entryInfoEntity == null) {
-			return entryEventData;
-		}
-		EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(season, event, entry);
-		if (entryEventResultData != null) {
-			entryEventData.setEventResultList(Lists.newArrayList(entryEventResultData));
-		}
-		return entryEventData;
-	}
+    @Override
+    public EntryEventData qryEntryEventResult(String season, int event, int entry) {
+        EntryEventData entryEventData = new EntryEventData();
+        EntryEventResultData entryEventResultData = this.queryService.qryEntryEventResult(season, event, entry);
+        if (entryEventResultData != null) {
+            entryEventData.setEventResultList(Lists.newArrayList(entryEventResultData));
+        }
+        return entryEventData;
+    }
 
-	@Override
-	public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
-		return this.queryService.qryEventLiveAll(season, element);
-	}
+    @Override
+    public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
+        return this.queryService.qryEventLiveAll(season, element);
+    }
 
-	@Override
-	public EventLiveEntity qryEventLive(String season, int event, int element) {
-		return this.queryService.qryEventLive(season, event, element);
-	}
+    @Override
+    public EventLiveEntity qryEventLive(String season, int event, int element) {
+        return this.queryService.qryEventLive(season, event, element);
+    }
 
-	@Override
-	public PlayerData qryPlayerData(PlayerQueryParam queryParam) throws Exception {
-		int element = this.getElementByQueryParam(queryParam);
-		if (element == 0) {
-			return new PlayerData();
-		}
-		return this.queryService.qryPlayerData(element);
-	}
+    @Override
+    public PlayerData qryPlayerData(PlayerQueryParam queryParam) throws Exception {
+        int element = this.getElementByQueryParam(queryParam);
+        if (element == 0) {
+            return new PlayerData();
+        }
+        return this.queryService.qryPlayerData(element);
+    }
 
-	private int getElementByQueryParam(PlayerQueryParam queryParam) throws Exception {
-		if (queryParam.getElement() > 0) {
-			return queryParam.getElement();
-		}
-		if (queryParam.getCode() > 0) {
-			return this.queryService.qryPlayerElementByCode(queryParam.getCode());
-		}
-		if (StringUtils.isNoneBlank(queryParam.getWebName())) {
-			return this.queryService.qryPlayerElementByWebName(queryParam.getWebName());
-		}
-		return 0;
-	}
+    private int getElementByQueryParam(PlayerQueryParam queryParam) throws Exception {
+        if (queryParam.getElement() > 0) {
+            return queryParam.getElement();
+        }
+        if (queryParam.getCode() > 0) {
+            return this.queryService.qryPlayerElementByCode(queryParam.getCode());
+        }
+        if (StringUtils.isNoneBlank(queryParam.getWebName())) {
+            return this.queryService.qryPlayerElementByWebName(queryParam.getWebName());
+        }
+        return 0;
+    }
 
-	@Override
-	public List<PlayerInfoData> qryAllPlayers(String season) {
-		return this.queryService.qryAllPlayers(season);
-	}
+    @Override
+    public List<PlayerInfoData> qryAllPlayers(String season) {
+        return this.queryService.qryAllPlayers(season);
+    }
 
-	@Override
-	public String getUtcDeadlineByEvent(int event) {
-		return this.queryService.getUtcDeadlineByEvent(event);
-	}
+    @Override
+    public String getUtcDeadlineByEvent(int event) {
+        return this.queryService.getUtcDeadlineByEvent(event);
+    }
 
-	@Override
-	public int getCurrentEvent() {
-		return this.queryService.getCurrentEvent();
-	}
+    @Override
+    public int getCurrentEvent() {
+        return this.queryService.getCurrentEvent();
+    }
 
-	@Override
-	public int getNextEvent() {
-		return this.queryService.getNextEvent();
-	}
+    @Override
+    public int getNextEvent() {
+        return this.queryService.getNextEvent();
+    }
 
 }
