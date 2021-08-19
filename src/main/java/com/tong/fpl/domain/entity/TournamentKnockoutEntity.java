@@ -12,22 +12,22 @@ import lombok.experimental.Accessors;
 @TableName(value = "tournament_knockout")
 public class TournamentKnockoutEntity {
 
-	@TableId
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer tournamentId;
-	@TableField(value = "`round`")
-	private Integer round;
-	private Integer startGw;
-	private Integer endGw;
-	private Integer matchId;
-	private Integer nextMatchId;
-	private Integer homeEntry;
-	private Integer awayEntry;
-	private Integer roundWinner;
-	@TableField(fill = FieldFill.INSERT)
-	private String createTime;
-	@TableField(fill = FieldFill.UPDATE)
-	private String updateTime;
+    @TableId
+    private Integer id;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer tournamentId;
+    @TableField(value = "`round`")
+    private Integer round;
+    private Integer startGw;
+    private Integer endGw;
+    private Integer matchId;
+    private Integer nextMatchId;
+    private Integer homeEntry;
+    private Integer awayEntry;
+    private Integer roundWinner;
+    @TableField(fill = FieldFill.INSERT)
+    private String createTime;
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateTime;
 
 }

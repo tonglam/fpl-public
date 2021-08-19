@@ -521,19 +521,20 @@ public class TableQueryServiceImpl implements ITableQueryService {
                 .in(TournamentInfoEntity::getId, tournamentList)
                 .eq(TournamentInfoEntity::getState, 1))
                 .forEach(o ->
-                        list.add(new TournamentEntryData()
-                                .setEntry(entry)
-                                .setTournamentId(o.getId())
-                                .setName(o.getName())
-                                .setCreator(o.getCreator())
-                                .setSeason(o.getSeason())
-                                .setLeagueType(o.getLeagueType())
-                                .setLeagueId(o.getLeagueId())
-                                .setTournamentMode(o.getTournamentMode())
-                                .setGroupMode(groupModeMap.get(o.getGroupMode()).getModeName())
-                                .setKnockoutMode(knockModeMap.get(o.getKnockoutMode()).getModeName())
-                                .setStage(this.setCurrentStage(currentEvent, groupModeMap.get(o.getGroupMode()), o))
-                                .setCreateTime(StringUtils.substringBefore(o.getCreateTime(), " "))
+                        list.add(
+                                new TournamentEntryData()
+                                        .setEntry(entry)
+                                        .setTournamentId(o.getId())
+                                        .setName(o.getName())
+                                        .setCreator(o.getCreator())
+                                        .setSeason(o.getSeason())
+                                        .setLeagueType(o.getLeagueType())
+                                        .setLeagueId(o.getLeagueId())
+                                        .setTournamentMode(o.getTournamentMode())
+                                        .setGroupMode(groupModeMap.get(o.getGroupMode()).getModeName())
+                                        .setKnockoutMode(knockModeMap.get(o.getKnockoutMode()).getModeName())
+                                        .setStage(this.setCurrentStage(currentEvent, groupModeMap.get(o.getGroupMode()), o))
+                                        .setCreateTime(StringUtils.substringBefore(o.getCreateTime(), " "))
                         ));
         return new TableData<>(list);
     }

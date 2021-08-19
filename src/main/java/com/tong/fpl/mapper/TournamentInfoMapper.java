@@ -1,6 +1,5 @@
 package com.tong.fpl.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.tong.fpl.domain.entity.TournamentInfoEntity;
 import org.apache.ibatis.annotations.Select;
 
@@ -9,7 +8,7 @@ import java.util.List;
 /**
  * Create by tong on 2020/6/23
  */
-public interface TournamentInfoMapper extends BaseMapper<TournamentInfoEntity> {
+public interface TournamentInfoMapper extends MyBaseMapper<TournamentInfoEntity> {
 
     @Select("SELECT * FROM tournament_info " +
             "WHERE knockout_mode <> 'No_knockout'" +

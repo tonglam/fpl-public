@@ -1,8 +1,6 @@
 package com.tong.fpl.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -29,5 +27,7 @@ public class EventLiveSummaryEntity {
     private Integer bonus;
     private Integer bps;
     private Integer totalPoints;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateTime;
 
 }

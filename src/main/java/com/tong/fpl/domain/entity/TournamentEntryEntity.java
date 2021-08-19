@@ -15,12 +15,12 @@ import lombok.experimental.Accessors;
 @TableName(value = "tournament_entry")
 public class TournamentEntryEntity {
 
-	@TableId
-	private Integer id;
-	private Integer tournamentId;
-	private Integer leagueId;
-	private Integer entry;
-	@TableField(fill = FieldFill.INSERT)
-	private String createTime;
+    @TableId
+    private Integer id;
+    private Integer tournamentId;
+    private Integer leagueId;
+    private Integer entry;
+    @TableField(fill = FieldFill.INSERT)
+    private String createTime;
 
 }

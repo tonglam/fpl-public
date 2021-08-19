@@ -34,7 +34,7 @@ public class MybatisPlusConfig {
 
             {
                 Arrays.stream(DynamicTableName.values()).forEach(dynamicTableName ->
-                        put(dynamicTableName.getTableName(), (sql, tableName) -> {
+                        this.put(dynamicTableName.getTableName(), (sql, tableName) -> {
                             String season = MybatisPlusConfig.season.get();
                             if (StringUtils.isBlank(season) || StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
                                 return tableName;
@@ -45,6 +45,11 @@ public class MybatisPlusConfig {
         });
         interceptor.addInnerInterceptor(dynamicTableNameInnerInterceptor);
         return interceptor;
+    }
+
+    @Bean
+    public MybatisPlusInjector sqlInjector() {
+        return new MybatisPlusInjector();
     }
 
 }
