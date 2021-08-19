@@ -12,25 +12,25 @@ import lombok.experimental.Accessors;
 @TableName(value = "event_fixture")
 public class EventFixtureEntity {
 
-	@TableId(type = IdType.INPUT)
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer code;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer event;
-	private String kickoffTime;
-	private Boolean started;
-	private Boolean finished;
-	private Boolean provisionalStartTime;
-	private Boolean finishedProvisional;
-	private Integer minutes;
-	private Integer teamH;
-	private Integer teamHDifficulty;
-	private Integer teamHScore;
-	private Integer teamA;
-	private Integer teamADifficulty;
-	private Integer teamAScore;
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-	private String updateTime;
+    @TableId(type = IdType.INPUT)
+    private Integer id;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer code;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer event;
+    private String kickoffTime;
+    private Boolean started;
+    private Boolean finished;
+    private Boolean provisionalStartTime;
+    private Boolean finishedProvisional;
+    private Integer minutes;
+    private Integer teamH;
+    private Integer teamHDifficulty;
+    private Integer teamHScore;
+    private Integer teamA;
+    private Integer teamADifficulty;
+    private Integer teamAScore;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateTime;
 
 }

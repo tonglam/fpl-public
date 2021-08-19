@@ -3,7 +3,6 @@ package com.tong.fpl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
@@ -20,7 +19,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +37,8 @@ public class DBTest extends FplApplicationTests {
     private PlayerValueService playerValueService;
     @Autowired
     private EventLiveService eventLiveService;
+    @Autowired
+    private EntryEventTransfersService entryEventTransfersService;
     @Autowired
     private EntryEventResultService entryEventResultService;
     @Autowired
@@ -132,27 +132,6 @@ public class DBTest extends FplApplicationTests {
                 .stream()
                 .collect(Collectors.toMap(PlayerValueEntity::getElement, PlayerValueEntity::getValue));
         this.playerService.list().forEach(o -> list.add(o.setStartPrice(startMap.getOrDefault(o.getElement(), 0))));
-        this.playerService.updateBatchById(list);
-    }
-
-    @Test
-    void fixPrice() {
-        List<PlayerEntity> list = Lists.newArrayList();
-        Map<Integer, PlayerValueEntity> lastMap = Maps.newHashMap();
-        this.playerValueService.list()
-                .forEach(o -> {
-                    int element = o.getElement();
-                    if (!lastMap.containsKey(element)) {
-                        lastMap.put(element, o);
-                    } else {
-                        PlayerValueEntity lastValue = lastMap.get(element);
-                        if (LocalDateTime.parse(o.getUpdateTime().replaceAll(" ", "T"))
-                                .isAfter(LocalDateTime.parse(lastValue.getUpdateTime().replaceAll(" ", "T")))) {
-                            lastMap.put(element, o);
-                        }
-                    }
-                });
-        this.playerService.list().forEach(o -> list.add(o.setPrice(lastMap.getOrDefault(o.getElement(), new PlayerValueEntity()).getValue())));
         this.playerService.updateBatchById(list);
     }
 
@@ -272,6 +251,11 @@ public class DBTest extends FplApplicationTests {
             }
         }
         return count;
+    }
+
+    @Test
+    void injection() {
+        this.entryEventTransfersService.getBaseMapper().truncate();
     }
 
 }

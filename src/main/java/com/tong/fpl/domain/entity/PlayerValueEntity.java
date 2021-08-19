@@ -12,20 +12,20 @@ import lombok.experimental.Accessors;
 @TableName(value = "player_value")
 public class PlayerValueEntity {
 
-	@TableId
-	private Integer id;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer element;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer elementType;
-	private Integer event;
-	@TableField(value = "`value`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer value;
-	private String changeDate;
-	private String changeType;
-	@TableField(value = "`last_value`")
-	private Integer lastValue;
-	@TableField(fill = FieldFill.INSERT_UPDATE)
-	private String updateTime;
+    @TableId
+    private Integer id;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer element;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer elementType;
+    private Integer event;
+    @TableField(value = "`value`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer value;
+    private String changeDate;
+    private String changeType;
+    @TableField(value = "`last_value`")
+    private Integer lastValue;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateTime;
 
 }

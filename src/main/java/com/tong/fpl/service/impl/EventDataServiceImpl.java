@@ -1841,8 +1841,8 @@ public class EventDataServiceImpl implements IEventDataService {
     public void upsertEventLiveSummary() {
         Multimap<Integer, EventLiveEntity> eventLiveMap = HashMultimap.create();
         this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
-        // remove
-        this.eventLiveSummaryService.remove(new QueryWrapper<EventLiveSummaryEntity>().eq("1", 1));
+        // truncate
+        this.eventLiveSummaryService.getBaseMapper().truncate();
         // collect
         List<EventLiveSummaryEntity> list = Lists.newArrayList();
         eventLiveMap.keySet().forEach(o -> {

@@ -1,5 +1,7 @@
 package com.tong.fpl.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -38,5 +40,7 @@ public class ScoutEntity {
     private String reason;
     private Integer eventPoints;
     private Integer totalPoints;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateTime;
 
 }

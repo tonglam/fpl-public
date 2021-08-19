@@ -14,15 +14,15 @@ import java.time.format.DateTimeFormatter;
 @Configuration
 public class MetaObjectHandlerConfig implements MetaObjectHandler {
 
-	@Override
-	public void insertFill(MetaObject metaObject) {
-		this.setFieldValByName("createTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)), metaObject);
-		this.setFieldValByName("updateTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)), metaObject);
-	}
+    @Override
+    public void insertFill(MetaObject metaObject) {
+        this.setFieldValByName("createTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)), metaObject);
+        this.setFieldValByName("updateTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)), metaObject);
+    }
 
-	@Override
-	public void updateFill(MetaObject metaObject) {
-		this.setFieldValByName("updateTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)), metaObject);
-	}
+    @Override
+    public void updateFill(MetaObject metaObject) {
+        this.setFieldValByName("updateTime", LocalDateTime.now().format(DateTimeFormatter.ofPattern(Constant.DATETIME)), metaObject);
+    }
 
 }
