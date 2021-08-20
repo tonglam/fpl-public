@@ -114,6 +114,10 @@ public class GroupServiceImpl implements IGroupService {
                 return new ResponseEntity<>(returnMap, HttpStatus.OK);
             }
         }
+        // check reason
+        if (StringUtils.isEmpty(scoutData.getReason())) {
+            scoutData.setReason("这个人很懒什么都没留下甚至不打标点");
+        }
         // upsert
         ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
                 .eq(ScoutEntity::getEvent, event)
@@ -140,7 +144,7 @@ public class GroupServiceImpl implements IGroupService {
                     .setCaptain(captain)
                     .setCaptainTeamId(captainInfo.getTeamId())
                     .setCaptainPoints(0)
-                    .setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason())
+                    .setReason(scoutData.getReason())
                     .setEventPoints(0)
                     .setTotalPoints(0);
             this.scoutService.save(scoutEntity);
@@ -158,7 +162,7 @@ public class GroupServiceImpl implements IGroupService {
                     .setFwdTeamId(fwdInfo.getTeamId())
                     .setCaptain(captain)
                     .setCaptainTeamId(captainInfo.getTeamId())
-                    .setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason());
+                    .setReason(scoutData.getReason());
             this.scoutService.updateById(scoutEntity);
         }
         this.refreshCurrentEventScoutResult(entry);
