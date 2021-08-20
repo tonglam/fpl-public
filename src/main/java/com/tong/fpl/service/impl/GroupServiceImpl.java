@@ -145,6 +145,7 @@ public class GroupServiceImpl implements IGroupService {
                     .setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason());
             this.scoutService.updateById(scoutEntity);
         }
+        this.refreshCurrentEventScoutResult(entry);
         return "提交成功";
     }
 
@@ -279,6 +280,13 @@ public class GroupServiceImpl implements IGroupService {
             entryEventSimulateTransfersEntity.setId(entryEventSimulateTransfers.getId());
             this.entryEventSimulateTransfersService.updateById(entryEventSimulateTransfersEntity);
         }
+    }
+
+    @Override
+    public void refreshCurrentEventScoutResult(int entry) {
+        int nextEvent = this.queryService.getNextEvent();
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutPickResult", nextEvent, entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutResult", nextEvent));
     }
 
 }

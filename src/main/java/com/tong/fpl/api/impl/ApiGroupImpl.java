@@ -5,10 +5,7 @@ import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IGroupService;
-import com.tong.fpl.service.IQueryService;
-import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +20,6 @@ import java.util.Map;
 public class ApiGroupImpl implements IApiGroup {
 
     private final IApiQueryService apiQueryService;
-    private final IQueryService queryService;
     private final IGroupService groupService;
 
     @Override
@@ -43,9 +39,7 @@ public class ApiGroupImpl implements IApiGroup {
 
     @Override
     public void refreshCurrentEventScoutResult(int entry) {
-        int event = this.queryService.getCurrentEvent();
-        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutPickResult", event, entry));
-        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutPickResult", event));
+        this.groupService.refreshCurrentEventScoutResult(entry);
     }
 
     @Override

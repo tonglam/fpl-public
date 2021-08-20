@@ -29,4 +29,9 @@ public interface IGroupService {
      */
     void upsertEventScoutSimulateTransfers(EntryEventSimulateTransfersData entryEventSimulateTransfersData);
 
+    /**
+     * 刷新当前比赛周当前球探推荐结果缓存
+     */
+    void refreshCurrentEventScoutResult(int entry);
+
 }
