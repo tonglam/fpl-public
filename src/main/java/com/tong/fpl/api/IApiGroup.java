@@ -2,6 +2,7 @@ package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public interface IApiGroup {
     /**
      * 提交球探推荐
      */
-    String upsertEventScout(ScoutData scoutData);
+    ResponseEntity<Map<String, Object>> upsertEventScout(ScoutData scoutData);
 
     /**
      * 更新指定比赛周的球探推荐结果

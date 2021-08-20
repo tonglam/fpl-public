@@ -40,4 +40,11 @@ public class GroupTest extends FplApplicationTests {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"1713"})
+    void refreshCurrentEventScoutResult(int entry) {
+        this.groupService.refreshCurrentEventScoutResult(entry);
+        System.out.println(1);
+    }
+
 }

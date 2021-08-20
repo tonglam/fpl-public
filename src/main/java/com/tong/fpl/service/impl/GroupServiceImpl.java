@@ -3,6 +3,7 @@ package com.tong.fpl.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.enums.FollowAccount;
 import com.tong.fpl.domain.entity.*;
@@ -24,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,16 +49,19 @@ public class GroupServiceImpl implements IGroupService {
     private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
 
     @Override
-    public String upsertEventScout(ScoutData scoutData) {
+    public ResponseEntity<Map<String, Object>> upsertEventScout(ScoutData scoutData) {
+        Map<String, Object> returnMap = Maps.newHashMap();
         // check basic params
         int event = scoutData.getEvent();
         int entry = scoutData.getEntry();
         if (event <= 0 || event > 38 || entry <= 0) {
-            return "请检查参数";
+            returnMap.put("message", "请检查参数");
+            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
         }
         Map<String, String> scoutMap = this.apiQueryService.qryScoutEntry();
         if (StringUtils.isEmpty(scoutData.getScoutName()) || !scoutMap.containsValue(scoutData.getScoutName())) {
-            return "请检查球探名称";
+            returnMap.put("message", "请检查球探名称");
+            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
         }
         // check element
         int gkp = scoutData.getGkp();
@@ -64,7 +70,8 @@ public class GroupServiceImpl implements IGroupService {
         int fwd = scoutData.getFwd();
         int captain = scoutData.getCaptain();
         if (gkp <= 0 || def <= 0 || mid <= 0 || fwd <= 0 || captain <= 0) {
-            return "请检查提交的球员";
+            returnMap.put("message", "请检查提交的球员");
+            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
         }
         PlayerEntity gkpInfo = this.queryService.getPlayerByElement(gkp);
         PlayerEntity defInfo = this.queryService.getPlayerByElement(def);
@@ -72,11 +79,13 @@ public class GroupServiceImpl implements IGroupService {
         PlayerEntity fwdInfo = this.queryService.getPlayerByElement(fwd);
         PlayerEntity captainInfo = this.queryService.getPlayerByElement(captain);
         if (gkpInfo == null || defInfo == null || midInfo == null || fwdInfo == null || captainInfo == null) {
-            return "请检查提交的球员";
+            returnMap.put("message", "请检查提交的球员");
+            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
         }
         // check price
         if ((gkpInfo.getPrice() + defInfo.getPrice() + midInfo.getPrice() + fwdInfo.getPrice()) > 280) { // 写死28m
-            return "提交的球员超出预算";
+            returnMap.put("message", "提交的球员超出预算");
+            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
         }
         // check transfers
         int transfers = scoutData.getTransfers();
@@ -95,7 +104,8 @@ public class GroupServiceImpl implements IGroupService {
                 transfers = 0;
                 leftTransfers = -1;
             } else if (leftTransfers + transfers > eventLeftTransfers) {
-                return "换人超过名额";
+                returnMap.put("message", "换人超过名额");
+                return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
             }
         }
         // upsert
@@ -146,7 +156,8 @@ public class GroupServiceImpl implements IGroupService {
             this.scoutService.updateById(scoutEntity);
         }
         this.refreshCurrentEventScoutResult(entry);
-        return "提交成功";
+        returnMap.put("message", "提交成功");
+        return new ResponseEntity<>(returnMap, HttpStatus.OK);
     }
 
     @Override

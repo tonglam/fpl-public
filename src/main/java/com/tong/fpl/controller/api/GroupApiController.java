@@ -5,6 +5,7 @@ import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class GroupApiController {
 
     @PostMapping("/upsertEventScout")
     @ResponseBody
-    public String upsertEventScout(@RequestBody ScoutData scoutData) {
+    public ResponseEntity<Map<String, Object>> upsertEventScout(@RequestBody ScoutData scoutData) {
         return this.apiGroup.upsertEventScout(scoutData);
     }
 
