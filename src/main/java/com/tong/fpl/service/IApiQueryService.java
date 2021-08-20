@@ -28,14 +28,18 @@ public interface IApiQueryService {
 
     Map<String, Integer> qryEventAverageScore();
 
+    List<TeamData> qryTeamList(String season);
+
+    List<String> qryAllLeagueName(String season);
+
     List<PlayerFixtureData> qryNextFixture();
 
     /**
      * @apiNote entry
      */
-    EntryInfoData qryEntryInfo(int entry);
-
     List<EntryInfoData> fuzzyQueryEntry(EntryQueryParam param);
+
+    EntryInfoData qryEntryInfo(int entry);
 
     EntryLeagueInfoData qryEntryLeagueInfo(int entry);
 
@@ -48,6 +52,17 @@ public interface IApiQueryService {
     List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry);
 
     List<EntryEventResultData> qryEntryEventSummary(int entry);
+
+    /**
+     * @apiNote scout
+     */
+    Map<String, String> qryScoutEntry();
+
+    EventScoutData qryEventScoutPickResult(int event, int entry);
+
+    List<EventScoutData> qryEventScoutResult(int event);
+
+    int qryEventScoutLeftTransfers(int entry, int event);
 
     /**
      * @apiNote live
@@ -63,10 +78,7 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
-    /**
-     * @apiNote team
-     */
-    List<TeamData> qryTeamList(String season);
+    List<PlayerData> qryAllPlayers(String season);
 
     /**
      * @apiNote stat
@@ -79,8 +91,6 @@ public interface IApiQueryService {
 
     List<List<String>> qrySeasonFixture();
 
-    List<String> qryAllLeagueName(String season);
-
     Map<String, String> qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType);
 
     LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName);
@@ -90,15 +100,6 @@ public interface IApiQueryService {
     PlayerSummaryData qryPlayerSummary(String season, int code);
 
     TeamSummaryData qryTeamSummary(String season, String name);
-
-    /**
-     * @apiNote scout
-     */
-    Map<String, String> qryScoutEntry();
-
-    EventScoutData qryEventScoutPickResult(int event, int entry);
-
-    List<EventScoutData> qryEventScoutResult(int event);
 
     /**
      * @apiNote tournament

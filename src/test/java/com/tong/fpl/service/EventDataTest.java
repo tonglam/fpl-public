@@ -143,10 +143,4 @@ public class EventDataTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @Test
-    void upsertEventLiveSummary() {
-        this.eventDataService.upsertEventLiveSummary();
-        System.out.println(1);
-    }
-
 }

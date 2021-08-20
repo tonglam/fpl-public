@@ -1,10 +1,7 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.entity.EventFixtureEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.entity.PlayerStatEntity;
-import com.tong.fpl.domain.entity.PlayerValueEntity;
+import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.utils.RedisUtils;
@@ -120,6 +117,17 @@ public class RedisCacheTest extends FplApplicationTests {
     @CsvSource({"1"})
     void insertEventLiveCache(int event) {
         this.redisCacheSerive.insertEventLiveCache(event);
+    }
+
+    @Test
+    void insertEventLiveSummary() {
+        this.redisCacheSerive.insertEventLiveSummary();
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2021"})
+    void insertHisEventLiveSummary(String season) {
+        this.redisCacheSerive.insertHisEventLiveSummary(season);
     }
 
     @Test
@@ -249,9 +257,10 @@ public class RedisCacheTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @Test
-    void getPositionMap() {
-        Map<String, String> map = this.redisCacheSerive.getPositionMap();
+    @ParameterizedTest
+    @CsvSource({"2122"})
+    void getEventLiveSummaryMap(String season) {
+        Map<String, EventLiveSummaryEntity> map = this.redisCacheSerive.getEventLiveSummaryMap(season);
         System.out.println(1);
     }
 

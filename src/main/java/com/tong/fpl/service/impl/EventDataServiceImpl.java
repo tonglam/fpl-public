@@ -44,7 +44,6 @@ public class EventDataServiceImpl implements IEventDataService {
     private final IQueryService queryService;
     private final IRedisCacheService redisCacheService;
     private final EventLiveService eventLiveService;
-    private final EventLiveSummaryService eventLiveSummaryService;
     private final EntryEventResultService entryEventResultService;
     private final EntryEventCupResultService entryEventCupResultService;
     private final EntryEventPickService entryEventPickService;
@@ -1832,122 +1831,6 @@ public class EventDataServiceImpl implements IEventDataService {
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
         this.redisCacheService.insertEventLiveCache(event);
-    }
-
-    /**
-     * @implNote after season
-     */
-    @Override
-    public void upsertEventLiveSummary() {
-        Multimap<Integer, EventLiveEntity> eventLiveMap = HashMultimap.create();
-        this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
-        // truncate
-        this.eventLiveSummaryService.getBaseMapper().truncate();
-        // collect
-        List<EventLiveSummaryEntity> list = Lists.newArrayList();
-        eventLiveMap.keySet().forEach(o -> {
-            Collection<EventLiveEntity> eventLives = eventLiveMap.get(o);
-            if (CollectionUtils.isEmpty(eventLives)) {
-                return;
-            }
-            EventLiveEntity first = eventLives
-                    .stream()
-                    .findFirst()
-                    .orElse(new EventLiveEntity());
-            list.add(
-                    new EventLiveSummaryEntity()
-                            .setElement(o)
-                            .setElementType(first.getElementType())
-                            .setTeamId(first.getTeamId())
-                            .setMinutes(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getMinutes)
-                                            .sum()
-                            )
-                            .setGoalsScored(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getGoalsScored)
-                                            .sum()
-                            )
-                            .setAssists(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getAssists)
-                                            .sum()
-                            )
-                            .setCleanSheets(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getCleanSheets)
-                                            .sum()
-                            )
-                            .setGoalsConceded(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getGoalsConceded)
-                                            .sum()
-                            )
-                            .setOwnGoals(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getOwnGoals)
-                                            .sum()
-                            )
-                            .setPenaltiesSaved(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getPenaltiesSaved)
-                                            .sum()
-                            )
-                            .setPenaltiesMissed(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getPenaltiesMissed)
-                                            .sum()
-                            )
-                            .setYellowCards(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getYellowCards)
-                                            .sum()
-                            )
-                            .setRedCards(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getRedCards)
-                                            .sum()
-                            )
-                            .setSaves(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getSaves)
-                                            .sum()
-                            )
-                            .setBonus(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getBonus)
-                                            .sum()
-                            )
-                            .setBps(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getBps)
-                                            .sum()
-                            )
-                            .setTotalPoints(
-                                    eventLives
-                                            .stream()
-                                            .mapToInt(EventLiveEntity::getTotalPoints)
-                                            .sum()
-                            )
-            );
-        });
-        // insert
-        this.eventLiveSummaryService.saveBatch(list);
-        log.info("insert event_live_summary size:{}!", list.size());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiPlayer;
+import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -38,6 +39,11 @@ public class PlayerApiController {
     @GetMapping("/qryTeamFixtureByShortName")
     public Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(@RequestParam String shortName) {
         return this.apiPlayer.qryTeamFixtureByShortName(shortName);
+    }
+
+    @GetMapping("/qryAllLeagueName")
+    public List<PlayerData> qryAllPlayers(@RequestParam String season) {
+        return this.apiPlayer.qryAllPlayers(season);
     }
 
 }

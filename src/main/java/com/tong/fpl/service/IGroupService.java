@@ -12,7 +12,7 @@ public interface IGroupService {
     /**
      * 更新每轮球探推荐名单
      */
-    void upsertEventScout(ScoutData scoutData);
+    String upsertEventScout(ScoutData scoutData);
 
     /**
      * 更新每轮球探推荐得分结果

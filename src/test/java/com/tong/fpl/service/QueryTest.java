@@ -100,10 +100,10 @@ public class QueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"4"})
+    @CsvSource({"69"})
     void getPlayerByElement(int element) {
         long start = System.currentTimeMillis();
-        this.queryService.getPlayerByElement(element);
+        PlayerEntity playerEntity = this.queryService.getPlayerByElement(element);
         long end = System.currentTimeMillis();
         System.out.println("escape: " + (end - start) + "ms!");
         System.out.println(1);

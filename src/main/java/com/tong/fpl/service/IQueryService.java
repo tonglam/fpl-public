@@ -218,15 +218,19 @@ public interface IQueryService {
     /**
      * @apiNote event_live
      */
-    List<EventLiveEntity> qryEventLiveAll(String season, int element);
-
-    default EventLiveEntity qryEventLive(int event, int element) {
-        return this.qryEventLive(CommonUtils.getCurrentSeason(), event, element);
+    default Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap() {
+        return this.getEventLiveSummaryMap(CommonUtils.getCurrentSeason());
     }
 
-    EventLiveEntity qryEventLive(String season, int event, int element);
+    Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season);
 
-    EventLiveSummaryEntity qryEventLiveSummary(String season, int element);
+    default EventLiveEntity qryEventLiveByElement(int event, int element) {
+        return this.qryEventLiveByElement(CommonUtils.getCurrentSeason(), event, element);
+    }
+
+    EventLiveEntity qryEventLiveByElement(String season, int event, int element);
+
+    EventLiveSummaryEntity qryEventLiveSummaryByElement(String season, int element);
 
     /**
      * @apiNote entry_event_result

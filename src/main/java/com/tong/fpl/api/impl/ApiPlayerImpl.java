@@ -1,6 +1,7 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiPlayer;
+import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
@@ -35,6 +36,11 @@ public class ApiPlayerImpl implements IApiPlayer {
     @Override
     public Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName) {
         return this.apiQueryService.qryTeamFixtureByShortName(shortName);
+    }
+
+    @Override
+    public List<PlayerData> qryAllPlayers(String season) {
+        return this.apiQueryService.qryAllPlayers(season);
     }
 
 }

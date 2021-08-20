@@ -44,6 +44,10 @@ public interface IRedisCacheService {
 
     void insertEventLiveCache(int event);
 
+    void insertEventLiveSummary();
+
+    void insertHisEventLiveSummary(String season);
+
     void insertLiveBonusCache();
 
     void insertAverageScore(int event);
@@ -86,7 +90,7 @@ public interface IRedisCacheService {
 
     Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
-    Map<String, String> getPositionMap();
+    Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season);
 
     Map<String, Map<String, Integer>> getLiveBonusCacheMap();
 

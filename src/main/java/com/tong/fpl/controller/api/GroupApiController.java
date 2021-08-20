@@ -35,10 +35,15 @@ public class GroupApiController {
         return this.apiGroup.qryEventScoutResult(event);
     }
 
+    @GetMapping("/refreshCurrentEventScoutResult")
+    public void refreshCurrentEventScoutResult(@RequestParam int entry) {
+        this.apiGroup.refreshCurrentEventScoutResult(entry);
+    }
+
     @PostMapping("/upsertEventScout")
     @ResponseBody
-    public void upsertEventScout(@RequestBody ScoutData scoutData) {
-        this.apiGroup.upsertEventScout(scoutData);
+    public String upsertEventScout(@RequestBody ScoutData scoutData) {
+        return this.apiGroup.upsertEventScout(scoutData);
     }
 
     @GetMapping("/updateEventScoutResult")

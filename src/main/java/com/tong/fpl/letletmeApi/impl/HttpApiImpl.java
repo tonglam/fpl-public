@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * Create by tong on 2020/7/20
@@ -54,12 +55,17 @@ public class HttpApiImpl implements IHttpApi {
 
     @Override
     public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
-        return this.queryService.qryEventLiveAll(season, element);
+        List<EventLiveEntity> list = Lists.newArrayList();
+        int current = this.queryService.getCurrentEvent();
+        IntStream.rangeClosed(1, current).forEach(event -> {
+            list.add(this.queryService.qryEventLiveByElement(event, element));
+        });
+        return list;
     }
 
     @Override
     public EventLiveEntity qryEventLive(String season, int event, int element) {
-        return this.queryService.qryEventLive(season, event, element);
+        return this.queryService.qryEventLiveByElement(season, event, element);
     }
 
     @Override

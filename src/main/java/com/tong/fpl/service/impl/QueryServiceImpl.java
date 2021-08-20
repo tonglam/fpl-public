@@ -952,16 +952,13 @@ public class QueryServiceImpl implements IQueryService {
      * @implNote event_live
      */
     @Cacheable(
-            value = "qryEventLiveAll",
-            key = "#season+'::'+#element",
+            value = "getEventLiveSummaryMap",
+            key = "#season",
             unless = "#result.size() eq 0"
     )
     @Override
-    public List<EventLiveEntity> qryEventLiveAll(String season, int element) {
-        MybatisPlusConfig.season.set(season);
-        List<EventLiveEntity> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda().eq(EventLiveEntity::getElement, element));
-        MybatisPlusConfig.season.remove();
-        return list;
+    public Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season) {
+        return this.redisCacheService.getEventLiveSummaryMap(season);
     }
 
     @Cacheable(
@@ -970,7 +967,7 @@ public class QueryServiceImpl implements IQueryService {
             unless = "#result.id eq 0"
     )
     @Override
-    public EventLiveEntity qryEventLive(String season, int event, int element) {
+    public EventLiveEntity qryEventLiveByElement(String season, int event, int element) {
         MybatisPlusConfig.season.set(season);
         EventLiveEntity eventLiveEntity = this.eventLiveService.getOne(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event)
@@ -985,7 +982,7 @@ public class QueryServiceImpl implements IQueryService {
             unless = "#result.element eq 0"
     )
     @Override
-    public EventLiveSummaryEntity qryEventLiveSummary(String season, int element) {
+    public EventLiveSummaryEntity qryEventLiveSummaryByElement(String season, int element) {
         MybatisPlusConfig.season.set(season);
         EventLiveSummaryEntity eventLiveSummaryEntity = this.eventLiveSummaryService.getById(element);
         MybatisPlusConfig.season.remove();

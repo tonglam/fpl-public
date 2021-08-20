@@ -689,7 +689,7 @@ public class LiveServiceImpl implements ILiveService {
 
     @Override
     public int calcElementLivePoints(int event, int element) {
-        EventLiveEntity eventLiveEntity = this.queryService.qryEventLive(event, element);
+        EventLiveEntity eventLiveEntity = this.queryService.qryEventLiveByElement(event, element);
         if (eventLiveEntity == null) {
             return 0;
         }

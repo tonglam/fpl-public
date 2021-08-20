@@ -11,9 +11,13 @@ import com.tong.fpl.domain.letletme.entry.EntryEventSimulatePickData;
 import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
+import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IGroupService;
 import com.tong.fpl.service.IQueryService;
-import com.tong.fpl.service.db.*;
+import com.tong.fpl.service.db.EntryEventSimulatePickService;
+import com.tong.fpl.service.db.EntryEventSimulateTransfersService;
+import com.tong.fpl.service.db.EventLiveService;
+import com.tong.fpl.service.db.ScoutService;
 import com.tong.fpl.utils.JsonUtils;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
@@ -34,21 +38,66 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class GroupServiceImpl implements IGroupService {
 
+    private final IApiQueryService apiQueryService;
     private final IQueryService queryService;
-    private final PlayerService playerService;
     private final EventLiveService eventLiveService;
     private final ScoutService scoutService;
     private final EntryEventSimulatePickService entryEventSimulatePickService;
     private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
 
     @Override
-    public void upsertEventScout(ScoutData scoutData) {
-        if (scoutData.getEvent() <= 0 || scoutData.getEntry() <= 0) {
-            return;
+    public String upsertEventScout(ScoutData scoutData) {
+        // check basic params
+        int event = scoutData.getEvent();
+        int entry = scoutData.getEntry();
+        if (event <= 0 || event > 38 || entry <= 0) {
+            return "请检查参数";
         }
-        Map<Integer, Integer> elementTeamMap = this.playerService.list()
-                .stream()
-                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getTeamId));
+        Map<String, String> scoutMap = this.apiQueryService.qryScoutEntry();
+        if (StringUtils.isEmpty(scoutData.getScoutName()) || !scoutMap.containsValue(scoutData.getScoutName())) {
+            return "请检查球探名称";
+        }
+        // check element
+        int gkp = scoutData.getGkp();
+        int def = scoutData.getDef();
+        int mid = scoutData.getMid();
+        int fwd = scoutData.getFwd();
+        int captain = scoutData.getCaptain();
+        if (gkp <= 0 || def <= 0 || mid <= 0 || fwd <= 0 || captain <= 0) {
+            return "请检查提交的球员";
+        }
+        PlayerEntity gkpInfo = this.queryService.getPlayerByElement(gkp);
+        PlayerEntity defInfo = this.queryService.getPlayerByElement(def);
+        PlayerEntity midInfo = this.queryService.getPlayerByElement(mid);
+        PlayerEntity fwdInfo = this.queryService.getPlayerByElement(fwd);
+        PlayerEntity captainInfo = this.queryService.getPlayerByElement(captain);
+        if (gkpInfo == null || defInfo == null || midInfo == null || fwdInfo == null || captainInfo == null) {
+            return "请检查提交的球员";
+        }
+        // check price
+        if ((gkpInfo.getPrice() + defInfo.getPrice() + midInfo.getPrice() + fwdInfo.getPrice()) > 280) { // 写死28m
+            return "提交的球员超出预算";
+        }
+        // check transfers
+        int transfers = scoutData.getTransfers();
+        int leftTransfers = scoutData.getLeftTransfers();
+        int eventLeftTransfers = this.apiQueryService.qryEventScoutLeftTransfers(event, entry);
+        if (eventLeftTransfers == -1) {
+            leftTransfers = eventLeftTransfers;
+        } else {
+            ScoutEntity lastScoutEntity = this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
+                    .eq(ScoutEntity::getEntry, scoutData.getEntry())
+                    .orderByAsc(ScoutEntity::getEvent))
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+            if (lastScoutEntity == null) {
+                transfers = 0;
+                leftTransfers = -1;
+            } else if (leftTransfers + transfers > eventLeftTransfers) {
+                return "换人超过名额";
+            }
+        }
         // upsert
         ScoutEntity scoutEntity = this.scoutService.getOne(new QueryWrapper<ScoutEntity>().lambda()
                 .eq(ScoutEntity::getEvent, scoutData.getEvent())
@@ -58,60 +107,45 @@ public class GroupServiceImpl implements IGroupService {
                     .setEvent(scoutData.getEvent())
                     .setEntry(scoutData.getEntry())
                     .setScoutName(scoutData.getScoutName())
-                    .setTransfers(0)
-                    .setLeftTransfers(-1)
+                    .setTransfers(transfers)
+                    .setLeftTransfers(leftTransfers)
                     .setGkp(scoutData.getGkp())
+                    .setGkpTeamId(gkpInfo.getTeamId())
                     .setGkpPoints(0)
                     .setDef(scoutData.getDef())
+                    .setDefTeamId(defInfo.getTeamId())
                     .setDefPoints(0)
                     .setMid(scoutData.getMid())
+                    .setMidTeamId(midInfo.getTeamId())
                     .setMidPoints(0)
                     .setFwd(scoutData.getFwd())
+                    .setFwdTeamId(fwdInfo.getTeamId())
                     .setFwdPoints(0)
                     .setCaptain(scoutData.getCaptain())
+                    .setCaptainTeamId(captainInfo.getTeamId())
                     .setCaptainPoints(0)
                     .setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason())
                     .setEventPoints(0)
                     .setTotalPoints(0);
-            scoutEntity
-                    .setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getGkp(), 0))
-                    .setDefTeamId(elementTeamMap.getOrDefault(scoutData.getDef(), 0))
-                    .setMidTeamId(elementTeamMap.getOrDefault(scoutData.getMid(), 0))
-                    .setFwdTeamId(elementTeamMap.getOrDefault(scoutData.getFwd(), 0))
-                    .setCaptainTeamId(elementTeamMap.getOrDefault(scoutData.getCaptain(), 0));
             this.scoutService.save(scoutEntity);
         } else {
             scoutEntity
-                    .setTransfers(0)
-                    .setLeftTransfers(-1);
-            if (scoutData.getGkp() > 0) {
-                scoutEntity
-                        .setGkp(scoutData.getGkp())
-                        .setGkpTeamId(elementTeamMap.getOrDefault(scoutData.getGkp(), 0));
-            }
-            if (scoutData.getDef() > 0) {
-                scoutEntity
-                        .setDef(scoutData.getDef())
-                        .setDefTeamId(elementTeamMap.getOrDefault(scoutData.getDef(), 0));
-            }
-            if (scoutData.getMid() > 0) {
-                scoutEntity
-                        .setMid(scoutData.getMid())
-                        .setMidTeamId(elementTeamMap.getOrDefault(scoutData.getMid(), 0));
-            }
-            if (scoutData.getFwd() > 0) {
-                scoutEntity
-                        .setFwd(scoutData.getFwd())
-                        .setFwdTeamId(elementTeamMap.getOrDefault(scoutData.getFwd(), 0));
-            }
-            if (scoutData.getCaptain() > 0) {
-                scoutEntity
-                        .setCaptain(scoutData.getCaptain())
-                        .setCaptainTeamId(elementTeamMap.getOrDefault(scoutData.getCaptain(), 0));
-            }
-            scoutEntity.setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason());
+                    .setTransfers(transfers)
+                    .setLeftTransfers(leftTransfers)
+                    .setGkp(scoutData.getGkp())
+                    .setGkpTeamId(gkpInfo.getTeamId())
+                    .setDef(scoutData.getDef())
+                    .setDefTeamId(defInfo.getTeamId())
+                    .setMid(scoutData.getMid())
+                    .setMidTeamId(midInfo.getTeamId())
+                    .setFwd(scoutData.getFwd())
+                    .setFwdTeamId(fwdInfo.getTeamId())
+                    .setCaptain(scoutData.getCaptain())
+                    .setCaptainTeamId(captainInfo.getTeamId())
+                    .setReason(StringUtils.isBlank(scoutData.getReason()) ? "" : scoutData.getReason());
             this.scoutService.updateById(scoutEntity);
         }
+        return "提交成功";
     }
 
     @Override

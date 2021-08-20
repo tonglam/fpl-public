@@ -27,12 +27,18 @@ public interface IApiGroup {
     List<EventScoutData> qryEventScoutResult(int event);
 
     /**
+     * 刷新当前比赛周当前球探推荐结果缓存
+     */
+    void refreshCurrentEventScoutResult(int entry);
+
+    /**
      * 提交球探推荐
      */
-    void upsertEventScout(ScoutData scoutData);
+    String upsertEventScout(ScoutData scoutData);
 
     /**
      * 更新指定比赛周的球探推荐结果
      */
     void updateEventScoutResult(int event);
+
 }

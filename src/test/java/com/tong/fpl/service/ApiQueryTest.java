@@ -53,13 +53,6 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2021"})
-    void qryTeamList(String season) {
-        List<TeamData> list = this.apiQueryService.qryTeamList(season);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
     @CsvSource({"1920"})
     void qryAllLeagueName(String season) {
         List<String> list = this.apiQueryService.qryAllLeagueName(season);
@@ -176,6 +169,23 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     /**
+     * @apiNote team
+     */
+    @ParameterizedTest
+    @CsvSource({"2021"})
+    void qryTeamList(String season) {
+        List<TeamData> list = this.apiQueryService.qryTeamList(season);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2021, ARSENAL"})
+    void qryTeamSummary(String season, String shorName) {
+        TeamSummaryData data = this.apiQueryService.qryTeamSummary(season, shorName);
+        System.out.println(1);
+    }
+
+    /**
      * @apiNote stat
      */
     @ParameterizedTest
@@ -236,9 +246,9 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2021, ARSENAL"})
-    void qryTeamSummary(String season, String shorName) {
-        TeamSummaryData data = this.apiQueryService.qryTeamSummary(season, shorName);
+    @CsvSource({"2021"})
+    void qryAllPlayers(String season) {
+        List<PlayerData> list = this.apiQueryService.qryAllPlayers(season);
         System.out.println(1);
     }
 

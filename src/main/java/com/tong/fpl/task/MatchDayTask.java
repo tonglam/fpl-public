@@ -47,6 +47,16 @@ public class MatchDayTask {
         this.eventDataService.updateEventLiveData(event);
     }
 
+    @Scheduled(cron = "0 35 6,9 * * *")
+    public void insertEventLiveSummary() {
+        int event = this.queryService.getCurrentEvent();
+        if (!this.queryService.isMatchDay(event)) {
+            return;
+        }
+        TaskLog.info("start true insertEventLiveSummary task");
+        this.redisCacheService.insertEventLiveSummary();
+    }
+
     @Scheduled(cron = "0 0/5 0-4,18-23 * * *")
     public void insertEntryEventPicks() {
         int event = this.queryService.getCurrentEvent();

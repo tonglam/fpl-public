@@ -9,7 +9,6 @@ import com.tong.fpl.config.collector.PlayerValueCollector;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.MatchPlayStatus;
-import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.RedisExpirationKey;
 import com.tong.fpl.constant.enums.ValueChangeType;
 import com.tong.fpl.domain.data.bootstrapStaic.Event;
@@ -57,6 +56,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     private final EventService eventService;
     private final EventFixtureService eventFixtureService;
     private final EventLiveService eventLiveService;
+    private final EventLiveSummaryService eventLiveSummaryService;
     private final PlayerService playerService;
     private final PlayerStatService playerStatService;
     private final PlayerValueService playerValueService;
@@ -590,10 +590,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             Map<Integer, PlayerValueEntity> lastValueMap = this.playerValueService.list()
                     .stream()
                     .collect(new PlayerValueCollector());
-            Map<Integer, Integer> changeDayPlayerValueIdMap = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
-                    .eq(PlayerValueEntity::getChangeDate, changeDate))
-                    .stream()
-                    .collect(Collectors.toMap(PlayerValueEntity::getElement, PlayerValueEntity::getId));
             // calc
             staticRes.getElements()
                     .stream()
@@ -630,12 +626,16 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 
     @Override
     public void insertEventLive(int event) {
-        this.eventLiveService.remove(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event));
+        List<EventLiveEntity> insertList = Lists.newArrayList();
+        List<EventLiveEntity> updateList = Lists.newArrayList();
+        // prepare
+        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
-        List<EventLiveEntity> eventLiveList = Lists.newArrayList();
         Optional<EventLiveRes> result = this.interfaceService.getEventLive(event);
         result.ifPresent(eventLiveRes ->
                 eventLiveRes.getElements().forEach(o -> {
@@ -649,11 +649,19 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                                     playerMap.get(element).getElementType() : 0)
                             .setTeamId(playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0)
                             .setEvent(event);
-                    eventLiveList.add(eventLive);
+                    if (!eventLiveMap.containsKey(element)) {
+                        insertList.add(eventLive);
+                    } else {
+                        updateList.add(eventLive);
+                    }
                 }));
-        this.eventLiveService.saveBatch(eventLiveList);
-        log.info("insert event_live size is " + eventLiveList.size() + "!");
-        if (this.eventLiveService.count() == 0) {
+        // insert or update
+        this.eventLiveService.saveBatch(insertList);
+        log.info("insert event_live size is " + insertList.size() + "!");
+        this.eventLiveService.updateBatchById(updateList);
+        log.info("update event_live size is " + updateList.size() + "!");
+        List<EventLiveEntity> eventLiveList = this.eventLiveService.list();
+        if (eventLiveList.size() == 0) {
             this.insertEventLive(event);
         }
         // set cache
@@ -663,7 +671,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         RedisUtils.removeCacheByKey(key);
         eventLiveList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
-        RedisUtils.pipelineHashCache(cacheMap, 7, TimeUnit.DAYS);
+        RedisUtils.pipelineHashCache(cacheMap, -1, null);
     }
 
     @Override
@@ -692,6 +700,142 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         String key = StringUtils.joinWith("::", EventLiveEntity.class.getSimpleName(), event);
         RedisUtils.removeCacheByKey(key);
         eventLiveList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
+        cacheMap.put(key, valueMap);
+        RedisUtils.pipelineHashCache(cacheMap, -1, null);
+    }
+
+    @Override
+    public void insertEventLiveSummary() {
+        Multimap<Integer, EventLiveEntity> eventLiveMap = HashMultimap.create();
+        this.eventLiveService.list().forEach(o -> eventLiveMap.put(o.getElement(), o));
+        // truncate
+        this.eventLiveSummaryService.getBaseMapper().truncate();
+        // collect
+        List<EventLiveSummaryEntity> list = Lists.newArrayList();
+        eventLiveMap.keySet().forEach(o -> {
+            Collection<EventLiveEntity> eventLives = eventLiveMap.get(o);
+            if (CollectionUtils.isEmpty(eventLives)) {
+                return;
+            }
+            EventLiveEntity first = eventLives
+                    .stream()
+                    .findFirst()
+                    .orElse(new EventLiveEntity());
+            list.add(
+                    new EventLiveSummaryEntity()
+                            .setElement(o)
+                            .setElementType(first.getElementType())
+                            .setTeamId(first.getTeamId())
+                            .setMinutes(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getMinutes)
+                                            .sum()
+                            )
+                            .setGoalsScored(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getGoalsScored)
+                                            .sum()
+                            )
+                            .setAssists(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getAssists)
+                                            .sum()
+                            )
+                            .setCleanSheets(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getCleanSheets)
+                                            .sum()
+                            )
+                            .setGoalsConceded(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getGoalsConceded)
+                                            .sum()
+                            )
+                            .setOwnGoals(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getOwnGoals)
+                                            .sum()
+                            )
+                            .setPenaltiesSaved(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getPenaltiesSaved)
+                                            .sum()
+                            )
+                            .setPenaltiesMissed(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getPenaltiesMissed)
+                                            .sum()
+                            )
+                            .setYellowCards(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getYellowCards)
+                                            .sum()
+                            )
+                            .setRedCards(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getRedCards)
+                                            .sum()
+                            )
+                            .setSaves(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getSaves)
+                                            .sum()
+                            )
+                            .setBonus(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getBonus)
+                                            .sum()
+                            )
+                            .setBps(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getBps)
+                                            .sum()
+                            )
+                            .setTotalPoints(
+                                    eventLives
+                                            .stream()
+                                            .mapToInt(EventLiveEntity::getTotalPoints)
+                                            .sum()
+                            )
+            );
+        });
+        // insert
+        this.eventLiveSummaryService.saveBatch(list);
+        log.info("insert event_live_summary size:{}!", list.size());
+        // set cache
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+        Map<String, Object> valueMap = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", EventLiveSummaryEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
+        RedisUtils.removeCacheByKey(key);
+        list.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
+        cacheMap.put(key, valueMap);
+        RedisUtils.pipelineHashCache(cacheMap, -1, null);
+    }
+
+    @Override
+    public void insertHisEventLiveSummary(String season) {
+        MybatisPlusConfig.season.set(season);
+        List<EventLiveSummaryEntity> eventLiveSummaryList = this.eventLiveSummaryService.list();
+        MybatisPlusConfig.season.remove();
+        // set cache
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+        Map<String, Object> valueMap = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", EventLiveSummaryEntity.class.getSimpleName(), season);
+        RedisUtils.removeCacheByKey(key);
+        eventLiveSummaryList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
         RedisUtils.pipelineHashCache(cacheMap, -1, null);
     }
@@ -1138,10 +1282,10 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public Map<String, String> getPositionMap() {
-        Map<String, String> map = Maps.newHashMap();
-        String key = StringUtils.joinWith("::", Position.class.getSimpleName());
-        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(String.valueOf(k), String.valueOf(v)));
+    public Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season) {
+        Map<String, EventLiveSummaryEntity> map = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", EventLiveSummaryEntity.class.getSimpleName(), season);
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(k.toString(), (EventLiveSummaryEntity) v));
         return map;
     }
 
