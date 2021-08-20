@@ -55,13 +55,15 @@ public class GroupServiceImpl implements IGroupService {
         int event = scoutData.getEvent();
         int entry = scoutData.getEntry();
         if (event <= 0 || event > 38 || entry <= 0) {
+            returnMap.put("code", 400);
             returnMap.put("message", "请检查参数");
-            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(returnMap, HttpStatus.OK);
         }
         Map<String, String> scoutMap = this.apiQueryService.qryScoutEntry();
         if (StringUtils.isEmpty(scoutData.getScoutName()) || !scoutMap.containsValue(scoutData.getScoutName())) {
+            returnMap.put("code", 400);
             returnMap.put("message", "请检查球探名称");
-            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(returnMap, HttpStatus.OK);
         }
         // check element
         int gkp = scoutData.getGkp();
@@ -70,8 +72,9 @@ public class GroupServiceImpl implements IGroupService {
         int fwd = scoutData.getFwd();
         int captain = scoutData.getCaptain();
         if (gkp <= 0 || def <= 0 || mid <= 0 || fwd <= 0 || captain <= 0) {
+            returnMap.put("code", 400);
             returnMap.put("message", "请检查提交的球员");
-            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(returnMap, HttpStatus.OK);
         }
         PlayerEntity gkpInfo = this.queryService.getPlayerByElement(gkp);
         PlayerEntity defInfo = this.queryService.getPlayerByElement(def);
@@ -79,13 +82,15 @@ public class GroupServiceImpl implements IGroupService {
         PlayerEntity fwdInfo = this.queryService.getPlayerByElement(fwd);
         PlayerEntity captainInfo = this.queryService.getPlayerByElement(captain);
         if (gkpInfo == null || defInfo == null || midInfo == null || fwdInfo == null || captainInfo == null) {
+            returnMap.put("code", 400);
             returnMap.put("message", "请检查提交的球员");
-            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(returnMap, HttpStatus.OK);
         }
         // check price
         if ((gkpInfo.getPrice() + defInfo.getPrice() + midInfo.getPrice() + fwdInfo.getPrice()) > 280) { // 写死28m
+            returnMap.put("code", 400);
             returnMap.put("message", "提交的球员超出预算");
-            return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(returnMap, HttpStatus.OK);
         }
         // check transfers
         int transfers = scoutData.getTransfers();
@@ -104,8 +109,9 @@ public class GroupServiceImpl implements IGroupService {
                 transfers = 0;
                 leftTransfers = -1;
             } else if (leftTransfers + transfers > eventLeftTransfers) {
+                returnMap.put("code", 400);
                 returnMap.put("message", "换人超过名额");
-                return new ResponseEntity<>(returnMap, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(returnMap, HttpStatus.OK);
             }
         }
         // upsert
@@ -156,6 +162,7 @@ public class GroupServiceImpl implements IGroupService {
             this.scoutService.updateById(scoutEntity);
         }
         this.refreshCurrentEventScoutResult(entry);
+        returnMap.put("code", 200);
         returnMap.put("message", "提交成功");
         return new ResponseEntity<>(returnMap, HttpStatus.OK);
     }
