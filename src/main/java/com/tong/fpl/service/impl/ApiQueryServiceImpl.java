@@ -706,10 +706,11 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         // return
         return this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                .eq(ScoutEntity::getEvent, event))
+                        .eq(ScoutEntity::getEvent, event))
                 .stream()
                 .map(o -> this.initScoutData(o, playerMap, teamShortNameMap))
-                .sorted(Comparator.comparing(EventScoutData::getEventPoints).reversed())
+                .sorted(Comparator.comparing(EventScoutData::getEventPoints).reversed()
+                        .thenComparing(EventScoutData::getUpdateTime))
                 .collect(Collectors.toList());
     }
 
@@ -789,7 +790,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         });
         return list
                 .stream()
-                .sorted(Comparator.comparing(EventScoutData::getTotalPoints).reversed())
+                .sorted(Comparator.comparing(EventScoutData::getTotalPoints).reversed()
+                        .thenComparing(EventScoutData::getUpdateTime))
                 .collect(Collectors.toList());
     }
 
@@ -807,7 +809,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setCaptainInfo(this.initScoutElementData(scoutEntity.getCaptain(), scoutEntity.getCaptainTeamId(), scoutEntity.getCaptainPoints(), playerMap.get(String.valueOf(scoutEntity.getCaptain())), teamShortNameMap))
                 .setReason(scoutEntity.getReason())
                 .setEventPoints(scoutEntity.getEventPoints())
-                .setTotalPoints(scoutEntity.getTotalPoints());
+                .setTotalPoints(scoutEntity.getTotalPoints())
+                .setUpdateTime(scoutEntity.getUpdateTime());
     }
 
     private PlayerInfoData initScoutElementData(int element, int teamId, int points, PlayerEntity playerEntity, Map<String, String> teamShortNameMap) {
@@ -1098,7 +1101,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setElement(element)
                 .setSeason(CommonUtils.getCurrentSeason());
         PlayerStatEntity playerStatEntity = playerStatMap.getOrDefault(String.valueOf(element), null);
-        if (playerEntity != null) {
+        if (playerStatEntity != null) {
             BeanUtil.copyProperties(playerStatEntity, data);
         }
         return data;

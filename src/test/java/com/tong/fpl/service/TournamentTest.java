@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 /**
  * Create by tong on 2020/7/15
@@ -101,10 +100,10 @@ public class TournamentTest extends FplApplicationTests {
 
     @Test
     void addTournamentNewEntry() {
-        IntStream.rangeClosed(1, 5).forEach(tournamentId -> {
-            this.tournamentService.addTournamentNewEntry(tournamentId);
-            System.out.println("tournamentId: " + tournamentId + ", update finished!");
-        });
+//        IntStream.rangeClosed(1, 5).forEach(tournamentId -> {
+        this.tournamentService.addTournamentNewEntry(5);
+        System.out.println("tournamentId: " + 1 + ", update finished!");
+//        });
     }
 
     @ParameterizedTest

@@ -225,7 +225,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2122, 1, ⚽让让群21/22积分联赛\uD83D\uDD08快来领工号"})
+    @CsvSource({"2122, 2, ⚽让让群21/22积分联赛"})
     void qryTeamSelectByLeagueName(String season, int event, String leagueName) {
         LeagueEventSelectData data = this.apiQueryService.qryTeamSelectByLeagueName(season, event, leagueName);
         System.out.println(1);

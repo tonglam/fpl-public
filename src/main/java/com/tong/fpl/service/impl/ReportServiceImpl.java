@@ -90,11 +90,20 @@ public class ReportServiceImpl implements IReportService {
 
     @Override
     public void insertLeagueEventSelect(int event, int leagueId, String leagueType, int limit) {
+        List<LeagueEventReportEntity> insertList = Lists.newArrayList();
+        List<LeagueEventReportEntity> updateList = Lists.newArrayList();
         // get league Entry
         LeagueInfoData leagueInfoData = this.getLeagueDataByTypeAndId(leagueId, leagueType, limit);
         if (leagueInfoData == null) {
             return;
         }
+        //prepare
+        Map<Integer, LeagueEventReportEntity> leagueEventReportMap = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                        .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                        .eq(LeagueEventReportEntity::getEvent, event))
+                .stream()
+                .collect(Collectors.toMap(LeagueEventReportEntity::getEntry, o -> o));
+        // league_name
         String leagueName = limit == 0 ? leagueInfoData.getName() : leagueInfoData.getName() + "(top " + (int) NumberUtil.div(limit, 1000, 0, RoundingMode.FLOOR) + "k)";
         // init league result stat
         List<EntryInfoData> entryInfoDataList = leagueInfoData.getEntryInfoList();
@@ -113,9 +122,19 @@ public class ReportServiceImpl implements IReportService {
                 .map(CompletableFuture::join)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        // save
-        this.leagueEventReportService.saveBatch(leagueEventStatEntityList);
-        log.info("leagueId:{}, leagueType:{}, event:{}, insert league_event_report size:{}!", leagueId, leagueType, event, leagueEventStatEntityList.size());
+        // save or update
+        leagueEventStatEntityList.forEach(o -> {
+            if (!leagueEventReportMap.containsKey(o.getEntry())) {
+                insertList.add(o);
+            } else {
+                o.setId(leagueEventReportMap.get(o.getEntry()).getId());
+                updateList.add(o);
+            }
+        });
+        this.leagueEventReportService.saveBatch(insertList);
+        log.info("leagueId:{}, leagueType:{}, event:{}, insert league_event_report size:{}!", leagueId, leagueType, event, insertList.size());
+        this.leagueEventReportService.updateBatchById(updateList);
+        log.info("leagueId:{}, leagueType:{}, event:{}, update league_event_report size:{}!", leagueId, leagueType, event, updateList.size());
     }
 
     @Override

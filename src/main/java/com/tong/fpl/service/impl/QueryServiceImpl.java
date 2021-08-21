@@ -618,8 +618,7 @@ public class QueryServiceImpl implements IQueryService {
         int event = 0;
         for (int i = 1; i < 39; i++) {
             String deadline = this.getDeadlineByEvent(i);
-            if (LocalDateTime.now()
-                    .isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
+            if (LocalDateTime.now().isAfter(LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern(Constant.DATETIME)))) {
                 event = i;
             } else {
                 break;

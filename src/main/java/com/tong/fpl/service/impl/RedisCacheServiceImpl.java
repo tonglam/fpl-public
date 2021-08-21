@@ -471,7 +471,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         int event = this.getCurrentEvent();
         Map<Integer, Integer> insertTeamMap = this.getInsertTeamList();
         Map<Integer, Integer> playerStatIdMap = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event))
+                        .eq(PlayerStatEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(PlayerStatEntity::getElement, PlayerStatEntity::getId));
         // get from fpl server
@@ -503,7 +503,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         Map<String, Object> valueMap = Maps.newHashMap();
         RedisUtils.removeCacheByKey(key);
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event))
+                        .eq(PlayerStatEntity::getEvent, event))
                 .forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
         RedisUtils.pipelineHashCache(cacheMap, -1, null);
@@ -626,11 +626,12 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 
     @Override
     public void insertEventLive(int event) {
+        List<EventLiveEntity> eventLiveList = Lists.newArrayList();
         List<EventLiveEntity> insertList = Lists.newArrayList();
         List<EventLiveEntity> updateList = Lists.newArrayList();
         // prepare
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
@@ -649,21 +650,21 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                                     playerMap.get(element).getElementType() : 0)
                             .setTeamId(playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0)
                             .setEvent(event);
-                    if (!eventLiveMap.containsKey(element)) {
-                        insertList.add(eventLive);
-                    } else {
-                        updateList.add(eventLive);
-                    }
+                    eventLiveList.add(eventLive);
                 }));
         // insert or update
+        eventLiveList.forEach(o -> {
+            int element = o.getElement();
+            if (!eventLiveMap.containsKey(element)) {
+                insertList.add(o);
+            } else {
+                updateList.add(o);
+            }
+        });
         this.eventLiveService.saveBatch(insertList);
         log.info("insert event_live size is " + insertList.size() + "!");
         this.eventLiveService.updateBatchById(updateList);
         log.info("update event_live size is " + updateList.size() + "!");
-        List<EventLiveEntity> eventLiveList = this.eventLiveService.list();
-        if (eventLiveList.size() == 0) {
-            this.insertEventLive(event);
-        }
         // set cache
         Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
         Map<String, Object> valueMap = Maps.newHashMap();

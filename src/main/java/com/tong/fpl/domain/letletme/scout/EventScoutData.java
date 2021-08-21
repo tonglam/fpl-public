@@ -24,5 +24,6 @@ public class EventScoutData {
     private String reason;
     private int eventPoints;
     private int totalPoints;
+    private String updateTime;
 
 }
