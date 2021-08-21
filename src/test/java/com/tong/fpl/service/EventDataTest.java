@@ -79,7 +79,7 @@ public class EventDataTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1"})
+    @CsvSource({"2"})
     void updateEventTransfersByEntryList(int event) {
         IntStream.rangeClosed(1, 5).forEach(tournamentId -> {
             List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();

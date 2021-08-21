@@ -120,7 +120,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"37, 1870"})
+    @CsvSource({"2, 6496"})
     void qryEntryEventTransfers(int event, int entry) {
         List<EntryEventTransfersData> list = this.apiQueryService.qryEntryEventTransfers(event, entry);
         System.out.println(1);

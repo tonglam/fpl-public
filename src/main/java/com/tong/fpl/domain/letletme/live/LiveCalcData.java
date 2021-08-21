@@ -1,6 +1,7 @@
 package com.tong.fpl.domain.letletme.live;
 
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.entry.EntryEventTransfersData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -39,5 +40,6 @@ public class LiveCalcData {
     private int playedCaptain;
     private String captainName;
     private List<ElementEventResultData> pickList;
+    private List<EntryEventTransfersData> transfersList;
 
 }
