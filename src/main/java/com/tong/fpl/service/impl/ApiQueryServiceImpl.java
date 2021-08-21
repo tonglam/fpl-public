@@ -787,6 +787,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             .setReason("")
                             .setEventPoints(lastScout.getEventPoints())
                             .setTotalPoints(lastScout.getTotalPoints())
+                            .setUpdateTime(lastScout.getUpdateTime())
             );
         });
         return list

@@ -269,7 +269,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2"})
+    @CsvSource({"0"})
     void qryEventScoutResult(int event) {
         List<EventScoutData> list = this.apiQueryService.qryEventScoutResult(event);
         System.out.println(1);
