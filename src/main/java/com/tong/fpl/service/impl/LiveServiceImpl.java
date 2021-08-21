@@ -128,8 +128,8 @@ public class LiveServiceImpl implements ILiveService {
             if (entryInfoEntity != null) {
                 BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
                 liveCalcData
-                        .setPickList(Lists.newArrayList())
-                        .setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
+                        .setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints())
+                        .setPickList(null);
             }
         });
         // sort
@@ -205,7 +205,6 @@ public class LiveServiceImpl implements ILiveService {
             if (entryInfoEntity != null) {
                 BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
                 liveCalcData
-                        .setPickList(Lists.newArrayList())
                         .setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
             }
         });
@@ -220,6 +219,7 @@ public class LiveServiceImpl implements ILiveService {
                 .collect(Collectors.toList());
         List<Integer> searchElementList = Lists.newArrayList();
         list.forEach(o -> o.getPickList().forEach(i -> searchElementList.add(i.getElement())));
+        list.forEach(o -> o.setPickList(null));
         List<Integer> searchList = searchElementList
                 .stream()
                 .filter(o -> o == element)
@@ -227,6 +227,7 @@ public class LiveServiceImpl implements ILiveService {
         return new SearchLiveCalcData()
                 .setElement(element)
                 .setWebName(playerInfoMap.get(String.valueOf(element)).getWebName())
+                .setSelectNum(searchList.size())
                 .setSelectByPercent(searchList.size() == 0 ? "0%"
                         : CommonUtils.getPercentResult(searchList.size(), entryList.size()))
                 .setLiveCalcDataList(liveCalcList);

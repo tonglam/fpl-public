@@ -60,7 +60,7 @@ public class LiveTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1, 1, 296"})
+    @CsvSource({"2, 1, 30"})
     void calcSearchLivePointsByTournament(int event, int tournamentId, int element) {
         SearchLiveCalcData data = this.liveCalcService.calcSearchLivePointsByTournament(event, tournamentId, element);
         System.out.println(1);

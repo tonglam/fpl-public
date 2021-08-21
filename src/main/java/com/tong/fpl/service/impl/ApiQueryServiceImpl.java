@@ -2264,11 +2264,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (tournamentInfoEntity == null) {
             return new SearchEntryEventResultData();
         }
-        List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                        .eq(TournamentEntryEntity::getTournamentId, tournamentId))
-                .stream()
-                .map(TournamentEntryEntity::getEntry)
-                .collect(Collectors.toList());
+        List<Integer> entryList = this.queryService.qryEntryListByTournament(tournamentId);
         if (CollectionUtils.isEmpty(entryList)) {
             return new SearchEntryEventResultData();
         }
@@ -2310,6 +2306,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return new SearchEntryEventResultData()
                 .setElement(element)
                 .setWebName(playerMap.get(String.valueOf(element)).getWebName())
+                .setSelectNum(list.size())
                 .setSelectByPercent(list.size() == 0 ? "0%"
                         : CommonUtils.getPercentResult(list.size(), entryEventResultEntityList.size()))
                 .setEventResultList(list);

@@ -14,6 +14,7 @@ public class SearchEntryEventResultData {
 
     private int element;
     private String webName;
+    private int selectNum;
     private String selectByPercent;
     private List<EntryEventResultData> eventResultList;
 
