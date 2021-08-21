@@ -127,7 +127,9 @@ public class LiveServiceImpl implements ILiveService {
             EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(entry, null);
             if (entryInfoEntity != null) {
                 BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
-                liveCalcData.setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
+                liveCalcData
+                        .setPickList(Lists.newArrayList())
+                        .setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
             }
         });
         // sort
@@ -202,7 +204,9 @@ public class LiveServiceImpl implements ILiveService {
             EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(entry, null);
             if (entryInfoEntity != null) {
                 BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
-                liveCalcData.setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
+                liveCalcData
+                        .setPickList(Lists.newArrayList())
+                        .setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
             }
         });
         // sort
