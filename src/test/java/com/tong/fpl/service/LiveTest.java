@@ -20,7 +20,7 @@ public class LiveTest extends FplApplicationTests {
     private ILiveService liveCalcService;
 
     @ParameterizedTest
-    @CsvSource({"1, 6496"})
+    @CsvSource({"2, 1713"})
     void calcLivePoints(int event, int entry) {
         long start = System.currentTimeMillis();
         LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
@@ -50,7 +50,7 @@ public class LiveTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"18, 1"})
+    @CsvSource({"2, 1"})
     void calcLivePointsByTournament(int event, int tournamentId) {
         long start = System.currentTimeMillis();
         List<LiveCalcData> list = this.liveCalcService.calcLivePointsByTournament(event, tournamentId);

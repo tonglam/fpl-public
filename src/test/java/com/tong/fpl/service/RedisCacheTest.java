@@ -114,7 +114,7 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1"})
+    @CsvSource({"2"})
     void insertEventLiveCache(int event) {
         this.redisCacheSerive.insertEventLiveCache(event);
     }
@@ -285,7 +285,7 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"qry"})
+    @CsvSource({"api"})
     void redisClear(String key) {
         RedisUtils.removeCacheByKey(key);
     }

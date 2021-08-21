@@ -14,10 +14,7 @@ import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.PositionRule;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
-import com.tong.fpl.domain.entity.EntryEventPickEntity;
-import com.tong.fpl.domain.entity.EntryInfoEntity;
-import com.tong.fpl.domain.entity.EventLiveEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
+import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
@@ -26,6 +23,7 @@ import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.EntryEventPickService;
+import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EntryInfoService;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
@@ -51,8 +49,9 @@ import java.util.stream.Stream;
 public class LiveServiceImpl implements ILiveService {
 
     private final IQueryService queryService;
-    private final EntryEventPickService entryEventPickService;
     private final EntryInfoService entryInfoService;
+    private final EntryEventPickService entryEventPickService;
+    private final EntryEventResultService entryEventResultService;
 
     @Override
     public LiveCalcData calcLivePointsByEntry(int event, int entry) {
@@ -75,8 +74,16 @@ public class LiveServiceImpl implements ILiveService {
                     .setValue(entryInfoData.getTeamValue() / 10.0)
                     .setBank(entryInfoData.getBank() / 10.0)
                     .setTeamValue((entryInfoData.getTeamValue() - entryInfoData.getBank()) / 10.0)
-                    .setLastValue(entryInfoData.getLastTeamValue() / 10.0)
-                    .setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
+                    .setLastValue(entryInfoData.getLastTeamValue() / 10.0);
+        }
+        // entry result
+        EntryEventResultEntity lastEntryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, event - 1)
+                .eq(EntryEventResultEntity::getEntry, entry));
+        if (lastEntryEventResultEntity != null) {
+            liveCalcData.setLiveTotalPoints(lastEntryEventResultEntity.getOverallPoints() + liveCalcData.getLiveNetPoints());
+        } else {
+            liveCalcData.setLiveTotalPoints(liveCalcData.getLiveNetPoints());
         }
         return liveCalcData;
     }
@@ -104,15 +111,23 @@ public class LiveServiceImpl implements ILiveService {
                 .stream()
                 .map(CompletableFuture::join)
                 .collect(Collectors.toList());
+        // entry result
+        Map<Integer, Integer> lastOverallPointsMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                        .eq(EntryEventResultEntity::getEvent, event - 1)
+                        .in(EntryEventResultEntity::getEntry, entryList))
+                .stream()
+                .collect(Collectors.toMap(EntryEventResultEntity::getEntry, EntryEventResultEntity::getOverallPoints));
         // entry info
-        Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list()
+        Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+                        .in(EntryInfoEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryInfoEntity::getEntry, v -> v));
         liveCalcList.forEach(liveCalcData -> {
-            EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(liveCalcData.getEntry(), null);
+            int entry = liveCalcData.getEntry();
+            EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(entry, null);
             if (entryInfoEntity != null) {
                 BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
-                liveCalcData.setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
+                liveCalcData.setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
             }
         });
         // sort
@@ -172,15 +187,22 @@ public class LiveServiceImpl implements ILiveService {
                 .map(CompletableFuture::join)
                 .filter(o -> this.containSearchElement(element, o.getPickList(), o.getChip()))
                 .collect(Collectors.toList());
+        // entry result
+        Map<Integer, Integer> lastOverallPointsMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                        .eq(EntryEventResultEntity::getEvent, event - 1)
+                        .in(EntryEventResultEntity::getEntry, entryList))
+                .stream()
+                .collect(Collectors.toMap(EntryEventResultEntity::getEntry, EntryEventResultEntity::getOverallPoints));
         // entry info
         Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list()
                 .stream()
                 .collect(Collectors.toMap(EntryInfoEntity::getEntry, v -> v));
         liveCalcList.forEach(liveCalcData -> {
-            EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(liveCalcData.getEntry(), null);
+            int entry = liveCalcData.getEntry();
+            EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(entry, null);
             if (entryInfoEntity != null) {
                 BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
-                liveCalcData.setLiveTotalPoints(liveCalcData.getLastOverallPoints() + liveCalcData.getLiveNetPoints());
+                liveCalcData.setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
             }
         });
         // sort
@@ -548,8 +570,8 @@ public class LiveServiceImpl implements ILiveService {
         Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>> map = elementEventResultDataList.stream().collect(new ElementLiveCollector());
         // gkp
         List<ElementEventResultData> gkps = this.createSteam(map.get(Position.GKP.getElementType()).get(true, true),
-                map.get(Position.GKP.getElementType()).get(true, false),
-                map.get(Position.GKP.getElementType()).get(false, true))
+                        map.get(Position.GKP.getElementType()).get(true, false),
+                        map.get(Position.GKP.getElementType()).get(false, true))
                 .flatMap(Collection::stream)
                 .limit(PositionRule.MIN_NUM_GKP.getNum())
                 .collect(Collectors.toList());
@@ -561,8 +583,8 @@ public class LiveServiceImpl implements ILiveService {
         // def rule, at least 3
         if (defs.size() < PositionRule.MIN_NUM_DEF.getNum()) {
             defs = this.createSteam(defs,
-                    map.get(Position.DEF.getElementType()).get(true, false),
-                    map.get(Position.DEF.getElementType()).get(false, true))
+                            map.get(Position.DEF.getElementType()).get(true, false),
+                            map.get(Position.DEF.getElementType()).get(false, true))
                     .flatMap(Collection::stream)
                     .limit(PositionRule.MIN_NUM_DEF.getNum())
                     .sorted(Comparator.comparing(ElementEventResultData::getPosition))
@@ -576,8 +598,8 @@ public class LiveServiceImpl implements ILiveService {
         // fwd rule, at least 1
         if (fwds.size() < PositionRule.MIN_NUM_FWD.getNum()) {
             fwds = this.createSteam(fwds,
-                    map.get(Position.FWD.getElementType()).get(true, false),
-                    map.get(Position.FWD.getElementType()).get(false, true))
+                            map.get(Position.FWD.getElementType()).get(true, false),
+                            map.get(Position.FWD.getElementType()).get(false, true))
                     .flatMap(Collection::stream)
                     .limit(PositionRule.MIN_NUM_FWD.getNum())
                     .collect(Collectors.toList());
@@ -598,9 +620,9 @@ public class LiveServiceImpl implements ILiveService {
         // sub list
         if (activeList.size() < PositionRule.MIN_PLAYERS.getNum()) {
             List<ElementEventResultData> subList = this.createSteam(
-                    map.get(Position.DEF.getElementType()).get(true, false),
-                    map.get(Position.MID.getElementType()).get(true, false),
-                    map.get(Position.FWD.getElementType()).get(true, false))
+                            map.get(Position.DEF.getElementType()).get(true, false),
+                            map.get(Position.MID.getElementType()).get(true, false),
+                            map.get(Position.FWD.getElementType()).get(true, false))
                     .flatMap(Collection::stream)
                     .filter(o -> !activeList.contains(o))
                     .sorted(Comparator.comparing(ElementEventResultData::getPosition))
@@ -611,9 +633,9 @@ public class LiveServiceImpl implements ILiveService {
         if (activeList.size() < PositionRule.MIN_PLAYERS.getNum()) {
             // stand by list
             List<ElementEventResultData> standByList = this.createSteam(
-                    map.get(Position.DEF.getElementType()).get(false, true),
-                    map.get(Position.MID.getElementType()).get(false, true),
-                    map.get(Position.FWD.getElementType()).get(false, true))
+                            map.get(Position.DEF.getElementType()).get(false, true),
+                            map.get(Position.MID.getElementType()).get(false, true),
+                            map.get(Position.FWD.getElementType()).get(false, true))
                     .flatMap(Collection::stream)
                     .filter(o -> !activeList.contains(o))
                     .sorted(Comparator.comparing(ElementEventResultData::getPosition))

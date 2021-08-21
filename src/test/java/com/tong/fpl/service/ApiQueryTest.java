@@ -137,7 +137,7 @@ public class ApiQueryTest extends FplApplicationTests {
      * @apiNote live
      */
     @ParameterizedTest
-    @CsvSource({"next_event"})
+    @CsvSource({"not_start"})
     void qryLiveMatchDataByStatus(String playStatus) {
         List<LiveMatchData> list = this.apiQueryService.qryLiveMatchByStatus(playStatus);
         System.out.println(1);
