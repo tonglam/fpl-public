@@ -17,7 +17,6 @@ import com.tong.fpl.service.IGroupService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.EntryEventSimulatePickService;
 import com.tong.fpl.service.db.EntryEventSimulateTransfersService;
-import com.tong.fpl.service.db.EventLiveService;
 import com.tong.fpl.service.db.ScoutService;
 import com.tong.fpl.utils.JsonUtils;
 import com.tong.fpl.utils.RedisUtils;
@@ -43,7 +42,6 @@ public class GroupServiceImpl implements IGroupService {
 
     private final IApiQueryService apiQueryService;
     private final IQueryService queryService;
-    private final EventLiveService eventLiveService;
     private final ScoutService scoutService;
     private final EntryEventSimulatePickService entryEventSimulatePickService;
     private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
@@ -100,8 +98,8 @@ public class GroupServiceImpl implements IGroupService {
             leftTransfers = eventLeftTransfers;
         } else {
             ScoutEntity lastScoutEntity = this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                    .eq(ScoutEntity::getEntry, scoutData.getEntry())
-                    .orderByAsc(ScoutEntity::getEvent))
+                            .eq(ScoutEntity::getEntry, scoutData.getEntry())
+                            .orderByAsc(ScoutEntity::getEvent))
                     .stream()
                     .findFirst()
                     .orElse(null);
@@ -179,14 +177,13 @@ public class GroupServiceImpl implements IGroupService {
         List<ScoutEntity> list = Lists.newArrayList();
         Multimap<Integer, ScoutEntity> entryPointsMap = HashMultimap.create();
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                .lt(ScoutEntity::getEvent, event))
+                        .lt(ScoutEntity::getEvent, event))
                 .forEach(o -> entryPointsMap.put(o.getEntry(), o));
-        Map<Integer, Integer> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+        Map<Integer, Integer> eventLiveMap = this.queryService.getEventLiveByEvent(event).values()
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                .eq(ScoutEntity::getEvent, event))
+                        .eq(ScoutEntity::getEvent, event))
                 .forEach(o -> {
                     o
                             .setGkpPoints(eventLiveMap.getOrDefault(o.getGkp(), 0))
