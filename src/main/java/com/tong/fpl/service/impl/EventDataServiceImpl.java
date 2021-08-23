@@ -1908,8 +1908,10 @@ public class EventDataServiceImpl implements IEventDataService {
     @Override
     public void refreshTournamentEventResult(int event, int tournamentId) {
         // tournament_result
+        log.info("event:{}, tornament:{}, upsert tournament entry event result start", event, tournamentId);
         this.upsertTournamentEntryEventResult(event, tournamentId);
         // tournament_points_race_group_result
+        log.info("event:{}, tornament:{}, upsert tournament points race group result start", event, tournamentId);
         this.updatePointsRaceGroupResult(event, tournamentId);
         // cache
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTournamentEventResult", event, tournamentId));
