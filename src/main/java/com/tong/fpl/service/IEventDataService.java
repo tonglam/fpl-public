@@ -89,7 +89,7 @@ public interface IEventDataService {
 
     void refreshTournamentEventResult(int event, int tournamentId);
 
-    void refreshEntryEventSummary(int event, int entry);
+    void refreshEntrySummary(int event, int entry);
 
     void refreshLeagueSummary(int event, String leagueName, int entry);
 

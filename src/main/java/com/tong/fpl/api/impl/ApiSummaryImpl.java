@@ -54,8 +54,8 @@ public class ApiSummaryImpl implements IApiSummary {
     }
 
     @Override
-    public void refreshEntryEventSummary(int event, int entry) {
-        this.eventDataService.refreshEntryEventSummary(event, entry);
+    public void refreshEntrySummary(int event, int entry) {
+        this.eventDataService.refreshEntrySummary(event, entry);
     }
 
     /**

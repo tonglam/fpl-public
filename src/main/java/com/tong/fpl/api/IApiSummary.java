@@ -24,7 +24,7 @@ public interface IApiSummary {
 
     EntrySeasonScoreData qryEntrySeasonScore(int entry);
 
-    void refreshEntryEventSummary(int event, int entry);
+    void refreshEntrySummary(int event, int entry);
 
     /**
      * @apiNote league

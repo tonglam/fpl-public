@@ -1913,7 +1913,7 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     @Override
-    public void refreshEntryEventSummary(int event, int entry) {
+    public void refreshEntrySummary(int event, int entry) {
         this.upsertEntryEventResult(event, entry);
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonInfo", entry));
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonSummary", entry));

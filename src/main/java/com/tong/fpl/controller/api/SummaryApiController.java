@@ -52,8 +52,8 @@ public class SummaryApiController {
     }
 
     @GetMapping("/refreshEntrySummary")
-    public void refreshEntryEventResult(@RequestParam int event, @RequestParam int entry) {
-        this.apiSummary.refreshEntryEventSummary(event, entry);
+    public void refreshEntrySummary(@RequestParam int event, @RequestParam int entry) {
+        this.apiSummary.refreshEntrySummary(event, entry);
     }
 
     /**
