@@ -7,8 +7,7 @@ import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IRedisCacheService;
-import com.tong.fpl.utils.RedisUtils;
+import com.tong.fpl.service.IEventDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,7 @@ import java.util.Map;
 public class ApiStatImpl implements IApiStat {
 
     private final IApiQueryService apiQueryService;
-    private final IRedisCacheService redisCacheService;
+    private final IEventDataService eventDataService;
 
     @Override
     public Map<String, List<PlayerValueData>> qryPlayerValueByDate(String date) {
@@ -43,9 +42,7 @@ public class ApiStatImpl implements IApiStat {
 
     @Override
     public void refreshPlayerValue() {
-        this.redisCacheService.insertPlayerCache();
-        this.redisCacheService.insertPlayerValue();
-        RedisUtils.removeCacheByKey("api::qryPlayer");
+        this.eventDataService.refreshPlayerValue();
     }
 
     @Override

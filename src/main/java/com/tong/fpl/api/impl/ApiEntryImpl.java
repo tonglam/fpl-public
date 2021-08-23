@@ -4,9 +4,7 @@ import com.tong.fpl.api.IApiEntry;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IEventDataService;
-import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +21,18 @@ public class ApiEntryImpl implements IApiEntry {
     private final IEventDataService eventDataService;
 
     @Override
+    public EntryInfoData qryEntryInfo(int entry) {
+        return this.apiQueryService.qryEntryInfo(entry);
+    }
+
+    @Override
     public List<EntryInfoData> fuzzyQueryEntry(EntryQueryParam param) {
         return this.apiQueryService.fuzzyQueryEntry(param);
     }
 
     @Override
-    public EntryInfoData qryEntryInfo(int entry) {
-        return this.apiQueryService.qryEntryInfo(entry);
+    public void refreshEntryInfo(int entry) {
+        this.eventDataService.refreshEntryInfo(entry);
     }
 
     @Override
@@ -49,9 +52,7 @@ public class ApiEntryImpl implements IApiEntry {
 
     @Override
     public void refreshEntryEventResult(int event, int entry) {
-        this.eventDataService.upsertEntryEventResult(event, entry);
-        String key = StringUtils.joinWith("::", "api::qryEntryEventResult", event, entry);
-        RedisUtils.removeCacheByKey(key);
+        this.eventDataService.refreshEntryEventResult(event, entry);
     }
 
     @Override
@@ -61,9 +62,7 @@ public class ApiEntryImpl implements IApiEntry {
 
     @Override
     public void refreshEntryEventTransfers(int event, int entry) {
-        this.eventDataService.updateEntryEventTransfers(event, entry);
-        String key = StringUtils.joinWith("::", "api::qryEntryEventTransfers", event, entry);
-        RedisUtils.removeCacheByKey(key);
+        this.eventDataService.refreshEntryEventTransfers(event, entry);
     }
 
 }

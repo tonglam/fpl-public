@@ -50,19 +50,19 @@ public class RedisEventDataService {
     public void updateEventPointsRaceGroupResult(String eventStr) {
         int event = this.getEvent(eventStr);
         this.queryService.qryPointsRaceGroupTournamentList(event)
-                .forEach(tourmentId -> this.eventDataService.updatePointsRaceGroupResult(event, tourmentId));
+                .forEach(tournamentId -> this.eventDataService.updatePointsRaceGroupResult(event, tournamentId));
     }
 
     public void updateEventBattleRaceGroupResult(String eventStr) {
         int event = this.getEvent(eventStr);
         this.queryService.qryBattleRaceGroupTournamentList(event)
-                .forEach(tourmentId -> this.eventDataService.updatePointsRaceGroupResult(event, tourmentId));
+                .forEach(tournamentId -> this.eventDataService.updatePointsRaceGroupResult(event, tournamentId));
     }
 
     public void updateEventKnockoutResult(String eventStr) {
         int event = this.getEvent(eventStr);
         this.queryService.qryKnockoutTournamentList(event)
-                .forEach(tourmentId -> this.eventDataService.updatePointsRaceGroupResult(event, tourmentId));
+                .forEach(tournamentId -> this.eventDataService.updatePointsRaceGroupResult(event, tournamentId));
     }
 
     private int getEvent(String eventStr) {

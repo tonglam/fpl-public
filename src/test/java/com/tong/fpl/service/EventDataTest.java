@@ -19,12 +19,6 @@ public class EventDataTest extends FplApplicationTests {
     @Autowired
     private IEventDataService eventDataService;
 
-    @Test
-    void updateEntryInfo() {
-        this.eventDataService.updateEntryInfo();
-        System.out.println(1);
-    }
-
     @ParameterizedTest
     @CsvSource({"1"})
     void upsertTournamentEntryEventResult(int event) {

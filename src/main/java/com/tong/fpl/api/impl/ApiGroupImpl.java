@@ -4,6 +4,7 @@ import com.tong.fpl.api.IApiGroup;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.service.IApiQueryService;
+import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.IGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class ApiGroupImpl implements IApiGroup {
 
     private final IApiQueryService apiQueryService;
+    private final IEventDataService eventDataService;
     private final IGroupService groupService;
 
     @Override
@@ -40,7 +42,7 @@ public class ApiGroupImpl implements IApiGroup {
 
     @Override
     public void refreshCurrentEventScoutResult(int entry) {
-        this.groupService.refreshCurrentEventScoutResult(entry);
+        this.eventDataService.refreshCurrentEventScoutResult(entry);
     }
 
     @Override

@@ -20,7 +20,9 @@ public interface IEventDataService {
 
     void updatePlayerData();
 
-    void updateEntryInfo();
+    void updateEntryInfo(List<Integer> entryList);
+
+    void updateEntryInfoByEntry(int entry);
 
     /**
      * @apiNote after deadline
@@ -71,8 +73,20 @@ public interface IEventDataService {
     void updateZjTournamentResult(int tournamentId);
 
     /**
-     * @apiNote during match
+     * @apiNote refresh
      */
-    void updateEventLiveCache(int event);
+    void refreshEventLiveCache(int event);
+
+    void refreshPlayerValue();
+
+    void refreshEntryInfo(int entry);
+
+    void refreshEntryEventResult(int event, int entry);
+
+    void refreshEntryEventTransfers(int event, int entry);
+
+    void refreshCurrentEventScoutResult(int entry);
+
+    void refreshTournamentEventResult(int event, int tournamentId);
 
 }

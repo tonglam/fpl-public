@@ -31,6 +31,11 @@ public interface IApiTournament {
     List<EntryEventResultData> qryTournamentEventResult(int event, int tournamentId);
 
     /**
+     * 刷新联赛周得分
+     */
+    void refreshTournamentEventResult(int event, int tournamentId);
+
+    /**
      * 获取搜索后的联赛周得分
      */
     SearchEntryEventResultData qryTournamentEventSearchResult(int event, int tournamentId, int element);

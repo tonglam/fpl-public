@@ -4,7 +4,7 @@ import com.tong.fpl.api.IApiCommon;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.service.IEventDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,8 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiCommonImpl implements IApiCommon {
 
-    private final IRedisCacheService redisCacheService;
     private final IApiQueryService apiQueryService;
+    private final IEventDataService eventDataService;
 
     @Override
     public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
@@ -29,13 +29,7 @@ public class ApiCommonImpl implements IApiCommon {
 
     @Override
     public void insertEventLiveCache(int event) {
-        if (event <= 0 || event > 38) {
-            return;
-        }
-        this.redisCacheService.insertEventLive(event);
-        this.redisCacheService.insertSingleEventFixtureCache(event);
-        this.redisCacheService.insertLiveFixtureCache();
-        this.redisCacheService.insertLiveBonusCache();
+        this.eventDataService.refreshEventLiveCache(event);
     }
 
     @Override

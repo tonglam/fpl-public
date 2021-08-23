@@ -19,6 +19,7 @@ import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.db.*;
+import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
@@ -75,10 +76,14 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     @Override
-    public void updateEntryInfo() {
+    public void updateEntryInfo(List<Integer> entryList) {
         List<EntryInfoEntity> updateEntryInfoList = Lists.newArrayList();
         // get entry info list
-        List<EntryInfoEntity> entryInfoList = this.entryInfoService.list();
+        List<EntryInfoEntity> entryInfoList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+                .in(EntryInfoEntity::getEntry, entryList));
+        if (CollectionUtils.isEmpty(entryInfoList)) {
+            return;
+        }
         entryInfoList.parallelStream().forEach(entryInfoEntity -> {
             int entry = entryInfoEntity.getEntry();
             // entry
@@ -121,6 +126,35 @@ public class EventDataServiceImpl implements IEventDataService {
                 .filter(o -> o.getEvent() == lastEvent)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public void updateEntryInfoByEntry(int entry) {
+        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
+        // entry
+        EntryRes entryRes = this.queryService.getEntry(entry);
+        if (entryRes == null) {
+            return;
+        }
+        entryInfoEntity
+                .setEntryName(entryRes.getName())
+                .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+                .setOverallPoints(entryRes.getSummaryOverallPoints())
+                .setOverallRank(entryRes.getSummaryOverallRank())
+                .setBank(entryRes.getLastDeadlineBank())
+                .setTeamValue(entryRes.getLastDeadlineValue())
+                .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
+                .setLastOverallPoints(entryRes.getSummaryOverallPoints())
+                .setLastOverallRank(entryRes.getSummaryOverallRank())
+                .setLastTeamValue(entryRes.getLastDeadlineValue());
+        // user_history
+        Current lastCurrent = this.getUserLastCurrent(entry);
+        entryInfoEntity
+                .setLastOverallPoints(lastCurrent == null ? 0 : lastCurrent.getTotalPoints())
+                .setLastOverallRank(lastCurrent == null ? 0 : lastCurrent.getOverallRank())
+                .setLastTeamValue(lastCurrent == null ? 0 : lastCurrent.getValue());
+        // update
+        this.entryInfoService.updateById(entryInfoEntity);
     }
 
     /**
@@ -1824,14 +1858,56 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     /**
-     * @implNote during match
+     * @implNote refresh
      */
     @Override
-    public void updateEventLiveCache(int event) {
+    public void refreshEventLiveCache(int event) {
+        if (event <= 0 || event > 38) {
+            return;
+        }
         this.redisCacheService.insertSingleEventFixtureCache(event);
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
         this.redisCacheService.insertEventLiveCache(event);
+    }
+
+    @Override
+    public void refreshPlayerValue() {
+        this.redisCacheService.insertPlayerCache();
+        this.redisCacheService.insertPlayerValue();
+        RedisUtils.removeCacheByKey("api::qryPlayer");
+    }
+
+    @Override
+    public void refreshEntryInfo(int entry) {
+        this.updateEntryInfoByEntry(entry);
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryEntryInfo", CommonUtils.getCurrentSeason(), entry));
+    }
+
+    @Override
+    public void refreshEntryEventResult(int event, int entry) {
+        this.upsertEntryEventResult(event, entry);
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntryEventResult", event, entry));
+    }
+
+    @Override
+    public void refreshEntryEventTransfers(int event, int entry) {
+        this.updateEntryEventTransfers(event, entry);
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntryEventTransfers", event, entry));
+    }
+
+    @Override
+    public void refreshCurrentEventScoutResult(int entry) {
+        int nextEvent = this.queryService.getNextEvent();
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutPickResult", nextEvent, entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutResult", nextEvent));
+    }
+
+    @Override
+    public void refreshTournamentEventResult(int event, int tournamentId) {
+        this.upsertTournamentEntryEventResult(event, tournamentId);
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTournamentEventResult", event, tournamentId));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTournamentEventChampion", tournamentId));
     }
 
 }

@@ -29,6 +29,11 @@ public class EntryApiController {
         return this.apiEntry.fuzzyQueryEntry(param);
     }
 
+    @GetMapping("/refreshEntryInfo")
+    public void refreshEntryInfo(@RequestParam int entry) {
+        this.apiEntry.refreshEntryInfo(entry);
+    }
+
     @GetMapping("/qryEntryLeagueInfo")
     public EntryLeagueInfoData qryEntryLeagueInfo(@RequestParam int entry) {
         return this.apiEntry.qryEntryLeagueInfo(entry);

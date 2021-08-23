@@ -1,12 +1,17 @@
 package com.tong.fpl.task;
 
+import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.log.TaskLog;
 import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.service.db.EntryInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Create by tong on 2020/7/21
@@ -17,6 +22,7 @@ public class DailyTask {
 
     private final IRedisCacheService redisCacheService;
     private final IEventDataService eventDataService;
+    private final EntryInfoService entryInfoService;
 
     @Scheduled(cron = "0 35 6 * * *")
     public void insertEvent() {
@@ -45,7 +51,12 @@ public class DailyTask {
     @Scheduled(cron = "0 50 9 * * *")
     public void updateEntryInfo() {
         try {
-            this.eventDataService.updateEntryInfo();
+            List<Integer> entryList = this.entryInfoService.list()
+                    .stream()
+                    .map(EntryInfoEntity::getEntry)
+                    .distinct()
+                    .collect(Collectors.toList());
+            this.eventDataService.updateEntryInfo(entryList);
         } catch (Exception e) {
             e.printStackTrace();
             TaskLog.error(e.getMessage());

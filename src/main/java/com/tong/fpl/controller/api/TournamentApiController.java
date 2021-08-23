@@ -40,6 +40,11 @@ public class TournamentApiController {
         return this.apiTournament.qryTournamentEventResult(event, tournamentId);
     }
 
+    @GetMapping("/refreshTournamentEventResult")
+    public void refreshTournamentEventResult(@RequestParam int event, @RequestParam int tournamentId) {
+        this.apiTournament.refreshTournamentEventResult(event, tournamentId);
+    }
+
     @GetMapping("/qryTournamentEventSearchResult")
     SearchEntryEventResultData qryTournamentEventSearchResult(@RequestParam int event, @RequestParam int tournamentId, @RequestParam int element) {
         return this.apiTournament.qryTournamentEventSearchResult(event, tournamentId, element);

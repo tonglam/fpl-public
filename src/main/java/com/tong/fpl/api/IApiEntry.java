@@ -10,14 +10,19 @@ import java.util.List;
 public interface IApiEntry {
 
     /**
+     * 获取简介
+     */
+    EntryInfoData qryEntryInfo(int entry);
+
+    /**
      * 模糊查询team_id
      */
     List<EntryInfoData> fuzzyQueryEntry(EntryQueryParam param);
 
     /**
-     * 获取简介
+     * 刷新简介
      */
-    EntryInfoData qryEntryInfo(int entry);
+    void refreshEntryInfo(int entry);
 
     /**
      * 获取联赛信息

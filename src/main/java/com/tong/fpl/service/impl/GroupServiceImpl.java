@@ -13,6 +13,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.service.IApiQueryService;
+import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.IGroupService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.EntryEventSimulatePickService;
@@ -42,6 +43,7 @@ public class GroupServiceImpl implements IGroupService {
 
     private final IApiQueryService apiQueryService;
     private final IQueryService queryService;
+    private final IEventDataService eventDataService;
     private final ScoutService scoutService;
     private final EntryEventSimulatePickService entryEventSimulatePickService;
     private final EntryEventSimulateTransfersService entryEventSimulateTransfersService;
@@ -98,8 +100,8 @@ public class GroupServiceImpl implements IGroupService {
             leftTransfers = eventLeftTransfers;
         } else {
             ScoutEntity lastScoutEntity = this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                            .eq(ScoutEntity::getEntry, scoutData.getEntry())
-                            .orderByAsc(ScoutEntity::getEvent))
+                    .eq(ScoutEntity::getEntry, scoutData.getEntry())
+                    .orderByAsc(ScoutEntity::getEvent))
                     .stream()
                     .findFirst()
                     .orElse(null);
@@ -163,7 +165,7 @@ public class GroupServiceImpl implements IGroupService {
                     .setReason(scoutData.getReason());
             this.scoutService.updateById(scoutEntity);
         }
-        this.refreshCurrentEventScoutResult(entry);
+        this.eventDataService.refreshCurrentEventScoutResult(entry);
         returnMap.put("code", 200);
         returnMap.put("message", "提交成功");
         return new ResponseEntity<>(returnMap, HttpStatus.OK);
@@ -177,13 +179,13 @@ public class GroupServiceImpl implements IGroupService {
         List<ScoutEntity> list = Lists.newArrayList();
         Multimap<Integer, ScoutEntity> entryPointsMap = HashMultimap.create();
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                        .lt(ScoutEntity::getEvent, event))
+                .lt(ScoutEntity::getEvent, event))
                 .forEach(o -> entryPointsMap.put(o.getEntry(), o));
         Map<Integer, Integer> eventLiveMap = this.queryService.getEventLiveByEvent(event).values()
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
-                        .eq(ScoutEntity::getEvent, event))
+                .eq(ScoutEntity::getEvent, event))
                 .forEach(o -> {
                     o
                             .setGkpPoints(eventLiveMap.getOrDefault(o.getGkp(), 0))
@@ -299,13 +301,6 @@ public class GroupServiceImpl implements IGroupService {
             entryEventSimulateTransfersEntity.setId(entryEventSimulateTransfers.getId());
             this.entryEventSimulateTransfersService.updateById(entryEventSimulateTransfersEntity);
         }
-    }
-
-    @Override
-    public void refreshCurrentEventScoutResult(int entry) {
-        int nextEvent = this.queryService.getNextEvent();
-        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutPickResult", nextEvent, entry));
-        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutResult", nextEvent));
     }
 
 }

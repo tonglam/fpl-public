@@ -7,6 +7,7 @@ import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
 import com.tong.fpl.service.IApiQueryService;
+import com.tong.fpl.service.IEventDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ public class ApiTournamentImpl implements IApiTournament {
 
     private final IApiQueryService apiQueryService;
 
+    private final IEventDataService eventDataService;
+
     @Override
     public List<TournamentInfoData> qryEntryPointsRaceTournament(int entry) {
         return this.apiQueryService.qryEntryPointsRaceTournament(entry);
@@ -35,6 +38,11 @@ public class ApiTournamentImpl implements IApiTournament {
     @Override
     public List<EntryEventResultData> qryTournamentEventResult(int event, int tournamentId) {
         return this.apiQueryService.qryTournamentEventResult(event, tournamentId);
+    }
+
+    @Override
+    public void refreshTournamentEventResult(int event, int tournamentId) {
+        this.eventDataService.refreshTournamentEventResult(event, tournamentId);
     }
 
     @Override
