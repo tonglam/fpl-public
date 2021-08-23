@@ -3,6 +3,7 @@ package com.tong.fpl.task;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.log.TaskLog;
 import com.tong.fpl.service.IEventDataService;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.db.EntryInfoService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DailyTask {
 
+    private final IQueryService queryService;
     private final IRedisCacheService redisCacheService;
     private final IEventDataService eventDataService;
     private final EntryInfoService entryInfoService;
@@ -61,6 +63,17 @@ public class DailyTask {
             e.printStackTrace();
             TaskLog.error(e.getMessage());
         }
+    }
+
+    @Scheduled(cron = "0 0 */1 0-23 * * *")
+    public void insertEventLive() {
+        int event = this.queryService.getCurrentEvent();
+        if (!this.queryService.isMatchDayTime(event)) {
+            return;
+        }
+        TaskLog.info("start true insertEventLive task");
+        this.redisCacheService.insertEventLive(event);
+        this.redisCacheService.insertSingleEventFixture(event);
     }
 
 }
