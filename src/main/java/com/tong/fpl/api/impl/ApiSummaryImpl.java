@@ -6,6 +6,7 @@ import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
+import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.ISummaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class ApiSummaryImpl implements IApiSummary {
 
     private final ISummaryService summaryService;
+    private final IEventDataService eventDataService;
 
     /**
      * @implNote entry
@@ -46,6 +48,11 @@ public class ApiSummaryImpl implements IApiSummary {
     @Override
     public EntrySeasonScoreData qryEntrySeasonScore(int entry) {
         return this.summaryService.qryEntrySeasonScore(entry);
+    }
+
+    @Override
+    public void refreshEntryEventSummary(int event, int entry) {
+        this.eventDataService.refreshEntryEventSummary(event, entry);
     }
 
     /**

@@ -1910,4 +1910,14 @@ public class EventDataServiceImpl implements IEventDataService {
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTournamentEventChampion", tournamentId));
     }
 
+    @Override
+    public void refreshEntryEventSummary(int event, int entry) {
+        this.upsertEntryEventResult(event, entry);
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonInfo", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonSummary", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonCaptain", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonTransfers", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonScore", entry));
+    }
+    
 }

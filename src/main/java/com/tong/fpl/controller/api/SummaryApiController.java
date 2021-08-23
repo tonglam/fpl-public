@@ -51,6 +51,11 @@ public class SummaryApiController {
         return this.apiSummary.qryEntrySeasonScore(entry);
     }
 
+    @GetMapping("/refreshEntrySummary")
+    public void refreshEntryEventResult(@RequestParam int event, @RequestParam int entry) {
+        this.apiSummary.refreshEntryEventSummary(event, entry);
+    }
+
     /**
      * @implNote league
      */
