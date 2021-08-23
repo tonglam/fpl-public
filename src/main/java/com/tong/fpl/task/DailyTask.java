@@ -65,7 +65,7 @@ public class DailyTask {
         }
     }
 
-    @Scheduled(cron = "0 0 */1 0-23 * * *")
+    @Scheduled(cron = "0 0 */1 * * *")
     public void insertEventLive() {
         int event = this.queryService.getCurrentEvent();
         if (!this.queryService.isMatchDayTime(event)) {
