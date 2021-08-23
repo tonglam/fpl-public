@@ -75,4 +75,9 @@ public interface IEventDataService {
      */
     void updateEventLiveCache(int event);
 
+    /**
+     * @apiNote event
+     */
+    void refreshPlayerValueCache();
+
 }
