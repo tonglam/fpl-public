@@ -2,7 +2,6 @@ package com.tong.fpl.config.event;
 
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.event.CreateZjTournamentEventData;
-import com.tong.fpl.domain.event.RefreshPlayerValueEventData;
 import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.ITournamentService;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +36,6 @@ public class FplEventListener {
     public void onApplicationEvent(CreateZjTournamentEventData createZjTournamentEvent) {
         log.info("recieve event:{}, start process", CreateZjTournamentEventData.class.getSimpleName());
         this.tournamentService.createNewZjTournamentBackground(createZjTournamentEvent.getZjTournamentCreateData());
-    }
-
-    @Async("eventExecutor")
-    @EventListener({RefreshPlayerValueEventData.class})
-    public void onApplicationEvent() {
-        log.info("recieve event:{}, start process", RefreshPlayerValueEventData.class.getSimpleName());
-        this.eventDataService.refreshPlayerValueCache();
     }
 
 }

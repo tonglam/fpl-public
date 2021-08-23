@@ -32,7 +32,7 @@ public interface IRedisCacheService {
 
     void insertPlayer();
 
-    void insertPlayerCahce();
+    void insertPlayerCache();
 
     void insertHisPlayer(String season);
 

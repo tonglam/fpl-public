@@ -1,16 +1,16 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiStat;
-import com.tong.fpl.domain.event.RefreshPlayerValueEventData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
+import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +23,8 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiStatImpl implements IApiStat {
 
-    private final ApplicationContext context;
     private final IApiQueryService apiQueryService;
+    private final IRedisCacheService redisCacheService;
 
     @Override
     public Map<String, List<PlayerValueData>> qryPlayerValueByDate(String date) {
@@ -43,7 +43,9 @@ public class ApiStatImpl implements IApiStat {
 
     @Override
     public void refreshPlayerValue() {
-        this.context.publishEvent(new RefreshPlayerValueEventData(this));
+        this.redisCacheService.insertPlayerCache();
+        this.redisCacheService.insertPlayerValue();
+        RedisUtils.removeCacheByKey("api::qryPlayer");
     }
 
     @Override

@@ -449,7 +449,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertPlayerCahce() {
+    public void insertPlayerCache() {
         Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
         result.ifPresent(staticRes -> {
             // prepare
@@ -641,6 +641,9 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                                         .setLastValue(lastValue)
                         );
                     });
+            if (CollectionUtils.isEmpty(playerValueList)) {
+                return;
+            }
             // insert
             this.playerValueService.saveBatch(playerValueList);
             log.info("insert player value size:{}", playerValueList.size());
