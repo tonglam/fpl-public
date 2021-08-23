@@ -126,6 +126,7 @@ public class SummaryServiceImpl implements ISummaryService {
         if (CollectionUtils.isEmpty(webNameMap)) {
             return data;
         }
+        Map<String, EventLiveEntity> eventLivePointsMap = this.queryService.getEventLiveByEvent(this.queryService.getCurrentEvent());
         List<EntryEventResultEntity> entryEventResultEntityList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
                 .eq(EntryEventResultEntity::getEntry, entry));
         if (CollectionUtils.isEmpty(entryEventResultEntityList)) {
@@ -221,6 +222,7 @@ public class SummaryServiceImpl implements ISummaryService {
                                                     .setEvent(i.getEvent())
                                                     .setEntry(entry)
                                                     .setWebName(webNameMap.getOrDefault(String.valueOf(i.getElement()), ""))
+                                                    .setPoints(eventLivePointsMap.get(String.valueOf(i.getElement())).getTotalPoints())
                                             )
                                             .collect(Collectors.toList())
                             )
@@ -241,7 +243,9 @@ public class SummaryServiceImpl implements ISummaryService {
                                             .setEvent(o.getEvent())
                                             .setEntry(entry)
                                             .setElementInWebName(webNameMap.getOrDefault(String.valueOf(i.getElementIn()), ""))
+                                            .setElementInPoints(eventLivePointsMap.get(String.valueOf(i.getElementIn())).getTotalPoints())
                                             .setElementOutWebName(webNameMap.getOrDefault(String.valueOf(i.getElementOut()), ""))
+                                            .setElementOutPoints(eventLivePointsMap.get(String.valueOf(i.getElementOut())).getTotalPoints())
                             );
                             data
                                     .setHighestAutoSubsPointsEvent(o.getEvent())
