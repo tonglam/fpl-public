@@ -48,11 +48,6 @@ public class CommonApiController {
         return this.apiCommon.qryAllLeagueName(season);
     }
 
-    @GetMapping("/refreshPlayerValue")
-    public void refreshPlayerValue() {
-        this.apiCommon.refreshPlayerValue();
-    }
-
     @GetMapping("/qryNextFixture")
     public List<PlayerFixtureData> qryNextFixture() {
         return this.apiCommon.qryNextFixture();

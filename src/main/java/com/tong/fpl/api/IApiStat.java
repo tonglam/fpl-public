@@ -30,6 +30,14 @@ public interface IApiStat {
     Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId);
 
     /**
+     * 刷新player_value：
+     * 1.player cache
+     * 3.player_value
+     * 4.cache
+     */
+    void refreshPlayerValue();
+
+    /**
      * 根据联赛名称查询阵容选择结果
      */
     LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName);

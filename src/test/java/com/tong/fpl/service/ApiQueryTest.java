@@ -126,13 +126,6 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @ParameterizedTest
-    @CsvSource({"1870"})
-    void qryEntryEventSummary(int entry) {
-        List<EntryEventResultData> list = this.apiQueryService.qryEntryEventSummary(entry);
-        System.out.println(1);
-    }
-
     /**
      * @apiNote live
      */

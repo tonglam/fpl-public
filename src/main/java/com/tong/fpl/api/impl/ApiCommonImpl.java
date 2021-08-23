@@ -5,7 +5,6 @@ import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IRedisCacheService;
-import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +33,7 @@ public class ApiCommonImpl implements IApiCommon {
             return;
         }
         this.redisCacheService.insertEventLive(event);
+        this.redisCacheService.insertSingleEventFixtureCache(event);
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
     }
@@ -51,13 +51,6 @@ public class ApiCommonImpl implements IApiCommon {
     @Override
     public List<String> qryAllLeagueName(String season) {
         return this.apiQueryService.qryAllLeagueName(season);
-    }
-
-    @Override
-    public void refreshPlayerValue() {
-        this.redisCacheService.insertPlayer();
-        this.redisCacheService.insertPlayerValue();
-        RedisUtils.removeCacheByKey("api::qryPlayerValue");
     }
 
     @Override

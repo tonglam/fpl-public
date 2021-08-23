@@ -35,13 +35,18 @@ public interface IApiEntry {
     EntryEventResultData qryEntryEventResult(int event, int entry);
 
     /**
+     * 刷新周得分
+     */
+    void refreshEntryEventResult(int event, int entry);
+
+    /**
      * 获取周转会
      */
     List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry);
 
     /**
-     * 获取周得分总结
+     * 刷新周转会
      */
-    List<EntryEventResultData> qryEntryEventSummary(int entry);
+    void refreshEntryEventTransfers(int event, int entry);
 
 }

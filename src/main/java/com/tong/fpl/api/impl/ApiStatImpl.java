@@ -1,6 +1,7 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiStat;
+import com.tong.fpl.domain.event.RefreshPlayerValueEventData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
@@ -9,6 +10,7 @@ import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApiStatImpl implements IApiStat {
 
+    private final ApplicationContext context;
     private final IApiQueryService apiQueryService;
 
     @Override
@@ -36,6 +39,11 @@ public class ApiStatImpl implements IApiStat {
     @Override
     public Map<String, List<PlayerValueData>> qryPlayerValueByTeamId(int teamId) {
         return this.apiQueryService.qryPlayerValueByTeamId(teamId);
+    }
+
+    @Override
+    public void refreshPlayerValue() {
+        this.context.publishEvent(new RefreshPlayerValueEventData(this));
     }
 
     @Override

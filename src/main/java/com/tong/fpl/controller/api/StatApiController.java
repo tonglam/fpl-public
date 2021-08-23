@@ -44,6 +44,11 @@ public class StatApiController {
         return this.apiStat.qryPlayerValueByTeamId(teamId);
     }
 
+    @GetMapping("/refreshPlayerValue")
+    public void refreshPlayerValue() {
+        this.apiStat.refreshPlayerValue();
+    }
+
     @GetMapping("/qryTeamSelectByLeagueName")
     public LeagueEventSelectData qryTeamSelectByLeagueName(@RequestParam String season, @RequestParam int event, @RequestParam String leagueName) {
         return this.apiStat.qryTeamSelectByLeagueName(season, event, leagueName);

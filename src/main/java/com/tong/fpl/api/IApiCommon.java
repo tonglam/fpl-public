@@ -41,15 +41,6 @@ public interface IApiCommon {
     List<String> qryAllLeagueName(String season);
 
     /**
-     * 刷新player_value：
-     * 1.player cache
-     * 2.player_stat cache
-     * 3.player_value
-     * 4.cache
-     */
-    void refreshPlayerValue();
-
-    /**
      * 获取下一比赛周赛程
      */
     List<PlayerFixtureData> qryNextFixture();
