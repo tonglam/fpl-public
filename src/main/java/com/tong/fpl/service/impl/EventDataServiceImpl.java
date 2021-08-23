@@ -46,7 +46,6 @@ public class EventDataServiceImpl implements IEventDataService {
     private final IQueryService queryService;
     private final IRedisCacheService redisCacheService;
     private final IReportService reportService;
-    private final EventLiveService eventLiveService;
     private final EntryEventResultService entryEventResultService;
     private final EntryEventCupResultService entryEventCupResultService;
     private final EntryEventPickService entryEventPickService;
@@ -403,10 +402,7 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         // get event_live
-        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
-                .stream()
-                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+        Map<String, EventLiveEntity> eventLiveMap = this.queryService.getEventLiveByEvent(event);
         // entry_event_result
         EntryEventResultEntity entryEventResult = this.calcEntryEventPoints(event, entry, userPick, eventLiveMap);
         if (entryEventResult == null) {
@@ -438,10 +434,7 @@ public class EventDataServiceImpl implements IEventDataService {
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // get event_live
-        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
-                .stream()
-                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+        Map<String, EventLiveEntity> eventLiveMap = this.queryService.getEventLiveByEvent(event);
         // upsert entry_event_result
         RedisUtils.removeCacheByKey("get");
         List<EntryEventResultEntity> insertEventResultList = Lists.newArrayList();
@@ -480,10 +473,7 @@ public class EventDataServiceImpl implements IEventDataService {
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // get event_live
-        Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
-                .stream()
-                .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
+        Map<String, EventLiveEntity> eventLiveMap = this.queryService.getEventLiveByEvent(event);
         // upsert entry_event_result
         RedisUtils.removeCacheByKey("get");
         List<EntryEventResultEntity> insertEventResultList = Lists.newArrayList();
@@ -514,14 +504,12 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     private EntryEventResultEntity calcEntryEventPoints(int event, int entry, UserPicksRes
-            userPick, Map<Integer, EventLiveEntity> eventLiveMap) {
-        Map<Integer, Integer> elementPointsMap = Maps.newHashMap();
-        eventLiveMap.keySet().forEach(o -> {
-            EventLiveEntity eventLiveEntity = eventLiveMap.getOrDefault(o, new EventLiveEntity());
-            elementPointsMap.put(o, eventLiveEntity.getTotalPoints());
-        });
+            userPick, Map<String, EventLiveEntity> eventLiveMap) {
+        Map<Integer, Integer> elementPointsMap = eventLiveMap.values()
+                .stream()
+                .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         int captain = this.getPlayedCaptain(userPick.getPicks(), eventLiveMap);
-        EventLiveEntity captainEntity = eventLiveMap.getOrDefault(captain, new EventLiveEntity());
+        EventLiveEntity captainEntity = eventLiveMap.getOrDefault(String.valueOf(captain), new EventLiveEntity());
         return new EntryEventResultEntity()
                 .setEntry(entry)
                 .setEvent(event)
@@ -543,7 +531,7 @@ public class EventDataServiceImpl implements IEventDataService {
                 .setCaptainPoints(captainEntity.getTotalPoints());
     }
 
-    private int getPlayedCaptain(List<Pick> picks, Map<Integer, EventLiveEntity> eventLiveMap) {
+    private int getPlayedCaptain(List<Pick> picks, Map<String, EventLiveEntity> eventLiveMap) {
         Pick captain = picks
                 .stream()
                 .filter(Pick::isCaptain)
@@ -557,7 +545,7 @@ public class EventDataServiceImpl implements IEventDataService {
         if (captain == null || viceCaptain == null) {
             return 0;
         }
-        if (eventLiveMap.get(captain.getElement()).getMinutes() == 0 && eventLiveMap.get(viceCaptain.getElement()).getMinutes() > 0) {
+        if (eventLiveMap.get(String.valueOf(captain.getElement())).getMinutes() == 0 && eventLiveMap.get(String.valueOf(viceCaptain.getElement())).getMinutes() > 0) {
             return viceCaptain.getElement();
         }
         return captain.getElement();
@@ -625,8 +613,7 @@ public class EventDataServiceImpl implements IEventDataService {
         if (CollectionUtils.isEmpty(entryEventTransferEntityList)) {
             return;
         }
-        Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
+        Map<Integer, Integer> pointsMap = this.queryService.getEventLiveByEvent(event).values()
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         if (CollectionUtils.isEmpty(pointsMap)) {
@@ -675,8 +662,7 @@ public class EventDataServiceImpl implements IEventDataService {
         if (CollectionUtils.isEmpty(entryEventResultMap)) {
             return;
         }
-        Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
+        Map<Integer, Integer> pointsMap = this.queryService.getEventLiveByEvent(event).values()
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         if (CollectionUtils.isEmpty(pointsMap)) {
