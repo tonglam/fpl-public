@@ -40,7 +40,12 @@ public interface IApiStat {
     /**
      * 根据联赛名称查询阵容选择结果
      */
-    LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName);
+    LeagueEventSelectData qryLeagueSelectByName(int event, String leagueName);
+
+    /**
+     * 刷新联赛阵容选择结果
+     */
+    void refreshLeagueSelect(int event, String leagueName);
 
     /**
      * 获取所有赛程
@@ -58,8 +63,18 @@ public interface IApiStat {
     PlayerSummaryData qryPlayerSummary(String season, int code);
 
     /**
+     * 刷新球员数据
+     */
+    void refreshPlayerSummary(String season, int code);
+
+    /**
      * 获取球队数据
      */
     TeamSummaryData qryTeamSummary(String season, String name);
+
+    /**
+     * 刷新球队数据
+     */
+    void refreshTeamSummary(String season, String name);
 
 }

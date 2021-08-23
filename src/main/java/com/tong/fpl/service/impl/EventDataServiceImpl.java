@@ -1930,4 +1930,41 @@ public class EventDataServiceImpl implements IEventDataService {
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonScore", leagueName, entry));
     }
 
+    @Override
+    public void refreshLeagueSelect(int event, String leagueName) {
+        LeagueEventReportEntity leagueEventReportEntity = this.queryService.qryLeagueInfoByName(leagueName);
+        if (leagueEventReportEntity == null) {
+            return;
+        }
+        int leagueId = leagueEventReportEntity.getLeagueId();
+        String leagueType = leagueEventReportEntity.getLeagueType();
+        this.reportService.updateLeagueEventResult(event, leagueId, leagueType);
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSelectByName", CommonUtils.getCurrentSeason(), event, leagueName));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueEventEoWebNameMap", CommonUtils.getCurrentSeason(), event, leagueId, leagueType));
+    }
+
+    @Override
+    public void refreshPlayerSummary(String season, int code) {
+        if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
+            int event = this.queryService.getCurrentEvent();
+            this.redisCacheService.insertPlayer();
+            this.redisCacheService.insertEventLive(event);
+            this.redisCacheService.insertEventFixture();
+        }
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryPlayerSummary", season, code));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerDetailData", season));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerFixtureList", season));
+    }
+
+    @Override
+    public void refreshTeamSummary(String season, String name) {
+        if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
+            int event = this.queryService.getCurrentEvent();
+            this.redisCacheService.insertPlayer();
+            this.redisCacheService.insertPlayerStat();
+        }
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTeamSummary", season, name));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerFixtureList", season));
+    }
+
 }

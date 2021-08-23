@@ -1314,13 +1314,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Cacheable(
-            value = "api::qryTeamSelectByLeagueName",
+            value = "api::qryLeagueSelectByName",
             key = "#season+'::'+#event+'::'+#leagueName",
             cacheManager = "apiCacheManager",
             unless = "#result.captainSelect.size() eq 0"
     )
     @Override
-    public LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName) {
+    public LeagueEventSelectData qryLeagueSelectByName(String season, int event, String leagueName) {
         if (event <= 0 || StringUtils.isEmpty(leagueName)) {
             return new LeagueEventSelectData();
         }
@@ -1812,7 +1812,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setCornersAndIndirectFreekicksOrders(Lists.newArrayList())
                 .setDirectFreekicksOrders(Lists.newArrayList())
                 .setPenaltiesOrders(Lists.newArrayList());
-        if (StringUtils.equals(season, "2122")) {
+        if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
             int event = this.queryService.getCurrentEvent();
             if (event <= 0) {
                 event = 1;

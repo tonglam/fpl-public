@@ -8,6 +8,7 @@ import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IEventDataService;
+import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,8 +47,13 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
-    public LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName) {
-        return this.apiQueryService.qryTeamSelectByLeagueName(season, event, leagueName);
+    public LeagueEventSelectData qryLeagueSelectByName(int event, String leagueName) {
+        return this.apiQueryService.qryLeagueSelectByName(CommonUtils.getCurrentSeason(), event, leagueName);
+    }
+
+    @Override
+    public void refreshLeagueSelect(int event, String leagueName) {
+        this.eventDataService.refreshLeagueSelect(event, leagueName);
     }
 
     @Override
@@ -66,8 +72,18 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
+    public void refreshPlayerSummary(String season, int code) {
+        this.eventDataService.refreshPlayerSummary(season, code);
+    }
+
+    @Override
     public TeamSummaryData qryTeamSummary(String season, String name) {
         return this.apiQueryService.qryTeamSummary(season, name);
+    }
+
+    @Override
+    public void refreshTeamSummary(String season, String name) {
+        this.eventDataService.refreshTeamSummary(season, name);
     }
 
 }

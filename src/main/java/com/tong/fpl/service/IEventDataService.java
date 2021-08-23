@@ -93,4 +93,10 @@ public interface IEventDataService {
 
     void refreshLeagueSummary(int event, String leagueName, int entry);
 
+    void refreshLeagueSelect(int event, String leagueName);
+
+    void refreshPlayerSummary(String season, int code);
+
+    void refreshTeamSummary(String season, String name);
+
 }

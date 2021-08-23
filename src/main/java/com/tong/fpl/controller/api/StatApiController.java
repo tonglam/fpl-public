@@ -49,9 +49,14 @@ public class StatApiController {
         this.apiStat.refreshPlayerValue();
     }
 
-    @GetMapping("/qryTeamSelectByLeagueName")
-    public LeagueEventSelectData qryTeamSelectByLeagueName(@RequestParam String season, @RequestParam int event, @RequestParam String leagueName) {
-        return this.apiStat.qryTeamSelectByLeagueName(season, event, leagueName);
+    @GetMapping("/qryLeagueSelectByName")
+    public LeagueEventSelectData qryLeagueSelectByName(@RequestParam int event, @RequestParam String leagueName) {
+        return this.apiStat.qryLeagueSelectByName(event, leagueName);
+    }
+
+    @GetMapping("/refreshLeagueSelect")
+    public void refreshLeagueSelect(@RequestParam int event, @RequestParam String leagueName) {
+        this.apiStat.refreshLeagueSelect(event, leagueName);
     }
 
     @GetMapping("/qrySeasonFixture")
@@ -69,9 +74,19 @@ public class StatApiController {
         return this.apiStat.qryPlayerSummary(season, code);
     }
 
+    @GetMapping("/refreshPlayerSummary")
+    public void refreshPlayerSummary(@RequestParam String season, @RequestParam int code) {
+        this.apiStat.refreshPlayerSummary(season, code);
+    }
+
     @GetMapping("/qryTeamSummary")
     public TeamSummaryData qryTeamSummary(@RequestParam String season, @RequestParam String name) {
         return this.apiStat.qryTeamSummary(season, name);
+    }
+
+    @GetMapping("/refreshTeamSummary")
+    public void refreshTeamSummary(@RequestParam String season, @RequestParam String name) {
+        this.apiStat.refreshTeamSummary(season, name);
     }
 
 }

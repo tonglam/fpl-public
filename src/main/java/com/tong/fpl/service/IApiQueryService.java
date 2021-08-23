@@ -91,7 +91,7 @@ public interface IApiQueryService {
 
     Map<String, String> qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType);
 
-    LeagueEventSelectData qryTeamSelectByLeagueName(String season, int event, String leagueName);
+    LeagueEventSelectData qryLeagueSelectByName(String season, int event, String leagueName);
 
     PlayerInfoData qryPlayerInfo(String season, int code);
 
