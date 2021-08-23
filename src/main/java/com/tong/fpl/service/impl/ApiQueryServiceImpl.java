@@ -2484,7 +2484,7 @@ public TournamentGroupEventChampionData qryTournamentEventChampion(int tournamen
                                 .filter(o -> o.getEntry() == entry)
                                 .count()
                 );
-        data.setTotalNum(data.getChampionNum() + data.getRunnerUpNum() + data.getTotalNum());
+        data.setTotalNum(data.getChampionNum() + data.getRunnerUpNum() + data.getSecondRunnerUpNum());
         return data;
     }
 
