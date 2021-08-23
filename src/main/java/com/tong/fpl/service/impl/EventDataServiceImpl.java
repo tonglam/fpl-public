@@ -1950,7 +1950,9 @@ public class EventDataServiceImpl implements IEventDataService {
             this.redisCacheService.insertPlayer();
             this.redisCacheService.insertEventLive(event);
             this.redisCacheService.insertEventFixture();
+            this.redisCacheService.insertEventLiveSummary();
         }
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryPlayerInfo", season, code));
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryPlayerSummary", season, code));
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerDetailData", season));
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerFixtureList", season));
@@ -1959,7 +1961,6 @@ public class EventDataServiceImpl implements IEventDataService {
     @Override
     public void refreshTeamSummary(String season, String name) {
         if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
-            int event = this.queryService.getCurrentEvent();
             this.redisCacheService.insertPlayer();
             this.redisCacheService.insertPlayerStat();
         }
