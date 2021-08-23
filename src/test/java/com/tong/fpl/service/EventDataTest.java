@@ -137,4 +137,14 @@ public class EventDataTest extends FplApplicationTests {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"2, 1"})
+    void refreshTournamentEventResult(int event, int tournamentId) {
+        long start = System.currentTimeMillis();
+        this.eventDataService.refreshTournamentEventResult(event, tournamentId);
+        long end = System.currentTimeMillis();
+        System.out.println((end - start) / 1000);
+        System.out.println(1);
+    }
+
 }
