@@ -350,6 +350,8 @@ public interface IQueryService {
     /**
      * @apiNote report
      */
+    LeagueEventReportEntity qryLeagueInfoByName(String leagueName);
+
     String qryLeagueNameByIdAndType(int leagueId, String leagueType);
 
     List<String> qryTeamSelectStatList();

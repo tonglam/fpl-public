@@ -37,4 +37,6 @@ public interface IApiSummary {
 
     LeagueSeasonScoreData qryLeagueSeasonScore(String leagueName, int entry);
 
+    void refreshLeagueSummary(int event, String leagueName, int entry);
+
 }

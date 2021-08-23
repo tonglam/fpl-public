@@ -79,4 +79,9 @@ public class SummaryApiController {
         return this.apiSummary.qryLeagueSeasonScore(leagueName, entry);
     }
 
+    @GetMapping("/refreshLeagueSummary")
+    public void refreshLeagueSummary(@RequestParam int event, @RequestParam String leagueName, @RequestParam int entry) {
+        this.apiSummary.refreshLeagueSummary(event, leagueName, entry);
+    }
+
 }

@@ -18,6 +18,7 @@ import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.service.IReportService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
@@ -44,6 +45,7 @@ public class EventDataServiceImpl implements IEventDataService {
 
     private final IQueryService queryService;
     private final IRedisCacheService redisCacheService;
+    private final IReportService reportService;
     private final EventLiveService eventLiveService;
     private final EntryEventResultService entryEventResultService;
     private final EntryEventCupResultService entryEventCupResultService;
@@ -205,8 +207,8 @@ public class EventDataServiceImpl implements IEventDataService {
     public void insertEventPickByEntryList(int event, List<Integer> entryList) {
         // init
         List<Integer> existsList = this.entryEventPickService.list(new QueryWrapper<EntryEventPickEntity>().lambda()
-                .eq(EntryEventPickEntity::getEvent, event)
-                .in(EntryEventPickEntity::getEntry, entryList))
+                        .eq(EntryEventPickEntity::getEvent, event)
+                        .in(EntryEventPickEntity::getEntry, entryList))
                 .stream()
                 .map(EntryEventPickEntity::getEntry)
                 .collect(Collectors.toList());
@@ -245,7 +247,7 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         // insert or update
         Map<String, EntryEventTransfersEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
-                .eq(EntryEventTransfersEntity::getEntry, entry))
+                        .eq(EntryEventTransfersEntity::getEntry, entry))
                 .stream()
                 .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEvent(), k.getEntry(), k.getElementIn(), k.getElementOut(), k.getTime()), o -> o));
         entryEventTransferList.forEach(o -> {
@@ -259,7 +261,7 @@ public class EventDataServiceImpl implements IEventDataService {
     @Override
     public void insertEventTransfersByEntryList(List<Integer> entryList) {
         Map<String, EntryEventTransfersEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
-                .in(EntryEventTransfersEntity::getEntry, entryList))
+                        .in(EntryEventTransfersEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEvent(), k.getEntry(), k.getElementIn(), k.getElementOut(), k.getTime()), o -> o));
         // upsert entry_event_transfer
@@ -402,7 +404,7 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         // get event_live
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         // entry_event_result
@@ -431,13 +433,13 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // get event_live
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         // upsert entry_event_result
@@ -473,13 +475,13 @@ public class EventDataServiceImpl implements IEventDataService {
     public void upsertEventResultByEntryList(int event, List<Integer> entryList) {
         // get entry_list
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // get event_live
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         // upsert entry_event_result
@@ -571,13 +573,13 @@ public class EventDataServiceImpl implements IEventDataService {
     private String setUserPicks(List<Pick> picks, Map<Integer, Integer> elementPointsMap) {
         List<EntryPickData> pickList = Lists.newArrayList();
         picks.forEach(o -> pickList.add(
-                new EntryPickData()
-                        .setElement(o.getElement())
-                        .setPosition(o.getPosition())
-                        .setMultiplier(o.getMultiplier())
-                        .setCaptain(o.isCaptain())
-                        .setViceCaptain(o.isViceCaptain())
-                        .setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
+                        new EntryPickData()
+                                .setElement(o.getElement())
+                                .setPosition(o.getPosition())
+                                .setMultiplier(o.getMultiplier())
+                                .setCaptain(o.isCaptain())
+                                .setViceCaptain(o.isViceCaptain())
+                                .setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
                 )
         );
         return JsonUtils.obj2json(pickList);
@@ -589,11 +591,11 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         List<EntryEventAutoSubsData> autoSubList = Lists.newArrayList();
         autoSubs.forEach(o -> autoSubList.add(
-                new EntryEventAutoSubsData()
-                        .setElementIn(o.getElementIn())
-                        .setElementInPoints(elementPointsMap.getOrDefault(o.getElementIn(), 0))
-                        .setElementOut(o.getElementOut())
-                        .setElementOutPoints(elementPointsMap.getOrDefault(o.getElementOut(), 0))
+                        new EntryEventAutoSubsData()
+                                .setElementIn(o.getElementIn())
+                                .setElementInPoints(elementPointsMap.getOrDefault(o.getElementIn(), 0))
+                                .setElementOut(o.getElementOut())
+                                .setElementOutPoints(elementPointsMap.getOrDefault(o.getElementOut(), 0))
                 )
         );
         return JsonUtils.obj2json(autoSubList);
@@ -624,7 +626,7 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         if (CollectionUtils.isEmpty(pointsMap)) {
@@ -666,15 +668,15 @@ public class EventDataServiceImpl implements IEventDataService {
     public void updateEventTransfersByEntryList(int event, List<Integer> entryList) {
         // get entry_list
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         if (CollectionUtils.isEmpty(entryEventResultMap)) {
             return;
         }
         Map<Integer, Integer> pointsMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
         if (CollectionUtils.isEmpty(pointsMap)) {
@@ -682,8 +684,8 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap = HashMultimap.create();
         this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
-                .eq(EntryEventTransfersEntity::getEvent, event)
-                .in(EntryEventTransfersEntity::getEntry, entryList))
+                        .eq(EntryEventTransfersEntity::getEvent, event)
+                        .in(EntryEventTransfersEntity::getEntry, entryList))
                 .forEach(o -> entryEventTransferMap.put(o.getEntry(), o));
         if (entryEventTransferMap.size() == 0) {
             return;
@@ -737,8 +739,8 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         // entry_event_cup_result
         EntryEventCupResultEntity entryEventCupResult = this.entryEventCupResultService.getOne(new QueryWrapper<EntryEventCupResultEntity>().lambda()
-                .eq(EntryEventCupResultEntity::getEvent, event)
-                .eq(EntryEventCupResultEntity::getEntry, entry))
+                        .eq(EntryEventCupResultEntity::getEvent, event)
+                        .eq(EntryEventCupResultEntity::getEntry, entry))
                 .setEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Name() : cupMatch.getEntry2Name())
                 .setPlayerName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1PlayerName() : cupMatch.getEntry2PlayerName())
                 .setEventPoints(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Points() : cupMatch.getEntry2Points())
@@ -762,8 +764,8 @@ public class EventDataServiceImpl implements IEventDataService {
     public void upsertEventCupResultByEntryList(int event, List<Integer> entryList) {
         // get entry_list
         Map<Integer, EntryEventCupResultEntity> entryEventCupResultMap = this.entryEventCupResultService.list(new QueryWrapper<EntryEventCupResultEntity>().lambda()
-                .eq(EntryEventCupResultEntity::getEvent, event)
-                .in(EntryEventCupResultEntity::getEntry, entryList))
+                        .eq(EntryEventCupResultEntity::getEvent, event)
+                        .in(EntryEventCupResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventCupResultEntity::getEntry, o -> o));
         // upsert entry_event_result
@@ -841,8 +843,8 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
-                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentPointsGroupResultEntity::getEvent, event))
+                        .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentPointsGroupResultEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(TournamentPointsGroupResultEntity::getEntry, o -> o));
         // update tournament_group and tournament_group_result
@@ -897,8 +899,8 @@ public class EventDataServiceImpl implements IEventDataService {
 
     private Map<Integer, EntryEventResultEntity> getEntryEventResultByEvent(int event, List<Integer> entryList) {
         return this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
     }
@@ -941,9 +943,9 @@ public class EventDataServiceImpl implements IEventDataService {
         List<TournamentBattleGroupResultEntity> tournamentBattleGroupResultList = Lists.newArrayList();
         Table<Integer, Integer, Integer> battleResultTable = HashBasedTable.create(); // groupId -> entry -> matchPoints
         this.tournamentBattleGroupResultService.list(new QueryWrapper<TournamentBattleGroupResultEntity>()
-                .lambda()
-                .eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentBattleGroupResultEntity::getEvent, event))
+                        .lambda()
+                        .eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentBattleGroupResultEntity::getEvent, event))
                 .forEach(groupBattleResult -> {
                     int homeEntry = groupBattleResult.getHomeEntry();
                     int awayEntry = groupBattleResult.getAwayEntry();
@@ -1172,9 +1174,9 @@ public class EventDataServiceImpl implements IEventDataService {
         Multimap<Integer, TournamentKnockoutResultData> knockoutResultDataMap = HashMultimap.create();
         // tournament_knockout_result
         this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutResultEntity::getEvent, event)
-                .orderByAsc(TournamentKnockoutResultEntity::getMatchId))
+                        .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutResultEntity::getEvent, event)
+                        .orderByAsc(TournamentKnockoutResultEntity::getMatchId))
                 .forEach(knockoutResult -> {
                     int homeEntry = knockoutResult.getHomeEntry();
                     int awayEntry = knockoutResult.getAwayEntry();
@@ -1206,9 +1208,9 @@ public class EventDataServiceImpl implements IEventDataService {
         // next_match_id -> tournament_knockout_result data
         Map<Integer, TournamentKnockoutNextRoundData> nextKnockoutMap = Maps.newHashMap();
         Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutEntity::getEndGw, event)
-                .orderByAsc(TournamentKnockoutEntity::getMatchId))
+                        .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutEntity::getEndGw, event)
+                        .orderByAsc(TournamentKnockoutEntity::getMatchId))
                 .stream()
                 .collect(Collectors.toMap(TournamentKnockoutEntity::getMatchId, v -> v));
         // update by match id
@@ -1247,16 +1249,16 @@ public class EventDataServiceImpl implements IEventDataService {
         // tournament_knockout
         List<TournamentKnockoutEntity> tournamentKnockoutEntityList = Lists.newArrayList();
         this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutEntity::getRound, nextRound))
+                        .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutEntity::getRound, nextRound))
                 .forEach(knockoutEntity -> tournamentKnockoutEntityList.add(knockoutEntity
                         .setHomeEntry(nextKnockoutMap.get(knockoutEntity.getMatchId()).getNextRoundHomeEntry())
                         .setAwayEntry(nextKnockoutMap.get(knockoutEntity.getMatchId()).getNextRoundAwayEntry())));
         // tournament_knockout_result
         List<TournamentKnockoutResultEntity> tournamentKnockoutResultList = Lists.newArrayList();
         this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .in(TournamentKnockoutResultEntity::getMatchId, nextKnockoutMap.keySet()))
+                        .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+                        .in(TournamentKnockoutResultEntity::getMatchId, nextKnockoutMap.keySet()))
                 .forEach(knockoutResultEntity -> tournamentKnockoutResultList.add(knockoutResultEntity
                         .setHomeEntry(nextKnockoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundHomeEntry())
                         .setAwayEntry(nextKnockoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundAwayEntry())));
@@ -1375,9 +1377,9 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
-                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentPointsGroupResultEntity::getEvent, event)
-                .in(TournamentPointsGroupResultEntity::getGroupId, groupIdList))
+                        .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentPointsGroupResultEntity::getEvent, event)
+                        .in(TournamentPointsGroupResultEntity::getGroupId, groupIdList))
                 .stream()
                 .collect(Collectors.toMap(TournamentPointsGroupResultEntity::getEntry, o -> o));
         // phase one params
@@ -1473,9 +1475,9 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
-                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentPointsGroupResultEntity::getEvent, event)
-                .in(TournamentPointsGroupResultEntity::getGroupId, groupIdList))
+                        .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentPointsGroupResultEntity::getEvent, event)
+                        .in(TournamentPointsGroupResultEntity::getGroupId, groupIdList))
                 .stream()
                 .collect(Collectors.toMap(TournamentPointsGroupResultEntity::getEntry, o -> o));
         // phase two params
@@ -1626,8 +1628,8 @@ public class EventDataServiceImpl implements IEventDataService {
         Map<Integer, Integer> matchWinnerMap = Maps.newHashMap();
         List<TournamentKnockoutResultEntity> tournamentKnockoutResultList = Lists.newArrayList();
         this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutResultEntity::getEvent, event))
+                        .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutResultEntity::getEvent, event))
                 .forEach(tournamentKnockoutResultEntity -> {
                     int homeEntry = tournamentKnockoutResultEntity.getHomeEntry();
                     int awayEntry = tournamentKnockoutResultEntity.getAwayEntry();
@@ -1668,7 +1670,7 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         // tournament_entry
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                        .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
@@ -1688,18 +1690,18 @@ public class EventDataServiceImpl implements IEventDataService {
         List<Integer> phaseTwoGroupList = Lists.newArrayList();
         IntStream.rangeClosed(groupNum + 1, groupNum + teamPerGroup).forEach(phaseTwoGroupList::add);
         Map<Integer, Integer> phaseTwoResultMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .gt(TournamentGroupEntity::getEntry, 0)
-                .in(TournamentGroupEntity::getGroupId, phaseTwoGroupList))
+                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                        .gt(TournamentGroupEntity::getEntry, 0)
+                        .in(TournamentGroupEntity::getGroupId, phaseTwoGroupList))
                 .stream()
                 .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getTotalNetPoints));
         // pk result
         Map<Integer, Integer> pkResultMap = Maps.newHashMap();
         this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .gt(TournamentKnockoutResultEntity::getHomeEntry, 0)
-                .gt(TournamentKnockoutResultEntity::getAwayEntry, 0)
-                .gt(TournamentKnockoutResultEntity::getMatchWinner, 0))
+                        .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+                        .gt(TournamentKnockoutResultEntity::getHomeEntry, 0)
+                        .gt(TournamentKnockoutResultEntity::getAwayEntry, 0)
+                        .gt(TournamentKnockoutResultEntity::getMatchWinner, 0))
                 .forEach(o -> {
                     pkResultMap.put(o.getHomeEntry(), o.getHomeEntryNetPoints());
                     pkResultMap.put(o.getAwayEntry(), o.getAwayEntryNetPoints());
@@ -1725,7 +1727,7 @@ public class EventDataServiceImpl implements IEventDataService {
         // tournament_result
         List<ZjTournamentResultEntity> zjTournamentResultEntityList = Lists.newArrayList();
         this.zjTournamentResultService.list(new QueryWrapper<ZjTournamentResultEntity>().lambda()
-                .eq(ZjTournamentResultEntity::getTournamentId, tournamentId))
+                        .eq(ZjTournamentResultEntity::getTournamentId, tournamentId))
                 .forEach(zjTournamentResultEntity -> {
                     int groupId = zjTournamentResultEntity.getGroupId();
                     Multimap<Integer, Integer> groupEntryMap = HashMultimap.create();
@@ -1919,5 +1921,18 @@ public class EventDataServiceImpl implements IEventDataService {
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonTransfers", entry));
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonScore", entry));
     }
-    
+
+    @Override
+    public void refreshLeagueSummary(int event, String leagueName, int entry) {
+        LeagueEventReportEntity leagueEventReportEntity = this.queryService.qryLeagueInfoByName(leagueName);
+        if (leagueEventReportEntity == null) {
+            return;
+        }
+        this.reportService.updateLeagueEventResult(event, leagueEventReportEntity.getLeagueId(), leagueEventReportEntity.getLeagueType());
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonInfo", leagueName));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonSummary", leagueName, entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonCaptain", leagueName, entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonScore", leagueName, entry));
+    }
+
 }

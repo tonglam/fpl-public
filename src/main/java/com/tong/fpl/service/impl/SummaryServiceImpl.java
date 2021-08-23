@@ -1659,12 +1659,12 @@ public class SummaryServiceImpl implements ISummaryService {
         return data;
     }
 
-    //    @Cacheable(
-//            value = "api::qryLeagueSeasonScore",
-//            key = "#leagueName+'::'+#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.leagueName == ''"
-//    )
+    @Cacheable(
+            value = "api::qryLeagueSeasonScore",
+            key = "#leagueName+'::'+#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.leagueName == ''"
+    )
     @Override
     public LeagueSeasonScoreData qryLeagueSeasonScore(String leagueName, int entry) {
         LeagueSeasonScoreData data = new LeagueSeasonScoreData();
