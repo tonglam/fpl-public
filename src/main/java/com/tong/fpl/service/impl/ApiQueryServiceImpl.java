@@ -2368,22 +2368,22 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(
-            value = "api::qryTournamentEventChampion",
-            key = "#tournamentId",
-            cacheManager = "apiCacheManager",
-            unless = "#result.tournamentId eq 0"
-    )
-    @Override
-    public TournamentGroupEventChampionData qryTournamentEventChampion(int tournamentId) {
-        if (tournamentId <= 0) {
-            return new TournamentGroupEventChampionData();
-        }
-        // prepare
-        TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
-        if (tournamentInfoEntity == null) {
-            return new TournamentGroupEventChampionData();
-        }
+//    @Cacheable(
+//            value = "api::qryTournamentEventChampion",
+//            key = "#tournamentId",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.tournamentId eq 0"
+//    )
+@Override
+public TournamentGroupEventChampionData qryTournamentEventChampion(int tournamentId) {
+    if (tournamentId <= 0) {
+        return new TournamentGroupEventChampionData();
+    }
+    // prepare
+    TournamentInfoEntity tournamentInfoEntity = this.queryService.qryTournamentInfoById(tournamentId);
+    if (tournamentInfoEntity == null) {
+        return new TournamentGroupEventChampionData();
+    }
         Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
                 .in(EntryInfoEntity::getEntry, this.queryService.qryEntryListByTournament(tournamentId)))
                 .stream()
@@ -2422,6 +2422,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .stream()
                 .filter(o -> o.getEventGroupRank() > 0 && o.getEventGroupRank() <= 3)
                 .map(o -> this.initChampionCountData(o, entryInfoMap, championList, runnerUpList, secondRunnerUpList))
+                .distinct()
                 .sorted(Comparator.comparing(TournamentGroupChampionCountData::getChampionNum)
                         .thenComparing(TournamentGroupChampionCountData::getTotalNum)
                         .thenComparing(TournamentGroupChampionCountData::getOverallRank).reversed())
