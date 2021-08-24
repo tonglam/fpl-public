@@ -2395,32 +2395,62 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         int current = this.queryService.getCurrentEvent();
         List<Integer> eventList = Lists.newArrayList();
         IntStream.rangeClosed(1, current).forEach(eventList::add);
-        List<TournamentPointsGroupResultEntity> resultList = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
+        Multimap<Integer, TournamentPointsGroupResultEntity> eventResultMap = HashMultimap.create();
+        this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
                 .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
-                .in(TournamentPointsGroupResultEntity::getEvent, eventList));
-        if (CollectionUtils.isEmpty(resultList)) {
+                .in(TournamentPointsGroupResultEntity::getEvent, eventList))
+                .forEach(o -> eventResultMap.put(o.getEvent(), o));
+        if (eventResultMap.size() == 0) {
             return new TournamentGroupEventChampionData();
         }
         // calc
-        List<TournamentPointsGroupEventResultData> championList = resultList
-                .stream()
-                .filter(o -> o.getEventGroupRank() == 1)
-                .map(o -> this.initTournamentPointsGroupEventResultData(o, entryInfoMap))
-                .collect(Collectors.toList());
-        List<TournamentPointsGroupEventResultData> runnerUpList = resultList
-                .stream()
-                .filter(o -> o.getEventGroupRank() == 2)
-                .map(o -> this.initTournamentPointsGroupEventResultData(o, entryInfoMap))
-                .collect(Collectors.toList());
-        List<TournamentPointsGroupEventResultData> secondRunnerUpList = resultList
-                .stream()
-                .filter(o -> o.getEventGroupRank() == 3)
-                .map(o -> this.initTournamentPointsGroupEventResultData(o, entryInfoMap))
-                .collect(Collectors.toList());
+        List<TournamentPointsGroupEventResultData> championList = Lists.newArrayList();
+        List<TournamentPointsGroupEventResultData> runnerUpList = Lists.newArrayList();
+        List<TournamentPointsGroupEventResultData> secondRunnerUpList = Lists.newArrayList();
+        for (int event :
+                eventResultMap.keySet()) {
+            Collection<TournamentPointsGroupResultEntity> eventResultList = eventResultMap.get(event);
+            List<Integer> eventPointsList = eventResultList
+                    .stream()
+                    .sorted(Comparator.comparing(TournamentPointsGroupResultEntity::getEventPoints).reversed())
+                    .map(TournamentPointsGroupResultEntity::getEventPoints)
+                    .distinct()
+                    .collect(Collectors.toList());
+            if (eventPointsList.size() >= 1) {
+                championList.addAll(
+                        eventResultList
+                                .stream()
+                                .filter(o -> o.getEventPoints() == eventPointsList.get(0).intValue())
+                                .map(o -> this.initTournamentPointsGroupEventResultData(o, entryInfoMap))
+                                .collect(Collectors.toList())
+                );
+            }
+            if (eventPointsList.size() >= 2) {
+                runnerUpList.addAll(
+                        eventResultList
+                                .stream()
+                                .filter(o -> o.getEventPoints() == eventPointsList.get(1).intValue())
+                                .map(o -> this.initTournamentPointsGroupEventResultData(o, entryInfoMap))
+                                .collect(Collectors.toList())
+                );
+            }
+            if (eventPointsList.size() >= 3) {
+                secondRunnerUpList.addAll(
+                        eventResultList
+                                .stream()
+                                .filter(o -> o.getEventGroupRank() == 3)
+                                .map(o -> this.initTournamentPointsGroupEventResultData(o, entryInfoMap))
+                                .collect(Collectors.toList())
+                );
+            }
+        }
         // count
-        List<TournamentGroupChampionCountData> countList = resultList
+        List<TournamentPointsGroupEventResultData> allChampionList = Lists.newArrayList();
+        allChampionList.addAll(championList);
+        allChampionList.addAll(runnerUpList);
+        allChampionList.addAll(secondRunnerUpList);
+        List<TournamentGroupChampionCountData> countList = allChampionList
                 .stream()
-                .filter(o -> o.getEventGroupRank() > 0 && o.getEventGroupRank() <= 3)
                 .map(o -> this.initChampionCountData(o, entryInfoMap, championList, runnerUpList, secondRunnerUpList))
                 .distinct()
                 .sorted(Comparator.comparing(TournamentGroupChampionCountData::getChampionNum)
@@ -2455,9 +2485,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setRank(tournamentPointsGroupResultEntity.getEventRank());
     }
 
-    private TournamentGroupChampionCountData initChampionCountData(TournamentPointsGroupResultEntity tournamentPointsGroupResultEntity, Map<Integer, EntryInfoEntity> entryInfoMap,
+    private TournamentGroupChampionCountData initChampionCountData(TournamentPointsGroupEventResultData tournamentPointsGroupEventResultData, Map<Integer, EntryInfoEntity> entryInfoMap,
                                                                    List<TournamentPointsGroupEventResultData> championList, List<TournamentPointsGroupEventResultData> runnerUpList, List<TournamentPointsGroupEventResultData> secondRunnerUpList) {
-        int entry = tournamentPointsGroupResultEntity.getEntry();
+        int entry = tournamentPointsGroupEventResultData.getEntry();
         EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(entry, null);
         TournamentGroupChampionCountData data = new TournamentGroupChampionCountData()
                 .setRank(0)

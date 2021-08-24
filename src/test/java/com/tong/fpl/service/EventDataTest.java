@@ -83,9 +83,9 @@ public class EventDataTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1"})
+    @CsvSource({"2"})
     void updatePointsRaceGroupResult(int event) {
-        IntStream.rangeClosed(1, 5).forEach(tournamentId -> {
+        IntStream.rangeClosed(1, 1).forEach(tournamentId -> {
             this.eventDataService.updatePointsRaceGroupResult(event, tournamentId);
             System.out.println("event: " + event + ", update finished!");
         });
