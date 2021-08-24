@@ -2412,8 +2412,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             Collection<TournamentPointsGroupResultEntity> eventResultList = eventResultMap.get(event);
             List<Integer> eventPointsList = eventResultList
                     .stream()
-                    .sorted(Comparator.comparing(TournamentPointsGroupResultEntity::getEventPoints).reversed())
                     .map(TournamentPointsGroupResultEntity::getEventPoints)
+                    .sorted(Comparator.reverseOrder())
                     .distinct()
                     .collect(Collectors.toList());
             if (eventPointsList.size() >= 1) {
