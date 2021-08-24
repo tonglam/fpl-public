@@ -693,6 +693,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             if (!eventLiveMap.containsKey(element)) {
                 insertList.add(o);
             } else {
+                o.setId(eventLiveMap.get(element).getId());
                 updateList.add(o);
             }
         });
