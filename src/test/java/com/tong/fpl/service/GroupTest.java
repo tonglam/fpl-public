@@ -18,17 +18,17 @@ public class GroupTest extends FplApplicationTests {
     @Test
     void upsertEventScout() {
         ScoutData scoutData = new ScoutData()
-                .setEvent(2)
+                .setEvent(3)
                 .setEntry(1713)
                 .setScoutName("tong话里都是骗人的")
-                .setTransfers(4)
-                .setLeftTransfers(-1)
-                .setGkp(1)
-                .setDef(275)
+                .setTransfers(1)
+                .setLeftTransfers(0)
+                .setGkp(270)
+                .setDef(59)
                 .setMid(254)
                 .setFwd(337)
                 .setCaptain(233)
-                .setReason("truncate table scout");
+                .setReason("");
         this.groupService.upsertEventScout(scoutData);
         System.out.println(1);
     }

@@ -603,7 +603,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .stream()
                 .max(Comparator.comparing(ScoutEntity::getEvent))
                 .orElse(null);
-
         if (scoutEntity == null) {
             return new EventScoutData().setLeftTransfers(this.qryEventScoutLeftTransfers(entry, event));
         }
@@ -625,8 +624,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     // do not cache
     @Override
-    public int qryEventScoutLeftTransfers(int entry, int event) {
-        if (event <= 0 || event > 38 || event == 1 || event == 2) {
+    public int qryEventScoutLeftTransfers(int event, int entry) {
+        if (event <= 0 || event > 38 || event == 1) {
             return -1;
         }
         ScoutEntity scoutEntity = this.scoutService.list(new QueryWrapper<ScoutEntity>().lambda()
