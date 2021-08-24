@@ -483,9 +483,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
-        Map<Integer, Integer> pointsMap = this.queryService.getEventLiveByEvent(event).values()
-                .stream()
-                .collect(Collectors.toMap(EventLiveEntity::getElement, EventLiveEntity::getTotalPoints));
+        Map<String, EventLiveEntity> pointsMap = this.queryService.getEventLiveByEvent(event);
         //collect
         List<EntryEventTransfersData> list = Lists.newArrayList();
         this.getEntryEventTransfers(event, entry).forEach(o -> {
@@ -509,7 +507,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .setElementInTeamId(playerInEntity.getTeamId())
                         .setElementInTeamName(teamNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
                         .setElementInTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerInEntity.getTeamId()), ""))
-                        .setElementInPoints(pointsMap.getOrDefault(elementIn, 0));
+                        .setElementInPoints(pointsMap.get(String.valueOf(elementIn)).getTotalPoints());
             }
             PlayerEntity playerOutEntity = playerMap.get(String.valueOf(o.getElementOut()));
             if (playerInEntity != null) {
@@ -520,7 +518,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .setElementOutTeamId(playerOutEntity.getTeamId())
                         .setElementOutTeamName(teamNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
                         .setElementOutTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerOutEntity.getTeamId()), ""))
-                        .setElementOutPoints(pointsMap.getOrDefault(elementOut, 0));
+                        .setElementOutPoints(pointsMap.get(String.valueOf(elementOut)).getTotalPoints());
             }
             list.add(data);
         });
