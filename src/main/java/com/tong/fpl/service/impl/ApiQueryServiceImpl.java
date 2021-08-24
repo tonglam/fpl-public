@@ -2102,8 +2102,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return Lists.newArrayList();
         }
         // prepare
-        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
@@ -2123,61 +2121,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .eq(EntryEventResultEntity::getEvent, event)
                 .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
-                .map(o -> this.initEntryEventResultData(event, o, entryInfoMap, eventGroupRankMap, eventTournamentRankMap, teamNameMap, teamShortNameMap, playerMap, eventLiveMap))
+                .map(o -> this.initEntryEventResultData(event, o, entryInfoMap, eventGroupRankMap, eventTournamentRankMap, playerMap, eventLiveMap))
                 .sorted(Comparator.comparing(EntryEventResultData::getPoints).reversed())
                 .collect(Collectors.toList());
     }
 
-    private List<ElementEventResultData> qryTournamentEntryPickList(int event, String eventPicks,
-                                                                    Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
-                                                                    Map<String, PlayerEntity> playerMap, Map<Integer, EventLiveEntity> eventLiveMap) {
-        List<EntryPickData> pickList = JsonUtils.json2Collection(eventPicks, List.class, EntryPickData.class);
-        if (CollectionUtils.isEmpty(pickList)) {
-            return Lists.newArrayList();
-        }
-        List<ElementEventResultData> list = Lists.newArrayList();
-        pickList.forEach(o -> {
-            int element = o.getElement();
-            if (!playerMap.containsKey(String.valueOf(element))) {
-                return;
-            }
-            PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
-            ElementEventResultData data = BeanUtil.copyProperties(o, ElementEventResultData.class);
-            data
-                    .setEvent(event)
-                    .setElement(element)
-                    .setElementType(playerEntity.getElementType())
-                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                    .setWebName(playerEntity.getWebName())
-                    .setTeamId(playerEntity.getTeamId())
-                    .setTeamName(teamNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
-                    .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
-                    .setPrice(playerEntity.getPrice() / 10.0);
-            EventLiveEntity eventLiveEntity = eventLiveMap.get(element);
-            if (eventLiveEntity != null) {
-                data
-                        .setMinutes(eventLiveEntity.getMinutes())
-                        .setGoalsScored(eventLiveEntity.getGoalsScored())
-                        .setAssists(eventLiveEntity.getAssists())
-                        .setCleanSheets(eventLiveEntity.getCleanSheets())
-                        .setGoalsConceded(eventLiveEntity.getGoalsConceded())
-                        .setOwnGoals(eventLiveEntity.getOwnGoals())
-                        .setPenaltiesSaved(eventLiveEntity.getPenaltiesSaved())
-                        .setPenaltiesMissed(eventLiveEntity.getPenaltiesSaved())
-                        .setYellowCards(eventLiveEntity.getYellowCards())
-                        .setRedCards(eventLiveEntity.getRedCards())
-                        .setSaves(eventLiveEntity.getSaves())
-                        .setBonus(eventLiveEntity.getBonus())
-                        .setBps(eventLiveEntity.getBps());
-            }
-            list.add(data);
-        });
-        return list;
-    }
-
     private EntryEventResultData initEntryEventResultData(int event, EntryEventResultEntity entryEventResultEntity, Map<Integer, EntryInfoEntity> entryInfoMap,
                                                           Map<Integer, Integer> eventGroupRankMap, Map<Integer, Integer> eventTournamentRankMap,
-                                                          Map<String, String> teamNameMap, Map<String, String> teamShortNameMap,
                                                           Map<String, PlayerEntity> playerMap, Map<Integer, EventLiveEntity> eventLiveMap) {
         int entry = entryEventResultEntity.getEntry();
         EntryInfoEntity entryInfoEntity = entryInfoMap.getOrDefault(entry, new EntryInfoEntity());
@@ -2203,7 +2153,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setOverallRank(entryEventResultEntity.getOverallRank())
                 .setEventTournamentRank(eventGroupRankMap.getOrDefault(entry, 0))
                 .setTournamentRank(eventTournamentRankMap.getOrDefault(entry, 0))
-                .setPickList(this.qryTournamentEntryPickList(event, entryEventResultEntity.getEventPicks(), teamNameMap, teamShortNameMap, playerMap, eventLiveMap));
+                .setPickList(null);
     }
 
     @Cacheable(
@@ -2233,8 +2183,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return new SearchEntryEventResultData();
         }
         // prepare
-        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
-        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event))
@@ -2256,7 +2204,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         List<EntryEventResultData> list = entryEventResultEntityList
                 .stream()
                 .filter(o -> this.entryContainElement(element, o.getEventPicks(), o.getEventChip()))
-                .map(o -> this.initEntryEventResultData(event, o, entryInfoMap, eventGroupRankMap, eventTournamentRankMap, teamNameMap, teamShortNameMap, playerMap, eventLiveMap))
+                .map(o -> this.initEntryEventResultData(event, o, entryInfoMap, eventGroupRankMap, eventTournamentRankMap, playerMap, eventLiveMap))
                 .sorted(Comparator.comparing(EntryEventResultData::getPoints).reversed())
                 .collect(Collectors.toList());
         // return
@@ -2365,12 +2313,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    //    @Cacheable(
-//            value = "api::qryTournamentEventChampion",
-//            key = "#tournamentId",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.tournamentId eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryTournamentEventChampion",
+            key = "#tournamentId",
+            cacheManager = "apiCacheManager",
+            unless = "#result.tournamentId eq 0"
+    )
     @Override
     public TournamentGroupEventChampionData qryTournamentEventChampion(int tournamentId) {
         if (tournamentId <= 0) {
@@ -2442,11 +2390,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             }
         }
         // count
-        List<TournamentPointsGroupEventResultData> allChampionList = Lists.newArrayList();
-        allChampionList.addAll(championList);
-        allChampionList.addAll(runnerUpList);
-        allChampionList.addAll(secondRunnerUpList);
-        List<TournamentGroupChampionCountData> countList = allChampionList
+        List<TournamentGroupChampionCountData> countList = championList
                 .stream()
                 .map(o -> this.initChampionCountData(o, entryInfoMap, championList, runnerUpList, secondRunnerUpList))
                 .distinct()
