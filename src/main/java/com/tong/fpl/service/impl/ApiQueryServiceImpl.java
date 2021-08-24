@@ -2368,12 +2368,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(
-            value = "api::qryTournamentEventChampion",
-            key = "#tournamentId",
-            cacheManager = "apiCacheManager",
-            unless = "#result.tournamentId eq 0"
-    )
+    //    @Cacheable(
+//            value = "api::qryTournamentEventChampion",
+//            key = "#tournamentId",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.tournamentId eq 0"
+//    )
     @Override
     public TournamentGroupEventChampionData qryTournamentEventChampion(int tournamentId) {
         if (tournamentId <= 0) {
