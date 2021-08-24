@@ -604,13 +604,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .max(Comparator.comparing(ScoutEntity::getEvent))
                 .orElse(null);
         if (scoutEntity == null) {
-            return new EventScoutData().setLeftTransfers(this.qryEventScoutLeftTransfers(entry, event));
+            return new EventScoutData().setLeftTransfers(this.qryEventScoutLeftTransfers(event, entry));
         }
         return new EventScoutData()
                 .setEvent(event)
                 .setEntry(entry)
                 .setTransfers(0)
-                .setLeftTransfers(this.qryEventScoutLeftTransfers(entry, event))
+                .setLeftTransfers(this.qryEventScoutLeftTransfers(event, entry))
                 .setEventPoints(0)
                 .setTotalPoints(0)
                 .setScoutName(scoutEntity.getScoutName())
