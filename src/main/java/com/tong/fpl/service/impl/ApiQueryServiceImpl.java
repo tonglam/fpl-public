@@ -2438,7 +2438,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 secondRunnerUpList.addAll(
                         eventResultList
                                 .stream()
-                                .filter(o -> o.getEventGroupRank() == 3)
+                                .filter(o -> o.getEventPoints() == eventPointsList.get(2).intValue())
                                 .map(o -> this.initTournamentPointsGroupEventResultData(o, entryInfoMap))
                                 .collect(Collectors.toList())
                 );
