@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PlayerFilterData {
 
-    private int index;
+    private int id;
     private String teamShortName;
     private String elementTypeName;
     private String webName;
