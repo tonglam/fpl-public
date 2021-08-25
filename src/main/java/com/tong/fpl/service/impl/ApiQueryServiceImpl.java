@@ -1030,9 +1030,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             int element = o.getElement();
             EventLiveSummaryEntity eventLiveSummaryEntity = eventLiveSummaryMap.getOrDefault(String.valueOf(element), null);
             PlayerFilterData data = new PlayerFilterData()
-                    .setSeason(season)
-                    .setElement(element)
-                    .setCode(o.getCode())
                     .setWebName(o.getWebName())
                     .setElementType(o.getElementType())
                     .setElementTypeName(Position.getNameFromElementType(o.getElementType()))
