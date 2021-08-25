@@ -76,7 +76,7 @@ public interface IApiQueryService {
 
     Map<String, List<PlayerFixtureData>> qryTeamFixtureByShortName(String shortName);
 
-    List<PlayerData> qryAllPlayers(String season);
+    List<PlayerFilterData> qryFilterPlayers(String season);
 
     /**
      * @apiNote stat

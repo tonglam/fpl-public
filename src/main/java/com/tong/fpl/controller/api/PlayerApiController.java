@@ -1,8 +1,8 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiPlayer;
-import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
+import com.tong.fpl.domain.letletme.player.PlayerFilterData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +41,9 @@ public class PlayerApiController {
         return this.apiPlayer.qryTeamFixtureByShortName(shortName);
     }
 
-    @GetMapping("/qryAllPlayers")
-    public List<PlayerData> qryAllPlayers(@RequestParam String season) {
-        return this.apiPlayer.qryAllPlayers(season);
+    @GetMapping("/qryFilterPlayers")
+    public List<PlayerFilterData> qryFilterPlayers(@RequestParam String season) {
+        return this.apiPlayer.qryFilterPlayers(season);
     }
 
 }

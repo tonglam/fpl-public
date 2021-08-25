@@ -1,7 +1,7 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
+import com.tong.fpl.domain.letletme.player.PlayerFilterData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 
@@ -32,6 +32,6 @@ public interface IApiPlayer {
     /**
      * 获取赛季所有球员信息
      */
-    List<PlayerData> qryAllPlayers(String season);
+    List<PlayerFilterData> qryFilterPlayers(String season);
 
 }

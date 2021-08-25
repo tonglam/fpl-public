@@ -1,8 +1,8 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiPlayer;
-import com.tong.fpl.domain.letletme.player.PlayerData;
 import com.tong.fpl.domain.letletme.player.PlayerDetailData;
+import com.tong.fpl.domain.letletme.player.PlayerFilterData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.service.IApiQueryService;
@@ -39,8 +39,8 @@ public class ApiPlayerImpl implements IApiPlayer {
     }
 
     @Override
-    public List<PlayerData> qryAllPlayers(String season) {
-        return this.apiQueryService.qryAllPlayers(season);
+    public List<PlayerFilterData> qryFilterPlayers(String season) {
+        return this.apiQueryService.qryFilterPlayers(season);
     }
 
 }
