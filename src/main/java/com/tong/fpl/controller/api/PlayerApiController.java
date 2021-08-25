@@ -41,7 +41,7 @@ public class PlayerApiController {
         return this.apiPlayer.qryTeamFixtureByShortName(shortName);
     }
 
-    @GetMapping("/qryAllLeagueName")
+    @GetMapping("/qryAllPlayers")
     public List<PlayerData> qryAllPlayers(@RequestParam String season) {
         return this.apiPlayer.qryAllPlayers(season);
     }
