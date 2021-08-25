@@ -10,20 +10,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PlayerFilterData {
 
-    private String webName;
-    private int elementType;
-    private String elementTypeName;
-    private int teamId;
     private String teamShortName;
+    private String elementTypeName;
+    private String webName;
     private double price;
-    private double startPrice;
     private int points;
     private String selectedByPercent;
     private int chanceOfPlayingNextRound;
     private int chanceOfPlayingThisRound;
-    private String form;
-    private String pointsPerGame;
-    private boolean inDreamteam;
     private String news;
     private String newsAdded;
     private int transfersInEvent;
@@ -34,13 +28,6 @@ public class PlayerFilterData {
     private int goalsScored;
     private int assists;
     private int cleanSheets;
-    private int goalsConceded;
-    private int ownGoals;
-    private int penaltiesSaved;
-    private int penaltiesMissed;
-    private int yellowCards;
-    private int redCards;
-    private int saves;
     private int bonus;
     private int bps;
     private String influence;
