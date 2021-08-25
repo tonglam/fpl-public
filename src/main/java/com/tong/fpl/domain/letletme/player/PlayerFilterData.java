@@ -11,9 +11,10 @@ import lombok.experimental.Accessors;
 public class PlayerFilterData {
 
     private int id;
+    private int code;
+    private String webName;
     private String teamShortName;
     private String elementTypeName;
-    private String webName;
     private double price;
     private int points;
     private String selectedByPercent;
