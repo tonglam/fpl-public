@@ -1030,6 +1030,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             int element = o.getElement();
             EventLiveSummaryEntity eventLiveSummaryEntity = eventLiveSummaryMap.getOrDefault(String.valueOf(element), null);
             PlayerFilterData data = new PlayerFilterData()
+                    .setCode(o.getCode())
                     .setWebName(o.getWebName())
                     .setElementTypeName(Position.getNameFromElementType(o.getElementType()))
                     .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(o.getTeamId()), ""))
