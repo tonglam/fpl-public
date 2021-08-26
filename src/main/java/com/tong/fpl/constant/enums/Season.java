@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public enum Season {
 
+    Season_1617("1617"), Season_1718("1718"), Season_1819("1819"),
     Season_1920("1920"), Season_2021("2021"), Season_2122("2122");
 
     private final String seasonValue;

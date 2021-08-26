@@ -18,6 +18,7 @@ public class PlayerInfoData {
     private int teamId;
     private String teamName;
     private String teamShortName;
+    private String squadNumber;
     private double price;
     private double startPrice;
     private int points;

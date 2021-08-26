@@ -9,17 +9,18 @@ import lombok.experimental.Accessors;
 @TableName(value = "player")
 public class PlayerEntity {
 
-	@TableId(type = IdType.INPUT)
-	private Integer element;
-	private Integer code;
-	private Integer price;
-	private Integer startPrice;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private Integer elementType;
-	private String firstName;
-	private String secondName;
-	@TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
-	private String webName;
-	private Integer teamId;
+    @TableId(type = IdType.INPUT)
+    private Integer element;
+    private Integer code;
+    private Integer price;
+    private Integer startPrice;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private Integer elementType;
+    private String firstName;
+    private String secondName;
+    @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
+    private String webName;
+    private Integer teamId;
+    private String squadNumber;
 
 }

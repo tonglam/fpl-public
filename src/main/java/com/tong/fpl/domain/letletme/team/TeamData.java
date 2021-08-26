@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 public class TeamData {
 
     private int id;
+    private int code;
     private String name;
     private String shortName;
 

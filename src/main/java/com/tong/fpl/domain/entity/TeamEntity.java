@@ -14,9 +14,10 @@ import lombok.experimental.Accessors;
 @TableName(value = "team")
 public class TeamEntity {
 
-	@TableId(type = IdType.INPUT)
-	private Integer id;
-	private String name;
-	private String shortName;
+    @TableId(type = IdType.INPUT)
+    private Integer id;
+    private Integer code;
+    private String name;
+    private String shortName;
 
 }

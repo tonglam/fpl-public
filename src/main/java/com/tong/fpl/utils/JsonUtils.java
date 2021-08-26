@@ -62,6 +62,16 @@ public class JsonUtils {
         return null;
     }
 
+    public static <T> T json2obj(String json, Class<T> clz) {
+        try {
+            objectMapper = getMapper();
+            return objectMapper.readValue(json, clz);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static <T> T json2Collection(String json, Class<?> collectionClass, Class<?> clz) {
         try {
             objectMapper = getMapper();
