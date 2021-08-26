@@ -16,6 +16,7 @@ import java.util.List;
 public class EntryLeagueInfoData {
 
     private int entry;
+    private int event;
     private List<Classic> classic;
     private List<H2h> h2h;
     private Cup cup;
