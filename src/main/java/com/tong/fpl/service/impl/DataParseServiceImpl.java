@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.fantasynutmeg.EventResponseData;
@@ -21,6 +22,9 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -172,11 +176,56 @@ public class DataParseServiceImpl implements IDataParseService {
     @Override
     public void parseNutmegEventData(String season) {
         MybatisPlusConfig.season.set(season);
-        this.playerService.list().forEach(o -> this.parseSingleNutmegEventData(season, o));
+        Map<Integer, EventEntity> eventMap = Maps.newHashMap();
+        Map<String, EventFixtureEntity> eventFixtureMap = Maps.newHashMap();
+        Map<String, EventLiveEntity> eventLiveMap = Maps.newHashMap();
+        Map<String, PlayerStatEntity> playerStatMap = Maps.newHashMap();
+        this.playerService.list().forEach(o -> this.parseSingleNutmegEventData(season, o, eventMap, eventFixtureMap, eventLiveMap, playerStatMap));
+        // event
+        List<EventEntity> eventList = new ArrayList<>(eventMap.values())
+                .stream()
+                .sorted(Comparator.comparing(EventEntity::getId))
+                .collect(Collectors.toList());
+        this.eventService.getBaseMapper().truncate();
+        this.eventService.saveBatch(eventList);
+        log.info("insert event size:{}", eventList.size());
+        // event_fixture
+        List<EventFixtureEntity> eventFixtureSortList = new ArrayList<>(eventFixtureMap.values())
+                .stream()
+                .sorted(Comparator.comparing(EventFixtureEntity::getEvent)
+                        .thenComparing(o -> LocalDateTime.parse(o.getKickoffTime().replaceAll(" ", "T"))))
+                .collect(Collectors.toList());
+        List<EventFixtureEntity> eventFixtureList = Lists.newArrayList();
+        for (int i = 1; i < eventFixtureSortList.size() + 1; i++) {
+            eventFixtureList.add(eventFixtureSortList.get(i - 1).setId(i));
+        }
+        this.eventFixtureService.getBaseMapper().truncate();
+        this.eventFixtureService.saveBatch(eventFixtureList);
+        log.info("insert event fixture size:{}", eventFixtureList);
+        // event_live
+        List<EventLiveEntity> eventLiveList = new ArrayList<>(eventLiveMap.values())
+                .stream()
+                .sorted(Comparator.comparing(EventLiveEntity::getEvent)
+                        .thenComparing(EventLiveEntity::getElement))
+                .collect(Collectors.toList());
+        this.eventLiveService.getBaseMapper().truncate();
+        this.eventLiveService.saveBatch(eventLiveList);
+        log.info("insert event live size:{}", eventLiveList.size());
+        // player_stat
+        List<PlayerStatEntity> playerStatList = new ArrayList<>(playerStatMap.values())
+                .stream()
+                .sorted(Comparator.comparing(PlayerStatEntity::getEvent)
+                        .thenComparing(PlayerStatEntity::getElement))
+                .collect(Collectors.toList());
+        this.playerStatService.getBaseMapper().truncate();
+        this.playerStatService.saveBatch(playerStatList);
+        log.info("insert player stat size:{}", playerStatList.size());
         MybatisPlusConfig.season.remove();
     }
 
-    private void parseSingleNutmegEventData(String season, PlayerEntity playerEntity) {
+    private void parseSingleNutmegEventData(String season, PlayerEntity playerEntity,
+                                            Map<Integer, EventEntity> eventMap, Map<String, EventFixtureEntity> eventFixtureMap,
+                                            Map<String, EventLiveEntity> eventLiveMap, Map<String, PlayerStatEntity> playerStatMap) {
         try {
             // get json
             String result = HttpUtils.httpGet(this.getNutmegPlayerUrl(season, playerEntity.getElement())).orElse("");
@@ -188,13 +237,13 @@ public class DataParseServiceImpl implements IDataParseService {
                 return;
             }
             // event
-            this.insertIntoEvent(dataList);
+            this.insertIntoEvent(dataList, eventMap);
             // event_fixture
-            this.insertIntoEventFixture(playerEntity, dataList);
+            this.insertIntoEventFixture(playerEntity, dataList, eventFixtureMap);
             // event_live
-            this.insertIntoEventLive(playerEntity, dataList);
+            this.insertIntoEventLive(playerEntity, dataList, eventLiveMap);
             // player_stat
-            this.insertIntoEventPlayerStat(playerEntity, dataList);
+            this.insertIntoEventPlayerStat(playerEntity, dataList, playerStatMap);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -205,26 +254,12 @@ public class DataParseServiceImpl implements IDataParseService {
         return String.format("https://www.fantasynutmeg.com/api/history/%s?player=%s", seasonStr, element);
     }
 
-    private void insertIntoEvent(List<EventResponseData> dataList) {
-        List<EventEntity> insertList = Lists.newArrayList();
-        List<EventEntity> updateList = Lists.newArrayList();
-        Map<Integer, EventEntity> map = this.eventService.list()
-                .stream()
-                .collect(Collectors.toMap(EventEntity::getId, o -> o));
+    private void insertIntoEvent(List<EventResponseData> dataList, Map<Integer, EventEntity> eventMap) {
         dataList
                 .stream()
+                .filter(o -> !eventMap.containsKey(o.getRound()))
                 .map(this::initEventData)
-                .forEach(o -> {
-                    if (!map.containsKey(o.getId())) {
-                        insertList.add(o);
-                    } else {
-                        updateList.add(o);
-                    }
-                });
-//        this.eventService.saveBatch(insertList);
-        log.info("insert event size:{}", insertList.size());
-//        this.eventService.updateBatchById(updateList);
-        log.info("update event size:{}", updateList.size());
+                .forEach(o -> eventMap.put(o.getId(), o));
     }
 
     private EventEntity initEventData(EventResponseData data) {
@@ -245,28 +280,22 @@ public class DataParseServiceImpl implements IDataParseService {
                 .setMostViceCaptained(0);
     }
 
-    private void insertIntoEventFixture(PlayerEntity playerEntity, List<EventResponseData> dataList) {
-        List<EventFixtureEntity> insertList = Lists.newArrayList();
-        List<EventFixtureEntity> updateList = Lists.newArrayList();
-        Map<Integer, EventFixtureEntity> map = this.eventFixtureService.list()
-                .stream()
-                .collect(Collectors.toMap(EventFixtureEntity::getCode, o -> o));
+    private void insertIntoEventFixture(PlayerEntity playerEntity, List<EventResponseData> dataList, Map<String, EventFixtureEntity> eventFixtureMap) {
         dataList
                 .stream()
+                .filter(o -> {
+                    int teamId = playerEntity.getTeamId();
+                    int againstId = o.getOpponentTeam();
+                    int teamH = o.isWasHome() ? teamId : againstId;
+                    int teamA = o.isWasHome() ? againstId : teamId;
+                    String key = StringUtils.joinWith("-", teamH, teamA);
+                    return !eventFixtureMap.containsKey(key) && teamH != teamA;
+                })
                 .map(o -> this.initEventFixtureData(playerEntity, o))
                 .forEach(o -> {
-                    int code = o.getCode();
-                    if (!map.containsKey(code)) {
-                        insertList.add(o);
-                    } else {
-                        o.setId(map.get(code).getId());
-                        updateList.add(o);
-                    }
+                    String key = StringUtils.joinWith("-", o.getTeamH(), o.getTeamA());
+                    eventFixtureMap.put(key, o);
                 });
-//        this.eventFixtureService.saveBatch(insertList);
-        log.info("insert event fixture size:{}", insertList.size());
-//        this.eventFixtureService.updateBatchById(updateList);
-        log.info("update event fixture size:{}", updateList.size());
     }
 
     private EventFixtureEntity initEventFixtureData(PlayerEntity playerEntity, EventResponseData data) {
@@ -275,7 +304,7 @@ public class DataParseServiceImpl implements IDataParseService {
         return new EventFixtureEntity()
                 .setCode(0)
                 .setEvent(data.getRound())
-                .setKickoffTime(data.getKickoffTime())
+                .setKickoffTime(StringUtils.substringBefore(data.getKickoffTime(), "Z").replaceAll("T", " "))
                 .setStarted(true)
                 .setFinished(true)
                 .setProvisionalStartTime(false)
@@ -289,28 +318,18 @@ public class DataParseServiceImpl implements IDataParseService {
                 .setTeamAScore(data.getTeamAScore());
     }
 
-    private void insertIntoEventLive(PlayerEntity playerEntity, List<EventResponseData> dataList) {
-        List<EventLiveEntity> insertList = Lists.newArrayList();
-        List<EventLiveEntity> updateList = Lists.newArrayList();
-        Map<String, EventLiveEntity> map = this.eventLiveService.list()
-                .stream()
-                .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getElement(), k.getEvent()), v -> v));
+    private void insertIntoEventLive(PlayerEntity playerEntity, List<EventResponseData> dataList, Map<String, EventLiveEntity> eventLiveMap) {
         dataList
                 .stream()
+                .filter(o -> {
+                    String key = StringUtils.joinWith("-", o.getRound(), o.getElement());
+                    return !eventLiveMap.containsKey(key);
+                })
                 .map(o -> this.initEventLiveData(playerEntity, o))
                 .forEach(o -> {
-                    String key = StringUtils.joinWith("-", o.getElement(), o.getEvent());
-                    if (!map.containsKey(key)) {
-                        insertList.add(o);
-                    } else {
-                        o.setId(map.get(key).getId());
-                        updateList.add(o);
-                    }
+                    String key = StringUtils.joinWith("-", o.getEvent(), o.getElement());
+                    eventLiveMap.put(key, o);
                 });
-//        this.eventLiveService.saveBatch(insertList);
-        log.info("insert event live size:{}", insertList.size());
-//        this.eventLiveService.updateBatchById(updateList);
-        log.info("update event live size:{}", updateList.size());
     }
 
     private EventLiveEntity initEventLiveData(PlayerEntity playerEntity, EventResponseData data) {
@@ -335,28 +354,18 @@ public class DataParseServiceImpl implements IDataParseService {
                 .setTotalPoints(data.getTotalPoints());
     }
 
-    private void insertIntoEventPlayerStat(PlayerEntity playerEntity, List<EventResponseData> dataList) {
-        List<PlayerStatEntity> insertList = Lists.newArrayList();
-        List<PlayerStatEntity> updateList = Lists.newArrayList();
-        Map<String, PlayerStatEntity> map = this.playerStatService.list()
-                .stream()
-                .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getElement(), k.getEvent()), v -> v));
+    private void insertIntoEventPlayerStat(PlayerEntity playerEntity, List<EventResponseData> dataList, Map<String, PlayerStatEntity> playerStatMap) {
         dataList
                 .stream()
+                .filter(o -> {
+                    String key = StringUtils.joinWith("-", o.getRound(), o.getElement());
+                    return !playerStatMap.containsKey(key);
+                })
                 .map(o -> this.initEventPlayerStatData(playerEntity, o))
                 .forEach(o -> {
-                    String key = StringUtils.joinWith("-", o.getElement(), o.getEvent());
-                    if (!map.containsKey(key)) {
-                        insertList.add(o);
-                    } else {
-                        o.setId(map.get(key).getId());
-                        updateList.add(o);
-                    }
+                    String key = StringUtils.joinWith("-", o.getEvent(), o.getElement());
+                    playerStatMap.put(key, o);
                 });
-//        this.playerStatService.saveBatch(insertList);
-        log.info("insert player stat size:{}", insertList.size());
-//        this.playerStatService.updateBatchById(updateList);
-        log.info("update player stat size:{}", updateList.size());
     }
 
     private PlayerStatEntity initEventPlayerStatData(PlayerEntity playerEntity, EventResponseData data) {

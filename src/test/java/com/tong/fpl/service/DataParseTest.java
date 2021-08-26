@@ -21,7 +21,7 @@ public class DataParseTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1617"})
+    @CsvSource({"1819"})
     void parseNutmegEventData(String season) {
         this.dataParseService.parseNutmegEventData(season);
         System.out.println(1);

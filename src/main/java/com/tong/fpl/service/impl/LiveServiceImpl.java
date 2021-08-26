@@ -205,8 +205,7 @@ public class LiveServiceImpl implements ILiveService {
             if (entryInfoEntity != null) {
                 BeanUtil.copyProperties(entryInfoEntity, liveCalcData);
                 liveCalcData
-                        .setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints())
-                        .setPickList(null);
+                        .setLiveTotalPoints(lastOverallPointsMap.getOrDefault(entry, 0) + liveCalcData.getLiveNetPoints());
             }
         });
         // sort
