@@ -239,7 +239,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1617"})
+    @CsvSource({"2122"})
     void qryFilterPlayers(String season) {
         List<PlayerFilterData> list = this.apiQueryService.qryFilterPlayers(season);
         System.out.println(1);

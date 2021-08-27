@@ -17,7 +17,7 @@ public class PlayerFilterData {
     private String elementTypeName;
     private double price;
     private int points;
-    private String selectedByPercent;
+    private double selectedByPercent;
     private int chanceOfPlayingNextRound;
     private int chanceOfPlayingThisRound;
     private String news;
