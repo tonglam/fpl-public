@@ -1861,9 +1861,24 @@ public class EventDataServiceImpl implements IEventDataService {
 
     @Override
     public void refreshPlayerValue() {
+        log.info("start refreshPlayerValue");
+        log.info("start insertPlayer");
+        long start1 = System.currentTimeMillis();
         this.redisCacheService.insertPlayer();
+        long end1 = System.currentTimeMillis();
+        log.info("end insertPlayer,escape: " + ((end1 - start1) / 1000) + "s!");
+        log.info("start insertPlayerValue");
+        long start2 = System.currentTimeMillis();
         this.redisCacheService.insertPlayerValue();
+        long end2 = System.currentTimeMillis();
+        log.info("end insertPlayerValue");
+        log.info("end insertPlayerValue,escape: " + ((end2 - start2) / 1000) + "s!");
+        log.info("start removeCacheByKey");
+        long start3 = System.currentTimeMillis();
         RedisUtils.removeCacheByKey("api::qryPlayerValue");
+        long end3 = System.currentTimeMillis();
+        log.info("end removeCacheByKey");
+        log.info("end removeCacheByKey,escape: " + ((end3 - start3) / 1000) + "s!");
     }
 
     @Override
