@@ -20,7 +20,6 @@ import com.tong.fpl.domain.data.response.StaticRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
-import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -51,7 +50,7 @@ import java.util.stream.IntStream;
 public class RedisCacheServiceImpl implements IRedisCacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final IQueryService queryService;
+    private final InterfaceServiceImpl interfaceService;
     private final TeamService teamNameService;
     private final EventService eventService;
     private final EventFixtureService eventFixtureService;
@@ -164,7 +163,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         Map<String, Set<Object>> cacheMap = Maps.newHashMap();
         // set cache by event
         IntStream.rangeClosed(1, 38).forEach(event -> {
-            List<EventFixturesRes> eventFixturesResList = this.queryService.getEventFixture(event);
+            List<EventFixturesRes> eventFixturesResList = this.interfaceService.getEventFixture(event).orElse(null);
             if (CollectionUtils.isEmpty(eventFixturesResList)) {
                 return;
             }
