@@ -391,9 +391,15 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 
     @Override
     public void insertPlayer() {
+        long start1 = System.currentTimeMillis();
         Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
+        long end1 = System.currentTimeMillis();
+        log.info("end bootstrap,escape: " + ((end1 - start1) / 1000) + "s!");
         result.ifPresent(staticRes -> {
+            long start2 = System.currentTimeMillis();
             Map<String, PlayerEntity> playerMap = this.getPlayerMap(CommonUtils.getCurrentSeason());
+            long end2 = System.currentTimeMillis();
+            log.info("end getPlayerMap,escape: " + ((end2 - start2) / 1000) + "s!");
             if (staticRes.getElements().size() == playerMap.size()) {
                 return;
             }
@@ -427,29 +433,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             cacheMap.put(key, valueMap);
             RedisUtils.pipelineHashCache(cacheMap, -1, null);
         });
-    }
-
-    private int getPlayerCurrentPrice(Collection<PlayerValueEntity> playerValues) {
-        if (CollectionUtils.isEmpty(playerValues)) {
-            return 0;
-        }
-        return playerValues
-                .stream()
-                .max(Comparator.comparing(PlayerValueEntity::getUpdateTime))
-                .orElse(new PlayerValueEntity())
-                .getValue();
-    }
-
-    private int getPlayerStartPrice(Collection<PlayerValueEntity> playerValues) {
-        if (CollectionUtils.isEmpty(playerValues)) {
-            return 0;
-        }
-        return playerValues
-                .stream()
-                .filter(o -> StringUtils.equals(o.getChangeType(), ValueChangeType.Start.name()))
-                .map(PlayerValueEntity::getValue)
-                .findFirst()
-                .orElse(0);
     }
 
     @Override
@@ -586,14 +569,20 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
 
     @Override
     public void insertPlayerValue() {
+        long start1 = System.currentTimeMillis();
         Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
+        long end1 = System.currentTimeMillis();
+        log.info("end bootstrap,escape: " + ((end1 - start1) / 1000) + "s!");
         result.ifPresent(staticRes -> {
             List<PlayerValueEntity> playerValueList = Lists.newArrayList();
             String changeDate = LocalDate.now().format(DateTimeFormatter.ofPattern(Constant.SHORTDAY));
             // prepare
+            long start2 = System.currentTimeMillis();
             Map<Integer, PlayerValueEntity> lastValueMap = this.playerValueService.list()
                     .stream()
                     .collect(new PlayerValueCollector());
+            long end2 = System.currentTimeMillis();
+            log.info("end lastValueMap,escape: " + ((end1 - start1) / 1000) + "s!");
             int event = this.getCurrentEvent();
             // calc
             staticRes.getElements()
