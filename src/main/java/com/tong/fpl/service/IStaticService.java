@@ -12,6 +12,12 @@ import java.util.Optional;
  */
 public interface IStaticService {
 
+    Optional<StaticRes> getBootstrapStatic();
+
+    Optional<EventLiveRes> getEventLive(int event);
+
+    Optional<List<EventFixturesRes>> getEventFixture(int event);
+
     List<EntryInfoData> getNewEntryInfoListFromClassic(int classicId);
 
     List<EntryInfoData> getNewEntryInfoListFromH2h(int h2hId);

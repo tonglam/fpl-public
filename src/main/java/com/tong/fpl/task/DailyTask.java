@@ -1,5 +1,8 @@
 package com.tong.fpl.task;
 
+import com.tong.fpl.domain.data.response.EventFixturesRes;
+import com.tong.fpl.domain.data.response.EventLiveRes;
+import com.tong.fpl.domain.data.response.StaticRes;
 import com.tong.fpl.domain.entity.EntryInfoEntity;
 import com.tong.fpl.log.TaskLog;
 import com.tong.fpl.service.IEventDataService;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,21 +32,33 @@ public class DailyTask {
 
     @Scheduled(cron = "0 35 6 * * *")
     public void insertEvent() {
-        this.redisCacheService.insertEvent();
+        StaticRes staticRes = this.queryService.getBootstrapStatic();
+        if (staticRes == null) {
+            return;
+        }
+        this.redisCacheService.insertEvent(staticRes);
     }
 
     @Scheduled(cron = "0 40 6 * * *")
     public void insertEventFixture() {
         this.redisCacheService.insertEventFixture();
-        this.redisCacheService.insertEventAfterDeadlineCache(this.redisCacheService.getCurrentEvent());
+        StaticRes staticRes = this.queryService.getBootstrapStatic();
+        if (staticRes == null) {
+            return;
+        }
+        this.redisCacheService.insertEventAfterDeadlineCache(this.queryService.getCurrentEvent(), staticRes);
     }
 
     @Scheduled(cron = "0 25-35 9 * * *")
     public void refreshPlayerValue() {
         try {
-            this.redisCacheService.insertPlayer();
-            this.redisCacheService.insertPlayerStat();
-            this.redisCacheService.insertPlayerValue();
+            StaticRes staticRes = this.queryService.getBootstrapStatic();
+            if (staticRes == null) {
+                return;
+            }
+            this.redisCacheService.insertPlayer(staticRes);
+            this.redisCacheService.insertPlayerStat(staticRes);
+            this.redisCacheService.insertPlayerValue(staticRes);
         } catch (Exception e) {
             e.printStackTrace();
             TaskLog.error(e.getMessage());
@@ -72,8 +88,16 @@ public class DailyTask {
             return;
         }
         TaskLog.info("start true insertEventLive task");
-        this.redisCacheService.insertEventLive(event);
-        this.redisCacheService.insertSingleEventFixture(event);
+        EventLiveRes eventLiveRes = this.queryService.getEventLive(event);
+        if (eventLiveRes == null) {
+            return;
+        }
+        this.redisCacheService.insertEventLive(event, eventLiveRes);
+        List<EventFixturesRes> eventFixturesResList = this.queryService.getEventFixture(event);
+        if (CollectionUtils.isEmpty(eventFixturesResList)) {
+            return;
+        }
+        this.redisCacheService.insertSingleEventFixture(event, eventFixturesResList);
     }
 
 }

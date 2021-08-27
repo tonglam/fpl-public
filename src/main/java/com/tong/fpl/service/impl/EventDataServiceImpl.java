@@ -64,15 +64,23 @@ public class EventDataServiceImpl implements IEventDataService {
      */
     @Override
     public void updateEventData() {
-        this.redisCacheService.insertEvent();
+        StaticRes staticRes = this.queryService.getBootstrapStatic();
+        if (staticRes == null) {
+            return;
+        }
+        this.redisCacheService.insertEvent(staticRes);
         this.redisCacheService.insertEventFixture();
     }
 
     @Override
     public void updatePlayerData() {
-        this.redisCacheService.insertPlayer();
-        this.redisCacheService.insertPlayerStat();
-        this.redisCacheService.insertPlayerValue();
+        StaticRes staticRes = this.queryService.getBootstrapStatic();
+        if (staticRes == null) {
+            return;
+        }
+        this.redisCacheService.insertPlayer(staticRes);
+        this.redisCacheService.insertPlayerStat(staticRes);
+        this.redisCacheService.insertPlayerValue(staticRes);
         RedisUtils.removeCacheByKey("api::qryPlayer");
     }
 
@@ -386,10 +394,10 @@ public class EventDataServiceImpl implements IEventDataService {
 
     @Override
     public void updateEventLiveData(int event) {
-        this.redisCacheService.insertSingleEventFixture(event);
+        this.redisCacheService.insertSingleEventFixture(event, this.queryService.getEventFixture(event));
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
-        this.redisCacheService.insertEventLive(event);
+        this.redisCacheService.insertEventLive(event, this.queryService.getEventLive(event));
     }
 
     @Override
@@ -1853,28 +1861,21 @@ public class EventDataServiceImpl implements IEventDataService {
         if (event <= 0 || event > 38) {
             return;
         }
-        this.redisCacheService.insertSingleEventFixtureCache(event);
+        this.redisCacheService.insertSingleEventFixtureCache(event, this.queryService.getEventFixture(event));
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
-        this.redisCacheService.insertEventLiveCache(event);
+        this.redisCacheService.insertEventLiveCache(event, this.queryService.getEventLive(event));
     }
 
     @Override
     public void refreshPlayerValue() {
-        log.info("start refreshPlayerValue");
-        long start1 = System.currentTimeMillis();
-        this.redisCacheService.insertPlayer();
-        long end1 = System.currentTimeMillis();
-        log.info("end insertPlayer,escape: " + ((end1 - start1) / 1000) + "s!");
-        long start2 = System.currentTimeMillis();
-        this.redisCacheService.insertPlayerValue();
-        long end2 = System.currentTimeMillis();
-        log.info("end insertPlayerValue,escape: " + ((end2 - start2) / 1000) + "s!");
-        long start3 = System.currentTimeMillis();
+        StaticRes staticRes = this.queryService.getBootstrapStatic();
+        if (staticRes == null) {
+            return;
+        }
+        this.redisCacheService.insertPlayer(staticRes);
+        this.redisCacheService.insertPlayerValue(staticRes);
         RedisUtils.removeCacheByKey("api::qryPlayerValue");
-        long end3 = System.currentTimeMillis();
-        log.info("end removeCacheByKey,escape: " + ((end3 - start3) / 1000) + "s!");
-        log.info("end refreshPlayerValue");
     }
 
     @Override
@@ -1905,10 +1906,10 @@ public class EventDataServiceImpl implements IEventDataService {
     @Override
     public void refreshTournamentEventResult(int event, int tournamentId) {
         // tournament_result
-        log.info("event:{}, tornament:{}, start upsert tournament entry event result", event, tournamentId);
+        log.info("event:{}, tournament:{}, start upsert tournament entry event result", event, tournamentId);
         this.upsertTournamentEntryEventResult(event, tournamentId);
         // tournament_points_race_group_result
-        log.info("event:{}, tornament:{}, start upsert tournament points race group result", event, tournamentId);
+        log.info("event:{}, tournament:{}, start upsert tournament points race group result", event, tournamentId);
         this.updatePointsRaceGroupResult(event, tournamentId);
         // cache
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTournamentEventResult", event, tournamentId));
@@ -1958,8 +1959,8 @@ public class EventDataServiceImpl implements IEventDataService {
     public void refreshPlayerSummary(String season, int code) {
         if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
             int event = this.queryService.getCurrentEvent();
-            this.redisCacheService.insertPlayer();
-            this.redisCacheService.insertEventLive(event);
+            this.redisCacheService.insertPlayer(this.queryService.getBootstrapStatic());
+            this.redisCacheService.insertEventLive(event, this.queryService.getEventLive(event));
             this.redisCacheService.insertEventFixture();
             this.redisCacheService.insertEventLiveSummary();
         }
@@ -1972,8 +1973,9 @@ public class EventDataServiceImpl implements IEventDataService {
     @Override
     public void refreshTeamSummary(String season, String name) {
         if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
-            this.redisCacheService.insertPlayer();
-            this.redisCacheService.insertPlayerStat();
+            StaticRes staticRes = this.queryService.getBootstrapStatic();
+            this.redisCacheService.insertPlayer(staticRes);
+            this.redisCacheService.insertPlayerStat(staticRes);
         }
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTeamSummary", season, name));
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerFixtureList", season));

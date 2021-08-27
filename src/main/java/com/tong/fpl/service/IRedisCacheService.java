@@ -1,5 +1,8 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.data.response.EventFixturesRes;
+import com.tong.fpl.domain.data.response.EventLiveRes;
+import com.tong.fpl.domain.data.response.StaticRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
@@ -12,11 +15,11 @@ import java.util.Map;
  */
 public interface IRedisCacheService {
 
-    void insertTeam();
+    void insertTeam(StaticRes staticRes);
 
     void insertHisTeam(String season);
 
-    void insertEvent();
+    void insertEvent(StaticRes staticRes);
 
     void insertHisEvent(String season);
 
@@ -24,25 +27,25 @@ public interface IRedisCacheService {
 
     void insertHisEventFixture(String season);
 
-    void insertSingleEventFixture(int event);
+    void insertSingleEventFixture(int event, List<EventFixturesRes> eventFixturesResList);
 
-    void insertSingleEventFixtureCache(int event);
+    void insertSingleEventFixtureCache(int event, List<EventFixturesRes> eventFixturesResList);
 
     void insertLiveFixtureCache();
 
-    void insertPlayer();
+    void insertPlayer(StaticRes staticRes);
 
     void insertHisPlayer(String season);
 
-    void insertPlayerStat();
+    void insertPlayerStat(StaticRes staticRes);
 
     void insertHisPlayerStat(String season);
 
-    void insertPlayerValue();
+    void insertPlayerValue(StaticRes staticRes);
 
-    void insertEventLive(int event);
+    void insertEventLive(int event, EventLiveRes eventLiveRes);
 
-    void insertEventLiveCache(int event);
+    void insertEventLiveCache(int event, EventLiveRes eventLiveRes);
 
     void insertEventLiveSummary();
 
@@ -50,11 +53,11 @@ public interface IRedisCacheService {
 
     void insertLiveBonusCache();
 
-    void insertAverageScore(int event);
+    void insertAverageScore(int event, StaticRes staticRes);
 
     void insertDiscloseCache(int tournamentId, int captainGroupId, int entry);
 
-    void insertEventAfterDeadlineCache(int event);
+    void insertEventAfterDeadlineCache(int event, StaticRes staticRes);
 
     void insertEventMatchDayCache(int event);
 

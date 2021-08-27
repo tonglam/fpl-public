@@ -126,6 +126,12 @@ public interface IQueryService {
     /**
      * @apiNote event
      */
+    StaticRes getBootstrapStatic();
+
+    EventLiveRes getEventLive(int event);
+
+    List<EventFixturesRes> getEventFixture(int event);
+
     int getCurrentEvent();
 
     int getLastEvent();

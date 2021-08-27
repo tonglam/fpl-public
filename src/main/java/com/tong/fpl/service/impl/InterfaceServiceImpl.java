@@ -8,7 +8,6 @@ import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.log.HttpCallLog;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.utils.HttpUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +18,16 @@ import java.util.Optional;
 /**
  * Create by tong on 2020/3/10
  */
-@Slf4j
 @Service
 public class InterfaceServiceImpl implements IInterfaceService {
 
     @Override
     public Optional<EntryRes> getEntry(int entry) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.ENTRY, entry)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get bootstrap from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, EntryRes.class));
@@ -39,7 +40,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<EntryCupRes> getEntryCup(int entry) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.ENTRY_CUP, entry)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get entry_cup from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, EntryCupRes.class));
@@ -52,7 +56,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<UserPicksRes> getUserPicks(int event, int entry) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.USER_PICKS, entry, event)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get user_picks from server, escape:{} s!", (end - start) / 1000);
             if (StringUtils.isBlank(result) || result.contains("Not found")) {
                 return Optional.empty();
             }
@@ -68,7 +75,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<UserHistoryRes> getUserHistory(int entry) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.USER_HISTORY, entry)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get user_history from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, UserHistoryRes.class));
@@ -81,7 +91,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<LeagueClassicRes> getNewLeaguesClassic(int classicId, int page) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.LEAGUES_CLASSIC_NEW, classicId, page)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get leagues_classic_new from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, LeagueClassicRes.class));
@@ -94,7 +107,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<LeagueH2hRes> getNewLeagueH2H(int h2hId, int page) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.LEAGUES_H2H_NEW, h2hId, page)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get leagues_h2h_new from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, LeagueH2hRes.class));
@@ -107,7 +123,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<LeagueClassicRes> getLeaguesClassic(int classicId, int page) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.LEAGUES_CLASSIC, classicId, page)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get leagues_classic from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, LeagueClassicRes.class));
@@ -120,7 +139,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<LeagueH2hRes> getLeagueH2H(int h2hId, int page) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.LEAGUES_H2H, h2hId, page)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get leagues_h2h from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, LeagueH2hRes.class));
@@ -133,7 +155,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<EventLiveRes> getEventLive(int event) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.EVENT_LIVE, event)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get event_live from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, EventLiveRes.class));
@@ -146,7 +171,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<List<EventFixturesRes>> getEventFixture(int event) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.EVENT_FIXTURES, event)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get event_fixtures from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, new TypeReference<List<EventFixturesRes>>() {
@@ -160,7 +188,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<StaticRes> getBootstrapStatic() {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(Constant.BOOTSTRAP_STATIC).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get bootstrap_static from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, StaticRes.class));
@@ -173,7 +204,10 @@ public class InterfaceServiceImpl implements IInterfaceService {
     @Override
     public Optional<List<TransferRes>> getTransfer(int entry) {
         try {
+            long start = System.currentTimeMillis();
             String result = HttpUtils.httpGet(String.format(Constant.TRANSFER, entry)).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get transfer from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             return Optional.of(mapper.readValue(result, new TypeReference<List<TransferRes>>() {

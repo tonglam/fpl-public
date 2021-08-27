@@ -20,7 +20,7 @@ import com.tong.fpl.domain.data.response.StaticRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
-import com.tong.fpl.service.IInterfaceService;
+import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
@@ -51,7 +51,7 @@ import java.util.stream.IntStream;
 public class RedisCacheServiceImpl implements IRedisCacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final IInterfaceService interfaceService;
+    private final IQueryService queryService;
     private final TeamService teamNameService;
     private final EventService eventService;
     private final EventFixtureService eventFixtureService;
@@ -62,30 +62,30 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     private final PlayerValueService playerValueService;
 
     @Override
-    public void insertTeam() {
-        Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        result.ifPresent(staticRes -> {
-            // insert table
-            this.teamNameService.remove(new QueryWrapper<TeamEntity>().eq("1", 1));
-            List<TeamEntity> teamList = Lists.newArrayList();
-            staticRes.getTeams().forEach(bootstrapTeam -> {
-                TeamEntity teamEntity = new TeamEntity();
-                teamEntity.setId(bootstrapTeam.getId());
-                teamEntity.setName(bootstrapTeam.getName());
-                teamEntity.setShortName(bootstrapTeam.getShortName());
-                teamList.add(teamEntity);
-            });
-            this.teamNameService.saveBatch(teamList);
-            log.info("insert team size:{}!", teamList.size());
-            // set cache
-            Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
-            String season = CommonUtils.getCurrentSeason();
-            // set team_name cache
-            this.setTeamNameCache(cacheMap, teamList, season);
-            // set team_short_name cache
-            this.setTeamShortNameCache(cacheMap, teamList, season);
-            RedisUtils.pipelineHashCache(cacheMap, -1, null);
+    public void insertTeam(StaticRes staticRes) {
+        if (staticRes == null) {
+            return;
+        }
+        // insert table
+        this.teamNameService.getBaseMapper().truncate();
+        List<TeamEntity> teamList = Lists.newArrayList();
+        staticRes.getTeams().forEach(bootstrapTeam -> {
+            TeamEntity teamEntity = new TeamEntity();
+            teamEntity.setId(bootstrapTeam.getId());
+            teamEntity.setName(bootstrapTeam.getName());
+            teamEntity.setShortName(bootstrapTeam.getShortName());
+            teamList.add(teamEntity);
         });
+        this.teamNameService.saveBatch(teamList);
+        log.info("insert team size:{}!", teamList.size());
+        // set cache
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+        String season = CommonUtils.getCurrentSeason();
+        // set team_name cache
+        this.setTeamNameCache(cacheMap, teamList, season);
+        // set team_short_name cache
+        this.setTeamShortNameCache(cacheMap, teamList, season);
+        RedisUtils.pipelineHashCache(cacheMap, -1, null);
     }
 
     @Override
@@ -119,31 +119,28 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertEvent() {
-        Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        result.ifPresent(staticRes -> {
-            // insert table
-            this.eventService.remove(new QueryWrapper<EventEntity>().eq("1", 1));
-            List<EventEntity> eventList = Lists.newArrayList();
-            staticRes.getEvents().forEach(bootstrapEvent -> {
-                EventEntity eventEntity = new EventEntity();
-                BeanUtil.copyProperties(bootstrapEvent, eventEntity, CopyOptions.create().ignoreNullValue());
-                eventEntity
-                        .setId(bootstrapEvent.getId())
-                        .setDeadlineTime(bootstrapEvent.getDeadlineTime());
-                eventList.add(eventEntity);
-            });
-            this.eventService.saveBatch(eventList);
-            log.info("insert event size:{}!", eventList.size());
-            // set cache
-            Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
-            Map<String, Object> valueMap = Maps.newHashMap();
-            String key = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
-            RedisUtils.removeCacheByKey(key);
-            eventList.forEach(o -> valueMap.put(String.valueOf(o.getId()), o.getDeadlineTime()));
-            cacheMap.put(key, valueMap);
-            RedisUtils.pipelineHashCache(cacheMap, -1, null);
+    public void insertEvent(StaticRes staticRes) {
+        // insert table
+        this.eventService.getBaseMapper().truncate();
+        List<EventEntity> eventList = Lists.newArrayList();
+        staticRes.getEvents().forEach(bootstrapEvent -> {
+            EventEntity eventEntity = new EventEntity();
+            BeanUtil.copyProperties(bootstrapEvent, eventEntity, CopyOptions.create().ignoreNullValue());
+            eventEntity
+                    .setId(bootstrapEvent.getId())
+                    .setDeadlineTime(bootstrapEvent.getDeadlineTime());
+            eventList.add(eventEntity);
         });
+        this.eventService.saveBatch(eventList);
+        log.info("insert event size:{}!", eventList.size());
+        // set cache
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+        Map<String, Object> valueMap = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", EventEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
+        RedisUtils.removeCacheByKey(key);
+        eventList.forEach(o -> valueMap.put(String.valueOf(o.getId()), o.getDeadlineTime()));
+        cacheMap.put(key, valueMap);
+        RedisUtils.pipelineHashCache(cacheMap, -1, null);
     }
 
     @Override
@@ -166,29 +163,32 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         List<EventFixtureEntity> fixtureList = Lists.newArrayList();
         Map<String, Set<Object>> cacheMap = Maps.newHashMap();
         // set cache by event
-        IntStream.rangeClosed(1, 38).forEach(event -> fixtureList.addAll(this.insertEventFixtureByEvent(cacheMap, event)));
+        IntStream.rangeClosed(1, 38).forEach(event -> {
+            List<EventFixturesRes> eventFixturesResList = this.queryService.getEventFixture(event);
+            if (CollectionUtils.isEmpty(eventFixturesResList)) {
+                return;
+            }
+            fixtureList.addAll(this.insertEventFixtureByEvent(cacheMap, event, eventFixturesResList));
+        });
         // set cache by team
         RedisUtils.pipelineSetCache(cacheMap, -1, null);
         this.insertEventFixtureCacheByTeam(CommonUtils.getCurrentSeason(), fixtureList);
     }
 
-    private List<EventFixtureEntity> insertEventFixtureByEvent(Map<String, Set<Object>> cacheMap, int event) {
+    private List<EventFixtureEntity> insertEventFixtureByEvent(Map<String, Set<Object>> cacheMap, int event, List<EventFixturesRes> eventFixturesResList) {
         log.info("start insert event:{} fixtures!", event);
-        this.eventFixtureService.remove(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, event));
         List<EventFixtureEntity> eventFixtureList = Lists.newArrayList();
-        Optional<List<EventFixturesRes>> result = this.interfaceService.getEventFixture(event);
-        result.ifPresent(eventFixturesRes -> {
-            eventFixturesRes.forEach(o -> {
-                EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
-                BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
-                eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDateTime(o.getKickoffTime()));
-                eventFixtureList.add(eventFixtureEntity);
-            });
-            this.eventFixtureService.saveBatch(eventFixtureList);
-            log.info("insert event:{}, event_fixture size:{}!", event, eventFixtureList.size());
-            // set cache by event
-            this.setEventFixtureCacheBySingleEvent(cacheMap, CommonUtils.getCurrentSeason(), event, eventFixtureList);
+        this.eventFixtureService.remove(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, event));
+        eventFixturesResList.forEach(o -> {
+            EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
+            BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
+            eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDateTime(o.getKickoffTime()));
+            eventFixtureList.add(eventFixtureEntity);
         });
+        this.eventFixtureService.saveBatch(eventFixtureList);
+        log.info("insert event:{}, event_fixture size:{}!", event, eventFixtureList.size());
+        // set cache by event
+        this.setEventFixtureCacheBySingleEvent(cacheMap, CommonUtils.getCurrentSeason(), event, eventFixtureList);
         return eventFixtureList;
     }
 
@@ -295,52 +295,52 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertSingleEventFixture(int event) {
+    public void insertSingleEventFixture(int event, List<EventFixturesRes> eventFixturesResList) {
+        if (CollectionUtils.isEmpty(eventFixturesResList)) {
+            return;
+        }
         this.eventFixtureService.remove(new QueryWrapper<EventFixtureEntity>().lambda().eq(EventFixtureEntity::getEvent, event));
         List<EventFixtureEntity> eventFixtureList = Lists.newArrayList();
-        Optional<List<EventFixturesRes>> result = this.interfaceService.getEventFixture(event);
-        result.ifPresent(eventFixturesRes -> {
-            eventFixturesRes.forEach(o -> {
-                EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
-                BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
-                eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDateTime(o.getKickoffTime()));
-                eventFixtureList.add(eventFixtureEntity);
-            });
-            this.eventFixtureService.saveBatch(eventFixtureList);
-            log.info("insert event:{}, event_fixture size:{}!", event, eventFixtureList.size());
-            // set cache by event
-            Map<String, Set<Object>> cacheMap = Maps.newHashMap();
-            this.setEventFixtureCacheBySingleEvent(cacheMap, CommonUtils.getCurrentSeason(), event, eventFixtureList);
-            RedisUtils.pipelineSetCache(cacheMap, -1, null);
-            // set cache by team
-            Map<String, String> teamNameMap = this.getTeamNameMap(CommonUtils.getCurrentSeason());
-            Map<String, String> teamShortNameMap = this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
-            IntStream.rangeClosed(1, 20).forEach(teamId ->
-                    this.insertEventFixtureCacheBySingleTeamAndEvent(CommonUtils.getCurrentSeason(), eventFixtureList, teamId, teamNameMap, teamShortNameMap, event));
+        eventFixturesResList.forEach(o -> {
+            EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
+            BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
+            eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDateTime(o.getKickoffTime()));
+            eventFixtureList.add(eventFixtureEntity);
         });
+        this.eventFixtureService.saveBatch(eventFixtureList);
+        log.info("insert event:{}, event_fixture size:{}!", event, eventFixtureList.size());
+        // set cache by event
+        Map<String, Set<Object>> cacheMap = Maps.newHashMap();
+        this.setEventFixtureCacheBySingleEvent(cacheMap, CommonUtils.getCurrentSeason(), event, eventFixtureList);
+        RedisUtils.pipelineSetCache(cacheMap, -1, null);
+        // set cache by team
+        Map<String, String> teamNameMap = this.getTeamNameMap(CommonUtils.getCurrentSeason());
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
+        IntStream.rangeClosed(1, 20).forEach(teamId ->
+                this.insertEventFixtureCacheBySingleTeamAndEvent(CommonUtils.getCurrentSeason(), eventFixtureList, teamId, teamNameMap, teamShortNameMap, event));
     }
 
     @Override
-    public void insertSingleEventFixtureCache(int event) {
+    public void insertSingleEventFixtureCache(int event, List<EventFixturesRes> eventFixturesResList) {
+        if (CollectionUtils.isEmpty(eventFixturesResList)) {
+            return;
+        }
         List<EventFixtureEntity> eventFixtureList = Lists.newArrayList();
-        Optional<List<EventFixturesRes>> result = this.interfaceService.getEventFixture(event);
-        result.ifPresent(eventFixturesRes -> {
-            eventFixturesRes.forEach(o -> {
-                EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
-                BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
-                eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDateTime(o.getKickoffTime()));
-                eventFixtureList.add(eventFixtureEntity);
-            });
-            // set cache by event
-            Map<String, Set<Object>> cacheMap = Maps.newHashMap();
-            this.setEventFixtureCacheBySingleEvent(cacheMap, CommonUtils.getCurrentSeason(), event, eventFixtureList);
-            RedisUtils.pipelineSetCache(cacheMap, -1, null);
-            // set cache by team
-            Map<String, String> teamNameMap = this.getTeamNameMap(CommonUtils.getCurrentSeason());
-            Map<String, String> teamShortNameMap = this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
-            IntStream.rangeClosed(1, 20).forEach(teamId ->
-                    this.insertEventFixtureCacheBySingleTeamAndEvent(CommonUtils.getCurrentSeason(), eventFixtureList, teamId, teamNameMap, teamShortNameMap, event));
+        eventFixturesResList.forEach(o -> {
+            EventFixtureEntity eventFixtureEntity = new EventFixtureEntity();
+            BeanUtil.copyProperties(o, eventFixtureEntity, CopyOptions.create().ignoreNullValue());
+            eventFixtureEntity.setKickoffTime(CommonUtils.getLocalZoneDateTime(o.getKickoffTime()));
+            eventFixtureList.add(eventFixtureEntity);
         });
+        // set cache by event
+        Map<String, Set<Object>> cacheMap = Maps.newHashMap();
+        this.setEventFixtureCacheBySingleEvent(cacheMap, CommonUtils.getCurrentSeason(), event, eventFixtureList);
+        RedisUtils.pipelineSetCache(cacheMap, -1, null);
+        // set cache by team
+        Map<String, String> teamNameMap = this.getTeamNameMap(CommonUtils.getCurrentSeason());
+        Map<String, String> teamShortNameMap = this.getTeamShortNameMap(CommonUtils.getCurrentSeason());
+        IntStream.rangeClosed(1, 20).forEach(teamId ->
+                this.insertEventFixtureCacheBySingleTeamAndEvent(CommonUtils.getCurrentSeason(), eventFixtureList, teamId, teamNameMap, teamShortNameMap, event));
     }
 
     @Override
@@ -390,49 +390,43 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertPlayer() {
-        long start1 = System.currentTimeMillis();
-        Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        long end1 = System.currentTimeMillis();
-        log.info("end bootstrap,escape: " + ((end1 - start1) / 1000) + "s!");
-        result.ifPresent(staticRes -> {
-            long start2 = System.currentTimeMillis();
-            Map<String, PlayerEntity> playerMap = this.getPlayerMap(CommonUtils.getCurrentSeason());
-            long end2 = System.currentTimeMillis();
-            log.info("end getPlayerMap,escape: " + ((end2 - start2) / 1000) + "s!");
-            if (staticRes.getElements().size() == playerMap.size()) {
+    public void insertPlayer(StaticRes staticRes) {
+        if (staticRes == null) {
+            return;
+        }
+        Map<String, PlayerEntity> playerMap = this.getPlayerMap(CommonUtils.getCurrentSeason());
+        if (staticRes.getElements().size() == playerMap.size()) {
+            return;
+        }
+        List<PlayerEntity> insertList = Lists.newArrayList();
+        staticRes.getElements().forEach(o -> {
+            int element = o.getId();
+            if (playerMap.containsKey(String.valueOf(element))) {
                 return;
             }
-            List<PlayerEntity> insertList = Lists.newArrayList();
-            staticRes.getElements().forEach(o -> {
-                int element = o.getId();
-                if (playerMap.containsKey(String.valueOf(element))) {
-                    return;
-                }
-                insertList.add(
-                        new PlayerEntity()
-                                .setElement(element)
-                                .setCode(o.getCode())
-                                .setPrice(o.getNowCost())
-                                .setStartPrice(o.getNowCost() - o.getCostChangeStart())
-                                .setElementType(o.getElementType())
-                                .setFirstName(o.getFirstName())
-                                .setSecondName(o.getSecondName())
-                                .setWebName(o.getWebName())
-                                .setTeamId(o.getTeam())
-                );
-            });
-            this.playerService.saveBatch(insertList);
-            log.info("insert player size:{}!", insertList.size());
-            // set cache
-            Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
-            String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
-            Map<String, Object> valueMap = Maps.newHashMap();
-            RedisUtils.removeCacheByKey(key);
-            this.playerService.list().forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
-            cacheMap.put(key, valueMap);
-            RedisUtils.pipelineHashCache(cacheMap, -1, null);
+            insertList.add(
+                    new PlayerEntity()
+                            .setElement(element)
+                            .setCode(o.getCode())
+                            .setPrice(o.getNowCost())
+                            .setStartPrice(o.getNowCost() - o.getCostChangeStart())
+                            .setElementType(o.getElementType())
+                            .setFirstName(o.getFirstName())
+                            .setSecondName(o.getSecondName())
+                            .setWebName(o.getWebName())
+                            .setTeamId(o.getTeam())
+            );
         });
+        this.playerService.saveBatch(insertList);
+        log.info("insert player size:{}!", insertList.size());
+        // set cache
+        Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
+        Map<String, Object> valueMap = Maps.newHashMap();
+        RedisUtils.removeCacheByKey(key);
+        this.playerService.list().forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
+        cacheMap.put(key, valueMap);
+        RedisUtils.pipelineHashCache(cacheMap, -1, null);
     }
 
     @Override
@@ -451,7 +445,10 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertPlayerStat() {
+    public void insertPlayerStat(StaticRes staticRes) {
+        if (staticRes == null) {
+            return;
+        }
         List<PlayerStatEntity> insertList = Lists.newArrayList();
         List<PlayerStatEntity> updateList = Lists.newArrayList();
         // prepare
@@ -462,22 +459,20 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                 .stream()
                 .collect(Collectors.toMap(PlayerStatEntity::getElement, PlayerStatEntity::getId));
         // get from fpl server
-        Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        result.ifPresent(staticRes ->
-                staticRes.getElements().forEach(o -> {
-                    if (!insertTeamMap.containsKey(o.getTeam())) {
-                        return;
-                    }
-                    // insert or update table
-                    PlayerStatEntity playerStatEntity = this.initPlayStat(event, o, insertTeamMap);
-                    int element = playerStatEntity.getElement();
-                    if (!playerStatIdMap.containsKey(element)) {
-                        insertList.add(playerStatEntity);
-                    } else {
-                        playerStatEntity.setId(playerStatIdMap.get(element));
-                        updateList.add(playerStatEntity);
-                    }
-                }));
+        staticRes.getElements().forEach(o -> {
+            if (!insertTeamMap.containsKey(o.getTeam())) {
+                return;
+            }
+            // insert or update table
+            PlayerStatEntity playerStatEntity = this.initPlayStat(event, o, insertTeamMap);
+            int element = playerStatEntity.getElement();
+            if (!playerStatIdMap.containsKey(element)) {
+                insertList.add(playerStatEntity);
+            } else {
+                playerStatEntity.setId(playerStatIdMap.get(element));
+                updateList.add(playerStatEntity);
+            }
+        });
         // insert
         this.playerStatService.saveBatch(insertList);
         log.info("insert player_stat size:{}", insertList.size());
@@ -568,57 +563,51 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertPlayerValue() {
-        long start1 = System.currentTimeMillis();
-        Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        long end1 = System.currentTimeMillis();
-        log.info("end bootstrap,escape: " + ((end1 - start1) / 1000) + "s!");
-        result.ifPresent(staticRes -> {
-            List<PlayerValueEntity> playerValueList = Lists.newArrayList();
-            String changeDate = LocalDate.now().format(DateTimeFormatter.ofPattern(Constant.SHORTDAY));
-            // prepare
-            long start2 = System.currentTimeMillis();
-            Map<Integer, PlayerValueEntity> lastValueMap = this.playerValueService.list()
-                    .stream()
-                    .collect(new PlayerValueCollector());
-            long end2 = System.currentTimeMillis();
-            log.info("end lastValueMap,escape: " + ((end1 - start1) / 1000) + "s!");
-            int event = this.getCurrentEvent();
-            // calc
-            staticRes.getElements()
-                    .stream()
-                    .filter(o -> !lastValueMap.containsKey(o.getId()) || o.getNowCost() != lastValueMap.get(o.getId()).getValue())
-                    .forEach(bootstrapPlayer -> {
-                        int element = bootstrapPlayer.getId();
-                        PlayerValueEntity lastEntity = lastValueMap.getOrDefault(element, null);
-                        int lastValue = lastEntity != null ? lastEntity.getValue() : 0;
-                        playerValueList.add(
-                                new PlayerValueEntity()
-                                        .setElement(element)
-                                        .setElementType(bootstrapPlayer.getElementType())
-                                        .setEvent(event)
-                                        .setValue(bootstrapPlayer.getNowCost())
-                                        .setChangeDate(changeDate)
-                                        .setChangeType(this.getChangeType(bootstrapPlayer.getNowCost(), lastValue))
-                                        .setLastValue(lastValue)
-                        );
-                    });
-            if (CollectionUtils.isEmpty(playerValueList)) {
-                return;
-            }
-            // insert
-            this.playerValueService.saveBatch(playerValueList);
-            log.info("insert player value size:{}", playerValueList.size());
-            // set cache
-            Map<String, Set<Object>> cacheMap = Maps.newHashMap();
-            String key = StringUtils.joinWith("::", PlayerValueEntity.class.getSimpleName(), changeDate);
-            Set<Object> valueSet = Sets.newHashSet();
-            valueSet.addAll(playerValueList);
-            cacheMap.put(key, valueSet);
-            RedisUtils.pipelineSetCache(cacheMap, 1, TimeUnit.DAYS);
-            // update price in table player
-            this.updatePriceOfPlayer(playerValueList);
-        });
+    public void insertPlayerValue(StaticRes staticRes) {
+        if (staticRes == null) {
+            return;
+        }
+        List<PlayerValueEntity> playerValueList = Lists.newArrayList();
+        String changeDate = LocalDate.now().format(DateTimeFormatter.ofPattern(Constant.SHORTDAY));
+        // prepare
+        Map<Integer, PlayerValueEntity> lastValueMap = this.playerValueService.list()
+                .stream()
+                .collect(new PlayerValueCollector());
+        int event = this.getCurrentEvent();
+        // calc
+        staticRes.getElements()
+                .stream()
+                .filter(o -> !lastValueMap.containsKey(o.getId()) || o.getNowCost() != lastValueMap.get(o.getId()).getValue())
+                .forEach(bootstrapPlayer -> {
+                    int element = bootstrapPlayer.getId();
+                    PlayerValueEntity lastEntity = lastValueMap.getOrDefault(element, null);
+                    int lastValue = lastEntity != null ? lastEntity.getValue() : 0;
+                    playerValueList.add(
+                            new PlayerValueEntity()
+                                    .setElement(element)
+                                    .setElementType(bootstrapPlayer.getElementType())
+                                    .setEvent(event)
+                                    .setValue(bootstrapPlayer.getNowCost())
+                                    .setChangeDate(changeDate)
+                                    .setChangeType(this.getChangeType(bootstrapPlayer.getNowCost(), lastValue))
+                                    .setLastValue(lastValue)
+                    );
+                });
+        if (CollectionUtils.isEmpty(playerValueList)) {
+            return;
+        }
+        // insert
+        this.playerValueService.saveBatch(playerValueList);
+        log.info("insert player value size:{}", playerValueList.size());
+        // set cache
+        Map<String, Set<Object>> cacheMap = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", PlayerValueEntity.class.getSimpleName(), changeDate);
+        Set<Object> valueSet = Sets.newHashSet();
+        valueSet.addAll(playerValueList);
+        cacheMap.put(key, valueSet);
+        RedisUtils.pipelineSetCache(cacheMap, 1, TimeUnit.DAYS);
+        // update price in table player
+        this.updatePriceOfPlayer(playerValueList);
     }
 
     private String getChangeType(int nowCost, int lastCost) {
@@ -654,7 +643,10 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertEventLive(int event) {
+    public void insertEventLive(int event, EventLiveRes eventLiveRes) {
+        if (eventLiveRes == null) {
+            return;
+        }
         List<EventLiveEntity> eventLiveList = Lists.newArrayList();
         List<EventLiveEntity> insertList = Lists.newArrayList();
         List<EventLiveEntity> updateList = Lists.newArrayList();
@@ -666,21 +658,19 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
-        Optional<EventLiveRes> result = this.interfaceService.getEventLive(event);
-        result.ifPresent(eventLiveRes ->
-                eventLiveRes.getElements().forEach(o -> {
-                    int element = o.getId();
-                    ElementStat elementStat = o.getStats();
-                    EventLiveEntity eventLive = new EventLiveEntity();
-                    BeanUtil.copyProperties(elementStat, eventLive, CopyOptions.create().ignoreNullValue());
-                    eventLive
-                            .setElement(element)
-                            .setElementType(playerMap.containsKey(element) ?
-                                    playerMap.get(element).getElementType() : 0)
-                            .setTeamId(playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0)
-                            .setEvent(event);
-                    eventLiveList.add(eventLive);
-                }));
+        eventLiveRes.getElements().forEach(o -> {
+            int element = o.getId();
+            ElementStat elementStat = o.getStats();
+            EventLiveEntity eventLive = new EventLiveEntity();
+            BeanUtil.copyProperties(elementStat, eventLive, CopyOptions.create().ignoreNullValue());
+            eventLive
+                    .setElement(element)
+                    .setElementType(playerMap.containsKey(element) ?
+                            playerMap.get(element).getElementType() : 0)
+                    .setTeamId(playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0)
+                    .setEvent(event);
+            eventLiveList.add(eventLive);
+        });
         // insert or update
         eventLiveList.forEach(o -> {
             int element = o.getElement();
@@ -706,24 +696,25 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertEventLiveCache(int event) {
+    public void insertEventLiveCache(int event, EventLiveRes eventLiveRes) {
+        if (eventLiveRes == null) {
+            return;
+        }
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
                 .stream()
                 .collect(Collectors.toMap(PlayerEntity::getElement, o -> o));
         List<EventLiveEntity> eventLiveList = Lists.newArrayList();
-        Optional<EventLiveRes> result = this.interfaceService.getEventLive(event);
-        result.ifPresent(eventLiveRes ->
-                eventLiveRes.getElements().forEach(o -> {
-                    int element = o.getId();
-                    ElementStat elementStat = o.getStats();
-                    EventLiveEntity eventLive = new EventLiveEntity();
-                    BeanUtil.copyProperties(elementStat, eventLive, CopyOptions.create().ignoreNullValue());
-                    eventLive.setElement(element)
-                            .setElementType(playerMap.containsKey(element) ? playerMap.get(element).getElementType() : 0)
-                            .setTeamId(playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0)
-                            .setEvent(event);
-                    eventLiveList.add(eventLive);
-                }));
+        eventLiveRes.getElements().forEach(o -> {
+            int element = o.getId();
+            ElementStat elementStat = o.getStats();
+            EventLiveEntity eventLive = new EventLiveEntity();
+            BeanUtil.copyProperties(elementStat, eventLive, CopyOptions.create().ignoreNullValue());
+            eventLive.setElement(element)
+                    .setElementType(playerMap.containsKey(element) ? playerMap.get(element).getElementType() : 0)
+                    .setTeamId(playerMap.containsKey(element) ? playerMap.get(element).getTeamId() : 0)
+                    .setEvent(event);
+            eventLiveList.add(eventLive);
+        });
         log.info("event_live_cache size is " + eventLiveList.size() + "!");
         // set cache
         Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
@@ -1023,24 +1014,25 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertAverageScore(int event) {
-        this.interfaceService.getBootstrapStatic().ifPresent(res -> {
-            Event eventEntity = res.getEvents()
-                    .stream()
-                    .filter(o -> o.getId() == event)
-                    .findFirst()
-                    .orElse(null);
-            if (eventEntity == null) {
-                return;
-            }
-            int average = eventEntity.getAverageEntryScore();
-            // set cache
-            String key = StringUtils.joinWith("::", "AverageScore", CommonUtils.getCurrentSeason(), event);
-            RedisUtils.removeCacheByKey(key);
-            Map<String, Object> cacheMap = Maps.newHashMap();
-            cacheMap.put(key, average);
-            RedisUtils.pipelineValueCache(cacheMap, -1, null);
-        });
+    public void insertAverageScore(int event, StaticRes staticRes) {
+        if (staticRes == null) {
+            return;
+        }
+        Event eventEntity = staticRes.getEvents()
+                .stream()
+                .filter(o -> o.getId() == event)
+                .findFirst()
+                .orElse(null);
+        if (eventEntity == null) {
+            return;
+        }
+        int average = eventEntity.getAverageEntryScore();
+        // set cache
+        String key = StringUtils.joinWith("::", "AverageScore", CommonUtils.getCurrentSeason(), event);
+        RedisUtils.removeCacheByKey(key);
+        Map<String, Object> cacheMap = Maps.newHashMap();
+        cacheMap.put(key, average);
+        RedisUtils.pipelineValueCache(cacheMap, -1, null);
     }
 
     @Override
@@ -1057,16 +1049,16 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
-    public void insertEventAfterDeadlineCache(int event) {
+    public void insertEventAfterDeadlineCache(int event, StaticRes staticRes) {
+        if (staticRes == null) {
+            return;
+        }
         // get event deadline
         Map<Integer, String> deadlineMap = Maps.newHashMap();
-        this.interfaceService.getBootstrapStatic()
-                .ifPresent(staticRes ->
-                        staticRes.getEvents()
-                                .stream()
-                                .filter(o -> o.getId() == event)
-                                .forEach(bootstrapEvent -> deadlineMap.put(bootstrapEvent.getId(), bootstrapEvent.getDeadlineTime()))
-                );
+        staticRes.getEvents()
+                .stream()
+                .filter(o -> o.getId() == event)
+                .forEach(bootstrapEvent -> deadlineMap.put(bootstrapEvent.getId(), bootstrapEvent.getDeadlineTime()));
         // set cache
         ZoneId zoneId = ZonedDateTime.now().getZone();
         deadlineMap.forEach((o, deadline) -> {

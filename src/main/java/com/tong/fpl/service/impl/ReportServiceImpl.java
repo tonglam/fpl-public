@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.LeagueType;
+import com.tong.fpl.domain.data.response.EventLiveRes;
 import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.AutoSubs;
 import com.tong.fpl.domain.data.userpick.Pick;
@@ -99,8 +100,8 @@ public class ReportServiceImpl implements IReportService {
         }
         //prepare
         Map<Integer, LeagueEventReportEntity> leagueEventReportMap = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                        .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-                        .eq(LeagueEventReportEntity::getEvent, event))
+                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                .eq(LeagueEventReportEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(LeagueEventReportEntity::getEntry, o -> o));
         // league_name
@@ -339,7 +340,11 @@ public class ReportServiceImpl implements IReportService {
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         if (CollectionUtils.isEmpty(eventLiveMap)) {
-            this.redisCacheService.insertEventLive(event);
+            EventLiveRes eventLiveRes = this.queryService.getEventLive(event);
+            if (eventLiveRes == null) {
+                return;
+            }
+            this.redisCacheService.insertEventLive(event, eventLiveRes);
             this.updateLeagueEventResult(event, leagueId, leagueType);
         }
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()

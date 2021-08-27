@@ -1,6 +1,9 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.domain.data.response.EventFixturesRes;
+import com.tong.fpl.domain.data.response.EventLiveRes;
+import com.tong.fpl.domain.data.response.StaticRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
@@ -22,6 +25,16 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Autowired
     private IRedisCacheService redisCacheSerive;
+    @Autowired
+    private IQueryService queryService;
+
+    private StaticRes getBootstrapStatic() {
+        return this.queryService.getBootstrapStatic();
+    }
+
+    private EventLiveRes getEventLive(int event) {
+        return this.queryService.getEventLive(event);
+    }
 
     @Test
     void test() {
@@ -32,7 +45,8 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Test
     void insertTeam() {
-        this.redisCacheSerive.insertTeam();
+        StaticRes staticRes = this.getBootstrapStatic();
+        this.redisCacheSerive.insertTeam(staticRes);
     }
 
     @ParameterizedTest
@@ -43,7 +57,8 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Test
     void insertEvent() {
-        this.redisCacheSerive.insertEvent();
+        StaticRes staticRes = this.getBootstrapStatic();
+        this.redisCacheSerive.insertEvent(staticRes);
     }
 
     @ParameterizedTest
@@ -66,13 +81,15 @@ public class RedisCacheTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"1"})
     void insertSingleEventFixture(int event) {
-        this.redisCacheSerive.insertSingleEventFixture(event);
+        List<EventFixturesRes> eventFixturesResList = this.queryService.getEventFixture(event);
+        this.redisCacheSerive.insertSingleEventFixture(event, eventFixturesResList);
     }
 
     @ParameterizedTest
     @CsvSource({"2"})
     void insertSingleEventFixtureCache(int event) {
-        this.redisCacheSerive.insertSingleEventFixtureCache(event);
+        List<EventFixturesRes> eventFixturesResList = this.queryService.getEventFixture(event);
+        this.redisCacheSerive.insertSingleEventFixtureCache(event, eventFixturesResList);
     }
 
     @Test
@@ -82,10 +99,7 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Test
     void insertPlayer() {
-        long start = System.currentTimeMillis();
-        this.redisCacheSerive.insertPlayer();
-        long end = System.currentTimeMillis();
-        System.out.println("escape: " + ((end - start) / 1000) + "s!");
+        this.redisCacheSerive.insertPlayer(this.getBootstrapStatic());
     }
 
     @ParameterizedTest
@@ -96,7 +110,7 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Test
     void insertPlayerStat() {
-        this.redisCacheSerive.insertPlayerStat();
+        this.redisCacheSerive.insertPlayerStat(this.getBootstrapStatic());
     }
 
     @ParameterizedTest
@@ -107,22 +121,19 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Test
     void insertPlayerValue() {
-        long start = System.currentTimeMillis();
-        this.redisCacheSerive.insertPlayerValue();
-        long end = System.currentTimeMillis();
-        System.out.println("escape: " + ((end - start) / 1000) + "s!");
+        this.redisCacheSerive.insertPlayerValue(this.getBootstrapStatic());
     }
 
     @ParameterizedTest
     @CsvSource({"2"})
     void insertEventLive(int event) {
-        this.redisCacheSerive.insertEventLive(event);
+        this.redisCacheSerive.insertEventLive(event, this.getEventLive(event));
     }
 
     @ParameterizedTest
     @CsvSource({"2"})
     void insertEventLiveCache(int event) {
-        this.redisCacheSerive.insertEventLiveCache(event);
+        this.redisCacheSerive.insertEventLiveCache(event, this.getEventLive(event));
     }
 
     @Test
@@ -139,20 +150,18 @@ public class RedisCacheTest extends FplApplicationTests {
     @Test
     void inserLiveBonusCache() {
         this.redisCacheSerive.insertLiveBonusCache();
-        System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2"})
     void insertAverageScore(int event) {
-        this.redisCacheSerive.insertAverageScore(event);
-        System.out.println(1);
+        this.redisCacheSerive.insertAverageScore(event, this.getBootstrapStatic());
     }
 
     @ParameterizedTest
     @CsvSource({"1"})
     void insertEventAfterDeadlineCache(int event) {
-        this.redisCacheSerive.insertEventAfterDeadlineCache(event);
+        this.redisCacheSerive.insertEventAfterDeadlineCache(event, this.getBootstrapStatic());
         System.out.println(1);
     }
 

@@ -31,8 +31,8 @@ public class MatchDayTask {
             return;
         }
         TaskLog.info("start true insertEventLiveCache task");
-        this.redisCacheService.insertEventLiveCache(event);
-        this.redisCacheService.insertSingleEventFixtureCache(event);
+        this.redisCacheService.insertEventLiveCache(event, this.queryService.getEventLive(event));
+        this.redisCacheService.insertSingleEventFixtureCache(event, this.queryService.getEventFixture(event));
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
     }
@@ -83,7 +83,7 @@ public class MatchDayTask {
         if (!this.queryService.isMatchDay(event)) {
             return;
         }
-        this.redisCacheService.insertEventLive(event);
+        this.redisCacheService.insertEventLive(event, this.queryService.getEventLive(event));
         List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();
         this.eventDataService.upsertEventResultByEntryList(event, entryList);
     }

@@ -29,6 +29,21 @@ public class StaticServiceImpl implements IStaticService {
     private final IInterfaceService interfaceService;
 
     @Override
+    public Optional<StaticRes> getBootstrapStatic() {
+        return this.interfaceService.getBootstrapStatic();
+    }
+
+    @Override
+    public Optional<EventLiveRes> getEventLive(int event) {
+        return this.interfaceService.getEventLive(event);
+    }
+
+    @Override
+    public Optional<List<EventFixturesRes>> getEventFixture(int event) {
+        return this.interfaceService.getEventFixture(event);
+    }
+
+    @Override
     public List<EntryInfoData> getNewEntryInfoListFromClassic(int classicId) {
         return this.getOnePageNewEntryListFromClassic(new LeagueInfoData(), classicId, 1, 0).getEntryInfoList();
     }
