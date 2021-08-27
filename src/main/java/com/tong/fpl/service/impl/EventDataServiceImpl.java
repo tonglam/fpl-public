@@ -1861,9 +1861,9 @@ public class EventDataServiceImpl implements IEventDataService {
 
     @Override
     public void refreshPlayerValue() {
-        this.redisCacheService.insertPlayerCache();
+        this.redisCacheService.insertPlayer();
         this.redisCacheService.insertPlayerValue();
-        RedisUtils.removeCacheByKey("api::qryPlayer");
+        RedisUtils.removeCacheByKey("api::qryPlayerValue");
     }
 
     @Override

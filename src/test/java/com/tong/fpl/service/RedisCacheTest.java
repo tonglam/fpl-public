@@ -82,7 +82,10 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Test
     void insertPlayer() {
+        long start = System.currentTimeMillis();
         this.redisCacheSerive.insertPlayer();
+        long end = System.currentTimeMillis();
+        System.out.println("escape: " + ((end - start) / 1000) + "s!");
     }
 
     @ParameterizedTest
@@ -104,7 +107,10 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Test
     void insertPlayerValue() {
+        long start = System.currentTimeMillis();
         this.redisCacheSerive.insertPlayerValue();
+        long end = System.currentTimeMillis();
+        System.out.println("escape: " + ((end - start) / 1000) + "s!");
     }
 
     @ParameterizedTest

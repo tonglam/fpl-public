@@ -393,33 +393,37 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     public void insertPlayer() {
         Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
         result.ifPresent(staticRes -> {
-            // prepare
-            Multimap<Integer, PlayerValueEntity> playerValueMap = HashMultimap.create();
-            this.playerValueService.list().forEach(o -> playerValueMap.put(o.getElement(), o));
-            // insert table
-            this.playerService.getBaseMapper().truncate();
-            List<PlayerEntity> playerList = Lists.newArrayList();
-            staticRes.getElements().forEach(o ->
-                    playerList.add(
-                            new PlayerEntity()
-                                    .setElement(o.getId())
-                                    .setCode(o.getCode())
-                                    .setPrice(this.getPlayerCurrentPrice(playerValueMap.get(o.getId())))
-                                    .setStartPrice(this.getPlayerStartPrice(playerValueMap.get(o.getId())))
-                                    .setElementType(o.getElementType())
-                                    .setFirstName(o.getFirstName())
-                                    .setSecondName(o.getSecondName())
-                                    .setWebName(o.getWebName())
-                                    .setTeamId(o.getTeam())
-                    ));
-            this.playerService.saveBatch(playerList);
-            log.info("insert player size:{}!", playerList.size());
+            Map<String, PlayerEntity> playerMap = this.getPlayerMap(CommonUtils.getCurrentSeason());
+            if (staticRes.getElements().size() == playerMap.size()) {
+                return;
+            }
+            List<PlayerEntity> insertList = Lists.newArrayList();
+            staticRes.getElements().forEach(o -> {
+                int element = o.getId();
+                if (playerMap.containsKey(String.valueOf(element))) {
+                    return;
+                }
+                insertList.add(
+                        new PlayerEntity()
+                                .setElement(element)
+                                .setCode(o.getCode())
+                                .setPrice(o.getNowCost())
+                                .setStartPrice(o.getNowCost() - o.getCostChangeStart())
+                                .setElementType(o.getElementType())
+                                .setFirstName(o.getFirstName())
+                                .setSecondName(o.getSecondName())
+                                .setWebName(o.getWebName())
+                                .setTeamId(o.getTeam())
+                );
+            });
+            this.playerService.saveBatch(insertList);
+            log.info("insert player size:{}!", insertList.size());
             // set cache
             Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
             String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
             Map<String, Object> valueMap = Maps.newHashMap();
             RedisUtils.removeCacheByKey(key);
-            playerList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
+            this.playerService.list().forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
             cacheMap.put(key, valueMap);
             RedisUtils.pipelineHashCache(cacheMap, -1, null);
         });
@@ -446,38 +450,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                 .map(PlayerValueEntity::getValue)
                 .findFirst()
                 .orElse(0);
-    }
-
-    @Override
-    public void insertPlayerCache() {
-        Optional<StaticRes> result = this.interfaceService.getBootstrapStatic();
-        result.ifPresent(staticRes -> {
-            // prepare
-            Multimap<Integer, PlayerValueEntity> playerValueMap = HashMultimap.create();
-            this.playerValueService.list().forEach(o -> playerValueMap.put(o.getElement(), o));
-            List<PlayerEntity> playerList = Lists.newArrayList();
-            staticRes.getElements().forEach(o ->
-                    playerList.add(
-                            new PlayerEntity()
-                                    .setElement(o.getId())
-                                    .setCode(o.getCode())
-                                    .setPrice(this.getPlayerCurrentPrice(playerValueMap.get(o.getId())))
-                                    .setStartPrice(this.getPlayerStartPrice(playerValueMap.get(o.getId())))
-                                    .setElementType(o.getElementType())
-                                    .setFirstName(o.getFirstName())
-                                    .setSecondName(o.getSecondName())
-                                    .setWebName(o.getWebName())
-                                    .setTeamId(o.getTeam())
-                    ));
-            // set cache
-            Map<String, Map<String, Object>> cacheMap = Maps.newHashMap();
-            String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
-            Map<String, Object> valueMap = Maps.newHashMap();
-            RedisUtils.removeCacheByKey(key);
-            playerList.forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
-            cacheMap.put(key, valueMap);
-            RedisUtils.pipelineHashCache(cacheMap, -1, null);
-        });
     }
 
     @Override
@@ -622,6 +594,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             Map<Integer, PlayerValueEntity> lastValueMap = this.playerValueService.list()
                     .stream()
                     .collect(new PlayerValueCollector());
+            int event = this.getCurrentEvent();
             // calc
             staticRes.getElements()
                     .stream()
@@ -634,7 +607,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                                 new PlayerValueEntity()
                                         .setElement(element)
                                         .setElementType(bootstrapPlayer.getElementType())
-                                        .setEvent(this.getCurrentEvent())
+                                        .setEvent(event)
                                         .setValue(bootstrapPlayer.getNowCost())
                                         .setChangeDate(changeDate)
                                         .setChangeType(this.getChangeType(bootstrapPlayer.getNowCost(), lastValue))
@@ -657,6 +630,38 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             // update price in table player
             this.updatePriceOfPlayer(playerValueList);
         });
+    }
+
+    private String getChangeType(int nowCost, int lastCost) {
+        if (lastCost == 0) {
+            return ValueChangeType.Start.name();
+        }
+        return nowCost > lastCost ? ValueChangeType.Rise.name() : ValueChangeType.Faller.name();
+    }
+
+    private void updatePriceOfPlayer(List<PlayerValueEntity> playerValueList) {
+        List<PlayerEntity> updatePlayerList = Lists.newArrayList();
+        playerValueList.forEach(o -> {
+            // update table
+            PlayerEntity playerEntity = this.playerService.getById(o.getElement());
+            playerEntity.setPrice(o.getValue());
+            if (playerEntity.getStartPrice() == 0) {
+                // start price
+                PlayerValueEntity playerValueEntity = this.playerValueService.getOne(new QueryWrapper<PlayerValueEntity>().lambda()
+                        .eq(PlayerValueEntity::getElement, o.getElement())
+                        .eq(PlayerValueEntity::getChangeType, ValueChangeType.Start.name()));
+                if (playerValueEntity != null) {
+                    playerEntity.setStartPrice(playerValueEntity.getValue());
+                }
+            }
+            updatePlayerList.add(playerEntity);
+            // set cache
+            String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
+            this.redisTemplate.opsForZSet().removeRangeByScore(key, o.getElement(), o.getElement());
+            this.redisTemplate.opsForZSet().add(key, playerEntity, o.getElement());
+        });
+        this.playerService.updateBatchById(updatePlayerList);
+        log.info("insert player value size:{}", playerValueList.size());
     }
 
     @Override
@@ -1163,37 +1168,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             }
         }
         return event;
-    }
-
-    private String getChangeType(int nowCost, int lastCost) {
-        if (lastCost == 0) {
-            return ValueChangeType.Start.name();
-        }
-        return nowCost > lastCost ? ValueChangeType.Rise.name() : ValueChangeType.Faller.name();
-    }
-
-    private void updatePriceOfPlayer(List<PlayerValueEntity> playerValueList) {
-        List<PlayerEntity> updatePlayerList = Lists.newArrayList();
-        playerValueList.forEach(o -> {
-            // update table
-            PlayerEntity playerEntity = this.playerService.getById(o.getElement());
-            playerEntity.setPrice(o.getValue());
-            if (playerEntity.getStartPrice() == 0) {
-                // start price
-                PlayerValueEntity playerValueEntity = this.playerValueService.getOne(new QueryWrapper<PlayerValueEntity>().lambda()
-                        .eq(PlayerValueEntity::getElement, o.getElement())
-                        .eq(PlayerValueEntity::getChangeType, ValueChangeType.Start.name()));
-                if (playerValueEntity != null) {
-                    playerEntity.setStartPrice(playerValueEntity.getValue());
-                }
-            }
-            updatePlayerList.add(playerEntity);
-            // set cache
-            String key = StringUtils.joinWith("::", PlayerEntity.class.getSimpleName(), CommonUtils.getCurrentSeason());
-            this.redisTemplate.opsForZSet().removeRangeByScore(key, o.getElement(), o.getElement());
-            this.redisTemplate.opsForZSet().add(key, playerEntity, o.getElement());
-        });
-        this.playerService.updateBatchById(updatePlayerList);
     }
 
     @Override

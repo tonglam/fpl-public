@@ -32,8 +32,6 @@ public interface IRedisCacheService {
 
     void insertPlayer();
 
-    void insertPlayerCache();
-
     void insertHisPlayer(String season);
 
     void insertPlayerStat();
@@ -41,7 +39,7 @@ public interface IRedisCacheService {
     void insertHisPlayerStat(String season);
 
     void insertPlayerValue();
-    
+
     void insertEventLive(int event);
 
     void insertEventLiveCache(int event);

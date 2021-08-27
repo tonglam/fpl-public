@@ -25,7 +25,7 @@ public class LiveTest extends FplApplicationTests {
         long start = System.currentTimeMillis();
         LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
         long end = System.currentTimeMillis();
-        System.out.println("escaped: " + (end - start));
+        System.out.println("escape: " + ((end - start) / 1000) + "s!");
         System.out.println("points: " + liveCalaData.getLivePoints());
     }
 

@@ -94,4 +94,16 @@ public class RESTfulTest {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"/api/stat/refreshPlayerValue"})
+    void refreshPlayerValue(String url) throws Exception {
+        long start = System.currentTimeMillis();
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        MvcResult mvcResult = this.mockResult(url, params);
+        String response = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        long end = System.currentTimeMillis();
+        System.out.println("escape: " + ((end - start) / 1000) + "s!");
+        System.out.println(1);
+    }
+
 }
