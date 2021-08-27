@@ -14,7 +14,7 @@ public class DataParseTest extends FplApplicationTests {
     private IDataParseService dataParseService;
 
     @ParameterizedTest
-    @CsvSource({"1819, E://1819.json"})
+    @CsvSource({"2021, E://2021.json"})
     void parseNutmegSeasonData(String season, String fileName) {
         this.dataParseService.parseNutmegSeasonData(season, fileName);
         System.out.println(1);

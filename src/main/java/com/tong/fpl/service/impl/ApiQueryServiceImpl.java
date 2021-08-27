@@ -113,6 +113,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
 
     @Cacheable(
             value = "api::qryTeamList",
+            key = "#season",
             cacheManager = "apiCacheManager",
             unless = "#result.size() eq 0"
     )

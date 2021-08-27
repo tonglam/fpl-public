@@ -85,9 +85,9 @@ public class DataParseServiceImpl implements IDataParseService {
                         updateList.add(o);
                     }
                 });
-        this.playerService.saveBatch(insertList);
+//        this.playerService.saveBatch(insertList);
         log.info("insert player size:{}", insertList.size());
-        this.playerService.updateBatchById(updateList);
+//        this.playerService.updateBatchById(updateList);
         log.info("update player size:{}", updateList.size());
     }
 
@@ -101,8 +101,7 @@ public class DataParseServiceImpl implements IDataParseService {
                 .setFirstName(data.getFirstName())
                 .setSecondName(data.getSecondName())
                 .setWebName(data.getWebName())
-                .setTeamId(data.getTeam())
-                .setSquadNumber(data.getSquadNumber());
+                .setTeamId(data.getTeam());
     }
 
     private void insertIntoPlayerStat(List<SeasonResponseData> dataList) {

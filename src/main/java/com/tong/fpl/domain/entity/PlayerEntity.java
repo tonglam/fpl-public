@@ -21,6 +21,5 @@ public class PlayerEntity {
     @TableField(insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
     private String webName;
     private Integer teamId;
-    private String squadNumber;
 
 }
