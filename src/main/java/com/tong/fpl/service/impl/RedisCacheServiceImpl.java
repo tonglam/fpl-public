@@ -395,6 +395,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         }
         Map<String, PlayerEntity> playerMap = this.getPlayerMap(CommonUtils.getCurrentSeason());
         if (staticRes.getElements().size() == playerMap.size()) {
+            log.info("no new players");
             return;
         }
         List<PlayerEntity> insertList = Lists.newArrayList();
@@ -454,7 +455,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         int event = this.getCurrentEvent();
         Map<Integer, Integer> insertTeamMap = this.getInsertTeamList();
         Map<Integer, Integer> playerStatIdMap = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event))
+                        .eq(PlayerStatEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(PlayerStatEntity::getElement, PlayerStatEntity::getId));
         // get from fpl server
@@ -484,7 +485,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         Map<String, Object> valueMap = Maps.newHashMap();
         RedisUtils.removeCacheByKey(key);
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event))
+                        .eq(PlayerStatEntity::getEvent, event))
                 .forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
         RedisUtils.pipelineHashCache(cacheMap, -1, null);
@@ -651,7 +652,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         List<EventLiveEntity> updateList = Lists.newArrayList();
         // prepare
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()

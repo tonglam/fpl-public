@@ -1,12 +1,15 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
+import com.tong.fpl.domain.entity.EntryInfoEntity;
+import com.tong.fpl.service.db.EntryInfoService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -18,6 +21,18 @@ public class EventDataTest extends FplApplicationTests {
     private IQueryService queryService;
     @Autowired
     private IEventDataService eventDataService;
+    @Autowired
+    private EntryInfoService entryInfoService;
+
+    @Test
+    void updateEntryInfo() {
+        List<Integer> entryList = this.entryInfoService.list()
+                .stream()
+                .map(EntryInfoEntity::getEntry)
+                .collect(Collectors.toList());
+        this.eventDataService.updateEntryInfo(entryList);
+        System.out.println(1);
+    }
 
     @ParameterizedTest
     @CsvSource({"1"})

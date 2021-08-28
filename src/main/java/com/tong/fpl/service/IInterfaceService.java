@@ -34,6 +34,8 @@ public interface IInterfaceService {
 
     Optional<StaticRes> getBootstrapStatic();
 
+    Optional<StaticRes> getWangBootstrapStatic();
+
     Optional<List<TransferRes>> getTransfer(int entry);
 
 }

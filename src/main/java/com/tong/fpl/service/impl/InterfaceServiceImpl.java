@@ -208,6 +208,23 @@ public class InterfaceServiceImpl implements IInterfaceService {
             return Optional.of(mapper.readValue(result, StaticRes.class));
         } catch (IOException e) {
             HttpCallLog.error("get bootstrap_static error:{}", e.getMessage());
+            return this.getWangBootstrapStatic();
+        }
+    }
+
+    @Override
+    public Optional<StaticRes> getWangBootstrapStatic() {
+        try {
+            HttpCallLog.info("start get wang_bootstrap_static from server!");
+            long start = System.currentTimeMillis();
+            String result = HttpUtils.httpGet(Constant.WANG_BOOTSTRAP_STATIC).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get wang_bootstrap_static from server, escape:{} s!", (end - start) / 1000);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            return Optional.of(mapper.readValue(result, StaticRes.class));
+        } catch (IOException e) {
+            HttpCallLog.error("get wang_bootstrap_static error:{}", e.getMessage());
         }
         return Optional.empty();
     }
