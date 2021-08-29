@@ -5,18 +5,25 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Create by tong on 2020/6/29
  */
 public interface IStaticService {
 
-    Optional<StaticRes> getBootstrapStatic();
+    StaticRes getBootstrapStatic();
 
-    Optional<EventLiveRes> getEventLive(int event);
+    List<EventFixturesRes> getEventFixture(int event);
 
-    Optional<List<EventFixturesRes>> getEventFixture(int event);
+    UserPicksRes getUserPicks(int event, int entry);
+
+    List<UserTransfersRes> getUserTransfers(int entry);
+
+    UserHistoryRes getUserHistory(int entry);
+
+    EntryRes getEntry(int entry);
+
+    EntryCupRes getEntryCup(int entry);
 
     List<EntryInfoData> getNewEntryInfoListFromClassic(int classicId);
 
@@ -30,14 +37,6 @@ public interface IStaticService {
 
     LeagueInfoData getEntryInfoListFromH2hByLimit(int h2hId, int limit);
 
-    Optional<UserHistoryRes> getUserHistory(int entry);
-
-    Optional<EntryRes> getEntry(int entry);
-
-    Optional<EntryCupRes> getEntryCup(int entry);
-
-    Optional<UserPicksRes> getUserPicks(int event, int entry);
-
-    Optional<List<TransferRes>> getTransfer(int entry);
+    EventLiveRes getEventLive(int event);
 
 }

@@ -35,7 +35,7 @@ public class EntryApiController {
     }
 
     @GetMapping("/qryEntryLeagueInfo")
-    public EntryLeagueInfoData qryEntryLeagueInfo(@RequestParam int entry) {
+    public EntryLeagueData qryEntryLeagueInfo(@RequestParam int entry) {
         return this.apiEntry.qryEntryLeagueInfo(entry);
     }
 

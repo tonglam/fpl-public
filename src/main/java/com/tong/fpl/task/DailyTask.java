@@ -8,6 +8,7 @@ import com.tong.fpl.log.TaskLog;
 import com.tong.fpl.service.IEventDataService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.db.EntryInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +27,14 @@ import java.util.stream.Collectors;
 public class DailyTask {
 
     private final IQueryService queryService;
+    private final IStaticService staticService;
     private final IRedisCacheService redisCacheService;
     private final IEventDataService eventDataService;
     private final EntryInfoService entryInfoService;
 
     @Scheduled(cron = "0 35 6 * * *")
     public void insertEvent() {
-        StaticRes staticRes = this.queryService.getBootstrapStatic();
+        StaticRes staticRes = this.staticService.getBootstrapStatic();
         if (staticRes == null) {
             return;
         }
@@ -42,7 +44,7 @@ public class DailyTask {
     @Scheduled(cron = "0 40 6 * * *")
     public void insertEventFixture() {
         this.redisCacheService.insertEventFixture();
-        StaticRes staticRes = this.queryService.getBootstrapStatic();
+        StaticRes staticRes = this.staticService.getBootstrapStatic();
         if (staticRes == null) {
             return;
         }
@@ -52,7 +54,7 @@ public class DailyTask {
     @Scheduled(cron = "0 25-35 9 * * *")
     public void refreshPlayerValue() {
         try {
-            StaticRes staticRes = this.queryService.getBootstrapStatic();
+            StaticRes staticRes = this.staticService.getBootstrapStatic();
             if (staticRes == null) {
                 return;
             }
@@ -74,7 +76,7 @@ public class DailyTask {
                     .map(EntryInfoEntity::getEntry)
                     .distinct()
                     .collect(Collectors.toList());
-            this.eventDataService.updateEntryInfo(entryList);
+            this.eventDataService.updateEntryInfoByList(entryList);
         } catch (Exception e) {
             e.printStackTrace();
             TaskLog.error(e.getMessage());
@@ -88,12 +90,12 @@ public class DailyTask {
             return;
         }
         TaskLog.info("start true insertEventLive task");
-        EventLiveRes eventLiveRes = this.queryService.getEventLive(event);
+        EventLiveRes eventLiveRes = this.staticService.getEventLive(event);
         if (eventLiveRes == null) {
             return;
         }
         this.redisCacheService.insertEventLive(event, eventLiveRes);
-        List<EventFixturesRes> eventFixturesResList = this.queryService.getEventFixture(event);
+        List<EventFixturesRes> eventFixturesResList = this.staticService.getEventFixture(event);
         if (CollectionUtils.isEmpty(eventFixturesResList)) {
             return;
         }

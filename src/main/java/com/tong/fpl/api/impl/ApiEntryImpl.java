@@ -36,7 +36,7 @@ public class ApiEntryImpl implements IApiEntry {
     }
 
     @Override
-    public EntryLeagueInfoData qryEntryLeagueInfo(int entry) {
+    public EntryLeagueData qryEntryLeagueInfo(int entry) {
         return this.apiQueryService.qryEntryLeagueInfo(entry);
     }
 

@@ -9,7 +9,6 @@ import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.constant.enums.TournamentMode;
 import com.tong.fpl.domain.data.response.EntryRes;
-import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.event.CreateZjTournamentEventData;
@@ -233,24 +232,22 @@ public class TournamentServiceImpl implements ITournamentService {
             }
         }
         entryInfoList.parallelStream().forEach(entryInfoEntity -> {
-            Optional<EntryRes> entryRes = this.staticService.getEntry(entryInfoEntity.getEntry());
-            entryRes.ifPresent(o ->
-                    entryInfoEntityList.add(
-                            new EntryInfoEntity()
-                                    .setEntry(entryInfoEntity.getEntry())
-                                    .setEntryName(o.getName())
-                                    .setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
-                                    .setRegion(o.getPlayerRegionName())
-                                    .setStartedEvent(o.getStartedEvent())
-                                    .setOverallPoints(o.getSummaryOverallPoints())
-                                    .setOverallRank(o.getSummaryOverallRank())
-                                    .setBank(o.getLastDeadlineBank())
-                                    .setTeamValue(o.getLastDeadlineValue())
-                                    .setTotalTransfers(o.getLastDeadlineTotalTransfers())
-                                    .setLastOverallPoints(o.getSummaryOverallPoints())
-                                    .setLastOverallRank(o.getSummaryOverallRank())
-                                    .setLastTeamValue(o.getLastDeadlineValue())
-                    )
+            EntryRes entryRes = this.staticService.getEntry(entryInfoEntity.getEntry());
+            if (entryRes == null) {
+                return;
+            }
+            entryInfoEntityList.add(
+                    new EntryInfoEntity()
+                            .setEntry(entryInfoEntity.getEntry())
+                            .setEntryName(entryRes.getName())
+                            .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+                            .setRegion(entryRes.getPlayerRegionName())
+                            .setStartedEvent(entryRes.getStartedEvent())
+                            .setOverallPoints(entryRes.getSummaryOverallPoints())
+                            .setOverallRank(entryRes.getSummaryOverallRank())
+                            .setBank(entryRes.getLastDeadlineBank())
+                            .setTeamValue(entryRes.getLastDeadlineValue())
+                            .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
             );
         });
         this.entryInfoService.saveOrUpdateBatch(entryInfoEntityList);
@@ -388,9 +385,9 @@ public class TournamentServiceImpl implements ITournamentService {
         List<TournamentPointsGroupResultEntity> pointsGroupResultList = Lists.newArrayList();
         // tournament_group
         Map<Integer, Integer> entryGroupIdMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .orderByAsc(TournamentGroupEntity::getGroupId)
-                .orderByAsc(TournamentGroupEntity::getGroupIndex))
+                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                        .orderByAsc(TournamentGroupEntity::getGroupId)
+                        .orderByAsc(TournamentGroupEntity::getGroupIndex))
                 .stream()
                 .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getGroupId));
         // tournament_group_result
@@ -432,9 +429,9 @@ public class TournamentServiceImpl implements ITournamentService {
         // get group entry list
         BiMap<Integer, Integer> groupIndexMap = HashBiMap.create();
         this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .eq(TournamentGroupEntity::getGroupId, groupId)
-                .orderByAsc(TournamentGroupEntity::getGroupIndex))
+                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                        .eq(TournamentGroupEntity::getGroupId, groupId)
+                        .orderByAsc(TournamentGroupEntity::getGroupIndex))
                 .forEach(tournamentGroupEntity -> groupIndexMap.put(tournamentGroupEntity.getGroupIndex(), tournamentGroupEntity.getEntry()));
         if (CollectionUtils.isEmpty(groupIndexMap)) {
             return;
@@ -742,36 +739,37 @@ public class TournamentServiceImpl implements ITournamentService {
                 .stream()
                 .collect(Collectors.toMap(EntryInfoEntity::getEntry, o -> o));
         entryList.parallelStream().forEach(entry -> {
-            Optional<EntryRes> entryRes = this.staticService.getEntry(entry);
-            entryRes.ifPresent(o -> {
-                if (!entryInfoMap.containsKey(entry)) {
-                    insertEntryInfoList.add(new EntryInfoEntity()
-                            .setEntry(entry)
-                            .setEntryName(o.getName())
-                            .setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
-                            .setRegion(o.getPlayerRegionName())
-                            .setStartedEvent(o.getStartedEvent())
-                            .setOverallPoints(o.getSummaryOverallPoints())
-                            .setOverallRank(o.getSummaryOverallRank())
-                            .setBank(o.getLastDeadlineBank())
-                            .setTeamValue(o.getLastDeadlineValue())
-                            .setTotalTransfers(o.getLastDeadlineTotalTransfers())
-                    );
-                } else {
-                    updateEntryInfoList.add(new EntryInfoEntity()
-                            .setEntry(entry)
-                            .setEntryName(o.getName())
-                            .setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
-                            .setRegion(o.getPlayerRegionName())
-                            .setStartedEvent(o.getStartedEvent())
-                            .setOverallPoints(o.getSummaryOverallPoints())
-                            .setOverallRank(o.getSummaryOverallRank())
-                            .setBank(o.getLastDeadlineBank())
-                            .setTeamValue(o.getLastDeadlineValue())
-                            .setTotalTransfers(o.getLastDeadlineTotalTransfers())
-                    );
-                }
-            });
+            EntryRes entryRes = this.staticService.getEntry(entry);
+            if (entryRes == null) {
+                return;
+            }
+            if (!entryInfoMap.containsKey(entry)) {
+                insertEntryInfoList.add(new EntryInfoEntity()
+                        .setEntry(entry)
+                        .setEntryName(entryRes.getName())
+                        .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+                        .setRegion(entryRes.getPlayerRegionName())
+                        .setStartedEvent(entryRes.getStartedEvent())
+                        .setOverallPoints(entryRes.getSummaryOverallPoints())
+                        .setOverallRank(entryRes.getSummaryOverallRank())
+                        .setBank(entryRes.getLastDeadlineBank())
+                        .setTeamValue(entryRes.getLastDeadlineValue())
+                        .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
+                );
+            } else {
+                updateEntryInfoList.add(new EntryInfoEntity()
+                        .setEntry(entry)
+                        .setEntryName(entryRes.getName())
+                        .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+                        .setRegion(entryRes.getPlayerRegionName())
+                        .setStartedEvent(entryRes.getStartedEvent())
+                        .setOverallPoints(entryRes.getSummaryOverallPoints())
+                        .setOverallRank(entryRes.getSummaryOverallRank())
+                        .setBank(entryRes.getLastDeadlineBank())
+                        .setTeamValue(entryRes.getLastDeadlineValue())
+                        .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
+                );
+            }
         });
         this.entryInfoService.saveBatch(insertEntryInfoList);
         this.entryInfoService.updateBatchById(updateEntryInfoList);
@@ -910,9 +908,9 @@ public class TournamentServiceImpl implements ITournamentService {
         List<Integer> groupList = Lists.newArrayList();
         IntStream.rangeClosed(1, groupNum).forEach(groupList::add);
         this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .in(TournamentGroupEntity::getGroupId, groupList)
-                .eq(TournamentGroupEntity::getGroupIndex, 1))
+                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                        .in(TournamentGroupEntity::getGroupId, groupList)
+                        .eq(TournamentGroupEntity::getGroupIndex, 1))
                 .forEach(o ->
                         zjTournamentResultEntityList.add(new ZjTournamentResultEntity()
                                 .setTournamentId(tournamentId)
@@ -1023,7 +1021,7 @@ public class TournamentServiceImpl implements ITournamentService {
     private List<EntryInfoData> saveTournamentNewEntryInfo(int tournamentId, TournamentInfoEntity tournamentInfoEntity, String leagueType, int leagueId) {
         // tournament_entry
         List<Integer> tournamentEntryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                        .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
@@ -1061,26 +1059,19 @@ public class TournamentServiceImpl implements ITournamentService {
         newEntryInfoList.parallelStream().forEach(entryInfoEntity -> {
             int entry = entryInfoEntity.getEntry();
             EntryInfoEntity newEntryInfoEntity = new EntryInfoEntity().setEntry(entry);
-            Optional<EntryRes> entryRes = this.staticService.getEntry(entry);
-            entryRes.ifPresent(o ->
-                    newEntryInfoEntity
-                            .setEntryName(o.getName())
-                            .setPlayerName(o.getPlayerFirstName() + " " + o.getPlayerLastName())
-                            .setRegion(o.getPlayerRegionName())
-                            .setStartedEvent(o.getStartedEvent())
-                            .setOverallPoints(o.getSummaryOverallPoints())
-                            .setOverallRank(o.getSummaryOverallRank())
-                            .setBank(o.getLastDeadlineBank())
-                            .setTeamValue(o.getLastDeadlineValue())
-                            .setTotalTransfers(o.getLastDeadlineTotalTransfers())
-                            .setLastTeamValue(o.getLastDeadlineValue())
-            );
-            Optional<UserPicksRes> userPicksRes = this.staticService.getUserPicks(this.queryService.getLastEvent(), entry);
-            userPicksRes.ifPresent(o ->
-                    newEntryInfoEntity
-                            .setLastOverallPoints(o.getEntryHistory().getTotalPoints())
-                            .setLastOverallRank(o.getEntryHistory().getOverallRank())
-            );
+            EntryRes entryRes = this.staticService.getEntry(entry);
+            if (entryRes != null) {
+                newEntryInfoEntity
+                        .setEntryName(entryRes.getName())
+                        .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+                        .setRegion(entryRes.getPlayerRegionName())
+                        .setStartedEvent(entryRes.getStartedEvent())
+                        .setOverallPoints(entryRes.getSummaryOverallPoints())
+                        .setOverallRank(entryRes.getSummaryOverallRank())
+                        .setBank(entryRes.getLastDeadlineBank())
+                        .setTeamValue(entryRes.getLastDeadlineValue())
+                        .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+            }
             entryInfoEntityList.add(newEntryInfoEntity);
         });
         this.entryInfoService.saveOrUpdateBatch(entryInfoEntityList);
@@ -1270,8 +1261,8 @@ public class TournamentServiceImpl implements ITournamentService {
         int groupNum = tournamentInfoEntity.getGroupNum();
         // group tournament rank
         List<Integer> groupRankList = this.zjTournamentResultService.list(new QueryWrapper<ZjTournamentResultEntity>().lambda()
-                .eq(ZjTournamentResultEntity::getTournamentId, tournamentId)
-                .orderByAsc(ZjTournamentResultEntity::getTournamentRank))
+                        .eq(ZjTournamentResultEntity::getTournamentId, tournamentId)
+                        .orderByAsc(ZjTournamentResultEntity::getTournamentRank))
                 .stream()
                 .map(ZjTournamentResultEntity::getGroupId)
                 .collect(Collectors.toList());

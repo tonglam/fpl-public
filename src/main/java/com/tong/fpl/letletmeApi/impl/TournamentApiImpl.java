@@ -1,7 +1,7 @@
 package com.tong.fpl.letletmeApi.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.tong.fpl.domain.letletme.entry.EntryEventCupData;
+import com.tong.fpl.domain.letletme.entry.EntryCupData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.global.StepsData;
@@ -92,7 +92,7 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     @Override
-    public TableData<EntryEventCupData> qryPageEntryEventCupResult(int entry, int page, int limit) {
+    public TableData<EntryCupData> qryPageEntryEventCupResult(int entry, int page, int limit) {
         return this.tableQueryService.qryPageEntryEventCupResult(entry, page, limit);
     }
 

@@ -1,5 +1,8 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.StaticRes;
+
 import java.util.List;
 
 /**
@@ -16,13 +19,13 @@ public interface IEventDataService {
     /**
      * @apiNote daily
      */
-    void updateEventData();
+    void updateEventData(StaticRes staticRes);
 
-    void updatePlayerData();
+    void updatePlayerData(StaticRes staticRes);
 
-    void updateEntryInfo(List<Integer> entryList);
+    void updateEntryInfo(EntryRes entryRes);
 
-    void updateEntryInfoByEntry(int entry);
+    void updateEntryInfoByList(List<Integer> entryList);
 
     /**
      * @apiNote after deadline

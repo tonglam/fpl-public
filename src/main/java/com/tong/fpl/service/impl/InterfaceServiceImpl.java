@@ -22,6 +22,40 @@ import java.util.Optional;
 public class InterfaceServiceImpl implements IInterfaceService {
 
     @Override
+    public Optional<StaticRes> getBootstrapStatic() {
+        try {
+            HttpCallLog.info("start get bootstrap_static from server!");
+            long start = System.currentTimeMillis();
+            String result = HttpUtils.httpGet(Constant.BOOTSTRAP_STATIC).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get bootstrap_static from server, escape:{} s!", (end - start) / 1000);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            return Optional.of(mapper.readValue(result, StaticRes.class));
+        } catch (IOException e) {
+            HttpCallLog.error("get bootstrap_static error:{}", e.getMessage());
+            return this.getWangBootstrapStatic();
+        }
+    }
+
+    @Override
+    public Optional<StaticRes> getWangBootstrapStatic() {
+        try {
+            HttpCallLog.info("start get wang_bootstrap_static from server!");
+            long start = System.currentTimeMillis();
+            String result = HttpUtils.httpGet(Constant.WANG_BOOTSTRAP_STATIC).orElse("");
+            long end = System.currentTimeMillis();
+            HttpCallLog.info("get wang_bootstrap_static from server, escape:{} s!", (end - start) / 1000);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            return Optional.of(mapper.readValue(result, StaticRes.class));
+        } catch (IOException e) {
+            HttpCallLog.error("get wang_bootstrap_static error:{}", e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<EntryRes> getEntry(int entry) {
         try {
             HttpCallLog.info("start get entry from server!");
@@ -196,41 +230,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
-    public Optional<StaticRes> getBootstrapStatic() {
-        try {
-            HttpCallLog.info("start get bootstrap_static from server!");
-            long start = System.currentTimeMillis();
-            String result = HttpUtils.httpGet(Constant.BOOTSTRAP_STATIC).orElse("");
-            long end = System.currentTimeMillis();
-            HttpCallLog.info("get bootstrap_static from server, escape:{} s!", (end - start) / 1000);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            return Optional.of(mapper.readValue(result, StaticRes.class));
-        } catch (IOException e) {
-            HttpCallLog.error("get bootstrap_static error:{}", e.getMessage());
-            return this.getWangBootstrapStatic();
-        }
-    }
-
-    @Override
-    public Optional<StaticRes> getWangBootstrapStatic() {
-        try {
-            HttpCallLog.info("start get wang_bootstrap_static from server!");
-            long start = System.currentTimeMillis();
-            String result = HttpUtils.httpGet(Constant.WANG_BOOTSTRAP_STATIC).orElse("");
-            long end = System.currentTimeMillis();
-            HttpCallLog.info("get wang_bootstrap_static from server, escape:{} s!", (end - start) / 1000);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            return Optional.of(mapper.readValue(result, StaticRes.class));
-        } catch (IOException e) {
-            HttpCallLog.error("get wang_bootstrap_static error:{}", e.getMessage());
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<List<TransferRes>> getTransfer(int entry) {
+    public Optional<List<UserTransfersRes>> getUserTransfers(int entry) {
         try {
             HttpCallLog.info("start get transfer from server!");
             long start = System.currentTimeMillis();
@@ -239,7 +239,7 @@ public class InterfaceServiceImpl implements IInterfaceService {
             HttpCallLog.info("get transfer from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            return Optional.of(mapper.readValue(result, new TypeReference<List<TransferRes>>() {
+            return Optional.of(mapper.readValue(result, new TypeReference<List<UserTransfersRes>>() {
             }));
         } catch (IOException e) {
             HttpCallLog.error("entry:{}, get transfer error:{}", entry, e.getMessage());

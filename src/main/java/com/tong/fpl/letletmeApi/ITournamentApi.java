@@ -1,6 +1,6 @@
 package com.tong.fpl.letletmeApi;
 
-import com.tong.fpl.domain.letletme.entry.EntryEventCupData;
+import com.tong.fpl.domain.letletme.entry.EntryCupData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.global.StepsData;
@@ -47,7 +47,7 @@ public interface ITournamentApi {
 
     TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
 
-    TableData<EntryEventCupData> qryPageEntryEventCupResult(int entry, int page, int limit);
+    TableData<EntryCupData> qryPageEntryEventCupResult(int entry, int page, int limit);
 
     KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
 

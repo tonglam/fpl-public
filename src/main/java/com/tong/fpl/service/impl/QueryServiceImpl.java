@@ -11,7 +11,7 @@ import com.tong.fpl.config.collector.PlayerPickDataCollector;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.*;
-import com.tong.fpl.domain.data.response.*;
+import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
@@ -147,12 +147,6 @@ public class QueryServiceImpl implements IQueryService {
                 .eq(PlayerEntity::getCode, code));
         MybatisPlusConfig.season.remove();
         return playerEntity == null ? 0 : playerEntity.getElement();
-    }
-
-    @Override
-    public int qryPlayerPriceByElement(int element) {
-        PlayerEntity playerEntity = this.getPlayerByElement(element);
-        return playerEntity == null ? 0 : playerEntity.getPrice();
     }
 
     @Cacheable(
@@ -519,7 +513,7 @@ public class QueryServiceImpl implements IQueryService {
         if (!StringUtils.equals(CommonUtils.getCurrentSeason(), season)) {
             return new EntryInfoData();
         }
-        EntryRes entryRes = this.getEntry(entry);
+        EntryRes entryRes = this.staticService.getEntry(entry);
         if (entryRes == null) {
             return new EntryInfoData();
         }
@@ -537,50 +531,6 @@ public class QueryServiceImpl implements IQueryService {
     }
 
     @Cacheable(
-            value = "getEntry",
-            key = "#entry",
-            unless = "#result.id eq 0"
-    )
-    @Override
-    public EntryRes getEntry(int entry) {
-        return this.staticService.getEntry(entry).orElse(null);
-    }
-
-    @Cacheable(
-            value = "getEntryCup",
-            key = "#entry",
-            unless = "#result.cupMatches.size() eq 0"
-    )
-    @Override
-    public EntryCupRes getEntryCup(int entry) {
-        return this.staticService.getEntryCup(entry).orElse(null);
-    }
-
-    @Cacheable(
-            value = "getUserPicks",
-            key = "#event+'::'+#entry",
-            unless = "#result.entry eq 0"
-    )
-    @Override
-    public UserPicksRes getUserPicks(int event, int entry) {
-        UserPicksRes userPicksRes = this.staticService.getUserPicks(event, entry).orElse(null);
-        if (userPicksRes != null) {
-            userPicksRes.setEntry(entry);
-        }
-        return userPicksRes;
-    }
-
-    @Cacheable(
-            value = "getUserHistory",
-            key = "#entry",
-            unless = "#result.current.size() eq 0"
-    )
-    @Override
-    public UserHistoryRes getUserHistory(int entry) {
-        return this.staticService.getUserHistory(entry).orElse(null);
-    }
-
-    @Cacheable(
             value = "qryEntryTournamentEntryList",
             key = "#entry",
             unless = "#result.size() eq 0"
@@ -595,37 +545,9 @@ public class QueryServiceImpl implements IQueryService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(
-            value = "getTransfer",
-            key = "#entry",
-            unless = "#result.size() eq 0"
-    )
-    @Override
-    public List<TransferRes> getTransfer(int entry) {
-        return this.staticService.getTransfer(entry).orElse(null);
-    }
-
     /**
      * @implNote event
      */
-    // do not cache
-    @Override
-    public StaticRes getBootstrapStatic() {
-        return this.staticService.getBootstrapStatic().orElse(null);
-    }
-
-    // do not cache
-    @Override
-    public EventLiveRes getEventLive(int event) {
-        return this.staticService.getEventLive(event).orElse(null);
-    }
-
-    // do not cache
-    @Override
-    public List<EventFixturesRes> getEventFixture(int event) {
-        return this.staticService.getEventFixture(event).orElse(null);
-    }
-
     @Cacheable(
             value = "getCurrentEvent",
             unless = "#result eq 0"

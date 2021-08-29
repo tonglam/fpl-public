@@ -22,6 +22,7 @@ import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.db.EntryEventPickService;
 import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EntryInfoService;
@@ -49,6 +50,7 @@ import java.util.stream.Stream;
 public class LiveServiceImpl implements ILiveService {
 
     private final IQueryService queryService;
+    private final IStaticService staticService;
     private final EntryInfoService entryInfoService;
     private final EntryEventPickService entryEventPickService;
     private final EntryEventResultService entryEventResultService;
@@ -73,8 +75,7 @@ public class LiveServiceImpl implements ILiveService {
             liveCalcData
                     .setValue(entryInfoData.getTeamValue() / 10.0)
                     .setBank(entryInfoData.getBank() / 10.0)
-                    .setTeamValue((entryInfoData.getTeamValue() - entryInfoData.getBank()) / 10.0)
-                    .setLastValue(entryInfoData.getLastTeamValue() / 10.0);
+                    .setTeamValue((entryInfoData.getTeamValue() - entryInfoData.getBank()) / 10.0);
         }
         // entry result
         EntryEventResultEntity lastEntryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
@@ -372,7 +373,7 @@ public class LiveServiceImpl implements ILiveService {
                     .eq(EntryEventPickEntity::getEntry, entry));
             if (entryEventPickEntity == null) {
                 // from fpl server
-                UserPicksRes userPicksRes = this.queryService.getUserPicks(event, entry);
+                UserPicksRes userPicksRes = this.staticService.getUserPicks(event, entry);
                 if (userPicksRes == null || CollectionUtils.isEmpty(userPicksRes.getPicks())) {
                     return null;
                 }

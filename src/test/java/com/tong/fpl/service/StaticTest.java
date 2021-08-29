@@ -3,7 +3,7 @@ package com.tong.fpl.service;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.data.entry.Match;
 import com.tong.fpl.domain.data.response.EntryRes;
-import com.tong.fpl.domain.data.response.TransferRes;
+import com.tong.fpl.domain.data.response.UserTransfersRes;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Create by tong on 2020/1/20
@@ -61,14 +60,14 @@ public class StaticTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"1870"})
     void getTransfer(int entry) {
-        Optional<List<TransferRes>> a = this.staticSerive.getTransfer(entry);
+        List<UserTransfersRes> a = this.staticSerive.getUserTransfers(entry);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"1870"})
     void getEntry(int entry) {
-        Optional<EntryRes> a = this.staticSerive.getEntry(entry);
+        EntryRes a = this.staticSerive.getEntry(entry);
         System.out.println(1);
     }
 
@@ -85,13 +84,11 @@ public class StaticTest extends FplApplicationTests {
     }
 
     private int getNextEntry(int entry) {
-        return this.staticSerive.getEntryCup(entry)
-                .map(entryCupRes -> entryCupRes.getCupMatches()
-                        .stream()
-                        .filter(o -> o.getEvent() <= 37)
-                        .max(Comparator.comparing(Match::getEvent))
-                        .map(Match::getWinner)
-                        .orElse(0))
+        return this.staticSerive.getEntryCup(entry).getCupMatches()
+                .stream()
+                .filter(o -> o.getEvent() <= 37)
+                .max(Comparator.comparing(Match::getEvent))
+                .map(Match::getWinner)
                 .orElse(0);
     }
 

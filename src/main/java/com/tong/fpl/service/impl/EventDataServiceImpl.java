@@ -5,9 +5,9 @@ import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
+import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.domain.data.entry.Match;
 import com.tong.fpl.domain.data.response.*;
-import com.tong.fpl.domain.data.userHistory.Current;
 import com.tong.fpl.domain.data.userpick.AutoSubs;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
@@ -15,10 +15,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutNextRoundData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
-import com.tong.fpl.service.IEventDataService;
-import com.tong.fpl.service.IQueryService;
-import com.tong.fpl.service.IRedisCacheService;
-import com.tong.fpl.service.IReportService;
+import com.tong.fpl.service.*;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
@@ -32,6 +29,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -44,13 +42,15 @@ import java.util.stream.IntStream;
 public class EventDataServiceImpl implements IEventDataService {
 
     private final IQueryService queryService;
+    private final IStaticService staticService;
     private final IRedisCacheService redisCacheService;
     private final IReportService reportService;
+    private final EntryInfoService entryInfoService;
+    private final EntryLeagueInfoService entryLeagueInfoService;
+    private final EntryCupResultService entryCupResultService;
     private final EntryEventResultService entryEventResultService;
-    private final EntryEventCupResultService entryEventCupResultService;
     private final EntryEventPickService entryEventPickService;
     private final EntryEventTransfersService entryEventTransferService;
-    private final EntryInfoService entryInfoService;
     private final TournamentEntryService tournamentEntryService;
     private final TournamentGroupService tournamentGroupService;
     private final TournamentPointsGroupResultService tournamentPointsGroupResultService;
@@ -63,8 +63,7 @@ public class EventDataServiceImpl implements IEventDataService {
      * @implNote daily
      */
     @Override
-    public void updateEventData() {
-        StaticRes staticRes = this.queryService.getBootstrapStatic();
+    public void updateEventData(StaticRes staticRes) {
         if (staticRes == null) {
             return;
         }
@@ -73,8 +72,7 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     @Override
-    public void updatePlayerData() {
-        StaticRes staticRes = this.queryService.getBootstrapStatic();
+    public void updatePlayerData(StaticRes staticRes) {
         if (staticRes == null) {
             return;
         }
@@ -85,18 +83,104 @@ public class EventDataServiceImpl implements IEventDataService {
     }
 
     @Override
-    public void updateEntryInfo(List<Integer> entryList) {
+    public void updateEntryInfo(EntryRes entryRes) {
+        // entry
+        if (entryRes == null) {
+            return;
+        }
+        int entry = entryRes.getId();
+        EntryInfoEntity entryInfoEntity = new EntryInfoEntity()
+                .setEntryName(entryRes.getName())
+                .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+                .setOverallPoints(entryRes.getSummaryOverallPoints())
+                .setOverallRank(entryRes.getSummaryOverallRank())
+                .setBank(entryRes.getLastDeadlineBank())
+                .setTeamValue(entryRes.getLastDeadlineValue())
+                .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+        // entry_info
+        EntryInfoEntity entryInfo = this.entryInfoService.getById(entry);
+        if (entryInfo == null) {
+            this.entryInfoService.save(entryInfoEntity);
+        } else {
+            this.entryInfoService.updateById(entryInfoEntity);
+        }
+        // entry_league_info
+        if (entryRes.getLeagues() == null) {
+            return;
+        }
+        List<EntryLeagueInfoEntity> insertList = Lists.newArrayList();
+        List<EntryLeagueInfoEntity> updateList = Lists.newArrayList();
+        // prepare
+        Map<Integer, EntryLeagueInfoEntity> entryLeagueInfoMap = this.entryLeagueInfoService.list(new QueryWrapper<EntryLeagueInfoEntity>().lambda()
+                        .eq(EntryLeagueInfoEntity::getEntry, entry))
+                .stream()
+                .collect(Collectors.toMap(EntryLeagueInfoEntity::getLeagueId, o -> o));
+        // classic
+        entryRes.getLeagues().getClassic().forEach(o -> {
+            int leagueId = o.getId();
+            EntryLeagueInfoEntity entryLeagueInfoEntity = new EntryLeagueInfoEntity()
+                    .setEntry(entry)
+                    .setLeagueId(leagueId)
+                    .setLeagueType(LeagueType.Classic.name())
+                    .setLeagueName(o.getName())
+                    .setEntryRank(o.getEntryRank())
+                    .setEntryLastRank(o.getEntryLastRank())
+                    .setStartEvent(o.getStartEvent())
+                    .setCreated(o.getCreated());
+            if (!entryLeagueInfoMap.containsKey(leagueId)) {
+                insertList.add(entryLeagueInfoEntity);
+            } else {
+                entryLeagueInfoEntity.setId(entryLeagueInfoMap.get(leagueId).getId());
+                updateList.add(entryLeagueInfoEntity);
+            }
+        });
+        // h2h
+        entryRes.getLeagues().getH2h().forEach(o -> {
+            int leagueId = o.getId();
+            EntryLeagueInfoEntity entryLeagueInfoEntity = new EntryLeagueInfoEntity()
+                    .setEntry(entry)
+                    .setLeagueId(leagueId)
+                    .setLeagueType(LeagueType.H2h.name())
+                    .setLeagueName(o.getName())
+                    .setEntryRank(o.getEntryRank())
+                    .setEntryLastRank(o.getEntryLastRank())
+                    .setStartEvent(o.getStartEvent())
+                    .setCreated(o.getCreated());
+            if (!entryLeagueInfoMap.containsKey(leagueId)) {
+                insertList.add(entryLeagueInfoEntity);
+            } else {
+                entryLeagueInfoEntity.setId(entryLeagueInfoMap.get(leagueId).getId());
+                updateList.add(entryLeagueInfoEntity);
+            }
+        });
+        this.entryLeagueInfoService.saveBatch(insertList);
+        log.info("insert entry league info size:{}!", insertList.size());
+        this.entryLeagueInfoService.updateBatchById(updateList);
+        log.info("update entry league info size:{}!", updateList.size());
+    }
+
+    @Override
+    public void updateEntryInfoByList(List<Integer> entryList) {
         List<EntryInfoEntity> updateEntryInfoList = Lists.newArrayList();
+        List<EntryLeagueInfoEntity> insertLeagueInfoList = Lists.newArrayList();
+        List<EntryLeagueInfoEntity> updateLeagueInfoList = Lists.newArrayList();
         // get entry info list
         List<EntryInfoEntity> entryInfoList = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
                 .in(EntryInfoEntity::getEntry, entryList));
         if (CollectionUtils.isEmpty(entryInfoList)) {
             return;
         }
+        List<CompletableFuture<EntryRes>> future = entryList.stream()
+                .map(o -> CompletableFuture.supplyAsync(() -> this.staticService.getEntry(o), new ForkJoinPool(4)))
+                .collect(Collectors.toList());
+        Map<Integer, EntryRes> entryResMap = future
+                .stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toMap(EntryRes::getId, o -> o));
         entryInfoList.parallelStream().forEach(entryInfoEntity -> {
             int entry = entryInfoEntity.getEntry();
             // entry
-            EntryRes entryRes = this.queryService.getEntry(entry);
+            EntryRes entryRes = entryResMap.get(entry);
             if (entryRes == null) {
                 return;
             }
@@ -107,63 +191,62 @@ public class EventDataServiceImpl implements IEventDataService {
                     .setOverallRank(entryRes.getSummaryOverallRank())
                     .setBank(entryRes.getLastDeadlineBank())
                     .setTeamValue(entryRes.getLastDeadlineValue())
-                    .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
-                    .setLastOverallPoints(entryRes.getSummaryOverallPoints())
-                    .setLastOverallRank(entryRes.getSummaryOverallRank())
-                    .setLastTeamValue(entryRes.getLastDeadlineValue());
-            // user_history
-            Current lastCurrent = this.getUserLastCurrent(entry);
-            entryInfoEntity
-                    .setLastOverallPoints(lastCurrent == null ? 0 : lastCurrent.getTotalPoints())
-                    .setLastOverallRank(lastCurrent == null ? 0 : lastCurrent.getOverallRank())
-                    .setLastTeamValue(lastCurrent == null ? 0 : lastCurrent.getValue());
-            updateEntryInfoList.add(entryInfoEntity);
+                    .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+            // entry_league_info
+            if (entryRes.getLeagues() == null) {
+                return;
+            }
+            // prepare
+            Map<Integer, EntryLeagueInfoEntity> entryLeagueInfoMap = this.entryLeagueInfoService.list(new QueryWrapper<EntryLeagueInfoEntity>().lambda()
+                            .eq(EntryLeagueInfoEntity::getEntry, entry))
+                    .stream()
+                    .collect(Collectors.toMap(EntryLeagueInfoEntity::getLeagueId, o -> o));
+            // classic
+            entryRes.getLeagues().getClassic().forEach(o -> {
+                int leagueId = o.getId();
+                EntryLeagueInfoEntity entryLeagueInfoEntity = new EntryLeagueInfoEntity()
+                        .setEntry(entry)
+                        .setLeagueId(leagueId)
+                        .setLeagueType(LeagueType.Classic.name())
+                        .setLeagueName(o.getName())
+                        .setEntryRank(o.getEntryRank())
+                        .setEntryLastRank(o.getEntryLastRank())
+                        .setStartEvent(o.getStartEvent())
+                        .setCreated(o.getCreated());
+                if (!entryLeagueInfoMap.containsKey(leagueId)) {
+                    insertLeagueInfoList.add(entryLeagueInfoEntity);
+                } else {
+                    entryLeagueInfoEntity.setId(entryLeagueInfoMap.get(leagueId).getId());
+                    updateLeagueInfoList.add(entryLeagueInfoEntity);
+                }
+            });
+            // h2h
+            entryRes.getLeagues().getH2h().forEach(o -> {
+                int leagueId = o.getId();
+                EntryLeagueInfoEntity entryLeagueInfoEntity = new EntryLeagueInfoEntity()
+                        .setEntry(entry)
+                        .setLeagueId(leagueId)
+                        .setLeagueType(LeagueType.H2h.name())
+                        .setLeagueName(o.getName())
+                        .setEntryRank(o.getEntryRank())
+                        .setEntryLastRank(o.getEntryLastRank())
+                        .setStartEvent(o.getStartEvent())
+                        .setCreated(o.getCreated());
+                if (!entryLeagueInfoMap.containsKey(leagueId)) {
+                    insertLeagueInfoList.add(entryLeagueInfoEntity);
+                } else {
+                    entryLeagueInfoEntity.setId(entryLeagueInfoMap.get(leagueId).getId());
+                    updateLeagueInfoList.add(entryLeagueInfoEntity);
+                }
+            });
         });
         // update
         this.entryInfoService.updateBatchById(updateEntryInfoList);
         log.info("update entry info size:{}!", updateEntryInfoList.size());
-    }
-
-    private Current getUserLastCurrent(int entry) {
-        UserHistoryRes userHistoryRes = this.queryService.getUserHistory(entry);
-        if (userHistoryRes == null) {
-            return null;
-        }
-        int lastEvent = this.queryService.getLastEvent();
-        return userHistoryRes.getCurrent()
-                .stream()
-                .filter(o -> o.getEvent() == lastEvent)
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public void updateEntryInfoByEntry(int entry) {
-        EntryInfoEntity entryInfoEntity = this.entryInfoService.getById(entry);
-        // entry
-        EntryRes entryRes = this.queryService.getEntry(entry);
-        if (entryRes == null) {
-            return;
-        }
-        entryInfoEntity
-                .setEntryName(entryRes.getName())
-                .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
-                .setOverallPoints(entryRes.getSummaryOverallPoints())
-                .setOverallRank(entryRes.getSummaryOverallRank())
-                .setBank(entryRes.getLastDeadlineBank())
-                .setTeamValue(entryRes.getLastDeadlineValue())
-                .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
-                .setLastOverallPoints(entryRes.getSummaryOverallPoints())
-                .setLastOverallRank(entryRes.getSummaryOverallRank())
-                .setLastTeamValue(entryRes.getLastDeadlineValue());
-        // user_history
-        Current lastCurrent = this.getUserLastCurrent(entry);
-        entryInfoEntity
-                .setLastOverallPoints(lastCurrent == null ? 0 : lastCurrent.getTotalPoints())
-                .setLastOverallRank(lastCurrent == null ? 0 : lastCurrent.getOverallRank())
-                .setLastTeamValue(lastCurrent == null ? 0 : lastCurrent.getValue());
-        // update
-        this.entryInfoService.updateById(entryInfoEntity);
+        this.entryLeagueInfoService.saveBatch(insertLeagueInfoList);
+        log.info("insert entry league info size:{}!", insertLeagueInfoList.size());
+        this.entryLeagueInfoService.updateBatchById(updateLeagueInfoList);
+        log.info("update entry league info size:{}!", updateLeagueInfoList.size());
     }
 
     /**
@@ -179,7 +262,7 @@ public class EventDataServiceImpl implements IEventDataService {
                 .eq(EntryEventPickEntity::getEvent, event)) > 0) {
             return;
         }
-        UserPicksRes userPicksRes = this.queryService.getUserPicks(event, entry);
+        UserPicksRes userPicksRes = this.staticService.getUserPicks(event, entry);
         if (userPicksRes == null || CollectionUtils.isEmpty(userPicksRes.getPicks())) {
             return;
         }
@@ -190,7 +273,7 @@ public class EventDataServiceImpl implements IEventDataService {
         if (entry <= 0) {
             return null;
         }
-        UserPicksRes userPicksRes = this.queryService.getUserPicks(event, entry);
+        UserPicksRes userPicksRes = this.staticService.getUserPicks(event, entry);
         if (userPicksRes == null || CollectionUtils.isEmpty(userPicksRes.getPicks())) {
             tryTimes++;
             if (tryTimes >= 5) {
@@ -214,8 +297,8 @@ public class EventDataServiceImpl implements IEventDataService {
     public void insertEventPickByEntryList(int event, List<Integer> entryList) {
         // init
         List<Integer> existsList = this.entryEventPickService.list(new QueryWrapper<EntryEventPickEntity>().lambda()
-                .eq(EntryEventPickEntity::getEvent, event)
-                .in(EntryEventPickEntity::getEntry, entryList))
+                        .eq(EntryEventPickEntity::getEvent, event)
+                        .in(EntryEventPickEntity::getEntry, entryList))
                 .stream()
                 .map(EntryEventPickEntity::getEntry)
                 .collect(Collectors.toList());
@@ -242,7 +325,7 @@ public class EventDataServiceImpl implements IEventDataService {
         if (entry <= 0) {
             return;
         }
-        List<TransferRes> transferResList = this.queryService.getTransfer(entry);
+        List<UserTransfersRes> transferResList = this.staticService.getUserTransfers(entry);
         if (CollectionUtils.isEmpty(transferResList)) {
             return;
         }
@@ -254,7 +337,7 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         // insert or update
         Map<String, EntryEventTransfersEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
-                .eq(EntryEventTransfersEntity::getEntry, entry))
+                        .eq(EntryEventTransfersEntity::getEntry, entry))
                 .stream()
                 .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEvent(), k.getEntry(), k.getElementIn(), k.getElementOut(), k.getTime()), o -> o));
         entryEventTransferList.forEach(o -> {
@@ -268,7 +351,7 @@ public class EventDataServiceImpl implements IEventDataService {
     @Override
     public void insertEventTransfersByEntryList(List<Integer> entryList) {
         Map<String, EntryEventTransfersEntity> entryEventTransferMap = this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
-                .in(EntryEventTransfersEntity::getEntry, entryList))
+                        .in(EntryEventTransfersEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEvent(), k.getEntry(), k.getElementIn(), k.getElementOut(), k.getTime()), o -> o));
         // upsert entry_event_transfer
@@ -277,7 +360,7 @@ public class EventDataServiceImpl implements IEventDataService {
             if (entry <= 0) {
                 return;
             }
-            List<TransferRes> transferResList = this.queryService.getTransfer(entry);
+            List<UserTransfersRes> transferResList = this.staticService.getUserTransfers(entry);
             if (CollectionUtils.isEmpty(transferResList)) {
                 return;
             }
@@ -300,12 +383,12 @@ public class EventDataServiceImpl implements IEventDataService {
         if (entry < 0) {
             return;
         }
-        if (this.entryEventCupResultService.count(new QueryWrapper<EntryEventCupResultEntity>().lambda()
-                .eq(EntryEventCupResultEntity::getEvent, event)
-                .eq(EntryEventCupResultEntity::getEntry, entry)) > 0) {
+        if (this.entryCupResultService.count(new QueryWrapper<EntryCupResultEntity>().lambda()
+                .eq(EntryCupResultEntity::getEvent, event)
+                .eq(EntryCupResultEntity::getEntry, entry)) > 0) {
             return;
         }
-        EntryCupRes entryCupRes = this.queryService.getEntryCup(entry);
+        EntryCupRes entryCupRes = this.staticService.getEntryCup(entry);
         if (entryCupRes == null) {
             return;
         }
@@ -318,7 +401,7 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         // entry_event_cup_result
-        EntryEventCupResultEntity entryEventCupResult = new EntryEventCupResultEntity()
+        EntryCupResultEntity entryEventCupResult = new EntryCupResultEntity()
                 .setEvent(event)
                 .setEntry(entry)
                 .setEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Name() : cupMatch.getEntry2Name())
@@ -337,21 +420,21 @@ public class EventDataServiceImpl implements IEventDataService {
         } else {
             entryEventCupResult.setResult("Lose");
         }
-        this.entryEventCupResultService.save(entryEventCupResult);
+        this.entryCupResultService.save(entryEventCupResult);
     }
 
     @Override
     public void insertEventCupResultByEntryList(int event, List<Integer> entryList) {
         // get entry_list
-        if (this.entryEventCupResultService.count(new QueryWrapper<EntryEventCupResultEntity>().lambda()
-                .eq(EntryEventCupResultEntity::getEvent, event)
-                .in(EntryEventCupResultEntity::getEntry, entryList)) > 0) {
+        if (this.entryCupResultService.count(new QueryWrapper<EntryCupResultEntity>().lambda()
+                .eq(EntryCupResultEntity::getEvent, event)
+                .in(EntryCupResultEntity::getEntry, entryList)) > 0) {
             return;
         }
         // upsert entry_event_result
-        List<EntryEventCupResultEntity> insertEventCupResultList = Lists.newArrayList();
+        List<EntryCupResultEntity> insertEventCupResultList = Lists.newArrayList();
         entryList.forEach(entry -> {
-            EntryCupRes entryCupRes = this.queryService.getEntryCup(entry);
+            EntryCupRes entryCupRes = this.staticService.getEntryCup(entry);
             if (entryCupRes == null) {
                 return;
             }
@@ -364,7 +447,7 @@ public class EventDataServiceImpl implements IEventDataService {
                 return;
             }
             // entry_event_cup_result
-            EntryEventCupResultEntity entryEventCupResult = new EntryEventCupResultEntity()
+            EntryCupResultEntity entryEventCupResult = new EntryCupResultEntity()
                     .setEvent(event)
                     .setEntry(entry)
                     .setEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Name() : cupMatch.getEntry2Name())
@@ -384,7 +467,7 @@ public class EventDataServiceImpl implements IEventDataService {
                 entryEventCupResult.setResult("Lose");
             }
         });
-        this.entryEventCupResultService.saveBatch(insertEventCupResultList);
+        this.entryCupResultService.saveBatch(insertEventCupResultList);
         log.info("event:{}, insert tournament entry event cup result size:{}!", event, insertEventCupResultList.size());
     }
 
@@ -394,10 +477,10 @@ public class EventDataServiceImpl implements IEventDataService {
 
     @Override
     public void updateEventLiveData(int event) {
-        this.redisCacheService.insertSingleEventFixture(event, this.queryService.getEventFixture(event));
+        this.redisCacheService.insertSingleEventFixture(event, this.staticService.getEventFixture(event));
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
-        this.redisCacheService.insertEventLive(event, this.queryService.getEventLive(event));
+        this.redisCacheService.insertEventLive(event, this.staticService.getEventLive(event));
     }
 
     @Override
@@ -405,7 +488,7 @@ public class EventDataServiceImpl implements IEventDataService {
         if (entry <= 0) {
             return;
         }
-        UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
+        UserPicksRes userPick = this.staticService.getUserPicks(event, entry);
         if (userPick == null) {
             return;
         }
@@ -437,8 +520,8 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // get event_live
@@ -451,7 +534,7 @@ public class EventDataServiceImpl implements IEventDataService {
             if (entry <= 0) {
                 return;
             }
-            UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
+            UserPicksRes userPick = this.staticService.getUserPicks(event, entry);
             if (userPick == null) {
                 return;
             }
@@ -476,8 +559,8 @@ public class EventDataServiceImpl implements IEventDataService {
     public void upsertEventResultByEntryList(int event, List<Integer> entryList) {
         // get entry_list
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // get event_live
@@ -490,7 +573,7 @@ public class EventDataServiceImpl implements IEventDataService {
             if (entry <= 0) {
                 return;
             }
-            UserPicksRes userPick = this.queryService.getUserPicks(event, entry);
+            UserPicksRes userPick = this.staticService.getUserPicks(event, entry);
             if (userPick == null) {
                 return;
             }
@@ -569,13 +652,13 @@ public class EventDataServiceImpl implements IEventDataService {
     private String setUserPicks(List<Pick> picks, Map<Integer, Integer> elementPointsMap) {
         List<EntryPickData> pickList = Lists.newArrayList();
         picks.forEach(o -> pickList.add(
-                new EntryPickData()
-                        .setElement(o.getElement())
-                        .setPosition(o.getPosition())
-                        .setMultiplier(o.getMultiplier())
-                        .setCaptain(o.isCaptain())
-                        .setViceCaptain(o.isViceCaptain())
-                        .setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
+                        new EntryPickData()
+                                .setElement(o.getElement())
+                                .setPosition(o.getPosition())
+                                .setMultiplier(o.getMultiplier())
+                                .setCaptain(o.isCaptain())
+                                .setViceCaptain(o.isViceCaptain())
+                                .setPoints(elementPointsMap.getOrDefault(o.getElement(), 0))
                 )
         );
         return JsonUtils.obj2json(pickList);
@@ -587,11 +670,11 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         List<EntryEventAutoSubsData> autoSubList = Lists.newArrayList();
         autoSubs.forEach(o -> autoSubList.add(
-                new EntryEventAutoSubsData()
-                        .setElementIn(o.getElementIn())
-                        .setElementInPoints(elementPointsMap.getOrDefault(o.getElementIn(), 0))
-                        .setElementOut(o.getElementOut())
-                        .setElementOutPoints(elementPointsMap.getOrDefault(o.getElementOut(), 0))
+                        new EntryEventAutoSubsData()
+                                .setElementIn(o.getElementIn())
+                                .setElementInPoints(elementPointsMap.getOrDefault(o.getElementIn(), 0))
+                                .setElementOut(o.getElementOut())
+                                .setElementOutPoints(elementPointsMap.getOrDefault(o.getElementOut(), 0))
                 )
         );
         return JsonUtils.obj2json(autoSubList);
@@ -639,7 +722,7 @@ public class EventDataServiceImpl implements IEventDataService {
         this.entryEventTransferService.updateBatchById(list);
     }
 
-    private List<EntryEventTransfersEntity> getEntryEventTransfer(List<TransferRes> transferResList) {
+    private List<EntryEventTransfersEntity> getEntryEventTransfer(List<UserTransfersRes> transferResList) {
         List<EntryEventTransfersEntity> list = Lists.newArrayList();
         transferResList.forEach(o ->
                 list.add(
@@ -663,8 +746,8 @@ public class EventDataServiceImpl implements IEventDataService {
     public void updateEventTransfersByEntryList(int event, List<Integer> entryList) {
         // get entry_list
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         if (CollectionUtils.isEmpty(entryEventResultMap)) {
@@ -678,8 +761,8 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         Multimap<Integer, EntryEventTransfersEntity> entryEventTransferMap = HashMultimap.create();
         this.entryEventTransferService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
-                .eq(EntryEventTransfersEntity::getEvent, event)
-                .in(EntryEventTransfersEntity::getEntry, entryList))
+                        .eq(EntryEventTransfersEntity::getEvent, event)
+                        .in(EntryEventTransfersEntity::getEntry, entryList))
                 .forEach(o -> entryEventTransferMap.put(o.getEntry(), o));
         if (entryEventTransferMap.size() == 0) {
             return;
@@ -719,7 +802,7 @@ public class EventDataServiceImpl implements IEventDataService {
         if (entry < 0) {
             return;
         }
-        EntryCupRes entryCupRes = this.queryService.getEntryCup(entry);
+        EntryCupRes entryCupRes = this.staticService.getEntryCup(entry);
         if (entryCupRes == null) {
             return;
         }
@@ -732,9 +815,9 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         // entry_event_cup_result
-        EntryEventCupResultEntity entryEventCupResult = this.entryEventCupResultService.getOne(new QueryWrapper<EntryEventCupResultEntity>().lambda()
-                .eq(EntryEventCupResultEntity::getEvent, event)
-                .eq(EntryEventCupResultEntity::getEntry, entry))
+        EntryCupResultEntity entryEventCupResult = this.entryCupResultService.getOne(new QueryWrapper<EntryCupResultEntity>().lambda()
+                        .eq(EntryCupResultEntity::getEvent, event)
+                        .eq(EntryCupResultEntity::getEntry, entry))
                 .setEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Name() : cupMatch.getEntry2Name())
                 .setPlayerName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1PlayerName() : cupMatch.getEntry2PlayerName())
                 .setEventPoints(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Points() : cupMatch.getEntry2Points())
@@ -751,21 +834,21 @@ public class EventDataServiceImpl implements IEventDataService {
         } else {
             entryEventCupResult.setResult("Lose");
         }
-        this.entryEventCupResultService.updateById(entryEventCupResult);
+        this.entryCupResultService.updateById(entryEventCupResult);
     }
 
     @Override
     public void upsertEventCupResultByEntryList(int event, List<Integer> entryList) {
         // get entry_list
-        Map<Integer, EntryEventCupResultEntity> entryEventCupResultMap = this.entryEventCupResultService.list(new QueryWrapper<EntryEventCupResultEntity>().lambda()
-                .eq(EntryEventCupResultEntity::getEvent, event)
-                .in(EntryEventCupResultEntity::getEntry, entryList))
+        Map<Integer, EntryCupResultEntity> entryEventCupResultMap = this.entryCupResultService.list(new QueryWrapper<EntryCupResultEntity>().lambda()
+                        .eq(EntryCupResultEntity::getEvent, event)
+                        .in(EntryCupResultEntity::getEntry, entryList))
                 .stream()
-                .collect(Collectors.toMap(EntryEventCupResultEntity::getEntry, o -> o));
+                .collect(Collectors.toMap(EntryCupResultEntity::getEntry, o -> o));
         // upsert entry_event_result
-        List<EntryEventCupResultEntity> updateEventCupResultList = Lists.newArrayList();
+        List<EntryCupResultEntity> updateEventCupResultList = Lists.newArrayList();
         entryList.forEach(entry -> {
-            EntryCupRes entryCupRes = this.queryService.getEntryCup(entry);
+            EntryCupRes entryCupRes = this.staticService.getEntryCup(entry);
             if (entryCupRes == null) {
                 return;
             }
@@ -778,7 +861,7 @@ public class EventDataServiceImpl implements IEventDataService {
                 return;
             }
             // entry_event_cup_result
-            EntryEventCupResultEntity entryEventCupResult = entryEventCupResultMap.get(entry)
+            EntryCupResultEntity entryEventCupResult = entryEventCupResultMap.get(entry)
                     .setEntryName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Name() : cupMatch.getEntry2Name())
                     .setPlayerName(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1PlayerName() : cupMatch.getEntry2PlayerName())
                     .setEventPoints(entry == cupMatch.getEntry1Entry() ? cupMatch.getEntry1Points() : cupMatch.getEntry2Points())
@@ -797,7 +880,7 @@ public class EventDataServiceImpl implements IEventDataService {
             }
             updateEventCupResultList.add(entryEventCupResult);
         });
-        this.entryEventCupResultService.updateBatchById(updateEventCupResultList);
+        this.entryCupResultService.updateBatchById(updateEventCupResultList);
         log.info("event:{}, update tournament entry event cup result size:{}!", event, updateEventCupResultList.size());
     }
 
@@ -837,8 +920,8 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
-                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentPointsGroupResultEntity::getEvent, event))
+                        .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentPointsGroupResultEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(TournamentPointsGroupResultEntity::getEntry, o -> o));
         // update tournament_group and tournament_group_result
@@ -893,8 +976,8 @@ public class EventDataServiceImpl implements IEventDataService {
 
     private Map<Integer, EntryEventResultEntity> getEntryEventResultByEvent(int event, List<Integer> entryList) {
         return this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
     }
@@ -937,9 +1020,9 @@ public class EventDataServiceImpl implements IEventDataService {
         List<TournamentBattleGroupResultEntity> tournamentBattleGroupResultList = Lists.newArrayList();
         Table<Integer, Integer, Integer> battleResultTable = HashBasedTable.create(); // groupId -> entry -> matchPoints
         this.tournamentBattleGroupResultService.list(new QueryWrapper<TournamentBattleGroupResultEntity>()
-                .lambda()
-                .eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentBattleGroupResultEntity::getEvent, event))
+                        .lambda()
+                        .eq(TournamentBattleGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentBattleGroupResultEntity::getEvent, event))
                 .forEach(groupBattleResult -> {
                     int homeEntry = groupBattleResult.getHomeEntry();
                     int awayEntry = groupBattleResult.getAwayEntry();
@@ -1168,9 +1251,9 @@ public class EventDataServiceImpl implements IEventDataService {
         Multimap<Integer, TournamentKnockoutResultData> knockoutResultDataMap = HashMultimap.create();
         // tournament_knockout_result
         this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutResultEntity::getEvent, event)
-                .orderByAsc(TournamentKnockoutResultEntity::getMatchId))
+                        .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutResultEntity::getEvent, event)
+                        .orderByAsc(TournamentKnockoutResultEntity::getMatchId))
                 .forEach(knockoutResult -> {
                     int homeEntry = knockoutResult.getHomeEntry();
                     int awayEntry = knockoutResult.getAwayEntry();
@@ -1202,9 +1285,9 @@ public class EventDataServiceImpl implements IEventDataService {
         // next_match_id -> tournament_knockout_result data
         Map<Integer, TournamentKnockoutNextRoundData> nextKnockoutMap = Maps.newHashMap();
         Map<Integer, TournamentKnockoutEntity> knockoutMap = this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutEntity::getEndGw, event)
-                .orderByAsc(TournamentKnockoutEntity::getMatchId))
+                        .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutEntity::getEndGw, event)
+                        .orderByAsc(TournamentKnockoutEntity::getMatchId))
                 .stream()
                 .collect(Collectors.toMap(TournamentKnockoutEntity::getMatchId, v -> v));
         // update by match id
@@ -1243,16 +1326,16 @@ public class EventDataServiceImpl implements IEventDataService {
         // tournament_knockout
         List<TournamentKnockoutEntity> tournamentKnockoutEntityList = Lists.newArrayList();
         this.tournamentKnockoutService.list(new QueryWrapper<TournamentKnockoutEntity>().lambda()
-                .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutEntity::getRound, nextRound))
+                        .eq(TournamentKnockoutEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutEntity::getRound, nextRound))
                 .forEach(knockoutEntity -> tournamentKnockoutEntityList.add(knockoutEntity
                         .setHomeEntry(nextKnockoutMap.get(knockoutEntity.getMatchId()).getNextRoundHomeEntry())
                         .setAwayEntry(nextKnockoutMap.get(knockoutEntity.getMatchId()).getNextRoundAwayEntry())));
         // tournament_knockout_result
         List<TournamentKnockoutResultEntity> tournamentKnockoutResultList = Lists.newArrayList();
         this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .in(TournamentKnockoutResultEntity::getMatchId, nextKnockoutMap.keySet()))
+                        .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+                        .in(TournamentKnockoutResultEntity::getMatchId, nextKnockoutMap.keySet()))
                 .forEach(knockoutResultEntity -> tournamentKnockoutResultList.add(knockoutResultEntity
                         .setHomeEntry(nextKnockoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundHomeEntry())
                         .setAwayEntry(nextKnockoutMap.get(knockoutResultEntity.getMatchId()).getNextRoundAwayEntry())));
@@ -1371,9 +1454,9 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
-                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentPointsGroupResultEntity::getEvent, event)
-                .in(TournamentPointsGroupResultEntity::getGroupId, groupIdList))
+                        .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentPointsGroupResultEntity::getEvent, event)
+                        .in(TournamentPointsGroupResultEntity::getGroupId, groupIdList))
                 .stream()
                 .collect(Collectors.toMap(TournamentPointsGroupResultEntity::getEntry, o -> o));
         // phase one params
@@ -1469,9 +1552,9 @@ public class EventDataServiceImpl implements IEventDataService {
             return;
         }
         Map<Integer, TournamentPointsGroupResultEntity> tournamentPointsGroupResultEntityMap = this.tournamentPointsGroupResultService.list(new QueryWrapper<TournamentPointsGroupResultEntity>().lambda()
-                .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentPointsGroupResultEntity::getEvent, event)
-                .in(TournamentPointsGroupResultEntity::getGroupId, groupIdList))
+                        .eq(TournamentPointsGroupResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentPointsGroupResultEntity::getEvent, event)
+                        .in(TournamentPointsGroupResultEntity::getGroupId, groupIdList))
                 .stream()
                 .collect(Collectors.toMap(TournamentPointsGroupResultEntity::getEntry, o -> o));
         // phase two params
@@ -1622,8 +1705,8 @@ public class EventDataServiceImpl implements IEventDataService {
         Map<Integer, Integer> matchWinnerMap = Maps.newHashMap();
         List<TournamentKnockoutResultEntity> tournamentKnockoutResultList = Lists.newArrayList();
         this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .eq(TournamentKnockoutResultEntity::getEvent, event))
+                        .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+                        .eq(TournamentKnockoutResultEntity::getEvent, event))
                 .forEach(tournamentKnockoutResultEntity -> {
                     int homeEntry = tournamentKnockoutResultEntity.getHomeEntry();
                     int awayEntry = tournamentKnockoutResultEntity.getAwayEntry();
@@ -1664,7 +1747,7 @@ public class EventDataServiceImpl implements IEventDataService {
         }
         // tournament_entry
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                        .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
@@ -1684,18 +1767,18 @@ public class EventDataServiceImpl implements IEventDataService {
         List<Integer> phaseTwoGroupList = Lists.newArrayList();
         IntStream.rangeClosed(groupNum + 1, groupNum + teamPerGroup).forEach(phaseTwoGroupList::add);
         Map<Integer, Integer> phaseTwoResultMap = this.tournamentGroupService.list(new QueryWrapper<TournamentGroupEntity>().lambda()
-                .eq(TournamentGroupEntity::getTournamentId, tournamentId)
-                .gt(TournamentGroupEntity::getEntry, 0)
-                .in(TournamentGroupEntity::getGroupId, phaseTwoGroupList))
+                        .eq(TournamentGroupEntity::getTournamentId, tournamentId)
+                        .gt(TournamentGroupEntity::getEntry, 0)
+                        .in(TournamentGroupEntity::getGroupId, phaseTwoGroupList))
                 .stream()
                 .collect(Collectors.toMap(TournamentGroupEntity::getEntry, TournamentGroupEntity::getTotalNetPoints));
         // pk result
         Map<Integer, Integer> pkResultMap = Maps.newHashMap();
         this.tournamentKnockoutResultService.list(new QueryWrapper<TournamentKnockoutResultEntity>().lambda()
-                .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
-                .gt(TournamentKnockoutResultEntity::getHomeEntry, 0)
-                .gt(TournamentKnockoutResultEntity::getAwayEntry, 0)
-                .gt(TournamentKnockoutResultEntity::getMatchWinner, 0))
+                        .eq(TournamentKnockoutResultEntity::getTournamentId, tournamentId)
+                        .gt(TournamentKnockoutResultEntity::getHomeEntry, 0)
+                        .gt(TournamentKnockoutResultEntity::getAwayEntry, 0)
+                        .gt(TournamentKnockoutResultEntity::getMatchWinner, 0))
                 .forEach(o -> {
                     pkResultMap.put(o.getHomeEntry(), o.getHomeEntryNetPoints());
                     pkResultMap.put(o.getAwayEntry(), o.getAwayEntryNetPoints());
@@ -1721,7 +1804,7 @@ public class EventDataServiceImpl implements IEventDataService {
         // tournament_result
         List<ZjTournamentResultEntity> zjTournamentResultEntityList = Lists.newArrayList();
         this.zjTournamentResultService.list(new QueryWrapper<ZjTournamentResultEntity>().lambda()
-                .eq(ZjTournamentResultEntity::getTournamentId, tournamentId))
+                        .eq(ZjTournamentResultEntity::getTournamentId, tournamentId))
                 .forEach(zjTournamentResultEntity -> {
                     int groupId = zjTournamentResultEntity.getGroupId();
                     Multimap<Integer, Integer> groupEntryMap = HashMultimap.create();
@@ -1861,15 +1944,15 @@ public class EventDataServiceImpl implements IEventDataService {
         if (event <= 0 || event > 38) {
             return;
         }
-        this.redisCacheService.insertSingleEventFixtureCache(event, this.queryService.getEventFixture(event));
+        this.redisCacheService.insertSingleEventFixtureCache(event, this.staticService.getEventFixture(event));
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
-        this.redisCacheService.insertEventLiveCache(event, this.queryService.getEventLive(event));
+        this.redisCacheService.insertEventLiveCache(event, this.staticService.getEventLive(event));
     }
 
     @Override
     public void refreshPlayerValue() {
-        StaticRes staticRes = this.queryService.getBootstrapStatic();
+        StaticRes staticRes = this.staticService.getBootstrapStatic();
         if (staticRes == null) {
             return;
         }
@@ -1880,7 +1963,11 @@ public class EventDataServiceImpl implements IEventDataService {
 
     @Override
     public void refreshEntryInfo(int entry) {
-        this.updateEntryInfoByEntry(entry);
+        EntryRes entryRes = this.staticService.getEntry(entry);
+        if (entryRes == null) {
+            return;
+        }
+        this.updateEntryInfo(entryRes);
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryEntryInfo", CommonUtils.getCurrentSeason(), entry));
     }
 
@@ -1959,8 +2046,8 @@ public class EventDataServiceImpl implements IEventDataService {
     public void refreshPlayerSummary(String season, int code) {
         if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
             int event = this.queryService.getCurrentEvent();
-            this.redisCacheService.insertPlayer(this.queryService.getBootstrapStatic());
-            this.redisCacheService.insertEventLive(event, this.queryService.getEventLive(event));
+            this.redisCacheService.insertPlayer(this.staticService.getBootstrapStatic());
+            this.redisCacheService.insertEventLive(event, this.staticService.getEventLive(event));
             this.redisCacheService.insertEventFixture();
             this.redisCacheService.insertEventLiveSummary();
         }
@@ -1973,7 +2060,7 @@ public class EventDataServiceImpl implements IEventDataService {
     @Override
     public void refreshTeamSummary(String season, String name) {
         if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
-            StaticRes staticRes = this.queryService.getBootstrapStatic();
+            StaticRes staticRes = this.staticService.getBootstrapStatic();
             this.redisCacheService.insertPlayer(staticRes);
             this.redisCacheService.insertPlayerStat(staticRes);
         }

@@ -2,7 +2,6 @@ package com.tong.fpl.service;
 
 import com.google.common.collect.Multimap;
 import com.tong.fpl.constant.Constant;
-import com.tong.fpl.domain.data.response.*;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
@@ -74,8 +73,6 @@ public interface IQueryService {
 
     int qryPlayerElementByCode(String season, int code);
 
-    int qryPlayerPriceByElement(int element);
-
     PlayerData qryPlayerData(int element);
 
     PlayerInfoData initPlayerInfo(String season, PlayerEntity playerEntity);
@@ -111,27 +108,11 @@ public interface IQueryService {
 
     EntryInfoData qryEntryInfo(String season, int entry);
 
-    EntryRes getEntry(int entry);
-
-    EntryCupRes getEntryCup(int entry);
-
-    UserPicksRes getUserPicks(int event, int entry);
-
-    UserHistoryRes getUserHistory(int entry);
-
     List<Integer> qryEntryTournamentEntryList(int entry);
-
-    List<TransferRes> getTransfer(int entry);
 
     /**
      * @apiNote event
      */
-    StaticRes getBootstrapStatic();
-
-    EventLiveRes getEventLive(int event);
-
-    List<EventFixturesRes> getEventFixture(int event);
-
     int getCurrentEvent();
 
     int getLastEvent();

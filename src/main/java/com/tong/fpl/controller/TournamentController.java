@@ -4,7 +4,7 @@ import com.tong.fpl.constant.Constant;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
-import com.tong.fpl.domain.letletme.entry.EntryEventCupData;
+import com.tong.fpl.domain.letletme.entry.EntryCupData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
 import com.tong.fpl.domain.letletme.global.StepsData;
@@ -249,7 +249,7 @@ public class TournamentController {
 
     @ResponseBody
     @RequestMapping(value = "/qryEntryEventCupResult")
-    public TableData<EntryEventCupData> qryEntryEventCupResult(@RequestParam int entry, int page, int limit) {
+    public TableData<EntryCupData> qryEntryEventCupResult(@RequestParam int entry, int page, int limit) {
         return this.tournamentApi.qryPageEntryEventCupResult(entry, page, limit);
     }
 

@@ -20,17 +20,26 @@ public class EventDataTest extends FplApplicationTests {
     @Autowired
     private IQueryService queryService;
     @Autowired
+    private IStaticService staticService;
+    @Autowired
     private IEventDataService eventDataService;
     @Autowired
     private EntryInfoService entryInfoService;
 
+    @ParameterizedTest
+    @CsvSource({"1713"})
+    void updateEntry(int entry) {
+        this.eventDataService.updateEntryInfo(this.staticService.getEntry(entry));
+        System.out.println(1);
+    }
+
     @Test
-    void updateEntryInfo() {
+    void updateEntryInfoByList() {
         List<Integer> entryList = this.entryInfoService.list()
                 .stream()
                 .map(EntryInfoEntity::getEntry)
                 .collect(Collectors.toList());
-        this.eventDataService.updateEntryInfo(entryList);
+        this.eventDataService.updateEntryInfoByList(entryList);
         System.out.println(1);
     }
 

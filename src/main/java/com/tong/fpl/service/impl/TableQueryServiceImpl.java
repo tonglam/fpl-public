@@ -58,8 +58,8 @@ public class TableQueryServiceImpl implements ITableQueryService {
     private final PlayerValueService playerValueService;
     private final EventLiveService eventLiveService;
     private final EntryInfoService entryInfoService;
+    private final EntryCupResultService entryCupResultService;
     private final EntryEventResultService entryEventResultService;
-    private final EntryEventCupResultService entryEventCupResultService;
     private final EntryEventTransfersService entryEventTransferService;
     private final TournamentInfoService tournamentInfoService;
     private final TournamentGroupService tournamentGroupService;
@@ -667,9 +667,9 @@ public class TableQueryServiceImpl implements ITableQueryService {
                         }
                     }
                     // cup
-                    EntryEventCupResultEntity entryEventCupResultEntity = this.entryEventCupResultService.list(new QueryWrapper<EntryEventCupResultEntity>().lambda()
-                            .eq(EntryEventCupResultEntity::getEntry, entry)
-                            .orderByDesc(EntryEventCupResultEntity::getEvent))
+                    EntryCupResultEntity entryEventCupResultEntity = this.entryCupResultService.list(new QueryWrapper<EntryCupResultEntity>().lambda()
+                                    .eq(EntryCupResultEntity::getEntry, entry)
+                                    .orderByDesc(EntryCupResultEntity::getEvent))
                             .stream()
                             .findFirst()
                             .orElse(null);
@@ -907,17 +907,17 @@ public class TableQueryServiceImpl implements ITableQueryService {
 
     @Cacheable(value = "qryPageEntryEventCupResult", key = "#entry+'::'+#page+'::'+#limit")
     @Override
-    public TableData<EntryEventCupData> qryPageEntryEventCupResult(int entry, int page, int limit) {
-        Page<EntryEventCupResultEntity> cupResultPage = this.entryEventCupResultService.getBaseMapper().selectPage(
-                new Page<>(page, limit, true), new QueryWrapper<EntryEventCupResultEntity>().lambda()
-                        .eq(EntryEventCupResultEntity::getEntry, entry)
+    public TableData<EntryCupData> qryPageEntryEventCupResult(int entry, int page, int limit) {
+        Page<EntryCupResultEntity> cupResultPage = this.entryCupResultService.getBaseMapper().selectPage(
+                new Page<>(page, limit, true), new QueryWrapper<EntryCupResultEntity>().lambda()
+                        .eq(EntryCupResultEntity::getEntry, entry)
         );
         if (CollectionUtils.isEmpty(cupResultPage.getRecords())) {
             return new TableData<>();
         }
-        List<EntryEventCupData> list = Lists.newArrayList();
+        List<EntryCupData> list = Lists.newArrayList();
         cupResultPage.getRecords().forEach(o -> {
-            EntryEventCupData data = new EntryEventCupData()
+            EntryCupData data = new EntryCupData()
                     .setEvent(o.getEvent())
                     .setEntry(entry)
                     .setEntryName(o.getEntryName())
@@ -930,7 +930,7 @@ public class TableQueryServiceImpl implements ITableQueryService {
                     .setResult(o.getResult());
             list.add(data);
         });
-        Page<EntryEventCupData> pageResult = new Page<>(page, limit, cupResultPage.getTotal());
+        Page<EntryCupData> pageResult = new Page<>(page, limit, cupResultPage.getTotal());
         pageResult.setRecords(list);
         return new TableData<>(pageResult);
     }

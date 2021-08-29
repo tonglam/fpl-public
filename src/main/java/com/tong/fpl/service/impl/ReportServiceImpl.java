@@ -45,8 +45,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ReportServiceImpl implements IReportService {
 
-    private final IStaticService staticService;
     private final IQueryService queryService;
+    private final IStaticService staticService;
     private final IRedisCacheService redisCacheService;
     private final PlayerStatService playerStatService;
     private final EntryInfoService entryInfoService;
@@ -100,8 +100,8 @@ public class ReportServiceImpl implements IReportService {
         }
         //prepare
         Map<Integer, LeagueEventReportEntity> leagueEventReportMap = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getLeagueId, leagueId)
-                .eq(LeagueEventReportEntity::getEvent, event))
+                        .eq(LeagueEventReportEntity::getLeagueId, leagueId)
+                        .eq(LeagueEventReportEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(LeagueEventReportEntity::getEntry, o -> o));
         // league_name
@@ -147,7 +147,7 @@ public class ReportServiceImpl implements IReportService {
         String leagueType = "Tournament";
         String leagueName = tournamentInfoEntity.getName();
         List<Integer> entryList = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
-                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                        .eq(TournamentEntryEntity::getTournamentId, tournamentId))
                 .stream()
                 .map(TournamentEntryEntity::getEntry)
                 .collect(Collectors.toList());
@@ -156,7 +156,7 @@ public class ReportServiceImpl implements IReportService {
         }
         List<EntryInfoData> entryInfoDataList = Lists.newArrayList();
         this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
-                .in(EntryInfoEntity::getEntry, entryList))
+                        .in(EntryInfoEntity::getEntry, entryList))
                 .forEach(o -> entryInfoDataList.add(BeanUtil.copyProperties(o, EntryInfoData.class)));
         List<CompletableFuture<LeagueEventReportEntity>> future = entryInfoDataList
                 .stream()
@@ -184,7 +184,7 @@ public class ReportServiceImpl implements IReportService {
     }
 
     private LeagueEventReportEntity initEntryEventSelectStat(int event, int entry, int leagueId, String leagueType, String leagueName) {
-        UserPicksRes userPicksRes = this.staticService.getUserPicks(event, entry).orElse(null);
+        UserPicksRes userPicksRes = this.staticService.getUserPicks(event, entry);
         if (userPicksRes == null) {
             return null;
         }
@@ -273,7 +273,7 @@ public class ReportServiceImpl implements IReportService {
         // prepare
         Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event))
+                        .eq(PlayerStatEntity::getEvent, event))
                 .forEach(o -> {
                     int element = o.getElement();
                     if (playerStatMap.containsKey(element)) {
@@ -287,12 +287,12 @@ public class ReportServiceImpl implements IReportService {
                     }
                 });
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .eq(EntryEventResultEntity::getEntry, entry))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .eq(EntryEventResultEntity::getEntry, entry))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // collect
@@ -319,7 +319,7 @@ public class ReportServiceImpl implements IReportService {
         // prepare
         Map<Integer, PlayerStatEntity> playerStatMap = Maps.newHashMap();
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event))
+                        .eq(PlayerStatEntity::getEvent, event))
                 .forEach(o -> {
                     int element = o.getElement();
                     if (playerStatMap.containsKey(element)) {
@@ -336,11 +336,11 @@ public class ReportServiceImpl implements IReportService {
             return;
         }
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event))
+                        .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         if (CollectionUtils.isEmpty(eventLiveMap)) {
-            EventLiveRes eventLiveRes = this.queryService.getEventLive(event);
+            EventLiveRes eventLiveRes = this.staticService.getEventLive(event);
             if (eventLiveRes == null) {
                 return;
             }
@@ -348,8 +348,8 @@ public class ReportServiceImpl implements IReportService {
             this.updateLeagueEventResult(event, leagueId, leagueType);
         }
         Map<Integer, EntryEventResultEntity> entryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
-                .eq(EntryEventResultEntity::getEvent, event)
-                .in(EntryEventResultEntity::getEntry, entryList))
+                        .eq(EntryEventResultEntity::getEvent, event)
+                        .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         if (CollectionUtils.isEmpty(entryEventResultMap)) {
@@ -397,22 +397,22 @@ public class ReportServiceImpl implements IReportService {
                     .setTeamValue(entryEventResultEntity.getTeamValue())
                     .setBank(entryEventResultEntity.getBank());
         } else {
-            this.staticService.getUserPicks(event, entry)
-                    .ifPresent(userPick ->
-                            leagueEventStatEntity
-                                    .setEventPoints(userPick.getEntryHistory().getPoints())
-                                    .setEventTransfers(userPick.getEntryHistory().getEventTransfers())
-                                    .setEventTransfersCost(userPick.getEntryHistory().getEventTransfersCost())
-                                    .setEventNetPoints(userPick.getEntryHistory().getPoints() - userPick.getEntryHistory().getEventTransfersCost())
-                                    .setEventBenchPoints(userPick.getEntryHistory().getPointsOnBench())
-                                    .setEventAutoSubPoints(userPick.getAutomaticSubs().size() == 0 ? 0 : this.calcAutoSubPoints(userPick.getAutomaticSubs(), eventLiveMap))
-                                    .setEventRank(userPick.getEntryHistory().getRank())
-                                    .setEventChip(StringUtils.isBlank(userPick.getActiveChip()) ? Chip.NONE.getValue() : userPick.getActiveChip())
-                                    .setOverallPoints(userPick.getEntryHistory().getTotalPoints())
-                                    .setOverallRank(userPick.getEntryHistory().getOverallRank())
-                                    .setTeamValue(userPick.getEntryHistory().getValue())
-                                    .setBank(userPick.getEntryHistory().getBank())
-                    );
+            UserPicksRes userPicksRes = this.staticService.getUserPicks(event, entry);
+            if (userPicksRes != null) {
+                leagueEventStatEntity
+                        .setEventPoints(userPicksRes.getEntryHistory().getPoints())
+                        .setEventTransfers(userPicksRes.getEntryHistory().getEventTransfers())
+                        .setEventTransfersCost(userPicksRes.getEntryHistory().getEventTransfersCost())
+                        .setEventNetPoints(userPicksRes.getEntryHistory().getPoints() - userPicksRes.getEntryHistory().getEventTransfersCost())
+                        .setEventBenchPoints(userPicksRes.getEntryHistory().getPointsOnBench())
+                        .setEventAutoSubPoints(userPicksRes.getAutomaticSubs().size() == 0 ? 0 : this.calcAutoSubPoints(userPicksRes.getAutomaticSubs(), eventLiveMap))
+                        .setEventRank(userPicksRes.getEntryHistory().getRank())
+                        .setEventChip(StringUtils.isBlank(userPicksRes.getActiveChip()) ? Chip.NONE.getValue() : userPicksRes.getActiveChip())
+                        .setOverallPoints(userPicksRes.getEntryHistory().getTotalPoints())
+                        .setOverallRank(userPicksRes.getEntryHistory().getOverallRank())
+                        .setTeamValue(userPicksRes.getEntryHistory().getValue())
+                        .setBank(userPicksRes.getEntryHistory().getBank());
+            }
         }
         // captain
         int captain = leagueEventStatEntity.getCaptain();

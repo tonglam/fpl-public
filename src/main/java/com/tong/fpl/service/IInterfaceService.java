@@ -12,6 +12,10 @@ import java.util.Optional;
  */
 public interface IInterfaceService {
 
+    Optional<StaticRes> getBootstrapStatic();
+
+    Optional<StaticRes> getWangBootstrapStatic();
+
     Optional<EntryRes> getEntry(int entry);
 
     Optional<EntryCupRes> getEntryCup(int entry);
@@ -32,10 +36,6 @@ public interface IInterfaceService {
 
     Optional<List<EventFixturesRes>> getEventFixture(int event);
 
-    Optional<StaticRes> getBootstrapStatic();
-
-    Optional<StaticRes> getWangBootstrapStatic();
-
-    Optional<List<TransferRes>> getTransfer(int entry);
+    Optional<List<UserTransfersRes>> getUserTransfers(int entry);
 
 }

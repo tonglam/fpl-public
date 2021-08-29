@@ -29,18 +29,38 @@ public class StaticServiceImpl implements IStaticService {
     private final IInterfaceService interfaceService;
 
     @Override
-    public Optional<StaticRes> getBootstrapStatic() {
-        return this.interfaceService.getBootstrapStatic();
+    public StaticRes getBootstrapStatic() {
+        return this.interfaceService.getBootstrapStatic().orElse(null);
     }
 
     @Override
-    public Optional<EventLiveRes> getEventLive(int event) {
-        return this.interfaceService.getEventLive(event);
+    public List<EventFixturesRes> getEventFixture(int event) {
+        return this.interfaceService.getEventFixture(event).orElse(null);
     }
 
     @Override
-    public Optional<List<EventFixturesRes>> getEventFixture(int event) {
-        return this.interfaceService.getEventFixture(event);
+    public UserPicksRes getUserPicks(int event, int entry) {
+        return this.interfaceService.getUserPicks(event, entry).orElse(null);
+    }
+
+    @Override
+    public List<UserTransfersRes> getUserTransfers(int entry) {
+        return this.interfaceService.getUserTransfers(entry).orElse(null);
+    }
+
+    @Override
+    public UserHistoryRes getUserHistory(int entry) {
+        return this.interfaceService.getUserHistory(entry).orElse(null);
+    }
+
+    @Override
+    public EntryRes getEntry(int entry) {
+        return this.interfaceService.getEntry(entry).orElse(null);
+    }
+
+    @Override
+    public EntryCupRes getEntryCup(int entry) {
+        return this.interfaceService.getEntryCup(entry).orElse(null);
     }
 
     @Override
@@ -271,28 +291,8 @@ public class StaticServiceImpl implements IStaticService {
     }
 
     @Override
-    public Optional<UserHistoryRes> getUserHistory(int entry) {
-        return this.interfaceService.getUserHistory(entry);
-    }
-
-    @Override
-    public Optional<EntryRes> getEntry(int entry) {
-        return this.interfaceService.getEntry(entry);
-    }
-
-    @Override
-    public Optional<EntryCupRes> getEntryCup(int entry) {
-        return this.interfaceService.getEntryCup(entry);
-    }
-
-    @Override
-    public Optional<UserPicksRes> getUserPicks(int event, int entry) {
-        return this.interfaceService.getUserPicks(event, entry);
-    }
-
-    @Override
-    public Optional<List<TransferRes>> getTransfer(int entry) {
-        return this.interfaceService.getTransfer(entry);
+    public EventLiveRes getEventLive(int event) {
+        return this.interfaceService.getEventLive(event).orElse(null);
     }
 
 }

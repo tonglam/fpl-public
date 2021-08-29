@@ -26,14 +26,14 @@ public class RedisCacheTest extends FplApplicationTests {
     @Autowired
     private IRedisCacheService redisCacheSerive;
     @Autowired
-    private IQueryService queryService;
+    private IStaticService staticService;
 
     private StaticRes getBootstrapStatic() {
-        return this.queryService.getBootstrapStatic();
+        return this.staticService.getBootstrapStatic();
     }
 
     private EventLiveRes getEventLive(int event) {
-        return this.queryService.getEventLive(event);
+        return this.staticService.getEventLive(event);
     }
 
     @Test
@@ -81,14 +81,14 @@ public class RedisCacheTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"3"})
     void insertSingleEventFixture(int event) {
-        List<EventFixturesRes> eventFixturesResList = this.queryService.getEventFixture(event);
+        List<EventFixturesRes> eventFixturesResList = this.staticService.getEventFixture(event);
         this.redisCacheSerive.insertSingleEventFixture(event, eventFixturesResList);
     }
 
     @ParameterizedTest
     @CsvSource({"2"})
     void insertSingleEventFixtureCache(int event) {
-        List<EventFixturesRes> eventFixturesResList = this.queryService.getEventFixture(event);
+        List<EventFixturesRes> eventFixturesResList = this.staticService.getEventFixture(event);
         this.redisCacheSerive.insertSingleEventFixtureCache(event, eventFixturesResList);
     }
 

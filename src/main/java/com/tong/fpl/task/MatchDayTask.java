@@ -1,10 +1,7 @@
 package com.tong.fpl.task;
 
 import com.tong.fpl.log.TaskLog;
-import com.tong.fpl.service.IEventDataService;
-import com.tong.fpl.service.IGroupService;
-import com.tong.fpl.service.IQueryService;
-import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,6 +17,7 @@ import java.util.List;
 public class MatchDayTask {
 
     private final IQueryService queryService;
+    private final IStaticService staticService;
     private final IRedisCacheService redisCacheService;
     private final IEventDataService eventDataService;
     private final IGroupService scoutService;
@@ -31,8 +29,8 @@ public class MatchDayTask {
             return;
         }
         TaskLog.info("start true insertEventLiveCache task");
-        this.redisCacheService.insertEventLiveCache(event, this.queryService.getEventLive(event));
-        this.redisCacheService.insertSingleEventFixtureCache(event, this.queryService.getEventFixture(event));
+        this.redisCacheService.insertEventLiveCache(event, this.staticService.getEventLive(event));
+        this.redisCacheService.insertSingleEventFixtureCache(event, this.staticService.getEventFixture(event));
         this.redisCacheService.insertLiveFixtureCache();
         this.redisCacheService.insertLiveBonusCache();
     }
@@ -67,7 +65,7 @@ public class MatchDayTask {
         this.eventDataService.insertEventPickByEntryList(event, entryList);
     }
 
-    @Scheduled(cron = "0 0/5 0-4,18-23 * * *")
+    //    @Scheduled(cron = "0 0/5 0-4,18-23 * * *")
     public void insertEntryEventTransfers() {
         int event = this.queryService.getCurrentEvent();
         if (!this.queryService.isSelectTime(event)) {
@@ -83,7 +81,7 @@ public class MatchDayTask {
         if (!this.queryService.isMatchDay(event)) {
             return;
         }
-        this.redisCacheService.insertEventLive(event, this.queryService.getEventLive(event));
+        this.redisCacheService.insertEventLive(event, this.staticService.getEventLive(event));
         List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();
         this.eventDataService.upsertEventResultByEntryList(event, entryList);
     }

@@ -27,7 +27,7 @@ public interface IApiEntry {
     /**
      * 获取联赛信息
      */
-    EntryLeagueInfoData qryEntryLeagueInfo(int entry);
+    EntryLeagueData qryEntryLeagueInfo(int entry);
 
     /**
      * 获取历史信息
