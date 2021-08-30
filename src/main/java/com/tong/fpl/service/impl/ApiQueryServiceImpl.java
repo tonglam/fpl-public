@@ -292,6 +292,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         }
         return new EntryLeagueData()
                 .setEntry(entry)
+                .setEvent(this.queryService.getCurrentEvent())
                 .setClassic(
                         entryLeagueInfoList
                                 .stream()

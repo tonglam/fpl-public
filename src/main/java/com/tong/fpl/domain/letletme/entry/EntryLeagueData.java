@@ -13,6 +13,7 @@ import java.util.List;
 public class EntryLeagueData {
 
     private int entry;
+    private int event;
     private List<EntryLeagueInfoData> classic;
     private List<EntryLeagueInfoData> h2h;
     private List<EntryLeagueInfoData> publicLeague;
