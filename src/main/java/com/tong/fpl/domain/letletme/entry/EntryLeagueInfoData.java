@@ -12,6 +12,7 @@ public class EntryLeagueInfoData {
 
     private int entry;
     private int leagueId;
+    private String type;
     private String leagueType;
     private String leagueName;
     private int entryRank;

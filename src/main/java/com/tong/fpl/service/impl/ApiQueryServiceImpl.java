@@ -278,6 +278,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         new EntryLeagueInfoData()
                                 .setEntry(entry)
                                 .setLeagueId(o.getLeagueId())
+                                .setType(o.getType())
                                 .setLeagueType(o.getLeagueType())
                                 .setLeagueName(o.getLeagueName())
                                 .setEntryRank(o.getEntryRank())
@@ -293,13 +294,19 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setClassic(
                         entryLeagueInfoList
                                 .stream()
-                                .filter(o -> StringUtils.equals(LeagueType.Classic.name(), o.getLeagueType()))
+                                .filter(o -> StringUtils.equals("private", o.getType()) && StringUtils.equals(LeagueType.Classic.name(), o.getLeagueType()))
                                 .collect(Collectors.toList())
                 )
                 .setH2h(
                         entryLeagueInfoList
                                 .stream()
-                                .filter(o -> StringUtils.equals(LeagueType.Classic.name(), o.getLeagueType()))
+                                .filter(o -> StringUtils.equals("private", o.getType()) && StringUtils.equals(LeagueType.Classic.name(), o.getLeagueType()))
+                                .collect(Collectors.toList())
+                )
+                .setPublicLeague(
+                        entryLeagueInfoList
+                                .stream()
+                                .filter(o -> StringUtils.equals("public", o.getType()))
                                 .collect(Collectors.toList())
                 )
                 .setCup(

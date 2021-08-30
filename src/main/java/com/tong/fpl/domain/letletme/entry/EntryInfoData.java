@@ -21,7 +21,5 @@ public class EntryInfoData {
     private double bank;
     private double teamValue;
     private int totalTransfers;
-    private int capTotalPoints;
-    private String percent;
 
 }
