@@ -16,6 +16,7 @@ import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
+import com.tong.fpl.domain.letletme.global.MapData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
@@ -355,11 +356,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 )
                 .collect(Collectors.toList());
         // chip
-        Map<Integer, String> chips = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+        List<MapData<String>> chips = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
                 .eq(EntryEventResultEntity::getEntry, entry)
                 .ne(EntryEventResultEntity::getEventChip, Chip.NONE.getValue()))
                 .stream()
-                .collect(Collectors.toMap(EntryEventResultEntity::getEvent, EntryEventResultEntity::getEventChip));
+                .map(o ->
+                        new MapData<String>()
+                                .setKey(String.valueOf(o.getEvent()))
+                                .setValue(o.getEventChip())
+                )
+                .collect(Collectors.toList());
         // return
         return new EntryHistoryData()
                 .setEntry(entry)
