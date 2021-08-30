@@ -43,7 +43,7 @@ public interface IApiQueryService {
 
     EntryLeagueData qryEntryLeagueInfo(int entry);
 
-    EntryHistoryInfoData qryEntryHistoryInfo(int entry);
+    EntryHistoryData qryEntryHistoryInfo(int entry);
 
     EntryEventResultData qryEntryEventResult(int event, int entry);
 

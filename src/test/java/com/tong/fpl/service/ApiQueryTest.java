@@ -94,7 +94,7 @@ public class ApiQueryTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"1870"})
     void qryEntryHistoryInfo(int entry) {
-        EntryHistoryInfoData data = this.apiQueryService.qryEntryHistoryInfo(entry);
+        EntryHistoryData data = this.apiQueryService.qryEntryHistoryInfo(entry);
         System.out.println(1);
     }
 

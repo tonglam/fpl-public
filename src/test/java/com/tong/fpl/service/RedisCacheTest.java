@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Create by tong on 2020/8/22
@@ -153,7 +152,7 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2"})
+    @CsvSource({"3"})
     void insertAverageScore(int event) {
         this.redisCacheSerive.insertAverageScore(event, this.getBootstrapStatic());
     }
@@ -293,9 +292,8 @@ public class RedisCacheTest extends FplApplicationTests {
 
     @Test
     void redis() {
-        String key = "scoutEntry";
-        Map<Object, Object> map = RedisUtils.getHashByKey(key);
-        Set<Object> set = map.keySet();
+        String key = "insertEventTransfers";
+        int event = (int) RedisUtils.getValueByKey(key).orElse(0);
         System.out.println(1);
     }
 

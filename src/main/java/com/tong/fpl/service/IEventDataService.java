@@ -2,6 +2,7 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.data.response.StaticRes;
+import com.tong.fpl.domain.data.response.UserHistoryRes;
 
 import java.util.List;
 
@@ -26,6 +27,10 @@ public interface IEventDataService {
     void updateEntryInfo(EntryRes entryRes);
 
     void updateEntryInfoByList(List<Integer> entryList);
+
+    void updateEntryHistoryInfo(UserHistoryRes userHistoryRes);
+
+    void updateEntryHistoryInfoByList(List<Integer> entryList);
 
     /**
      * @apiNote after deadline

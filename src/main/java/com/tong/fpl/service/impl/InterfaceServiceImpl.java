@@ -119,7 +119,9 @@ public class InterfaceServiceImpl implements IInterfaceService {
             HttpCallLog.info("get user_history from server, escape:{} s!", (end - start) / 1000);
             ObjectMapper mapper = new ObjectMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            return Optional.of(mapper.readValue(result, UserHistoryRes.class));
+            UserHistoryRes userHistoryRes = mapper.readValue(result, UserHistoryRes.class);
+            userHistoryRes.setEntry(entry);
+            return Optional.of(userHistoryRes);
         } catch (IOException e) {
             HttpCallLog.error("entry:{}, get user_history error:{}", entry, e.getMessage());
         }

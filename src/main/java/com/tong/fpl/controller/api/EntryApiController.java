@@ -40,7 +40,7 @@ public class EntryApiController {
     }
 
     @GetMapping("/qryEntryHistoryInfo")
-    public EntryHistoryInfoData qryEntryHistoryInfo(@RequestParam int entry) {
+    public EntryHistoryData qryEntryHistoryInfo(@RequestParam int entry) {
         return this.apiEntry.qryEntryHistoryInfo(entry);
     }
 

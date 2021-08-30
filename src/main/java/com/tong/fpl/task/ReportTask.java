@@ -39,22 +39,6 @@ public class ReportTask {
         });
     }
 
-//    @Scheduled(cron = "0 0/5 0-4,18-23 * * *")
-//    public void insertLeagueEventSelectTournamentStat() {
-//        int event = this.queryService.getCurrentEvent();
-//        if (!this.queryService.isSelectTime(event)) {
-//            return;
-//        }
-//        String leagueType = "Tournament";
-//        List<Integer> tournamentList = Lists.newArrayList(13, 14);
-//        tournamentList.forEach(tournamentId -> {
-//            if (this.reportService.eventLeagueEventExists(event, tournamentId, leagueType)) {
-//                return;
-//            }
-//            this.reportService.insertEntryLeagueEventSelectByTournament(event, tournamentId);
-//        });
-//    }
-
     @Scheduled(cron = "0 0 9,12 * * *")
     public void updateLeagueEventResult() {
         int event = this.queryService.getCurrentEvent();
@@ -62,8 +46,6 @@ public class ReportTask {
             return;
         }
         Map<String, String> leagueMap = this.queryService.qryLeagueMap(event);
-//        leagueMap.put("13", "Tournament");
-//        leagueMap.put("14", "Tournament");
         leagueMap.forEach((leagueIdStr, leagueType) -> {
             try {
                 log.info("league_id:{}, league_type:{}, start update league event result", leagueIdStr, leagueType);

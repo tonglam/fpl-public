@@ -41,7 +41,7 @@ public class ApiEntryImpl implements IApiEntry {
     }
 
     @Override
-    public EntryHistoryInfoData qryEntryHistoryInfo(int entry) {
+    public EntryHistoryData qryEntryHistoryInfo(int entry) {
         return this.apiQueryService.qryEntryHistoryInfo(entry);
     }
 

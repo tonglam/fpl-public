@@ -32,7 +32,7 @@ public interface IApiEntry {
     /**
      * 获取历史信息
      */
-    EntryHistoryInfoData qryEntryHistoryInfo(int entry);
+    EntryHistoryData qryEntryHistoryInfo(int entry);
 
     /**
      * 获取周得分

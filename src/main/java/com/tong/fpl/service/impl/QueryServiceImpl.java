@@ -517,7 +517,7 @@ public class QueryServiceImpl implements IQueryService {
         if (entryRes == null) {
             return new EntryInfoData();
         }
-        return new EntryInfoData()
+        entryInfoEntity = new EntryInfoEntity()
                 .setEntry(entryRes.getId())
                 .setEntryName(entryRes.getName())
                 .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
@@ -528,6 +528,8 @@ public class QueryServiceImpl implements IQueryService {
                 .setBank(entryRes.getLastDeadlineBank())
                 .setTeamValue(entryRes.getLastDeadlineValue())
                 .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+        this.entryInfoService.save(entryInfoEntity);
+        return BeanUtil.copyProperties(entryInfoEntity, EntryInfoData.class);
     }
 
     @Cacheable(

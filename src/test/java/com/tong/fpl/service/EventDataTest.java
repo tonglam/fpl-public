@@ -44,7 +44,24 @@ public class EventDataTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1"})
+    @CsvSource({"1713"})
+    void updateEntryHistoryInfo(int entry) {
+        this.eventDataService.updateEntryHistoryInfo(this.staticService.getUserHistory(entry));
+        System.out.println(1);
+    }
+
+    @Test
+    void updateEntryHistoryInfoByList() {
+        List<Integer> entryList = this.entryInfoService.list()
+                .stream()
+                .map(EntryInfoEntity::getEntry)
+                .collect(Collectors.toList());
+        this.eventDataService.updateEntryHistoryInfoByList(entryList);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"3"})
     void upsertTournamentEntryEventResult(int event) {
         IntStream.rangeClosed(1, 5).forEach(tournamentId -> {
             this.eventDataService.upsertTournamentEntryEventResult(event, tournamentId);
@@ -97,7 +114,7 @@ public class EventDataTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2"})
+    @CsvSource({"3"})
     void updateEventTransfersByEntryList(int event) {
         IntStream.rangeClosed(1, 5).forEach(tournamentId -> {
             List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();
@@ -107,7 +124,7 @@ public class EventDataTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2"})
+    @CsvSource({"3"})
     void updatePointsRaceGroupResult(int event) {
         IntStream.rangeClosed(1, 1).forEach(tournamentId -> {
             this.eventDataService.updatePointsRaceGroupResult(event, tournamentId);
@@ -116,7 +133,7 @@ public class EventDataTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1"})
+    @CsvSource({"3"})
     void updateBattleRaceGroupResult(int event) {
         IntStream.rangeClosed(1, 5).forEach(tournamentId -> {
             this.eventDataService.updateBattleRaceGroupResult(event, tournamentId);
@@ -125,7 +142,7 @@ public class EventDataTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1"})
+    @CsvSource({"3"})
     void updateKnockoutResult(int event) {
         IntStream.rangeClosed(1, 5).forEach(tournamentId -> {
             this.eventDataService.updateKnockoutResult(event, tournamentId);

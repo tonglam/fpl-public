@@ -2,6 +2,7 @@ package com.tong.fpl.task;
 
 import com.tong.fpl.log.TaskLog;
 import com.tong.fpl.service.*;
+import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,7 +23,7 @@ public class MatchDayTask {
     private final IEventDataService eventDataService;
     private final IGroupService scoutService;
 
-    @Scheduled(cron = "0 */1 0-7,19-23 * * *")
+    @Scheduled(cron = "0 */1 0-5,19-23 * * *")
     public void insertEventLiveCache() {
         int event = this.queryService.getCurrentEvent();
         if (!this.queryService.isMatchDayTime(event)) {
@@ -61,14 +62,20 @@ public class MatchDayTask {
         if (!this.queryService.isSelectTime(event)) {
             return;
         }
+        if (event <= (int) RedisUtils.getValueByKey("insertEventPick").orElse(0)) {
+            return;
+        }
         List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();
         this.eventDataService.insertEventPickByEntryList(event, entryList);
     }
 
-    //    @Scheduled(cron = "0 0/5 0-4,18-23 * * *")
+    @Scheduled(cron = "0 0/5 0-4,18-23 * * *")
     public void insertEntryEventTransfers() {
         int event = this.queryService.getCurrentEvent();
         if (!this.queryService.isSelectTime(event)) {
+            return;
+        }
+        if (event <= (int) RedisUtils.getValueByKey("insertEventTransfers").orElse(0)) {
             return;
         }
         List<Integer> entryList = this.queryService.qryActiveTournamentEntryList();

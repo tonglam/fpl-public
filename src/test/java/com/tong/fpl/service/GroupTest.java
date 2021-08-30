@@ -34,7 +34,7 @@ public class GroupTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2"})
+    @CsvSource({"3"})
     void updateEventScoutResult(int event) {
         this.groupService.updateEventScoutResult(event);
         System.out.println(1);

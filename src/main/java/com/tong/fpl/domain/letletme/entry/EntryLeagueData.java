@@ -14,7 +14,9 @@ public class EntryLeagueData {
 
     private int entry;
     private List<EntryLeagueInfoData> classic;
+    private List<EntryLeagueInfoData> publicClassic;
     private List<EntryLeagueInfoData> h2h;
+    private List<EntryLeagueInfoData> publicH2h;
     private List<EntryCupData> cup;
 
 }
