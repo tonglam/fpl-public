@@ -302,7 +302,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setH2h(
                         entryLeagueInfoList
                                 .stream()
-                                .filter(o -> StringUtils.equals("private", o.getType()) && StringUtils.equals(LeagueType.Classic.name(), o.getLeagueType()))
+                                .filter(o -> StringUtils.equals("private", o.getType()) && StringUtils.equals(LeagueType.H2h.name(), o.getLeagueType()))
                                 .collect(Collectors.toList())
                 )
                 .setPublicLeague(
