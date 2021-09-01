@@ -992,8 +992,7 @@ public class QueryServiceImpl implements IQueryService {
     )
     @Override
     public List<EntryPickData> qryPickListFromPicks(String season, @NotNull String picks) {
-        List<EntryPickData> pickList = JsonUtils
-                .json2Collection(picks, List.class, EntryPickData.class);
+        List<EntryPickData> pickList = JsonUtils.json2Collection(picks, List.class, EntryPickData.class);
         if (CollectionUtils.isEmpty(pickList)) {
             return Lists.newArrayList();
         }

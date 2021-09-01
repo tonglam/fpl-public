@@ -41,9 +41,9 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EventDataServiceImpl implements IEventDataService {
 
+    private final IRedisCacheService redisCacheService;
     private final IQueryService queryService;
     private final IStaticService staticService;
-    private final IRedisCacheService redisCacheService;
     private final IReportService reportService;
     private final EntryInfoService entryInfoService;
     private final EntryLeagueInfoService entryLeagueInfoService;

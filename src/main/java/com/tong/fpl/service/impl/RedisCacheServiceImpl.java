@@ -455,7 +455,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         int event = this.getCurrentEvent();
         Map<Integer, Integer> insertTeamMap = this.getInsertTeamList();
         Map<Integer, Integer> playerStatIdMap = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                        .eq(PlayerStatEntity::getEvent, event))
+                .eq(PlayerStatEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(PlayerStatEntity::getElement, PlayerStatEntity::getId));
         // get from fpl server
@@ -485,7 +485,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         Map<String, Object> valueMap = Maps.newHashMap();
         RedisUtils.removeCacheByKey(key);
         this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                        .eq(PlayerStatEntity::getEvent, event))
+                .eq(PlayerStatEntity::getEvent, event))
                 .forEach(o -> valueMap.put(String.valueOf(o.getElement()), o));
         cacheMap.put(key, valueMap);
         RedisUtils.pipelineHashCache(cacheMap, -1, null);
@@ -573,6 +573,10 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         Map<Integer, PlayerValueEntity> lastValueMap = this.playerValueService.list()
                 .stream()
                 .collect(new PlayerValueCollector());
+        Map<Integer, PlayerValueEntity> valueMap = this.playerValueService.list(new QueryWrapper<PlayerValueEntity>().lambda()
+                .eq(PlayerValueEntity::getChangeDate, changeDate))
+                .stream()
+                .collect(Collectors.toMap(PlayerValueEntity::getElement, o -> o));
         int event = this.getCurrentEvent();
         // calc
         staticRes.getElements()
@@ -580,6 +584,9 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
                 .filter(o -> !lastValueMap.containsKey(o.getId()) || o.getNowCost() != lastValueMap.get(o.getId()).getValue())
                 .forEach(bootstrapPlayer -> {
                     int element = bootstrapPlayer.getId();
+                    if (valueMap.containsKey(element)) {
+                        return;
+                    }
                     PlayerValueEntity lastEntity = lastValueMap.getOrDefault(element, null);
                     int lastValue = lastEntity != null ? lastEntity.getValue() : 0;
                     playerValueList.add(
@@ -652,7 +659,7 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         List<EventLiveEntity> updateList = Lists.newArrayList();
         // prepare
         Map<Integer, EventLiveEntity> eventLiveMap = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event))
+                .eq(EventLiveEntity::getEvent, event))
                 .stream()
                 .collect(Collectors.toMap(EventLiveEntity::getElement, o -> o));
         Map<Integer, PlayerEntity> playerMap = this.playerService.list()
