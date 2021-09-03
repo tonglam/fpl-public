@@ -12,10 +12,9 @@ spring:
     multipart:
       enabled: true
   session:
-    store-type: jdbc
-    jdbc:
-      table-name: letletme_web_session
-      cleanup-cron: 0 30 * * * *
+    redis:
+      flush-mode: immediate
+    store-type: redis
   redis:
     host: 10.0.12.7
     port: 6379
