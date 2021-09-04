@@ -38,13 +38,13 @@
         </encoder>
     </appender>
 
-    <appender name="httpCallLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="interfaceLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/home/workspace/fpl/log/http_call.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/home/workspace/fpl/log/interface.%d{yyyy-MM-dd}.log</fileNamePattern>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%X{ip} %d{HH:mm:ss.SSS} [url:%X{url}] %-5level - %msg%n</pattern>
+            <pattern>[%X{ip}] %d{HH:mm:ss.SSS} [url:%X{url}] %-5level - %msg%n</pattern>
         </encoder>
     </appender>
 
