@@ -7,7 +7,7 @@ import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IEventDataService;
+import com.tong.fpl.service.IDataService;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class ApiStatImpl implements IApiStat {
 
     private final IApiQueryService apiQueryService;
-    private final IEventDataService eventDataService;
+    private final IDataService eventDataService;
 
     @Override
     public Map<String, List<PlayerValueData>> qryPlayerValueByDate(String date) {

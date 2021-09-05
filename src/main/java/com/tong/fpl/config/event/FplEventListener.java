@@ -1,10 +1,9 @@
 package com.tong.fpl.config.event;
 
 import com.tong.fpl.domain.event.CreateTournamentEventData;
-import com.tong.fpl.domain.event.CreateZjTournamentEventData;
 import com.tong.fpl.domain.event.RefreshLeagueSummaryEventData;
 import com.tong.fpl.domain.event.RefreshTournamentEventResultEventData;
-import com.tong.fpl.service.IEventDataService;
+import com.tong.fpl.service.IDataService;
 import com.tong.fpl.service.ITournamentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,20 +23,13 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class FplEventListener {
 
     private final ITournamentService tournamentService;
-    private final IEventDataService eventDataService;
+    private final IDataService eventDataService;
 
     @Async("eventExecutor")
     @EventListener({CreateTournamentEventData.class})
     public void onApplicationEvent(CreateTournamentEventData data) {
         log.info("recieve event:{}, start process", CreateTournamentEventData.class.getSimpleName());
         this.tournamentService.createNewTournamentBackground(data.getTournamentName(), data.getInputEntryList());
-    }
-
-    @Async("eventExecutor")
-    @EventListener({CreateZjTournamentEventData.class})
-    public void onApplicationEvent(CreateZjTournamentEventData data) {
-        log.info("recieve event:{}, start process", CreateZjTournamentEventData.class.getSimpleName());
-        this.tournamentService.createNewZjTournamentBackground(data.getZjTournamentCreateData());
     }
 
     @Async("eventExecutor")

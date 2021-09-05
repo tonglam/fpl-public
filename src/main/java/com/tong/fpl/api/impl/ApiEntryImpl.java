@@ -3,7 +3,7 @@ package com.tong.fpl.api.impl;
 import com.tong.fpl.api.IApiEntry;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IEventDataService;
+import com.tong.fpl.service.IDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.util.List;
 public class ApiEntryImpl implements IApiEntry {
 
     private final IApiQueryService apiQueryService;
-    private final IEventDataService eventDataService;
+    private final IDataService eventDataService;
 
     @Override
     public EntryInfoData qryEntryInfo(int entry) {

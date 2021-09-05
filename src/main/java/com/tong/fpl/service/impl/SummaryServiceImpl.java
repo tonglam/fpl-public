@@ -45,6 +45,7 @@ public class SummaryServiceImpl implements ISummaryService {
 
     private final IApiQueryService apiQueryService;
     private final IQueryService queryService;
+
     private final EventLiveService eventLiveService;
     private final EntryEventResultService entryEventResultService;
     private final EntryEventTransfersService entryEventTransfersService;

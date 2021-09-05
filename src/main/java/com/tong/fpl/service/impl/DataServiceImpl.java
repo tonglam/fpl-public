@@ -1,0 +1,173 @@
+package com.tong.fpl.service.impl;
+
+import com.tong.fpl.domain.entity.LeagueEventReportEntity;
+import com.tong.fpl.service.IDataService;
+import com.tong.fpl.service.IInterfaceService;
+import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.utils.CommonUtils;
+import com.tong.fpl.utils.RedisUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * Create by tong on 2020/3/10
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+public class DataServiceImpl implements IDataService {
+
+    private final IInterfaceService interfaceService;
+    private final IQueryService queryService;
+
+    @Override
+    public void refreshEventLiveCache(int event) {
+        if (event < 1 || event > 38) {
+            return;
+        }
+        this.interfaceService.refreshEventLiveCache(event);
+        log.info("event:{}, refresh event_live cache success", event);
+    }
+
+    @Override
+    public void refreshPlayerValue() {
+        int event = this.queryService.getCurrentEvent();
+        if (event < 1 || event > 38) {
+            return;
+        }
+        this.interfaceService.refreshPlayerValue();
+        log.info("event:{}, refresh player_value success", event);
+    }
+
+    @Override
+    public void refreshPlayerStat() {
+        int event = this.queryService.getCurrentEvent();
+        if (event < 1 || event > 38) {
+            return;
+        }
+        this.interfaceService.refreshPlayerStat();
+        log.info("event:{}, refresh player_stat success", event);
+    }
+
+    @Override
+    public void refreshEntryInfo(int entry) {
+        this.interfaceService.refreshEntryInfo(entry);
+        log.info("entry:{}, refresh entry_info success", entry);
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntryInfo", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntryLeagueInfo", entry));
+    }
+
+    @Override
+    public void refreshEntryHistoryInfo(int entry) {
+        this.interfaceService.refreshEntryHistoryInfo(entry);
+        log.info("entry:{}, refresh entry_history_info success", entry);
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntryHistoryInfo", entry));
+    }
+
+    @Override
+    public void refreshEntryEventTransfers(int event, int entry) {
+        this.interfaceService.upateEntryEventTransfers(event, entry);
+        log.info("event:{}, entry:{}, refresh entry_event_transfers success", event, entry);
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntryEventTransfers", event, entry));
+    }
+
+    @Override
+    public void refreshEntryEventResult(int event, int entry) {
+        this.interfaceService.refreshEntryEventResult(event, entry);
+        log.info("event:{}, entry:{}, refresh entry_event_result success", event, entry);
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntryEventResult", event, entry));
+    }
+
+    @Override
+    public void refreshCurrentEventScoutResult(int entry) {
+        int nextEvent = this.queryService.getNextEvent();
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutPickResult", nextEvent, entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventScoutResult", nextEvent));
+    }
+
+    @Override
+    public void refreshTournamentEventResult(int event, int tournamentId) {
+        // tournament_result
+        this.interfaceService.refreshTournamentEventResult(event, tournamentId);
+        log.info("event:{}, tournament:{}, refresh tournament entry event result success", event, tournamentId);
+        // tournament_points_race_group_result
+        this.interfaceService.refreshPointsRaceGroupResult(event, tournamentId);
+        log.info("event:{}, tournament:{}, refresh tournament points race group result success", event, tournamentId);
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTournamentEventResult", event, tournamentId));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTournamentEventChampion", tournamentId));
+    }
+
+    @Override
+    public void refreshEntrySummary(int event, int entry) {
+        // entry_event_result
+        this.refreshEntryEventResult(event, entry);
+        // entry_event_transfers
+        this.refreshEntryEventTransfers(event, entry);
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonInfo", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonSummary", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonCaptain", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonTransfers", entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntrySeasonScore", entry));
+    }
+
+    @Override
+    public void refreshLeagueSummary(int event, String leagueName, int entry) {
+        LeagueEventReportEntity leagueEventReportEntity = this.queryService.qryLeagueInfoByName(leagueName);
+        if (leagueEventReportEntity == null) {
+            return;
+        }
+        this.interfaceService.updateLeagueEventResult(event, leagueEventReportEntity.getLeagueId());
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonInfo", leagueName));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonSummary", leagueName, entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonCaptain", leagueName, entry));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSeasonScore", leagueName, entry));
+    }
+
+    @Override
+    public void refreshLeagueSelect(int event, String leagueName) {
+        LeagueEventReportEntity leagueEventReportEntity = this.queryService.qryLeagueInfoByName(leagueName);
+        if (leagueEventReportEntity == null) {
+            return;
+        }
+        int leagueId = leagueEventReportEntity.getLeagueId();
+        String leagueType = leagueEventReportEntity.getLeagueType();
+        this.interfaceService.updateLeagueEventResult(event, leagueId);
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueSelectByName", CommonUtils.getCurrentSeason(), event, leagueName));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryLeagueEventEoWebNameMap", CommonUtils.getCurrentSeason(), event, leagueId, leagueType));
+    }
+
+    @Override
+    public void refreshPlayerSummary(String season, int code) {
+        if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
+            this.interfaceService.refreshEventLive(this.queryService.getCurrentEvent());
+        }
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryPlayerInfo", season, code));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryPlayerSummary", season, code));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerDetailData", season));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerFixtureList", season));
+    }
+
+    @Override
+    public void refreshTeamSummary(String season, String name) {
+        if (StringUtils.equals(season, CommonUtils.getCurrentSeason())) {
+            this.interfaceService.refreshPlayerValue();
+            this.interfaceService.refreshPlayerStat();
+        }
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTeamSummary", season, name));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerFixtureList", season));
+    }
+
+}

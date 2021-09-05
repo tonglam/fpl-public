@@ -12,7 +12,6 @@ import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.constant.enums.MatchPlayStatus;
 import com.tong.fpl.constant.enums.Position;
 import com.tong.fpl.constant.enums.PositionRule;
-import com.tong.fpl.domain.data.response.UserPicksRes;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
@@ -20,9 +19,9 @@ import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
+import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQueryService;
-import com.tong.fpl.service.IStaticService;
 import com.tong.fpl.service.db.EntryEventPickService;
 import com.tong.fpl.service.db.EntryEventResultService;
 import com.tong.fpl.service.db.EntryInfoService;
@@ -49,8 +48,9 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveServiceImpl implements ILiveService {
 
+    private final IInterfaceService interfaceService;
     private final IQueryService queryService;
-    private final IStaticService staticService;
+
     private final EntryInfoService entryInfoService;
     private final EntryEventPickService entryEventPickService;
     private final EntryEventResultService entryEventResultService;
@@ -372,19 +372,7 @@ public class LiveServiceImpl implements ILiveService {
                     .eq(EntryEventPickEntity::getEvent, event)
                     .eq(EntryEventPickEntity::getEntry, entry));
             if (entryEventPickEntity == null) {
-                // from fpl server
-                UserPicksRes userPicksRes = this.staticService.getUserPicks(event, entry);
-                if (userPicksRes == null || CollectionUtils.isEmpty(userPicksRes.getPicks())) {
-                    return null;
-                }
-                entryEventPickEntity = new EntryEventPickEntity()
-                        .setEntry(entry)
-                        .setEvent(event)
-                        .setTransfers(userPicksRes.getEntryHistory().getEventTransfers())
-                        .setTransfersCost(userPicksRes.getEntryHistory().getEventTransfersCost())
-                        .setChip(userPicksRes.getActiveChip() == null ? Chip.NONE.getValue() : userPicksRes.getActiveChip())
-                        .setPicks(JsonUtils.obj2json(userPicksRes.getPicks()));
-                this.entryEventPickService.save(entryEventPickEntity);
+                this.interfaceService.refreshEntryEventPick(event, entry);
             }
         } else {
             entryEventPickEntity = entryEventPickMap.get(entry);

@@ -34,4 +34,9 @@ public interface IApiPlayer {
      */
     List<PlayerFilterData> qryFilterPlayers(String season);
 
+    /**
+     * 刷新player_stat
+     */
+    void refreshPlayerStat();
+
 }

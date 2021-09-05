@@ -9,8 +9,8 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName(value = "entry_cup_result")
-public class EntryCupResultEntity {
+@TableName(value = "entry_event_cup_result")
+public class EntryEventCupResultEntity {
 
     @TableId
     private Integer id;

@@ -4,7 +4,6 @@ import com.tong.fpl.domain.letletme.entry.EntryCupData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
-import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.league.LeagueEventReportData;
 import com.tong.fpl.domain.letletme.league.LeagueEventReportStatData;
@@ -60,8 +59,6 @@ public interface ITableQueryService {
 
     TableData<TournamentGroupData> qryGroupInfoListByGroupId(int tournamentId, int groupId);
 
-    TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId);
-
     TableData<TournamentGroupEventChampionData> qryPointsGroupChampion(int tournamentId);
 
     TableData<TournamentPointsGroupEventResultData> qryPagePointsGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
@@ -69,14 +66,6 @@ public interface ITableQueryService {
     TableData<EntryCupData> qryPageEntryEventCupResult(int entry, int page, int limit);
 
     TableData<TournamentBattleGroupEventResultData> qryPageBattleGroupResult(int tournamentId, int groupId, int entry, int page, int limit);
-
-    TableData<TournamentPointsGroupEventResultData> qryPageZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit);
-
-    TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId);
-
-    TableData<StepsData> qryZjTournamentPkPickSteps(int tournamentId);
-
-    TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId);
 
     /**
      * @apiNote live

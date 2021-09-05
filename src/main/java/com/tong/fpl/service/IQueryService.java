@@ -13,7 +13,10 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
-import com.tong.fpl.domain.letletme.tournament.*;
+import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
+import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
+import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
 import com.tong.fpl.utils.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -43,15 +46,7 @@ public interface IQueryService {
 
     PlayerEntity getPlayerByElement(String season, int element);
 
-    default Map<String, PlayerStatEntity> getPlayerStatMap() {
-        return this.getPlayerStatMap(CommonUtils.getCurrentSeason());
-    }
-
     Map<String, PlayerStatEntity> getPlayerStatMap(String season);
-
-    default PlayerStatEntity getPlayerStatByElement(int element) {
-        return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
-    }
 
     PlayerStatEntity getPlayerStatByElement(String season, int element);
 
@@ -144,16 +139,6 @@ public interface IQueryService {
         return scoutDeadLine.replaceAll(" ", "T") + "Z";
     }
 
-    List<LocalDate> getMatchDayByEvent(int event);
-
-    List<LocalDateTime> getMatchDayTimeByEvent(int event);
-
-    boolean isMatchDay(int event);
-
-    boolean isMatchDayTime(int event);
-
-    boolean isSelectTime(int event);
-
     /**
      * @apiNote team
      */
@@ -205,10 +190,6 @@ public interface IQueryService {
     /**
      * @apiNote event_live
      */
-    default Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap() {
-        return this.getEventLiveSummaryMap(CommonUtils.getCurrentSeason());
-    }
-
     Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season);
 
     default EventLiveEntity qryEventLiveByElement(int event, int element) {
@@ -279,8 +260,6 @@ public interface IQueryService {
      */
     int qryCountTournamentLeagueTeams(String url);
 
-    Map<String, String> qryLeagueMap(int event);
-
     /**
      * @apiNote tournament
      */
@@ -292,47 +271,13 @@ public interface IQueryService {
 
     List<Integer> qryEntryListByTournament(int tournamentId);
 
-    List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId);
-
     KnockoutBracketData qryKnockoutBracketResultByTournament(int tournamentId);
 
     List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
-    List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId);
-
-    Map<String, String> qryZjTournamentGroupNameMap(int tournamentId);
-
-    List<TournamentKnockoutResultData> qryZjTournamentPkResultByTournament(int tournamentId);
-
-    Map<String, Integer> qryZjTournamentPhaseOneRankMap(int tournamentId);
-
-    Map<String, Integer> qryZjTournamentPhaseTwoGroupPointsMap(int tournamentId);
-
-    Map<String, Integer> qryZjTournamentPkGroupPointsMap(int tournamentId);
-
-    Map<String, Integer> qryZjTournamentPhaseTwoRankMap(int tournamentId);
-
-    Map<String, Integer> qryZjTournamentPkRankMap(int tournamentId);
-
-    Map<String, Integer> qryZjTournamentGroupEntryGroupIdMap(int tournamentId);
-
-    Map<String, String> qryZjTournamentGroupEntryGroupNameMap(int tournamentId);
-
-    TournamentGroupData qryDiscloseGroupData(int tournamentId, int entry, int currentGroupId);
-
-    List<TournamentKnockoutEventFixtureData> qryZjPkPickListById(int tournamentId);
-
     boolean qryTournamentUpdateNeeded(int event, int tournamentId);
 
     List<EntryEventPickEntity> qryTournamentEntryEventPick(int event, int tournamentId);
-
-    List<Integer> qryActiveTournamentEntryList();
-
-    List<Integer> qryPointsRaceGroupTournamentList(int event);
-
-    List<Integer> qryBattleRaceGroupTournamentList(int event);
-
-    List<Integer> qryKnockoutTournamentList(int event);
 
     /**
      * @apiNote report

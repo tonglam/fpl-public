@@ -7,7 +7,7 @@ import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
-import com.tong.fpl.service.IEventDataService;
+import com.tong.fpl.service.IDataService;
 import com.tong.fpl.service.ISummaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class ApiSummaryImpl implements IApiSummary {
 
     private final ApplicationContext context;
     private final ISummaryService summaryService;
-    private final IEventDataService eventDataService;
+    private final IDataService eventDataService;
 
     /**
      * @implNote entry

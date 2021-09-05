@@ -46,4 +46,9 @@ public class PlayerApiController {
         return this.apiPlayer.qryFilterPlayers(season);
     }
 
+    @GetMapping("/refreshPlayerStat")
+    public void refreshPlayerStat() {
+        this.apiPlayer.refreshPlayerStat();
+    }
+
 }

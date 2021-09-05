@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import com.tong.fpl.domain.letletme.entry.EntryCupData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
-import com.tong.fpl.domain.letletme.global.StepsData;
 import com.tong.fpl.domain.letletme.global.TableData;
 import com.tong.fpl.domain.letletme.tournament.*;
 import com.tong.fpl.letletmeApi.ITournamentApi;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2020/6/24
@@ -35,11 +33,6 @@ public class TournamentApiImpl implements ITournamentApi {
     @Override
     public String createNewTournament(TournamentCreateData tournamentCreateData) {
         return this.tournamentService.createNewTournament(tournamentCreateData);
-    }
-
-    @Override
-    public String createNewZjTournament(ZjTournamentCreateData zjTournamentCreateData) {
-        return this.tournamentService.createNewZjTournament(zjTournamentCreateData);
     }
 
     @Override
@@ -110,29 +103,6 @@ public class TournamentApiImpl implements ITournamentApi {
     }
 
     /**
-     * @implNote zjResult
-     */
-    @Override
-    public List<TournamentKnockoutResultData> qryZjTournamentPkResultByTournament(int tournamentId) {
-        return this.queryService.qryZjTournamentPkResultByTournament(tournamentId);
-    }
-
-    @Override
-    public TableData<TournamentPointsGroupEventResultData> qryZjTournamentGroupResult(int tournamentId, int stage, int groupId, int entry, int page, int limit) {
-        return this.tableQueryService.qryPageZjTournamentGroupResult(tournamentId, stage, groupId, entry, page, limit);
-    }
-
-    @Override
-    public TableData<ZjTournamentResultData> qryZjTournamentResultById(int tournamentId) {
-        return this.tableQueryService.qryZjTournamentResultById(tournamentId);
-    }
-
-    @Override
-    public List<ZjTournamentCaptainData> qryZjTournamentCaptain(int tournamentId) {
-        return this.queryService.qryZjTournamentCaptain(tournamentId);
-    }
-
-    /**
      * @implNote manage
      */
     @Override
@@ -143,59 +113,6 @@ public class TournamentApiImpl implements ITournamentApi {
     @Override
     public String deleteTournamentByName(String name) {
         return this.tournamentService.deleteTournamentByName(name);
-    }
-
-    /**
-     * @implNote manageZjTournament
-     */
-    @Override
-    public int qryZjTournamentPhaseOneRankByGroupId(int tournamentId, int currentGroupId) {
-        return this.queryService.qryZjTournamentPhaseOneRankMap(tournamentId).getOrDefault(String.valueOf(currentGroupId), 0);
-    }
-
-    @Override
-    public Map<String, String> qryZjTournamentGroupNameMap(int tournamentId) {
-        return this.queryService.qryZjTournamentGroupNameMap(tournamentId);
-    }
-
-    @Override
-    public List<EntryInfoData> qryGroupEntryInfoList(int tournamentId, int groupId) {
-        return this.queryService.qryGroupEntryInfoList(tournamentId, groupId);
-    }
-
-    @Override
-    public TournamentGroupData qryDiscloseGroupData(int tournamentId, int entry, int currentGroupId) {
-        return this.queryService.qryDiscloseGroupData(tournamentId, entry, currentGroupId);
-    }
-
-    @Override
-    public TableData<TournamentGroupData> qrySeeableGroupInfoListByGroupId(int tournamentId, int currentGroupId, int groupId) {
-        return this.tableQueryService.qrySeeableGroupInfoListByGroupId(tournamentId, currentGroupId, groupId);
-    }
-
-    @Override
-    public List<TournamentKnockoutEventFixtureData> qryZjPkPickListById(int tournamentId) {
-        return this.queryService.qryZjPkPickListById(tournamentId);
-    }
-
-    @Override
-    public StepsData qryZjTournamentPkPickSteps(int tournamentId) {
-        return this.tableQueryService.qryZjTournamentPkPickSteps(tournamentId).getData().get(0);
-    }
-
-    @Override
-    public TableData<TournamentGroupData> qryZjTournamentPkPickableList(int tournamentId, int currentGroupId) {
-        return this.tableQueryService.qryZjTournamentPkPickableList(tournamentId, currentGroupId);
-    }
-
-    @Override
-    public String updateZjTournamentPhaseTwoGroupData(List<TournamentGroupData> groupDataList, int captainEntry) {
-        return this.tournamentService.updateZjTournamentPhaseTwoGroupData(groupDataList, captainEntry);
-    }
-
-    @Override
-    public String updateZjTournamentPkData(int tournamentId, int entry, int pkEntry, int captainEntry) {
-        return this.tournamentService.updateZjTournamentPkData(tournamentId, entry, pkEntry, captainEntry);
     }
 
     /**
