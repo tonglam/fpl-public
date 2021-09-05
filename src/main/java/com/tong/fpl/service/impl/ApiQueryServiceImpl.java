@@ -15,6 +15,7 @@ import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
+import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.global.MapData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
@@ -99,21 +100,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return map;
     }
 
-    @Cacheable(
-            value = "api::qryEventAverageScore",
-            cacheManager = "apiCacheManager",
-            unless = "#result.size() == 0"
-    )
+    //    @Cacheable(
+//            value = "api::qryEventAverageScore",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.size() == 0"
+//    )
     @Override
     public Map<String, Integer> qryEventAverageScore() {
-        Map<String, Integer> map = Maps.newHashMap();
-        int current = this.queryService.getCurrentEvent();
-        IntStream.rangeClosed(1, current).forEach(event -> {
-            String key = StringUtils.joinWith("::", "AverageScore", CommonUtils.getCurrentSeason(), event);
-            int score = (int) RedisUtils.getValueByKey(key).orElse(0);
-            map.put(String.valueOf(event), score);
-        });
-        return map;
+        return this.redisCacheService.getEventOverallResultMap(CommonUtils.getCurrentSeason()).values()
+                .stream()
+                .collect(Collectors.toMap(o -> String.valueOf(o.getEvent()), EventOverallResultData::getAverageEntryScore));
     }
 
     @Cacheable(

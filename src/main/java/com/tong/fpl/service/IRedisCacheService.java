@@ -1,8 +1,10 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
+import com.tong.fpl.domain.letletme.player.PlayerHistoryData;
 
 import java.util.List;
 import java.util.Map;
@@ -43,5 +45,9 @@ public interface IRedisCacheService {
     Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season);
 
     Map<String, Map<String, Integer>> getLiveBonusCacheMap();
+
+    Map<String, EventOverallResultData> getEventOverallResultMap(String season);
+
+    Map<String, List<PlayerHistoryData>> getPlayerHistoryMap();
 
 }

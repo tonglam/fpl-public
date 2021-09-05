@@ -4,8 +4,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tong.fpl.constant.Constant;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
+import com.tong.fpl.domain.letletme.player.PlayerHistoryData;
 import com.tong.fpl.service.IRedisCacheService;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -178,6 +180,23 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         Map<String, Map<String, Integer>> map = Maps.newHashMap();
         String key = StringUtils.joinWith("::", "LiveBonusData");
         this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(String.valueOf(k), (Map<String, Integer>) v));
+        return map;
+    }
+
+    @Override
+    public Map<String, EventOverallResultData> getEventOverallResultMap(String season) {
+        Map<String, EventOverallResultData> map = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", "EventOverallResult", season);
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(k.toString(), (EventOverallResultData) v));
+        return map;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<String, List<PlayerHistoryData>> getPlayerHistoryMap() {
+        Map<String, List<PlayerHistoryData>> map = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", PlayerHistoryEntity.class.getSimpleName());
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(k.toString(), (List<PlayerHistoryData>) v));
         return map;
     }
 
