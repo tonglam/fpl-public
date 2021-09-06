@@ -61,8 +61,8 @@
         <appender-ref ref="apiControllerLog"/>
     </logger>
 
-    <logger name="com.tong.fpl.log.HttpCallLog" additivity="false">
-        <appender-ref ref="httpCallLog"/>
+    <logger name="com.tong.fpl.log.InterfaceLog" additivity="false">
+        <appender-ref ref="interfaceLog"/>
     </logger>
 
 </configuration>
