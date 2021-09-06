@@ -450,9 +450,27 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
+    public void refreshEntryInfoList(List<Integer> entryList) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_INFO_LIST, entryList));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void refreshEntryHistoryInfo(int entry) {
         try {
             HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_HISTORY_INFO, entry));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void refreshEntryHistoryInfoList(List<Integer> entryList) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_HISTORY_INFO_LIST, entryList));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -468,6 +486,15 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
+    public void refreshEntryEventPickList(int event, List<Integer> entryList) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_PICK_LIST, event, entryList));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void insertEntryEventTransfers(int entry) {
         try {
             HttpUtils.httpGet(String.format(Constant.DATA_INSERT_ENTRY_EVENT_TRANSFERS, entry));
@@ -477,9 +504,27 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
-    public void upateEntryEventTransfers(int event, int entry) {
+    public void insertEntryEventTransfersList(int event, List<Integer> entryList) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_INSERT_ENTRY_EVENT_TRANSFERS_LIST, event, entryList));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateEntryEventTransfers(int event, int entry) {
         try {
             HttpUtils.httpGet(String.format(Constant.DATA_UPDATE_ENTRY_EVENT_TRANSFERS, event, entry));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateEntryEventTransfersList(int event, List<Integer> entryList) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_UPDATE_ENTRY_EVENT_TRANSFERS_LIST, event, entryList));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -495,9 +540,27 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
+    public void refreshEntryEventCupResultList(int event, List<Integer> entryList) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_CUP_RESULT_LIST, event, entryList));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void refreshEntryEventResult(int event, int entry) {
         try {
             HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_RESULT, event, entry));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void refreshEntryEventResultList(int event, List<Integer> entryList) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_RESULT_LIST, event, entryList));
         } catch (IOException e) {
             e.printStackTrace();
         }

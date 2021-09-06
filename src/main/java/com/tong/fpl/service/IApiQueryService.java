@@ -32,7 +32,7 @@ public interface IApiQueryService {
 
     List<String> qryAllLeagueName(String season);
 
-    List<PlayerFixtureData> qryNextFixture();
+    List<PlayerFixtureData> qryNextFixture(int event);
 
     /**
      * @apiNote entry

@@ -28,6 +28,11 @@ public class CommonApiController {
         return this.apiCommon.qryCurrentEventAndNextUtcDeadline();
     }
 
+    @GetMapping("/refreshEventAndDeadline")
+    public void refreshEventAndDeadline() {
+        this.apiCommon.refreshEventAndDeadline();
+    }
+
     @GetMapping("/insertEventLiveCache")
     public void insertEventLiveCache(@RequestParam int event) {
         this.apiCommon.insertEventLiveCache(event);
@@ -49,8 +54,8 @@ public class CommonApiController {
     }
 
     @GetMapping("/qryNextFixture")
-    public List<PlayerFixtureData> qryNextFixture() {
-        return this.apiCommon.qryNextFixture();
+    public List<PlayerFixtureData> qryNextFixture(@RequestParam int event) {
+        return this.apiCommon.qryNextFixture(event);
     }
 
 }

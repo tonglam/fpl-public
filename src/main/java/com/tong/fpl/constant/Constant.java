@@ -38,12 +38,19 @@ public class Constant {
 
     private static final String DATA_ENTRY_PREFIX = DATA_PREFIX + "entry/";
     public static final String DATA_ENTRY_INFO = DATA_ENTRY_PREFIX + "upsertEntryInfo/?entry=%s";
+    public static final String DATA_ENTRY_INFO_LIST = DATA_ENTRY_PREFIX + "upsertEntryInfoByList/?entryList=%s";
     public static final String DATA_ENTRY_HISTORY_INFO = DATA_ENTRY_PREFIX + "upsertEntryHistoryInfo/?entry=%s";
+    public static final String DATA_ENTRY_HISTORY_INFO_LIST = DATA_ENTRY_PREFIX + "upsertEntryHistoryInfoByList/?entryList=%s";
     public static final String DATA_ENTRY_EVENT_PICK = DATA_ENTRY_PREFIX + "insertEntryEventPick/?event=%s&entry=%s";
+    public static final String DATA_ENTRY_EVENT_PICK_LIST = DATA_ENTRY_PREFIX + "insertEntryEventPickList/?event=%s&entryList=%s";
     public static final String DATA_INSERT_ENTRY_EVENT_TRANSFERS = DATA_ENTRY_PREFIX + "insertEntryEventTransfers/?entry=%s";
+    public static final String DATA_INSERT_ENTRY_EVENT_TRANSFERS_LIST = DATA_ENTRY_PREFIX + "insertEntryEventTransfersList/?event=%s&entryList=%s";
     public static final String DATA_UPDATE_ENTRY_EVENT_TRANSFERS = DATA_ENTRY_PREFIX + "updateEntryEventTransfers/?event=%s&entry=%s";
+    public static final String DATA_UPDATE_ENTRY_EVENT_TRANSFERS_LIST = DATA_ENTRY_PREFIX + "updateEntryEventTransfers/?event=%s&entry=%s";
     public static final String DATA_ENTRY_EVENT_CUP_RESULT = DATA_ENTRY_PREFIX + "upsertEntryEventCupResult/?event=%s&entry=%s";
+    public static final String DATA_ENTRY_EVENT_CUP_RESULT_LIST = DATA_ENTRY_PREFIX + "upsertEntryEventCupResultList/?event=%s&entryList=%s";
     public static final String DATA_ENTRY_EVENT_RESULT = DATA_ENTRY_PREFIX + "upsertEntryEventResult/?event=%s&entry=%s";
+    public static final String DATA_ENTRY_EVENT_RESULT_LIST = DATA_ENTRY_PREFIX + "upsertEntryEventResultList/?event=%s&entryList=%s";
 
     private static final String DATA_TOURNAMENT_PREFIX = DATA_PREFIX + "tournament/";
     public static final String DATA_TOURNAMENT_EVENT_RESULT = DATA_TOURNAMENT_PREFIX + "upsertTournamentEventResult/?event=%s&tournamentId=%s";

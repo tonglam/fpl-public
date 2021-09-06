@@ -62,17 +62,31 @@ public interface IInterfaceService {
 
     void refreshEntryInfo(int entry);
 
+    void refreshEntryInfoList(List<Integer> entryList);
+
     void refreshEntryHistoryInfo(int entry);
+
+    void refreshEntryHistoryInfoList(List<Integer> entryList);
 
     void refreshEntryEventPick(int event, int entry);
 
+    void refreshEntryEventPickList(int event, List<Integer> entryList);
+
     void insertEntryEventTransfers(int entry);
 
-    void upateEntryEventTransfers(int event, int entry);
+    void insertEntryEventTransfersList(int event, List<Integer> entryList);
+
+    void updateEntryEventTransfers(int event, int entry);
+
+    void updateEntryEventTransfersList(int event, List<Integer> entryList);
 
     void refreshEntryEventCupResult(int event, int entry);
 
+    void refreshEntryEventCupResultList(int event, List<Integer> entryList);
+
     void refreshEntryEventResult(int event, int entry);
+
+    void refreshEntryEventResultList(int event, List<Integer> entryList);
 
     void refreshTournamentEventResult(int event, int tournamentId);
 

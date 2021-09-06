@@ -71,7 +71,7 @@ public class DataServiceImpl implements IDataService {
 
     @Override
     public void refreshEntryEventTransfers(int event, int entry) {
-        this.interfaceService.upateEntryEventTransfers(event, entry);
+        this.interfaceService.updateEntryEventTransfers(event, entry);
         log.info("event:{}, entry:{}, refresh entry_event_transfers success", event, entry);
         // clear cache
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEntryEventTransfers", event, entry));

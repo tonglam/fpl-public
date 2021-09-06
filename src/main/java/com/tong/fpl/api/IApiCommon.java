@@ -17,6 +17,11 @@ public interface IApiCommon {
     Map<String, String> qryCurrentEventAndNextUtcDeadline();
 
     /**
+     * 刷新当前比赛周和下一比赛周死线和下一轮赛程
+     */
+    void refreshEventAndDeadline();
+
+    /**
      * 刷新event_live：
      * 1.event_live cache
      * 2.event_fixture cache
@@ -43,6 +48,6 @@ public interface IApiCommon {
     /**
      * 获取下一比赛周赛程
      */
-    List<PlayerFixtureData> qryNextFixture();
+    List<PlayerFixtureData> qryNextFixture(int event);
 
 }

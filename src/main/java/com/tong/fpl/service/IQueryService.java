@@ -275,9 +275,11 @@ public interface IQueryService {
 
     List<TournamentKnockoutResultData> qryKnockoutResultByTournament(int tournamentId);
 
-    boolean qryTournamentUpdateNeeded(int event, int tournamentId);
-
     List<EntryEventPickEntity> qryTournamentEntryEventPick(int event, int tournamentId);
+
+    Map<String, String> qryTournamentGroupNameMap(int tournamentId);
+
+    Map<String, Integer> qryTournamentGroupEntryGroupIdMap(int tournamentId);
 
     /**
      * @apiNote report
