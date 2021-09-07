@@ -3,6 +3,7 @@ package com.tong.fpl.service;
 import com.google.common.collect.Maps;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
+import com.tong.fpl.domain.letletme.live.LiveCalcElementData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -18,6 +19,16 @@ public class LiveTest extends FplApplicationTests {
 
     @Autowired
     private ILiveService liveCalcService;
+
+    @ParameterizedTest
+    @CsvSource({"3, 233"})
+    void calcLivePointsByElement(int event, int element) {
+        long start = System.currentTimeMillis();
+        LiveCalcElementData liveCalcElementData = this.liveCalcService.calcLivePointsByElement(event, element);
+        long end = System.currentTimeMillis();
+        System.out.println("escape: " + ((end - start) / 1000) + "s!");
+        System.out.println(1);
+    }
 
     @ParameterizedTest
     @CsvSource({"2, 1713"})

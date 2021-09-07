@@ -562,7 +562,9 @@ public class LiveServiceImpl implements ILiveService {
 
     private List<ElementEventResultData> getPickList(List<ElementEventResultData> elementEventResultDataList) {
         // element_type -> active -> start
-        Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>> map = elementEventResultDataList.stream().collect(new ElementLiveCollector());
+        Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>> map = elementEventResultDataList
+                .stream()
+                .collect(new ElementLiveCollector());
         // gkp
         List<ElementEventResultData> gkps = this.createSteam(map.get(Position.GKP.getElementType()).get(true, true),
                 map.get(Position.GKP.getElementType()).get(true, false),
@@ -706,15 +708,16 @@ public class LiveServiceImpl implements ILiveService {
 
     @Override
     public LiveCalcElementData calcLivePointsByElement(int event, int element) {
-        EventLiveEntity eventLiveEntity = this.queryService.qryEventLiveByElement(event, element);
+        EventLiveEntity eventLiveEntity = this.queryService.getEventLiveByEvent(event).getOrDefault(String.valueOf(element), null);
         if (eventLiveEntity == null) {
             return new LiveCalcElementData();
         }
         int teamId = eventLiveEntity.getTeamId();
+        int bonus = this.queryService.getLiveBonusCacheMap().getOrDefault(String.valueOf(teamId), Maps.newHashMap()).getOrDefault(String.valueOf(element), 0);
         return BeanUtil.copyProperties(eventLiveEntity, LiveCalcElementData.class)
                 .setEvent(event)
                 .setLivePoints(this.calcElementLivePoints(eventLiveEntity))
-                .setLivebonus(this.queryService.getLiveBonusCacheMap().get(String.valueOf(teamId)).getOrDefault(String.valueOf(element), 0));
+                .setLivebonus(bonus);
     }
 
     // dgw is shit

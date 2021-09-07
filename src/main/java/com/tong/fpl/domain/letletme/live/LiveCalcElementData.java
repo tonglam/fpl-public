@@ -10,10 +10,10 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class LiveCalcElementData {
 
+    private int element;
     private int event;
     private int livePoints;
     private int livebonus;
-    private int playStatus;
     private int minutes;
     private int goalsScored;
     private int assists;
