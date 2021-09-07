@@ -13,7 +13,7 @@ public class LiveCalcElementData {
     private int element;
     private int event;
     private int livePoints;
-    private int livebonus;
+    private int liveBonus;
     private int bps;
     private int minutes;
     private int minutesPoints;

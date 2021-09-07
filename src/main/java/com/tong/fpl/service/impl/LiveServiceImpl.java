@@ -718,7 +718,7 @@ public class LiveServiceImpl implements ILiveService {
         return BeanUtil.copyProperties(eventLiveEntity, LiveCalcElementData.class)
                 .setEvent(event)
                 .setLivePoints(this.calcElementLivePoints(eventLiveEntity))
-                .setLivebonus(bonus)
+                .setLiveBonus(bonus)
                 .setMinutesPoints(this.calcElementPlayingPoints(eventLiveEntity.getMinutes()))
                 .setGoalsScoredPoints(this.calcElementGoalsScoredPoints(elementType, eventLiveEntity.getGoalsScored()))
                 .setAssistsPoints(this.calcElementGoalsAssistPoints(eventLiveEntity.getAssists()))
