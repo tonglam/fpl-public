@@ -712,12 +712,24 @@ public class LiveServiceImpl implements ILiveService {
         if (eventLiveEntity == null) {
             return new LiveCalcElementData();
         }
+        int elementType = eventLiveEntity.getElementType();
         int teamId = eventLiveEntity.getTeamId();
         int bonus = this.queryService.getLiveBonusCacheMap().getOrDefault(String.valueOf(teamId), Maps.newHashMap()).getOrDefault(String.valueOf(element), 0);
         return BeanUtil.copyProperties(eventLiveEntity, LiveCalcElementData.class)
                 .setEvent(event)
                 .setLivePoints(this.calcElementLivePoints(eventLiveEntity))
-                .setLivebonus(bonus);
+                .setLivebonus(bonus)
+                .setMinutesPoints(this.calcElementPlayingPoints(eventLiveEntity.getMinutes()))
+                .setGoalsScoredPoints(this.calcElementGoalsScoredPoints(elementType, eventLiveEntity.getGoalsScored()))
+                .setAssistsPoints(this.calcElementGoalsAssistPoints(eventLiveEntity.getAssists()))
+                .setCleanSheetsPoints(this.calcElementCleanSheetsPoints(elementType, eventLiveEntity.getCleanSheets()))
+                .setGoalsConcededPoints(this.calcElementGoalsConcededPoints(elementType, eventLiveEntity.getGoalsConceded()))
+                .setOwnGoalsPoints(this.calcElementOwnGoalsPoints(eventLiveEntity.getOwnGoals()))
+                .setPenaltiesMissedPoints(this.calcElementPenaltiesMissedPoints(eventLiveEntity.getPenaltiesMissed()))
+                .setPenaltiesSavedPoints(this.calcElementPenaltiesSavedPoints(eventLiveEntity.getPenaltiesSaved()))
+                .setYellowCardsPoints(this.calcElementYellowCardsPoints(eventLiveEntity.getYellowCards()))
+                .setRedCardsPoints(this.calcElementRedCardsPoints(eventLiveEntity.getRedCards()))
+                .setSavesPoints(this.calcElementSavesPoints(eventLiveEntity.getSaves()));
     }
 
     // dgw is shit
