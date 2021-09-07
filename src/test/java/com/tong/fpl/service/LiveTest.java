@@ -21,7 +21,7 @@ public class LiveTest extends FplApplicationTests {
     private ILiveService liveCalcService;
 
     @ParameterizedTest
-    @CsvSource({"3, 233"})
+    @CsvSource({"3, 237"})
     void calcLivePointsByElement(int event, int element) {
         long start = System.currentTimeMillis();
         LiveCalcElementData liveCalcElementData = this.liveCalcService.calcLivePointsByElement(event, element);
