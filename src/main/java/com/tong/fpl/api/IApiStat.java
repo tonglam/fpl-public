@@ -1,7 +1,6 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
@@ -51,11 +50,6 @@ public interface IApiStat {
      * 获取所有赛程
      */
     List<List<String>> qrySeasonFixture();
-
-    /**
-     * 获取球员信息
-     */
-    PlayerInfoData qryPlayerInfo(String season, int code);
 
     /**
      * 获取球员数据

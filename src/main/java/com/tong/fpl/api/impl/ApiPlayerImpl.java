@@ -26,6 +26,16 @@ public class ApiPlayerImpl implements IApiPlayer {
     private final IDataService dataService;
 
     @Override
+    public PlayerInfoData qryPlayerInfoByElement(String season, int element) {
+        return this.apiQueryService.qryPlayerInfoByElement(season, element);
+    }
+
+    @Override
+    public PlayerInfoData qryPlayerInfoByCode(String season, int code) {
+        return this.apiQueryService.qryPlayerInfoByCode(season, code);
+    }
+
+    @Override
     public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType) {
         return this.apiQueryService.qryPlayerInfoByElementType(elementType);
     }

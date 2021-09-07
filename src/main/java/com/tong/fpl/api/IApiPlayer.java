@@ -15,6 +15,16 @@ import java.util.Map;
 public interface IApiPlayer {
 
     /**
+     * 根据element获取球员信息
+     */
+    PlayerInfoData qryPlayerInfoByElement(String season, int element);
+
+    /**
+     * 根据code获取球员信息
+     */
+    PlayerInfoData qryPlayerInfoByCode(String season, int code);
+
+    /**
      * 根据位置获取球员列表(team_short_name -> player_info)
      */
     LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);

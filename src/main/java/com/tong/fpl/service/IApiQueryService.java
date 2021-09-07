@@ -70,6 +70,10 @@ public interface IApiQueryService {
     /**
      * @apiNote player
      */
+    PlayerInfoData qryPlayerInfoByElement(String season, int element);
+
+    PlayerInfoData qryPlayerInfoByCode(String season, int code);
+
     LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(int elementType);
 
     PlayerDetailData qryPlayerDetailByElement(int element);
@@ -92,8 +96,6 @@ public interface IApiQueryService {
     Map<String, String> qryLeagueEventEoWebNameMap(String season, int event, int leagueId, String leagueType);
 
     LeagueEventSelectData qryLeagueSelectByName(String season, int event, String leagueName);
-
-    PlayerInfoData qryPlayerInfo(String season, int code);
 
     PlayerSummaryData qryPlayerSummary(String season, int code);
 

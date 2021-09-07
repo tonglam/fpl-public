@@ -17,6 +17,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
+import com.tong.fpl.domain.letletme.live.LiveCalcElementData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import com.tong.fpl.service.IInterfaceService;
@@ -704,17 +705,20 @@ public class LiveServiceImpl implements ILiveService {
     }
 
     @Override
-    public int calcElementLivePoints(int event, int element) {
+    public LiveCalcElementData calcLivePointsByElement(int event, int element) {
         EventLiveEntity eventLiveEntity = this.queryService.qryEventLiveByElement(event, element);
         if (eventLiveEntity == null) {
-            return 0;
+            return new LiveCalcElementData();
         }
-        return this.calcElementLivePoints(eventLiveEntity);
+        int teamId = eventLiveEntity.getTeamId();
+        return BeanUtil.copyProperties(eventLiveEntity, LiveCalcElementData.class)
+                .setEvent(event)
+                .setLivePoints(this.calcElementLivePoints(eventLiveEntity))
+                .setLivebonus(this.queryService.getLiveBonusCacheMap().get(String.valueOf(teamId)).getOrDefault(String.valueOf(element), 0));
     }
 
     // dgw is shit
-    @Override
-    public int calcElementLivePoints(EventLiveEntity eventLiveEntity) {
+    private int calcElementLivePoints(EventLiveEntity eventLiveEntity) {
         int elementType = eventLiveEntity.getElementType();
         return this.calcElementPlayingPoints(eventLiveEntity.getMinutes())
                 + this.calcElementGoalsScoredPoints(elementType, eventLiveEntity.getGoalsScored())

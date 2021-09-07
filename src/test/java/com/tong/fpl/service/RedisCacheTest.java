@@ -22,41 +22,41 @@ import java.util.Map;
 public class RedisCacheTest extends FplApplicationTests {
 
     @Autowired
-    private IRedisCacheService redisCacheSerive;
+    private IRedisCacheService redisCacheService;
 
     @ParameterizedTest
     @CsvSource({"2021"})
     void getTeamNameMap(String season) {
-        Map<String, String> map = this.redisCacheSerive.getTeamNameMap(season);
+        Map<String, String> map = this.redisCacheService.getTeamNameMap(season);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2021"})
-    void getTeamShrotNameMap(String season) {
-        Map<String, String> map = this.redisCacheSerive.getTeamShortNameMap(season);
+    void getTeamShortNameMap(String season) {
+        Map<String, String> map = this.redisCacheService.getTeamShortNameMap(season);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2021, 21"})
     void getUtcDeadlineByEvent(String season, int event) {
-        String a = this.redisCacheSerive.getUtcDeadlineByEvent(season, event);
+        String a = this.redisCacheService.getUtcDeadlineByEvent(season, event);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2021, 21"})
     void getDeadlineByEvent(String season, int event) {
-        String a = this.redisCacheSerive.getDeadlineByEvent(season, event);
+        String a = this.redisCacheService.getDeadlineByEvent(season, event);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2021, 211"})
-    void getPlayerByElememt(String season, int element) {
+    void getPlayerByElement(String season, int element) {
         long startTime = System.currentTimeMillis();
-        PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElement(season, element);
+        PlayerEntity playerEntity = this.redisCacheService.getPlayerByElement(season, element);
         long endTime = System.currentTimeMillis();
         System.out.println("escape: " + (endTime - startTime) + "ms");
         System.out.println(1);
@@ -65,67 +65,60 @@ public class RedisCacheTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"2021, 15"})
     void getEventFixtureByEvent(String season, int event) {
-        List<EventFixtureEntity> list = this.redisCacheSerive.getEventFixtureByEvent(season, event);
+        List<EventFixtureEntity> list = this.redisCacheService.getEventFixtureByEvent(season, event);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2021, 1"})
     void getEventFixtureByTeamId(String season, int teamId) {
-        Map<String, List<PlayerFixtureData>> map = this.redisCacheSerive.getEventFixtureByTeamId(season, teamId);
+        Map<String, List<PlayerFixtureData>> map = this.redisCacheService.getEventFixtureByTeamId(season, teamId);
         System.out.println(1);
     }
 
     @Test
     void getEventLiveFixture() {
-        Map<String, Map<String, List<LiveFixtureData>>> map = this.redisCacheSerive.getEventLiveFixtureMap();
+        Map<String, Map<String, List<LiveFixtureData>>> map = this.redisCacheService.getEventLiveFixtureMap();
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2122"})
     void getPlayerMap(String season) {
-        Map<String, PlayerEntity> map = this.redisCacheSerive.getPlayerMap(season);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"2122, 233"})
-    void getPlayerByElement(String season, int element) {
-        PlayerEntity playerEntity = this.redisCacheSerive.getPlayerByElement(season, element);
+        Map<String, PlayerEntity> map = this.redisCacheService.getPlayerMap(season);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2122"})
     void getPlayerStatMap(String season) {
-        Map<String, PlayerStatEntity> map = this.redisCacheSerive.getPlayerStatMap(season);
+        Map<String, PlayerStatEntity> map = this.redisCacheService.getPlayerStatMap(season);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"1920, 221"})
     void getPlayerStatByElement(String season, int element) {
-        PlayerStatEntity playerStatEntity = this.redisCacheSerive.getPlayerStatByElement(season, element);
+        PlayerStatEntity playerStatEntity = this.redisCacheService.getPlayerStatByElement(season, element);
         System.out.println(1);
     }
 
     @ParameterizedTest
     @CsvSource({"2122"})
     void getEventLiveSummaryMap(String season) {
-        Map<String, EventLiveSummaryEntity> map = this.redisCacheSerive.getEventLiveSummaryMap(season);
+        Map<String, EventLiveSummaryEntity> map = this.redisCacheService.getEventLiveSummaryMap(season);
         System.out.println(1);
     }
 
     @Test
     void getLiveBonusCacheMap() {
-        Map<String, Map<String, Integer>> map = this.redisCacheSerive.getLiveBonusCacheMap();
+        Map<String, Map<String, Integer>> map = this.redisCacheService.getLiveBonusCacheMap();
         System.out.println(1);
     }
 
     @Test
     void getTeamEventFixtureMap() {
-        Map<Integer, Map<String, List<PlayerFixtureData>>> map = this.redisCacheSerive.getTeamEventFixtureMap("2021");
+        Map<Integer, Map<String, List<PlayerFixtureData>>> map = this.redisCacheService.getTeamEventFixtureMap("2021");
         System.out.println(1);
     }
 

@@ -141,6 +141,20 @@ public class ApiQueryTest extends FplApplicationTests {
      * @apiNote player
      */
     @ParameterizedTest
+    @CsvSource({"2122, 233"})
+    void qryPlayerInfoByElement(String season, int element) {
+        PlayerInfoData data = this.apiQueryService.qryPlayerInfoByElement(season, element);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1617, 61366"})
+    void qryPlayerInfoByCode(String season, int code) {
+        PlayerInfoData data = this.apiQueryService.qryPlayerInfoByCode(season, code);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
     @CsvSource({"3"})
     void qryPlayerInfoListByElementType(int elementType) {
         LinkedHashMap<String, List<PlayerInfoData>> map = this.apiQueryService.qryPlayerInfoByElementType(elementType);
@@ -222,13 +236,6 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"2122, 2, ⚽让让群21/22积分联赛"})
     void qryTeamSelectByLeagueName(String season, int event, String leagueName) {
         LeagueEventSelectData data = this.apiQueryService.qryLeagueSelectByName(season, event, leagueName);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1617, 61366"})
-    void qryPlayerInfo(String season, int code) {
-        PlayerInfoData data = this.apiQueryService.qryPlayerInfo(season, code);
         System.out.println(1);
     }
 

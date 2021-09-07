@@ -2,7 +2,6 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
@@ -59,11 +58,6 @@ public class ApiStatImpl implements IApiStat {
     @Override
     public List<List<String>> qrySeasonFixture() {
         return this.apiQueryService.qrySeasonFixture();
-    }
-
-    @Override
-    public PlayerInfoData qryPlayerInfo(String season, int code) {
-        return this.apiQueryService.qryPlayerInfo(season, code);
     }
 
     @Override

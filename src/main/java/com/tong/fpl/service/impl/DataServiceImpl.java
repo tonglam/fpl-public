@@ -28,7 +28,9 @@ public class DataServiceImpl implements IDataService {
         if (event < 1 || event > 38) {
             return;
         }
-        this.interfaceService.refreshEventLiveCache(event);
+        if (!this.queryService.isMatchDayTime(event)) {
+            return;
+        }
         log.info("event:{}, refresh event_live cache success", event);
     }
 

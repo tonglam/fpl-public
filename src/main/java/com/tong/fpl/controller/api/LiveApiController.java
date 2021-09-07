@@ -2,6 +2,7 @@ package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiLive;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
+import com.tong.fpl.domain.letletme.live.LiveCalcElementData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,12 @@ import java.util.List;
 public class LiveApiController {
 
     private final IApiLive apiLive;
+
+    @RequestMapping("/calcLivePointsByElement")
+    @ResponseBody
+    public LiveCalcElementData calcLivePointsByElement(@RequestParam int event, @RequestParam int element) {
+        return this.apiLive.calcLivePointsByElement(event, element);
+    }
 
     @RequestMapping("/calcLivePointsByEntry")
     @ResponseBody

@@ -32,6 +32,13 @@ import java.util.Map;
 public interface IQueryService {
 
     /**
+     * @apiNote time
+     */
+    boolean isMatchDayTime(int event);
+
+    List<LocalDateTime> getMatchDayTimeByEvent(int event);
+
+    /**
      * @apiNote player
      */
     default Map<String, PlayerEntity> getPlayerMap() {

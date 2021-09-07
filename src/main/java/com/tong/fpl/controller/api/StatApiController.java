@@ -2,7 +2,6 @@ package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
-import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
@@ -62,11 +61,6 @@ public class StatApiController {
     @GetMapping("/qrySeasonFixture")
     public List<List<String>> qrySeasonFixture() {
         return this.apiStat.qrySeasonFixture();
-    }
-
-    @GetMapping("/qryPlayerInfo")
-    public PlayerInfoData qryPlayerInfo(@RequestParam String season, @RequestParam int code) {
-        return this.apiStat.qryPlayerInfo(season, code);
     }
 
     @GetMapping("/qryPlayerSummary")

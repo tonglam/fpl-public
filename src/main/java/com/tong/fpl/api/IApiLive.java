@@ -1,6 +1,7 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
+import com.tong.fpl.domain.letletme.live.LiveCalcElementData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 
@@ -10,6 +11,11 @@ import java.util.List;
  * Create by tong on 2021/5/10
  */
 public interface IApiLive {
+
+    /**
+     * 获取球员实时得分
+     */
+    LiveCalcElementData calcLivePointsByElement(int event, int element);
 
     /**
      * 获取个人实时得分

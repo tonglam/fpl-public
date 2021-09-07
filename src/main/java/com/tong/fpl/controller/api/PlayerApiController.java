@@ -26,6 +26,16 @@ public class PlayerApiController {
 
     private final IApiPlayer apiPlayer;
 
+    @GetMapping("/qryPlayerInfoByElement")
+    public PlayerInfoData qryPlayerInfoByElement(@RequestParam String season, @RequestParam int element) {
+        return this.apiPlayer.qryPlayerInfoByElement(season, element);
+    }
+
+    @GetMapping("/qryPlayerInfoByCode")
+    public PlayerInfoData qryPlayerInfoByCode(@RequestParam String season, @RequestParam int code) {
+        return this.apiPlayer.qryPlayerInfoByCode(season, code);
+    }
+
     @GetMapping("/qryPlayerInfoByElementType")
     public LinkedHashMap<String, List<PlayerInfoData>> qryPlayerInfoByElementType(@RequestParam int elementType) {
         return this.apiPlayer.qryPlayerInfoByElementType(elementType);

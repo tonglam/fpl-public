@@ -1044,6 +1044,70 @@ public class ApiQueryServiceImpl implements IApiQueryService {
      * @implNote player
      */
     @Cacheable(
+            value = "api::qryPlayerInfoByElement",
+            key = "#season+'::'+#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.element eq 0"
+    )
+    @Override
+    public PlayerInfoData qryPlayerInfoByElement(String season, int element) {
+        if (element <= 0) {
+            return new PlayerInfoData();
+        }
+        if (!Season.legalSeason(season)) {
+            return new PlayerInfoData();
+        }
+        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummaryByElement(season, element);
+        MybatisPlusConfig.season.set(season);
+        PlayerEntity playerEntity = this.playerService.getById(element);
+        if (playerEntity == null) {
+            return new PlayerInfoData();
+        }
+        MybatisPlusConfig.season.remove();
+        return this.initPlayerInfoData(season, playerEntity, eventLiveSummaryEntity);
+    }
+
+    @Cacheable(
+            value = "api::qryPlayerInfoByCode",
+            key = "#season+'::'+#code",
+            cacheManager = "apiCacheManager",
+            unless = "#result.element eq 0"
+    )
+    @Override
+    public PlayerInfoData qryPlayerInfoByCode(String season, int code) {
+        if (code <= 0) {
+            return new PlayerInfoData();
+        }
+        if (!Season.legalSeason(season)) {
+            return new PlayerInfoData();
+        }
+        MybatisPlusConfig.season.set(season);
+        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getCode, code));
+        if (playerEntity == null) {
+            return new PlayerInfoData();
+        }
+        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummaryByElement(season, playerEntity.getElement());
+        MybatisPlusConfig.season.remove();
+        return this.initPlayerInfoData(season, playerEntity, eventLiveSummaryEntity);
+    }
+
+    private PlayerInfoData initPlayerInfoData(String season, PlayerEntity playerEntity, EventLiveSummaryEntity eventLiveSummaryEntity) {
+        return new PlayerInfoData()
+                .setElement(playerEntity.getElement())
+                .setCode(playerEntity.getCode())
+                .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
+                .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
+                .setPrice(playerEntity.getPrice() / 10.0)
+                .setStartPrice(playerEntity.getStartPrice() / 10.0)
+                .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
+    }
+
+    @Cacheable(
             value = "api::qryPlayerInfoByElementType",
             key = "#elementType",
             cacheManager = "apiCacheManager",
@@ -1786,42 +1850,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 return 3;
         }
         return 0;
-    }
-
-    @Cacheable(
-            value = "api::qryPlayerInfo",
-            key = "#season+'::'+#code",
-            cacheManager = "apiCacheManager",
-            unless = "#result.element eq 0"
-    )
-    @Override
-    public PlayerInfoData qryPlayerInfo(String season, int code) {
-        if (code <= 0) {
-            return new PlayerInfoData();
-        }
-        if (!Season.legalSeason(season)) {
-            return new PlayerInfoData();
-        }
-        MybatisPlusConfig.season.set(season);
-        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
-                .eq(PlayerEntity::getCode, code));
-        if (playerEntity == null) {
-            return new PlayerInfoData();
-        }
-        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummaryByElement(season, playerEntity.getElement());
-        MybatisPlusConfig.season.remove();
-        return new PlayerInfoData()
-                .setElement(playerEntity.getElement())
-                .setCode(playerEntity.getCode())
-                .setWebName(playerEntity.getWebName())
-                .setElementType(playerEntity.getElementType())
-                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setTeamId(playerEntity.getTeamId())
-                .setTeamName(this.queryService.getTeamNameByTeam(season, playerEntity.getTeamId()))
-                .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
-                .setPrice(playerEntity.getPrice() / 10.0)
-                .setStartPrice(playerEntity.getStartPrice() / 10.0)
-                .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
     }
 
     @Cacheable(

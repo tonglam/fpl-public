@@ -84,6 +84,43 @@ public class QueryServiceImpl implements IQueryService {
     private final ScoutService scoutService;
 
     /**
+     * @implNote time
+     */
+    @Override
+    public boolean isMatchDayTime(int event) {
+        List<LocalDateTime> matchDayTimeList = this.getMatchDayTimeByEvent(event);
+        LocalDateTime start = matchDayTimeList.stream().min(LocalDateTime::compareTo).orElse(null);
+        LocalDateTime last = matchDayTimeList.stream().max(LocalDateTime::compareTo).orElse(null);
+        if (start == null) {
+            return false;
+        }
+        return LocalDateTime.now().isAfter(start) && LocalDateTime.now().minusHours(2).isBefore(last);
+    }
+
+    @Cacheable(
+            value = "getMatchDayTimeByEvent",
+            key = "#event",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<LocalDateTime> getMatchDayTimeByEvent(int event) {
+        List<LocalDateTime> matchDayTimeList = Lists.newArrayList();
+        this.getEventFixtureByEvent(event)
+                .forEach(eventFixtureEntity -> {
+                            String kickoffTime = eventFixtureEntity.getKickoffTime().replace(" ", "T");
+                            LocalDateTime dateTime = LocalDateTime.parse(kickoffTime);
+                            if (!matchDayTimeList.contains(dateTime)) {
+                                matchDayTimeList.add(dateTime);
+                            }
+                        }
+                );
+        return matchDayTimeList
+                .stream()
+                .sorted(LocalDateTime::compareTo)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * @implNote player
      */
     @Override
