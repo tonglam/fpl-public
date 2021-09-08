@@ -18,6 +18,7 @@ public class ElementEventLiveExplainData {
     private String teamShortName;
     private int event;
     private int totalPoints;
+    private int bps;
     private int bonus;
     private int minutes;
     private int minutesPoints;

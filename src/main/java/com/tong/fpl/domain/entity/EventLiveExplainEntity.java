@@ -25,6 +25,7 @@ public class EventLiveExplainEntity {
     @TableField(value = "`event`", insertStrategy = FieldStrategy.NOT_EMPTY, updateStrategy = FieldStrategy.NOT_EMPTY)
     private Integer event;
     private Integer totalPoints;
+    private Integer bps;
     private Integer bonus;
     private Integer minutes;
     private Integer minutesPoints;
