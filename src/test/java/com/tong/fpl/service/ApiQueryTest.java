@@ -5,6 +5,7 @@ import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
+import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
@@ -250,6 +251,13 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"2122"})
     void qryFilterPlayers(String season) {
         List<PlayerFilterData> list = this.apiQueryService.qryFilterPlayers(season);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"3, 233"})
+    void qryElementEventExplainResult(int event, int element) {
+        ElementEventLiveExplainData data = this.apiQueryService.qryElementEventExplainResult(event, element);
         System.out.println(1);
     }
 

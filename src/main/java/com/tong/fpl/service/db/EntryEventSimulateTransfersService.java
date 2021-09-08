@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EntryEventSimulateTransfersService extends ServiceImpl<EntryEventSimulateTransfersMapper, EntryEventSimulateTransfersEntity> implements IService<EntryEventSimulateTransfersEntity> {
+
 }

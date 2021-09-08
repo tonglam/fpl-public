@@ -197,6 +197,8 @@ public interface IQueryService {
     /**
      * @apiNote event_live
      */
+    Map<String, EventLiveExplainEntity> getEventLiveExplainByEvent(int event);
+
     Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season);
 
     default EventLiveEntity qryEventLiveByElement(int event, int element) {

@@ -6,4 +6,5 @@ import com.tong.fpl.domain.entity.TournamentKnockoutEntity;
  * Create by tong on 2020/6/11
  */
 public interface TournamentKnockoutMapper extends MyBaseMapper<TournamentKnockoutEntity> {
+
 }

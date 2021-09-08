@@ -167,6 +167,14 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
     }
 
     @Override
+    public Map<String, EventLiveExplainEntity> getEventLiveExplainByEvent(int event) {
+        Map<String, EventLiveExplainEntity> map = Maps.newHashMap();
+        String key = StringUtils.joinWith("::", EventLiveExplainEntity.class.getSimpleName(), event);
+        this.redisTemplate.opsForHash().entries(key).forEach((k, v) -> map.put(k.toString(), (EventLiveExplainEntity) v));
+        return map;
+    }
+
+    @Override
     public Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season) {
         Map<String, EventLiveSummaryEntity> map = Maps.newHashMap();
         String key = StringUtils.joinWith("::", EventLiveSummaryEntity.class.getSimpleName(), season);

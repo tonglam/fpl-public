@@ -42,6 +42,8 @@ public interface IRedisCacheService {
 
     Map<String, EventLiveEntity> getEventLiveByEvent(int event);
 
+    Map<String, EventLiveExplainEntity> getEventLiveExplainByEvent(int event);
+
     Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season);
 
     Map<String, Map<String, Integer>> getLiveBonusCacheMap();

@@ -1,5 +1,6 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
@@ -100,6 +101,8 @@ public interface IApiQueryService {
     PlayerSummaryData qryPlayerSummary(String season, int code);
 
     TeamSummaryData qryTeamSummary(String season, String name);
+
+    ElementEventLiveExplainData qryElementEventExplainResult(int event, int element);
 
     /**
      * @apiNote tournament

@@ -1,6 +1,7 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiStat;
+import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
@@ -78,6 +79,11 @@ public class ApiStatImpl implements IApiStat {
     @Override
     public void refreshTeamSummary(String season, String name) {
         this.eventDataService.refreshTeamSummary(season, name);
+    }
+
+    @Override
+    public ElementEventLiveExplainData qryElementEventExplainResult(int event, int element) {
+        return this.apiQueryService.qryElementEventExplainResult(event, element);
     }
 
 }

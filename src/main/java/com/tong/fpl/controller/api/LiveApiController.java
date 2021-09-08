@@ -1,10 +1,7 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiLive;
-import com.tong.fpl.domain.letletme.live.LiveCalcData;
-import com.tong.fpl.domain.letletme.live.LiveCalcElementData;
-import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
+import com.tong.fpl.domain.letletme.live.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +28,12 @@ public class LiveApiController {
     @ResponseBody
     public LiveCalcData calcLivePointsByEntry(@RequestParam int event, @RequestParam int entry) {
         return this.apiLive.calcLivePointsByEntry(event, entry);
+    }
+
+    @RequestMapping("/calcLivePointsByElementList")
+    @ResponseBody
+    public LiveCalcData calcLivePointsByElementList(@RequestBody LiveCalcParamData liveCalcParamData) {
+        return this.apiLive.calcLivePointsByElementList(liveCalcParamData);
     }
 
     @RequestMapping("/calcLivePointsByTournament")

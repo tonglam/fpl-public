@@ -864,6 +864,12 @@ public class QueryServiceImpl implements IQueryService {
     /**
      * @implNote event_live
      */
+
+    @Override
+    public Map<String, EventLiveExplainEntity> getEventLiveExplainByEvent(int event) {
+        return this.redisCacheService.getEventLiveExplainByEvent(event);
+    }
+
     @Cacheable(
             value = "getEventLiveSummaryMap",
             key = "#season",

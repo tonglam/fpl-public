@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
@@ -70,5 +71,10 @@ public interface IApiStat {
      * 刷新球队数据
      */
     void refreshTeamSummary(String season, String name);
+
+    /**
+     * 获取球员比赛周得分详情
+     */
+    ElementEventLiveExplainData qryElementEventExplainResult(int event, int element);
 
 }

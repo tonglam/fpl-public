@@ -2,10 +2,10 @@ package com.tong.fpl.service;
 
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveCalcElementData;
+import com.tong.fpl.domain.letletme.live.LiveCalcParamData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2020/7/13
@@ -20,7 +20,7 @@ public interface ILiveService {
     /**
      * calculate entry live points(do not has entry)
      */
-    LiveCalcData calcLivePointsByElementList(int event, Map<Integer, Integer> elementMap, String chip, int captain, int viceCaptain);
+    LiveCalcData calcLivePointsByElementList(LiveCalcParamData liveCalcParamData);
 
     /**
      * calculate entry live points in the tournament

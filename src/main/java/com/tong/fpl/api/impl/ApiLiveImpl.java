@@ -1,10 +1,7 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiLive;
-import com.tong.fpl.domain.letletme.live.LiveCalcData;
-import com.tong.fpl.domain.letletme.live.LiveCalcElementData;
-import com.tong.fpl.domain.letletme.live.LiveMatchData;
-import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
+import com.tong.fpl.domain.letletme.live.*;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.ILiveService;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +28,11 @@ public class ApiLiveImpl implements IApiLive {
     @Override
     public LiveCalcData calcLivePointsByEntry(int event, int entry) {
         return this.liveService.calcLivePointsByEntry(event, entry);
+    }
+
+    @Override
+    public LiveCalcData calcLivePointsByElementList(LiveCalcParamData liveCalcParamData) {
+        return this.liveService.calcLivePointsByElementList(liveCalcParamData);
     }
 
     @Override

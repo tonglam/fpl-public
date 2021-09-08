@@ -13,6 +13,7 @@ import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.UserTransfersRes;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
@@ -2130,6 +2131,37 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList())
         );
         return map;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryElementEventExplainResult",
+//            key = "#event+'::'+#element",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.element eq 0"
+//    )
+    @Override
+    public ElementEventLiveExplainData qryElementEventExplainResult(int event, int element) {
+        // prepare
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
+        Map<String, EventLiveExplainEntity> eventLiveExplainMap = this.queryService.getEventLiveExplainByEvent(event);
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        if (CollectionUtils.isEmpty(playerMap) || CollectionUtils.isEmpty(eventLiveExplainMap) || CollectionUtils.isEmpty(teamShortNameMap)) {
+            return new ElementEventLiveExplainData();
+        }
+        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
+        if (playerEntity == null) {
+            return new ElementEventLiveExplainData();
+        }
+        EventLiveExplainEntity eventLiveExplainEntity = eventLiveExplainMap.getOrDefault(String.valueOf(element), null);
+        if (eventLiveExplainEntity == null) {
+            return new ElementEventLiveExplainData();
+        }
+        ElementEventLiveExplainData data = BeanUtil.copyProperties(eventLiveExplainEntity, ElementEventLiveExplainData.class);
+        data
+                .setWebName(playerEntity.getWebName())
+                .setElementTypeName(Position.getNameFromElementType(data.getElementType()))
+                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""));
+        return data;
     }
 
     /**

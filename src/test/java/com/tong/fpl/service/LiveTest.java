@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.domain.letletme.live.LiveCalcData;
 import com.tong.fpl.domain.letletme.live.LiveCalcElementData;
+import com.tong.fpl.domain.letletme.live.LiveCalcParamData;
 import com.tong.fpl.domain.letletme.live.SearchLiveCalcData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -55,7 +56,13 @@ public class LiveTest extends FplApplicationTests {
         map.put(9, 117);
         map.put(10, 377);
         map.put(11, 506);
-        LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByElementList(event, map, "n/a", 254, 4);
+        LiveCalcParamData data = new LiveCalcParamData()
+                .setEvent(event)
+                .setElementMap(map)
+                .setChip("n/a")
+                .setCaptain(254)
+                .setViceCaptain(4);
+        LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByElementList(data);
         System.out.println("points: " + liveCalaData.getLivePoints());
         liveCalaData.getPickList().forEach(o -> System.out.println(o.getWebName() + "-" + o.getTotalPoints()));
     }

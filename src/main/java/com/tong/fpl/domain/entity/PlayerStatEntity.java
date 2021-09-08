@@ -7,6 +7,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+/**
+ * Create by tong on 2020/7/9
+ */
 @Data
 @Accessors(chain = true)
 @TableName(value = "player_stat")

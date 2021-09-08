@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EntryEventPickService extends ServiceImpl<EntryEventPickMapper, EntryEventPickEntity> implements IService<EntryEventPickEntity> {
+
 }
