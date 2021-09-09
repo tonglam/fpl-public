@@ -13,10 +13,10 @@ import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.UserTransfersRes;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
+import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
-import com.tong.fpl.domain.letletme.event.EventDreamTeamData;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.global.MapData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
@@ -209,7 +209,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             unless = "#result.size() == 0"
     )
     @Override
-    public List<EventDreamTeamData> qryEventDreamTeam(int event) {
+    public List<ElementEventData> qryEventDreamTeam(int event) {
         if (event < 1 || event > 38) {
             return Lists.newArrayList();
         }
@@ -221,17 +221,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .stream()
                 .map(o -> this.initEventDreamData(event, o, playerMap, teamShortNameMap))
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(EventDreamTeamData::getElementType))
+                .sorted(Comparator.comparing(ElementEventData::getElementType))
                 .collect(Collectors.toList());
     }
 
-    private EventDreamTeamData initEventDreamData(int event, PlayerStatEntity playerStatEntity, Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+    private ElementEventData initEventDreamData(int event, PlayerStatEntity playerStatEntity, Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
         int element = playerStatEntity.getElement();
         PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
         if (playerEntity == null) {
             return null;
         }
-        return new EventDreamTeamData()
+        return new ElementEventData()
                 .setEvent(event)
                 .setElement(element)
                 .setCode(playerEntity.getCode())
@@ -244,8 +244,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setSelectedByPercent(playerStatEntity.getSelectedByPercent());
     }
 
+    @Cacheable(
+            value = "api::qryEventEliteElements",
+            key = "#event",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() == 0"
+    )
     @Override
-    public List<EventDreamTeamData> qryEventEliteElements(int event) {
+    public List<ElementEventData> qryEventEliteElements(int event) {
         if (event < 1 || event > 38) {
             return Lists.newArrayList();
         }
@@ -257,19 +263,19 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .filter(o -> o.getTotalPoints() >= 10)
                 .map(o -> this.initEventEliteData(event, o, playerMap, playerStatMap, teamShortNameMap))
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(EventDreamTeamData::getPoints).reversed()
-                        .thenComparing(EventDreamTeamData::getElement))
+                .sorted(Comparator.comparing(ElementEventData::getPoints).reversed()
+                        .thenComparing(ElementEventData::getElement))
                 .collect(Collectors.toList());
     }
 
-    private EventDreamTeamData initEventEliteData(int event, EventLiveEntity eventLiveEntity,
-                                                  Map<String, PlayerEntity> playerMap, Map<String, PlayerStatEntity> playerStatMap, Map<String, String> teamShortNameMap) {
+    private ElementEventData initEventEliteData(int event, EventLiveEntity eventLiveEntity,
+                                                Map<String, PlayerEntity> playerMap, Map<String, PlayerStatEntity> playerStatMap, Map<String, String> teamShortNameMap) {
         int element = eventLiveEntity.getElement();
         PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
         if (playerEntity == null) {
             return null;
         }
-        return new EventDreamTeamData()
+        return new ElementEventData()
                 .setEvent(event)
                 .setElement(element)
                 .setCode(playerEntity.getCode())
@@ -280,6 +286,62 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
                 .setPoints(eventLiveEntity.getTotalPoints())
                 .setSelectedByPercent(playerStatMap.get(String.valueOf(element)).getSelectedByPercent());
+    }
+
+    @Cacheable(
+            value = "api::qryEventOverallTransfers",
+            key = "#event",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() == 0"
+    )
+    @Override
+    public Map<String, List<ElementEventData>> qryEventOverallTransfers(int event) {
+        if (event < 1 || event > 38) {
+            return Maps.newHashMap();
+        }
+        Map<String, List<ElementEventData>> map = Maps.newHashMap();
+        // prepaer
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        // transfers_in
+        List<ElementEventData> transfersInList = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getEvent, event)
+                .orderByDesc(PlayerStatEntity::getTransfersInEvent))
+                .stream()
+                .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
+                .collect(Collectors.toList());
+        map.put("transfers_in", transfersInList);
+        // transfers_out
+        List<ElementEventData> transfersOutList = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getEvent, event)
+                .orderByDesc(PlayerStatEntity::getTransfersOutEvent))
+                .stream()
+                .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
+                .collect(Collectors.toList());
+        map.put("transfers_out", transfersOutList);
+        return map;
+    }
+
+    private ElementEventData initEventOverallTransfersData(int event, PlayerStatEntity playerStatEntity,
+                                                           Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+        int element = playerStatEntity.getElement();
+        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
+        if (playerEntity == null) {
+            return null;
+        }
+        return new ElementEventData()
+                .setEvent(event)
+                .setElement(element)
+                .setCode(playerEntity.getCode())
+                .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                .setPoints(playerStatEntity.getEventPoints())
+                .setSelectedByPercent(playerStatEntity.getSelectedByPercent())
+                .setTransfersInEvent(playerStatEntity.getTransfersInEvent())
+                .setTransfersOutEvent(playerStatEntity.getTransfersOutEvent());
     }
 
     /**
@@ -2214,12 +2276,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return map;
     }
 
-    //    @Cacheable(
-//            value = "api::qryElementEventExplainResult",
-//            key = "#event+'::'+#element",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.element eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryElementEventExplainResult",
+            key = "#event+'::'+#element",
+            cacheManager = "apiCacheManager",
+            unless = "#result.element eq 0"
+    )
     @Override
     public ElementEventLiveExplainData qryElementEventExplainResult(int event, int element) {
         // prepare

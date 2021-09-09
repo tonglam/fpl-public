@@ -1,6 +1,6 @@
 package com.tong.fpl.api;
 
-import com.tong.fpl.domain.letletme.event.EventDreamTeamData;
+import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 
@@ -54,11 +54,16 @@ public interface IApiCommon {
     /**
      * 获取比赛周梦幻阵容
      */
-    List<EventDreamTeamData> qryEventDreamTeam(int event);
+    List<ElementEventData> qryEventDreamTeam(int event);
 
     /**
      * 获取比赛周高分球员
      */
-    List<EventDreamTeamData> qryEventEliteElements(int event);
+    List<ElementEventData> qryEventEliteElements(int event);
+
+    /**
+     * 获取比赛周转会数据
+     */
+    Map<String, List<ElementEventData>> qryEventOverallTransfers(int event);
 
 }

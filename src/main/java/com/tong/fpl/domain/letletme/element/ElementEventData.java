@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.letletme.event;
+package com.tong.fpl.domain.letletme.element;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class EventDreamTeamData {
+public class ElementEventData {
 
     private int event;
     private int element;
@@ -20,5 +20,7 @@ public class EventDreamTeamData {
     private String teamShortName;
     private int points;
     private String selectedByPercent;
+    private int transfersInEvent;
+    private int transfersOutEvent;
 
 }

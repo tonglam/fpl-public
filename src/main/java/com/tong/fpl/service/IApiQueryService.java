@@ -1,9 +1,9 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
-import com.tong.fpl.domain.letletme.event.EventDreamTeamData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
@@ -36,9 +36,11 @@ public interface IApiQueryService {
 
     List<PlayerFixtureData> qryNextFixture(int event);
 
-    List<EventDreamTeamData> qryEventDreamTeam(int event);
+    List<ElementEventData> qryEventDreamTeam(int event);
 
-    List<EventDreamTeamData> qryEventEliteElements(int event);
+    List<ElementEventData> qryEventEliteElements(int event);
+
+    Map<String, List<ElementEventData>> qryEventOverallTransfers(int event);
 
     /**
      * @apiNote entry
