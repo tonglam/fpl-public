@@ -14,6 +14,8 @@ public class EventDreamTeamData {
     private int element;
     private int code;
     private String webName;
+    private int elementType;
+    private String elementTypeName;
     private int teamId;
     private String teamShortName;
     private int points;

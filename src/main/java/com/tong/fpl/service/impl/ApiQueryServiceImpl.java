@@ -221,6 +221,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .stream()
                 .map(o -> this.initEventDreamData(event, o, playerMap, teamShortNameMap))
                 .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(EventDreamTeamData::getElementType)
+                        .thenComparing(EventDreamTeamData::getPoints).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -235,6 +237,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setElement(element)
                 .setCode(playerEntity.getCode())
                 .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                 .setTeamId(playerEntity.getTeamId())
                 .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
                 .setPoints(playerStatEntity.getEventPoints())
@@ -254,6 +258,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .filter(o -> o.getTotalPoints() >= 10)
                 .map(o -> this.initEventEliteData(event, o, playerMap, playerStatMap, teamShortNameMap))
                 .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(EventDreamTeamData::getPoints).reversed()
+                        .thenComparing(EventDreamTeamData::getElement))
                 .collect(Collectors.toList());
     }
 
@@ -269,6 +275,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setElement(element)
                 .setCode(playerEntity.getCode())
                 .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
                 .setTeamId(playerEntity.getTeamId())
                 .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
                 .setPoints(eventLiveEntity.getTotalPoints())
