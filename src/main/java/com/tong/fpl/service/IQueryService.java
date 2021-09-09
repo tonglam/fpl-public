@@ -53,6 +53,10 @@ public interface IQueryService {
 
     PlayerEntity getPlayerByElement(String season, int element);
 
+    default Map<String, PlayerStatEntity> getPlayerStatMap() {
+        return this.getPlayerStatMap(CommonUtils.getCurrentSeason());
+    }
+
     Map<String, PlayerStatEntity> getPlayerStatMap(String season);
 
     PlayerStatEntity getPlayerStatByElement(String season, int element);
@@ -198,6 +202,10 @@ public interface IQueryService {
      * @apiNote event_live
      */
     Map<String, EventLiveExplainEntity> getEventLiveExplainByEvent(int event);
+
+    default Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap() {
+        return this.getEventLiveSummaryMap(CommonUtils.getCurrentSeason());
+    }
 
     Map<String, EventLiveSummaryEntity> getEventLiveSummaryMap(String season);
 

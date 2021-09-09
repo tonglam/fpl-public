@@ -1,5 +1,6 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.event.EventDreamTeamData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 
@@ -49,5 +50,15 @@ public interface IApiCommon {
      * 获取下一比赛周赛程
      */
     List<PlayerFixtureData> qryNextFixture(int event);
+
+    /**
+     * 获取比赛周梦幻阵容
+     */
+    List<EventDreamTeamData> qryEventDreamTeam(int event);
+
+    /**
+     * 获取比赛周高分球员
+     */
+    List<EventDreamTeamData> qryEventEliteElements(int event);
 
 }

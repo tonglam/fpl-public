@@ -1,6 +1,7 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiCommon;
+import com.tong.fpl.domain.letletme.event.EventDreamTeamData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,16 @@ public class CommonApiController {
     @GetMapping("/qryNextFixture")
     public List<PlayerFixtureData> qryNextFixture(@RequestParam int event) {
         return this.apiCommon.qryNextFixture(event);
+    }
+
+    @GetMapping("/qryEventDreamTeam")
+    public List<EventDreamTeamData> qryEventDreamTeam(@RequestParam int event) {
+        return this.apiCommon.qryEventDreamTeam(event);
+    }
+
+    @GetMapping("/qryEventEliteElements")
+    public List<EventDreamTeamData> qryEventEliteElements(@RequestParam int event) {
+        return this.apiCommon.qryEventEliteElements(event);
     }
 
 }

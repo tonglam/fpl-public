@@ -8,6 +8,7 @@ import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
+import com.tong.fpl.domain.letletme.event.EventDreamTeamData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
@@ -64,6 +65,13 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"3"})
     void qryNextFixture(int event) {
         List<PlayerFixtureData> list = this.apiQueryService.qryNextFixture(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"3"})
+    void qryEventDreamTeam(int event) {
+        List<EventDreamTeamData> list = this.apiQueryService.qryEventDreamTeam(event);
         System.out.println(1);
     }
 
