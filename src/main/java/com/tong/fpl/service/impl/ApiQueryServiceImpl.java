@@ -221,8 +221,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .stream()
                 .map(o -> this.initEventDreamData(event, o, playerMap, teamShortNameMap))
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(EventDreamTeamData::getElementType)
-                        .thenComparing(EventDreamTeamData::getPoints).reversed())
+                .sorted(Comparator.comparing(EventDreamTeamData::getElementType))
                 .collect(Collectors.toList());
     }
 

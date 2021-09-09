@@ -75,6 +75,13 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"3"})
+    void qryEventEliteElements(int event) {
+        List<EventDreamTeamData> list = this.apiQueryService.qryEventEliteElements(event);
+        System.out.println(1);
+    }
+
     /**
      * @apiNote entry
      */
