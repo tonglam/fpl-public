@@ -5,6 +5,7 @@ import com.tong.fpl.domain.entity.EventFixtureEntity;
 import com.tong.fpl.domain.entity.EventLiveSummaryEntity;
 import com.tong.fpl.domain.entity.PlayerEntity;
 import com.tong.fpl.domain.entity.PlayerStatEntity;
+import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.utils.RedisUtils;
@@ -119,6 +120,13 @@ public class RedisCacheTest extends FplApplicationTests {
     @Test
     void getTeamEventFixtureMap() {
         Map<Integer, Map<String, List<PlayerFixtureData>>> map = this.redisCacheService.getTeamEventFixtureMap("2021");
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2122, 3"})
+    void getEventOverallResultByEvent(String season, int event) {
+        EventOverallResultData data = this.redisCacheService.getEventOverallResultByEvent(season, event);
         System.out.println(1);
     }
 

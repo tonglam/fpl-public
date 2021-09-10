@@ -1,10 +1,15 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.element.ElementEventData;
+import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.summary.entry.*;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2021/5/25
@@ -38,5 +43,17 @@ public interface IApiSummary {
     LeagueSeasonScoreData qryLeagueSeasonScore(String leagueName, int entry);
 
     void refreshLeagueSummary(int event, String leagueName, int entry);
+
+    /**
+     * @implNote overall
+     */
+
+    EventOverallResultData qryEventOverallResult(int event);
+
+    List<ElementEventData> qryEventDreamTeam(int event);
+
+    List<ElementEventData> qryEventEliteElements(int event);
+
+    Map<String, List<ElementEventData>> qryEventOverallTransfers(int event);
 
 }

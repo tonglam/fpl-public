@@ -202,152 +202,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(
-            value = "api::qryEventDreamTeam",
-            key = "#event",
-            cacheManager = "apiCacheManager",
-            unless = "#result.size() == 0"
-    )
-    @Override
-    public List<ElementEventData> qryEventDreamTeam(int event) {
-        if (event < 1 || event > 38) {
-            return Lists.newArrayList();
-        }
-        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
-        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        return this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event)
-                .eq(PlayerStatEntity::getInDreamteam, true))
-                .stream()
-                .map(o -> this.initEventDreamData(event, o, playerMap, teamShortNameMap))
-                .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(ElementEventData::getElementType))
-                .collect(Collectors.toList());
-    }
-
-    private ElementEventData initEventDreamData(int event, PlayerStatEntity playerStatEntity, Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
-        int element = playerStatEntity.getElement();
-        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
-        if (playerEntity == null) {
-            return null;
-        }
-        return new ElementEventData()
-                .setEvent(event)
-                .setElement(element)
-                .setCode(playerEntity.getCode())
-                .setWebName(playerEntity.getWebName())
-                .setElementType(playerEntity.getElementType())
-                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setTeamId(playerEntity.getTeamId())
-                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
-                .setPoints(playerStatEntity.getEventPoints())
-                .setSelectedByPercent(playerStatEntity.getSelectedByPercent());
-    }
-
-    @Cacheable(
-            value = "api::qryEventEliteElements",
-            key = "#event",
-            cacheManager = "apiCacheManager",
-            unless = "#result.size() == 0"
-    )
-    @Override
-    public List<ElementEventData> qryEventEliteElements(int event) {
-        if (event < 1 || event > 38) {
-            return Lists.newArrayList();
-        }
-        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
-        Map<String, PlayerStatEntity> playerStatMap = this.queryService.getPlayerStatMap();
-        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        return this.queryService.getEventLiveByEvent(event).values()
-                .stream()
-                .filter(o -> o.getTotalPoints() >= 10)
-                .map(o -> this.initEventEliteData(event, o, playerMap, playerStatMap, teamShortNameMap))
-                .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(ElementEventData::getPoints).reversed()
-                        .thenComparing(ElementEventData::getElement))
-                .collect(Collectors.toList());
-    }
-
-    private ElementEventData initEventEliteData(int event, EventLiveEntity eventLiveEntity,
-                                                Map<String, PlayerEntity> playerMap, Map<String, PlayerStatEntity> playerStatMap, Map<String, String> teamShortNameMap) {
-        int element = eventLiveEntity.getElement();
-        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
-        if (playerEntity == null) {
-            return null;
-        }
-        return new ElementEventData()
-                .setEvent(event)
-                .setElement(element)
-                .setCode(playerEntity.getCode())
-                .setWebName(playerEntity.getWebName())
-                .setElementType(playerEntity.getElementType())
-                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setTeamId(playerEntity.getTeamId())
-                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
-                .setPoints(eventLiveEntity.getTotalPoints())
-                .setSelectedByPercent(playerStatMap.get(String.valueOf(element)).getSelectedByPercent());
-    }
-
-    @Cacheable(
-            value = "api::qryEventOverallTransfers",
-            key = "#event",
-            cacheManager = "apiCacheManager",
-            unless = "#result.size() == 0"
-    )
-    @Override
-    public Map<String, List<ElementEventData>> qryEventOverallTransfers(int event) {
-        if (event < 1 || event > 38) {
-            return Maps.newHashMap();
-        }
-        Map<String, List<ElementEventData>> map = Maps.newHashMap();
-        // prepare
-        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
-        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
-        // transfers_in
-        List<ElementEventData> transfersInList = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event)
-                .orderByDesc(PlayerStatEntity::getTransfersInEvent))
-                .stream()
-                .limit(10)
-                .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
-                .sorted(Comparator.comparing(ElementEventData::getTransfersInEvent).reversed())
-                .collect(Collectors.toList());
-        map.put("transfers_in", transfersInList);
-        // transfers_out
-        List<ElementEventData> transfersOutList = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
-                .eq(PlayerStatEntity::getEvent, event)
-                .orderByDesc(PlayerStatEntity::getTransfersOutEvent))
-                .stream()
-                .limit(10)
-                .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
-                .sorted(Comparator.comparing(ElementEventData::getTransfersOutEvent).reversed())
-                .collect(Collectors.toList());
-        map.put("transfers_out", transfersOutList);
-        return map;
-    }
-
-    private ElementEventData initEventOverallTransfersData(int event, PlayerStatEntity playerStatEntity,
-                                                           Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
-        int element = playerStatEntity.getElement();
-        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
-        if (playerEntity == null) {
-            return null;
-        }
-        return new ElementEventData()
-                .setEvent(event)
-                .setElement(element)
-                .setCode(playerEntity.getCode())
-                .setWebName(playerEntity.getWebName())
-                .setElementType(playerEntity.getElementType())
-                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setTeamId(playerEntity.getTeamId())
-                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
-                .setPoints(playerStatEntity.getEventPoints())
-                .setSelectedByPercent(playerStatEntity.getSelectedByPercent())
-                .setTransfersInEvent(playerStatEntity.getTransfersInEvent())
-                .setTransfersOutEvent(playerStatEntity.getTransfersOutEvent());
-    }
-
     /**
      * @implNote entry
      */
@@ -2788,6 +2642,166 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 );
         data.setTotalNum(data.getChampionNum() + data.getRunnerUpNum() + data.getSecondRunnerUpNum());
         return data;
+    }
+
+    /**
+     * @implNote summary
+     */
+    @Cacheable(
+            value = "api::qryEventDreamTeam",
+            key = "#event",
+            cacheManager = "apiCacheManager",
+            unless = "#result.event == 0"
+    )
+    @Override
+    public EventOverallResultData qryEventOverallResult(int event) {
+        return null;
+    }
+
+    @Cacheable(
+            value = "api::qryEventDreamTeam",
+            key = "#event",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() == 0"
+    )
+    @Override
+    public List<ElementEventData> qryEventDreamTeam(int event) {
+        if (event < 1 || event > 38) {
+            return Lists.newArrayList();
+        }
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        return this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getEvent, event)
+                .eq(PlayerStatEntity::getInDreamteam, true))
+                .stream()
+                .map(o -> this.initEventDreamData(event, o, playerMap, teamShortNameMap))
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(ElementEventData::getElementType))
+                .collect(Collectors.toList());
+    }
+
+    private ElementEventData initEventDreamData(int event, PlayerStatEntity playerStatEntity, Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+        int element = playerStatEntity.getElement();
+        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
+        if (playerEntity == null) {
+            return null;
+        }
+        return new ElementEventData()
+                .setEvent(event)
+                .setElement(element)
+                .setCode(playerEntity.getCode())
+                .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                .setPoints(playerStatEntity.getEventPoints())
+                .setSelectedByPercent(playerStatEntity.getSelectedByPercent());
+    }
+
+    @Cacheable(
+            value = "api::qryEventEliteElements",
+            key = "#event",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() == 0"
+    )
+    @Override
+    public List<ElementEventData> qryEventEliteElements(int event) {
+        if (event < 1 || event > 38) {
+            return Lists.newArrayList();
+        }
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
+        Map<String, PlayerStatEntity> playerStatMap = this.queryService.getPlayerStatMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        return this.queryService.getEventLiveByEvent(event).values()
+                .stream()
+                .filter(o -> o.getTotalPoints() >= 10)
+                .map(o -> this.initEventEliteData(event, o, playerMap, playerStatMap, teamShortNameMap))
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(ElementEventData::getPoints).reversed()
+                        .thenComparing(ElementEventData::getElement))
+                .collect(Collectors.toList());
+    }
+
+    private ElementEventData initEventEliteData(int event, EventLiveEntity eventLiveEntity,
+                                                Map<String, PlayerEntity> playerMap, Map<String, PlayerStatEntity> playerStatMap, Map<String, String> teamShortNameMap) {
+        int element = eventLiveEntity.getElement();
+        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
+        if (playerEntity == null) {
+            return null;
+        }
+        return new ElementEventData()
+                .setEvent(event)
+                .setElement(element)
+                .setCode(playerEntity.getCode())
+                .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                .setPoints(eventLiveEntity.getTotalPoints())
+                .setSelectedByPercent(playerStatMap.get(String.valueOf(element)).getSelectedByPercent());
+    }
+
+    @Cacheable(
+            value = "api::qryEventOverallTransfers",
+            key = "#event",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() == 0"
+    )
+    @Override
+    public Map<String, List<ElementEventData>> qryEventOverallTransfers(int event) {
+        if (event < 1 || event > 38) {
+            return Maps.newHashMap();
+        }
+        Map<String, List<ElementEventData>> map = Maps.newHashMap();
+        // prepare
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        // transfers_in
+        List<ElementEventData> transfersInList = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getEvent, event)
+                .orderByDesc(PlayerStatEntity::getTransfersInEvent))
+                .stream()
+                .limit(10)
+                .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
+                .sorted(Comparator.comparing(ElementEventData::getTransfersInEvent).reversed())
+                .collect(Collectors.toList());
+        map.put("transfers_in", transfersInList);
+        // transfers_out
+        List<ElementEventData> transfersOutList = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getEvent, event)
+                .orderByDesc(PlayerStatEntity::getTransfersOutEvent))
+                .stream()
+                .limit(10)
+                .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
+                .sorted(Comparator.comparing(ElementEventData::getTransfersOutEvent).reversed())
+                .collect(Collectors.toList());
+        map.put("transfers_out", transfersOutList);
+        return map;
+    }
+
+    private ElementEventData initEventOverallTransfersData(int event, PlayerStatEntity playerStatEntity,
+                                                           Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+        int element = playerStatEntity.getElement();
+        PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
+        if (playerEntity == null) {
+            return null;
+        }
+        return new ElementEventData()
+                .setEvent(event)
+                .setElement(element)
+                .setCode(playerEntity.getCode())
+                .setWebName(playerEntity.getWebName())
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setTeamId(playerEntity.getTeamId())
+                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
+                .setPoints(playerStatEntity.getEventPoints())
+                .setSelectedByPercent(playerStatEntity.getSelectedByPercent())
+                .setTransfersInEvent(playerStatEntity.getTransfersInEvent())
+                .setTransfersOutEvent(playerStatEntity.getTransfersOutEvent());
     }
 
 }

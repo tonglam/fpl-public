@@ -1,6 +1,8 @@
 package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiSummary;
+import com.tong.fpl.domain.letletme.element.ElementEventData;
+import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.summary.entry.*;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonCaptainData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
@@ -12,6 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Create by tong on 2021/5/25
@@ -82,6 +87,29 @@ public class SummaryApiController {
     @GetMapping("/refreshLeagueSummary")
     public void refreshLeagueSummary(@RequestParam int event, @RequestParam String leagueName, @RequestParam int entry) {
         this.apiSummary.refreshLeagueSummary(event, leagueName, entry);
+    }
+
+    /**
+     * @implNote overall
+     */
+    @GetMapping("/qryEventOverallResult")
+    public EventOverallResultData qryEventOverallResult(@RequestParam int event) {
+        return this.apiSummary.qryEventOverallResult(event);
+    }
+
+    @GetMapping("/qryEventDreamTeam")
+    public List<ElementEventData> qryEventDreamTeam(@RequestParam int event) {
+        return this.apiSummary.qryEventDreamTeam(event);
+    }
+
+    @GetMapping("/qryEventEliteElements")
+    public List<ElementEventData> qryEventEliteElements(@RequestParam int event) {
+        return this.apiSummary.qryEventEliteElements(event);
+    }
+
+    @GetMapping("/qryEventOverallTransfers")
+    public Map<String, List<ElementEventData>> qryEventOverallTransfers(@RequestParam int event) {
+        return this.apiSummary.qryEventOverallTransfers(event);
     }
 
 }

@@ -93,7 +93,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         return list.stream().sorted(Comparator.comparing(EventFixtureEntity::getId)).collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, List<PlayerFixtureData>> getEventFixtureByTeamId(String season, int teamId) {
         Map<String, List<PlayerFixtureData>> map = Maps.newHashMap();
@@ -102,7 +101,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         return map;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<Integer, Map<String, List<PlayerFixtureData>>> getTeamEventFixtureMap(String season) {
         Map<Integer, Map<String, List<PlayerFixtureData>>> map = Maps.newHashMap();
@@ -120,7 +118,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         return map;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Map<String, List<LiveFixtureData>>> getEventLiveFixtureMap() {
         Map<String, Map<String, List<LiveFixtureData>>> map = Maps.newHashMap();
@@ -182,7 +179,6 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         return map;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Map<String, Integer>> getLiveBonusCacheMap() {
         Map<String, Map<String, Integer>> map = Maps.newHashMap();
@@ -199,7 +195,12 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
         return map;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public EventOverallResultData getEventOverallResultByEvent(String season, int event) {
+        String key = StringUtils.joinWith("::", "EventOverallResult", season);
+        return (EventOverallResultData) this.redisTemplate.opsForHash().get(key, String.valueOf(event));
+    }
+
     @Override
     public Map<String, List<PlayerHistoryData>> getPlayerHistoryMap() {
         Map<String, List<PlayerHistoryData>> map = Maps.newHashMap();

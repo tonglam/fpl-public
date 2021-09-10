@@ -1,7 +1,6 @@
 package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiCommon;
-import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.service.IApiQueryService;
@@ -60,18 +59,4 @@ public class ApiCommonImpl implements IApiCommon {
         return this.apiQueryService.qryNextFixture(event);
     }
 
-    @Override
-    public List<ElementEventData> qryEventDreamTeam(int event) {
-        return this.apiQueryService.qryEventDreamTeam(event);
-    }
-
-    @Override
-    public List<ElementEventData> qryEventEliteElements(int event) {
-        return this.apiQueryService.qryEventEliteElements(event);
-    }
-
-    @Override
-    public Map<String, List<ElementEventData>> qryEventOverallTransfers(int event) {
-        return this.apiQueryService.qryEventOverallTransfers(event);
-    }
 }

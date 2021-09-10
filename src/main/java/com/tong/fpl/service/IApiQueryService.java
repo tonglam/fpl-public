@@ -4,6 +4,7 @@ import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
+import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
@@ -35,12 +36,6 @@ public interface IApiQueryService {
     List<String> qryAllLeagueName(String season);
 
     List<PlayerFixtureData> qryNextFixture(int event);
-
-    List<ElementEventData> qryEventDreamTeam(int event);
-
-    List<ElementEventData> qryEventEliteElements(int event);
-
-    Map<String, List<ElementEventData>> qryEventOverallTransfers(int event);
 
     /**
      * @apiNote entry
@@ -129,5 +124,16 @@ public interface IApiQueryService {
     List<TournamentPointsGroupEventResultData> qryTournamentEntryEventSummary(int tournamentId, int entry);
 
     TournamentGroupEventChampionData qryTournamentEventChampion(int tournamentId);
+
+    /**
+     * @apiNote summary
+     */
+    EventOverallResultData qryEventOverallResult(int event);
+
+    List<ElementEventData> qryEventDreamTeam(int event);
+
+    List<ElementEventData> qryEventEliteElements(int event);
+
+    Map<String, List<ElementEventData>> qryEventOverallTransfers(int event);
 
 }

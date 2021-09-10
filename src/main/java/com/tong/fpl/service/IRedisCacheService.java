@@ -50,6 +50,8 @@ public interface IRedisCacheService {
 
     Map<String, EventOverallResultData> getEventOverallResultMap(String season);
 
+    EventOverallResultData getEventOverallResultByEvent(String season, int event);
+
     Map<String, List<PlayerHistoryData>> getPlayerHistoryMap();
 
 }
