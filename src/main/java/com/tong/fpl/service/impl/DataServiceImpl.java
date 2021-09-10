@@ -42,6 +42,8 @@ public class DataServiceImpl implements IDataService {
         }
         this.interfaceService.refreshPlayerValue();
         log.info("event:{}, refresh player_value success", event);
+        // clear cache
+        RedisUtils.removeCacheByKey("api::qryPlayerValue");
     }
 
     @Override

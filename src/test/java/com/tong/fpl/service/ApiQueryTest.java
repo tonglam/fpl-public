@@ -82,6 +82,13 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"3"})
+    void qryEventOverallTransfers(int event) {
+        Map<String, List<ElementEventData>> map = this.apiQueryService.qryEventOverallTransfers(event);
+        System.out.println(1);
+    }
+
     /**
      * @apiNote entry
      */

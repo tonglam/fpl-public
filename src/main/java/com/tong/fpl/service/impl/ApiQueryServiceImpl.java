@@ -308,6 +308,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .eq(PlayerStatEntity::getEvent, event)
                 .orderByDesc(PlayerStatEntity::getTransfersInEvent))
                 .stream()
+                .limit(5)
                 .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
                 .collect(Collectors.toList());
         map.put("transfers_in", transfersInList);
@@ -316,6 +317,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .eq(PlayerStatEntity::getEvent, event)
                 .orderByDesc(PlayerStatEntity::getTransfersOutEvent))
                 .stream()
+                .limit(5)
                 .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
                 .collect(Collectors.toList());
         map.put("transfers_out", transfersOutList);
