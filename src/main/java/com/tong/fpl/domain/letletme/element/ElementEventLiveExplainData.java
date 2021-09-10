@@ -16,6 +16,7 @@ public class ElementEventLiveExplainData {
     private String elementTypeName;
     private int teamId;
     private String teamShortName;
+    private String selectedByPercent;
     private int event;
     private int totalPoints;
     private int bps;

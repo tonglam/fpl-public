@@ -300,7 +300,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return Maps.newHashMap();
         }
         Map<String, List<ElementEventData>> map = Maps.newHashMap();
-        // prepaer
+        // prepare
         Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         // transfers_in
@@ -2290,6 +2290,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public ElementEventLiveExplainData qryElementEventExplainResult(int event, int element) {
         // prepare
         Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
+        Map<String, PlayerStatEntity> playerStatMap = this.queryService.getPlayerStatMap();
         Map<String, EventLiveExplainEntity> eventLiveExplainMap = this.queryService.getEventLiveExplainByEvent(event);
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(playerMap) || CollectionUtils.isEmpty(eventLiveExplainMap) || CollectionUtils.isEmpty(teamShortNameMap)) {
@@ -2297,6 +2298,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         }
         PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
         if (playerEntity == null) {
+            return new ElementEventLiveExplainData();
+        }
+        PlayerStatEntity playerStatEntity = playerStatMap.getOrDefault(String.valueOf(element), null);
+        if (playerStatEntity == null) {
             return new ElementEventLiveExplainData();
         }
         EventLiveExplainEntity eventLiveExplainEntity = eventLiveExplainMap.getOrDefault(String.valueOf(element), null);
@@ -2307,7 +2312,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         data
                 .setWebName(playerEntity.getWebName())
                 .setElementTypeName(Position.getNameFromElementType(data.getElementType()))
-                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""));
+                .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
+                .setSelectedByPercent(playerStatEntity.getSelectedByPercent());
         return data;
     }
 
