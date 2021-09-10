@@ -5,11 +5,15 @@ package com.tong.fpl.service;
  */
 public interface IDataService {
 
+    void refreshEventLive(int event);
+
     void refreshEventLiveCache(int event);
 
     void refreshPlayerValue();
 
     void refreshPlayerStat();
+
+    void refreshEventOverall(int event);
 
     void refreshEntryInfo(int entry);
 
@@ -32,5 +36,7 @@ public interface IDataService {
     void refreshPlayerSummary(String season, int code);
 
     void refreshTeamSummary(String season, String name);
+
+    void refreshEventOverallSummary(int event);
 
 }

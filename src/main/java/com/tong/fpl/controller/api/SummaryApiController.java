@@ -112,4 +112,9 @@ public class SummaryApiController {
         return this.apiSummary.qryEventOverallTransfers(event);
     }
 
+    @GetMapping("/refreshEventOverallSummary")
+    public void refreshEventOverallSummary(@RequestParam int event) {
+        this.apiSummary.refreshEventOverallSummary(event);
+    }
+
 }

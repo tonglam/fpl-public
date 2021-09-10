@@ -60,6 +60,10 @@ public interface IInterfaceService {
 
     void refreshEventLiveCache(int event);
 
+    void refreshEventLiveSummary();
+
+    void refreshEventOverall();
+
     void refreshEntryInfo(int entry);
 
     void refreshEntryInfoList(List<Integer> entryList);

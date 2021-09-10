@@ -116,4 +116,9 @@ public class ApiSummaryImpl implements IApiSummary {
         return this.apiQueryService.qryEventOverallTransfers(event);
     }
 
+    @Override
+    public void refreshEventOverallSummary(int event) {
+        this.eventDataService.refreshEventOverallSummary(event);
+    }
+
 }

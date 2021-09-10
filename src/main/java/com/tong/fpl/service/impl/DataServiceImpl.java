@@ -24,6 +24,15 @@ public class DataServiceImpl implements IDataService {
     private final IQueryService queryService;
 
     @Override
+    public void refreshEventLive(int event) {
+        if (event < 1 || event > 38) {
+            return;
+        }
+        this.interfaceService.refreshEventLive(event);
+        log.info("event:{}, refresh event_live success", event);
+    }
+
+    @Override
     public void refreshEventLiveCache(int event) {
         if (event < 1 || event > 38) {
             return;
@@ -31,6 +40,7 @@ public class DataServiceImpl implements IDataService {
         if (!this.queryService.isMatchDayTime(event)) {
             return;
         }
+        this.interfaceService.refreshEventLiveCache(event);
         log.info("event:{}, refresh event_live cache success", event);
     }
 
@@ -54,6 +64,15 @@ public class DataServiceImpl implements IDataService {
         }
         this.interfaceService.refreshPlayerStat();
         log.info("event:{}, refresh player_stat success", event);
+    }
+
+    @Override
+    public void refreshEventOverall(int event) {
+        if (event < 1 || event > 38) {
+            return;
+        }
+        this.interfaceService.refreshEventOverall();
+        log.info("event:{}, refresh event_overall success", event);
     }
 
     @Override
@@ -172,6 +191,19 @@ public class DataServiceImpl implements IDataService {
         // clear cache
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryTeamSummary", season, name));
         RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "qryPlayerFixtureList", season));
+    }
+
+    @Override
+    public void refreshEventOverallSummary(int event) {
+        // refresh
+        this.refreshEventOverall(event);
+        this.refreshEventLive(event);
+        this.refreshPlayerStat();
+        // clear cache
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventOverallResult", event));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventDreamTeam", event));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventEliteElements", event));
+        RedisUtils.removeCacheByKey(StringUtils.joinWith("::", "api::qryEventOverallTransfers", event));
     }
 
 }

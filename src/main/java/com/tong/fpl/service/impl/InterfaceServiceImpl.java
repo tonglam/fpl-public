@@ -441,6 +441,24 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
+    public void refreshEventLiveSummary() {
+        try {
+            HttpUtils.httpGet(Constant.DATA_EVENT_LIVE_SUMMARY);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void refreshEventOverall() {
+        try {
+            HttpUtils.httpGet(Constant.DATA_EVENT_OVERALL);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void refreshEntryInfo(int entry) {
         try {
             HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_INFO, entry));

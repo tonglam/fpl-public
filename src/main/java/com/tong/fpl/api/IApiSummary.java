@@ -56,4 +56,6 @@ public interface IApiSummary {
 
     Map<String, List<ElementEventData>> qryEventOverallTransfers(int event);
 
+    void refreshEventOverallSummary(int event);
+
 }

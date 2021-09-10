@@ -35,6 +35,8 @@ public class Constant {
     public static final String DATA_PLAYER_VALUE = DATA_COMMON_PREFIX + "updatePlayerValue";
     public static final String DATA_EVENT_LIVE = DATA_COMMON_PREFIX + "updateEventLive?event=%s";
     public static final String DATA_EVENT_LIVE_CACHE = DATA_COMMON_PREFIX + "updateEventLiveCache?event=%s";
+    public static final String DATA_EVENT_LIVE_SUMMARY = DATA_COMMON_PREFIX + "updateEventLiveSummary";
+    public static final String DATA_EVENT_OVERALL = DATA_COMMON_PREFIX + "updateEventOverall";
 
     private static final String DATA_ENTRY_PREFIX = DATA_PREFIX + "entry/";
     public static final String DATA_ENTRY_INFO = DATA_ENTRY_PREFIX + "upsertEntryInfo/?entry=%s";
