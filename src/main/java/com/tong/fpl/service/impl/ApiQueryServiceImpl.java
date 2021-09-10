@@ -2648,14 +2648,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
      * @implNote summary
      */
     @Cacheable(
-            value = "api::qryEventDreamTeam",
+            value = "api::qryEventOverallResult",
             key = "#event",
             cacheManager = "apiCacheManager",
-            unless = "#result.event == 0"
+            unless = "#result.averageEntryScore == 0"
     )
     @Override
     public EventOverallResultData qryEventOverallResult(int event) {
-        return null;
+        return this.redisCacheService.getEventOverallResultByEvent(CommonUtils.getCurrentSeason(), event);
     }
 
     @Cacheable(
