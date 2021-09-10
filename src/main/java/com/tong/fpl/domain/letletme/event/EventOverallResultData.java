@@ -19,10 +19,14 @@ public class EventOverallResultData {
     private int highestScore;
     private List<EventChipData> chipPlays;
     private int mostSelected;
+    private String mostSelectedWebName;
     private int mostTransferredIn;
+    private String mostTransferredInWebName;
     private EventTopElementData topElementInfo;
     private int transfersMade;
     private int mostCaptained;
+    private String mostCaptainedWebName;
     private int mostViceCaptained;
+    private String mostViceCaptainedWebName;
 
 }

@@ -9,6 +9,7 @@ import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.*;
+import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
@@ -65,27 +66,6 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"3"})
     void qryNextFixture(int event) {
         List<PlayerFixtureData> list = this.apiQueryService.qryNextFixture(event);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3"})
-    void qryEventDreamTeam(int event) {
-        List<ElementEventData> list = this.apiQueryService.qryEventDreamTeam(event);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3"})
-    void qryEventEliteElements(int event) {
-        List<ElementEventData> list = this.apiQueryService.qryEventEliteElements(event);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3"})
-    void qryEventOverallTransfers(int event) {
-        Map<String, List<ElementEventData>> map = this.apiQueryService.qryEventOverallTransfers(event);
         System.out.println(1);
     }
 
@@ -371,5 +351,37 @@ public class ApiQueryTest extends FplApplicationTests {
         TournamentGroupEventChampionData data = this.apiQueryService.qryTournamentEventChampion(tournamentId);
         System.out.println(1);
     }
+
+    /**
+     * @apiNote summary
+     */
+    @ParameterizedTest
+    @CsvSource({"3"})
+    void qryEventOverallResult(int event) {
+        EventOverallResultData data = this.apiQueryService.qryEventOverallResult(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"3"})
+    void qryEventDreamTeam(int event) {
+        List<ElementEventData> list = this.apiQueryService.qryEventDreamTeam(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"3"})
+    void qryEventEliteElements(int event) {
+        List<ElementEventData> list = this.apiQueryService.qryEventEliteElements(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"3"})
+    void qryEventOverallTransfers(int event) {
+        Map<String, List<ElementEventData>> map = this.apiQueryService.qryEventOverallTransfers(event);
+        System.out.println(1);
+    }
+
 
 }

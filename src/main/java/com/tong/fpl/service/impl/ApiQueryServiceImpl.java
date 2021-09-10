@@ -2655,7 +2655,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public EventOverallResultData qryEventOverallResult(int event) {
-        return this.redisCacheService.getEventOverallResultByEvent(CommonUtils.getCurrentSeason(), event);
+        Map<Integer, String> webNameMap = this.queryService.getPlayerMap().values()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getElement, PlayerEntity::getWebName));
+        EventOverallResultData data = this.redisCacheService.getEventOverallResultByEvent(CommonUtils.getCurrentSeason(), event);
+        data
+                .setMostSelectedWebName(webNameMap.getOrDefault(data.getMostSelected(), ""))
+                .setMostTransferredInWebName(webNameMap.getOrDefault(data.getMostTransferredIn(), ""))
+                .setMostCaptainedWebName(webNameMap.getOrDefault(data.getMostCaptained(), ""))
+                .setMostViceCaptainedWebName(webNameMap.getOrDefault(data.getMostViceCaptained(), ""));
+        return data;
     }
 
     @Cacheable(
