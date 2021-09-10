@@ -59,6 +59,10 @@ public interface IQueryService {
 
     Map<String, PlayerStatEntity> getPlayerStatMap(String season);
 
+    default PlayerStatEntity getPlayerStatByElement(int element) {
+        return this.getPlayerStatByElement(CommonUtils.getCurrentSeason(), element);
+    }
+
     PlayerStatEntity getPlayerStatByElement(String season, int element);
 
     default int qryPlayerElementByWebName(String webName) throws Exception {

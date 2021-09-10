@@ -1205,14 +1205,25 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (!Season.legalSeason(season)) {
             return new PlayerInfoData();
         }
-        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummaryByElement(season, element);
         MybatisPlusConfig.season.set(season);
         PlayerEntity playerEntity = this.playerService.getById(element);
         if (playerEntity == null) {
             return new PlayerInfoData();
         }
+        PlayerStatEntity playerStatEntity = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getElement, element))
+                .stream()
+                .max(Comparator.comparing(PlayerStatEntity::getEvent))
+                .orElse(null);
+        if (playerStatEntity == null) {
+            return new PlayerInfoData();
+        }
+        EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummaryByElement(season, element);
+        if (eventLiveSummaryEntity == null) {
+            return new PlayerInfoData();
+        }
         MybatisPlusConfig.season.remove();
-        return this.initPlayerInfoData(season, playerEntity, eventLiveSummaryEntity);
+        return this.initPlayerInfoData(season, playerEntity, playerStatEntity, eventLiveSummaryEntity);
     }
 
     @Cacheable(
@@ -1235,12 +1246,23 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (playerEntity == null) {
             return new PlayerInfoData();
         }
+        PlayerStatEntity playerStatEntity = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
+                .eq(PlayerStatEntity::getCode, code))
+                .stream()
+                .max(Comparator.comparing(PlayerStatEntity::getEvent))
+                .orElse(null);
+        if (playerStatEntity == null) {
+            return new PlayerInfoData();
+        }
         EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummaryByElement(season, playerEntity.getElement());
+        if (eventLiveSummaryEntity == null) {
+            return new PlayerInfoData();
+        }
         MybatisPlusConfig.season.remove();
-        return this.initPlayerInfoData(season, playerEntity, eventLiveSummaryEntity);
+        return this.initPlayerInfoData(season, playerEntity, playerStatEntity, eventLiveSummaryEntity);
     }
 
-    private PlayerInfoData initPlayerInfoData(String season, PlayerEntity playerEntity, EventLiveSummaryEntity eventLiveSummaryEntity) {
+    private PlayerInfoData initPlayerInfoData(String season, PlayerEntity playerEntity, PlayerStatEntity playerStatEntity, EventLiveSummaryEntity eventLiveSummaryEntity) {
         return new PlayerInfoData()
                 .setElement(playerEntity.getElement())
                 .setCode(playerEntity.getCode())
@@ -1252,7 +1274,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamShortName(this.queryService.getTeamShortNameByTeam(season, playerEntity.getTeamId()))
                 .setPrice(playerEntity.getPrice() / 10.0)
                 .setStartPrice(playerEntity.getStartPrice() / 10.0)
-                .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints());
+                .setPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints())
+                .setSelectedByPercent(playerStatEntity.getSelectedByPercent());
     }
 
     @Cacheable(
@@ -2290,7 +2313,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     public ElementEventLiveExplainData qryElementEventExplainResult(int event, int element) {
         // prepare
         Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
-        Map<String, PlayerStatEntity> playerStatMap = this.queryService.getPlayerStatMap();
         Map<String, EventLiveExplainEntity> eventLiveExplainMap = this.queryService.getEventLiveExplainByEvent(event);
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         if (CollectionUtils.isEmpty(playerMap) || CollectionUtils.isEmpty(eventLiveExplainMap) || CollectionUtils.isEmpty(teamShortNameMap)) {
@@ -2300,7 +2322,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (playerEntity == null) {
             return new ElementEventLiveExplainData();
         }
-        PlayerStatEntity playerStatEntity = playerStatMap.getOrDefault(String.valueOf(element), null);
+        PlayerStatEntity playerStatEntity = this.queryService.getPlayerStatByElement(element);
         if (playerStatEntity == null) {
             return new ElementEventLiveExplainData();
         }

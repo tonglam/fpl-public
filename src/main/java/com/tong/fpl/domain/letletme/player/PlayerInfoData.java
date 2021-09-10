@@ -21,5 +21,6 @@ public class PlayerInfoData {
     private double price;
     private double startPrice;
     private int points;
+    private String selectedByPercent;
 
 }
