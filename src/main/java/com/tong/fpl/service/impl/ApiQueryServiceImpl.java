@@ -310,6 +310,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .stream()
                 .limit(5)
                 .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
+                .sorted(Comparator.comparing(ElementEventData::getTransfersInEvent))
                 .collect(Collectors.toList());
         map.put("transfers_in", transfersInList);
         // transfers_out
@@ -319,6 +320,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .stream()
                 .limit(5)
                 .map(o -> this.initEventOverallTransfersData(event, o, playerMap, teamShortNameMap))
+                .sorted(Comparator.comparing(ElementEventData::getTransfersOutEvent))
                 .collect(Collectors.toList());
         map.put("transfers_out", transfersOutList);
         return map;
