@@ -287,7 +287,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"3, 1713"})
+    @CsvSource({"7, 301764"})
     void qryEventScoutLeftTransfers(int event, int entry) {
         int leftTransfers = this.apiQueryService.qryEventScoutLeftTransfers(event, entry);
         System.out.println(1);
