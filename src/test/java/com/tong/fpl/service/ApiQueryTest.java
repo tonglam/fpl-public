@@ -130,6 +130,13 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
+    @ParameterizedTest
+    @CsvSource({"1713"})
+    void qryEntryEventTransfers(int entry) {
+        List<EntryEventTransfersData> list = this.apiQueryService.qryEntryAllTransfers(entry);
+        System.out.println(1);
+    }
+
     /**
      * @apiNote live
      */

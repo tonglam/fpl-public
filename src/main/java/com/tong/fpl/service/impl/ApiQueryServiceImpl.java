@@ -666,6 +666,84 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return list;
     }
 
+    //    @Cacheable(
+//            value = "api::qryEntryAllTransfers",
+//            key = "#entry",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.size() eq 0"
+//    )
+    @Override
+    public List<EntryEventTransfersData> qryEntryAllTransfers(int entry) {
+        if (entry <= 0) {
+            return Lists.newArrayList();
+        }
+        //prepare
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
+        Map<String, String> teamNameMap = this.queryService.getTeamNameMap();
+        Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
+        //collect
+        List<Integer> eventList = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEntry, entry)
+                .ne(EntryEventResultEntity::getEventChip, Chip.WC.getValue())
+                .ne(EntryEventResultEntity::getEventChip, Chip.FH.getValue()))
+                .stream()
+                .map(EntryEventResultEntity::getEvent)
+                .collect(Collectors.toList());
+        List<EntryEventTransfersData> list = this.entryEventTransfersService.list(new QueryWrapper<EntryEventTransfersEntity>().lambda()
+                .eq(EntryEventTransfersEntity::getEntry, entry)
+                .in(EntryEventTransfersEntity::getEvent, eventList))
+                .stream()
+                .map(o -> this.initEntryEventTransfersData(entry, o, playerMap, teamNameMap, teamShortNameMap))
+                .collect(Collectors.toList());
+        return list
+                .stream()
+                .sorted(Comparator.comparing(EntryEventTransfersData::getEvent)
+                        .thenComparing(EntryEventTransfersData::getTime))
+                .collect(Collectors.toList());
+    }
+
+    private EntryEventTransfersData initEntryEventTransfersData(int entry, EntryEventTransfersEntity entryEventTransfersEntity,
+                                                                Map<String, PlayerEntity> playerMap, Map<String, String> teamNameMap, Map<String, String> teamShortNameMap) {
+        EntryEventTransfersData data = new EntryEventTransfersData()
+                .setEvent(entryEventTransfersEntity.getEvent())
+                .setEntry(entry)
+                .setTime(entryEventTransfersEntity.getTime());
+        // transfersIn
+        int elementIn = entryEventTransfersEntity.getElementIn();
+        data
+                .setElementIn(elementIn)
+                .setElementInCost(entryEventTransfersEntity.getElementInCost() / 10.0)
+                .setElementInPoints(entryEventTransfersEntity.getElementInPoints())
+                .setElementInPlayed(entryEventTransfersEntity.getElementInPlayed());
+        PlayerEntity inPlayer = playerMap.getOrDefault(String.valueOf(elementIn), null);
+        if (inPlayer != null) {
+            data
+                    .setElementInWebName(inPlayer.getWebName())
+                    .setElementInType(inPlayer.getElementType())
+                    .setElementInTypeName(Position.getNameFromElementType(inPlayer.getElementType()))
+                    .setElementInTeamId(inPlayer.getTeamId())
+                    .setElementInTeamName(teamNameMap.getOrDefault(String.valueOf(inPlayer.getTeamId()), ""))
+                    .setElementInTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(inPlayer.getTeamId()), ""));
+        }
+        // transfersOut
+        int elementOut = entryEventTransfersEntity.getElementOut();
+        data
+                .setElementOut(elementOut)
+                .setElementOutCost(entryEventTransfersEntity.getElementOutCost() / 10.0)
+                .setElementOutPoints(entryEventTransfersEntity.getElementOutPoints());
+        PlayerEntity outPlayer = playerMap.getOrDefault(String.valueOf(elementOut), null);
+        if (outPlayer != null) {
+            data
+                    .setElementOutWebName(outPlayer.getWebName())
+                    .setElementOutType(outPlayer.getElementType())
+                    .setElementOutTypeName(Position.getNameFromElementType(outPlayer.getElementType()))
+                    .setElementOutTeamId(outPlayer.getTeamId())
+                    .setElementOutTeamName(teamNameMap.getOrDefault(String.valueOf(outPlayer.getTeamId()), ""))
+                    .setElementOutTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(outPlayer.getTeamId()), ""));
+        }
+        return data;
+    }
+
     /**
      * @implNote scout
      */

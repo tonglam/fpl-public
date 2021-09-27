@@ -54,6 +54,8 @@ public interface IApiQueryService {
 
     List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry);
 
+    List<EntryEventTransfersData> qryEntryAllTransfers(int entry);
+
     /**
      * @apiNote scout
      */

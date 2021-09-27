@@ -59,6 +59,11 @@ public class EntryApiController {
         return this.apiEntry.qryEntryEventTransfers(event, entry);
     }
 
+    @GetMapping("/qryEntryAllTransfers")
+    public List<EntryEventTransfersData> qryEntryAllTransfers(@RequestParam int entry) {
+        return this.apiEntry.qryEntryAllTransfers(entry);
+    }
+
     @GetMapping("/refreshEntryEventTransfers")
     public void refreshEntryEventTransfers(@RequestParam int event, @RequestParam int entry) {
         this.apiEntry.refreshEntryEventTransfers(event, entry);

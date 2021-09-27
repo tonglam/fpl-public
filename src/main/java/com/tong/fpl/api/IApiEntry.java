@@ -50,6 +50,11 @@ public interface IApiEntry {
     List<EntryEventTransfersData> qryEntryEventTransfers(int event, int entry);
 
     /**
+     * 获取所有转会（WC&FH除外）
+     */
+    List<EntryEventTransfersData> qryEntryAllTransfers(int entry);
+
+    /**
      * 刷新周转会
      */
     void refreshEntryEventTransfers(int event, int entry);

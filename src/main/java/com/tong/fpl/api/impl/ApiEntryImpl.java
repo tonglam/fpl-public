@@ -61,6 +61,11 @@ public class ApiEntryImpl implements IApiEntry {
     }
 
     @Override
+    public List<EntryEventTransfersData> qryEntryAllTransfers(int entry) {
+        return this.apiQueryService.qryEntryAllTransfers(entry);
+    }
+
+    @Override
     public void refreshEntryEventTransfers(int event, int entry) {
         this.eventDataService.refreshEntryEventTransfers(event, entry);
     }
