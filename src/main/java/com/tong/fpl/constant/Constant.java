@@ -27,7 +27,7 @@ public class Constant {
     public static final String TRANSFER = PREFIX + "entry/%s/transfers/";
 
     // fpl-data_url
-    private static final String DATA_PREFIX = "https//139.198.118.60/";
+    private static final String DATA_PREFIX = "http://139.198.118.60:8080/";
 
     private static final String DATA_COMMON_PREFIX = DATA_PREFIX + "common/";
     public static final String DATA_EVENT = DATA_COMMON_PREFIX + "updateEvent";
