@@ -57,6 +57,13 @@ public class ApiQueryTest extends FplApplicationTests {
 
     @ParameterizedTest
     @CsvSource({"1920"})
+    void qryTeamList(String season) {
+        List<TeamData> list = this.apiQueryService.qryTeamList(season);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1920"})
     void qryAllLeagueName(String season) {
         List<String> list = this.apiQueryService.qryAllLeagueName(season);
         System.out.println(1);
@@ -72,19 +79,19 @@ public class ApiQueryTest extends FplApplicationTests {
     /**
      * @apiNote entry
      */
-    @ParameterizedTest
-    @CsvSource({"1713"})
-    void qryEntryInfo(int entry) {
-        EntryInfoData data = this.apiQueryService.qryEntryInfo(entry);
-        System.out.println(1);
-    }
-
     @Test
     void fuzzyQueryEntry() {
         EntryQueryParam param = new EntryQueryParam()
                 .setEntryName("杀猪会")
                 .setPlayerName("");
         List<EntryInfoData> list = this.apiQueryService.fuzzyQueryEntry(param);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1713"})
+    void qryEntryInfo(int entry) {
+        EntryInfoData data = this.apiQueryService.qryEntryInfo(entry);
         System.out.println(1);
     }
 
@@ -132,8 +139,38 @@ public class ApiQueryTest extends FplApplicationTests {
 
     @ParameterizedTest
     @CsvSource({"1713"})
-    void qryEntryEventTransfers(int entry) {
+    void qryEntryAllTransfers(int entry) {
         List<EntryEventTransfersData> list = this.apiQueryService.qryEntryAllTransfers(entry);
+        System.out.println(1);
+    }
+
+    /**
+     * @apiNote scout
+     */
+    @Test
+    void qryScoutEntry() {
+        Map<String, String> map = this.apiQueryService.qryScoutEntry();
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"3, 2418908"})
+    void qryEventScoutPickResult(int event, int entry) {
+        EventScoutData data = this.apiQueryService.qryEventScoutPickResult(event, entry);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0"})
+    void qryEventScoutResult(int event) {
+        List<EventScoutData> list = this.apiQueryService.qryEventScoutResult(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"7, 301764"})
+    void qryEventScoutLeftTransfers(int event, int entry) {
+        int leftTransfers = this.apiQueryService.qryEventScoutLeftTransfers(event, entry);
         System.out.println(1);
     }
 
@@ -186,20 +223,10 @@ public class ApiQueryTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    /**
-     * @apiNote team
-     */
     @ParameterizedTest
-    @CsvSource({"1617"})
-    void qryTeamList(String season) {
-        List<TeamData> list = this.apiQueryService.qryTeamList(season);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"2021, Spurs"})
-    void qryTeamSummary(String season, String shorName) {
-        TeamSummaryData data = this.apiQueryService.qryTeamSummary(season, shorName);
+    @CsvSource({"2122"})
+    void qryFilterPlayers(String season) {
+        List<PlayerFilterData> list = this.apiQueryService.qryFilterPlayers(season);
         System.out.println(1);
     }
 
@@ -244,7 +271,7 @@ public class ApiQueryTest extends FplApplicationTests {
 
     @ParameterizedTest
     @CsvSource({"2122, 2, ⚽让让群21/22积分联赛"})
-    void qryTeamSelectByLeagueName(String season, int event, String leagueName) {
+    void qryLeagueSelectByName(String season, int event, String leagueName) {
         LeagueEventSelectData data = this.apiQueryService.qryLeagueSelectByName(season, event, leagueName);
         System.out.println(1);
     }
@@ -257,9 +284,9 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2122"})
-    void qryFilterPlayers(String season) {
-        List<PlayerFilterData> list = this.apiQueryService.qryFilterPlayers(season);
+    @CsvSource({"2021, Spurs"})
+    void qryTeamSummary(String season, String shorName) {
+        TeamSummaryData data = this.apiQueryService.qryTeamSummary(season, shorName);
         System.out.println(1);
     }
 
@@ -267,36 +294,6 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"3, 233"})
     void qryElementEventExplainResult(int event, int element) {
         ElementEventLiveExplainData data = this.apiQueryService.qryElementEventExplainResult(event, element);
-        System.out.println(1);
-    }
-
-    /**
-     * @apiNote scout
-     */
-    @Test
-    void qryScoutEntry() {
-        Map<String, String> map = this.apiQueryService.qryScoutEntry();
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"3, 2418908"})
-    void qryEventScoutPickResult(int event, int entry) {
-        EventScoutData data = this.apiQueryService.qryEventScoutPickResult(event, entry);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"0"})
-    void qryEventScoutResult(int event) {
-        List<EventScoutData> list = this.apiQueryService.qryEventScoutResult(event);
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"7, 301764"})
-    void qryEventScoutLeftTransfers(int event, int entry) {
-        int leftTransfers = this.apiQueryService.qryEventScoutLeftTransfers(event, entry);
         System.out.println(1);
     }
 

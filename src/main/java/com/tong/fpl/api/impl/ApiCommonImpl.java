@@ -4,7 +4,7 @@ import com.tong.fpl.api.IApiCommon;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.team.TeamData;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IDataService;
+import com.tong.fpl.service.IRefreshService;
 import com.tong.fpl.utils.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class ApiCommonImpl implements IApiCommon {
 
     private final IApiQueryService apiQueryService;
-    private final IDataService eventDataService;
+    private final IRefreshService refreshService;
 
     @Override
     public Map<String, String> qryCurrentEventAndNextUtcDeadline() {
@@ -36,7 +36,7 @@ public class ApiCommonImpl implements IApiCommon {
 
     @Override
     public void insertEventLiveCache(int event) {
-        this.eventDataService.refreshEventLiveCache(event);
+        this.refreshService.refreshEventLiveCache(event);
     }
 
     @Override

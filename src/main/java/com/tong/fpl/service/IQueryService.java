@@ -8,6 +8,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
+import com.tong.fpl.domain.letletme.league.LeagueEventInfoData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
@@ -34,6 +35,10 @@ public interface IQueryService {
     /**
      * @apiNote time
      */
+    boolean isAfterMatchDay(int event);
+
+    List<LocalDate> getAfterMatchDayByEvent(int event);
+
     boolean isMatchDayTime(int event);
 
     List<LocalDateTime> getMatchDayTimeByEvent(int event);
@@ -312,6 +317,8 @@ public interface IQueryService {
     List<String> qryTeamSelectStatList();
 
     Map<String, String> qryLeagueEventEoMap(int event, int leagueId, String leagueType);
+
+    LeagueEventInfoData qryLeagueEventReportDataByLeagueId(int leagueId);
 
     /**
      * @apiNote live, cannot be cached

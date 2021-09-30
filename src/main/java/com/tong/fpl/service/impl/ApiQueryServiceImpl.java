@@ -31,10 +31,7 @@ import com.tong.fpl.domain.letletme.tournament.TournamentGroupChampionCountData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentPointsGroupEventResultData;
-import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IInterfaceService;
-import com.tong.fpl.service.IQueryService;
-import com.tong.fpl.service.IRedisCacheService;
+import com.tong.fpl.service.*;
 import com.tong.fpl.service.db.*;
 import com.tong.fpl.utils.CommonUtils;
 import com.tong.fpl.utils.JsonUtils;
@@ -63,6 +60,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final IInterfaceService interfaceService;
     private final IRedisCacheService redisCacheService;
     private final IQueryService queryService;
+    private final IDataService dataService;
 
     private final TeamService teamService;
     private final PlayerService playerService;
@@ -464,7 +462,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             data.setCaptainName(this.getPlayedCaptainName(data.getPickList()));
         });
         // refresh
-        this.interfaceService.refreshEntryEventResult(event, entry);
+        this.dataService.upsertEntryEventResult(event, entry);
         return data;
     }
 
@@ -662,16 +660,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             .setTime(o.getTime())
             );
         });
-        this.interfaceService.insertEntryEventTransfers(entry);
+        this.dataService.insertEntryEventTransfers(entry);
         return list;
     }
 
-    //    @Cacheable(
-//            value = "api::qryEntryAllTransfers",
-//            key = "#entry",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.size() eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryEntryAllTransfers",
+            key = "#entry",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public List<EntryEventTransfersData> qryEntryAllTransfers(int entry) {
         if (entry <= 0) {

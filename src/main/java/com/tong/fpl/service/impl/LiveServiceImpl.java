@@ -17,7 +17,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.live.*;
-import com.tong.fpl.service.IInterfaceService;
+import com.tong.fpl.service.IDataService;
 import com.tong.fpl.service.ILiveService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.db.EntryEventPickService;
@@ -46,8 +46,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LiveServiceImpl implements ILiveService {
 
-    private final IInterfaceService interfaceService;
     private final IQueryService queryService;
+    private final IDataService dataService;
 
     private final EntryInfoService entryInfoService;
     private final EntryEventPickService entryEventPickService;
@@ -376,7 +376,7 @@ public class LiveServiceImpl implements ILiveService {
                     .eq(EntryEventPickEntity::getEvent, event)
                     .eq(EntryEventPickEntity::getEntry, entry));
             if (entryEventPickEntity == null) {
-                this.interfaceService.refreshEntryEventPick(event, entry);
+                this.dataService.insertEntryEventPick(event, entry);
             }
         } else {
             entryEventPickEntity = entryEventPickMap.get(entry);

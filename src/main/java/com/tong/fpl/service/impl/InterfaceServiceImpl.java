@@ -57,6 +57,34 @@ public class InterfaceServiceImpl implements IInterfaceService {
     }
 
     @Override
+    public Optional<EntryCupRes> getEntryCup(int entry) {
+        try {
+            String result = HttpUtils.httpGet(String.format(Constant.ENTRY_CUP, entry)).orElse("");
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            return Optional.of(mapper.readValue(result, EntryCupRes.class));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<UserHistoryRes> getUserHistory(int entry) {
+        try {
+            String result = HttpUtils.httpGet(String.format(Constant.USER_HISTORY, entry)).orElse("");
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            UserHistoryRes userHistoryRes = mapper.readValue(result, UserHistoryRes.class);
+            userHistoryRes.setEntry(entry);
+            return Optional.of(userHistoryRes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<UserPicksRes> getUserPicks(int event, int entry) {
         try {
             String result = HttpUtils.httpGet(String.format(Constant.USER_PICKS, entry, event)).orElse("");
@@ -390,270 +418,6 @@ public class InterfaceServiceImpl implements IInterfaceService {
             e.printStackTrace();
         }
         return Optional.empty();
-    }
-
-    /**
-     * @implNote fpl-data
-     */
-    @Override
-    public void refreshEvent() {
-        try {
-            HttpUtils.httpGet(Constant.DATA_EVENT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshPlayerStat() {
-        try {
-            HttpUtils.httpGet(Constant.DATA_PLAYER_STAT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshPlayerValue() {
-        try {
-            HttpUtils.httpGet(Constant.DATA_PLAYER_VALUE);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEventLive(int event) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_EVENT_LIVE, event));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEventLiveCache(int event) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_EVENT_LIVE_CACHE, event));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEventLiveSummary() {
-        try {
-            HttpUtils.httpGet(Constant.DATA_EVENT_LIVE_SUMMARY);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEventOverall() {
-        try {
-            HttpUtils.httpGet(Constant.DATA_EVENT_OVERALL);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryInfo(int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_INFO, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryInfoList(List<Integer> entryList) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_INFO_LIST, entryList));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryHistoryInfo(int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_HISTORY_INFO, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryHistoryInfoList(List<Integer> entryList) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_HISTORY_INFO_LIST, entryList));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryEventPick(int event, int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_PICK, event, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryEventPickList(int event, List<Integer> entryList) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_PICK_LIST, event, entryList));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void insertEntryEventTransfers(int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_INSERT_ENTRY_EVENT_TRANSFERS, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void insertEntryEventTransfersList(int event, List<Integer> entryList) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_INSERT_ENTRY_EVENT_TRANSFERS_LIST, event, entryList));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateEntryEventTransfers(int event, int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_UPDATE_ENTRY_EVENT_TRANSFERS, event, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateEntryEventTransfersList(int event, List<Integer> entryList) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_UPDATE_ENTRY_EVENT_TRANSFERS_LIST, event, entryList));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryEventCupResult(int event, int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_CUP_RESULT, event, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryEventCupResultList(int event, List<Integer> entryList) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_CUP_RESULT_LIST, event, entryList));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryEventResult(int event, int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_RESULT, event, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshEntryEventResultList(int event, List<Integer> entryList) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_EVENT_RESULT_LIST, event, entryList));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshTournamentEventResult(int event, int tournamentId) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_TOURNAMENT_EVENT_RESULT, event, tournamentId));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshPointsRaceGroupResult(int event, int tournamentId) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_POINTS_RACE_GROUP_RESULT, event, tournamentId));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshBattleRaceGroupResult(int event, int tournamentId) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_BATTLE_RACE_GROUP_RESULT, event, tournamentId));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void refreshKnockoutResult(int event, int tournamentId) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_KNOCKOUT_RESULT, event, tournamentId));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void insertEntryLeagueEventPick(int event, int tournamentId, int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_INSERT_ENTRY_LEAGUE_EVENT_PICK, event, tournamentId, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateEntryLeagueEventResult(int event, int tournamentId, int entry) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_UPDATE_ENTRY_LEAGUE_EVENT_RESULT, event, tournamentId, entry));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void insertLeagueEventPick(int event, int tournamentId) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_INSERT_LEAGUE_EVENT_PICK, event, tournamentId));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateLeagueEventResult(int event, int tournamentId) {
-        try {
-            HttpUtils.httpGet(String.format(Constant.DATA_UPDATE_LEAGUE_EVENT_RESULT, event, tournamentId));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
 }

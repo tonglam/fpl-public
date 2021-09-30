@@ -1,42 +1,74 @@
 package com.tong.fpl.service;
 
+import java.util.List;
+
 /**
- * Create by tong on 2020/6/29
+ * Create by tong on 2021/9/30
  */
 public interface IDataService {
 
-    void refreshEventLive(int event);
+    /**
+     * @apiNote daily
+     */
+    void updatePlayerValue();
 
-    void refreshEventLiveCache(int event);
+    void updatePlayerStat();
 
-    void refreshPlayerValue();
+    /**
+     * @apiNote matchDay
+     */
+    void updateEventLiveCache(int event);
 
-    void refreshPlayerStat();
+    void updateEventLive(int event);
 
-    void refreshEventOverall(int event);
+    void upsertEventOverallResult();
 
-    void refreshEntryInfo(int entry);
+    /**
+     * @apiNote entry
+     */
+    void upsertEntryInfo(int entry);
 
-    void refreshEntryHistoryInfo(int entry);
+    void upsertEntryHistoryInfo(int entry);
 
-    void refreshEntryEventTransfers(int event, int entry);
+    void insertEntryEventPick(int event, int entry);
 
-    void refreshEntryEventResult(int event, int entry);
+    void insertEntryEventTransfers(int entry);
 
-    void refreshCurrentEventScoutResult(int entry);
+    void updateEntryEventTransfers(int event, int entry);
 
-    void refreshTournamentEventResult(int event, int tournamentId);
+    void upsertEntryEventResult(int event, int entry);
 
-    void refreshEntrySummary(int event, int entry);
+    /**
+     * @apiNote entry_list
+     */
+    void upsertEntryInfoByList(List<Integer> entryList);
 
-    void refreshLeagueSummary(int event, String leagueName, int entry);
+    void upsertEntryHistoryInfoByList(List<Integer> entryList);
 
-    void refreshLeagueSelect(int event, String leagueName);
+    void insertEventPickByEntryList(int event, List<Integer> entryList);
 
-    void refreshPlayerSummary(String season, int code);
+    void upsertEventCupResultByEntryList(int event, List<Integer> entryList);
 
-    void refreshTeamSummary(String season, String name);
+    void upsertEventResultByEntryList(int event, List<Integer> entryList);
 
-    void refreshEventOverallSummary(int event);
+    /**
+     * @apiNote tournament
+     */
+    void upsertTournamentEventResult(int event, int tournamentId);
+
+    void updatePointsRaceGroupResult(int event, int tournamentId);
+
+    void updateBattleRaceGroupResult(int event, int tournamentId);
+
+    void updateKnockoutResult(int event, int tournamentId);
+
+    /**
+     * @apiNote league
+     */
+    void updateEntryLeagueEventResult(int event, int leagueId, int entry);
+
+    void insertLeagueEventPick(int event, int leagueId);
+
+    void updateLeagueEventResult(int event, int leagueId);
 
 }

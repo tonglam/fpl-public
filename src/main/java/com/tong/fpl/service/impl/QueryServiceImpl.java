@@ -19,6 +19,7 @@ import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.global.KnockoutBracketData;
+import com.tong.fpl.domain.letletme.league.LeagueEventInfoData;
 import com.tong.fpl.domain.letletme.league.LeagueInfoData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
@@ -29,6 +30,7 @@ import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
+import com.tong.fpl.service.IDataService;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
@@ -46,6 +48,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -65,6 +68,7 @@ public class QueryServiceImpl implements IQueryService {
 
     private final IInterfaceService interfaceService;
     private final IRedisCacheService redisCacheService;
+    private final IDataService dataService;
 
     private final PlayerService playerService;
     private final EntryInfoService entryInfoService;
@@ -87,6 +91,27 @@ public class QueryServiceImpl implements IQueryService {
      * @implNote time
      */
     @Override
+    public boolean isAfterMatchDay(int event) {
+        return this.getAfterMatchDayByEvent(event).contains(LocalDate.now());
+    }
+
+    @Override
+    public List<LocalDate> getAfterMatchDayByEvent(int event) {
+        List<LocalDate> afterDateList = Lists.newArrayList();
+        this.getMatchDayTimeByEvent(event).forEach(localDateTime -> {
+            LocalDate localDate = localDateTime.toLocalDate();
+            LocalDateTime baseTime = localDate.atTime(6, 0);
+            if (!localDateTime.isBefore(baseTime)) {
+                localDate = localDate.plusDays(1);
+            }
+            if (!afterDateList.contains(localDate)) {
+                afterDateList.add(localDate);
+            }
+        });
+        return afterDateList;
+    }
+
+    @Override
     public boolean isMatchDayTime(int event) {
         List<LocalDateTime> matchDayTimeList = this.getMatchDayTimeByEvent(event);
         LocalDateTime start = matchDayTimeList.stream().min(LocalDateTime::compareTo).orElse(null);
@@ -97,11 +122,7 @@ public class QueryServiceImpl implements IQueryService {
         return LocalDateTime.now().isAfter(start) && LocalDateTime.now().minusHours(2).isBefore(last);
     }
 
-    @Cacheable(
-            value = "getMatchDayTimeByEvent",
-            key = "#event",
-            unless = "#result.size() eq 0"
-    )
+    // do not cache
     @Override
     public List<LocalDateTime> getMatchDayTimeByEvent(int event) {
         List<LocalDateTime> matchDayTimeList = Lists.newArrayList();
@@ -553,8 +574,8 @@ public class QueryServiceImpl implements IQueryService {
             return new EntryInfoData();
         }
         // save
-        this.interfaceService.refreshEntryInfo(entry);
-        this.interfaceService.refreshEntryHistoryInfo(entry);
+        this.dataService.upsertEntryInfo(entry);
+        this.dataService.upsertEntryHistoryInfo(entry);
         // return
         EntryRes entryRes = this.interfaceService.getEntry(entry).orElse(null);
         if (entryRes == null) {
@@ -2215,6 +2236,26 @@ public class QueryServiceImpl implements IQueryService {
         countMap.forEach((element, count) -> map.put(String.valueOf(element),
                 NumberUtil.formatPercent(NumberUtil.div(count.doubleValue(), size), 1)));
         return map;
+    }
+
+    @Cacheable(
+            value = "qryLeagueEventReportDataByLeagueId",
+            key = "#leagueId",
+            unless = "#result.leagueId eq 0"
+    )
+    @Override
+    public LeagueEventInfoData qryLeagueEventReportDataByLeagueId(int leagueId) {
+        TournamentInfoEntity tournamentInfoEntity = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
+                .eq(TournamentInfoEntity::getLeagueId, leagueId));
+        if (tournamentInfoEntity == null) {
+            return new LeagueEventInfoData();
+        }
+        return new LeagueEventInfoData()
+                .setId(tournamentInfoEntity.getId())
+                .setLeagueId(tournamentInfoEntity.getLeagueId())
+                .setLeagueType(tournamentInfoEntity.getLeagueType())
+                .setLeagueName(tournamentInfoEntity.getName())
+                .setLimit(0);
     }
 
     /**

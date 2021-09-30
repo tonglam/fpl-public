@@ -13,9 +13,9 @@ import com.tong.fpl.domain.letletme.entry.EntryEventSimulateTransfersData;
 import com.tong.fpl.domain.letletme.entry.EntryPickData;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IDataService;
 import com.tong.fpl.service.IGroupService;
 import com.tong.fpl.service.IQueryService;
+import com.tong.fpl.service.IRefreshService;
 import com.tong.fpl.service.db.EntryEventSimulatePickService;
 import com.tong.fpl.service.db.EntryEventSimulateTransfersService;
 import com.tong.fpl.service.db.ScoutService;
@@ -43,7 +43,7 @@ public class GroupServiceImpl implements IGroupService {
 
     private final IApiQueryService apiQueryService;
     private final IQueryService queryService;
-    private final IDataService dataService;
+    private final IRefreshService refreshService;
 
     private final ScoutService scoutService;
     private final EntryEventSimulatePickService entryEventSimulatePickService;
@@ -166,7 +166,7 @@ public class GroupServiceImpl implements IGroupService {
                     .setReason(scoutData.getReason());
             this.scoutService.updateById(scoutEntity);
         }
-        this.dataService.refreshCurrentEventScoutResult(entry);
+        this.refreshService.refreshCurrentEventScoutResult(entry);
         returnMap.put("code", 200);
         returnMap.put("message", "提交成功");
         return new ResponseEntity<>(returnMap, HttpStatus.OK);

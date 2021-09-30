@@ -10,7 +10,7 @@ import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonInfoData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonScoreData;
 import com.tong.fpl.domain.letletme.summary.league.LeagueSeasonSummaryData;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IDataService;
+import com.tong.fpl.service.IRefreshService;
 import com.tong.fpl.service.ISummaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class ApiSummaryImpl implements IApiSummary {
     private final ApplicationContext context;
     private final IApiQueryService apiQueryService;
     private final ISummaryService summaryService;
-    private final IDataService eventDataService;
+    private final IRefreshService refreshService;
 
     /**
      * @implNote entry
@@ -62,7 +62,7 @@ public class ApiSummaryImpl implements IApiSummary {
 
     @Override
     public void refreshEntrySummary(int event, int entry) {
-        this.eventDataService.refreshEntrySummary(event, entry);
+        this.refreshService.refreshEntrySummary(event, entry);
     }
 
     /**
@@ -118,7 +118,7 @@ public class ApiSummaryImpl implements IApiSummary {
 
     @Override
     public void refreshEventOverallSummary(int event) {
-        this.eventDataService.refreshEventOverallSummary(event);
+        this.refreshService.refreshEventOverallSummary(event);
     }
 
 }

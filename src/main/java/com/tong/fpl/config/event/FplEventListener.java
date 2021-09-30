@@ -3,7 +3,7 @@ package com.tong.fpl.config.event;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.event.RefreshLeagueSummaryEventData;
 import com.tong.fpl.domain.event.RefreshTournamentEventResultEventData;
-import com.tong.fpl.service.IDataService;
+import com.tong.fpl.service.IRefreshService;
 import com.tong.fpl.service.ITournamentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class FplEventListener {
 
     private final ITournamentService tournamentService;
-    private final IDataService eventDataService;
+    private final IRefreshService refreshService;
 
     @Async("eventExecutor")
     @EventListener({CreateTournamentEventData.class})
@@ -36,14 +36,14 @@ public class FplEventListener {
     @EventListener({RefreshTournamentEventResultEventData.class})
     public void onApplicationEvent(RefreshTournamentEventResultEventData data) {
         log.info("recieve event:{}, start process", RefreshTournamentEventResultEventData.class.getSimpleName());
-        this.eventDataService.refreshTournamentEventResult(data.getEvent(), data.getTournamentId());
+        this.refreshService.refreshTournamentEventResult(data.getEvent(), data.getTournamentId());
     }
 
     @Async("eventExecutor")
     @EventListener({RefreshLeagueSummaryEventData.class})
     public void onApplicationEvent(RefreshLeagueSummaryEventData data) {
         log.info("recieve event:{}, start process", RefreshLeagueSummaryEventData.class.getSimpleName());
-        this.eventDataService.refreshLeagueSummary(data.getEvent(), data.getLeagueName(), data.getEntry());
+        this.refreshService.refreshLeagueSummary(data.getEvent(), data.getLeagueName(), data.getEntry());
     }
 
 }

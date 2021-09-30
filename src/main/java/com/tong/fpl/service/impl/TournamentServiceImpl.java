@@ -11,6 +11,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
+import com.tong.fpl.service.IDataService;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.ITournamentService;
@@ -42,8 +43,8 @@ public class TournamentServiceImpl implements ITournamentService {
 
     private final IInterfaceService interfaceService;
     private final IQueryService queryService;
+    private final IDataService dataService;
 
-    private final EntryInfoService entryInfoService;
     private final TournamentInfoService tournamentInfoService;
     private final TournamentEntryService tournamentEntryService;
     private final TournamentGroupService tournamentGroupService;
@@ -239,7 +240,7 @@ public class TournamentServiceImpl implements ITournamentService {
                                         .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
                         )));
         // refresh entry_info
-        this.interfaceService.refreshEntryInfoList(
+        this.dataService.upsertEntryInfoByList(
                 entryInfoList
                         .stream()
                         .map(EntryInfoData::getEntry)
@@ -650,13 +651,13 @@ public class TournamentServiceImpl implements ITournamentService {
         int current = this.queryService.getCurrentEvent();
         IntStream.rangeClosed(current, current).forEach(event -> {
             // entry_event_result
-            this.interfaceService.refreshTournamentEventResult(event, tournamentId);
+            this.dataService.upsertTournamentEventResult(event, tournamentId);
             // points_group_result
-            this.interfaceService.refreshPointsRaceGroupResult(event, tournamentId);
+            this.dataService.updatePointsRaceGroupResult(event, tournamentId);
             // battle_group_result
-            this.interfaceService.refreshBattleRaceGroupResult(event, tournamentId);
+            this.dataService.updateBattleRaceGroupResult(event, tournamentId);
             // knockout_result
-            this.interfaceService.refreshKnockoutResult(event, tournamentId);
+            this.dataService.updateKnockoutResult(event, tournamentId);
         });
         log.info("tournament:{}, update gw result success!", tournamentId);
     }
@@ -785,8 +786,8 @@ public class TournamentServiceImpl implements ITournamentService {
                 .stream()
                 .map(EntryInfoData::getEntry)
                 .collect(Collectors.toList());
-        this.interfaceService.refreshEntryInfoList(newEntryList);
-        this.interfaceService.refreshEntryHistoryInfoList(newEntryList);
+        this.dataService.upsertEntryInfoByList(newEntryList);
+        this.dataService.upsertEntryHistoryInfoByList(newEntryList);
         // save tournament_entry
         this.tournamentEntryService.saveBatch(
                 newEntryInfoList
@@ -860,7 +861,7 @@ public class TournamentServiceImpl implements ITournamentService {
         if (currentEvent > groupEndGw) {
             currentEvent = groupEndGw;
         }
-        IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.interfaceService.refreshEntryEventPickList(event, newEntryList));
+        IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.dataService.insertEventPickByEntryList(event, newEntryList));
         log.info("tournament:{}, update new entry event pick success!", tournamentId);
     }
 
@@ -871,7 +872,7 @@ public class TournamentServiceImpl implements ITournamentService {
         if (currentEvent > groupEndGw) {
             currentEvent = groupEndGw;
         }
-        IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.interfaceService.refreshEntryEventCupResultList(event, newEntryList));
+        IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.dataService.upsertEventCupResultByEntryList(event, newEntryList));
         log.info("tournament:{}, update new entry event cup result success!", tournamentId);
     }
 
@@ -882,7 +883,7 @@ public class TournamentServiceImpl implements ITournamentService {
         if (currentEvent > groupEndGw) {
             currentEvent = groupEndGw;
         }
-        IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.interfaceService.refreshEntryEventResultList(event, newEntryList));
+        IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.dataService.upsertEventResultByEntryList(event, newEntryList));
         log.info("tournament:{}, update new entry event result success!", tournamentId);
     }
 
@@ -893,13 +894,13 @@ public class TournamentServiceImpl implements ITournamentService {
         if (currentEvent > groupEndGw) {
             currentEvent = groupEndGw;
         }
-        IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.interfaceService.refreshPointsRaceGroupResult(event, tournamentId));
+        IntStream.rangeClosed(groupStartGw, currentEvent).forEach(event -> this.dataService.updatePointsRaceGroupResult(event, tournamentId));
         log.info("tournament:{}, update points group result success!", tournamentId);
     }
 
     private void updateTournamentLeagueEventReportPick(int currentEvent, int tournamentId) {
         IntStream.rangeClosed(1, currentEvent).forEach(event -> {
-            this.interfaceService.insertLeagueEventPick(event, tournamentId);
+            this.dataService.insertLeagueEventPick(event, tournamentId);
             log.info("event:{}, tournament:{}, update entry tournament league event report pick success!", event, tournamentId);
         });
     }
@@ -907,7 +908,7 @@ public class TournamentServiceImpl implements ITournamentService {
     private void updateTournamentLeagueEventReportResult(int currentEvent, int tournamentId, List<Integer> newEntryList) {
         IntStream.rangeClosed(1, currentEvent).forEach(event ->
                 newEntryList.forEach(entry -> {
-                    this.interfaceService.updateEntryLeagueEventResult(event, tournamentId, entry);
+                    this.dataService.updateEntryLeagueEventResult(event, tournamentId, entry);
                     log.info("event:{}, tournament:{}, entry:{}, update entry tournament league event report result success!", event, tournamentId, entry);
                 }));
     }

@@ -3,7 +3,7 @@ package com.tong.fpl.api.impl;
 import com.tong.fpl.api.IApiEntry;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IDataService;
+import com.tong.fpl.service.IRefreshService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.util.List;
 public class ApiEntryImpl implements IApiEntry {
 
     private final IApiQueryService apiQueryService;
-    private final IDataService eventDataService;
+    private final IRefreshService refreshService;
 
     @Override
     public EntryInfoData qryEntryInfo(int entry) {
@@ -32,7 +32,7 @@ public class ApiEntryImpl implements IApiEntry {
 
     @Override
     public void refreshEntryInfo(int entry) {
-        this.eventDataService.refreshEntryInfo(entry);
+        this.refreshService.refreshEntryInfo(entry);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ApiEntryImpl implements IApiEntry {
 
     @Override
     public void refreshEntryEventResult(int event, int entry) {
-        this.eventDataService.refreshEntryEventResult(event, entry);
+        this.refreshService.refreshEntryEventResult(event, entry);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ApiEntryImpl implements IApiEntry {
 
     @Override
     public void refreshEntryEventTransfers(int event, int entry) {
-        this.eventDataService.refreshEntryEventTransfers(event, entry);
+        this.refreshService.refreshEntryEventTransfers(event, entry);
     }
 
 }

@@ -1,13 +1,11 @@
 package com.tong.fpl.service;
 
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.domain.entity.EventFixtureEntity;
-import com.tong.fpl.domain.entity.EventLiveSummaryEntity;
-import com.tong.fpl.domain.entity.PlayerEntity;
-import com.tong.fpl.domain.entity.PlayerStatEntity;
+import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
+import com.tong.fpl.domain.letletme.player.PlayerHistoryData;
 import com.tong.fpl.utils.RedisUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,7 +21,75 @@ import java.util.Map;
 public class RedisCacheTest extends FplApplicationTests {
 
     @Autowired
+    private IInterfaceService interfaceService;
+    @Autowired
     private IRedisCacheService redisCacheService;
+
+    /**
+     * @apiNote insert
+     */
+    @ParameterizedTest
+    @CsvSource({"6"})
+    void insertSingleEventFixture(int event) {
+        this.interfaceService.getEventFixture(event).ifPresent(eventFixturesResList -> this.redisCacheService.insertSingleEventFixture(event, eventFixturesResList));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"6"})
+    void insertSingleEventFixtureCache(int event) {
+        this.interfaceService.getEventFixture(event).ifPresent(eventFixturesResList -> this.redisCacheService.insertSingleEventFixtureCache(event, eventFixturesResList));
+    }
+
+    @Test
+    void insertLiveFixtureCache() {
+        this.redisCacheService.insertLiveFixtureCache();
+    }
+
+    @Test
+    void insertPlayer() {
+        this.interfaceService.getBootstrapStatic().ifPresent(staticRes -> this.redisCacheService.insertPlayer(staticRes));
+    }
+
+    @Test
+    void insertPlayerStat() {
+        this.interfaceService.getBootstrapStatic().ifPresent(staticRes -> this.redisCacheService.insertPlayerStat(staticRes));
+    }
+
+    @Test
+    void insertPlayerValue() {
+        this.interfaceService.getBootstrapStatic().ifPresent(staticRes -> this.redisCacheService.insertPlayerValue(staticRes));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"6"})
+    void insertEventLive(int event) {
+        this.interfaceService.getEventLive(event).ifPresent(eventLiveRes -> this.redisCacheService.insertEventLive(event, eventLiveRes));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"6"})
+    void insertEventLiveCache(int event) {
+        this.interfaceService.getEventLive(event).ifPresent(eventLiveRes -> this.redisCacheService.insertEventLiveCache(event, eventLiveRes));
+    }
+
+    @Test
+    void insertLiveBonusCache() {
+        this.redisCacheService.insertLiveBonusCache();
+    }
+
+    @Test
+    void insertEventOverallResult() {
+        this.interfaceService.getBootstrapStatic().ifPresent(staticRes -> this.redisCacheService.insertEventOverallResult(staticRes));
+    }
+
+    /**
+     * @apiNote get
+     */
+    @Test
+    void getCurrentEvent() {
+        int event = this.redisCacheService.getCurrentEvent();
+        System.out.println(1);
+    }
 
     @ParameterizedTest
     @CsvSource({"2021"})
@@ -54,16 +120,6 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"2021, 211"})
-    void getPlayerByElement(String season, int element) {
-        long startTime = System.currentTimeMillis();
-        PlayerEntity playerEntity = this.redisCacheService.getPlayerByElement(season, element);
-        long endTime = System.currentTimeMillis();
-        System.out.println("escape: " + (endTime - startTime) + "ms");
-        System.out.println(1);
-    }
-
-    @ParameterizedTest
     @CsvSource({"2021, 15"})
     void getEventFixtureByEvent(String season, int event) {
         List<EventFixtureEntity> list = this.redisCacheService.getEventFixtureByEvent(season, event);
@@ -78,6 +134,12 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @Test
+    void getTeamEventFixtureMap() {
+        Map<Integer, Map<String, List<PlayerFixtureData>>> map = this.redisCacheService.getTeamEventFixtureMap("2021");
+        System.out.println(1);
+    }
+
+    @Test
     void getEventLiveFixture() {
         Map<String, Map<String, List<LiveFixtureData>>> map = this.redisCacheService.getEventLiveFixtureMap();
         System.out.println(1);
@@ -87,6 +149,16 @@ public class RedisCacheTest extends FplApplicationTests {
     @CsvSource({"2122"})
     void getPlayerMap(String season) {
         Map<String, PlayerEntity> map = this.redisCacheService.getPlayerMap(season);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"2021, 211"})
+    void getPlayerByElement(String season, int element) {
+        long startTime = System.currentTimeMillis();
+        PlayerEntity playerEntity = this.redisCacheService.getPlayerByElement(season, element);
+        long endTime = System.currentTimeMillis();
+        System.out.println("escape: " + (endTime - startTime) + "ms");
         System.out.println(1);
     }
 
@@ -105,6 +177,20 @@ public class RedisCacheTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
+    @CsvSource({"6"})
+    void getEventLiveByEvent(int event) {
+        Map<String, EventLiveEntity> map = this.redisCacheService.getEventLiveByEvent(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"6"})
+    void getEventLiveExplainByEvent(int event) {
+        Map<String, EventLiveExplainEntity> map = this.redisCacheService.getEventLiveExplainByEvent(event);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
     @CsvSource({"2122"})
     void getEventLiveSummaryMap(String season) {
         Map<String, EventLiveSummaryEntity> map = this.redisCacheService.getEventLiveSummaryMap(season);
@@ -117,9 +203,10 @@ public class RedisCacheTest extends FplApplicationTests {
         System.out.println(1);
     }
 
-    @Test
-    void getTeamEventFixtureMap() {
-        Map<Integer, Map<String, List<PlayerFixtureData>>> map = this.redisCacheService.getTeamEventFixtureMap("2021");
+    @ParameterizedTest
+    @CsvSource({"2122"})
+    void getEventOverallResultMap(String season) {
+        Map<String, EventOverallResultData> map = this.redisCacheService.getEventOverallResultMap(season);
         System.out.println(1);
     }
 
@@ -127,6 +214,12 @@ public class RedisCacheTest extends FplApplicationTests {
     @CsvSource({"2122, 3"})
     void getEventOverallResultByEvent(String season, int event) {
         EventOverallResultData data = this.redisCacheService.getEventOverallResultByEvent(season, event);
+        System.out.println(1);
+    }
+
+    @Test
+    void getPlayerHistoryMap() {
+        Map<String, List<PlayerHistoryData>> map = this.redisCacheService.getPlayerHistoryMap();
         System.out.println(1);
     }
 

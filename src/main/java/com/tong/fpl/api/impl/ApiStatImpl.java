@@ -7,7 +7,7 @@ import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IDataService;
+import com.tong.fpl.service.IRefreshService;
 import com.tong.fpl.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class ApiStatImpl implements IApiStat {
 
     private final IApiQueryService apiQueryService;
-    private final IDataService eventDataService;
+    private final IRefreshService refreshService;
 
     @Override
     public Map<String, List<PlayerValueData>> qryPlayerValueByDate(String date) {
@@ -43,7 +43,7 @@ public class ApiStatImpl implements IApiStat {
 
     @Override
     public void refreshPlayerValue() {
-        this.eventDataService.refreshPlayerValue();
+        this.refreshService.refreshPlayerValue();
     }
 
     @Override
@@ -53,7 +53,7 @@ public class ApiStatImpl implements IApiStat {
 
     @Override
     public void refreshLeagueSelect(int event, String leagueName) {
-        this.eventDataService.refreshLeagueSelect(event, leagueName);
+        this.refreshService.refreshLeagueSelect(event, leagueName);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ApiStatImpl implements IApiStat {
 
     @Override
     public void refreshPlayerSummary(String season, int code) {
-        this.eventDataService.refreshPlayerSummary(season, code);
+        this.refreshService.refreshPlayerSummary(season, code);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ApiStatImpl implements IApiStat {
 
     @Override
     public void refreshTeamSummary(String season, String name) {
-        this.eventDataService.refreshTeamSummary(season, name);
+        this.refreshService.refreshTeamSummary(season, name);
     }
 
     @Override

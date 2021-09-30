@@ -6,7 +6,7 @@ import com.tong.fpl.domain.letletme.player.PlayerFilterData;
 import com.tong.fpl.domain.letletme.player.PlayerFixtureData;
 import com.tong.fpl.domain.letletme.player.PlayerInfoData;
 import com.tong.fpl.service.IApiQueryService;
-import com.tong.fpl.service.IDataService;
+import com.tong.fpl.service.IRefreshService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class ApiPlayerImpl implements IApiPlayer {
 
     private final IApiQueryService apiQueryService;
-    private final IDataService dataService;
+    private final IRefreshService refreshService;
 
     @Override
     public PlayerInfoData qryPlayerInfoByElement(String season, int element) {
@@ -57,7 +57,7 @@ public class ApiPlayerImpl implements IApiPlayer {
 
     @Override
     public void refreshPlayerStat() {
-        this.dataService.refreshPlayerStat();
+        this.refreshService.refreshPlayerStat();
     }
 
 }

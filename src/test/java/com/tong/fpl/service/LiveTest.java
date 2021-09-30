@@ -22,23 +22,13 @@ public class LiveTest extends FplApplicationTests {
     private ILiveService liveCalcService;
 
     @ParameterizedTest
-    @CsvSource({"3, 237"})
-    void calcLivePointsByElement(int event, int element) {
+    @CsvSource({"6, 1713"})
+    void calcLivePointsByEntry(int event, int entry) {
         long start = System.currentTimeMillis();
-        LiveCalcElementData liveCalcElementData = this.liveCalcService.calcLivePointsByElement(event, element);
+        LiveCalcData data = this.liveCalcService.calcLivePointsByEntry(event, entry);
         long end = System.currentTimeMillis();
         System.out.println("escape: " + ((end - start) / 1000) + "s!");
         System.out.println(1);
-    }
-
-    @ParameterizedTest
-    @CsvSource({"2, 1713"})
-    void calcLivePoints(int event, int entry) {
-        long start = System.currentTimeMillis();
-        LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByEntry(event, entry);
-        long end = System.currentTimeMillis();
-        System.out.println("escape: " + ((end - start) / 1000) + "s!");
-        System.out.println("points: " + liveCalaData.getLivePoints());
     }
 
     @ParameterizedTest
@@ -62,9 +52,9 @@ public class LiveTest extends FplApplicationTests {
                 .setChip("n/a")
                 .setCaptain(254)
                 .setViceCaptain(4);
-        LiveCalcData liveCalaData = this.liveCalcService.calcLivePointsByElementList(data);
-        System.out.println("points: " + liveCalaData.getLivePoints());
-        liveCalaData.getPickList().forEach(o -> System.out.println(o.getWebName() + "-" + o.getTotalPoints()));
+        LiveCalcData liveCalcData = this.liveCalcService.calcLivePointsByElementList(data);
+        System.out.println("points: " + liveCalcData.getLivePoints());
+        liveCalcData.getPickList().forEach(o -> System.out.println(o.getWebName() + "-" + o.getTotalPoints()));
     }
 
     @ParameterizedTest
@@ -81,6 +71,16 @@ public class LiveTest extends FplApplicationTests {
     @CsvSource({"2, 1, 30"})
     void calcSearchLivePointsByTournament(int event, int tournamentId, int element) {
         SearchLiveCalcData data = this.liveCalcService.calcSearchLivePointsByTournament(event, tournamentId, element);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"3, 237"})
+    void calcLivePointsByElement(int event, int element) {
+        long start = System.currentTimeMillis();
+        LiveCalcElementData data = this.liveCalcService.calcLivePointsByElement(event, element);
+        long end = System.currentTimeMillis();
+        System.out.println("escape: " + ((end - start) / 1000) + "s!");
         System.out.println(1);
     }
 

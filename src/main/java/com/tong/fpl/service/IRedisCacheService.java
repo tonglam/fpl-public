@@ -1,5 +1,8 @@
 package com.tong.fpl.service;
 
+import com.tong.fpl.domain.data.response.EventFixturesRes;
+import com.tong.fpl.domain.data.response.EventLiveRes;
+import com.tong.fpl.domain.data.response.StaticRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.live.LiveFixtureData;
@@ -14,6 +17,32 @@ import java.util.Map;
  */
 public interface IRedisCacheService {
 
+    /**
+     * @apiNote insert
+     */
+    void insertSingleEventFixture(int event, List<EventFixturesRes> eventFixturesResList);
+
+    void insertSingleEventFixtureCache(int event, List<EventFixturesRes> eventFixturesResList);
+
+    void insertLiveFixtureCache();
+
+    void insertPlayer(StaticRes staticRes);
+
+    void insertPlayerStat(StaticRes staticRes);
+
+    void insertPlayerValue(StaticRes staticRes);
+
+    void insertEventLive(int event, EventLiveRes eventLiveRes);
+
+    void insertEventLiveCache(int event, EventLiveRes eventLiveRes);
+
+    void insertLiveBonusCache();
+
+    void insertEventOverallResult(StaticRes staticRes);
+
+    /**
+     * @apiNote get
+     */
     int getCurrentEvent();
 
     Map<String, String> getTeamNameMap(String season);
