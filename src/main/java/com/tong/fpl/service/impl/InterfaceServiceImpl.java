@@ -420,4 +420,25 @@ public class InterfaceServiceImpl implements IInterfaceService {
         return Optional.empty();
     }
 
+    /**
+     * @implNote fpl-data
+     */
+    @Override
+    public void refreshEntryInfo(int entry) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_INFO, entry));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void refreshEntryHistoryInfo(int entry) {
+        try {
+            HttpUtils.httpGet(String.format(Constant.DATA_ENTRY_HISTORY_INFO, entry));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

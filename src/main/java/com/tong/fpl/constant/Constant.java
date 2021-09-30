@@ -30,9 +30,8 @@ public class Constant {
 
     // fpl-data_url
     private static final String DATA_PREFIX = "http://139.198.118.60:8080/";
-    private static final String DATA_REPORT_PREFIX = DATA_PREFIX + "report/";
-    public static final String DATA_UPDATE_ENTRY_LEAGUE_EVENT_RESULT = DATA_REPORT_PREFIX + "updateEntryLeagueEventResult/?event=%s&tournamentId=%s&entry=%s";
-    public static final String DATA_INSERT_LEAGUE_EVENT_PICK = DATA_REPORT_PREFIX + "insertLeagueEventPick/?event=%s&tournamentId=%s";
-    public static final String DATA_UPDATE_LEAGUE_EVENT_RESULT = DATA_REPORT_PREFIX + "updateLeagueEventResult/?event=%s&tournamentId=%s";
+    private static final String DATA_ENTRY_PREFIX = DATA_PREFIX + "entry/";
+    public static final String DATA_ENTRY_INFO = DATA_ENTRY_PREFIX + "upsertEntryInfo/?entry=%s";
+    public static final String DATA_ENTRY_HISTORY_INFO = DATA_ENTRY_PREFIX + "upsertEntryHistoryInfo/?entry=%s";
 
 }

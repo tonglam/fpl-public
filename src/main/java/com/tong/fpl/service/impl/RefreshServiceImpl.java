@@ -2,7 +2,6 @@ package com.tong.fpl.service.impl;
 
 import com.tong.fpl.domain.entity.LeagueEventReportEntity;
 import com.tong.fpl.service.IDataService;
-import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRefreshService;
 import com.tong.fpl.utils.CommonUtils;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RefreshServiceImpl implements IRefreshService {
 
-    private final IInterfaceService interfaceService;
     private final IQueryService queryService;
     private final IDataService dataService;
 

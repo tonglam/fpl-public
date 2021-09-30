@@ -12,6 +12,9 @@ import java.util.Optional;
  */
 public interface IInterfaceService {
 
+    /**
+     * @apiNote fantasy
+     */
     Optional<StaticRes> getBootstrapStatic();
 
     Optional<EntryRes> getEntry(int entry);
@@ -48,5 +51,11 @@ public interface IInterfaceService {
 
     Optional<List<UserTransfersRes>> getUserTransfers(int entry);
 
+    /**
+     * @apiNote fpl-data
+     */
+    void refreshEntryInfo(int entry);
+
+    void refreshEntryHistoryInfo(int entry);
 
 }

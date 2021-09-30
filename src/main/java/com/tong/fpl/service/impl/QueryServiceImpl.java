@@ -30,7 +30,6 @@ import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutResultData;
-import com.tong.fpl.service.IDataService;
 import com.tong.fpl.service.IInterfaceService;
 import com.tong.fpl.service.IQueryService;
 import com.tong.fpl.service.IRedisCacheService;
@@ -68,7 +67,6 @@ public class QueryServiceImpl implements IQueryService {
 
     private final IInterfaceService interfaceService;
     private final IRedisCacheService redisCacheService;
-    private final IDataService dataService;
 
     private final PlayerService playerService;
     private final EntryInfoService entryInfoService;
@@ -574,8 +572,8 @@ public class QueryServiceImpl implements IQueryService {
             return new EntryInfoData();
         }
         // save
-        this.dataService.upsertEntryInfo(entry);
-        this.dataService.upsertEntryHistoryInfo(entry);
+        this.interfaceService.refreshEntryInfo(entry);
+        this.interfaceService.refreshEntryHistoryInfo(entry);
         // return
         EntryRes entryRes = this.interfaceService.getEntry(entry).orElse(null);
         if (entryRes == null) {
