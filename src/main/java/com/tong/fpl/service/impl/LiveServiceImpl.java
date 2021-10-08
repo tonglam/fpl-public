@@ -550,7 +550,7 @@ public class LiveServiceImpl implements ILiveService {
     }
 
     private void setEventLiveBonusData(ElementEventResultData elementEventResultData, Table<Integer, Integer, Integer> liveBonusTable) {
-        if (liveBonusTable == null) {
+        if (elementEventResultData.getBonus() > 0 || liveBonusTable == null) {
             return;
         }
         int teamId = elementEventResultData.getTeamId();
