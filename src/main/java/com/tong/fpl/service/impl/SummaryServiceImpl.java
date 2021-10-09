@@ -1146,6 +1146,54 @@ public class SummaryServiceImpl implements ISummaryService {
         });
         data.setEntryValue(map.get(entry).getValue());
         data.setEntryValueRank(valueRankMap.get(data.getEntryValue()));
+        // team_value
+        data.setTopTeamValue(
+                map.values()
+                        .stream()
+                        .sorted(
+                                Comparator.comparing(EntrySeasonInfoData::getTeamValue)
+                                        .reversed()
+                                        .thenComparing(EntrySeasonInfoData::getOverallRank)
+                        )
+                        .limit(defaultNum)
+                        .collect(Collectors.toList())
+        );
+        List<Double> teamValueList = map.values()
+                .stream()
+                .map(EntrySeasonInfoData::getTeamValue)
+                .sorted(Comparator.comparing(Double::doubleValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Double, Integer> teamValueRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, teamValueList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, teamValueList, teamValueRankMap);
+            teamValueRankMap.put(teamValueList.get(i), rank);
+        });
+        data.setEntryTeamValue(map.get(entry).getTeamValue());
+        data.setEntryTeamValueRank(teamValueRankMap.get(data.getEntryTeamValue()));
+        // bank
+        data.setTopBank(
+                map.values()
+                        .stream()
+                        .sorted(
+                                Comparator.comparing(EntrySeasonInfoData::getBank)
+                                        .reversed()
+                                        .thenComparing(EntrySeasonInfoData::getOverallRank)
+                        )
+                        .limit(defaultNum)
+                        .collect(Collectors.toList())
+        );
+        List<Double> bankList = map.values()
+                .stream()
+                .map(EntrySeasonInfoData::getBank)
+                .sorted(Comparator.comparing(Double::doubleValue).reversed())
+                .collect(Collectors.toList());
+        LinkedHashMap<Double, Integer> bankRankMap = Maps.newLinkedHashMap();
+        IntStream.range(0, valueList.size()).forEach(i -> {
+            int rank = this.calcRealRank(i, bankList, bankRankMap);
+            bankRankMap.put(bankList.get(i), rank);
+        });
+        data.setEntryBank(map.get(entry).getBank());
+        data.setEntryBankRank(bankRankMap.get(data.getEntryBank()));
         // transfers
         data.setTopTransfers(
                 map.values()
@@ -1328,20 +1376,10 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         // prepare
-        int event = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
-                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
-                .ne(LeagueEventReportEntity::getEventPoints, 0)
-                .orderByDesc(LeagueEventReportEntity::getOverallPoints))
-                .stream()
-                .findFirst()
-                .map(LeagueEventReportEntity::getEvent)
-                .orElse(0);
-        if (event == 0) {
-            return data;
-        }
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
-                .eq(LeagueEventReportEntity::getEvent, event));
+                .ne(LeagueEventReportEntity::getEventPoints, 0)
+                .orderByAsc(LeagueEventReportEntity::getEvent));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }

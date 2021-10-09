@@ -23,6 +23,14 @@ public class LeagueSeasonSummaryData {
     private List<EntrySeasonInfoData> topValue;
     private double entryValue;
     private int entryValueRank;
+    // teamValue
+    private List<EntrySeasonInfoData> topTeamValue;
+    private double entryTeamValue;
+    private int entryTeamValueRank;
+    // bank
+    private List<EntrySeasonInfoData> topBank;
+    private double entryBank;
+    private int entryBankRank;
     // transfers
     private List<EntrySeasonInfoData> topTransfers;
     private int entryTransfers;
