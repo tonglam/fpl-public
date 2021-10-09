@@ -916,7 +916,7 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
-                .ne(LeagueEventReportEntity::getEvent, event));
+                .eq(LeagueEventReportEntity::getEvent, event));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
@@ -1078,7 +1078,7 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
-                .ne(LeagueEventReportEntity::getEvent, event));
+                .eq(LeagueEventReportEntity::getEvent, event));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
@@ -1126,8 +1126,11 @@ public class SummaryServiceImpl implements ISummaryService {
         data.setTopValue(
                 map.values()
                         .stream()
-                        .sorted(Comparator.comparing(EntrySeasonInfoData::getValue).reversed())
-                        .sorted(Comparator.comparing(EntrySeasonInfoData::getOverallPoints).reversed())
+                        .sorted(
+                                Comparator.comparing(EntrySeasonInfoData::getValue)
+                                        .reversed()
+                                        .thenComparing(EntrySeasonInfoData::getOverallRank)
+                        )
                         .limit(defaultNum)
                         .collect(Collectors.toList())
         );
@@ -1338,7 +1341,7 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
-                .ne(LeagueEventReportEntity::getEvent, event));
+                .eq(LeagueEventReportEntity::getEvent, event));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
@@ -1720,7 +1723,7 @@ public class SummaryServiceImpl implements ISummaryService {
         }
         List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
-                .ne(LeagueEventReportEntity::getEvent, current));
+                .eq(LeagueEventReportEntity::getEvent, current));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
