@@ -291,7 +291,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"3, 233"})
+    @CsvSource({"7, 353"})
     void qryElementEventExplainResult(int event, int element) {
         ElementEventLiveExplainData data = this.apiQueryService.qryElementEventExplainResult(event, element);
         System.out.println(1);

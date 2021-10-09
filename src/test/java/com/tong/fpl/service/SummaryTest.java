@@ -60,28 +60,28 @@ public class SummaryTest extends FplApplicationTests {
      * @apiNote league
      */
     @ParameterizedTest
-    @CsvSource({"⚽让让群21/22积分联赛\uD83D\uDD08快来领工号"})
+    @CsvSource({"⚽让让群21/22积分联赛"})
     void qryLeagueSeasonInfo(String leagueName) {
         LeagueSeasonInfoData data = this.summaryService.qryLeagueSeasonInfo(leagueName);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"⚽让让群21/22积分联赛\uD83D\uDD08快来领工号, 1713"})
+    @CsvSource({"⚽让让群21/22积分联赛, 1713"})
     void qryLeagueSeasonSummary(String leagueName, int entry) {
         LeagueSeasonSummaryData data = this.summaryService.qryLeagueSeasonSummary(leagueName, entry);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"⚽让让群21/22积分联赛\uD83D\uDD08快来领工号, 1713"})
+    @CsvSource({"⚽让让群21/22积分联赛, 1713"})
     void qryLeagueSeasonCaptain(String leagueName, int entry) {
         LeagueSeasonCaptainData data = this.summaryService.qryLeagueSeasonCaptain(leagueName, entry);
         System.out.println(1);
     }
 
     @ParameterizedTest
-    @CsvSource({"⚽让让群21/22积分联赛\uD83D\uDD08快来领工号, 1713"})
+    @CsvSource({"⚽让让群21/22积分联赛, 1713"})
     void qryLeagueSeasonScore(String leagueName, int entry) {
         LeagueSeasonScoreData data = this.summaryService.qryLeagueSeasonScore(leagueName, entry);
         System.out.println(1);
