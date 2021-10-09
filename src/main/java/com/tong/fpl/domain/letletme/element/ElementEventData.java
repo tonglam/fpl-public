@@ -19,6 +19,7 @@ public class ElementEventData {
     private int teamId;
     private String teamShortName;
     private int points;
+    private int totalPoints;
     private String selectedByPercent;
     private int transfersInEvent;
     private int transfersOutEvent;

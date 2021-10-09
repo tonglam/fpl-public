@@ -2755,24 +2755,27 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (event < 1 || event > 38) {
             return Lists.newArrayList();
         }
+        Map<String, EventLiveSummaryEntity> eventLiveSummaryMap = this.queryService.getEventLiveSummaryMap();
         Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap();
         Map<String, String> teamShortNameMap = this.queryService.getTeamShortNameMap();
         return this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
                 .eq(PlayerStatEntity::getEvent, event)
                 .eq(PlayerStatEntity::getInDreamteam, true))
                 .stream()
-                .map(o -> this.initEventDreamData(event, o, playerMap, teamShortNameMap))
+                .map(o -> this.initEventDreamData(event, o, eventLiveSummaryMap, playerMap, teamShortNameMap))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(ElementEventData::getElementType))
                 .collect(Collectors.toList());
     }
 
-    private ElementEventData initEventDreamData(int event, PlayerStatEntity playerStatEntity, Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
+    private ElementEventData initEventDreamData(int event, PlayerStatEntity playerStatEntity,
+                                                Map<String, EventLiveSummaryEntity> eventLiveSummaryMap, Map<String, PlayerEntity> playerMap, Map<String, String> teamShortNameMap) {
         int element = playerStatEntity.getElement();
         PlayerEntity playerEntity = playerMap.getOrDefault(String.valueOf(element), null);
         if (playerEntity == null) {
             return null;
         }
+        EventLiveSummaryEntity eventLiveSummaryEntity = eventLiveSummaryMap.get(String.valueOf(element));
         return new ElementEventData()
                 .setEvent(event)
                 .setElement(element)
@@ -2783,6 +2786,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamId(playerEntity.getTeamId())
                 .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(playerEntity.getTeamId()), ""))
                 .setPoints(playerStatEntity.getEventPoints())
+                .setTotalPoints(eventLiveSummaryEntity == null ? 0 : eventLiveSummaryEntity.getTotalPoints())
                 .setSelectedByPercent(playerStatEntity.getSelectedByPercent());
     }
 
