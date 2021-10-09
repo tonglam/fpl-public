@@ -1065,10 +1065,20 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         // prepare
-        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+        int event = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
-                .orderByAsc(LeagueEventReportEntity::getEvent));
+                .orderByDesc(LeagueEventReportEntity::getOverallPoints))
+                .stream()
+                .findFirst()
+                .map(LeagueEventReportEntity::getEvent)
+                .orElse(0);
+        if (event == 0) {
+            return data;
+        }
+        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
+                .ne(LeagueEventReportEntity::getEvent, event));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
@@ -1315,10 +1325,20 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         // prepare
-        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+        int event = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
-                .orderByAsc(LeagueEventReportEntity::getEvent));
+                .orderByDesc(LeagueEventReportEntity::getOverallPoints))
+                .stream()
+                .findFirst()
+                .map(LeagueEventReportEntity::getEvent)
+                .orElse(0);
+        if (event == 0) {
+            return data;
+        }
+        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
+                .ne(LeagueEventReportEntity::getEvent, event));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
@@ -1687,11 +1707,20 @@ public class SummaryServiceImpl implements ISummaryService {
             return data;
         }
         // prepare
-        int current = this.queryService.getCurrentEvent();
-        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+        int current = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName)
                 .ne(LeagueEventReportEntity::getEventPoints, 0)
-                .orderByAsc(LeagueEventReportEntity::getEvent));
+                .orderByDesc(LeagueEventReportEntity::getOverallPoints))
+                .stream()
+                .findFirst()
+                .map(LeagueEventReportEntity::getEvent)
+                .orElse(0);
+        if (current == 0) {
+            return data;
+        }
+        List<LeagueEventReportEntity> leagueEventReportEntityList = this.leagueEventReportService.list(new QueryWrapper<LeagueEventReportEntity>().lambda()
+                .eq(LeagueEventReportEntity::getLeagueName, leagueName)
+                .ne(LeagueEventReportEntity::getEvent, current));
         if (CollectionUtils.isEmpty(leagueEventReportEntityList)) {
             return data;
         }
