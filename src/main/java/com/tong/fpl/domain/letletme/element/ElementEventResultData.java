@@ -12,13 +12,16 @@ import java.util.Objects;
 @Accessors(chain = true)
 public class ElementEventResultData {
 
+    private String season;
     private int event;
     private int element;
+    private int code;
     private String webName;
     private double price;
     private int elementType;
     private String elementTypeName;
     private int teamId;
+    private int teamCode;
     private String teamName;
     private String teamShortName;
     private int againstId;

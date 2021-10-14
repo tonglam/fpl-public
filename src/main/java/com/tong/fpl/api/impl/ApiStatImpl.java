@@ -2,9 +2,12 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.team.TeamAgainstInfoData;
+import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.service.IApiQueryService;
 import com.tong.fpl.service.IRefreshService;
@@ -84,6 +87,21 @@ public class ApiStatImpl implements IApiStat {
     @Override
     public ElementEventLiveExplainData qryElementEventExplainResult(int event, int element) {
         return this.apiQueryService.qryElementEventExplainResult(event, element);
+    }
+
+    @Override
+    public TeamAgainstInfoData qryTeamAgainstRecordInfo(int teamId, int againstId) {
+        return this.apiQueryService.qryTeamAgainstRecordInfo(teamId, againstId);
+    }
+
+    @Override
+    public List<ElementEventResultData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
+        return this.apiQueryService.qryTeamAgainstRecordResult(season, event, teamHId, teamAId);
+    }
+
+    @Override
+    public List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active) {
+        return this.apiQueryService.qryTopElementTeamAgainstRecord(teamId, againstId, active);
     }
 
 }

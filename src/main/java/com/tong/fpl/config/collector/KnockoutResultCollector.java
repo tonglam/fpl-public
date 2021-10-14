@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * input: tournament_knockout_result, order by event, match_id
- * accumulate: map-> key:event, value:group_id, value:tournament_group_event_fixture
+ * accumulate: map -> key:event, value:group_id, value:tournament_group_event_fixture
  * return: List<TournamentGroupFixtureData> list
  * <p>
  * Create by tong on 2020/9/10

@@ -20,8 +20,8 @@ import java.util.stream.Collector;
 
 /**
  * input: event_fixture
- * accumulate: map-> key:teamId, value:liveFixtureData
- * return: table-> row:teamId, column:playing;not start;finished, value:List<LiveFixtureData>
+ * accumulate: map -> key:teamId, value:liveFixtureData
+ * return: table -> row:teamId, column:playing;not start;finished, value:List<LiveFixtureData>
  * <p>
  * Create by tong on 2020/9/15
  */

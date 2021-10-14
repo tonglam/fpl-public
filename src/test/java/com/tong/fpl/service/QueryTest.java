@@ -37,8 +37,6 @@ public class QueryTest extends FplApplicationTests {
     /**
      * @apiNote time
      */
-
-
     @ParameterizedTest
     @CsvSource({"2122"})
     void getPlayerMap(String season) {

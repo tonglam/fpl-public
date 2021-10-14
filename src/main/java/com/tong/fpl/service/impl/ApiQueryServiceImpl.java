@@ -8,6 +8,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.tong.fpl.config.collector.ElementTeamAgainstCollector;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.UserTransfersRes;
@@ -24,9 +25,7 @@ import com.tong.fpl.domain.letletme.live.LiveFixtureData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
-import com.tong.fpl.domain.letletme.team.TeamData;
-import com.tong.fpl.domain.letletme.team.TeamDetailData;
-import com.tong.fpl.domain.letletme.team.TeamSummaryData;
+import com.tong.fpl.domain.letletme.team.*;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupChampionCountData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -1139,6 +1138,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         MybatisPlusConfig.season.set(season);
         PlayerEntity playerEntity = this.playerService.getById(element);
         if (playerEntity == null) {
+            MybatisPlusConfig.season.remove();
             return new PlayerInfoData();
         }
         PlayerStatEntity playerStatEntity = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
@@ -1147,10 +1147,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .max(Comparator.comparing(PlayerStatEntity::getEvent))
                 .orElse(null);
         if (playerStatEntity == null) {
+            MybatisPlusConfig.season.remove();
             return new PlayerInfoData();
         }
         EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummaryByElement(season, element);
         if (eventLiveSummaryEntity == null) {
+            MybatisPlusConfig.season.remove();
             return new PlayerInfoData();
         }
         MybatisPlusConfig.season.remove();
@@ -1175,6 +1177,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
                 .eq(PlayerEntity::getCode, code));
         if (playerEntity == null) {
+            MybatisPlusConfig.season.remove();
             return new PlayerInfoData();
         }
         PlayerStatEntity playerStatEntity = this.playerStatService.list(new QueryWrapper<PlayerStatEntity>().lambda()
@@ -1183,10 +1186,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .max(Comparator.comparing(PlayerStatEntity::getEvent))
                 .orElse(null);
         if (playerStatEntity == null) {
+            MybatisPlusConfig.season.remove();
             return new PlayerInfoData();
         }
         EventLiveSummaryEntity eventLiveSummaryEntity = this.queryService.qryEventLiveSummaryByElement(season, playerEntity.getElement());
         if (eventLiveSummaryEntity == null) {
+            MybatisPlusConfig.season.remove();
             return new PlayerInfoData();
         }
         MybatisPlusConfig.season.remove();
@@ -1581,6 +1586,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .eq(LeagueEventReportEntity::getLeagueName, leagueName));
         int teamSize = leagueEventReportList.size();
         if (CollectionUtils.isEmpty(leagueEventReportList)) {
+            MybatisPlusConfig.season.remove();
             return data;
         }
         // league_eo_map
@@ -1971,10 +1977,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         MybatisPlusConfig.season.set(season);
         PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
                 .eq(PlayerEntity::getCode, code));
+        MybatisPlusConfig.season.remove();
         if (playerEntity == null) {
             return new PlayerSummaryData();
         }
-        MybatisPlusConfig.season.remove();
         return new PlayerSummaryData()
                 .setElement(playerEntity.getElement())
                 .setCode(playerEntity.getCode())
@@ -2005,15 +2011,16 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         TeamEntity teamEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
                 .eq(TeamEntity::getName, name));
         if (teamEntity == null) {
+            MybatisPlusConfig.season.remove();
             return data;
         }
         int teamId = teamEntity.getId();
         List<PlayerEntity> playerList = this.playerService.list(new QueryWrapper<PlayerEntity>().lambda()
                 .eq(PlayerEntity::getTeamId, teamId));
+        MybatisPlusConfig.season.remove();
         if (CollectionUtils.isEmpty(playerList)) {
             return data;
         }
-        MybatisPlusConfig.season.remove();
         List<Integer> playerElementList = playerList
                 .stream()
                 .map(PlayerEntity::getElement)
@@ -2268,6 +2275,351 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamShortName(teamShortNameMap.getOrDefault(String.valueOf(data.getTeamId()), ""))
                 .setSelectedByPercent(playerStatEntity.getSelectedByPercent());
         return data;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryTeamAgainstRecordInfo",
+//            key = "#teamId+'::'+#againstId",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.teamId eq 0"
+//    )
+    @Override
+    public TeamAgainstInfoData qryTeamAgainstRecordInfo(int teamId, int againstId) {
+        // team
+        TeamEntity teamEntity = this.teamService.getById(teamId);
+        TeamEntity againstEntity = this.teamService.getById(againstId);
+        if (teamEntity == null || againstEntity == null) {
+            return new TeamAgainstInfoData();
+        }
+        int teamCode = teamEntity.getCode();
+        int againstCode = againstEntity.getCode();
+        TeamAgainstInfoData data = new TeamAgainstInfoData()
+                .setTeamId(teamId)
+                .setTeamCode(teamCode)
+                .setTeamName(teamEntity.getName())
+                .setTeamShortName(teamEntity.getShortName())
+                .setAgainstId(againstId)
+                .setAgainstCode(againstCode)
+                .setAgainstName(againstEntity.getName())
+                .setAgainstShortName(againstEntity.getShortName());
+        List<TeamAgainstRecordData> seasonFixtureRecordsList = Lists.newArrayList();
+        this.queryService.qryTeamAgainstFixture(teamCode, againstCode)
+                .forEach((key, value) ->
+                        value.forEach(i -> seasonFixtureRecordsList.add(this.qrySeasonTeamAgainstRecord(key, teamEntity, againstEntity, i))
+                        ));
+        List<TeamAgainstRecordData> recordDataList = seasonFixtureRecordsList
+                .stream()
+                .sorted(Comparator.comparing(TeamAgainstRecordData::getSeason)
+                        .thenComparing(TeamAgainstRecordData::getEvent))
+                .collect(Collectors.toList());
+        data
+                .setRecordDataList(recordDataList)
+                .setPlayed(data.getRecordDataList().size())
+                .setWin(
+                        (int) recordDataList
+                                .stream()
+                                .filter(o -> teamCode == o.getTeamHCode() && o.getTeamHScore() > o.getTeamAScore())
+                                .count() +
+                                (int) recordDataList
+                                        .stream()
+                                        .filter(o -> teamCode == o.getTeamACode() && o.getTeamAScore() > o.getTeamHScore())
+                                        .count()
+                )
+                .setDraw(
+                        (int) recordDataList
+                                .stream()
+                                .filter(o -> o.getTeamHScore() == o.getTeamAScore())
+                                .count()
+                )
+                .setLose(
+                        (int) recordDataList
+                                .stream()
+                                .filter(o -> teamCode == o.getTeamHCode() && o.getTeamHScore() < o.getTeamAScore())
+                                .count() +
+                                (int) recordDataList
+                                        .stream()
+                                        .filter(o -> teamCode == o.getTeamACode() && o.getTeamAScore() < o.getTeamHScore())
+                                        .count()
+                )
+                .setGoalScoreed(
+                        recordDataList
+                                .stream()
+                                .filter(o -> teamCode == o.getTeamHCode())
+                                .mapToInt(TeamAgainstRecordData::getTeamHScore)
+                                .sum() +
+                                recordDataList
+                                        .stream()
+                                        .filter(o -> teamCode == o.getTeamACode())
+                                        .mapToInt(TeamAgainstRecordData::getTeamAScore)
+                                        .sum()
+                )
+                .setGoalsConceded(
+                        recordDataList
+                                .stream()
+                                .filter(o -> teamCode == o.getTeamHCode())
+                                .mapToInt(TeamAgainstRecordData::getTeamAScore)
+                                .sum() +
+                                recordDataList
+                                        .stream()
+                                        .filter(o -> teamCode == o.getTeamACode())
+                                        .mapToInt(TeamAgainstRecordData::getTeamHScore)
+                                        .sum()
+                );
+        data
+                .setAverageGoalScoreed(NumberUtil.div(data.getGoalScoreed(), data.getPlayed(), 2))
+                .setAverageGoalsConceded(NumberUtil.div(data.getGoalsConceded(), data.getPlayed(), 2));
+        return data;
+    }
+
+    private TeamAgainstRecordData qrySeasonTeamAgainstRecord(String season, TeamEntity teamEntity, TeamEntity againstEntity, EventFixtureEntity eventFixtureEntity) {
+        // prepare
+        int event = eventFixtureEntity.getEvent();
+        int teamId = teamEntity.getId();
+        int teamH = eventFixtureEntity.getTeamH();
+        int teamA = eventFixtureEntity.getTeamA();
+        // info
+        TeamAgainstRecordData data = new TeamAgainstRecordData()
+                .setSeason(season)
+                .setEvent(event)
+                .setTeamHId(teamH)
+                .setTeamHCode(teamId == teamH ? teamEntity.getCode() : againstEntity.getCode())
+                .setTeamHName(teamId == teamH ? teamEntity.getName() : againstEntity.getName())
+                .setTeamHShortName(teamId == teamH ? teamEntity.getShortName() : againstEntity.getShortName())
+                .setTeamHScore(eventFixtureEntity.getTeamHScore())
+                .setTeamAId(teamA)
+                .setTeamACode(teamId == teamH ? againstEntity.getCode() : teamEntity.getCode())
+                .setTeamAName(teamId == teamH ? againstEntity.getName() : teamEntity.getName())
+                .setTeamAShortName(teamId == teamH ? againstEntity.getShortName() : teamEntity.getShortName())
+                .setTeamAScore(eventFixtureEntity.getTeamAScore())
+                .setKickoffDate(StringUtils.substringBefore(eventFixtureEntity.getKickoffTime(), " "));
+        // event_live
+        MybatisPlusConfig.season.set(season);
+        List<EventLiveEntity> eventLiveList = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .eq(EventLiveEntity::getEvent, event)
+                .in(EventLiveEntity::getTeamId, Lists.newArrayList(teamH, teamA)));
+        MybatisPlusConfig.season.remove();
+        if (CollectionUtils.isEmpty(eventLiveList)) {
+            return data;
+        }
+        Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap(season);
+        data
+                .setGoalScored(
+                        eventLiveList
+                                .stream()
+                                .filter(o -> o.getGoalsScored() > 0)
+                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getGoalsScored))
+                )
+                .setAssists(
+                        eventLiveList
+                                .stream()
+                                .filter(o -> o.getAssists() > 0)
+                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getAssists))
+                )
+                .setOwnGoals(
+                        eventLiveList
+                                .stream()
+                                .filter(o -> o.getOwnGoals() > 0)
+                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getOwnGoals))
+                )
+                .setPenaltiesSaved(
+                        eventLiveList
+                                .stream()
+                                .filter(o -> o.getPenaltiesSaved() > 0)
+                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getPenaltiesSaved))
+                )
+                .setPenaltiesMissed(
+                        eventLiveList
+                                .stream()
+                                .filter(o -> o.getPenaltiesMissed() > 0)
+                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getPenaltiesMissed))
+                )
+                .setRedCards(
+                        eventLiveList
+                                .stream()
+                                .filter(o -> o.getRedCards() > 0)
+                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getRedCards))
+                );
+        return data;
+    }
+
+    @Cacheable(
+            value = "api::qryTeamAgainstRecordResult",
+            key = "#season+'::'+#event+'::'+#teamHId+'::'+#teamAId",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<ElementEventResultData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
+        MybatisPlusConfig.season.set(season);
+        // prepare
+        TeamEntity teamHEntity = this.teamService.getById(teamHId);
+        TeamEntity teamAEntity = this.teamService.getById(teamAId);
+        if (teamHEntity == null || teamAEntity == null) {
+            MybatisPlusConfig.season.remove();
+            return Lists.newArrayList();
+        }
+        EventFixtureEntity eventFixtureEntity = this.eventFixtureService.getOne(new QueryWrapper<EventFixtureEntity>().lambda()
+                .eq(EventFixtureEntity::getEvent, event)
+                .eq(EventFixtureEntity::getTeamH, teamHId)
+                .eq(EventFixtureEntity::getTeamA, teamAId));
+        if (eventFixtureEntity == null) {
+            MybatisPlusConfig.season.remove();
+            return Lists.newArrayList();
+        }
+        Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap(season);
+        List<ElementEventResultData> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                .gt(EventLiveEntity::getMinutes, 0)
+                .eq(EventLiveEntity::getEvent, event)
+                .and(o -> o.eq(EventLiveEntity::getTeamId, teamHId)
+                        .or(i -> i.eq(EventLiveEntity::getTeamId, teamAId)))
+                .orderByDesc(EventLiveEntity::getTotalPoints))
+                .stream()
+                .map(o -> {
+                    TeamEntity elementTeamEntity = o.getTeamId() == teamHId ? teamHEntity : teamAEntity;
+                    return this.qrySeasonFixtureElementResult(season, elementTeamEntity, o, playerMap);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        MybatisPlusConfig.season.remove();
+        return list;
+    }
+
+    private ElementEventResultData qrySeasonFixtureElementResult(String season, TeamEntity teamEntity, EventLiveEntity eventLiveEntity, Map<String, PlayerEntity> playerMap) {
+        int element = eventLiveEntity.getElement();
+        PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
+        if (playerEntity == null) {
+            return null;
+        }
+        ElementEventResultData data = new ElementEventResultData()
+                .setSeason(season)
+                .setEvent(eventLiveEntity.getEvent())
+                .setElement(element)
+                .setCode(playerEntity.getCode())
+                .setWebName(playerEntity.getWebName())
+                .setPrice(playerEntity.getPrice() / 10.0)
+                .setElementType(playerEntity.getElementType())
+                .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                .setTeamCode(teamEntity.getCode());
+        BeanUtil.copyProperties(eventLiveEntity, data);
+        return data;
+    }
+
+    //    @Cacheable(
+//            value = "api::qryTopElementTeamAgainstRecord",
+//            key = "#teamId+'::'+#againstId",
+//            cacheManager = "apiCacheManager",
+//            unless = "#result.size() eq 0"
+//    )
+    @Override
+    public List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active) {
+        int returnNum = 15;
+        // team
+        TeamEntity teamEntity = this.teamService.getById(teamId);
+        TeamEntity againstEntity = this.teamService.getById(againstId);
+        if (teamEntity == null || againstEntity == null) {
+            return Lists.newArrayList();
+        }
+        int teamCode = teamEntity.getCode();
+        int againstCode = againstEntity.getCode();
+        // fixture
+        Map<String, List<EventFixtureEntity>> seasonFixtureMap = this.queryService.qryTeamAgainstFixture(teamCode, againstCode);
+        if (CollectionUtils.isEmpty(seasonFixtureMap)) {
+            return Lists.newArrayList();
+        }
+        // match_info
+        Map<String, TeamAgainstMatchInfoData> matchInfoMap = this.qryTeamAgainstMatchInfo(teamEntity, againstEntity, seasonFixtureMap);
+        if (CollectionUtils.isEmpty(matchInfoMap)) {
+            return Lists.newArrayList();
+        }
+        List<ElementEventResultData> elementResultList = Lists.newArrayList();
+        matchInfoMap.values().forEach(o -> elementResultList.addAll(o.getElementEventResultList()));
+        // collect
+        List<TeamElementAgainstRecordData> list = elementResultList
+                .stream()
+                .collect(new ElementTeamAgainstCollector(matchInfoMap));
+        // return
+        if (!active) { // 现役与不现役都算
+            return list
+                    .stream()
+                    .limit(returnNum)
+                    .collect(Collectors.toList());
+        }
+        // 只算现役
+        Map<Integer, Integer> playerTeamIdMap = this.queryService.getPlayerMap().values()
+                .stream()
+                .collect(Collectors.toMap(PlayerEntity::getCode, PlayerEntity::getTeamId));
+        Map<Integer, Integer> teamCodeMap = this.teamService.list()
+                .stream()
+                .collect(Collectors.toMap(TeamEntity::getId, TeamEntity::getCode));
+        return list
+                .stream()
+                .filter(o ->
+                        playerTeamIdMap.containsKey(o.getCode()) &&
+                                o.getTeamCode() == teamCodeMap.get(playerTeamIdMap.get(o.getCode()))
+                )
+                .limit(returnNum)
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, TeamAgainstMatchInfoData> qryTeamAgainstMatchInfo(TeamEntity teamEntity, TeamEntity againstEntity, Map<String, List<EventFixtureEntity>> seasonFixtureMap) {
+        Map<String, TeamAgainstMatchInfoData> map = Maps.newHashMap();
+        int teamId = teamEntity.getId();
+        seasonFixtureMap.forEach((season, list) -> {
+            Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap(season);
+            list.forEach(o -> {
+                int event = o.getEvent();
+                int teamH = o.getTeamH();
+                int teamA = o.getTeamA();
+                TeamAgainstMatchInfoData data = new TeamAgainstMatchInfoData()
+                        .setSeason(season)
+                        .setEvent(event)
+                        .setTeamHId(teamH)
+                        .setTeamHCode(teamId == teamH ? teamEntity.getCode() : againstEntity.getCode())
+                        .setTeamHName(teamId == teamH ? teamEntity.getName() : againstEntity.getName())
+                        .setTeamHShortName(teamId == teamH ? teamEntity.getShortName() : againstEntity.getShortName())
+                        .setTeamHScore(o.getTeamHScore())
+                        .setTeamAId(teamA)
+                        .setTeamACode(teamId == teamH ? againstEntity.getCode() : teamEntity.getCode())
+                        .setTeamAName(teamId == teamH ? againstEntity.getName() : teamEntity.getName())
+                        .setTeamAShortName(teamId == teamH ? againstEntity.getShortName() : teamEntity.getShortName())
+                        .setTeamAScore(o.getTeamAScore())
+                        .setKickoffDate(StringUtils.substringBefore(o.getKickoffTime(), " "));
+                // event_live
+                MybatisPlusConfig.season.set(season);
+                List<ElementEventResultData> elementEventResultList = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
+                        .eq(EventLiveEntity::getEvent, event)
+                        .in(EventLiveEntity::getTeamId, Lists.newArrayList(teamH, teamA)))
+                        .stream()
+                        .map(i -> {
+                            int element = i.getElement();
+                            PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
+                            if (playerEntity == null) {
+                                return null;
+                            }
+                            ElementEventResultData elementEventResultData = new ElementEventResultData()
+                                    .setSeason(season)
+                                    .setEvent(i.getEvent())
+                                    .setElement(i.getElement())
+                                    .setCode(playerEntity.getCode())
+                                    .setWebName(playerEntity.getWebName())
+                                    .setPrice(playerEntity.getPrice() / 10.0)
+                                    .setElementType(playerEntity.getElementType())
+                                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                                    .setTeamCode(teamEntity.getCode());
+                            BeanUtil.copyProperties(i, elementEventResultData);
+                            return elementEventResultData;
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                MybatisPlusConfig.season.remove();
+                if (!CollectionUtils.isEmpty(elementEventResultList)) {
+                    data.setElementEventResultList(elementEventResultList);
+                }
+                String key = StringUtils.joinWith("-", season, event);
+                map.put(key, data);
+            });
+        });
+        return map;
     }
 
     /**

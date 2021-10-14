@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * input: tournament_battle_group_result, order by event, groupId
- * accumulate: table-> row:event, column:group_id, value:tournament_group_event_fixture
+ * accumulate: table -> row:event, column:group_id, value:tournament_group_event_fixture
  * return: List<TournamentGroupFixtureData> list
  * <p>
  * Create by tong on 2020/9/10

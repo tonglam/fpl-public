@@ -2,9 +2,12 @@ package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.team.TeamAgainstInfoData;
+import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +90,21 @@ public class StatApiController {
     @GetMapping("/qryElementEventExplainResult")
     public ElementEventLiveExplainData qryElementEventExplainResult(@RequestParam int event, @RequestParam int element) {
         return this.apiStat.qryElementEventExplainResult(event, element);
+    }
+
+    @GetMapping("/qryTeamAgainstRecordInfo")
+    public TeamAgainstInfoData qryTeamAgainstRecordInfo(@RequestParam int teamId, @RequestParam int againstId) {
+        return this.apiStat.qryTeamAgainstRecordInfo(teamId, againstId);
+    }
+
+    @GetMapping("/qryTeamAgainstRecordResult")
+    public List<ElementEventResultData> qryTeamAgainstRecordResult(@RequestParam String season, @RequestParam int event, @RequestParam int teamHId, @RequestParam int teamAId) {
+        return this.apiStat.qryTeamAgainstRecordResult(season, event, teamHId, teamAId);
+    }
+
+    @GetMapping("/qryTopElementTeamAgainstRecord")
+    public List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(@RequestParam int teamId, @RequestParam int againstId, @RequestParam boolean active) {
+        return this.apiStat.qryTopElementTeamAgainstRecord(teamId, againstId, active);
     }
 
 }

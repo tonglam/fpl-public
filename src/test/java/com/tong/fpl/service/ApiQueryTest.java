@@ -14,7 +14,9 @@ import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
+import com.tong.fpl.domain.letletme.team.TeamAgainstInfoData;
 import com.tong.fpl.domain.letletme.team.TeamData;
+import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -294,6 +296,30 @@ public class ApiQueryTest extends FplApplicationTests {
     @CsvSource({"7, 353"})
     void qryElementEventExplainResult(int event, int element) {
         ElementEventLiveExplainData data = this.apiQueryService.qryElementEventExplainResult(event, element);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1, 7"})
+    void qryTeamAgainstRecordInfo(int teamId, int againstId) {
+        TeamAgainstInfoData data = this.apiQueryService.qryTeamAgainstRecordInfo(teamId, againstId);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1617, 19, 1, 5"})
+    void qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
+        List<ElementEventResultData> list = this.apiQueryService.qryTeamAgainstRecordResult(season, event, teamHId, teamAId);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1, 7, true"})
+    void qryElementTeamAgainstRecord(int teamId, int againstId, boolean active) {
+        long start = System.currentTimeMillis();
+        List<TeamElementAgainstRecordData> list = this.apiQueryService.qryTopElementTeamAgainstRecord(teamId, againstId, active);
+        long end = System.currentTimeMillis();
+        System.out.println("escape:" + (end - start) + "ms");
         System.out.println(1);
     }
 

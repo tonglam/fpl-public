@@ -1,9 +1,12 @@
 package com.tong.fpl.api;
 
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
+import com.tong.fpl.domain.letletme.element.ElementEventResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
+import com.tong.fpl.domain.letletme.team.TeamAgainstInfoData;
+import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 
 import java.util.List;
@@ -76,5 +79,20 @@ public interface IApiStat {
      * 获取球员比赛周得分详情
      */
     ElementEventLiveExplainData qryElementEventExplainResult(int event, int element);
+
+    /**
+     * 获取对阵球队的交手记录简介
+     */
+    TeamAgainstInfoData qryTeamAgainstRecordInfo(int teamId, int againstId);
+
+    /**
+     * 获取对阵球队的某次交手记录得分结果
+     */
+    List<ElementEventResultData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId);
+
+    /**
+     * 获取对阵球队的交手记录最好的球员（active:是否只看球队现役球员）
+     */
+    List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active);
 
 }

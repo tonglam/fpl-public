@@ -182,6 +182,8 @@ public interface IQueryService {
         return this.getTeamShortNameMap(season).getOrDefault(String.valueOf(teamId), "");
     }
 
+    Map<String, List<EventFixtureEntity>> qryTeamAgainstFixture(int teamCode, int againstCode);
+
     /**
      * @apiNote fixture
      */

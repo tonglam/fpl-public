@@ -68,6 +68,8 @@ public class QueryServiceImpl implements IQueryService {
     private final IInterfaceService interfaceService;
     private final IRedisCacheService redisCacheService;
 
+    private final TeamService teamService;
+    private final EventFixtureService eventFixtureService;
     private final PlayerService playerService;
     private final EntryInfoService entryInfoService;
     private final EventLiveService eventLiveService;
@@ -680,6 +682,52 @@ public class QueryServiceImpl implements IQueryService {
     @Override
     public Map<String, String> getTeamShortNameMap(String season) {
         return this.redisCacheService.getTeamShortNameMap(season);
+    }
+
+    @Cacheable(
+            value = "qryTeamAgainstFixture",
+            key = "#teamCode+'::'+#againstCode",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public Map<String, List<EventFixtureEntity>> qryTeamAgainstFixture(int teamCode, int againstCode) {
+        Map<String, List<EventFixtureEntity>> map = Maps.newHashMap();
+        Arrays.stream(Season.values())
+                .forEach(o -> {
+                    String season = o.getSeasonValue();
+                    List<EventFixtureEntity> list = this.qryTeamAgainstSeasonFixture(season, teamCode, againstCode);
+                    if (CollectionUtils.isEmpty(list)) {
+                        return;
+                    }
+                    map.put(season, list);
+                });
+        return map;
+    }
+
+    private List<EventFixtureEntity> qryTeamAgainstSeasonFixture(String season, int teamCode, int againstCode) {
+        MybatisPlusConfig.season.set(season);
+        TeamEntity teamEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
+                .eq(TeamEntity::getCode, teamCode));
+        TeamEntity againstEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
+                .eq(TeamEntity::getCode, againstCode));
+        if (teamEntity == null || againstEntity == null) {
+            MybatisPlusConfig.season.remove();
+            return null;
+        }
+        int teamId = teamEntity.getId();
+        int againstId = againstEntity.getId();
+        List<EventFixtureEntity> list = this.eventFixtureService.list(new QueryWrapper<EventFixtureEntity>().lambda()
+                .gt(EventFixtureEntity::getMinutes, 0)
+                .and(o -> o
+                        .and(i -> i
+                                .eq(EventFixtureEntity::getTeamH, teamId)
+                                .eq(EventFixtureEntity::getTeamA, againstId))
+                        .or(i -> i
+                                .eq(EventFixtureEntity::getTeamA, teamId)
+                                .eq(EventFixtureEntity::getTeamH, againstId))
+                ));
+        MybatisPlusConfig.season.remove();
+        return list;
     }
 
     /**

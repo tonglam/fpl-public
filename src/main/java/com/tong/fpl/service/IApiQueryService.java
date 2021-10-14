@@ -9,7 +9,9 @@ import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
+import com.tong.fpl.domain.letletme.team.TeamAgainstInfoData;
 import com.tong.fpl.domain.letletme.team.TeamData;
+import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -107,6 +109,12 @@ public interface IApiQueryService {
     TeamSummaryData qryTeamSummary(String season, String name);
 
     ElementEventLiveExplainData qryElementEventExplainResult(int event, int element);
+
+    TeamAgainstInfoData qryTeamAgainstRecordInfo(int teamId, int againstId);
+
+    List<ElementEventResultData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId);
+
+    List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active);
 
     /**
      * @apiNote tournament
