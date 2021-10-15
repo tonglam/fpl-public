@@ -2310,7 +2310,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         this.queryService.qryTeamAgainstFixture(teamCode, againstCode)
                 .forEach((season, list) -> {
                     list.forEach(i -> {
-                        TeamAgainstRecordData teamAgainstRecordData = this.qrySeasonTeamAgainstRecord(season, teamEntity, againstEntity, i);
+                        TeamAgainstRecordData teamAgainstRecordData = this.qrySeasonTeamAgainstRecord(season, teamCode, againstCode, i);
                         if (teamAgainstRecordData == null) {
                             return;
                         }
@@ -2383,8 +2383,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return data;
     }
 
-    private TeamAgainstRecordData qrySeasonTeamAgainstRecord(String season, TeamEntity teamEntity, TeamEntity againstEntity, EventFixtureEntity eventFixtureEntity) {
+    private TeamAgainstRecordData qrySeasonTeamAgainstRecord(String season, int teamCode, int againstCode, EventFixtureEntity eventFixtureEntity) {
         // prepare
+        MybatisPlusConfig.season.set(season);
+        TeamEntity teamEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
+                .eq(TeamEntity::getCode, teamCode));
+        TeamEntity againstEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
+                .eq(TeamEntity::getCode, againstCode));
+        if (teamEntity == null || againstEntity == null) {
+            MybatisPlusConfig.season.remove();
+            return null;
+        }
         int event = eventFixtureEntity.getEvent();
         int teamId = teamEntity.getId();
         int teamH = eventFixtureEntity.getTeamH();
@@ -2405,7 +2414,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamAScore(eventFixtureEntity.getTeamAScore())
                 .setKickoffDate(StringUtils.substringBefore(eventFixtureEntity.getKickoffTime(), " "));
         // event_live
-        MybatisPlusConfig.season.set(season);
         List<EventLiveEntity> eventLiveList = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
                 .eq(EventLiveEntity::getEvent, event)
                 .in(EventLiveEntity::getTeamId, Lists.newArrayList(teamH, teamA)));

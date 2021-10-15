@@ -300,7 +300,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1, 7"})
+    @CsvSource({"12, 5"})
     void qryTeamAgainstRecordInfo(int teamId, int againstId) {
         TeamAgainstInfoData data = this.apiQueryService.qryTeamAgainstRecordInfo(teamId, againstId);
         System.out.println(1);
