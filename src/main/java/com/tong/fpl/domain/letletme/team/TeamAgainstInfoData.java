@@ -1,5 +1,6 @@
 package com.tong.fpl.domain.letletme.team;
 
+import com.tong.fpl.domain.letletme.global.MapData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -28,6 +29,6 @@ public class TeamAgainstInfoData {
     private int goalsConceded;
     private double averageGoalScoreed;
     private double averageGoalsConceded;
-    private List<TeamAgainstRecordData> recordDataList;
+    private List<MapData<List<TeamAgainstRecordData>>> recordList;
 
 }

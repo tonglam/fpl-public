@@ -690,8 +690,8 @@ public class QueryServiceImpl implements IQueryService {
             unless = "#result.size() eq 0"
     )
     @Override
-    public Map<String, List<EventFixtureEntity>> qryTeamAgainstFixture(int teamCode, int againstCode) {
-        Map<String, List<EventFixtureEntity>> map = Maps.newHashMap();
+    public LinkedHashMap<String, List<EventFixtureEntity>> qryTeamAgainstFixture(int teamCode, int againstCode) {
+        LinkedHashMap<String, List<EventFixtureEntity>> map = Maps.newLinkedHashMap();
         Arrays.stream(Season.values())
                 .forEach(o -> {
                     String season = o.getSeasonValue();

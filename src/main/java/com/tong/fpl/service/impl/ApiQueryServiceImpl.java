@@ -2305,64 +2305,69 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setAgainstCode(againstCode)
                 .setAgainstName(againstEntity.getName())
                 .setAgainstShortName(againstEntity.getShortName());
+        List<MapData<List<TeamAgainstRecordData>>> recordList = Lists.newArrayList();
         List<TeamAgainstRecordData> seasonFixtureRecordsList = Lists.newArrayList();
         this.queryService.qryTeamAgainstFixture(teamCode, againstCode)
-                .forEach((key, value) ->
-                        value.forEach(i -> seasonFixtureRecordsList.add(this.qrySeasonTeamAgainstRecord(key, teamEntity, againstEntity, i))
-                        ));
-        List<TeamAgainstRecordData> recordDataList = seasonFixtureRecordsList
-                .stream()
-                .sorted(Comparator.comparing(TeamAgainstRecordData::getSeason)
-                        .thenComparing(TeamAgainstRecordData::getEvent))
-                .collect(Collectors.toList());
+                .forEach((season, list) -> {
+                    list.forEach(i -> seasonFixtureRecordsList.add(this.qrySeasonTeamAgainstRecord(season, teamEntity, againstEntity, i)));
+                    MapData<List<TeamAgainstRecordData>> mapData = new MapData<List<TeamAgainstRecordData>>()
+                            .setKey(season)
+                            .setValue(
+                                    seasonFixtureRecordsList
+                                            .stream()
+                                            .sorted(Comparator.comparing(TeamAgainstRecordData::getEvent))
+                                            .collect(Collectors.toList())
+                            );
+                    recordList.add(mapData);
+                });
         data
-                .setRecordDataList(recordDataList)
-                .setPlayed(data.getRecordDataList().size())
+                .setRecordList(recordList)
+                .setPlayed(data.getRecordList().size())
                 .setWin(
-                        (int) recordDataList
+                        (int) seasonFixtureRecordsList
                                 .stream()
                                 .filter(o -> teamCode == o.getTeamHCode() && o.getTeamHScore() > o.getTeamAScore())
                                 .count() +
-                                (int) recordDataList
+                                (int) seasonFixtureRecordsList
                                         .stream()
                                         .filter(o -> teamCode == o.getTeamACode() && o.getTeamAScore() > o.getTeamHScore())
                                         .count()
                 )
                 .setDraw(
-                        (int) recordDataList
+                        (int) seasonFixtureRecordsList
                                 .stream()
                                 .filter(o -> o.getTeamHScore() == o.getTeamAScore())
                                 .count()
                 )
                 .setLose(
-                        (int) recordDataList
+                        (int) seasonFixtureRecordsList
                                 .stream()
                                 .filter(o -> teamCode == o.getTeamHCode() && o.getTeamHScore() < o.getTeamAScore())
                                 .count() +
-                                (int) recordDataList
+                                (int) seasonFixtureRecordsList
                                         .stream()
                                         .filter(o -> teamCode == o.getTeamACode() && o.getTeamAScore() < o.getTeamHScore())
                                         .count()
                 )
                 .setGoalScoreed(
-                        recordDataList
+                        seasonFixtureRecordsList
                                 .stream()
                                 .filter(o -> teamCode == o.getTeamHCode())
                                 .mapToInt(TeamAgainstRecordData::getTeamHScore)
                                 .sum() +
-                                recordDataList
+                                seasonFixtureRecordsList
                                         .stream()
                                         .filter(o -> teamCode == o.getTeamACode())
                                         .mapToInt(TeamAgainstRecordData::getTeamAScore)
                                         .sum()
                 )
                 .setGoalsConceded(
-                        recordDataList
+                        seasonFixtureRecordsList
                                 .stream()
                                 .filter(o -> teamCode == o.getTeamHCode())
                                 .mapToInt(TeamAgainstRecordData::getTeamAScore)
                                 .sum() +
-                                recordDataList
+                                seasonFixtureRecordsList
                                         .stream()
                                         .filter(o -> teamCode == o.getTeamACode())
                                         .mapToInt(TeamAgainstRecordData::getTeamHScore)
