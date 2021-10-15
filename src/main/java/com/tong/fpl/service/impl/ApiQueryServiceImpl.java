@@ -2305,24 +2305,21 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setAgainstCode(againstCode)
                 .setAgainstName(againstEntity.getName())
                 .setAgainstShortName(againstEntity.getShortName());
-        List<MapData<List<TeamAgainstRecordData>>> recordList = Lists.newArrayList();
+        LinkedHashMap<String, List<TeamAgainstRecordData>> recordDataMap = Maps.newLinkedHashMap();
         List<TeamAgainstRecordData> seasonFixtureRecordsList = Lists.newArrayList();
         this.queryService.qryTeamAgainstFixture(teamCode, againstCode)
                 .forEach((season, list) -> {
                     list.forEach(i -> seasonFixtureRecordsList.add(this.qrySeasonTeamAgainstRecord(season, teamEntity, againstEntity, i)));
-                    MapData<List<TeamAgainstRecordData>> mapData = new MapData<List<TeamAgainstRecordData>>()
-                            .setKey(season)
-                            .setValue(
-                                    seasonFixtureRecordsList
-                                            .stream()
-                                            .sorted(Comparator.comparing(TeamAgainstRecordData::getEvent))
-                                            .collect(Collectors.toList())
-                            );
-                    recordList.add(mapData);
+                    recordDataMap.put(season,
+                            seasonFixtureRecordsList
+                                    .stream()
+                                    .sorted(Comparator.comparing(TeamAgainstRecordData::getEvent))
+                                    .collect(Collectors.toList())
+                    );
                 });
         data
-                .setRecordList(recordList)
-                .setPlayed(data.getRecordList().size())
+                .setRecordDataMap(recordDataMap)
+                .setPlayed(data.getRecordDataMap().size())
                 .setWin(
                         (int) seasonFixtureRecordsList
                                 .stream()

@@ -1,9 +1,9 @@
 package com.tong.fpl.domain.letletme.team;
 
-import com.tong.fpl.domain.letletme.global.MapData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -29,6 +29,6 @@ public class TeamAgainstInfoData {
     private int goalsConceded;
     private double averageGoalScoreed;
     private double averageGoalsConceded;
-    private List<MapData<List<TeamAgainstRecordData>>> recordList;
+    private LinkedHashMap<String, List<TeamAgainstRecordData>> recordDataMap;
 
 }
