@@ -2277,14 +2277,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return data;
     }
 
-    //    @Cacheable(
-//            value = "api::qryTeamAgainstRecordInfo",
-//            key = "#teamId+'::'+#againstId",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.teamId eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryTeamAgainstRecordInfo",
+            key = "#teamId+'::'+#againstId",
+            cacheManager = "apiCacheManager",
+            unless = "#result.teamId eq 0"
+    )
     @Override
     public TeamAgainstInfoData qryTeamAgainstRecordInfo(int teamId, int againstId) {
+        if (teamId <= 0 || teamId > 20 || againstId <= 0 || againstId > 20) {
+            return new TeamAgainstInfoData();
+        }
         // team
         TeamEntity teamEntity = this.teamService.getById(teamId);
         TeamEntity againstEntity = this.teamService.getById(againstId);
@@ -2450,6 +2453,9 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     )
     @Override
     public List<ElementEventResultData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
+        if (StringUtils.isEmpty(season) || event < 1 || event > 38 || teamHId <= 0 || teamHId > 20 || teamAId >= 0 || teamAId > 20) {
+            return Lists.newArrayList();
+        }
         MybatisPlusConfig.season.set(season);
         // prepare
         TeamEntity teamHEntity = this.teamService.getById(teamHId);
@@ -2504,14 +2510,17 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return data;
     }
 
-    //    @Cacheable(
-//            value = "api::qryTopElementTeamAgainstRecord",
-//            key = "#teamId+'::'+#againstId",
-//            cacheManager = "apiCacheManager",
-//            unless = "#result.size() eq 0"
-//    )
+    @Cacheable(
+            value = "api::qryTopElementTeamAgainstRecord",
+            key = "#teamId+'::'+#againstId",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
     @Override
     public List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active) {
+        if (teamId <= 0 || teamId > 20 || againstId <= 0 || againstId > 20) {
+            return Lists.newArrayList();
+        }
         int returnNum = 15;
         // team
         TeamEntity teamEntity = this.teamService.getById(teamId);
