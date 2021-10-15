@@ -2309,17 +2309,24 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         List<TeamAgainstRecordData> seasonFixtureRecordsList = Lists.newArrayList();
         this.queryService.qryTeamAgainstFixture(teamCode, againstCode)
                 .forEach((season, list) -> {
-                    list.forEach(i -> seasonFixtureRecordsList.add(this.qrySeasonTeamAgainstRecord(season, teamEntity, againstEntity, i)));
+                    list.forEach(i -> {
+                        TeamAgainstRecordData teamAgainstRecordData = this.qrySeasonTeamAgainstRecord(season, teamEntity, againstEntity, i);
+                        if (teamAgainstRecordData == null) {
+                            return;
+                        }
+                        seasonFixtureRecordsList.add(teamAgainstRecordData);
+                    });
                     recordDataMap.put(season,
                             seasonFixtureRecordsList
                                     .stream()
+                                    .filter(o -> StringUtils.equals(o.getSeason(), season))
                                     .sorted(Comparator.comparing(TeamAgainstRecordData::getEvent))
                                     .collect(Collectors.toList())
                     );
                 });
         data
                 .setRecordDataMap(recordDataMap)
-                .setPlayed(data.getRecordDataMap().size())
+                .setPlayed(seasonFixtureRecordsList.size())
                 .setWin(
                         (int) seasonFixtureRecordsList
                                 .stream()
