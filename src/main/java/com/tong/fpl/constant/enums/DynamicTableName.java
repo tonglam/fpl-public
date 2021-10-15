@@ -16,7 +16,7 @@ public enum DynamicTableName {
 
     Team("team"),
 
-    Player("player"), Player_Stat("player_stat"),
+    Player("player"), Player_Stat("player_stat"), Player_Summary("player_summary"),
 
     Player_Value("player_value"),
 
