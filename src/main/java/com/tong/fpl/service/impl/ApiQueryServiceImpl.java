@@ -2410,37 +2410,73 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         eventLiveList
                                 .stream()
                                 .filter(o -> o.getGoalsScored() > 0)
-                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getGoalsScored))
+                                .sorted(Comparator.comparing(EventLiveEntity::getGoalsScored).reversed())
+                                .map(o ->
+                                        new MapData<Integer>()
+                                                .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
+                                                .setValue(o.getGoalsScored())
+                                )
+                                .collect(Collectors.toList())
                 )
                 .setAssists(
                         eventLiveList
                                 .stream()
                                 .filter(o -> o.getAssists() > 0)
-                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getAssists))
+                                .sorted(Comparator.comparing(EventLiveEntity::getAssists).reversed())
+                                .map(o ->
+                                        new MapData<Integer>()
+                                                .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
+                                                .setValue(o.getAssists())
+                                )
+                                .collect(Collectors.toList())
                 )
                 .setOwnGoals(
                         eventLiveList
                                 .stream()
                                 .filter(o -> o.getOwnGoals() > 0)
-                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getOwnGoals))
+                                .sorted(Comparator.comparing(EventLiveEntity::getOwnGoals).reversed())
+                                .map(o ->
+                                        new MapData<Integer>()
+                                                .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
+                                                .setValue(o.getOwnGoals())
+                                )
+                                .collect(Collectors.toList())
                 )
                 .setPenaltiesSaved(
                         eventLiveList
                                 .stream()
                                 .filter(o -> o.getPenaltiesSaved() > 0)
-                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getPenaltiesSaved))
+                                .sorted(Comparator.comparing(EventLiveEntity::getPenaltiesSaved).reversed())
+                                .map(o ->
+                                        new MapData<Integer>()
+                                                .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
+                                                .setValue(o.getPenaltiesSaved())
+                                )
+                                .collect(Collectors.toList())
                 )
                 .setPenaltiesMissed(
                         eventLiveList
                                 .stream()
                                 .filter(o -> o.getPenaltiesMissed() > 0)
-                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getPenaltiesMissed))
+                                .sorted(Comparator.comparing(EventLiveEntity::getPenaltiesMissed).reversed())
+                                .map(o ->
+                                        new MapData<Integer>()
+                                                .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
+                                                .setValue(o.getPenaltiesMissed())
+                                )
+                                .collect(Collectors.toList())
                 )
                 .setRedCards(
                         eventLiveList
                                 .stream()
                                 .filter(o -> o.getRedCards() > 0)
-                                .collect(Collectors.toMap(o -> webNameMap.getOrDefault(String.valueOf(o.getElement()), ""), EventLiveEntity::getRedCards))
+                                .sorted(Comparator.comparing(EventLiveEntity::getRedCards).reversed())
+                                .map(o ->
+                                        new MapData<Integer>()
+                                                .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
+                                                .setValue(o.getRedCards())
+                                )
+                                .collect(Collectors.toList())
                 );
         return data;
     }

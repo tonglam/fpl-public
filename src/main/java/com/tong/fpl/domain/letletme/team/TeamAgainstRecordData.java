@@ -1,11 +1,10 @@
 package com.tong.fpl.domain.letletme.team;
 
-import com.tong.fpl.domain.entity.EventLiveEntity;
+import com.tong.fpl.domain.letletme.global.MapData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Create by tong on 2021/10/11
@@ -27,12 +26,11 @@ public class TeamAgainstRecordData {
     private String teamAShortName;
     private int teamAScore;
     private String kickoffDate;
-    private Map<String, Integer> goalScored;
-    private Map<String, Integer> assists;
-    private Map<String, Integer> ownGoals;
-    private Map<String, Integer> penaltiesSaved;
-    private Map<String, Integer> penaltiesMissed;
-    private Map<String, Integer> redCards;
-    private List<EventLiveEntity> eventLiveEntityList; // only use in this application
+    private List<MapData<Integer>> goalScored;
+    private List<MapData<Integer>> assists;
+    private List<MapData<Integer>> ownGoals;
+    private List<MapData<Integer>> penaltiesSaved;
+    private List<MapData<Integer>> penaltiesMissed;
+    private List<MapData<Integer>> redCards;
 
 }
