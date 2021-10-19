@@ -235,7 +235,8 @@ public class RedisCacheServiceImpl implements IRedisCacheService {
             return;
         }
         Map<String, PlayerEntity> playerMap = this.getPlayerMap(CommonUtils.getCurrentSeason());
-        if (staticRes.getElements().size() == playerMap.size()) {
+        int tableSize = this.playerService.count();
+        if (staticRes.getElements().size() == playerMap.size() && staticRes.getElements().size() == tableSize) {
             log.info("no new players");
             return;
         }
