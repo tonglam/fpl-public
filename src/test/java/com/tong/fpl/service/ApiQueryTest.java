@@ -204,7 +204,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"3"})
+    @CsvSource({"1"})
     void qryPlayerInfoListByElementType(int elementType) {
         LinkedHashMap<String, List<PlayerInfoData>> map = this.apiQueryService.qryPlayerInfoByElementType(elementType);
         System.out.println(1);

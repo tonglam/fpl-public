@@ -28,21 +28,21 @@ public class FplEventListener {
     @Async("eventExecutor")
     @EventListener({CreateTournamentEventData.class})
     public void onApplicationEvent(CreateTournamentEventData data) {
-        log.info("recieve event:{}, start process", CreateTournamentEventData.class.getSimpleName());
-        this.tournamentService.createNewTournamentBackground(data.getTournamentName(), data.getInputEntryList());
+        log.info("receive event:{}, start process", CreateTournamentEventData.class.getSimpleName());
+        this.tournamentService.createNewTournamentBackground(data.getTournamentName());
     }
 
     @Async("eventExecutor")
     @EventListener({RefreshTournamentEventResultEventData.class})
     public void onApplicationEvent(RefreshTournamentEventResultEventData data) {
-        log.info("recieve event:{}, start process", RefreshTournamentEventResultEventData.class.getSimpleName());
+        log.info("receive event:{}, start process", RefreshTournamentEventResultEventData.class.getSimpleName());
         this.refreshService.refreshTournamentEventResult(data.getEvent(), data.getTournamentId());
     }
 
     @Async("eventExecutor")
     @EventListener({RefreshLeagueSummaryEventData.class})
     public void onApplicationEvent(RefreshLeagueSummaryEventData data) {
-        log.info("recieve event:{}, start process", RefreshLeagueSummaryEventData.class.getSimpleName());
+        log.info("receive event:{}, start process", RefreshLeagueSummaryEventData.class.getSimpleName());
         this.refreshService.refreshLeagueSummary(data.getEvent(), data.getLeagueName(), data.getEntry());
     }
 

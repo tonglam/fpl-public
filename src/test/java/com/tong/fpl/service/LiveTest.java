@@ -22,7 +22,7 @@ public class LiveTest extends FplApplicationTests {
     private ILiveService liveCalcService;
 
     @ParameterizedTest
-    @CsvSource({"7, 6496"})
+    @CsvSource({"8, 1713"})
     void calcLivePointsByEntry(int event, int entry) {
         long start = System.currentTimeMillis();
         LiveCalcData data = this.liveCalcService.calcLivePointsByEntry(event, entry);

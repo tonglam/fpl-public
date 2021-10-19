@@ -147,12 +147,7 @@ public class DataServiceImpl implements IDataService {
         if (entry <= 0) {
             return;
         }
-        // prepare
         EntryInfoEntity entryInfo = this.entryInfoService.getById(entry);
-        Map<String, EntryLeagueInfoEntity> entryLeagueInfoMap = this.entryLeagueInfoService.list(new QueryWrapper<EntryLeagueInfoEntity>().lambda()
-                .eq(EntryLeagueInfoEntity::getEntry, entry))
-                .stream()
-                .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getLeagueId(), k.getLeagueType()), v -> v));
         // init data
         EntryRes entryRes = this.interfaceService.getEntry(entry).orElse(null);
         if (entryRes == null) {
@@ -160,7 +155,10 @@ public class DataServiceImpl implements IDataService {
             return;
         }
         // entry_info
-        EntryInfoEntity entryInfoEntity = this.initEntryInfo(entryRes);
+        EntryEventResultEntity lastEventEntryResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, this.queryService.getLastEvent())
+                .eq(EntryEventResultEntity::getEntry, entry));
+        EntryInfoEntity entryInfoEntity = this.initEntryInfo(entryRes, lastEventEntryResultEntity);
         if (entryInfoEntity == null) {
             log.error("entry:{}, entry_info empty", entry);
             return;
@@ -177,6 +175,10 @@ public class DataServiceImpl implements IDataService {
         if (CollectionUtils.isEmpty(entryLeagueInfoEntityList)) {
             return;
         }
+        Map<String, EntryLeagueInfoEntity> entryLeagueInfoMap = this.entryLeagueInfoService.list(new QueryWrapper<EntryLeagueInfoEntity>().lambda()
+                .eq(EntryLeagueInfoEntity::getEntry, entry))
+                .stream()
+                .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getLeagueId(), k.getLeagueType()), v -> v));
         List<EntryLeagueInfoEntity> insertList = Lists.newArrayList();
         List<EntryLeagueInfoEntity> updateList = Lists.newArrayList();
         entryLeagueInfoEntityList.forEach(o -> {
@@ -194,16 +196,30 @@ public class DataServiceImpl implements IDataService {
         log.info("entry:{}, update entry_league_info size:{}", entry, updateList.size());
     }
 
-    private EntryInfoEntity initEntryInfo(EntryRes entryRes) {
-        return new EntryInfoEntity()
+    private EntryInfoEntity initEntryInfo(EntryRes entryRes, EntryEventResultEntity lastEntryEventResultEntity) {
+        EntryInfoEntity entryInfoEntity = new EntryInfoEntity()
                 .setEntry(entryRes.getId())
                 .setEntryName(entryRes.getName())
                 .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+                .setRegion(entryRes.getPlayerRegionName())
+                .setStartedEvent(entryRes.getStartedEvent())
                 .setOverallPoints(entryRes.getSummaryOverallPoints())
                 .setOverallRank(entryRes.getSummaryOverallRank())
                 .setBank(entryRes.getLastDeadlineBank())
                 .setTeamValue(entryRes.getLastDeadlineValue())
                 .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers());
+        if (lastEntryEventResultEntity == null) {
+            entryInfoEntity
+                    .setLastOverallPoints(0)
+                    .setLastOverallRank(0)
+                    .setLastTeamValue(0);
+        } else {
+            entryInfoEntity
+                    .setLastOverallPoints(lastEntryEventResultEntity.getOverallPoints())
+                    .setLastOverallRank(lastEntryEventResultEntity.getOverallRank())
+                    .setLastTeamValue(lastEntryEventResultEntity.getTeamValue());
+        }
+        return entryInfoEntity;
     }
 
     private List<EntryLeagueInfoEntity> initEntryLeagueInfo(int entry, EntryRes entryRes) {
@@ -465,7 +481,7 @@ public class DataServiceImpl implements IDataService {
     private EntryEventResultEntity initEntryEventResult(int event, int entry, Map<String, EventLiveEntity> eventLiveMap) {
         UserPicksRes userPick = this.interfaceService.getUserPicks(event, entry).orElse(null);
         if (userPick == null) {
-            log.error("event:{}, entry:{}, get fpl server entry_cup empty", event, entry);
+            log.error("event:{}, entry:{}, get fpl server entry_event_result empty", event, entry);
             return null;
         }
         Map<Integer, Integer> elementPointsMap = eventLiveMap.values()
@@ -569,10 +585,11 @@ public class DataServiceImpl implements IDataService {
                 .in(EntryInfoEntity::getEntry, entryList))
                 .stream()
                 .collect(Collectors.toMap(EntryInfoEntity::getEntry, o -> o));
-        Map<String, EntryLeagueInfoEntity> entryLeagueInfoMap = this.entryLeagueInfoService.list(new QueryWrapper<EntryLeagueInfoEntity>().lambda()
-                .in(EntryLeagueInfoEntity::getEntry, entryList))
+        Map<Integer, EntryEventResultEntity> lastEntryEventResultMap = this.entryEventResultService.list(new QueryWrapper<EntryEventResultEntity>().lambda()
+                .eq(EntryEventResultEntity::getEvent, this.queryService.getLastEvent())
+                .in(EntryEventResultEntity::getEntry, entryList))
                 .stream()
-                .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEntry(), k.getLeagueId(), k.getLeagueType()), v -> v));
+                .collect(Collectors.toMap(EntryEventResultEntity::getEntry, o -> o));
         // init data
         List<CompletableFuture<EntryRes>> entryResFuture = entryList
                 .stream()
@@ -586,7 +603,7 @@ public class DataServiceImpl implements IDataService {
         // entry_info
         List<CompletableFuture<EntryInfoEntity>> entryInfoFuture = entryList
                 .stream()
-                .map(o -> CompletableFuture.supplyAsync(() -> this.initEntryInfo(entryResMap.get(o)), this.forkJoinPool))
+                .map(o -> CompletableFuture.supplyAsync(() -> this.initEntryInfo(entryResMap.get(o), lastEntryEventResultMap.get(o)), this.forkJoinPool))
                 .collect(Collectors.toList());
         List<EntryInfoEntity> entryInfoList = entryInfoFuture
                 .stream()
@@ -610,6 +627,10 @@ public class DataServiceImpl implements IDataService {
         if (!this.queryService.isAfterMatchDay(this.queryService.getCurrentEvent())) {
             return;
         }
+        Map<String, EntryLeagueInfoEntity> entryLeagueInfoMap = this.entryLeagueInfoService.list(new QueryWrapper<EntryLeagueInfoEntity>().lambda()
+                .in(EntryLeagueInfoEntity::getEntry, entryList))
+                .stream()
+                .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEntry(), k.getLeagueId(), k.getLeagueType()), v -> v));
         // entry_league_info
         List<CompletableFuture<List<EntryLeagueInfoEntity>>> entryLeagueInfoFuture = entryList
                 .stream()
@@ -862,7 +883,7 @@ public class DataServiceImpl implements IDataService {
             return;
         }
         if (!StringUtils.equals(GroupMode.Points_race.name(), tournamentInfoEntity.getGroupMode())) {
-            log.error("event:{}, tournament:{}, not points group", event, tournamentId);
+            log.info("event:{}, tournament:{}, not points group", event, tournamentId);
             return;
         }
         // check gw
@@ -900,8 +921,31 @@ public class DataServiceImpl implements IDataService {
             int entry = tournamentGroupEntity.getEntry();
             EntryEventResultEntity entryEventResultEntity = eventResultMap.getOrDefault(entry, null);
             if (entryEventResultEntity == null) {
-                log.error("event:{}, tournament:{}, tournament_group not exists", event, tournamentId);
-                return;
+                this.upsertEntryEventResult(event, entry);
+                entryEventResultEntity = this.entryEventResultService.getOne(new QueryWrapper<EntryEventResultEntity>().lambda()
+                        .eq(EntryEventResultEntity::getEntry, entry)
+                        .eq(EntryEventResultEntity::getEvent, event));
+                if (entryEventResultEntity == null) {
+                    log.error("event:{}, entry:{}, entry_event_result not exists", event, entry);
+                }
+                entryEventResultEntity = new EntryEventResultEntity()
+                        .setEvent(event)
+                        .setEventPoints(0)
+                        .setEventTransfers(0)
+                        .setEventTransfersCost(0)
+                        .setEventNetPoints(0)
+                        .setEventBenchPoints(0)
+                        .setEventAutoSubPoints(0)
+                        .setEventRank(0)
+                        .setEventChip(Chip.NONE.getValue())
+                        .setPlayedCaptain(0)
+                        .setCaptainPoints(0)
+                        .setEventPicks("")
+                        .setEventAutoSubs("")
+                        .setOverallPoints(0)
+                        .setOverallRank(0)
+                        .setTeamValue(0)
+                        .setBank(0);
             }
             tournamentGroupEntity
                     .setPlay(event - tournamentGroupEntity.getStartGw() + 1)
@@ -1015,7 +1059,7 @@ public class DataServiceImpl implements IDataService {
             return;
         }
         if (!StringUtils.equals(GroupMode.Battle_race.name(), tournamentInfoEntity.getGroupMode())) {
-            log.error("event:{}, tournament:{}, not battle group", event, tournamentId);
+            log.info("event:{}, tournament:{}, not battle group", event, tournamentId);
             return;
         }
         // check gw
@@ -1171,7 +1215,7 @@ public class DataServiceImpl implements IDataService {
             return;
         }
         if (StringUtils.equals(KnockoutMode.No_knockout.name(), tournamentInfoEntity.getKnockoutMode())) {
-            log.error("event:{}, tournament:{}, no knockout", event, tournamentId);
+            log.info("event:{}, tournament:{}, no knockout", event, tournamentId);
             return;
         }
         // check gw

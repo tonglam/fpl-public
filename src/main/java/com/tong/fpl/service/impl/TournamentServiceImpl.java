@@ -1,12 +1,13 @@
 package com.tong.fpl.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.common.collect.*;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.constant.enums.LeagueType;
 import com.tong.fpl.constant.enums.TournamentMode;
+import com.tong.fpl.domain.data.response.EntryRes;
+import com.tong.fpl.domain.data.response.UserHistoryRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.event.CreateTournamentEventData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
@@ -27,6 +28,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -45,6 +48,9 @@ public class TournamentServiceImpl implements ITournamentService {
     private final IQueryService queryService;
     private final IDataService dataService;
 
+    private final EntryInfoService entryInfoService;
+    private final EntryHistoryInfoService entryHistoryInfoService;
+    private final EntryLeagueInfoService entryLeagueInfoService;
     private final TournamentInfoService tournamentInfoService;
     private final TournamentEntryService tournamentEntryService;
     private final TournamentGroupService tournamentGroupService;
@@ -52,6 +58,8 @@ public class TournamentServiceImpl implements ITournamentService {
     private final TournamentBattleGroupResultService tournamentBattleGroupResultService;
     private final TournamentKnockoutService tournamentKnockoutService;
     private final TournamentKnockoutResultService tournamentKnockoutResultService;
+
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool(4);
 
     @Override
     public String createNewTournament(TournamentCreateData tournamentCreateData) {
@@ -79,7 +87,7 @@ public class TournamentServiceImpl implements ITournamentService {
         // save
         this.tournamentInfoService.save(tournamentInfoEntity);
         // publish event
-        this.context.publishEvent(new CreateTournamentEventData(this, tournamentCreateData.getTournamentName(), tournamentCreateData.getInputEntryList()));
+        this.context.publishEvent(new CreateTournamentEventData(this, tournamentCreateData.getTournamentName()));
         return "创建成功！";
     }
 
@@ -163,7 +171,7 @@ public class TournamentServiceImpl implements ITournamentService {
     }
 
     @Override
-    public void createNewTournamentBackground(String tournamentName, List<Integer> inputEntryList) {
+    public void createNewTournamentBackground(String tournamentName) {
         TournamentInfoEntity tournamentInfo = this.tournamentInfoService.getOne(new QueryWrapper<TournamentInfoEntity>().lambda()
                 .eq(TournamentInfoEntity::getName, tournamentName)
                 .eq(TournamentInfoEntity::getState, 1));
@@ -177,7 +185,7 @@ public class TournamentServiceImpl implements ITournamentService {
         int groupStartGw = tournamentInfo.getGroupStartGw();
         int groupEndGw = tournamentInfo.getGroupEndGw();
         // save entry_info
-        this.saveTournamentEntryInfo(tournamentId, tournamentInfo.getLeagueType(), tournamentInfo.getLeagueId(), inputEntryList, tournamentInfo.getGroupFillAverage());
+        this.saveTournamentEntryInfo(tournamentId, tournamentInfo.getLeagueType(), tournamentInfo.getLeagueId(), tournamentInfo.getGroupFillAverage());
         // draw groups
         this.drawGroups(tournamentId, groupMode, tournamentInfo.getTeamPerGroup(), tournamentInfo.getGroupFillAverage(), groupNum, groupStartGw, groupEndGw);
         // create points_group_result
@@ -185,33 +193,27 @@ public class TournamentServiceImpl implements ITournamentService {
         // create battle_group_result
         this.createBattleGroupResult(tournamentId, groupMode, tournamentInfo.getGroupPlayAgainstNum(), tournamentInfo.getTeamPerGroup(), groupNum, groupStartGw, groupEndGw);
         // draw knockouts
+        int knockoutStartGw = tournamentInfo.getKnockoutStartGw();
+        int knockoutEndGw = tournamentInfo.getKnockoutRounds();
         this.drawKnockouts(tournamentId, groupMode, groupNum,
                 tournamentInfo.getGroupQualifiers(), knockoutMode,
                 tournamentInfo.getKnockoutPlayAgainstNum(), tournamentInfo.getKnockoutTeam(),
-                tournamentInfo.getKnockoutStartGw(), tournamentInfo.getKnockoutRounds());
+                knockoutStartGw, knockoutEndGw);
         // update gw result
-        this.updateGwResult(tournamentId);
+        int startGw = groupStartGw == 0 ? knockoutStartGw : groupStartGw;
+        int endGw = knockoutEndGw == 0 ? groupEndGw : knockoutEndGw;
+        this.updateGwResult(tournamentId, startGw, endGw);
     }
 
-    private void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, List<Integer> inputEntryList, boolean groupFillAverage) {
-        // save entry_info
-        List<EntryInfoData> entryInfoEntityList = Lists.newArrayList();
-        if (CollectionUtils.isEmpty(inputEntryList)) {
-            entryInfoEntityList = this.saveEntryInfoFromFplServer(leagueType, leagueId);
-        } else {
-            List<EntryInfoData> inputEntryInfoList = inputEntryList
-                    .stream()
-                    .map(this.queryService::qryEntryInfo)
-                    .collect(Collectors.toList());
-            entryInfoEntityList.addAll(inputEntryInfoList);
-        }
+    private void saveTournamentEntryInfo(int tournamentId, String leagueType, int leagueId, boolean groupFillAverage) {
+        // save entry
+        List<EntryInfoData> entryInfoEntityList = this.saveEntryFromFplServer(leagueType, leagueId);
         // save tournament_entry (add average)
         this.saveTournamentEntry(tournamentId, leagueId, groupFillAverage, entryInfoEntityList);
         log.info("tournament:{}, save entry info success!", tournamentId);
     }
 
-    private List<EntryInfoData> saveEntryInfoFromFplServer(String leagueType, int leagueId) {
-        List<EntryInfoEntity> entryInfoEntityList = Lists.newArrayList();
+    private List<EntryInfoData> saveEntryFromFplServer(String leagueType, int leagueId) {
         List<EntryInfoData> entryInfoList = Lists.newArrayList();
         if (LeagueType.valueOf(leagueType) == LeagueType.Classic) {
             entryInfoList = this.interfaceService.getEntryInfoListFromClassic(leagueId);
@@ -224,50 +226,224 @@ public class TournamentServiceImpl implements ITournamentService {
                 entryInfoList = this.interfaceService.getNewEntryInfoListFromH2h(leagueId);
             }
         }
-        entryInfoList.parallelStream().forEach(entryInfoEntity ->
-                this.interfaceService.getEntry(entryInfoEntity.getEntry()).ifPresent(entryRes ->
-                        entryInfoEntityList.add(
-                                new EntryInfoEntity()
-                                        .setEntry(entryInfoEntity.getEntry())
-                                        .setEntryName(entryRes.getName())
-                                        .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
-                                        .setRegion(entryRes.getPlayerRegionName())
-                                        .setStartedEvent(entryRes.getStartedEvent())
-                                        .setOverallPoints(entryRes.getSummaryOverallPoints())
-                                        .setOverallRank(entryRes.getSummaryOverallRank())
-                                        .setBank(entryRes.getLastDeadlineBank())
-                                        .setTeamValue(entryRes.getLastDeadlineValue())
-                                        .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
-                        )));
-        // refresh entry_info
-        this.dataService.upsertEntryInfoByList(
-                entryInfoList
-                        .stream()
-                        .map(EntryInfoData::getEntry)
-                        .collect(Collectors.toList())
-        );
-        return entryInfoEntityList
+        List<Integer> entryList = entryInfoList
                 .stream()
-                .map(o -> BeanUtil.copyProperties(o, EntryInfoData.class))
+                .map(EntryInfoData::getEntry)
+                .collect(Collectors.toList());
+        // save entry_info
+        this.saveEntryInfoFromFplServer(entryList);
+        // save entry_history_info
+        this.saveEntryHistoryInfoFromFplServer(entryList);
+        // return
+        return entryInfoList;
+    }
+
+    private void saveEntryInfoFromFplServer(List<Integer> entryList) {
+        // prepare
+        Map<Integer, EntryInfoEntity> entryInfoMap = this.entryInfoService.list(new QueryWrapper<EntryInfoEntity>().lambda()
+                .in(EntryInfoEntity::getEntry, entryList))
+                .stream()
+                .collect(Collectors.toMap(EntryInfoEntity::getEntry, o -> o));
+        // init data
+        List<CompletableFuture<EntryRes>> entryResFuture = entryList
+                .stream()
+                .map(o -> CompletableFuture.supplyAsync(() -> this.interfaceService.getEntry(o).orElse(null), this.forkJoinPool))
+                .collect(Collectors.toList());
+        Map<Integer, EntryRes> entryResMap = entryResFuture
+                .stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toMap(EntryRes::getId, o -> o));
+        // entry_info
+        List<CompletableFuture<EntryInfoEntity>> entryInfoFuture = entryList
+                .stream()
+                .map(o -> CompletableFuture.supplyAsync(() -> this.initEntryInfo(entryResMap.get(o)), this.forkJoinPool))
+                .collect(Collectors.toList());
+        List<EntryInfoEntity> entryInfoList = entryInfoFuture
+                .stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        // save or update
+        List<EntryInfoEntity> insertEntryInfoList = Lists.newArrayList();
+        List<EntryInfoEntity> updateEntryInfoList = Lists.newArrayList();
+        entryInfoList.forEach(o -> {
+            if (!entryInfoMap.containsKey(o.getEntry())) {
+                insertEntryInfoList.add(o);
+            } else {
+                updateEntryInfoList.add(o);
+            }
+        });
+        this.entryInfoService.saveBatch(insertEntryInfoList);
+        log.info("insert entry_info size:{}", insertEntryInfoList.size());
+        this.entryInfoService.updateBatchById(updateEntryInfoList);
+        log.info("update entry_info size:{}", updateEntryInfoList.size());
+        // entry_league_info
+        Map<String, EntryLeagueInfoEntity> entryLeagueInfoMap = this.entryLeagueInfoService.list(new QueryWrapper<EntryLeagueInfoEntity>().lambda()
+                .in(EntryLeagueInfoEntity::getEntry, entryList))
+                .stream()
+                .collect(Collectors.toMap(k -> StringUtils.joinWith("-", k.getEntry(), k.getLeagueId(), k.getLeagueType()), v -> v));
+        // entry_league_info
+        List<CompletableFuture<List<EntryLeagueInfoEntity>>> entryLeagueInfoFuture = entryList
+                .stream()
+                .map(o -> CompletableFuture.supplyAsync(() -> this.initEntryLeagueInfo(o, entryResMap.get(o)), this.forkJoinPool))
+                .collect(Collectors.toList());
+        List<EntryLeagueInfoEntity> entryInfoLeagueList = Lists.newArrayList();
+        entryLeagueInfoFuture
+                .stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .forEach(entryInfoLeagueList::addAll);
+        // save or update
+        List<EntryLeagueInfoEntity> insertLeagueInfoList = Lists.newArrayList();
+        List<EntryLeagueInfoEntity> updateLeagueInfoList = Lists.newArrayList();
+        entryInfoLeagueList.forEach(o -> {
+            String key = StringUtils.joinWith("-", o.getEntry(), o.getLeagueId(), o.getLeagueType());
+            if (!entryLeagueInfoMap.containsKey(key)) {
+                insertLeagueInfoList.add(o);
+            } else {
+                o.setId(entryLeagueInfoMap.get(key).getId());
+                updateLeagueInfoList.add(o);
+            }
+        });
+        this.entryLeagueInfoService.saveBatch(insertLeagueInfoList);
+        log.info("insert entry_league_info size:{}", insertLeagueInfoList.size());
+        this.entryLeagueInfoService.updateBatchById(updateLeagueInfoList);
+        log.info("update entry_league_info size:{}", updateLeagueInfoList.size());
+    }
+
+    private EntryInfoEntity initEntryInfo(EntryRes entryRes) {
+        return new EntryInfoEntity()
+                .setEntry(entryRes.getId())
+                .setEntryName(entryRes.getName())
+                .setPlayerName(entryRes.getPlayerFirstName() + " " + entryRes.getPlayerLastName())
+                .setRegion(entryRes.getPlayerRegionName())
+                .setStartedEvent(entryRes.getStartedEvent())
+                .setOverallPoints(entryRes.getSummaryOverallPoints())
+                .setOverallRank(entryRes.getSummaryOverallRank())
+                .setBank(entryRes.getLastDeadlineBank())
+                .setTeamValue(entryRes.getLastDeadlineValue())
+                .setTotalTransfers(entryRes.getLastDeadlineTotalTransfers())
+                .setLastOverallPoints(0)
+                .setLastOverallRank(0)
+                .setLastTeamValue(0);
+    }
+
+    private List<EntryLeagueInfoEntity> initEntryLeagueInfo(int entry, EntryRes entryRes) {
+        if (entryRes == null || entryRes.getLeagues() == null) {
+            log.error("entry:{}, get fpl server entry empty", entry);
+            return null;
+        }
+        List<EntryLeagueInfoEntity> entryLeagueInfoEntityList = Lists.newArrayList();
+        // classic
+        entryRes.getLeagues().getClassic().forEach(o -> {
+            int leagueId = o.getId();
+            entryLeagueInfoEntityList.add(
+                    new EntryLeagueInfoEntity()
+                            .setEntry(entry)
+                            .setLeagueId(leagueId)
+                            .setType(StringUtils.equals("x", o.getLeagueType()) ? "private" : "public")
+                            .setLeagueType(LeagueType.Classic.name())
+                            .setLeagueName(o.getName())
+                            .setEntryRank(o.getEntryRank())
+                            .setEntryLastRank(o.getEntryLastRank())
+                            .setStartEvent(o.getStartEvent())
+                            .setCreated(o.getCreated())
+            );
+        });
+        // h2h
+        entryRes.getLeagues().getH2h().forEach(o -> {
+            int leagueId = o.getId();
+            entryLeagueInfoEntityList.add(
+                    new EntryLeagueInfoEntity()
+                            .setEntry(entry)
+                            .setLeagueId(leagueId)
+                            .setType(StringUtils.equals("x", o.getLeagueType()) ? "private" : "public")
+                            .setLeagueType(LeagueType.H2h.name())
+                            .setLeagueName(o.getName())
+                            .setEntryRank(o.getEntryRank())
+                            .setEntryLastRank(o.getEntryLastRank())
+                            .setStartEvent(o.getStartEvent())
+                            .setCreated(o.getCreated())
+            );
+        });
+        return entryLeagueInfoEntityList;
+    }
+
+    private void saveEntryHistoryInfoFromFplServer(List<Integer> entryList) {
+        // exists
+        List<Integer> existsList = this.entryHistoryInfoService.list(new QueryWrapper<EntryHistoryInfoEntity>().lambda()
+                .in(EntryHistoryInfoEntity::getEntry, entryList))
+                .stream()
+                .map(EntryHistoryInfoEntity::getEntry)
+                .collect(Collectors.toList());
+        entryList = entryList
+                .stream()
+                .filter(o -> !existsList.contains(o))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(entryList)) {
+            log.error("no need to insert");
+            return;
+        }
+        // prepare
+        List<CompletableFuture<List<EntryHistoryInfoEntity>>> future = entryList.stream()
+                .map(o -> CompletableFuture.supplyAsync(() -> this.initEntryHistoryInfo(o), this.forkJoinPool))
+                .collect(Collectors.toList());
+        List<EntryHistoryInfoEntity> entryHistoryInfoEntityList = Lists.newArrayList();
+        future
+                .stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .forEach(entryHistoryInfoEntityList::addAll);
+        // save
+        this.entryHistoryInfoService.saveBatch(entryHistoryInfoEntityList);
+        log.info("insert entry_history_info size:{}", entryHistoryInfoEntityList.size());
+    }
+
+    private List<EntryHistoryInfoEntity> initEntryHistoryInfo(int entry) {
+        UserHistoryRes userHistoryRes = this.interfaceService.getUserHistory(entry).orElse(null);
+        if (userHistoryRes == null || CollectionUtils.isEmpty(userHistoryRes.getPast())) {
+            return null;
+        }
+        return userHistoryRes.getPast()
+                .stream()
+                .map(o ->
+                        new EntryHistoryInfoEntity()
+                                .setEntry(userHistoryRes.getEntry())
+                                .setSeason(o.getSeasonName())
+                                .setTotalPoints(o.getTotalPoints())
+                                .setOverallRank(o.getRank())
+                )
                 .collect(Collectors.toList());
     }
 
     private void saveTournamentEntry(int tournamentId, int leagueId, boolean groupFillAverage, List<EntryInfoData> entryInfoEntityList) {
         List<TournamentEntryEntity> tournamentEntryEntityList = Lists.newArrayList();
-        entryInfoEntityList.forEach(entryInfoEntity ->
-                tournamentEntryEntityList.add(
-                        new TournamentEntryEntity()
-                                .setTournamentId(tournamentId)
-                                .setLeagueId(leagueId)
-                                .setEntry(entryInfoEntity.getEntry())
-                ));
+        Map<Integer, TournamentEntryEntity> tournamentEntryMap = this.tournamentEntryService.list(new QueryWrapper<TournamentEntryEntity>().lambda()
+                .eq(TournamentEntryEntity::getTournamentId, tournamentId))
+                .stream()
+                .collect(Collectors.toMap(TournamentEntryEntity::getEntry, o -> o));
+        entryInfoEntityList.forEach(entryInfoEntity -> {
+            int entry = entryInfoEntity.getEntry();
+            if (tournamentEntryMap.containsKey(entry)) {
+                return;
+            }
+            tournamentEntryEntityList.add(
+                    new TournamentEntryEntity()
+                            .setTournamentId(tournamentId)
+                            .setLeagueId(leagueId)
+                            .setEntry(entry)
+            );
+        });
         if (groupFillAverage) {
-            tournamentEntryEntityList.add(new TournamentEntryEntity()
-                    .setTournamentId(tournamentId)
-                    .setLeagueId(leagueId)
-                    .setEntry(-1));
+            tournamentEntryEntityList.add(
+                    new TournamentEntryEntity()
+                            .setTournamentId(tournamentId)
+                            .setLeagueId(leagueId)
+                            .setEntry(-1));
         }
         this.tournamentEntryService.saveBatch(tournamentEntryEntityList);
+        log.info("insert tournament_entry size:{}", tournamentEntryEntityList.size());
     }
 
     private void drawGroups(int tournamentId, String groupMode, int teamsPerGroup, boolean groupFillAverage, int groupNum,
@@ -323,23 +499,24 @@ public class TournamentServiceImpl implements ITournamentService {
         // draw entry list
         IntStream.range(0, entryList.size()).forEach(i -> {
             int groupId = this.drawToGroup(random, entryList.get(i), groupNum, teamsPerGroup, teamInGroupMap);
-            tournamentGroupList.add(new TournamentGroupEntity()
-                    .setTournamentId(tournamentId)
-                    .setGroupId(groupId)
-                    .setGroupName(CommonUtils.getCapitalLetterFromNum(groupId))
-                    .setGroupIndex(this.drawGroupIndex(random, groupId, teamsPerGroup, groupIndexMap))
-                    .setEntry(entryList.get(i))
-                    .setStartGw(groupStartGw)
-                    .setEndGw(groupEndGw)
-                    .setGroupPoints(0)
-                    .setGroupRank(1)
-                    .setPlay(0)
-                    .setWin(0)
-                    .setDraw(0)
-                    .setLose(0)
-                    .setTotalPoints(0)
-                    .setQualified(false)
-                    .setOverallRank(0)
+            tournamentGroupList.add(
+                    new TournamentGroupEntity()
+                            .setTournamentId(tournamentId)
+                            .setGroupId(groupId)
+                            .setGroupName(CommonUtils.getCapitalLetterFromNum(groupId))
+                            .setGroupIndex(this.drawGroupIndex(random, groupId, teamsPerGroup, groupIndexMap))
+                            .setEntry(entryList.get(i))
+                            .setStartGw(groupStartGw)
+                            .setEndGw(groupEndGw)
+                            .setGroupPoints(0)
+                            .setGroupRank(1)
+                            .setPlay(0)
+                            .setWin(0)
+                            .setDraw(0)
+                            .setLose(0)
+                            .setTotalPoints(0)
+                            .setQualified(false)
+                            .setOverallRank(0)
             );
         });
         // update
@@ -647,9 +824,12 @@ public class TournamentServiceImpl implements ITournamentService {
         this.tournamentKnockoutResultService.saveBatch(resultEntityList);
     }
 
-    private void updateGwResult(int tournamentId) {
+    private void updateGwResult(int tournamentId, int startGw, int endGw) {
         int current = this.queryService.getCurrentEvent();
-        IntStream.rangeClosed(current, current).forEach(event -> {
+        if (endGw >= current) {
+            endGw = current;
+        }
+        IntStream.rangeClosed(startGw, endGw).forEach(event -> {
             // entry_event_result
             this.dataService.upsertTournamentEventResult(event, tournamentId);
             // points_group_result
@@ -658,8 +838,8 @@ public class TournamentServiceImpl implements ITournamentService {
             this.dataService.updateBattleRaceGroupResult(event, tournamentId);
             // knockout_result
             this.dataService.updateKnockoutResult(event, tournamentId);
+            log.info("tournament:{}, event:{}, update gw result success!", tournamentId, event);
         });
-        log.info("tournament:{}, update gw result success!", tournamentId);
     }
 
     @Override

@@ -1,8 +1,6 @@
 package com.tong.fpl.service;
 
-import com.google.common.collect.Lists;
 import com.tong.fpl.FplApplicationTests;
-import com.tong.fpl.constant.enums.FollowAccount;
 import com.tong.fpl.constant.enums.GroupMode;
 import com.tong.fpl.constant.enums.KnockoutMode;
 import com.tong.fpl.domain.letletme.tournament.TournamentCreateData;
@@ -11,8 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.IntStream;
 
 /**
@@ -20,6 +16,8 @@ import java.util.stream.IntStream;
  */
 public class TournamentTest extends FplApplicationTests {
 
+    @Autowired
+    private IInterfaceService interfaceService;
     @Autowired
     private ITournamentService tournamentService;
 
@@ -83,11 +81,9 @@ public class TournamentTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"网红联赛"})
+    @CsvSource({"FPL中国官方联赛"})
     void createNewTournamentBackground(String name) {
-        List<Integer> entryList = Lists.newArrayList();
-        Arrays.stream(FollowAccount.values()).forEach(o -> entryList.add(o.getEntry()));
-        this.tournamentService.createNewTournamentBackground(name, entryList);
+        this.tournamentService.createNewTournamentBackground(name);
         System.out.println(1);
     }
 
