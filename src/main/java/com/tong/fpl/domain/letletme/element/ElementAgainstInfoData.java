@@ -27,11 +27,8 @@ public class ElementAgainstInfoData {
     private int totalYellowCards;
     private int totalRedCards;
     private int totalSaves;
-    private double averageSaves;
     private int totalBonus;
-    private double averageBonus;
     private int totalBps;
-    private double averageBps;
     private int totalPoints;
     private double averageMinutes;
     private double averagePoints;
