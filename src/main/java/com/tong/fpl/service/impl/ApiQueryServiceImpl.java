@@ -2417,6 +2417,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setKickoffDate(StringUtils.substringBefore(eventFixtureEntity.getKickoffTime(), " "));
         // player_summary
         List<PlayerSummaryEntity> playerSummaryList = this.playerSummaryService.list(new QueryWrapper<PlayerSummaryEntity>().lambda()
+                .gt(PlayerSummaryEntity::getMinutes, 0)
                 .eq(PlayerSummaryEntity::getFixtureId, eventFixtureEntity.getId()));
         MybatisPlusConfig.season.remove();
         if (CollectionUtils.isEmpty(playerSummaryList)) {
@@ -2463,12 +2464,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setPenaltiesSaved(
                         playerSummaryList
                                 .stream()
-                                .filter(o -> o.getPenaltiesSaved() > 0)
-                                .sorted(Comparator.comparing(PlayerSummaryEntity::getPenaltiesSaved).reversed())
+                                .filter(o -> o.getPenaltiesSave() > 0)
+                                .sorted(Comparator.comparing(PlayerSummaryEntity::getPenaltiesSave).reversed())
                                 .map(o ->
                                         new MapData<Integer>()
                                                 .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
-                                                .setValue(o.getPenaltiesSaved())
+                                                .setValue(o.getPenaltiesSave())
                                 )
                                 .collect(Collectors.toList())
                 )

@@ -35,7 +35,7 @@ public class PlayerSummaryEntity {
     private Integer cleanSheets;
     private Integer goalsConceded;
     private Integer ownGoals;
-    private Integer penaltiesSaved;
+    private Integer penaltiesSave;
     private Integer penaltiesMissed;
     private Integer yellowCards;
     private Integer redCards;
