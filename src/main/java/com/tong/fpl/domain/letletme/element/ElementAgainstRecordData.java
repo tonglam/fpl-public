@@ -1,4 +1,4 @@
-package com.tong.fpl.domain.letletme.team;
+package com.tong.fpl.domain.letletme.element;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class TeamElementSeasonAgainstRecordData {
+public class ElementAgainstRecordData {
 
     private String season;
     private int event;

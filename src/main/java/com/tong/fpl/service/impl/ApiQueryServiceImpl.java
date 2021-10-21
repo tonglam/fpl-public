@@ -14,10 +14,7 @@ import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.UserTransfersRes;
 import com.tong.fpl.domain.data.userpick.Pick;
 import com.tong.fpl.domain.entity.*;
-import com.tong.fpl.domain.letletme.element.ElementEventData;
-import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
-import com.tong.fpl.domain.letletme.element.ElementSummaryData;
+import com.tong.fpl.domain.letletme.element.*;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.global.MapData;
@@ -2576,13 +2573,13 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     }
 
     @Cacheable(
-            value = "api::qryTopElementTeamAgainstRecord",
+            value = "api::qryTopElementAgainstInfo",
             key = "#teamId+'::'+#againstId",
             cacheManager = "apiCacheManager",
             unless = "#result.size() eq 0"
     )
     @Override
-    public List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active) {
+    public List<ElementAgainstInfoData> qryTopElementAgainstInfo(int teamId, int againstId, boolean active) {
         if (teamId <= 0 || teamId > 20 || againstId <= 0 || againstId > 20) {
             return Lists.newArrayList();
         }
@@ -2595,20 +2592,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         }
         int teamCode = teamEntity.getCode();
         int againstCode = againstEntity.getCode();
-        // fixture
-        Map<String, List<EventFixtureEntity>> seasonFixtureMap = this.queryService.qryTeamAgainstFixture(teamCode, againstCode);
-        if (CollectionUtils.isEmpty(seasonFixtureMap)) {
-            return Lists.newArrayList();
-        }
         // match_info
-        Map<String, TeamAgainstMatchInfoData> matchInfoMap = this.qryTeamAgainstMatchInfo(teamEntity, againstEntity, seasonFixtureMap);
+        Map<String, TeamAgainstMatchInfoData> matchInfoMap = this.queryService.qryTeamAgainstMatchInfo(teamCode, againstCode);
         if (CollectionUtils.isEmpty(matchInfoMap)) {
             return Lists.newArrayList();
         }
         List<ElementSummaryData> elementSummaryList = Lists.newArrayList();
         matchInfoMap.values().forEach(o -> elementSummaryList.addAll(o.getElementSummaryList()));
         // collect
-        List<TeamElementAgainstRecordData> list = elementSummaryList
+        List<ElementAgainstInfoData> list = elementSummaryList
                 .stream()
                 .collect(new ElementTeamAgainstCollector(matchInfoMap));
         // return
@@ -2635,66 +2627,42 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, TeamAgainstMatchInfoData> qryTeamAgainstMatchInfo(TeamEntity teamEntity, TeamEntity againstEntity, Map<String, List<EventFixtureEntity>> seasonFixtureMap) {
-        Map<String, TeamAgainstMatchInfoData> map = Maps.newHashMap();
-        int teamId = teamEntity.getId();
-        seasonFixtureMap.forEach((season, list) -> {
-            Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap(season);
-            list.forEach(o -> {
-                int event = o.getEvent();
-                int teamH = o.getTeamH();
-                int teamA = o.getTeamA();
-                TeamAgainstMatchInfoData data = new TeamAgainstMatchInfoData()
-                        .setSeason(season)
-                        .setEvent(event)
-                        .setTeamHId(teamH)
-                        .setTeamHCode(teamId == teamH ? teamEntity.getCode() : againstEntity.getCode())
-                        .setTeamHName(teamId == teamH ? teamEntity.getName() : againstEntity.getName())
-                        .setTeamHShortName(teamId == teamH ? teamEntity.getShortName() : againstEntity.getShortName())
-                        .setTeamHScore(o.getTeamHScore())
-                        .setTeamAId(teamA)
-                        .setTeamACode(teamId == teamH ? againstEntity.getCode() : teamEntity.getCode())
-                        .setTeamAName(teamId == teamH ? againstEntity.getName() : teamEntity.getName())
-                        .setTeamAShortName(teamId == teamH ? againstEntity.getShortName() : teamEntity.getShortName())
-                        .setTeamAScore(o.getTeamAScore())
-                        .setKickoffDate(StringUtils.substringBefore(o.getKickoffTime(), " "));
-                // player_summary
-                MybatisPlusConfig.season.set(season);
-                List<ElementSummaryData> elementSummaryList = this.playerSummaryService.list(new QueryWrapper<PlayerSummaryEntity>().lambda()
-                        .eq(PlayerSummaryEntity::getFixtureId, o.getId()))
-                        .stream()
-                        .map(i -> {
-                            int element = i.getElement();
-                            PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
-                            if (playerEntity == null) {
-                                return null;
+    @Cacheable(
+            value = "api::qryElementAgainstRecord",
+            key = "#teamId+'::'+#againstId+'::'+#elementCode",
+            cacheManager = "apiCacheManager",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public List<ElementAgainstRecordData> qryElementAgainstRecord(int teamId, int againstId, int elementCode) {
+        if (teamId <= 0 || teamId > 20 || againstId <= 0 || againstId > 20 || elementCode < 0) {
+            return Lists.newArrayList();
+        }
+        // team
+        TeamEntity teamEntity = this.teamService.getById(teamId);
+        TeamEntity againstEntity = this.teamService.getById(againstId);
+        if (teamEntity == null || againstEntity == null) {
+            return Lists.newArrayList();
+        }
+        int teamCode = teamEntity.getCode();
+        int againstCode = againstEntity.getCode();
+        Map<String, TeamAgainstMatchInfoData> matchInfoMap = this.queryService.qryTeamAgainstMatchInfo(teamCode, againstCode);
+        if (CollectionUtils.isEmpty(matchInfoMap)) {
+            return Lists.newArrayList();
+        }
+        List<ElementAgainstRecordData> list = Lists.newArrayList();
+        matchInfoMap.values()
+                .stream()
+                .sorted(Comparator.comparing(TeamAgainstMatchInfoData::getSeason)
+                        .thenComparing(TeamAgainstMatchInfoData::getKickoffDate))
+                .forEachOrdered(o -> o.getElementSummaryList().forEach(i -> {
+                            if (i.getCode() != elementCode) {
+                                return;
                             }
-                            ElementSummaryData elementEventResultData = BeanUtil.copyProperties(i, ElementSummaryData.class);
-                            elementEventResultData
-                                    .setSeason(season)
-                                    .setWebName(playerEntity.getWebName())
-                                    .setPrice(i.getPrice() / 10.0)
-                                    .setElementType(playerEntity.getElementType())
-                                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                                    .setTeamCode(teamEntity.getCode())
-                                    .setTeamName(teamEntity.getName())
-                                    .setTeamShortName(teamEntity.getShortName())
-                                    .setAgainstTeamCode(againstEntity.getCode())
-                                    .setAgainstTeamName(againstEntity.getName())
-                                    .setAgainstTeamShortName(againstEntity.getShortName());
-                            return elementEventResultData;
+                            list.add(BeanUtil.copyProperties(i, ElementAgainstRecordData.class));
                         })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-                MybatisPlusConfig.season.remove();
-                if (!CollectionUtils.isEmpty(elementSummaryList)) {
-                    data.setElementSummaryList(elementSummaryList);
-                }
-                String key = StringUtils.joinWith("-", season, event);
-                map.put(key, data);
-            });
-        });
-        return map;
+                );
+        return list;
     }
 
     /**

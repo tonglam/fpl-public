@@ -3,10 +3,10 @@ package com.tong.fpl.config.collector;
 import cn.hutool.core.util.NumberUtil;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.tong.fpl.domain.letletme.element.ElementAgainstInfoData;
+import com.tong.fpl.domain.letletme.element.ElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.team.TeamAgainstMatchInfoData;
-import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
-import com.tong.fpl.domain.letletme.team.TeamElementSeasonAgainstRecordData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Create by tong on 2021/10/12
  */
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ElementTeamAgainstCollector implements Collector<ElementSummaryData, Multimap<Integer, ElementSummaryData>, List<TeamElementAgainstRecordData>> {
+public class ElementTeamAgainstCollector implements Collector<ElementSummaryData, Multimap<Integer, ElementSummaryData>, List<ElementAgainstInfoData>> {
 
     private final Map<String, TeamAgainstMatchInfoData> matchInfoMap;
 
@@ -46,16 +46,16 @@ public class ElementTeamAgainstCollector implements Collector<ElementSummaryData
     }
 
     @Override
-    public Function<Multimap<Integer, ElementSummaryData>, List<TeamElementAgainstRecordData>> finisher() {
+    public Function<Multimap<Integer, ElementSummaryData>, List<ElementAgainstInfoData>> finisher() {
         return map -> map.keySet()
                 .stream()
                 .map(code -> this.mergeElementSummaryData(map.get(code)))
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(TeamElementAgainstRecordData::getTotalPoints).reversed())
+                .sorted(Comparator.comparing(ElementAgainstInfoData::getTotalPoints).reversed())
                 .collect(Collectors.toList());
     }
 
-    private TeamElementAgainstRecordData mergeElementSummaryData(Collection<ElementSummaryData> elementSummaryDataCollection) {
+    private ElementAgainstInfoData mergeElementSummaryData(Collection<ElementSummaryData> elementSummaryDataCollection) {
         if (elementSummaryDataCollection.size() == 0) {
             return null;
         }
@@ -65,137 +65,135 @@ public class ElementTeamAgainstCollector implements Collector<ElementSummaryData
         if (base == null) {
             return null;
         }
-        TeamElementAgainstRecordData data = new TeamElementAgainstRecordData()
+        ElementAgainstInfoData data = new ElementAgainstInfoData()
                 .setCode(base.getCode())
                 .setWebName(base.getWebName())
                 .setElementType(base.getElementType())
                 .setElementTypeName(base.getElementTypeName())
-                .setTeamCode(base.getTeamCode())
-                .setSeasonDataList(
-                        elementSummaryDataCollection
-                                .stream()
-                                .map(o -> {
-                                    String key = StringUtils.joinWith("-", o.getSeason(), o.getEvent());
-                                    TeamAgainstMatchInfoData matchInfo = this.matchInfoMap.get(key);
-                                    if (matchInfo == null) {
-                                        return null;
-                                    }
-                                    return new TeamElementSeasonAgainstRecordData()
-                                            .setSeason(o.getSeason())
-                                            .setEvent(o.getEvent())
-                                            .setTeamHId(matchInfo.getTeamHId())
-                                            .setTeamHName(matchInfo.getTeamHName())
-                                            .setTeamHShortName(matchInfo.getTeamHShortName())
-                                            .setTeamHScore(matchInfo.getTeamHScore())
-                                            .setTeamAId(matchInfo.getTeamAId())
-                                            .setTeamAName(matchInfo.getTeamAName())
-                                            .setTeamAShortName(matchInfo.getTeamAShortName())
-                                            .setTeamAScore(matchInfo.getTeamAScore())
-                                            .setKickoffDate(matchInfo.getKickoffDate())
-                                            .setMinutes(o.getMinutes())
-                                            .setGoalsScored(o.getGoalsScored())
-                                            .setAssists(o.getAssists())
-                                            .setCleanSheets(o.getCleanSheets())
-                                            .setGoalsConceded(o.getGoalsConceded())
-                                            .setOwnGoals(o.getOwnGoals())
-                                            .setPenaltiesSaved(o.getPenaltiesSaved())
-                                            .setPenaltiesMissed(o.getPenaltiesMissed())
-                                            .setYellowCards(o.getYellowCards())
-                                            .setRedCards(o.getRedCards())
-                                            .setSaves(o.getSaves())
-                                            .setBonus(o.getBonus())
-                                            .setBps(o.getBonus())
-                                            .setPoints(o.getTotalPoints());
-                                })
-                                .filter(Objects::nonNull)
-                                .sorted(Comparator.comparing(TeamElementSeasonAgainstRecordData::getSeason)
-                                        .thenComparing(TeamElementSeasonAgainstRecordData::getEvent))
-                                .collect(Collectors.toList())
-                );
+                .setTeamCode(base.getTeamCode());
+        List<ElementAgainstRecordData> seasonDataList = elementSummaryDataCollection
+                .stream()
+                .map(o -> {
+                    String key = StringUtils.joinWith("-", o.getSeason(), o.getEvent());
+                    TeamAgainstMatchInfoData matchInfo = this.matchInfoMap.get(key);
+                    if (matchInfo == null) {
+                        return null;
+                    }
+                    return new ElementAgainstRecordData()
+                            .setSeason(o.getSeason())
+                            .setEvent(o.getEvent())
+                            .setTeamHId(matchInfo.getTeamHId())
+                            .setTeamHName(matchInfo.getTeamHName())
+                            .setTeamHShortName(matchInfo.getTeamHShortName())
+                            .setTeamHScore(matchInfo.getTeamHScore())
+                            .setTeamAId(matchInfo.getTeamAId())
+                            .setTeamAName(matchInfo.getTeamAName())
+                            .setTeamAShortName(matchInfo.getTeamAShortName())
+                            .setTeamAScore(matchInfo.getTeamAScore())
+                            .setKickoffDate(matchInfo.getKickoffDate())
+                            .setMinutes(o.getMinutes())
+                            .setGoalsScored(o.getGoalsScored())
+                            .setAssists(o.getAssists())
+                            .setCleanSheets(o.getCleanSheets())
+                            .setGoalsConceded(o.getGoalsConceded())
+                            .setOwnGoals(o.getOwnGoals())
+                            .setPenaltiesSaved(o.getPenaltiesSaved())
+                            .setPenaltiesMissed(o.getPenaltiesMissed())
+                            .setYellowCards(o.getYellowCards())
+                            .setRedCards(o.getRedCards())
+                            .setSaves(o.getSaves())
+                            .setBonus(o.getBonus())
+                            .setBps(o.getBonus())
+                            .setPoints(o.getTotalPoints());
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(ElementAgainstRecordData::getSeason)
+                        .thenComparing(ElementAgainstRecordData::getEvent))
+                .collect(Collectors.toList());
         data
-                .setTotalPlayed(data.getSeasonDataList().size())
+                .setTotalPlayed(seasonDataList.size())
                 .setTotalMinutes(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getMinutes)
+                                .mapToInt(ElementAgainstRecordData::getMinutes)
                                 .sum()
                 )
                 .setTotalGoalsScored(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getGoalsScored)
+                                .mapToInt(ElementAgainstRecordData::getGoalsScored)
                                 .sum()
                 )
                 .setTotalAssists(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getAssists)
+                                .mapToInt(ElementAgainstRecordData::getAssists)
                                 .sum()
                 )
                 .setTotalCleanSheets(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getCleanSheets)
+                                .mapToInt(ElementAgainstRecordData::getCleanSheets)
                                 .sum()
                 )
                 .setTotalGoalsConceded(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getGoalsConceded)
+                                .mapToInt(ElementAgainstRecordData::getGoalsConceded)
                                 .sum()
                 )
                 .setTotalOwnGoals(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getOwnGoals)
+                                .mapToInt(ElementAgainstRecordData::getOwnGoals)
                                 .sum()
                 )
                 .setTotalPenaltiesSaved(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getPenaltiesSaved)
+                                .mapToInt(ElementAgainstRecordData::getPenaltiesSaved)
                                 .sum()
                 )
                 .setTotalPenaltiesMissed(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getPenaltiesMissed)
+                                .mapToInt(ElementAgainstRecordData::getPenaltiesMissed)
                                 .sum()
                 )
                 .setTotalYellowCards(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getYellowCards)
+                                .mapToInt(ElementAgainstRecordData::getYellowCards)
                                 .sum()
                 )
                 .setTotalRedCards(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getRedCards)
+                                .mapToInt(ElementAgainstRecordData::getRedCards)
                                 .sum()
                 )
                 .setTotalSaves(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getSaves)
+                                .mapToInt(ElementAgainstRecordData::getSaves)
                                 .sum()
                 )
                 .setTotalBonus(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getBonus)
+                                .mapToInt(ElementAgainstRecordData::getBonus)
                                 .sum()
                 )
                 .setTotalBps(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getBps)
+                                .mapToInt(ElementAgainstRecordData::getBps)
                                 .sum()
                 )
                 .setTotalPoints(
-                        data.getSeasonDataList()
+                        seasonDataList
                                 .stream()
-                                .mapToInt(TeamElementSeasonAgainstRecordData::getPoints)
+                                .mapToInt(ElementAgainstRecordData::getPoints)
                                 .sum()
                 );
         data

@@ -1,16 +1,14 @@
-package com.tong.fpl.domain.letletme.team;
+package com.tong.fpl.domain.letletme.element;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.List;
 
 /**
  * Create by tong on 2021/10/11
  */
 @Data
 @Accessors(chain = true)
-public class TeamElementAgainstRecordData {
+public class ElementAgainstInfoData {
 
     private int code;
     private String webName;
@@ -37,6 +35,5 @@ public class TeamElementAgainstRecordData {
     private int totalPoints;
     private double averageMinutes;
     private double averagePoints;
-    private List<TeamElementSeasonAgainstRecordData> seasonDataList;
 
 }

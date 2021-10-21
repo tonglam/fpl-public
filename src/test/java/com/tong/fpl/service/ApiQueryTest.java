@@ -5,10 +5,7 @@ import com.tong.fpl.FplApplicationTests;
 import com.tong.fpl.config.mp.MybatisPlusConfig;
 import com.tong.fpl.constant.enums.Chip;
 import com.tong.fpl.domain.entity.EntryEventResultEntity;
-import com.tong.fpl.domain.letletme.element.ElementEventData;
-import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
-import com.tong.fpl.domain.letletme.element.ElementSummaryData;
+import com.tong.fpl.domain.letletme.element.*;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
@@ -17,7 +14,6 @@ import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamAgainstInfoData;
 import com.tong.fpl.domain.letletme.team.TeamData;
-import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -316,11 +312,15 @@ public class ApiQueryTest extends FplApplicationTests {
 
     @ParameterizedTest
     @CsvSource({"1, 7, true"})
-    void qryElementTeamAgainstRecord(int teamId, int againstId, boolean active) {
-        long start = System.currentTimeMillis();
-        List<TeamElementAgainstRecordData> list = this.apiQueryService.qryTopElementTeamAgainstRecord(teamId, againstId, active);
-        long end = System.currentTimeMillis();
-        System.out.println("escape:" + (end - start) + "ms");
+    void qryTopElementAgainstInfo(int teamId, int againstId, boolean active) {
+        List<ElementAgainstInfoData> list = this.apiQueryService.qryTopElementAgainstInfo(teamId, againstId, active);
+        System.out.println(1);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1, 19, 59966"})
+    void qryElementAgainstRecord(int teamId, int againstId, int elementCode) {
+        List<ElementAgainstRecordData> list = this.apiQueryService.qryElementAgainstRecord(teamId, againstId, elementCode);
         System.out.println(1);
     }
 

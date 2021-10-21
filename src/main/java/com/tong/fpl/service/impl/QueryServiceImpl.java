@@ -14,6 +14,7 @@ import com.tong.fpl.constant.enums.*;
 import com.tong.fpl.domain.data.response.EntryRes;
 import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.entry.EntryEventAutoSubsData;
 import com.tong.fpl.domain.letletme.entry.EntryEventResultData;
 import com.tong.fpl.domain.letletme.entry.EntryInfoData;
@@ -26,6 +27,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
+import com.tong.fpl.domain.letletme.team.TeamAgainstMatchInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
@@ -71,6 +73,7 @@ public class QueryServiceImpl implements IQueryService {
     private final TeamService teamService;
     private final EventFixtureService eventFixtureService;
     private final PlayerService playerService;
+    private final PlayerSummaryService playerSummaryService;
     private final EntryInfoService entryInfoService;
     private final EventLiveService eventLiveService;
     private final EventLiveSummaryService eventLiveSummaryService;
@@ -728,6 +731,86 @@ public class QueryServiceImpl implements IQueryService {
                 ));
         MybatisPlusConfig.season.remove();
         return list;
+    }
+
+    @Cacheable(
+            value = "qryTeamAgainstMatchInfo",
+            key = "#teamCode+'::'+#againstCode",
+            unless = "#result.size() eq 0"
+    )
+    @Override
+    public Map<String, TeamAgainstMatchInfoData> qryTeamAgainstMatchInfo(int teamCode, int againstCode) {
+        TeamEntity teamEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
+                .eq(TeamEntity::getCode, teamCode));
+        TeamEntity againstEntity = this.teamService.getOne(new QueryWrapper<TeamEntity>().lambda()
+                .eq(TeamEntity::getCode, againstCode));
+        if (teamEntity == null || againstEntity == null) {
+            return Maps.newHashMap();
+        }
+        // fixture
+        Map<String, List<EventFixtureEntity>> seasonFixtureMap = this.qryTeamAgainstFixture(teamCode, againstCode);
+        if (CollectionUtils.isEmpty(seasonFixtureMap)) {
+            return Maps.newHashMap();
+        }
+        Map<String, TeamAgainstMatchInfoData> map = Maps.newHashMap();
+        int teamId = teamEntity.getId();
+        seasonFixtureMap.forEach((season, list) -> {
+            Map<String, PlayerEntity> playerMap = this.getPlayerMap(season);
+            list.forEach(o -> {
+                int event = o.getEvent();
+                int teamH = o.getTeamH();
+                int teamA = o.getTeamA();
+                TeamAgainstMatchInfoData data = new TeamAgainstMatchInfoData()
+                        .setSeason(season)
+                        .setEvent(event)
+                        .setTeamHId(teamH)
+                        .setTeamHCode(teamId == teamH ? teamEntity.getCode() : againstEntity.getCode())
+                        .setTeamHName(teamId == teamH ? teamEntity.getName() : againstEntity.getName())
+                        .setTeamHShortName(teamId == teamH ? teamEntity.getShortName() : againstEntity.getShortName())
+                        .setTeamHScore(o.getTeamHScore())
+                        .setTeamAId(teamA)
+                        .setTeamACode(teamId == teamH ? againstEntity.getCode() : teamEntity.getCode())
+                        .setTeamAName(teamId == teamH ? againstEntity.getName() : teamEntity.getName())
+                        .setTeamAShortName(teamId == teamH ? againstEntity.getShortName() : teamEntity.getShortName())
+                        .setTeamAScore(o.getTeamAScore())
+                        .setKickoffDate(StringUtils.substringBefore(o.getKickoffTime(), " "));
+                // player_summary
+                MybatisPlusConfig.season.set(season);
+                List<ElementSummaryData> elementSummaryList = this.playerSummaryService.list(new QueryWrapper<PlayerSummaryEntity>().lambda()
+                        .eq(PlayerSummaryEntity::getFixtureId, o.getId()))
+                        .stream()
+                        .map(i -> {
+                            int element = i.getElement();
+                            PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
+                            if (playerEntity == null) {
+                                return null;
+                            }
+                            ElementSummaryData elementEventResultData = BeanUtil.copyProperties(i, ElementSummaryData.class);
+                            elementEventResultData
+                                    .setSeason(season)
+                                    .setWebName(playerEntity.getWebName())
+                                    .setPrice(i.getPrice() / 10.0)
+                                    .setElementType(playerEntity.getElementType())
+                                    .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
+                                    .setTeamCode(teamEntity.getCode())
+                                    .setTeamName(teamEntity.getName())
+                                    .setTeamShortName(teamEntity.getShortName())
+                                    .setAgainstTeamCode(againstEntity.getCode())
+                                    .setAgainstTeamName(againstEntity.getName())
+                                    .setAgainstTeamShortName(againstEntity.getShortName());
+                            return elementEventResultData;
+                        })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                MybatisPlusConfig.season.remove();
+                if (!CollectionUtils.isEmpty(elementSummaryList)) {
+                    data.setElementSummaryList(elementSummaryList);
+                }
+                String key = StringUtils.joinWith("-", season, event);
+                map.put(key, data);
+            });
+        });
+        return map;
     }
 
     /**

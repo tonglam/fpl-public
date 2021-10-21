@@ -14,6 +14,7 @@ import com.tong.fpl.domain.letletme.live.LiveMatchData;
 import com.tong.fpl.domain.letletme.live.LiveMatchTeamData;
 import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.ScoutData;
+import com.tong.fpl.domain.letletme.team.TeamAgainstMatchInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupFixtureData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
 import com.tong.fpl.domain.letletme.tournament.TournamentKnockoutFixtureData;
@@ -183,6 +184,8 @@ public interface IQueryService {
     }
 
     Map<String, List<EventFixtureEntity>> qryTeamAgainstFixture(int teamCode, int againstCode);
+
+    Map<String, TeamAgainstMatchInfoData> qryTeamAgainstMatchInfo(int teamCode, int againstCode);
 
     /**
      * @apiNote fixture

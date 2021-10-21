@@ -1,9 +1,6 @@
 package com.tong.fpl.service;
 
-import com.tong.fpl.domain.letletme.element.ElementEventData;
-import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
-import com.tong.fpl.domain.letletme.element.ElementSummaryData;
+import com.tong.fpl.domain.letletme.element.*;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
@@ -12,7 +9,6 @@ import com.tong.fpl.domain.letletme.player.*;
 import com.tong.fpl.domain.letletme.scout.EventScoutData;
 import com.tong.fpl.domain.letletme.team.TeamAgainstInfoData;
 import com.tong.fpl.domain.letletme.team.TeamData;
-import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 import com.tong.fpl.domain.letletme.tournament.TournamentGroupEventChampionData;
 import com.tong.fpl.domain.letletme.tournament.TournamentInfoData;
@@ -115,7 +111,9 @@ public interface IApiQueryService {
 
     List<ElementSummaryData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId);
 
-    List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active);
+    List<ElementAgainstInfoData> qryTopElementAgainstInfo(int teamId, int againstId, boolean active);
+
+    List<ElementAgainstRecordData> qryElementAgainstRecord(int teamId, int againstId, int elementCode);
 
     /**
      * @apiNote tournament

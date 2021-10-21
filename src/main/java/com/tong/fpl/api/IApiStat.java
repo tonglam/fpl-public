@@ -1,12 +1,13 @@
 package com.tong.fpl.api;
 
+import com.tong.fpl.domain.letletme.element.ElementAgainstInfoData;
+import com.tong.fpl.domain.letletme.element.ElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
 import com.tong.fpl.domain.letletme.team.TeamAgainstInfoData;
-import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamSummaryData;
 
 import java.util.List;
@@ -93,6 +94,11 @@ public interface IApiStat {
     /**
      * 获取对阵球队的交手记录最好的球员（active:是否只看球队现役球员）
      */
-    List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active);
+    List<ElementAgainstInfoData> qryTopElementAgainstInfo(int teamId, int againstId, boolean active);
+
+    /**
+     * 获取对阵球队的球员的交手记录
+     */
+    List<ElementAgainstRecordData> qryElementAgainstRecord(int teamId, int againstId, int elementCode);
 
 }
