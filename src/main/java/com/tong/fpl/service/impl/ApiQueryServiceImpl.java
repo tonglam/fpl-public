@@ -2307,7 +2307,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setAgainstCode(againstCode)
                 .setAgainstName(againstEntity.getName())
                 .setAgainstShortName(againstEntity.getShortName());
-        LinkedHashMap<String, List<TeamAgainstRecordData>> recordDataMap = Maps.newLinkedHashMap();
+        List<TeamAgainstSeasonInfoData> recordDataList = Lists.newArrayList();
         List<TeamAgainstRecordData> seasonFixtureRecordsList = Lists.newArrayList();
         this.queryService.qryTeamAgainstFixture(teamCode, againstCode)
                 .forEach((season, list) -> {
@@ -2318,16 +2318,25 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         }
                         seasonFixtureRecordsList.add(teamAgainstRecordData);
                     });
-                    recordDataMap.put(season,
-                            seasonFixtureRecordsList
-                                    .stream()
-                                    .filter(o -> StringUtils.equals(o.getSeason(), season))
-                                    .sorted(Comparator.comparing(TeamAgainstRecordData::getEvent))
-                                    .collect(Collectors.toList())
+                    recordDataList.add(
+                            new TeamAgainstSeasonInfoData()
+                                    .setSeason(season)
+                                    .setSeasonDataList(
+                                            seasonFixtureRecordsList
+                                                    .stream()
+                                                    .filter(o -> StringUtils.equals(o.getSeason(), season))
+                                                    .sorted(Comparator.comparing(TeamAgainstRecordData::getEvent))
+                                                    .collect(Collectors.toList())
+                                    )
                     );
                 });
         data
-                .setRecordDataMap(recordDataMap)
+                .setRecordDataList(
+                        recordDataList
+                                .stream()
+                                .sorted(Comparator.comparing(TeamAgainstSeasonInfoData::getSeason))
+                                .collect(Collectors.toList())
+                )
                 .setPlayed(seasonFixtureRecordsList.size())
                 .setWin(
                         (int) seasonFixtureRecordsList

@@ -3,7 +3,6 @@ package com.tong.fpl.domain.letletme.team;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -29,6 +28,6 @@ public class TeamAgainstInfoData {
     private int goalsConceded;
     private double averageGoalScoreed;
     private double averageGoalsConceded;
-    private LinkedHashMap<String, List<TeamAgainstRecordData>> recordDataMap;
+    private List<TeamAgainstSeasonInfoData> recordDataList;
 
 }
