@@ -17,6 +17,7 @@ import com.tong.fpl.domain.entity.*;
 import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.global.MapData;
@@ -64,6 +65,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
     private final TeamService teamService;
     private final PlayerService playerService;
     private final PlayerStatService playerStatService;
+    private final PlayerSummaryService playerSummaryService;
     private final PlayerValueService playerValueService;
     private final EventFixtureService eventFixtureService;
     private final EventLiveSummaryService eventLiveSummaryService;
@@ -2413,21 +2415,20 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .setTeamAShortName(teamId == teamH ? againstEntity.getShortName() : teamEntity.getShortName())
                 .setTeamAScore(eventFixtureEntity.getTeamAScore())
                 .setKickoffDate(StringUtils.substringBefore(eventFixtureEntity.getKickoffTime(), " "));
-        // event_live
-        List<EventLiveEntity> eventLiveList = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .eq(EventLiveEntity::getEvent, event)
-                .in(EventLiveEntity::getTeamId, Lists.newArrayList(teamH, teamA)));
+        // player_summary
+        List<PlayerSummaryEntity> playerSummaryList = this.playerSummaryService.list(new QueryWrapper<PlayerSummaryEntity>().lambda()
+                .eq(PlayerSummaryEntity::getFixtureId, eventFixtureEntity.getId()));
         MybatisPlusConfig.season.remove();
-        if (CollectionUtils.isEmpty(eventLiveList)) {
+        if (CollectionUtils.isEmpty(playerSummaryList)) {
             return data;
         }
         Map<String, String> webNameMap = this.queryService.qryPlayerWebNameMap(season);
         data
                 .setGoalScored(
-                        eventLiveList
+                        playerSummaryList
                                 .stream()
                                 .filter(o -> o.getGoalsScored() > 0)
-                                .sorted(Comparator.comparing(EventLiveEntity::getGoalsScored).reversed())
+                                .sorted(Comparator.comparing(PlayerSummaryEntity::getGoalsScored).reversed())
                                 .map(o ->
                                         new MapData<Integer>()
                                                 .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
@@ -2436,10 +2437,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .collect(Collectors.toList())
                 )
                 .setAssists(
-                        eventLiveList
+                        playerSummaryList
                                 .stream()
                                 .filter(o -> o.getAssists() > 0)
-                                .sorted(Comparator.comparing(EventLiveEntity::getAssists).reversed())
+                                .sorted(Comparator.comparing(PlayerSummaryEntity::getAssists).reversed())
                                 .map(o ->
                                         new MapData<Integer>()
                                                 .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
@@ -2448,10 +2449,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .collect(Collectors.toList())
                 )
                 .setOwnGoals(
-                        eventLiveList
+                        playerSummaryList
                                 .stream()
                                 .filter(o -> o.getOwnGoals() > 0)
-                                .sorted(Comparator.comparing(EventLiveEntity::getOwnGoals).reversed())
+                                .sorted(Comparator.comparing(PlayerSummaryEntity::getOwnGoals).reversed())
                                 .map(o ->
                                         new MapData<Integer>()
                                                 .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
@@ -2460,10 +2461,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .collect(Collectors.toList())
                 )
                 .setPenaltiesSaved(
-                        eventLiveList
+                        playerSummaryList
                                 .stream()
                                 .filter(o -> o.getPenaltiesSaved() > 0)
-                                .sorted(Comparator.comparing(EventLiveEntity::getPenaltiesSaved).reversed())
+                                .sorted(Comparator.comparing(PlayerSummaryEntity::getPenaltiesSaved).reversed())
                                 .map(o ->
                                         new MapData<Integer>()
                                                 .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
@@ -2472,10 +2473,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .collect(Collectors.toList())
                 )
                 .setPenaltiesMissed(
-                        eventLiveList
+                        playerSummaryList
                                 .stream()
                                 .filter(o -> o.getPenaltiesMissed() > 0)
-                                .sorted(Comparator.comparing(EventLiveEntity::getPenaltiesMissed).reversed())
+                                .sorted(Comparator.comparing(PlayerSummaryEntity::getPenaltiesMissed).reversed())
                                 .map(o ->
                                         new MapData<Integer>()
                                                 .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
@@ -2484,10 +2485,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 .collect(Collectors.toList())
                 )
                 .setRedCards(
-                        eventLiveList
+                        playerSummaryList
                                 .stream()
                                 .filter(o -> o.getRedCards() > 0)
-                                .sorted(Comparator.comparing(EventLiveEntity::getRedCards).reversed())
+                                .sorted(Comparator.comparing(PlayerSummaryEntity::getRedCards).reversed())
                                 .map(o ->
                                         new MapData<Integer>()
                                                 .setKey(webNameMap.getOrDefault(String.valueOf(o.getElement()), ""))
@@ -2505,8 +2506,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             unless = "#result.size() eq 0"
     )
     @Override
-    public List<ElementEventResultData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
-        if (StringUtils.isEmpty(season) || event < 1 || event > 38 || teamHId <= 0 || teamHId > 20 || teamAId >= 0 || teamAId > 20) {
+    public List<ElementSummaryData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
+        if (StringUtils.isEmpty(season) || event < 1 || event > 38 || teamHId <= 0 || teamHId > 20 || teamAId <= 0 || teamAId > 20) {
             return Lists.newArrayList();
         }
         MybatisPlusConfig.season.set(season);
@@ -2526,16 +2527,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
             return Lists.newArrayList();
         }
         Map<String, PlayerEntity> playerMap = this.queryService.getPlayerMap(season);
-        List<ElementEventResultData> list = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                .gt(EventLiveEntity::getMinutes, 0)
-                .eq(EventLiveEntity::getEvent, event)
-                .and(o -> o.eq(EventLiveEntity::getTeamId, teamHId)
-                        .or(i -> i.eq(EventLiveEntity::getTeamId, teamAId)))
-                .orderByDesc(EventLiveEntity::getTotalPoints))
+        List<ElementSummaryData> list = this.playerSummaryService.list(new QueryWrapper<PlayerSummaryEntity>().lambda()
+                .eq(PlayerSummaryEntity::getFixtureId, eventFixtureEntity.getId())
+                .gt(PlayerSummaryEntity::getMinutes, 0)
+                .orderByDesc(PlayerSummaryEntity::getTotalPoints))
                 .stream()
                 .map(o -> {
                     TeamEntity elementTeamEntity = o.getTeamId() == teamHId ? teamHEntity : teamAEntity;
-                    return this.qrySeasonFixtureElementResult(season, elementTeamEntity, o, playerMap);
+                    TeamEntity elementAgainstTeamEntity = o.getTeamId() == teamHId ? teamAEntity : teamHEntity;
+                    return this.qrySeasonFixtureElementResult(season, elementTeamEntity, elementAgainstTeamEntity, o, playerMap);
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -2543,23 +2543,25 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         return list;
     }
 
-    private ElementEventResultData qrySeasonFixtureElementResult(String season, TeamEntity teamEntity, EventLiveEntity eventLiveEntity, Map<String, PlayerEntity> playerMap) {
-        int element = eventLiveEntity.getElement();
+    private ElementSummaryData qrySeasonFixtureElementResult(String season, TeamEntity teamEntity, TeamEntity againstEntity, PlayerSummaryEntity playerSummaryEntity, Map<String, PlayerEntity> playerMap) {
+        int element = playerSummaryEntity.getElement();
         PlayerEntity playerEntity = playerMap.get(String.valueOf(element));
         if (playerEntity == null) {
             return null;
         }
-        ElementEventResultData data = new ElementEventResultData()
+        ElementSummaryData data = BeanUtil.copyProperties(playerSummaryEntity, ElementSummaryData.class);
+        data
                 .setSeason(season)
-                .setEvent(eventLiveEntity.getEvent())
-                .setElement(element)
-                .setCode(playerEntity.getCode())
                 .setWebName(playerEntity.getWebName())
-                .setPrice(playerEntity.getPrice() / 10.0)
+                .setPrice(playerSummaryEntity.getPrice() / 10.0)
                 .setElementType(playerEntity.getElementType())
                 .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                .setTeamCode(teamEntity.getCode());
-        BeanUtil.copyProperties(eventLiveEntity, data);
+                .setTeamCode(teamEntity.getCode())
+                .setTeamName(teamEntity.getName())
+                .setTeamShortName(teamEntity.getShortName())
+                .setAgainstTeamCode(againstEntity.getCode())
+                .setAgainstTeamName(againstEntity.getName())
+                .setAgainstTeamShortName(againstEntity.getShortName());
         return data;
     }
 
@@ -2593,10 +2595,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (CollectionUtils.isEmpty(matchInfoMap)) {
             return Lists.newArrayList();
         }
-        List<ElementEventResultData> elementResultList = Lists.newArrayList();
-        matchInfoMap.values().forEach(o -> elementResultList.addAll(o.getElementEventResultList()));
+        List<ElementSummaryData> elementSummaryList = Lists.newArrayList();
+        matchInfoMap.values().forEach(o -> elementSummaryList.addAll(o.getElementSummaryList()));
         // collect
-        List<TeamElementAgainstRecordData> list = elementResultList
+        List<TeamElementAgainstRecordData> list = elementSummaryList
                 .stream()
                 .collect(new ElementTeamAgainstCollector(matchInfoMap));
         // return
@@ -2646,11 +2648,10 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                         .setTeamAShortName(teamId == teamH ? againstEntity.getShortName() : teamEntity.getShortName())
                         .setTeamAScore(o.getTeamAScore())
                         .setKickoffDate(StringUtils.substringBefore(o.getKickoffTime(), " "));
-                // event_live
+                // player_summary
                 MybatisPlusConfig.season.set(season);
-                List<ElementEventResultData> elementEventResultList = this.eventLiveService.list(new QueryWrapper<EventLiveEntity>().lambda()
-                        .eq(EventLiveEntity::getEvent, event)
-                        .in(EventLiveEntity::getTeamId, Lists.newArrayList(teamH, teamA)))
+                List<ElementSummaryData> elementSummaryList = this.playerSummaryService.list(new QueryWrapper<PlayerSummaryEntity>().lambda()
+                        .eq(PlayerSummaryEntity::getFixtureId, o.getId()))
                         .stream()
                         .map(i -> {
                             int element = i.getElement();
@@ -2658,24 +2659,26 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             if (playerEntity == null) {
                                 return null;
                             }
-                            ElementEventResultData elementEventResultData = new ElementEventResultData()
+                            ElementSummaryData elementEventResultData = BeanUtil.copyProperties(i, ElementSummaryData.class);
+                            elementEventResultData
                                     .setSeason(season)
-                                    .setEvent(i.getEvent())
-                                    .setElement(i.getElement())
-                                    .setCode(playerEntity.getCode())
                                     .setWebName(playerEntity.getWebName())
-                                    .setPrice(playerEntity.getPrice() / 10.0)
+                                    .setPrice(i.getPrice() / 10.0)
                                     .setElementType(playerEntity.getElementType())
                                     .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                                    .setTeamCode(teamEntity.getCode());
-                            BeanUtil.copyProperties(i, elementEventResultData);
+                                    .setTeamCode(teamEntity.getCode())
+                                    .setTeamName(teamEntity.getName())
+                                    .setTeamShortName(teamEntity.getShortName())
+                                    .setAgainstTeamCode(againstEntity.getCode())
+                                    .setAgainstTeamName(againstEntity.getName())
+                                    .setAgainstTeamShortName(againstEntity.getShortName());
                             return elementEventResultData;
                         })
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
                 MybatisPlusConfig.season.remove();
-                if (!CollectionUtils.isEmpty(elementEventResultList)) {
-                    data.setElementEventResultList(elementEventResultList);
+                if (!CollectionUtils.isEmpty(elementSummaryList)) {
+                    data.setElementSummaryList(elementSummaryList);
                 }
                 String key = StringUtils.joinWith("-", season, event);
                 map.put(key, data);

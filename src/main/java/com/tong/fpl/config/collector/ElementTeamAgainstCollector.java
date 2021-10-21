@@ -3,7 +3,7 @@ package com.tong.fpl.config.collector;
 import cn.hutool.core.util.NumberUtil;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.team.TeamAgainstMatchInfoData;
 import com.tong.fpl.domain.letletme.team.TeamElementAgainstRecordData;
 import com.tong.fpl.domain.letletme.team.TeamElementSeasonAgainstRecordData;
@@ -23,22 +23,22 @@ import java.util.stream.Collectors;
  * Create by tong on 2021/10/12
  */
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ElementTeamAgainstCollector implements Collector<ElementEventResultData, Multimap<Integer, ElementEventResultData>, List<TeamElementAgainstRecordData>> {
+public class ElementTeamAgainstCollector implements Collector<ElementSummaryData, Multimap<Integer, ElementSummaryData>, List<TeamElementAgainstRecordData>> {
 
     private final Map<String, TeamAgainstMatchInfoData> matchInfoMap;
 
     @Override
-    public Supplier<Multimap<Integer, ElementEventResultData>> supplier() {
+    public Supplier<Multimap<Integer, ElementSummaryData>> supplier() {
         return HashMultimap::create;
     }
 
     @Override
-    public BiConsumer<Multimap<Integer, ElementEventResultData>, ElementEventResultData> accumulator() {
-        return (Multimap<Integer, ElementEventResultData> map, ElementEventResultData o) -> map.put(o.getCode(), o);
+    public BiConsumer<Multimap<Integer, ElementSummaryData>, ElementSummaryData> accumulator() {
+        return (Multimap<Integer, ElementSummaryData> map, ElementSummaryData o) -> map.put(o.getCode(), o);
     }
 
     @Override
-    public BinaryOperator<Multimap<Integer, ElementEventResultData>> combiner() {
+    public BinaryOperator<Multimap<Integer, ElementSummaryData>> combiner() {
         return (map1, map2) -> {
             map1.putAll(map2);
             return map1;
@@ -46,20 +46,20 @@ public class ElementTeamAgainstCollector implements Collector<ElementEventResult
     }
 
     @Override
-    public Function<Multimap<Integer, ElementEventResultData>, List<TeamElementAgainstRecordData>> finisher() {
+    public Function<Multimap<Integer, ElementSummaryData>, List<TeamElementAgainstRecordData>> finisher() {
         return map -> map.keySet()
                 .stream()
-                .map(code -> this.mergeElementResultData(map.get(code)))
+                .map(code -> this.mergeElementSummaryData(map.get(code)))
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(TeamElementAgainstRecordData::getTotalPoints).reversed())
                 .collect(Collectors.toList());
     }
 
-    private TeamElementAgainstRecordData mergeElementResultData(Collection<ElementEventResultData> elementEventResultDataCollection) {
-        if (elementEventResultDataCollection.size() == 0) {
+    private TeamElementAgainstRecordData mergeElementSummaryData(Collection<ElementSummaryData> elementSummaryDataCollection) {
+        if (elementSummaryDataCollection.size() == 0) {
             return null;
         }
-        ElementEventResultData base = elementEventResultDataCollection.stream()
+        ElementSummaryData base = elementSummaryDataCollection.stream()
                 .findFirst()
                 .orElse(null);
         if (base == null) {
@@ -72,7 +72,7 @@ public class ElementTeamAgainstCollector implements Collector<ElementEventResult
                 .setElementTypeName(base.getElementTypeName())
                 .setTeamCode(base.getTeamCode())
                 .setSeasonDataList(
-                        elementEventResultDataCollection
+                        elementSummaryDataCollection
                                 .stream()
                                 .map(o -> {
                                     String key = StringUtils.joinWith("-", o.getSeason(), o.getEvent());

@@ -2,7 +2,7 @@ package com.tong.fpl.api.impl;
 
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
@@ -95,7 +95,7 @@ public class ApiStatImpl implements IApiStat {
     }
 
     @Override
-    public List<ElementEventResultData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
+    public List<ElementSummaryData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
         return this.apiQueryService.qryTeamAgainstRecordResult(season, event, teamHId, teamAId);
     }
 

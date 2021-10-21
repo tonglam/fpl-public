@@ -8,6 +8,7 @@ import com.tong.fpl.domain.entity.EntryEventResultEntity;
 import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
@@ -300,7 +301,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"12, 5"})
+    @CsvSource({"13, 11"})
     void qryTeamAgainstRecordInfo(int teamId, int againstId) {
         TeamAgainstInfoData data = this.apiQueryService.qryTeamAgainstRecordInfo(teamId, againstId);
         System.out.println(1);
@@ -309,7 +310,7 @@ public class ApiQueryTest extends FplApplicationTests {
     @ParameterizedTest
     @CsvSource({"1617, 19, 1, 5"})
     void qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId) {
-        List<ElementEventResultData> list = this.apiQueryService.qryTeamAgainstRecordResult(season, event, teamHId, teamAId);
+        List<ElementSummaryData> list = this.apiQueryService.qryTeamAgainstRecordResult(season, event, teamHId, teamAId);
         System.out.println(1);
     }
 

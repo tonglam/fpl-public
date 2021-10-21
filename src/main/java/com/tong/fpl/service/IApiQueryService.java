@@ -3,6 +3,7 @@ package com.tong.fpl.service;
 import com.tong.fpl.domain.letletme.element.ElementEventData;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
 import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.entry.*;
 import com.tong.fpl.domain.letletme.event.EventOverallResultData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
@@ -112,7 +113,7 @@ public interface IApiQueryService {
 
     TeamAgainstInfoData qryTeamAgainstRecordInfo(int teamId, int againstId);
 
-    List<ElementEventResultData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId);
+    List<ElementSummaryData> qryTeamAgainstRecordResult(String season, int event, int teamHId, int teamAId);
 
     List<TeamElementAgainstRecordData> qryTopElementTeamAgainstRecord(int teamId, int againstId, boolean active);
 

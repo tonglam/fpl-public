@@ -2,7 +2,7 @@ package com.tong.fpl.controller.api;
 
 import com.tong.fpl.api.IApiStat;
 import com.tong.fpl.domain.letletme.element.ElementEventLiveExplainData;
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import com.tong.fpl.domain.letletme.league.LeagueEventSelectData;
 import com.tong.fpl.domain.letletme.player.PlayerSummaryData;
 import com.tong.fpl.domain.letletme.player.PlayerValueData;
@@ -98,7 +98,7 @@ public class StatApiController {
     }
 
     @GetMapping("/qryTeamAgainstRecordResult")
-    public List<ElementEventResultData> qryTeamAgainstRecordResult(@RequestParam String season, @RequestParam int event, @RequestParam int teamHId, @RequestParam int teamAId) {
+    public List<ElementSummaryData> qryTeamAgainstRecordResult(@RequestParam String season, @RequestParam int event, @RequestParam int teamHId, @RequestParam int teamAId) {
         return this.apiStat.qryTeamAgainstRecordResult(season, event, teamHId, teamAId);
     }
 

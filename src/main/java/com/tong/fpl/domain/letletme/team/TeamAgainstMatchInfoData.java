@@ -1,6 +1,6 @@
 package com.tong.fpl.domain.letletme.team;
 
-import com.tong.fpl.domain.letletme.element.ElementEventResultData;
+import com.tong.fpl.domain.letletme.element.ElementSummaryData;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -26,6 +26,6 @@ public class TeamAgainstMatchInfoData {
     private String teamAShortName;
     private int teamAScore;
     private String kickoffDate;
-    private List<ElementEventResultData> elementEventResultList;
+    private List<ElementSummaryData> elementSummaryList;
 
 }
