@@ -70,7 +70,9 @@ public class ElementTeamAgainstCollector implements Collector<ElementSummaryData
                 .setWebName(base.getWebName())
                 .setElementType(base.getElementType())
                 .setElementTypeName(base.getElementTypeName())
-                .setTeamCode(base.getTeamCode());
+                .setTeamCode(base.getTeamCode())
+                .setTeamName(base.getTeamName())
+                .setTeamShortName(base.getTeamShortName());
         List<ElementAgainstRecordData> seasonDataList = elementSummaryDataCollection
                 .stream()
                 .map(o -> {

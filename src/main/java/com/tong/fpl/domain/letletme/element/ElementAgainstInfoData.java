@@ -15,6 +15,8 @@ public class ElementAgainstInfoData {
     private int elementType;
     private String elementTypeName;
     private int teamCode;
+    private String teamName;
+    private String teamShortName;
     private int totalPlayed;
     private int totalMinutes;
     private int totalGoalsScored;
@@ -30,7 +32,7 @@ public class ElementAgainstInfoData {
     private int totalBonus;
     private int totalBps;
     private int totalPoints;
-    private double averageMinutes;
     private double averagePoints;
+    private double averageMinutes;
 
 }
