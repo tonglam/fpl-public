@@ -2542,7 +2542,14 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .map(o -> {
                     TeamEntity elementTeamEntity = o.getTeamId() == teamHId ? teamHEntity : teamAEntity;
                     TeamEntity elementAgainstTeamEntity = o.getTeamId() == teamHId ? teamAEntity : teamHEntity;
-                    return this.qrySeasonFixtureElementResult(season, elementTeamEntity, elementAgainstTeamEntity, o, playerMap);
+                    ElementSummaryData data = this.qrySeasonFixtureElementResult(season, elementTeamEntity, elementAgainstTeamEntity, o, playerMap);
+                    if (data == null) {
+                        return null;
+                    }
+                    data
+                            .setTeamScore(o.getTeamId() == teamHId ? eventFixtureEntity.getTeamHScore() : eventFixtureEntity.getTeamAScore())
+                            .setAgainstTeamScore(o.getTeamId() == teamHId ? eventFixtureEntity.getTeamAScore() : eventFixtureEntity.getTeamHScore());
+                    return data;
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());

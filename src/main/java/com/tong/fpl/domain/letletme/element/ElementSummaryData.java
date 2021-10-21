@@ -23,10 +23,12 @@ public class ElementSummaryData {
     private int teamCode;
     private String teamName;
     private String teamShortName;
+    private int teamScore;
     private int againstTeamId;
     private int againstTeamCode;
     private String againstTeamName;
     private String againstTeamShortName;
+    private int againstTeamScore;
     private int selected;
     private int totalPoints;
     private int minutes;
