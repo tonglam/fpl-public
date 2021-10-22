@@ -792,12 +792,12 @@ public class QueryServiceImpl implements IQueryService {
                                     .setPrice(i.getPrice() / 10.0)
                                     .setElementType(playerEntity.getElementType())
                                     .setElementTypeName(Position.getNameFromElementType(playerEntity.getElementType()))
-                                    .setTeamCode(teamEntity.getCode())
-                                    .setTeamName(teamEntity.getName())
-                                    .setTeamShortName(teamEntity.getShortName())
-                                    .setAgainstTeamCode(againstEntity.getCode())
-                                    .setAgainstTeamName(againstEntity.getName())
-                                    .setAgainstTeamShortName(againstEntity.getShortName());
+                                    .setTeamCode(i.getTeamId().equals(teamEntity.getId()) ? teamEntity.getCode() : againstEntity.getCode())
+                                    .setTeamName(i.getTeamId().equals(teamEntity.getId()) ? teamEntity.getName() : againstEntity.getName())
+                                    .setTeamShortName(i.getTeamId().equals(teamEntity.getId()) ? teamEntity.getShortName() : againstEntity.getShortName())
+                                    .setAgainstTeamCode(i.getTeamId().equals(teamEntity.getId()) ? againstEntity.getCode() : teamEntity.getCode())
+                                    .setAgainstTeamName(i.getTeamId().equals(teamEntity.getId()) ? againstEntity.getName() : teamEntity.getName())
+                                    .setAgainstTeamShortName(i.getTeamId().equals(teamEntity.getId()) ? againstEntity.getShortName() : teamEntity.getShortName());
                             return elementSummaryData;
                         })
                         .filter(Objects::nonNull)

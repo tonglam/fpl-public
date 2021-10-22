@@ -2540,13 +2540,15 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .orderByDesc(PlayerSummaryEntity::getTotalPoints))
                 .stream()
                 .map(o -> {
-                    TeamEntity elementTeamEntity = o.getTeamId() == teamHId ? teamHEntity : teamAEntity;
-                    TeamEntity elementAgainstTeamEntity = o.getTeamId() == teamHId ? teamAEntity : teamHEntity;
+                    boolean wasHome = o.getTeamId() == teamHId;
+                    TeamEntity elementTeamEntity = wasHome ? teamHEntity : teamAEntity;
+                    TeamEntity elementAgainstTeamEntity = wasHome ? teamAEntity : teamHEntity;
                     ElementSummaryData data = this.qrySeasonFixtureElementResult(season, elementTeamEntity, elementAgainstTeamEntity, o, playerMap);
                     if (data == null) {
                         return null;
                     }
                     data
+                            .setWasHome(wasHome)
                             .setTeamScore(o.getTeamId() == teamHId ? eventFixtureEntity.getTeamHScore() : eventFixtureEntity.getTeamAScore())
                             .setAgainstTeamScore(o.getTeamId() == teamHId ? eventFixtureEntity.getTeamAScore() : eventFixtureEntity.getTeamHScore());
                     return data;
@@ -2614,6 +2616,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (!active) { // 现役与不现役都算
             return list
                     .stream()
+                    .filter(o -> o.getTotalPoints() > 0)
                     .limit(returnNum)
                     .collect(Collectors.toList());
         }
@@ -2626,6 +2629,8 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toMap(TeamEntity::getId, TeamEntity::getCode));
         return list
                 .stream()
+                .filter(o -> o.getTotalPoints() > 0)
+                .filter(o -> teamCodeMap.getOrDefault(playerTeamIdMap.getOrDefault(o.getCode(), 0), 0) == o.getTeamCode())
                 .limit(returnNum)
                 .collect(Collectors.toList());
     }

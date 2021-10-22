@@ -29,6 +29,7 @@ public class ElementSummaryData {
     private String againstTeamName;
     private String againstTeamShortName;
     private int againstTeamScore;
+    private boolean wasHome;
     private int selected;
     private int totalPoints;
     private int minutes;
