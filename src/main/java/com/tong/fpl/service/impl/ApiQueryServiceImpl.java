@@ -2673,6 +2673,7 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                                 return;
                             }
                             data
+                                    .setPoints(i.getTotalPoints())
                                     .setTeamHId(o.getTeamHId())
                                     .setTeamHName(o.getTeamHName())
                                     .setTeamHShortName(o.getTeamHShortName())
