@@ -785,8 +785,8 @@ public class QueryServiceImpl implements IQueryService {
                             if (playerEntity == null) {
                                 return null;
                             }
-                            ElementSummaryData elementEventResultData = BeanUtil.copyProperties(i, ElementSummaryData.class);
-                            elementEventResultData
+                            ElementSummaryData elementSummaryData = BeanUtil.copyProperties(i, ElementSummaryData.class);
+                            elementSummaryData
                                     .setSeason(season)
                                     .setWebName(playerEntity.getWebName())
                                     .setPrice(i.getPrice() / 10.0)
@@ -798,7 +798,7 @@ public class QueryServiceImpl implements IQueryService {
                                     .setAgainstTeamCode(againstEntity.getCode())
                                     .setAgainstTeamName(againstEntity.getName())
                                     .setAgainstTeamShortName(againstEntity.getShortName());
-                            return elementEventResultData;
+                            return elementSummaryData;
                         })
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());

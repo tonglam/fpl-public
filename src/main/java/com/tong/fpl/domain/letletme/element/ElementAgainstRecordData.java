@@ -9,9 +9,15 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class ElementAgainstRecordData {
-
+    
     private String season;
     private int event;
+    private int element;
+    private int code;
+    private String webName;
+    private double price;
+    private int elementType;
+    private String elementTypeName;
     private int teamHId;
     private String teamHName;
     private String teamHShortName;

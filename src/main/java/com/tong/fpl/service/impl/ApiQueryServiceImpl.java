@@ -2641,6 +2641,12 @@ public class ApiQueryServiceImpl implements IApiQueryService {
         if (teamId <= 0 || teamId > 20 || againstId <= 0 || againstId > 20 || elementCode < 0) {
             return Lists.newArrayList();
         }
+        // player
+        PlayerEntity playerEntity = this.playerService.getOne(new QueryWrapper<PlayerEntity>().lambda()
+                .eq(PlayerEntity::getCode, elementCode));
+        if (playerEntity == null) {
+            return Lists.newArrayList();
+        }
         // team
         TeamEntity teamEntity = this.teamService.getById(teamId);
         TeamEntity againstEntity = this.teamService.getById(againstId);
@@ -2662,7 +2668,21 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                             if (i.getCode() != elementCode) {
                                 return;
                             }
-                            list.add(BeanUtil.copyProperties(i, ElementAgainstRecordData.class));
+                            ElementAgainstRecordData data = BeanUtil.copyProperties(i, ElementAgainstRecordData.class);
+                            if (data == null) {
+                                return;
+                            }
+                            data
+                                    .setTeamHId(o.getTeamHId())
+                                    .setTeamHName(o.getTeamHName())
+                                    .setTeamHShortName(o.getTeamHShortName())
+                                    .setTeamHScore(o.getTeamHScore())
+                                    .setTeamAId(o.getTeamAId())
+                                    .setTeamAName(o.getTeamAName())
+                                    .setTeamAShortName(o.getTeamAShortName())
+                                    .setTeamAScore(o.getTeamAScore())
+                                    .setKickoffDate(o.getKickoffDate());
+                            list.add(data);
                         })
                 );
         return list;
