@@ -2626,10 +2626,6 @@ public class ApiQueryServiceImpl implements IApiQueryService {
                 .collect(Collectors.toMap(TeamEntity::getId, TeamEntity::getCode));
         return list
                 .stream()
-                .filter(o ->
-                        playerTeamIdMap.containsKey(o.getCode()) &&
-                                o.getTeamCode() == teamCodeMap.get(playerTeamIdMap.get(o.getCode()))
-                )
                 .limit(returnNum)
                 .collect(Collectors.toList());
     }

@@ -258,4 +258,17 @@ public class DBTest extends FplApplicationTests {
         this.entryEventTransfersService.getBaseMapper().truncate();
     }
 
+    @Test
+    void valueDiff() {
+        List<PlayerEntity> playerEntity = this.playerService.list()
+                .stream()
+                .sorted((o1, o2) -> {
+                    int aa = o1.getPrice() - o1.getStartPrice();
+                    int bb = o2.getPrice() - o2.getStartPrice();
+                    return bb - aa;
+                })
+                .collect(Collectors.toList());
+        System.out.println(1);
+    }
+
 }

@@ -311,7 +311,7 @@ public class ApiQueryTest extends FplApplicationTests {
     }
 
     @ParameterizedTest
-    @CsvSource({"1, 7, true"})
+    @CsvSource({"19, 17, true"})
     void qryTopElementAgainstInfo(int teamId, int againstId, boolean active) {
         List<ElementAgainstInfoData> list = this.apiQueryService.qryTopElementAgainstInfo(teamId, againstId, active);
         System.out.println(1);
