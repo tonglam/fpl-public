@@ -576,9 +576,6 @@ public class QueryServiceImpl implements IQueryService {
         if (!StringUtils.equals(CommonUtils.getCurrentSeason(), season)) {
             return new EntryInfoData();
         }
-        // save
-        this.interfaceService.refreshEntryInfo(entry);
-        this.interfaceService.refreshEntryHistoryInfo(entry);
         // return
         EntryRes entryRes = this.interfaceService.getEntry(entry).orElse(null);
         if (entryRes == null) {
