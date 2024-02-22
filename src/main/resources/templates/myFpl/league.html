@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>查看联赛-我的fpl-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+
+        <div class="site-content">
+
+            <h1 style="font-size: 28px">查看联赛</h1>
+
+            <div style="margin-top: 30px"></div>
+
+            <form class="layui-form">
+
+                <div class="layui-form-item">
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
+                        <div class="layui-input-inline" style="width: 110px">
+                            <input autocomplete="on" class="layui-input" name="leagueId" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -30px">赛事名称</label>
+                        <div class="layui-input-inline" style="width: 180px">
+                            <input autocomplete="on" class="layui-input" name="name" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px">创建者</label>
+                        <div class="layui-input-inline" style="width: 150px">
+                            <input autocomplete="on" class="layui-input" name="creator" type="text">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label" style="margin-left: -50px">赛季</label>
+                        <div class="layui-input-inline" style="width: 100px">
+                            <select class="layui-select" lay-filter="season" lay-search="" name="season">
+                                <option th:each="item,userStat:${seasonMap}"
+                                        th:text="${userStat.current.value}"
+                                        th:value="${userStat.current.key}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="layui-btn" id="searchTournamentButton" style="margin-left: 20px;margin-top: -5px"
+                            type="button">查看
+                    </button>
+
+                </div>
+
+            </form>
+
+            <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<div th:replace="layout::entryInputLayer"></div>
+
+<script id="checkBar" type="text/plain">
+   <button class="layui-btn layui-btn-sm" id="check_{{d.id}}" lay-dropdown="{menus: [{txt: '队长统计', event:'captain'}, {txt: '转会统计', event:'transfer'}, {txt: '得分统计', event:'scoring'}]}"}>
+   <span>查看类型</span>
+   <i class="layui-icon layui-icon-triangle-d" style="display: inline-block"></i>
+   </button>
+</script>
+
+<script th:inline="none">
+    layui.use(['table', 'soulTable', 'dropdown'], function () {
+
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, dropdown = layui.dropdown;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        table.render({
+            elem: '#tournamentTable',
+            method: 'post',
+            contentType: 'application/json',
+            url: '/my_fpl/qryTournamentList',
+            loading: true,
+            cellMinWidth: 80,
+            cols: [[
+                {field: 'name', title: '名字', align: 'center', width: 300},
+                {field: 'creator', title: '创建者', align: 'center', width: 120},
+                {field: 'season', title: '赛季', align: 'center'},
+                {field: 'leagueType', title: '类型', align: 'center'},
+                {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100},
+                {field: 'createTime', title: '创建时间', align: 'center', width: 120},
+                {
+                    fixed: 'right',
+                    title: '操作',
+                    align: 'center',
+                    width: 125,
+                    toolbar: '#checkBar'
+                }
+            ]],
+            id: 'tournamentTable',
+            done: function (res) {
+                soulTable.render(this);
+                // 在表格渲染完成后进行下拉框渲染
+                for (let i = 0; i < res.data.length; i++) {
+                    dropdown.suite("#check_" + res.data[i].id, {
+                        data: res.data[i]
+                    });
+                }
+            }
+        });
+
+        $("#searchTournamentButton").on('click', function () {
+            let leagueId = $("input[name=leagueId]").val();
+            let name = $("input[name=name]").val();
+            let creator = $("input[name=creator]").val();
+            let season = $("select[name=season]").val();
+
+            table.reload('tournamentTable', {
+                where: {
+                    name: name,
+                    creator: creator,
+                    leagueId: leagueId,
+                    season: season
+                }
+            });
+
+        });
+
+        table.on('tool(tournamentTable)', function (obj) {
+            let event = obj.event, leagueId = obj.data.leagueId, leagueType = obj.data.leagueType;
+            switch (event) {
+                case 'captain': {
+                    window.location.replace('/my_fpl/leagueCaptainReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+                    break;
+                }
+                case 'transfer': {
+                    window.location.replace('/my_fpl/leagueTransfersReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+                    break;
+                }
+                case 'scoring': {
+                    window.location.replace('/my_fpl/leagueScoringReport?leagueId=' + leagueId + "&leagueType=" + leagueType);
+                    break;
+                }
+            }
+        });
+
+    });
+</script>
+
+</html>

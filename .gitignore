@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+target/
+/.idea/*
+src/main/resources/.DS_Store
+fpl.iml
+~/
+src/main/resources/*.yaml

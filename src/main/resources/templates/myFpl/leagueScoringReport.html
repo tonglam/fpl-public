@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>得分统计-我的fpl-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <form class="layui-form">
+
+                <div class="layui-form-item">
+
+                    <div class="layui-input-inline" style="margin-top: 5px">
+                        <button class="layui-btn layui-btn-primary layui-btn-sm" id="returnButton" type="button">
+                            <i class="layui-icon layui-icon-return"></i>
+                        </button>
+                    </div>
+
+                    <div class="layui-input-inline" style="margin-left: -140px">
+                        <h1 style="font-size: 28px">得分统计 - </h1>
+                    </div>
+
+                    <div class="layui-input-inline" style="width: 100px;margin-left: -60px;margin-top: 2px">
+                        <select class="layui-select" lay-filter="gwSelect" lay-search="" name="gwSelect">
+                            <option value="0">赛季</option>
+                            <option th:each="item,userStat:${gwMap}"
+                                    th:if="${userStat.current.key} != ''"
+                                    th:text="${userStat.current.value}"
+                                    th:value="${userStat.current.key}"></option>
+                        </select>
+                    </div>
+                </div>
+
+            </form>
+
+            <div style="margin-top: 40px"></div>
+
+            <div class="layui-tab" lay-allowClose="true" lay-filter="entryTab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" id="base" th:text="${leagueName}"></li>
+                </ul>
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 20px"></div>
+
+                        <div id="leagueScoringReportStat">
+                            <table class="layui-table" id="leagueScoringReportStatTable"
+                                   lay-filter="leagueScoringReportStatTable"></table>
+                        </div>
+
+                        <div id="leagueScoringEventReport">
+                            <table class="layui-table" id="leagueScoringEventReportTable"
+                                   lay-filter="leagueScoringEventReportTable"></table>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<div th:replace="layout::entryInputLayer"></div>
+
+<script id="entryNameTpl" type="text/html">
+    <a href="javascript:void(0);" class="layui-table-link">{{d.entryName}}</a>
+</script>
+
+<script th:inline="none">
+    layui.use(['element', 'form', 'table', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, form = layui.form, table = layui.table,
+            soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        let leagueId = getUrlParam("leagueId"), leagueType = getUrlParam("leagueType");
+
+        let childrenPicks = {
+                title: '阵容',
+                size: 'sm',
+                data: function (d) {
+                    return d.entryEventPickList;
+                },
+                limit: 100,
+                cols: [[
+                    {
+                        field: 'elementTypeName',
+                        title: '位置',
+                        align: 'center'
+                    },
+                    {
+                        field: 'webName',
+                        title: '球员',
+                        align: 'center',
+                        templet: function (d) {
+                            if (d.captain) {
+                                return d.webName + "(c)";
+                            } else if (d.viceCaptain) {
+                                return d.webName + "(vc)";
+                            } else {
+                                return d.webName;
+                            }
+                        }
+                    },
+                    {
+                        field: 'teamShortName',
+                        title: '球队',
+                        align: 'center'
+                    },
+                    {
+                        field: 'points',
+                        title: '得分',
+                        align: 'center'
+                    }
+                ]],
+                autoColumnWidth: {
+                    init: true
+                },
+                done: function () {
+                    soulTable.render(this);
+                }
+            },
+            childrenBenches = {
+                title: '板凳',
+                size: 'sm',
+                data: function (d) {
+                    return d.entryEventBenchList;
+                },
+                limit: 100,
+                cols: [[
+                    {
+                        field: 'elementTypeName',
+                        title: '位置',
+                        align: 'center'
+                    },
+                    {
+                        field: 'webName',
+                        title: '球员',
+                        align: 'center'
+                    },
+                    {
+                        field: 'teamShortName',
+                        title: '球队',
+                        align: 'center'
+                    },
+                    {
+                        field: 'points',
+                        title: '得分',
+                        align: 'center'
+                    }
+                ]],
+                autoColumnWidth: {
+                    init: true
+                },
+                done: function () {
+                    soulTable.render(this);
+                }
+            },
+            childrenAutoSubs = {
+                title: '自动替补',
+                size: 'sm',
+                data: function (d) {
+                    return d.entryEventAutoSubsList;
+                },
+                limit: 100,
+                cols: [
+                    [
+                        {title: '替补上场', align: 'center', colspan: 4},
+                        {title: '替补下场', align: 'center', colspan: 4}
+                    ],
+                    [
+                        {
+                            field: 'elementInWebName',
+                            title: '球员',
+                            align: 'center'
+                        },
+                        {
+                            field: 'elementInTypeName',
+                            title: '位置',
+                            align: 'center'
+                        },
+                        {
+                            field: 'elementInTeamShortName',
+                            title: '球队',
+                            align: 'center'
+                        },
+                        {
+                            field: 'elementInPoints',
+                            title: '得分',
+                            align: 'center'
+                        },
+                        {
+                            field: 'elementOutWebName',
+                            title: '球员',
+                            align: 'center'
+                        },
+                        {
+                            field: 'elementOutTypeName',
+                            title: '位置',
+                            align: 'center'
+                        },
+                        {
+                            field: 'elementOutTeamShortName',
+                            title: '球队',
+                            align: 'center'
+                        },
+                        {
+                            field: 'elementOutPoints',
+                            title: '得分',
+                            align: 'center'
+                        }
+                    ]
+                ],
+                autoColumnWidth: {
+                    init: true
+                },
+                done: function () {
+                    soulTable.render(this);
+                }
+            };
+
+        $("#returnButton").on('click', function () {
+            window.location.replace("/my_fpl/league");
+        });
+
+        table.render({
+            elem: '#leagueScoringReportStatTable',
+            size: 'sm',
+            url: '/my_fpl/qryLeagueScoringReportStat',
+            where: {
+                leagueId: leagueId,
+                leagueType: leagueType
+            },
+            parseData: function (res) {
+                let data = [];
+                $.each(res.data, function (index, item) {
+                    item.benchTotalPoints = item.scoringData.benchTotalPoints;
+                    item.autoSubsTotalPoints = item.scoringData.autoSubsTotalPoints;
+                    item.autoSubsTotalPointsByPercent = item.scoringData.autoSubsTotalPointsByPercent;
+                    item.gkpTotalPoints = item.scoringData.gkpTotalPoints;
+                    item.gkpTotalPointsByPercent = item.scoringData.gkpTotalPointsByPercent;
+                    item.defTotalPoints = item.scoringData.defTotalPoints;
+                    item.defTotalPointsByPercent = item.scoringData.defTotalPointsByPercent;
+                    item.midTotalPoints = item.scoringData.midTotalPoints;
+                    item.midTotalPointsByPercent = item.scoringData.midTotalPointsByPercent;
+                    item.fwdTotalPoints = item.scoringData.fwdTotalPoints;
+                    item.fwdTotalPointsByPercent = item.scoringData.fwdTotalPointsByPercent;
+                    item.captainTotalPoints = item.scoringData.captainTotalPoints;
+                    item.captainTotalPointsByPercent = item.scoringData.captainTotalPointsByPercent;
+                    item.mostSelectedGkpName = item.scoringData.mostSelectedGkpName;
+                    item.mostSelectedDefName = item.scoringData.mostSelectedDefName;
+                    item.mostSelectedMidName = item.scoringData.mostSelectedMidName;
+                    item.mostSelectedFwdName = item.scoringData.mostSelectedFwdName;
+                    item.mostSelectedCaptainName = item.scoringData.mostSelectedCaptainName;
+                    item.mostSelectedFormation = item.scoringData.mostSelectedFormation;
+                    data.push(item);
+                });
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.count,
+                    "data": data
+                };
+            },
+            toolbar: true,
+            defaultToolbar: ['filter'],
+            loading: true,
+            even: true,
+            limit: 1000,
+            cols: [
+                [
+                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, sort: true, hide: true},
+                    {
+                        field: 'entryName',
+                        title: '队伍',
+                        align: 'center',
+                        event: 'entryEvent',
+                        rowspan: 2,
+                        templet: '#entryNameTpl',
+                        filter: true
+                    },
+                    {
+                        field: 'playerName',
+                        title: '玩家',
+                        align: 'center',
+                        rowspan: 2,
+                        filter: true,
+                        hide: true
+                    },
+                    {
+                        field: 'overallPoints',
+                        title: '总分',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true
+                    },
+                    {
+                        field: 'transfersCost',
+                        title: '总剁手',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true,
+                        hide: true
+                    },
+                    {field: 'benchTotalPoints', title: '板凳', align: 'center', rowspan: 2, sort: true},
+                    {
+                        field: 'autoSubsTotalPoints',
+                        title: '替补',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true,
+                        templet: function (d) {
+                            return d.autoSubsTotalPoints + "(" + d.autoSubsTotalPointsByPercent + ")";
+                        }
+                    },
+                    {title: '队长', align: 'center', colspan: 2},
+                    {title: '门将', align: 'center', colspan: 2},
+                    {title: '后卫', align: 'center', colspan: 2},
+                    {title: '中场', align: 'center', colspan: 2},
+                    {title: '前锋', align: 'center', colspan: 2},
+                    {
+                        field: 'mostSelectedFormation',
+                        title: '阵型',
+                        align: 'center',
+                        rowspan: 2,
+                        filter: true
+                    },
+                ],
+                [
+                    {
+                        field: 'captainTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return d.captainTotalPoints + "(" + d.captainTotalPointsByPercent + ")";
+                        }
+                    },
+                    {
+                        field: 'mostSelectedCaptainName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'gkpTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return d.gkpTotalPoints + "(" + d.gkpTotalPointsByPercent + ")";
+                        }
+                    },
+                    {
+                        field: 'mostSelectedGkpName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'defTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return d.defTotalPoints + "(" + d.defTotalPointsByPercent + ")";
+                        }
+                    },
+                    {
+                        field: 'mostSelectedDefName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'midTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return d.midTotalPoints + "(" + d.midTotalPointsByPercent + ")";
+                        }
+                    },
+                    {
+                        field: 'mostSelectedMidName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'fwdTotalPoints',
+                        title: '得分',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return d.fwdTotalPoints + "(" + d.fwdTotalPointsByPercent + ")";
+                        }
+                    },
+                    {
+                        field: 'mostSelectedFwdName',
+                        title: '最多',
+                        align: 'center',
+                        sort: true
+                    }
+                ]
+            ],
+            autoColumnWidth: {
+                init: true
+            },
+            filter: {
+                items: ['data'],
+                bottom: false
+            },
+            id: 'leagueScoringReportStatTable',
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        form.on('select(gwSelect)', function (data) {
+            // 切换tab
+            element.tabChange('entryTab', 'base');
+            // 渲染
+            let event = data.value;
+            if (event === '0') {
+                $("#leagueScoringReportStat").removeClass("layui-hide");
+                $("#leagueScoringEventReport").addClass("layui-hide");
+                $("#reportStatExplain").removeClass("layui-hide");
+                $("#eventReportExplain").addClass("layui-hide");
+                table.reload('leagueScoringReportStatTable', {
+                    url: '/my_fpl/qryLeagueScoringReportStat',
+                    where: {
+                        leagueId: leagueId,
+                        leagueType: leagueType
+                    },
+                })
+            } else {
+                $("#leagueScoringReportStat").addClass("layui-hide");
+                $("#leagueScoringEventReport").removeClass("layui-hide");
+                $("#eventReportExplain").removeClass("layui-hide");
+                $("#reportStatExplain").addClass("layui-hide");
+                table.render({
+                    elem: '#leagueScoringEventReportTable',
+                    size: 'sm',
+                    url: '/my_fpl/qryLeagueScoringEventReportList',
+                    where: {
+                        event: event,
+                        leagueId: leagueId,
+                        leagueType: leagueType
+                    },
+                    toolbar: true,
+                    defaultToolbar: ['filter'],
+                    loading: true,
+                    limit: 200,
+                    even: true,
+                    cols: [
+                        [
+                            {
+                                field: 'rank',
+                                title: '',
+                                align: 'center',
+                                rowspan: 2,
+                                icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                                children: function (d) {
+                                    if (d.entryEventAutoSubsList.length > 0) {
+                                        return [childrenPicks, childrenBenches, childrenAutoSubs];
+                                    } else {
+                                        return [childrenPicks, childrenBenches];
+                                    }
+                                }
+                            },
+                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, sort: true, hide: true},
+                            {
+                                field: 'entryName',
+                                title: '队伍',
+                                align: 'center',
+                                event: 'entryEvent',
+                                rowspan: 2,
+                                templet: '#entryNameTpl',
+                                filter: true
+                            },
+                            {field: 'playerName', title: '玩家', align: 'center', filter: true, hide: true},
+                            {
+                                field: 'eventPoints',
+                                title: '得分',
+                                align: 'center',
+                                rowspan: 2,
+                                sort: true,
+                                templet: function (d) {
+                                    if (d.eventTransfersCost > 0) {
+                                        return d.eventPoints + '(-' + d.eventTransfersCost + ')';
+                                    } else {
+                                        return d.eventPoints;
+                                    }
+                                }
+                            },
+                            {field: 'captainWebName', title: '队长', align: 'center', filter: true},
+                            {field: 'playedNum', title: '出场', align: 'center', sort: true},
+                            {field: 'autoSubNum', title: '替补', align: 'center', sort: true},
+                            {field: 'eventAutoSubPoints', title: '替补总分', align: 'center', sort: true},
+                            {field: 'eventBenchPoints', title: '板凳总分', align: 'center', sort: true},
+                            {
+                                field: 'eventAutoSubPoints',
+                                title: '替补分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.eventAutoSubPoints + "(" + d.eventAutoSubPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'captainPoints',
+                                title: '队长分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.captainPoints + "(" + d.captainPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'gkpPoints',
+                                title: '门将分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.gkpPoints + "(" + d.gkpPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'defPoints',
+                                title: '后卫分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.defPoints + "(" + d.defPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'midPoints',
+                                title: '中场分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.midPoints + "(" + d.midPointsByPercent + ")";
+                                }
+                            },
+                            {
+                                field: 'fwdPoints',
+                                title: '前锋分',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.fwdPoints + "(" + d.fwdPointsByPercent + ")";
+                                }
+                            },
+                            {field: 'formation', title: '阵型', align: 'center', filter: true}
+                        ]
+                    ],
+                    autoColumnWidth: {
+                        init: true
+                    },
+                    filter: {
+                        items: ['data'],
+                        bottom: false
+                    },
+                    id: 'leagueScoringEventReportTable',
+                    done: function (res) {
+                        soulTable.render(this);
+                        let that = this.elem.next();
+                        res.data.forEach(function (d, index) {
+                            if (d.eventChip !== 'n/a') {
+                                setTableRowColor(that, index, "#FFB800");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        table.on('tool(leagueScoringReportStatTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
+        });
+
+        table.on('tool(leagueScoringEventReportTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
+        });
+
+        function initEntryTab(entry, entryName) {
+            // 是否存在
+            if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
+                //选项卡已经存在
+                element.tabChange('entryTab', entry);
+                return false;
+            }
+            // 增加标签页
+            let tableId = entry + 'Table';
+            element.tabAdd('entryTab', {
+                title: entryName,
+                content: '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
+                id: entry
+            });
+            // 切换
+            element.tabChange('entryTab', entry);
+            // 渲染
+            table.render({
+                elem: '#' + tableId,
+                size: 'sm',
+                even: true,
+                toolbar: true,
+                defaultToolbar: ['filter'],
+                url: '/my_fpl/qryEntryScoringEventReportList',
+                where: {
+                    leagueId: leagueId,
+                    leagueType: leagueType,
+                    entry: entry
+                },
+                limit: 40,
+                loading: true,
+                totalRow: true,
+                cols: [[
+                    {
+                        field: 'event',
+                        title: '',
+                        align: 'center',
+                        rowspan: 2,
+                        totalRowText: 'TOTAL',
+                        templet: function (d) {
+                            let chip = showChip(d.eventChip);
+                            if (chip === '无') {
+                                return 'GW' + d.event;
+                            } else {
+                                return 'GW' + d.event + '(' + chip + ')';
+                            }
+                        },
+                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                        children: function (d) {
+                            if (d.entryEventAutoSubsList.length > 0) {
+                                return [childrenPicks, childrenBenches, childrenAutoSubs];
+                            } else {
+                                return [childrenPicks, childrenBenches];
+                            }
+                        }
+                    },
+                    {
+                        field: 'eventPoints',
+                        title: '得分',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true,
+                        templet: function (d) {
+                            if (d.eventTransfersCost > 0) {
+                                return d.eventPoints + '(-' + d.eventTransfersCost + ')';
+                            } else {
+                                return d.eventPoints;
+                            }
+                        }
+                    },
+                    {field: 'captainWebName', title: '队长', align: 'center', filter: true},
+                    {field: 'playedNum', title: '出场', align: 'center', sort: true},
+                    {field: 'autoSubNum', title: '替补', align: 'center', sort: true},
+                    {field: 'eventAutoSubPoints', title: '替补总分', align: 'center', sort: true},
+                    {field: 'eventBenchPoints', title: '板凳总分', align: 'center', sort: true, totalRow: true},
+                    {field: 'eventAutoSubPoints', title: '替补分', align: 'center', sort: true, totalRow: true},
+                    {field: 'eventAutoSubPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
+                    {field: 'captainPoints', title: '队长分', align: 'center', sort: true, totalRow: true},
+                    {field: 'captainPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
+                    {field: 'gkpPoints', title: '门将分', align: 'center', sort: true, totalRow: true},
+                    {field: 'gkpPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
+                    {field: 'defPoints', title: '后卫分', align: 'center', sort: true, totalRow: true},
+                    {field: 'defPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
+                    {field: 'midPoints', title: '中场分', align: 'center', sort: true, totalRow: true},
+                    {field: 'midPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
+                    {field: 'fwdPoints', title: '前锋分', align: 'center', sort: true, totalRow: true},
+                    {field: 'fwdPointsByPercent', title: '占比', align: 'center', sort: true, hide: true},
+                    {field: 'formation', title: '阵型', align: 'center', filter: true}
+                ]],
+                autoColumnWidth: {
+                    init: true
+                },
+                filter: {
+                    items: ['data'],
+                    bottom: false
+                },
+                id: tableId,
+                done: function (res) {
+                    soulTable.render(this);
+                    let that = this.elem.next();
+                    res.data.forEach(function (d, index) {
+                        if (d.eventChip !== 'n/a') {
+                            setTableRowColor(that, index, "#FFB800");
+                        }
+                    });
+                }
+            });
+        }
+
+    });
+</script>
+
+</html>

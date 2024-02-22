@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>规则-自定义赛事-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <div id="rule" th:fragment="main">
+
+                <h1 style="margin-bottom: 20px;font-size: 28px">自定义赛事规则</h1>
+
+                <blockquote class="layui-elem-quote">
+                    <p class="layui-text">使用FPL官方classic联赛或者h2h联赛来创建你的自定义赛事，
+                        自由组建完全小组赛、完全淘汰赛以及小组赛淘汰赛混合三种模式，
+                        通过自定义赛事模式来获得更有趣的FPL体验吧。</p>
+                </blockquote>
+
+                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                    <legend><a>赛事组织模式</a></legend>
+                </fieldset>
+                <blockquote class="layui-elem-quote">
+                    <p class="layui-text">1.完全小组赛。</p>
+                    <p class="layui-text">2.完全淘汰赛。</p>
+                    <p class="layui-text">3.小组赛淘汰赛混合赛事。</p>
+                </blockquote>
+
+                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                    <legend><a>小组赛</a></legend>
+                </fieldset>
+                <blockquote class="layui-elem-quote">
+                    <p class="layui-text">1.小组赛分为积分赛和对战赛。</p>
+                    <p class="layui-text">2.积分赛模式：</p>
+                    <p class="layui-text">a.积分赛的长度由设置的小组赛开始时间和小组赛结束时间决定；</p>
+                    <p class="layui-text">b.小组排名又选手在FPL中的总排名（overall_rank）决定；</p>
+                    <p class="layui-text">c.当多位选手总排名相同时，小组排名采取随机抽签决定。</p>
+                    <p class="layui-text">3.对阵赛模式：</p>
+                    <p class="layui-text">a.积分赛的长度由设置的小组赛开始时间和小组赛结束时间决定；</p>
+                    <p class="layui-text">b.小组赛开始时间和小组赛结束时间同时决定了小组内各选手间对阵次数；</p>
+                    <p class="layui-text">c.对阵赛的对阵结果由对阵双方的对阵比赛结果决定：a.本周FPL净得分（周得分减去转会扣分）高者胜；b.净得分相同，视为平局。</p>
+                    <p class="layui-text">d.每轮对阵赛小组赛中，获胜选手本轮得3分，失利选手得0分，平局则各得1分。</p>
+                </blockquote>
+
+                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                    <legend><a>淘汰赛</a></legend>
+                </fieldset>
+                <blockquote class="layui-elem-quote">
+                    <p class="layui-text">1.淘汰赛分为单场淘汰赛和主客场淘汰赛。</p>
+                    <p class="layui-text">2.单场淘汰赛代表每个对阵轮次中，对阵双方对阵比赛次数为一次；主客场淘汰赛代表对阵比赛次数为两次。</p>
+                    <p class="layui-text">3.淘汰赛的结果由对阵双方的对阵轮次结果决定，具体见《淘汰赛对阵轮次胜出规则》项。</p>
+                </blockquote>
+
+                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                    <legend><a>淘汰赛对阵轮次胜出规则</a></legend>
+                </fieldset>
+                <blockquote class="layui-elem-quote">
+                    <p class="layui-text">1.对阵双方在结束对阵次数的比赛后中必有某一方胜出，称为对阵轮次胜出。</p>
+                    <p class="layui-text">2.单场淘汰赛，该场比赛结果即为对阵轮次结果。</p>
+                    <p class="layui-text">3.主客场淘汰赛，对阵轮次结果由两场对阵比赛结果综合获得。
+                        如果对阵双方各胜出一场对阵比赛，按如下顺序决定某一方胜出：a.FPL总排名高者胜； b.抛硬币模型随意选取一方胜。</p>
+                    <p class="layui-text">4.对阵比赛结果的胜出，具体见《淘汰赛对阵比赛胜出规则》。</p>
+                </blockquote>
+
+                <fieldset class="layui-elem-field layui-field-title site-title" style="margin-top: 30px">
+                    <legend><a>淘汰赛对阵比赛胜出规则</a></legend>
+                </fieldset>
+                <blockquote class="layui-elem-quote">
+                    <p class="layui-text">1.对阵双方在结束某一个比赛周后必有某一方胜出，称为对阵比赛胜出；</p>
+                    <p class="layui-text">2.按如下顺序决定某一方胜出：a.本周FPL净得分（周得分减去转会扣分）高者胜；b.总FPL排名高者胜；c.抛硬币模型随意选取一方胜。</p>
+                </blockquote>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+</html>

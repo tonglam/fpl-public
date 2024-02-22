@@ -1,0 +1,65 @@
+spring:
+  web:
+    resources:
+      cache:
+        period: 518400
+      static-locations: classpath:/static
+      chain:
+        compressed: true
+        cache: true
+        enabled: true
+  servlet:
+    multipart:
+      enabled: true
+  session:
+    redis:
+      flush-mode: immediate
+  data:
+    redis:
+      host:
+      port:
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1
+      password:
+      timeout: 60000ms
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url:
+    username:
+    password:
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 15
+      auto-commit: true
+      max-lifetime: 1200000
+      connection-test-query: SELECT 1
+      connection-timeout: 30000
+      idle-timeout: 180000
+  thymeleaf:
+    cache: false
+    check-template: true
+    check-template-location: true
+    enabled: true
+    encoding: UTF-8
+    mode: HTML
+    prefix: classpath:/templates/
+    suffix: .html
+  devtools:
+    restart:
+      enabled: true
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+jasypt:
+  encryptor:
+    password:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+server:
+  port:
+  address:

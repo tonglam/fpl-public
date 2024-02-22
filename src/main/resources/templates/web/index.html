@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{::link})">
+    <title>letletme</title>
+    <link rel="stylesheet" th:href="@{/css/timeTo.css}"/>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main" style="text-align: center">
+        <div class="site-content" style="min-height: 700px">
+
+            <div style="margin-top: 50px"></div>
+
+            <img src="" style="width: 150px;height: 150px" th:src="@{/img/begbeg.jpg}">
+
+            <div style="margin-top: 40px"></div>
+
+            <div class="layui-form-item" style="margin-left: 100px">
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="knockoutRounds" placeholder="请输入球队id">
+                </div>
+                <div class="layui-input-inline" style="margin-left: -30px">
+                    <button class="layui-btn" id="submitButton" lay-submit="createTournament" type="button">开始
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 50px"></div>
+
+            <div id="deadlineTime" style="font-size: 30px"></div>
+
+            <div style="margin-top: 50px"></div>
+
+            <div class="timeTo timeTo-blue" id="countdown"></div>
+
+            <div style="margin-top: 120px"></div>
+
+            <div class="layui-form-item" style="margin-left: 50px">
+                <div class="layui-input-inline">
+                    <div class="layui-anim layui-anim-scaleSpring layui-anim-loop"
+                         style="font-size: 30px;color: #ffb800;">让让我吧
+                    </div>
+                </div>
+                <div class="layui-input-inline">
+                    <div class="layui-anim layui-anim-scaleSpring layui-anim-loop"
+                         style="font-size: 30px;color: olivedrab;">let let me
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 50px"></div>
+
+            <hr class="layui-bg-green">
+
+            <div style="margin-top: 20px"></div>
+
+            <div class="layui-collapse">
+
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title">更新计划</h2>
+                    <div class="layui-colla-content">
+                        <p class="layui-text">目前主要精力在小程序：letletme</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+
+<script th:src="@{/js/jquery.time-to.js}"></script>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:inline="javascript">
+    let nextGw = [[${nextGw}]], deadline = getLocalTime([[${deadline}]]),
+        deadLineTime = "GW" + nextGw + " deadline：" + deadline;
+    $("#deadlineTime").html(deadLineTime);
+    $("#countdown").timeTo({
+        timeTo: new Date(deadline),
+        displayDays: 2,
+        displayCaptions: true,
+        fontSize: 48,
+        captionSize: 20,
+        lang: 'cn'
+    });
+</script>
+
+<script>
+    layui.use(['element', 'layer'], function () {
+        $("#submitButton").on('click', function () {
+            let entry = $("input[name=knockoutRounds]").val();
+            // 保存
+            axios.get('/saveSession?key=entry&&value=' + entry)
+                .then(function () {
+                    // 关闭
+                    layer.msg('team_id更新成功', {
+                        offset: '100px',
+                        icon: 6,
+                        shade: 0.8,
+                        shadeClose: true,
+                        time: 1500
+                    });
+                    // 回填
+                    $("#teamIdBtn").text(entry);
+                    // 重置
+                    $("input[name=knockoutRounds]").val("");
+                })
+                .catch(function (error) {
+                    console.info(error);
+                });
+        });
+    });
+</script>
+
+</html>

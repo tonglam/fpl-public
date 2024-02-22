@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>查看赛程-自定义赛事-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+
+        <div class="site-tree">
+            <div style="margin-top: 50px"></div>
+            <ul class="layui-tree">
+
+                <div id="groupTree">
+                    <li><h2>小组赛</h2></li>
+                    <li class="site-tree-noicon" th:each="item,stat:${groupFixtureList}">
+                        <a style="margin-top: 20px" th:attr="href='#gw'+${item.event}"><cite
+                                th:text="'GW'+${item.event}+'赛程'"></cite></a>
+                    </li>
+                </div>
+
+                <div id="knockoutTree">
+                    <li><h2>淘汰赛</h2></li>
+                    <li class="site-tree-noicon" th:each="item,stat:${knockoutFixtureList}">
+                        <a style="margin-top: 20px" th:attr="href='#gw'+${item.event}"><cite
+                                th:text="'GW'+${item.event}+'对阵'"></cite></a>
+                    </li>
+                </div>
+
+            </ul>
+        </div>
+
+        <div class="site-content" style="width: 900px">
+
+            <div class="layui-input-inline" style="margin-top: 5px">
+                <button class="layui-btn layui-btn-primary layui-btn-sm" id="returnButton" type="button">
+                    <i class="layui-icon layui-icon-return"></i>
+                </button>
+            </div>
+            <div class="layui-input-inline" style="margin-left: 10px">
+                <h1 style="font-size: 28px" th:text="${tournamentInfo?.getName()}+' - 赛程'"></h1>
+            </div>
+
+            <div style="margin-top: 30px"></div>
+
+            <div style="margin-top: 20px"></div>
+
+            <div id="groupContent">
+
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend th:text="'小组赛 ('+${tournamentInfo?.getGroupModeName()}+')'"></legend>
+                </fieldset>
+
+                <ul class="layui-timeline" style="font-family:Lucida Family,sans-serif">
+                    <li class="layui-timeline-item" th:each="item,stat:${groupFixtureList}">
+                        <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+                        <div class="layui-timeline-content layui-text">
+                            <h1 class="layui-timeline-title" style="font-size: 18px"
+                                th:attr="id='gw'+${item.event}"
+                                th:text="'GW'+${item.event}"></h1>
+                            <div style="padding: 20px; background-color: #F2F2F2">
+                                <div class="layui-row layui-col-space15">
+                                    <div class="layui-col-md6"
+                                         th:each="eventItem,eventStat:${item.groupEventFixtureList}">
+                                        <div class="layui-card">
+                                            <h4 class="layui-card-header"
+                                                th:text="${eventItem.getGroupName()}+'组'"></h4>
+                                            <div th:each="eventGroupItem,eventGroupStat:${eventItem.eventEntryFixtureList}">
+                                                <div class="layui-card-body"
+                                                     style="white-space:nowrap;text-overflow:ellipsis; overflow:hidden"
+                                                     th:text="${eventGroupItem.getShowMessage()}"
+                                                     th:title="${eventGroupItem.getShowMessage()}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="layui-timeline-item">
+                        <i class="layui-icon layui-timeline-axis"></i>
+                        <div class="layui-timeline-content layui-text">
+                            <div class="layui-timeline-title"></div>
+                        </div>
+                    </li>
+                </ul>
+
+            </div>
+
+            <div id="knockoutContent">
+
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend th:text="'淘汰赛 ('+${tournamentInfo?.getKnockoutModeName()}+')'"></legend>
+                </fieldset>
+
+                <div style="font-family:Lucida Family,sans-serif;font-size: 18px"
+                     th:if="${currentGw} lt ${tournamentInfo?.getKnockoutStartGw()}"
+                     th:text="'淘汰赛将在GW'+${tournamentInfo?.getKnockoutStartGw()}+'开始'"></div>
+
+                <ul class="layui-timeline" style="font-family:Lucida Family,sans-serif">
+                    <li class="layui-timeline-item" th:each="item,stat:${knockoutFixtureList}">
+                        <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+                        <div class="layui-timeline-content layui-text">
+                            <h1 class="layui-timeline-title" style="font-size: 18px"
+                                th:attr="id='gw'+${item.event}"
+                                th:text="'GW'+${item.event}"></h1>
+                            <div th:each="eventItem,eventStat:${item.knockoutEventFixtureList}">
+                                <p style="white-space:nowrap;text-overflow:ellipsis; overflow:hidden;margin-top: 20px"
+                                   th:text="${eventItem.getShowMessage()}"
+                                   th:title="${eventItem.getShowMessage()}">
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="layui-timeline-item">
+                        <i class="layui-icon layui-timeline-axis"></i>
+                        <div class="layui-timeline-content layui-text">
+                            <div class="layui-timeline-title"></div>
+                        </div>
+                    </li>
+                </ul>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:inline="javascript">
+    layui.use(['util'], function () {
+        let $ = layui.jquery, util = layui.util;
+
+        util.fixbar();
+
+        let groupSize = [[${groupFixtureList}]].length, knockoutSize = [[${knockoutFixtureList}]].length;
+        $(document).ready(function () {
+            if (groupSize === 0) {
+                $("#groupTree").addClass("layui-hide");
+                $("#groupContent").addClass("layui-hide");
+            } else if (knockoutSize === 0) {
+                $("#knockoutTree").addClass("layui-hide");
+                $("#knockoutContent").addClass("layui-hide");
+            }
+        });
+
+        $("#returnButton").on('click', function () {
+            window.location.replace("/tournament/result");
+        });
+
+    });
+
+</script>
+
+</html>

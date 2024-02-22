@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>转会-公众号-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <div style="margin-top: 20px"></div>
+
+            <h1 style="font-size: 28px"
+                th:text="${pickPlayerData.entryName}+'（'+${pickPlayerData.playerName}+'）'"></h1>
+
+            <div class="layui-hide" id="nextGw" th:text="${nextGw}"></div>
+
+            <div style="margin-top: 20px"></div>
+
+            <div class="layui-tab layui-tab-brief" lay-filter="checkTab">
+
+                <ul class="layui-tab-title">
+                    <li class="layui-this" lay-id="transfers">一顿操作</li>
+                    <li class="" lay-id="result">猛如虎</li>
+                </ul>
+
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 30px"></div>
+
+                        <div class="layui-row" style="padding-left: 50px">
+                            <div class="layui-col-sm1">
+                                <div id="freeTransfersStr" style="font-size: 18px"
+                                     th:text="'免费转会：'+${pickPlayerData.freeTransfers}"></div>
+                                <div class="layui-hide" id="freeTransfers"
+                                     th:text="${pickPlayerData.freeTransfers}"></div>
+                            </div>
+                            <div class="layui-col-sm1">
+                                <div id="transfersCostStr" style="font-size: 18px" th:text="'转会扣分：0'"></div>
+                                <div class="layui-hide" id="transfersCost" th:text="0"></div>
+                            </div>
+                            <div class="layui-col-sm1">
+                                <div id="bankStr" style="font-size: 18px"
+                                     th:text="'余额：'+(${pickPlayerData.bank}/10)+'m'"></div>
+                                <div class="layui-hide" id="bank" th:text="${pickPlayerData.bank}/10"></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 30px"></div>
+
+                        <div class="layui-row layui-col-space30">
+                            <div class="layui-col-md5">
+                                <div id="lineup" th:fragment="transfers">
+                                    <div th:replace="layout::transfers(${pickPlayerData})"></div>
+                                </div>
+                                <table class="layui-table" id="transfersTable" lay-filter="transfersTable"></table>
+                                <button class="layui-btn" id="confirmButton" lay-filter="confirmButton"
+                                        lay-submit="confirmButton" type="button">提交
+                                </button>
+                            </div>
+                            <div class="layui-col-md7">
+                                <table class="layui-table" id="eventPickTable" lay-filter="eventPickTable"></table>
+                                <table class="layui-table" id="playerPickTable" lay-filter="playerPickTable"></table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="layui-tab-item">
+
+                        <div style="margin-top: 30px"></div>
+
+                        <div id="transfers" th:fragment="transfersList">
+                            <div th:each="item,userStat:${transfersList}">
+                                <div style="font-size: 18px" th:text="'球探：'+${item.entryName}"></div>
+                                <div style="margin-top: 10px"></div>
+                                <div class="layui-row">
+                                    <div class="layui-col-md3">
+                                        <div style="font-size: 18px" th:text="'余额：'+(${item.bank}/10)+'m'"></div>
+                                    </div>
+                                    <div class="layui-col-md2">
+                                        <div style="font-size: 18px" th:text="'转会：'+${item.transfers}"></div>
+                                    </div>
+                                    <div class="layui-col-md2">
+                                        <div style="font-size: 18px" th:text="'扣分：'+${item.transfersCost}"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 20px"></div>
+                                <div th:replace="layout::transfers(${item})"></div>
+                                <div style="margin-top: 30px"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:replace="layout::entryInputLayer"></script>
+
+<script th:replace="layout::playerDetail"></script>
+
+<script id="toolbar" type="text/html">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="gkp">GKP</button>
+        <button class="layui-btn layui-btn-sm" lay-event="def">DEF</button>
+        <button class="layui-btn layui-btn-sm" lay-event="mid">MID</button>
+        <button class="layui-btn layui-btn-sm" lay-event="fwd">FWD</button>
+        <button class="layui-btn layui-btn-sm" lay-event="clear">清除筛选条件</button>
+    </div>
+</script>
+
+<script th:inline="none">
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, table = layui.table, soulTable = layui.soulTable, loadIndex,
+            nextGw = $("#nextGw").text(), transferTableData = [], gkpCol = gkpCols(), defCol = defCols(),
+            midCol = midCols(), fwdCol = fwdCols();
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        axios.get('/group/qryEntryEventPlayerShowListForTransfers?event=' + (parseInt(nextGw) - 1))
+            .then(function (response) {
+                table.render({
+                    elem: '#eventPickTable',
+                    size: 'sm',
+                    data: parsePlayerTableData(response.data),
+                    limit: 15,
+                    contextmenu: {
+                        body: [
+                            {
+                                name: '转出',
+                                icon: 'layui-icon layui-icon-template',
+                                click: function (obj) {
+                                    addTransfersRow(obj.row);
+                                }
+                            }
+                        ]
+                    },
+                    cols: [
+                        [
+                            {fixed: 'left', field: 'elementTypeName', title: '位置', align: 'center', rowspan: 2},
+                            {
+                                fixed: 'left',
+                                field: 'webName',
+                                title: '球员',
+                                align: 'center',
+                                rowspan: 2,
+                                templet: function (d) {
+                                    if (d.chancePlayingNextRound < 100 && d.chancePlayingNextRound >= 50) {
+                                        return '<span style="color: orange">' + d.webName + '</span>';
+                                    } else if (d.chancePlayingNextRound < 50 && d.news !== '') {
+                                        return '<span style="color: red">' + d.webName + '</span>';
+                                    }
+                                    return d.webName;
+                                },
+                                icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                                children: function (d) {
+                                    let col;
+                                    switch (d.elementType) {
+                                        case 1: {
+                                            col = gkpCol;
+                                            break;
+                                        }
+                                        case 2: {
+                                            col = defCol;
+                                            break;
+                                        }
+                                        case 3: {
+                                            col = midCol;
+                                            break;
+                                        }
+                                        case 4: {
+                                            col = fwdCol;
+                                            break;
+                                        }
+                                    }
+                                    return [
+                                        {
+                                            title: '赛季',
+                                            url: '/group/qryPlayerDetailData',
+                                            where: {element: d.element},
+                                            cols: col,
+                                            autoColumnWidth: {
+                                                init: true
+                                            },
+                                            done: function () {
+                                                soulTable.render(this);
+                                            }
+                                        }
+                                    ];
+                                }
+                            },
+                            {
+                                fixed: 'left',
+                                field: 'sellPrice',
+                                title: '卖出价',
+                                align: 'center',
+                                rowspan: 2,
+                                templet: function (d) {
+                                    return d.sellPrice + 'm';
+                                }
+                            },
+                            {field: 'teamShortName', title: '球队', align: 'center', rowspan: 2},
+                            {field: 'totalPoints', title: '总分', align: 'center', rowspan: 2},
+                            {
+                                field: 'selectedByPercent',
+                                title: '持有率',
+                                align: 'center',
+                                rowspan: 2,
+                                templet: function (d) {
+                                    return d.selectedByPercent + '%';
+                                }
+                            },
+                            {
+                                field: 'pointsPerGame',
+                                title: '场均得分',
+                                align: 'center',
+                                rowspan: 2
+                            },
+                            {
+                                field: 'form',
+                                title: '状态',
+                                align: 'center',
+                                rowspan: 2
+                            },
+                            {
+                                field: 'inDreamteam',
+                                title: '梦之队',
+                                align: 'center',
+                                rowspan: 2,
+                                templet: function (d) {
+                                    if (d.inDreamteam) {
+                                        return '是';
+                                    } else {
+                                        return '否';
+                                    }
+                                }
+                            },
+                            {field: '', title: '赛程', align: 'center', colspan: 5}
+                        ],
+                        [
+                            {
+                                field: '',
+                                title: '',
+                                align: 'center',
+                                templet: function (d) {
+                                    return showDifficulty(d.againstTeamShortName1, d.difficulty1, d.event1, d.wasHome1);
+                                }
+                            },
+                            {
+                                field: '',
+                                title: '',
+                                align: 'center',
+                                templet: function (d) {
+                                    return showDifficulty(d.againstTeamShortName2, d.difficulty2, d.event2, d.wasHome2);
+                                }
+                            },
+                            {
+                                field: '',
+                                title: '',
+                                align: 'center',
+                                templet: function (d) {
+                                    return showDifficulty(d.againstTeamShortName3, d.difficulty3, d.event3, d.wasHome3);
+                                }
+                            },
+                            {
+                                field: '',
+                                title: '',
+                                align: 'center',
+                                templet: function (d) {
+                                    return showDifficulty(d.againstTeamShortName4, d.difficulty4, d.event4, d.wasHome4);
+                                }
+                            },
+                            {
+                                field: '',
+                                title: '',
+                                align: 'center',
+                                templet: function (d) {
+                                    return showDifficulty(d.againstTeamShortName5, d.difficulty5, d.event5, d.wasHome5);
+                                }
+                            }
+                        ]
+                    ],
+                    autoColumnWidth: {
+                        init: true
+                    },
+                    id: 'eventPickTable',
+                    done: function () {
+                        soulTable.render(this);
+                    }
+                });
+            })
+            .catch(function (error) {
+                console.info(error);
+            });
+
+        table.render({
+            elem: '#playerPickTable',
+            size: 'sm',
+            toolbar: '#toolbar',
+            defaultToolbar: [],
+            data: [],
+            page: true,
+            limit: 15,
+            limits: [15, 30, 50, 100],
+            contextmenu: {
+                body: [
+                    {
+                        name: '转入',
+                        icon: 'layui-icon layui-icon-template',
+                        click: function (obj) {
+                            addTransfersIn(obj.row);
+                        }
+                    }
+                ]
+            },
+            cols: [
+                [
+                    {fixed: 'left', field: 'elementTypeName', title: '位置', align: 'center', rowspan: 2},
+                    {
+                        fixed: 'left',
+                        field: 'webName',
+                        title: '球员',
+                        align: 'center',
+                        filter: true,
+                        rowspan: 2,
+                        templet: function (d) {
+                            if (d.chancePlayingNextRound < 100 && d.chancePlayingNextRound >= 50) {
+                                return '<span style="color: orange">' + d.webName + '</span>';
+                            } else if (d.chancePlayingNextRound < 50 && d.news !== '') {
+                                return '<span style="color: red">' + d.webName + '</span>';
+                            }
+                            return d.webName;
+                        },
+                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                        children: function (d) {
+                            let col;
+                            switch (d.elementType) {
+                                case 1: {
+                                    col = gkpCol;
+                                    break;
+                                }
+                                case 2: {
+                                    col = defCol;
+                                    break;
+                                }
+                                case 3: {
+                                    col = midCol;
+                                    break;
+                                }
+                                case 4: {
+                                    col = fwdCol;
+                                    break;
+                                }
+                            }
+                            return [
+                                {
+                                    title: '赛季',
+                                    url: '/group/qryPlayerDetailData',
+                                    where: {element: d.element},
+                                    cols: col,
+                                    autoColumnWidth: {
+                                        init: true
+                                    },
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
+                                }
+                            ];
+                        }
+                    },
+                    {field: 'teamShortName', title: '球队', align: 'center', filter: true, rowspan: 2},
+                    {
+                        field: 'price',
+                        title: '身价',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        rowspan: 2,
+                        templet: function (d) {
+                            return d.price + 'm';
+                        }
+                    },
+                    {
+                        field: 'totalPoints',
+                        title: '总分',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        rowspan: 2
+                    },
+                    {
+                        field: 'selectedByPercent',
+                        title: '持有率',
+                        align: 'center',
+                        sort: true,
+                        filter: true,
+                        rowspan: 2,
+                        templet: function (d) {
+                            return d.selectedByPercent + '%';
+                        }
+                    },
+                    {
+                        field: 'pointsPerGame',
+                        title: '场均得分',
+                        align: 'center',
+                        sort: true,
+                        rowspan: 2
+                    },
+                    {
+                        field: 'form',
+                        title: '状态',
+                        align: 'center',
+                        sort: true,
+                        rowspan: 2
+                    },
+                    {
+                        field: 'inDreamteam',
+                        title: '梦之队',
+                        align: 'center',
+                        filter: true,
+                        rowspan: 2,
+                        templet: function (d) {
+                            if (d.inDreamteam) {
+                                return '是';
+                            } else {
+                                return '否';
+                            }
+                        }
+                    },
+                    {field: '', title: '赛程', align: 'center', colspan: 5}
+                ],
+                [
+                    {
+                        field: '',
+                        title: '',
+                        align: 'center',
+                        templet: function (d) {
+                            return showDifficulty(d.againstTeamShortName1, d.difficulty1, d.event1, d.wasHome1);
+                        }
+                    },
+                    {
+                        field: '',
+                        title: '',
+                        align: 'center',
+                        templet: function (d) {
+                            return showDifficulty(d.againstTeamShortName2, d.difficulty2, d.event2, d.wasHome2);
+                        }
+                    },
+                    {
+                        field: '',
+                        title: '',
+                        align: 'center',
+                        templet: function (d) {
+                            return showDifficulty(d.againstTeamShortName3, d.difficulty3, d.event3, d.wasHome3);
+                        }
+                    },
+                    {
+                        field: '',
+                        title: '',
+                        align: 'center',
+                        templet: function (d) {
+                            return showDifficulty(d.againstTeamShortName4, d.difficulty4, d.event4, d.wasHome4);
+                        }
+                    },
+                    {
+                        field: '',
+                        title: '',
+                        align: 'center',
+                        templet: function (d) {
+                            return showDifficulty(d.againstTeamShortName5, d.difficulty5, d.event5, d.wasHome5);
+                        }
+                    }
+                ]
+            ],
+            autoColumnWidth: {
+                init: true
+            },
+            filter: {
+                items: ['data', 'condition'],
+                bottom: false
+            },
+            id: 'playerPickTable',
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        table.on('toolbar(playerPickTable)', function (obj) {
+            soulTable.clearFilter('playerPickTable');
+            switch (obj.event) {
+                case 'gkp': {
+                    loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+                    axios.get('/group/qryScoutPlayerList?elementType=1')
+                        .then(function (response) {
+                            layer.close(loadIndex);
+                            let pickPlayer = [];
+                            $.each(table.cache['eventPickTable'], function (index, item) {
+                                pickPlayer.push(item.element);
+                            });
+                            let data = [];
+                            $.each(response.data, function (index, item) {
+                                if (pickPlayer.indexOf(item.element) === -1) {
+                                    data.push(item);
+                                }
+                            });
+                            table.reload('playerPickTable', {data: parsePlayerTableData(data)});
+                        })
+                        .catch(function (error) {
+                            layer.close(loadIndex);
+                            console.info(error);
+                        });
+                    break;
+                }
+                case 'def': {
+                    loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+                    axios.get('/group/qryScoutPlayerList?elementType=2')
+                        .then(function (response) {
+                            layer.close(loadIndex);
+                            let pickPlayer = [];
+                            $.each(table.cache['eventPickTable'], function (index, item) {
+                                pickPlayer.push(item.element);
+                            });
+                            let data = [];
+                            $.each(response.data, function (index, item) {
+                                if (pickPlayer.indexOf(item.element) === -1) {
+                                    data.push(item);
+                                }
+                            });
+                            table.reload('playerPickTable', {data: parsePlayerTableData(data)});
+                        })
+                        .catch(function (error) {
+                            layer.close(loadIndex);
+                            console.info(error);
+                        });
+                    break;
+                }
+                case 'mid': {
+                    loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+                    axios.get('/group/qryScoutPlayerList?elementType=3')
+                        .then(function (response) {
+                            layer.close(loadIndex);
+                            let pickPlayer = [];
+                            $.each(table.cache['eventPickTable'], function (index, item) {
+                                pickPlayer.push(item.element);
+                            });
+                            let data = [];
+                            $.each(response.data, function (index, item) {
+                                if (pickPlayer.indexOf(item.element) === -1) {
+                                    data.push(item);
+                                }
+                            });
+                            table.reload('playerPickTable', {data: parsePlayerTableData(data)});
+                        })
+                        .catch(function (error) {
+                            layer.close(loadIndex);
+                            console.info(error);
+                        });
+                    break;
+                }
+                case 'fwd': {
+                    loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+                    axios.get('/group/qryScoutPlayerList?elementType=4')
+                        .then(function (response) {
+                            layer.close(loadIndex);
+                            let pickPlayer = [];
+                            $.each(table.cache['eventPickTable'], function (index, item) {
+                                pickPlayer.push(item.element);
+                            });
+                            let data = [];
+                            $.each(response.data, function (index, item) {
+                                if (pickPlayer.indexOf(item.element) === -1) {
+                                    data.push(item);
+                                }
+                            });
+                            table.reload('playerPickTable', {data: parsePlayerTableData(data)});
+                        })
+                        .catch(function (error) {
+                            layer.close(loadIndex);
+                            console.info(error);
+                        });
+                    break;
+                }
+                case 'clear': {
+                    break;
+                }
+            }
+        });
+
+        table.render({
+            elem: '#transfersTable',
+            data: transferTableData,
+            limit: 15,
+            width: 570,
+            contextmenu: {
+                body: [
+                    {
+                        name: '重置转入球员',
+                        icon: 'layui-icon layui-icon-refresh',
+                        click: function (obj) {
+                            let elementIn = obj.row.elementIn, bankDom = $("#bank"),
+                                newBank = numAdd(bankDom.text(), obj.row.elementInPrice);
+                            bankDom.text(newBank);
+                            $("#bankStr").text('余额：' + newBank + 'm');
+                            transferTableData = table.cache['transfersTable'];
+                            $.each(transferTableData, function (index, item) {
+                                if (item.elementIn === elementIn) {
+                                    item.elementIn = '';
+                                    item.elementInWebName = '';
+                                    item.elementInPrice = '';
+                                }
+                            });
+                            table.reload('transfersTable', {data: transferTableData});
+                        }
+                    },
+                    {
+                        name: '删除此条转会',
+                        icon: 'layui-icon layui-icon-close',
+                        click: function (obj) {
+                            let elementOut = obj.row.elementOut, bankDom = $("#bank"), newData = [];
+                            $.each(transferTableData, function (index, item) {
+                                if (item.elementOut !== elementOut) {
+                                    newData.push(item);
+                                } else {
+                                    let elementOutPrice = item.elementOutPrice, freeTransfersDom = $("#freeTransfers"),
+                                        freeTransfers = parseInt(freeTransfersDom.text()),
+                                        newBank = numSub(numAdd(bankDom.text(), obj.row.elementInPrice), elementOutPrice);
+                                    if (freeTransfers < 2) {
+                                        freeTransfersDom.text(freeTransfers + 1);
+                                        $("#freeTransfersStr").text('免费转会：' + (freeTransfers + 1));
+                                    }
+                                    bankDom.text(newBank);
+                                    $("#bankStr").text('余额：' + newBank + 'm');
+                                }
+                            });
+                            transferTableData = newData;
+                            table.reload('transfersTable', {data: transferTableData});
+                        }
+                    }
+                ]
+            },
+            cols: [[
+                {field: 'elementOutTypeName', title: '位置', align: 'center', width: 80},
+                {field: 'elementOutWebName', title: '转出', align: 'center', width: 160},
+                {
+                    field: 'elementOutPrice',
+                    title: '卖出价',
+                    align: 'center',
+                    width: 80,
+                    templet: function (d) {
+                        if (parseInt(d.elementOutPrice) > 0) {
+                            return d.elementOutPrice + 'm';
+                        }
+                        return ''
+                    }
+                },
+                {field: 'elementInWebName', title: '转入', align: 'center', width: 160},
+                {
+                    field: 'elementInPrice',
+                    title: '买入价',
+                    align: 'center',
+                    width: 80,
+                    templet: function (d) {
+                        if (parseInt(d.elementInPrice) > 0) {
+                            return d.elementInPrice + 'm';
+                        }
+                        return '';
+                    }
+                }
+            ]],
+            id: 'transfersTable',
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        function addTransfersRow(row) {
+            let elementOut = row.element, sellPrice = row.sellPrice;
+            if (typeof table.cache['transfersTable'] !== 'undefined') {
+                transferTableData = table.cache['transfersTable'];
+            }
+            // check
+            let check = true;
+            $.each(transferTableData, function (index, item) {
+                if (item.elementOut === elementOut) {
+                    check = false;
+                }
+            })
+            if (!check) {
+                return false;
+            }
+            let transferNum = transferTableData.length + 1;
+            // add row
+            transferTableData.push(
+                {
+                    index: transferNum,
+                    position: row.position,
+                    elementOutType: row.elementType,
+                    elementOutTypeName: row.elementTypeName,
+                    elementOut: elementOut,
+                    elementOutWebName: row.webName,
+                    elementOutPrice: sellPrice,
+                    elementIn: '',
+                    elementInWebName: '',
+                    elementInPrice: ''
+                });
+            // ft & cost & bank
+            let freeTransfersDom = $("#freeTransfers"), transfersCostDom = $("#transfersCost"), bankDom = $("#bank"),
+                freeTransfers = parseInt(freeTransfersDom.text()), transfersCost = parseInt(transfersCostDom.text()),
+                bank = bankDom.text();
+            if (freeTransfers > 0) {
+                freeTransfersDom.text(freeTransfers - 1);
+                $("#freeTransfersStr").text('免费转会：' + (freeTransfers - 1));
+            } else {
+                transfersCostDom.text(transfersCost + 4);
+                $("#transfersCostStr").text('转会扣分：' + (transfersCost + 4));
+            }
+            let newBank = numAdd(bank, sellPrice);
+            bankDom.text(newBank);
+            $("#bankStr").text('余额：' + newBank + 'm');
+            // reload
+            table.reload('transfersTable', {data: transferTableData});
+            reloadPickPlayerTable(row.elementType);
+        }
+
+        function addTransfersIn(row) {
+            let loadIndex = layer.msg("请稍等", {time: false, scrollbar: false});
+            let elementIn = row.element, elementInType = row.elementType, price = row.price;
+            if (typeof table.cache['transfersTable'] === 'undefined') {
+                layer.msg('请先选择要转出的球员！', {time: 1000});
+                return false;
+            }
+            // check
+            let check = true;
+            $.each(transferTableData, function (index, item) {
+                if (item.elementIn === elementIn) {
+                    layer.msg('此球员已转入，不能重复！', {time: 1000});
+                    check = false;
+                }
+            })
+            let bankDom = $("#bank"), bank = bankDom.text(), newBank = numSub(bank, price);
+            if (newBank < 0) {
+                layer.msg('不够钱啊咋整！', {time: 1000});
+                check = false;
+            }
+            if (!check) {
+                return false;
+            }
+            // bank
+            bankDom.text(newBank);
+            $("#bankStr").text('余额：' + newBank + 'm');
+            // add transfers in list
+            let toBeFilledData = [], position;
+            $.each(transferTableData, function (index, item) {
+                if (item.elementOutType === elementInType && (item.elementIn === '' || item.elementIn === 0)) {
+                    position = item.position;
+                    toBeFilledData.push(item);
+                }
+            });
+            if (toBeFilledData.length === 0) {
+                layer.msg('转入名额已满！', {time: 1000});
+                return false;
+            }
+            // sort
+            toBeFilledData = toBeFilledData.sort(compare("index"));
+            let addIndex = toBeFilledData[0].index;
+            // add transfers in
+            $.each(transferTableData, function (index, item) {
+                if (item.index === addIndex) {
+                    item.elementIn = elementIn;
+                    item.elementInWebName = row.webName;
+                    item.elementInPrice = price;
+                }
+            });
+            // reload
+            table.reload('transfersTable', {data: transferTableData});
+            // refresh event pick table
+            let pickList = [], eventPickTableData = table.cache['eventPickTable'];
+            $.each(eventPickTableData, function (index, item) {
+                let pickData = {};
+                if (item.position === position) {
+                    pickData.element = elementIn;
+                    pickData.position = position;
+                    pickData.webName = row.webName;
+                    pickData.elementType = elementInType;
+                    pickData.elementTypeName = row.elementTypeName;
+                    pickData.teamId = row.teamId;
+                    pickData.teamName = row.teamName;
+                    pickData.teamShortName = row.teamShortName;
+                    pickData.sellPrice = numMulti(row.price, 10);
+                    pickData.eventTransferIn = true;
+                } else {
+                    pickData.element = item.element;
+                    pickData.position = item.position;
+                    pickData.webName = item.webName;
+                    pickData.elementType = item.elementType;
+                    pickData.elementTypeName = item.elementTypeName;
+                    pickData.teamId = item.teamId;
+                    pickData.teamName = item.teamName;
+                    pickData.teamShortName = item.teamShortName;
+                    pickData.sellPrice = numMulti(item.sellPrice, 10);
+                    pickData.eventTransferIn = item.eventTransferIn;
+                }
+                pickList.push(pickData);
+            });
+            axios.post('/group/qryPlayerShowListByElementForTransfers', pickList)
+                .then(function (response) {
+                    layer.close(loadIndex);
+                    table.reload('eventPickTable', {data: parsePlayerTableData(response.data)});
+                })
+                .catch(function (error) {
+                    layer.close(loadIndex);
+                    console.info(error);
+                });
+            // refresh lineup
+            let pickPlayerData = {};
+            let gkps = [];
+            let defs = [];
+            let mids = [];
+            let fwds = [];
+            let subs = [];
+            $.each(pickList, function (index, item) {
+                switch (item.elementType) {
+                    case 1: {
+                        gkps.push(item);
+                        break;
+                    }
+                    case 2: {
+                        defs.push(item);
+                        break;
+                    }
+                    case 3: {
+                        mids.push(item);
+                        break;
+                    }
+                    case 4: {
+                        fwds.push(item);
+                        break;
+                    }
+                }
+            })
+            pickPlayerData.gkps = gkps;
+            pickPlayerData.defs = defs;
+            pickPlayerData.mids = mids;
+            pickPlayerData.fwds = fwds;
+            pickPlayerData.subs = subs;
+            axios.post('/group/reloadTransfers', pickPlayerData)
+                .then(function (response) {
+                    $("#lineup").html(response);
+                })
+                .catch(function (error) {
+                    console.info(error);
+                });
+        }
+
+        function reloadPickPlayerTable(elementType) {
+            loadIndex = layer.msg("加载中，请稍等", {time: false, scrollbar: false});
+            axios.get('/group/qryScoutPlayerList?elementType=' + elementType)
+                .then(function (response) {
+                    layer.close(loadIndex);
+                    let pickPlayer = [];
+                    $.each(table.cache['eventPickTable'], function (index, item) {
+                        pickPlayer.push(item.element);
+                    });
+                    let data = [];
+                    $.each(response.data, function (index, item) {
+                        if (pickPlayer.indexOf(item.element) === -1) {
+                            data.push(item);
+                        }
+                    });
+                    table.reload('playerPickTable', {data: parsePlayerTableData(data)});
+                })
+                .catch(function (error) {
+                    layer.close(loadIndex);
+                    console.info(error);
+                });
+        }
+
+        function compare(property) {
+            return function (obj1, obj2) {
+                let value1 = obj1[property];
+                let value2 = obj2[property];
+                return value1 - value2;
+            }
+        }
+
+        $("#confirmButton").on('click', function () {
+            let lineup = [];
+            $.each(table.cache['eventPickTable'], function (index, item) {
+                lineup.push({
+                    element: item.element,
+                    position: item.position,
+                    elementType: item.elementType,
+                    multiplier: 1,
+                    points: 0,
+                    teamId: item.teamId,
+                    viceCaptain: false,
+                    captain: false,
+                    eventTransferIn: item.eventTransferIn,
+                    eventTransferOut: item.eventTransferOut
+                });
+            });
+            let data = {};
+            data.teamValue = $("#teamValue").text();
+            data.bank = numMulti($("#bank").text(), 10);
+            data.freeTransfers = $("#freeTransfers").text();
+            data.transfersCost = $("#transfersCost").text();
+            data.lineup = lineup;
+            // 禁用提交按钮
+            $(this).attr("disabled", "");
+            // 提交
+            axios.post('/group/upsertEventTransfers', data)
+                .then(function (response) {
+                    layer.msg(response, {time: 1500});
+                    window.location.replace("/group/transfers");
+                })
+                .catch(function (error) {
+                    console.info(error);
+                    $(this).removeAttr("disabled");
+                });
+        });
+
+        element.on('tab(checkTab)', function (data) {
+            if (data.index === 1) {
+                axios.get('/group/reloadTransfersList')
+                    .then(function (response) {
+                        $("#transfers").html(response);
+                    })
+                    .catch(function (error) {
+                        console.info(error);
+                    });
+            }
+        });
+
+    });
+
+</script>
+
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>得分查看-我的fpl-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <h1 style="font-size: 28px">得分查看</h1>
+
+            <div style="margin-top: 30px"></div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <input autocomplete="on" class="layui-input" name="entryInput" placeholder="请输入要查看的team_id"
+                           type="text">
+                </div>
+                <div class="layui-input-inline">
+                    <button class="layui-btn" id="entryButton" type="button">开始</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 10px"></div>
+
+            <table class="layui-table" id="entryTable" lay-filter="entryTable"></table>
+
+            <div style="margin-top: 20px"></div>
+
+            <div class="layui-tab" lay-allowClose="true" lay-filter="eventResultTab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">赛季得分</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <table class="layui-table" id="entryResultTable" lay-filter="entryResultTable"></table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:replace="layout::entryInputLayer"></script>
+
+<script id="nameTpl" type="text/html">
+    <a href="https://fantasy.premierleague.com/entry/{{d.entry}}/event/{{d.event}}" target="_blank"
+       title="查看官网分数" class="layui-table-link">{{d.entryName}}</a>
+</script>
+
+<script th:inline="none">
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, table = layui.table,
+            soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        table.render({
+            elem: '#entryTable',
+            url: liveEntryData,
+            loading: true,
+            cellMinWidth: 80,
+            cols: [[
+                {
+                    fixed: 'left',
+                    field: 'entry',
+                    title: 'team',
+                    icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                    align: 'center',
+                    width: 120,
+                    children: [
+                        {
+                            title: '',
+                            data: function (d) {
+                                return [d];
+                            },
+                            cellMinWidth: 80,
+                            cols: [[
+                                {field: 'region', title: '地区', align: 'center'},
+                                {
+                                    field: 'startedEvent',
+                                    title: '开始时间',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        return 'GW' + d.startedEvent;
+                                    }
+                                },
+                                {field: 'lastOverallPoints', title: '上周总得分', align: 'center'},
+                                {
+                                    field: 'lastOverallRank',
+                                    title: '上周总排名',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        return showOverallRank(d.lastOverallRank);
+                                    }
+                                },
+                                {
+                                    field: 'bank',
+                                    title: '上周余额',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        if (d.bank > 0) {
+                                            return parseInt(d.bank) / 10 + 'm';
+                                        } else {
+                                            return 0;
+                                        }
+                                    }
+                                },
+                                {
+                                    field: 'lastTeamValue',
+                                    title: '上周阵容身价',
+                                    align: 'center',
+                                    templet: function (d) {
+                                        return parseInt(d.teamValue) / 10 + 'm';
+                                    }
+                                }
+                            ]],
+                            done: function () {
+                                soulTable.render(this);
+                            }
+                        }
+                    ]
+                },
+                {
+                    field: 'event', title: '时间', align: 'center', templet(d) {
+                        return 'GW' + d.event;
+                    }
+                },
+                {field: 'entryName', title: '队伍名字', align: 'center', width: 200, templet: "#nameTpl"},
+                {field: 'playerName', title: '玩家名字', align: 'center', width: 180},
+                {
+                    field: 'livePoints',
+                    title: '实时得分',
+                    style: 'background-color: #5FB878; color: #fff;',
+                    align: 'center',
+                    width: 100
+                },
+                {field: 'transferCost', title: '剁手', align: 'center'},
+                {
+                    field: 'liveNetPoints',
+                    title: '实时净得分',
+                    style: 'background-color: #5FB878; color: #fff;',
+                    align: 'center',
+                    width: 100
+                },
+                {field: 'played', title: '已上场', align: 'center'},
+                {field: 'toPlay', title: '未上场', align: 'center'},
+                {
+                    field: 'liveTotalPoints',
+                    title: '实时总分',
+                    style: 'background-color: #5FB878; color: #fff;',
+                    align: 'center',
+                    width: 100
+                },
+                {
+                    field: 'chip', title: '开卡', align: 'center', width: 100, templet: function (d) {
+                        return showChip(d.chip);
+                    }
+                }
+            ]],
+            id: 'entryTable',
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        table.render({
+            elem: '#entryResultTable',
+            method: 'get',
+            url: '/my_fpl/qryEntryResultList',
+            toolbar: '#toolbar',
+            defaultToolbar: [{title: '筛选重置', layEvent: 'clearFilter', icon: 'layui-icon-refresh-3'}],
+            loading: true,
+            cellMinWidth: 100,
+            cols: [[
+                {field: 'event', title: 'GW', align: 'center'},
+                {field: 'chip', title: '开卡', align: 'center'},
+                {field: 'transfers', title: '转会', align: 'center', sort: true, filter: true},
+                {field: 'points', title: '得分', align: 'center', sort: true, filter: true},
+                {field: 'transfersCost', title: '剁手', align: 'center', sort: true, filter: true},
+                {field: 'netPoints', title: '净得分', align: 'center', sort: true, filter: true, width: 120},
+                {field: 'benchPoints', title: '板凳分', align: 'center', sort: true, filter: true, width: 120},
+                {field: 'rank', title: '排名', align: 'center', sort: true}
+            ]],
+            filter: {
+                items: ['data'],
+                bottom: false
+            },
+            id: 'entryResultTable',
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        $("#entryButton").on('click', function () {
+            // 保存查询的entry
+            let myFplEntry = 0;
+            let entryInputDom = $("input[name=entryInput]");
+            let entryInput = entryInputDom.val();
+            if ((entryInput !== "")) {
+                if (!new RegExp("^[1-9]\\d*$").test(entryInput)) {
+                    layer.msg('team_id需为正整数', {
+                        offset: '100px',
+                        shade: 0,
+                        shadeClose: true,
+                        time: 1000
+                    });
+                    entryInputDom.val('');
+                    return false;
+                }
+                myFplEntry = parseInt(entryInput);
+                if (myFplEntry > 0) {
+                    axios.get('/saveSession?key=myFplEntry&&value=' + myFplEntry)
+                        .then(function () {
+                            window.location.replace('/my_fpl/entry');
+                        });
+                }
+            }
+        });
+
+        table.on('toolbar(entryResultTable)', function (obj) {
+            if (obj.event === 'clearFilter') {
+                soulTable.clearFilter('entryResultTable');
+            }
+        });
+
+        table.on('row(entryResultTable)', function (obj) {
+            let event = obj.data.event;
+            // 是否存在
+            if ($(".layui-tab-title li[lay-id='" + event + "']").length > 0) {
+                //选项卡已经存在
+                element.tabChange('eventResultTab', event);
+                return false;
+            }
+            // 增加标签页
+            let tableId = event + "Table";
+            element.tabAdd('eventResultTab', {
+                title: 'GW' + event,
+                content: '<div class="layui-col-md6"><table class="layui-table" id=' + tableId + ' lay-filter=' + tableId + '></table></div>',
+                id: event
+            });
+            // 切换
+            element.tabChange('eventResultTab', event);
+        });
+
+        element.on('tab(eventResultTab)', function () {
+            let event = $(this).attr("lay-id");
+            if (event == null) {
+                return false;
+            }
+
+            let tableId = event + "Table";
+
+            table.render({
+                elem: '#' + tableId,
+                url: '/my_fpl/qryEntryEventResult',
+                where: {event: event},
+                loading: true,
+                cellMinWidth: 60,
+                cols: [[
+                    {
+                        field: 'webName',
+                        title: '姓名',
+                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                        align: 'center',
+                        width: 200,
+                        templet: function (d) {
+                            if (d.captain === true) {
+                                return d.webName + ' (c)';
+                            } else if (d.viceCaptain === true) {
+                                return d.webName + ' (vc)';
+                            } else {
+                                return d.webName;
+                            }
+                        },
+                        children: [
+                            {
+                                title: '详情',
+                                url: 'qryElementEventResult',
+                                where: function (d) {
+                                    return {event: event, element: d.element};
+                                },
+                                toolbar: '#toolbar',
+                                defaultToolbar: ['filter'],
+                                cols: [[
+                                    {field: 'goalsScored', title: '进球', align: 'center'},
+                                    {field: 'assists', title: '助攻', align: 'center'},
+                                    {field: 'cleanSheets', title: '零封', align: 'center'},
+                                    {field: 'goalsConceded', title: '丢球', align: 'center'},
+                                    {field: 'ownGoals', title: '乌龙', align: 'center'},
+                                    {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+                                    {field: 'penaltiesMissed', title: '丢点', align: 'center'},
+                                    {field: 'yellowCards', title: '黄牌', align: 'center'},
+                                    {field: 'redCards', title: '红牌', align: 'center'},
+                                    {field: 'saves', title: '扑救', align: 'center'},
+                                    {field: 'bps', title: 'bps', align: 'center'}
+                                ]],
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            }
+                        ]
+                    },
+                    {field: 'elementTypeName', title: '位置', align: 'center'},
+                    {field: 'points', title: '得分', align: 'center', sort: true}
+                ]],
+                done: function () {
+                    soulTable.render(this);
+                },
+                id: tableId
+            });
+        });
+
+
+    });
+</script>
+
+</html>

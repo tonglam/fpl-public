@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>实时赛果-实时结果-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <h1 id="headTitle" style="font-size: 28px">实时赛果</h1>
+
+            <div style="margin-top: 20px"></div>
+
+            <form class="layui-form">
+                <div class="layui-form-item" style="">
+                    <label class="layui-form-label" style="font-size: 16px">只看bonus</label>
+                    <div class="layui-input-inline">
+                        <input id="checkSwitch" lay-filter="checkSwitch" lay-skin="switch" lay-text="是|否"
+                               type="checkbox">
+                    </div>
+                </div>
+                <div class="layui-hide" id="checkMode" th:text="${checkMode}"></div>
+            </form>
+
+            <div style="margin-top: 20px"></div>
+
+            <div class="layui-tab" lay-filter="matchStatusTab">
+
+                <ul class="layui-tab-title">
+                    <li class="layui-this" lay-id="0">进行中</li>
+                    <li class="" lay-id="1">已结束</li>
+                </ul>
+
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <div id="playingContent" th:fragment="playingContent">
+                            <div th:if="${matchList.size() gt 0}">
+
+                                <div th:each="match,matchStat:${matchList}">
+
+                                    <div style="margin-top: 20px"></div>
+
+                                    <fieldset class="layui-elem-field layui-field-title">
+                                        <legend th:text="${match.homeTeamName}+' '+${match.homeScore}+'-'+${match.awayScore}+' '+${match.awayTeamName}"></legend>
+                                    </fieldset>
+
+                                    <table class="layui-table"
+                                           th:attr="id='team'+${match.homeTeamId}+'Table', lay-filter='team'+${match.homeTeamId}+'Table'"></table>
+                                    <table class="layui-table"
+                                           th:attr="id='team'+${match.awayTeamId}+'Table', lay-filter='team'+${match.awayTeamId}+'Table'"></table>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div style="margin-top: 20px"></div>
+                        <div id="playingMatchTips" style="font-size: 16px"></div>
+
+                    </div>
+
+                    <div class="layui-tab-item">
+
+                        <div id="finishedContent" th:fragment="finishedContent">
+                            <div th:if="${matchList.size() gt 0}">
+
+                                <div th:each="match,matchStat:${matchList}">
+
+                                    <div style="margin-top: 20px"></div>
+
+                                    <fieldset class="layui-elem-field layui-field-title">
+                                        <legend th:text="${match.homeTeamName}+' '+${match.homeScore}+'-'+${match.awayScore}+' '+${match.awayTeamName}"></legend>
+                                    </fieldset>
+
+                                    <table class="layui-table"
+                                           th:attr="id='team'+${match.homeTeamId}+'Table', lay-filter='team'+${match.homeTeamId}+'Table'"></table>
+                                    <table class="layui-table"
+                                           th:attr="id='team'+${match.awayTeamId}+'Table', lay-filter='team'+${match.awayTeamId}+'Table'"></table>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div style="margin-top: 20px"></div>
+                        <div id="playedMatchTips" style="font-size: 16px"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script id="bonusTpl" type="text/html">
+    {{# if(d.bonus > 0){ }}
+    <div style="background-color: #FFB800; color:#fff;" class="layui-table-cell">{{d.bonus}}</div>
+    {{#  } else { }}
+    <div class="layui-table-cell">{{d.bonus}}</div>
+    {{#  } }}
+</script>
+
+<script th:inline="none">
+    layui.use(['element', 'form', 'layer', 'table', 'soulTable'], function () {
+        let $ = layui.jquery, element = layui.element, form = layui.form, layer = layui.layer, table = layui.table,
+            soulTable = layui.soulTable, refreshTimeout = setTimeout(refresh, 300000), checkModeDom = $("#checkMode"),
+            checkMode = checkModeDom.text();
+
+        let col = [[
+                {field: 'webName', title: '球员', align: 'center', width: 150},
+                {
+                    field: 'totalPoints',
+                    title: '分数',
+                    align: 'center',
+                    style: 'background-color: #5FB878; color: #fff;'
+                },
+                {field: 'bonus', title: 'bonus', align: 'center', width: 70, templet: '#bonusTpl'},
+                {field: 'bps', title: 'bps', align: 'center'},
+                {field: 'elementTypeName', title: '位置', width: 70, align: 'center'},
+                {field: 'minutes', title: '时间', align: 'center'},
+                {field: 'goalsScored', title: '进球', align: 'center'},
+                {field: 'assists', title: '助攻', align: 'center'},
+                {field: 'cleanSheets', title: '零封', align: 'center'},
+                {field: 'goalsConceded', title: '丢球', align: 'center'},
+                {field: 'ownGoals', title: '乌龙', align: 'center'},
+                {field: 'yellowCards', title: '黄牌', align: 'center'},
+                {field: 'redCards', title: '红牌', align: 'center'},
+                {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+                {field: 'penaltiesMissed', title: '丢点', align: 'center'},
+                {field: 'saves', title: '扑救', align: 'center', width: 70}
+            ]],
+            bonusCol = [[
+                {field: 'webName', title: '球员', align: 'center', width: 150},
+                {field: 'teamShortName', title: '球队', width: 70, align: 'center'},
+                {
+                    field: 'totalPoints',
+                    title: '分数',
+                    align: 'center',
+                    style: 'background-color: #5FB878; color: #fff;'
+                },
+                {field: 'bonus', title: 'bonus', align: 'center', width: 70, templet: '#bonusTpl'},
+                {field: 'bps', title: 'bps', align: 'center'}
+            ]];
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        if (checkMode === '0') {
+            $("#checkSwitch").removeAttr("checked");
+            form.render();
+        } else if (checkMode === '1') {
+            $("#checkSwitch").attr("checked", "");
+            form.render();
+        }
+
+        form.on('switch(checkSwitch)', function (data) {
+            let mode = 0;
+            if (data.elem.checked) {
+                mode = 1;
+                checkModeDom.text(mode);
+            } else {
+                checkModeDom.text(mode);
+            }
+            axios.get('/saveSession?key=liveMatchMode&&value=' + mode)
+                .then(function () {
+                    refresh();
+                });
+        });
+
+        let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+
+        let now = new Date().toLocaleTimeString();
+        $("#headTitle").html("实时赛果-刷新时间" + now);
+
+        axios.get('/live/qryLiveTeamDataList?statusId=0')
+            .then(function (response) {
+                layer.close(loadIndex);
+                if (response.data.length === 0) {
+                    $("#playingMatchTips").html('没有进行中的比赛');
+                    clearInterval(refreshTimeout);
+                    return false;
+                }
+
+                $.each(response.data, function (index, teamItem) {
+                    let teamId = teamItem.teamId, teamData = teamItem.elementEventResultList,
+                        tableId = 'team' + teamId + 'Table', checkMode = checkModeDom.text();
+                    if (checkMode === '0') {
+                        table.render({
+                            elem: '#' + tableId,
+                            size: 'sm',
+                            data: teamData,
+                            even: true,
+                            limit: 15,
+                            width: 1095,
+                            cellMinWidth: 60,
+                            cols: col,
+                            id: tableId,
+                            done: function () {
+                                soulTable.render(this);
+                            }
+                        });
+                    } else if (checkMode === '1') {
+                        let bonusData = [];
+                        let teamList = [];
+                        $.each(teamData, function (index, item) {
+                            if (item.bonus > 0) {
+                                bonusData.push(item);
+                                teamList.push(item.teamId);
+                            }
+                        });
+                        if (teamList.indexOf(teamId) > -1) {
+                            table.render({
+                                elem: '#' + tableId,
+                                size: 'sm',
+                                data: bonusData,
+                                even: true,
+                                limit: 15,
+                                cellMinWidth: 60,
+                                width: 420,
+                                cols: bonusCol,
+                                id: tableId,
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            });
+                        }
+                    }
+                })
+            })
+            .catch(function (error) {
+                layer.close(loadIndex);
+                console.log(error);
+            });
+
+        element.on('tab(matchStatusTab)', function (data) {
+            let now = new Date().toLocaleTimeString();
+            $("#headTitle").html("实时赛果-刷新时间" + now);
+            // 重设计时器
+            refreshTimeout = setTimeout(refresh, 300000);
+            // 重设开关
+            if (checkMode === '0') {
+                $("input[name=checkSwitch]").removeAttr("checked");
+            } else if (checkMode === '1') {
+                $("input[name=checkSwitch]").attr("checked");
+            }
+
+            let statusId = data.index;
+            if (statusId === 0) {
+                $("#playingMatchTips").html('');
+            } else if (statusId === 1) {
+                $("#finishedMatchTips").html('');
+            }
+
+            let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+            axios.get('/live/match/reload?statusId=' + statusId)
+                .then(function (response) {
+                    if (statusId === 0) {
+                        $("#playingContent").html(response);
+                    } else if (statusId === 1) {
+                        $("#finishedContent").html(response);
+                    }
+                })
+                .catch(function (error) {
+                    layer.close(loadIndex);
+                    console.log(error);
+                });
+
+            axios.get('/live/qryLiveTeamDataList?statusId=' + statusId)
+                .then(function (response) {
+                    layer.close(loadIndex);
+                    if (response.data.length === 0) {
+                        if (statusId === 0) {
+                            $("#playingMatchTips").html('没有进行中的比赛');
+                        } else if (statusId === 1) {
+                            $("#finishedMatchTips").html('本轮比赛尚未开始');
+                        }
+                        return false;
+                    }
+                    $.each(response.data, function (index, teamItem) {
+                        let teamId = teamItem.teamId, teamData = teamItem.elementEventResultList,
+                            tableId = 'team' + teamId + 'Table', checkMode = checkModeDom.text();
+                        if (checkMode === '0') {
+                            table.render({
+                                elem: '#' + tableId,
+                                size: 'sm',
+                                data: teamData,
+                                even: true,
+                                limit: 15,
+                                width: 1095,
+                                cellMinWidth: 60,
+                                cols: col,
+                                id: tableId,
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            });
+                        } else if (checkMode === '1') {
+                            let bonusData = [];
+                            let teamList = [];
+                            $.each(teamData, function (index, item) {
+                                if (item.bonus > 0) {
+                                    bonusData.push(item);
+                                    teamList.push(item.teamId);
+                                }
+                            });
+                            if (teamList.indexOf(teamId) > -1) {
+                                table.render({
+                                    elem: '#' + tableId,
+                                    size: 'sm',
+                                    data: bonusData,
+                                    even: true,
+                                    limit: 15,
+                                    cellMinWidth: 60,
+                                    width: 420,
+                                    cols: bonusCol,
+                                    id: tableId,
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
+                                });
+                            }
+                        }
+                    })
+                })
+                .catch(function (error) {
+                    layer.close(loadIndex);
+                    console.log(error);
+                })
+
+        });
+
+        function refresh() {
+            window.location.replace("/live/match");
+        }
+
+
+    });
+</script>
+
+</html>

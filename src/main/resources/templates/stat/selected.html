@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>阵容选择-数据查询-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <h1 style="font-size: 28px">阵容选择</h1>
+
+            <div style="margin-top: 20px"></div>
+
+            <div class="layui-hide" id="currentGw" th:text="${currentGw}"></div>
+
+            <form class="layui-form">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联赛名称</label>
+                    <div class="layui-input-block">
+                        <select lay-filter="leagueNameSelect" name="leagueNameSelect">
+                            <option th:each="item,stat:${leagueList}" th:text="${item}"
+                                    th:value="${item}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">查看时间</label>
+                    <div class="layui-input-inline">
+                        <select lay-filter="gwSelect" name="gwSelect">
+                            <option th:each="item,stat:${gwMap}" th:text="${stat.current.value}"
+                                    th:selected="${stat.current.key}==${currentGw}"
+                                    th:value="${stat.current.key}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline" style="margin-left: 50px">
+                        <button class="layui-btn" id="checkButton" type="button">查看</button>
+                    </div>
+                </div>
+
+            </form>
+
+            <div style="margin-top: 50px"></div>
+
+            <div class="layui-row layui-col-space30">
+                <div class="layui-col-md6">
+                    <h2 class="layui-hide" id="captainSelected">最多队长选择</h2>
+                    <table class="layui-table" id="captainSelectTable" lay-filter="captainSelectTable"></table>
+                </div>
+                <div class="layui-col-md6">
+                    <h2 class="layui-hide" id="viceCaptainSelected">最多副队长选择</h2>
+                    <table class="layui-table" id="viceCaptainSelectTable" lay-filter="viceCaptainSelectTable"></table>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px"></div>
+            <h2 class="layui-hide" id="topSelectedPlayer">最多选择球员</h2>
+            <table class="layui-table" id="topSelectedPlayerTable" lay-filter="topSelectedPlayerTable"></table>
+
+            <div style="margin-top: 20px"></div>
+            <h2 class="layui-hide" id="topSelectedTeam">最多选择阵容</h2>
+            <table class="layui-table" id="topSelectedTeamTable" lay-filter="topSelectedTeamTable"></table>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:inline="none">
+    layui.use(['form', 'table', 'soulTable'], function () {
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        $("#checkButton").on('click', function () {
+
+            let leagueName = $("select[name=leagueNameSelect]").val();
+            let event = $("select[name=gwSelect]").val();
+
+            axios.get('/stat/qryTeamSelectStatByName', {
+                params: {
+                    event: event,
+                    leagueName: leagueName
+                }
+            })
+                .then(function (response) {
+                    let data = response.data;
+
+                    // captain
+                    let captainData = [];
+                    $.each(data[0].captainSelectedMap, function (index, value) {
+                        let elementData = {};
+                        elementData.webName = index;
+                        elementData.percent = value;
+                        captainData.push(elementData);
+                    });
+
+                    table.render({
+                        elem: '#captainSelectTable',
+                        data: captainData,
+                        cellMinWidth: 80,
+                        cols: [[
+                            {title: '', type: 'numbers', width: 50},
+                            {field: 'webName', title: '球员', align: 'center', width: 150},
+                            {field: 'percent', title: '比例', align: 'center'}
+                        ]],
+                        id: 'captainSelectTable',
+                        done: function () {
+                            $("#captainSelected").removeClass("layui-hide");
+                            soulTable.render(this);
+                        }
+                    });
+
+                    // vice captain
+                    let viceCaptainData = [];
+                    $.each(data[0].viceCaptainSelectedMap, function (index, value) {
+                        let elementData = {};
+                        elementData.webName = index;
+                        elementData.percent = value;
+                        viceCaptainData.push(elementData);
+                    });
+
+                    table.render({
+                        elem: '#viceCaptainSelectTable',
+                        data: viceCaptainData,
+                        cellMinWidth: 80,
+                        cols: [[
+                            {title: '', type: 'numbers', width: 50},
+                            {field: 'webName', title: '球员', align: 'center', width: 150},
+                            {field: 'percent', title: '比例', align: 'center'}
+                        ]],
+                        id: 'viceCaptainSelectTable',
+                        done: function () {
+                            $("#viceCaptainSelected").removeClass("layui-hide");
+                            soulTable.render(this);
+                        }
+                    });
+
+                    // topSelectedPlayer
+                    let topSelectedPlayerData = [];
+                    $.each(data[0].topSelectedPlayerMap, function (index, value) {
+                        let elementData = {};
+                        elementData.webName = index;
+                        elementData.percent = value;
+                        topSelectedPlayerData.push(elementData);
+                    });
+
+                    table.render({
+                        elem: '#topSelectedPlayerTable',
+                        size: 'sm',
+                        even: true,
+                        data: topSelectedPlayerData,
+                        width: 330,
+                        limit: 20,
+                        cols: [[
+                            {title: '', type: 'numbers', width: 50},
+                            {field: 'webName', title: '球员', align: 'center'},
+                            {field: 'percent', title: '比例', width: 80, align: 'center'}
+                        ]],
+                        id: 'topSelectedPlayerTable',
+                        done: function () {
+                            $("#topSelectedPlayer").removeClass("layui-hide");
+                            soulTable.render(this);
+                        }
+                    });
+
+                    // topSelectedTeam
+                    let topSelectedTeamData = [];
+                    $.each(data[0].topSelectedTeamMap, function (elementType, player) {
+                        $.each(player, function (index, value) {
+                            let elementData = {};
+                            elementData.elementType = elementType;
+                            elementData.webName = index;
+                            elementData.percent = value;
+                            topSelectedTeamData.push(elementData);
+                        });
+                    });
+
+                    table.render({
+                        elem: '#topSelectedTeamTable',
+                        size: 'sm',
+                        even: true,
+                        data: topSelectedTeamData,
+                        limit: 11,
+                        width: 410,
+                        cols: [[
+                            {title: '', type: 'numbers', width: 50},
+                            {
+                                field: 'elementType', title: '位置', align: 'center', width: 80, templet: function (d) {
+                                    switch (d.elementType) {
+                                        case "1":
+                                            return 'GKP';
+                                        case "2":
+                                            return 'DEF';
+                                        case "3":
+                                            return 'MID';
+                                        case "4":
+                                            return 'FWD';
+                                    }
+                                }
+                            },
+                            {field: 'webName', title: '球员', align: 'center'},
+                            {field: 'percent', title: '比例', width: 80, align: 'center'}
+                        ]],
+                        id: 'topSelectedTeamTable',
+                        done: function () {
+                            $("#topSelectedTeam").removeClass("layui-hide");
+                            soulTable.render(this);
+                        }
+                    });
+
+                })
+                .catch(function (error) {
+                    console.info(error);
+                });
+
+        });
+
+    });
+
+</script>
+
+</html>

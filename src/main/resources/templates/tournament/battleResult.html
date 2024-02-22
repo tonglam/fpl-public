@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{::link})">
+    <title>查看赛果-自定义赛事-letletme</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery-bracket/0.11.1/jquery.bracket.min.css" rel="stylesheet"
+          type="text/css"/>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <div class="layui-input-inline" style="margin-top: 5px">
+                <button class="layui-btn layui-btn-primary layui-btn-sm" id="returnButton" type="button">
+                    <i class="layui-icon layui-icon-return"></i>
+                </button>
+            </div>
+            <div class="layui-input-inline" style="margin-left: 10px">
+                <h1 style="font-size: 28px" th:text="${tournamentInfo?.getName()}+'- 赛果 - GW'+${currentGw}"></h1>
+            </div>
+
+            <div style="margin-top: 30px"></div>
+
+            <div class="layui-tab" lay-filter="stageTab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" lay-id="groupTab">小组赛</li>
+                    <li lay-id="knockoutTab">淘汰赛</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 20px"></div>
+
+                        <div class="layui-row layui-col-space30" th:each="index:${#numbers.sequence(1,showNum)}"
+                             th:if="${showNum} gt 1">
+
+                            <div class="layui-col-md6 layui-hide" th:attr="id='group'+((${index}*2)-1)">
+                                <div th:attr="id='group'+((${index}*2)-1)+'Name'"></div>
+                                <table class="layui-table" th:attr="id='group'+((${index}*2)-1)+'Table'"></table>
+                            </div>
+
+                            <div class="layui-col-md6 layui-hide" th:attr="id='group'+${index}*2">
+                                <div th:attr="id='group'+${index}*2+'Name'"></div>
+                                <table class="layui-table" th:attr="id='group'+${index}*2+'Table'"></table>
+                            </div>
+
+                        </div>
+
+                        <table class="layui-table" th:attr="id='group1Table'" th:if="${showNum} eq 1"></table>
+
+                    </div>
+                    <div class="layui-tab-item">
+
+                        <div class="layui-hide" id="config">
+                            <form class="layui-form">
+
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">比分详情</label>
+                                    <div class="layui-input-inline">
+                                        <input lay-filter="infoSwitch" lay-skin="switch"
+                                               lay-text="开|关" name="infoSwitch" type="checkbox">
+                                    </div>
+                                    <label class="layui-form-label">队伍：</label>
+                                    <div class="layui-input-inline">
+                                        <input class="layui-input" name="entryName" readonly
+                                               style="border: none" th:value="${entryInfo?.entryName}" type="text">
+                                    </div>
+
+                                    <label class="layui-form-label">玩家：</label>
+                                    <div class="layui-input-inline">
+                                        <input class="layui-input" name="playerName" readonly
+                                               style="border: none" th:value="${entryInfo?.playerName}" type="text">
+                                    </div>
+                                </div>
+
+                            </form>
+
+                            <div class="layui-row layui-hide" id="info">
+                                <div class="layui-col-sm1" style="width:4%;margin-top:-5px">
+                                    <button class="layui-btn layui-btn-sm layui-btn-primary" id="reset"
+                                            style="border: none" type="reset">
+                                        <i class="layui-icon layui-icon-refresh"></i>
+                                    </button>
+                                </div>
+                                <div class="layui-col-sm2" style="margin-right:-25px">
+                                    <div style="font-size:16px">比分详情：</div>
+                                </div>
+                                <div class="layui-col-sm8" style="margin-left:-40px">
+                                    <div id="matchInfo" style="font-size:16px;color:red"></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="bracket"></div>
+
+            <div class="layui-hide" id="groupNum" th:text="${tournamentInfo?.getGroupNum()}"></div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.0/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-bracket/0.11.1/jquery.bracket.min.js"></script>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:inline="none">
+
+    function initBracket() {
+        let tournamentId = getUrlParam('id');
+        axios.get('/tournament/qryKnockoutBracketResultByTournament?tournamentId=' + tournamentId)
+            .then(function (response) {
+                if (response.results.length === 0) {
+                    layer.msg("当前比赛周无淘汰赛数据", {time: 1500});
+                    return false;
+                }
+                $("#config").removeClass("layui-hide");
+                let bracketData = parseBracketData(response.teams, response.results);
+                $('#bracket').bracket({
+                    teamWidth: 150,
+                    scoreWidth: 30,
+                    matchMargin: 20,
+                    roundMargin: 50,
+                    init: bracketData,
+                    onMatchClick: onclick,
+                    onMatchHover: onhover,
+                    skipConsolationRound: true
+                })
+            })
+            .catch(function (error) {
+                console.info(error);
+            });
+    }
+
+    function parseBracketData(teamsData, resultsData) {
+        let teams = [];
+        $.each(teamsData, function (index, item) {
+            let team = [];
+            if (item.homeEntry < 0) {
+                team.push(null);
+            } else {
+                team.push(item.homeEntryName);
+            }
+            if (item.awayEntry < 0) {
+                team.push(null);
+            } else {
+                team.push(item.awayEntryName);
+            }
+            teams.push(team);
+        });
+        let results = [];
+        $.each(resultsData, function (index, roundResultsData) {
+            let roundResult = [];
+            $.each(roundResultsData, function (index, item) {
+                let result = [];
+                result.push(item.homeEntryNetPoint);
+                result.push(item.awayEntryNetPoint);
+                result.push(item.matchInfo);
+                roundResult.push(result);
+            })
+            results.push(roundResult);
+        });
+        return {teams, results};
+    }
+
+    function onclick(data) {
+        $('#matchInfo').text(data);
+    }
+
+    function onhover(data, hover) {
+        if (hover === true) {
+            $('#matchInfo').text(data);
+        }
+    }
+
+</script>
+
+<script id="entryTpl" type="text/html">
+    <a href="https://fantasy.premierleague.com/entry/{{d.entry}}/event/{{d.event}}" target="_blank"
+       title="查看官网分数" class="layui-table-link">{{d.entry}}</a>
+</script>
+
+<script th:inline="none">
+    layui.use(['table', 'soulTable'], function () {
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        let tournamentId = getUrlParam("id"), groupNum = $("#groupNum").text();
+
+        for (let i = 1; i < groupNum + 1; i++) {
+            // 回填组名
+            let groupName = getCapitalLetterFromNum(i) + "组";
+            $("#group" + i + "Name").text(groupName);
+            // 展示
+            $("#group" + i).removeClass("layui-hide");
+            // 渲染
+            let id = "group" + i + "Table";
+            let elem = "#" + id;
+            table.render({
+                elem: elem,
+                method: 'get',
+                url: '/tournament/qryGroupInfoListByGroupId',
+                where: {tournamentId: tournamentId, groupId: i},
+                loading: true,
+                cellMinWidth: 60,
+                cols: [[
+                    {
+                        field: 'groupRank',
+                        title: '排名',
+                        type: 'numbers',
+                        align: 'center',
+                        width: 70,
+                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                        collapse: true,
+                        lazy: true,
+                        children: function (d) {
+                            return [{
+                                title: "每轮赛果",
+                                url: '/tournament/qryBattleGroupResult',
+                                where: {tournamentId: tournamentId, groupId: i, entry: d.entry},
+                                page: {groups: 3, layout: ['prev', 'page', 'next', 'count', 'limit']},
+                                loading: true,
+                                limit: 5,
+                                limits: [5, 10, 15],
+                                width: 525,
+                                cols: [[
+                                    {field: 'event', title: 'GW', align: 'center', width: 60},
+                                    {field: 'homeEntryName', title: '主队', align: 'center', width: 180},
+                                    {field: 'score', title: '比分', align: 'center', width: 100},
+                                    {field: 'awayEntryName', title: '客队', align: 'center', width: 180}
+                                ]],
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            }]
+                        }
+                    },
+                    {field: 'entry', title: 'team_id', align: 'center', width: 100, templet: "#entryTpl"},
+                    {field: 'entryName', title: '队名', align: 'center', width: 180},
+                    {field: 'playerName', title: '玩家', align: 'center', width: 180},
+                    {field: 'play', title: '比赛', align: 'center'},
+                    {field: 'win', title: '胜', align: 'center'},
+                    {field: 'draw', title: '平', align: 'center'},
+                    {field: 'lose', title: '负', align: 'center'},
+                    {field: 'groupPoints', title: '积分', align: 'center'},
+                    {
+                        field: 'totalNetPoints',
+                        title: '净得分',
+                        align: 'center',
+                        width: 100,
+                        sort: true,
+                        filter: true,
+                        style: 'background-color: #5FB878; color: #fff;'
+                    },
+                    {
+                        field: 'overallRank',
+                        title: '总排名',
+                        align: 'center',
+                        width: 100,
+                        sort: true,
+                        filter: true,
+                        templet: function (d) {
+                            return showOverallRank(d.overallRank);
+                        }
+                    }
+                ]],
+                id: id,
+                filter: {
+                    items: ['data'],
+                    bottom: false
+                },
+                done: function () {
+                    soulTable.render(this);
+                }
+            });
+
+        }
+
+    });
+</script>
+
+<script th:inline="javascript">
+    layui.use(['element', 'table', 'layer', 'form'], function () {
+        let $ = layui.jquery, element = layui.element, layer = layui.layer, form = layui.form;
+
+        $(document).ready(function () {
+            let bracketDom = $("#bracket");
+            // 无小组赛关闭小组赛tab
+            if ([[${tournamentInfo?.getGroupNum()}]] === 0) {
+                element.tabDelete('stageTab', 'groupTab');
+                // 渲染对阵图
+                bracketDom.removeClass("layui-hide");
+                initKnockoutResult();
+                return false;
+            }
+            bracketDom.addClass("layui-hide");
+            // 无淘汰赛关闭淘汰赛tab
+            if ([[${tournamentInfo?.getKnockoutTeam()}]] === 0) {
+                element.tabDelete('stageTab', 'knockoutTab');
+            }
+        });
+
+        $("#returnButton").on('click', function () {
+            window.location.replace("/tournament/result");
+        });
+
+        element.on('tab(stageTab)', function (data) {
+            $("#config").addClass("layui-hide");
+            let bracketDom = $("#bracket");
+            if (data.index === 1) {
+                bracketDom.removeClass("layui-hide");
+                if (bracketDom.children().length === 0) {
+                    initKnockoutResult();
+                }
+            } else {
+                bracketDom.addClass("layui-hide");
+            }
+        });
+
+        element.on('tab(knockoutTab)', function () {
+            $("#config").removeClass("layui-hide");
+        });
+
+        element.on('tab(eventResultTab)', function () {
+            $("#config").addClass("layui-hide");
+        });
+
+        form.on('switch(infoSwitch)', function () {
+            if (this.checked) {
+                $("#info").removeClass("layui-hide");
+            } else {
+                $("#info").addClass("layui-hide");
+            }
+        });
+
+        $('#reset').on('click', function () {
+            $("#matchInfo").text('');
+        });
+
+        function initKnockoutResult() {
+            let knockoutStartGw = [[${tournamentInfo?.getKnockoutStartGw()}]];
+            if (knockoutStartGw > [[${currentGw}]]) {
+                layer.msg("淘汰赛开始时间：GW" + knockoutStartGw, {time: 1500});
+            }
+            let index = layer.load(2);
+            initBracket();
+            layer.close(index);
+        }
+
+    });
+
+</script>
+
+</html>

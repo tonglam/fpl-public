@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="header(title,links)">
+
+    <title th:replace="${title}"></title>
+
+    <meta charset="utf-8">
+    <meta content="webkit" name="renderer">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="telephone=no" name="format-detection">
+
+    <link href="https://www.layuicdn.com/layui-v2.5.6/css/layui.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
+    <link href="https://cdn.jsdelivr.net/npm/layui-soul-table/docs/soulTable.css" media="all" rel="stylesheet"/>
+    <th:block th:replace="${links}"/>
+
+    <script src="https://www.layuicdn.com/layui-v2.5.6/layui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.1.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+
+</head>
+
+<body>
+
+<!-- header -->
+<div class="layui-header header header-doc" th:fragment="topnav">
+    <div class="layui-main">
+        <a class="logo" href="/">let let me</a>
+
+        <ul class="layui-nav">
+            <li class="layui-nav-item">
+                <a href="javascript:void(0)">自定义赛事</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="/tournament/create">创建赛事</a></dd>
+                    <dd><a href="/tournament/result">查看赛事</a></dd>
+                    <dd><a href="/tournament/manage">管理赛事</a></dd>
+                    <dd><a href="/tournament/rule">规则</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:void(0)">实时结果</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="/live/entry">实时得分</a></dd>
+                    <dd><a href="/live/league">小联赛排名</a></dd>
+                    <dd><a href="/live/match">实时赛果</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:void(0)">我的fpl</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="/my_fpl/pick">阵容选择</a></dd>
+                    <dd><a href="/my_fpl/entry">查看得分</a></dd>
+                    <dd><a href="/my_fpl/league">联赛统计</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item">
+                <a href="javascript:void(0)">数据查询</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="/stat/price">身价变化</a></dd>
+                    <dd><a href="/stat/selected">阵容选择</a></dd>
+                    <dd><a href="/stat/compare">球员比较</a></dd>
+                </dl>
+            </li>
+
+            <li class="layui-nav-item">
+                <a href="javascript:void(0)">公众号</a>
+                <dl class="layui-nav-child">
+                    <dd><a href="/group/scout">推荐</a></dd>
+                    <dd><a href="/group/transfers">转会</a></dd>
+                    <dd><a href="/group/pick">排阵</a></dd>
+                </dl>
+            </li>
+
+            <li class="nav-icon">
+                <a class="layui-icon layui-icon-username"
+                   style="font-size: 25px;color: white;position: absolute;margin-left: 4px;margin-top: 11px"></a>
+            </li>
+
+            <li class="nav-teamId">
+                <span style="margin-left: 5px">team_id:</span>
+                <button class="layui-btn layui-badge" id="teamIdBtn" name="teamIdBtn"
+                        style="top:19px;text-align: center" th:text="${session.entry}? ${session.entry} : '请输入id'"
+                        title="点击更新team_id" type="button"></button>
+            </li>
+        </ul>
+
+    </div>
+</div>
+
+<!-- footer -->
+<div class="layui-footer footer footer-doc" th:fragment="footer">
+    <div class="layui-main">
+        <p>&copy; 2023 <a href="/" target="_blank">letletme.top</a></p>
+        <p>
+            <a href="http://beian.miit.gov.cn" rel="nofollow" target="_blank">粤ICP备2021097865号</a>
+        </p>
+    </div>
+</div>
+
+<div th:fragment="pick(pickPlayerData)">
+    <div class="pitch">
+        <ol class="container" id="fwds">
+            <li th:each="item,stat:${pickPlayerData.fwds}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <div th:switch="${item.captain}">
+                    <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
+                         th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
+                    <div th:case="false">
+                        <div th:switch="${item.viceCaptain}">
+                            <div class="name" style="color:#FFB800" th:case="true"
+                                 th:text="${item.webName}+' (vc)'" th:value="${item.element}"></div>
+                            <div class="name" th:case="false" th:text="${item.webName}"
+                                 th:value="${item.element}"></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ol>
+        <ol class="container" id="mids">
+            <li th:each="item,stat:${pickPlayerData.mids}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <div th:switch="${item.captain}">
+                    <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
+                         th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
+                    <div th:case="false">
+                        <div th:switch="${item.viceCaptain}">
+                            <div class="name" style="color:#FFB800" th:case="true"
+                                 th:text="${item.webName}+' (vc)'" th:value="${item.element}"></div>
+                            <div class="name" th:case="false" th:text="${item.webName}"
+                                 th:value="${item.element}"></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ol>
+        <ol class="container" id="defs">
+            <li th:each="item,stat:${pickPlayerData.defs}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <div th:switch="${item.captain}">
+                    <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
+                         th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
+                    <div th:case="false">
+                        <div th:switch="${item.viceCaptain}">
+                            <div class="name" style="color:#FFB800" th:case="true"
+                                 th:text="${item.webName}+' (vc)'" th:value="${item.element}"></div>
+                            <div class="name" th:case="false" th:text="${item.webName}"
+                                 th:value="${item.element}"></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ol>
+        <ul class="container" id="gkps">
+            <li th:each="item,stat:${pickPlayerData.gkps}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/GKP.png'">
+                <div th:switch="${item.captain}">
+                    <div class="name" style="color:#FF5722;font-weight: bold" th:case="true"
+                         th:text="${item.webName}+' (c)'" th:value="${item.element}"></div>
+                    <div th:case="false">
+                        <div th:switch="${item.viceCaptain}">
+                            <div class="name" style="color:#FFB800" th:case="true"
+                                 th:text="${item.webName}+' (vc)'" th:value="${item.element}"></div>
+                            <div class="name" th:case="false" th:text="${item.webName}"
+                                 th:value="${item.element}"></div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="bench">
+        <ul class="container" id="subs">
+            <li th:each="item,stat:${pickPlayerData.subs}">
+                <div th:switch="${item.elementType}">
+                    <div th:case=1>
+                        <img src="" style="width: 50px;height: 50px"
+                             th:src="'/img/jersey/GKP.png'">
+                    </div>
+                    <div th:case="*">
+                        <img src="" style="width: 50px;height: 50px"
+                             th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                    </div>
+                </div>
+                <div class="name" th:text="${item.webName}"></div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div th:fragment="transfers(pickPlayerData)">
+    <div class="pitch">
+        <ol class="container">
+            <li th:each="item,stat:${pickPlayerData.fwds}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <div th:switch="${item.eventTransferIn}">
+                    <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
+                         th:value="${item.element}"></div>
+                    <div class="name" th:case="false" th:text="${item.webName}" th:value="${item.element}"></div>
+                </div>
+            </li>
+        </ol>
+        <ol class="container">
+            <li th:each="item,stat:${pickPlayerData.mids}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <div th:switch="${item.eventTransferIn}">
+                    <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
+                         th:value="${item.element}"></div>
+                    <div class="name" th:case="false" th:text="${item.webName}" th:value="${item.element}"></div>
+                </div>
+            </li>
+        </ol>
+        <ol class="container">
+            <li th:each="item,stat:${pickPlayerData.defs}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <div th:switch="${item.eventTransferIn}">
+                    <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
+                         th:value="${item.element}"></div>
+                    <div class="name" th:case="false" th:text="${item.webName}" th:value="${item.element}"></div>
+                </div>
+            </li>
+        </ol>
+        <ul class="container">
+            <li th:each="item,stat:${pickPlayerData.gkps}">
+                <img src="" style="width: 50px;height: 50px" th:src="'/img/jersey/'+${item.teamShortName}+'.png'">
+                <div th:switch="${item.eventTransferIn}">
+                    <div class="name" style="color:#FFB800;font-weight: bold" th:case="true" th:text="${item.webName}"
+                         th:value="${item.element}"></div>
+                    <div class="name" th:case="false" th:text="${item.webName}" th:value="${item.element}"></div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+
+<script th:fragment="baseScript" th:inline="javascript">
+    layui.config({
+        base: '/layui/lay/modules/',
+        version: 'v1.5.21'
+    }).extend({
+        soulTable: 'soulTable/soulTable',
+        tableChild: 'soulTable/tableChild',
+        tableMerge: 'soulTable/tableMerge',
+        tableFilter: 'soulTable/tableFilter',
+        excel: 'soulTable/excel',
+        dropdown: 'ex/dropdown'
+    });
+
+    layui.use(['element', 'layer'], function () {
+        let $ = layui.jquery, layer = layui.layer;
+
+        $("#teamIdBtn").on('click', function () {
+            let btn = $("#teamIdBtn");
+            let index = layer.prompt({
+                title: '更新team_id',
+                offset: '100px',
+                shade: 0.8,
+                shadeClose: true,
+                success: function (layero) {
+                    layer.setTop(layero);
+                    // 回车
+                    this.enterConfirm = function (event) {
+                        if (event.keyCode === 13) {
+                            $(".layui-layer-btn0").click();
+                            return false;
+                        }
+                    };
+                    // esc
+                    this.escQuit = function (event) {
+                        if (event.keyCode === 0x1B) {
+                            layer.close(index);
+                            return false;
+                        }
+                    }
+                    $(document).on('keyup', this.enterConfirm);
+                    $(document).on('keyup', this.escQuit);
+                    // 确认按钮
+                    $(".layui-layer-btn0").on("click", function () {
+                        // 校验
+                        let entry = layero.find("input").val();
+                        if (entry === [[${entry}]]) {
+                            layer.msg('team_id没有改变', {offset: '100px', shade: 0.8, shadeClose: true, time: 1500});
+                            layer.close(index);
+                            return false;
+                        } else if (!new RegExp("^[1-9]\\d*$").test(entry)) {
+                            layer.msg('team_id需为正整数', {offset: '100px', shade: 0.8, shadeClose: true, time: 1500});
+                            layer.close(index);
+                            return false;
+                        }
+                        // 保存
+                        axios.get('/saveSession?key=entry&&value=' + entry)
+                            .then(function () {
+                                // 关闭
+                                layer.msg('team_id更新成功', {
+                                    offset: '100px',
+                                    icon: 6,
+                                    shade: 0.8,
+                                    shadeClose: true,
+                                    time: 1500
+                                });
+                                layer.close(index);
+                                // 回填
+                                btn.text(entry);
+                                // 刷新
+                                window.location.reload(true);
+                            })
+                            .catch(function (error) {
+                                console.info(error.message);
+                            });
+                    })
+                },
+                end: function () {
+                    $(document).off('keydown', this.enterConfirm);
+                    $(document).off('keydown', this.escQuit);
+                }
+            });
+        });
+
+    });
+
+    function getLocalTime(time) {
+        return moment(time).utcOffset(-1 * new Date().getTimezoneOffset()).format('YYYY/MM/DD HH:mm:ss');
+    }
+
+    function getUrlParam(name) {
+        let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        let r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    function getCapitalLetterFromNum(num) {
+        return String.fromCharCode(num + 64);
+    }
+
+    function setTableRowColor(elem, index, color) {
+        elem.find(".layui-table-box tbody tr[data-index='" + index + "']").css("background-color", color);
+    }
+
+    function showOverallRank(rank) {
+        if (rank < 1000) {
+            return rank;
+        } else if (rank < 1000000) {
+            return Math.floor(rank / 1000) + 'k';
+        }
+        return Math.floor(rank / 100000) / 10 + 'm';
+    }
+
+    function showChip(chip) {
+        if (chip === 'wildcard') {
+            return "WC";
+        } else if (chip === '3xc') {
+            return "TC";
+        } else if (chip === 'bboost') {
+            return "BB";
+        } else if (chip === 'freehit') {
+            return "FH";
+        }
+        return "无"
+    }
+
+    /**
+     * 加法运算，避免数据相加小数点后产生多位数和计算精度损失。
+     */
+    function numAdd(num1, num2) {
+        let baseNum, baseNum1, baseNum2;
+        try {
+            baseNum1 = num1.toString().split(".")[1].length;
+        } catch (e) {
+            baseNum1 = 0;
+        }
+        try {
+            baseNum2 = num2.toString().split(".")[1].length;
+        } catch (e) {
+            baseNum2 = 0;
+        }
+        baseNum = Math.pow(10, Math.max(baseNum1, baseNum2));
+        return (num1 * baseNum + num2 * baseNum) / baseNum;
+    }
+
+    /**
+     * 减法运算，避免数据相减小数点后产生多位数和计算精度损失。
+     */
+    function numSub(num1, num2) {
+        let baseNum, baseNum1, baseNum2;
+        let precision;// 精度
+        try {
+            baseNum1 = num1.toString().split(".")[1].length;
+        } catch (e) {
+            baseNum1 = 0;
+        }
+        try {
+            baseNum2 = num2.toString().split(".")[1].length;
+        } catch (e) {
+            baseNum2 = 0;
+        }
+        baseNum = Math.pow(10, Math.max(baseNum1, baseNum2));
+        precision = (baseNum1 >= baseNum2) ? baseNum1 : baseNum2;
+        return ((num1 * baseNum - num2 * baseNum) / baseNum).toFixed(precision);
+    }
+
+    /**
+     * 乘法运算，避免数据相乘小数点后产生多位数和计算精度损失。
+     */
+    function numMulti(num1, num2) {
+        let baseNum = 0;
+        try {
+            baseNum += num1.toString().split(".")[1].length;
+        } catch (e) {
+        }
+        try {
+            baseNum += num2.toString().split(".")[1].length;
+        } catch (e) {
+        }
+        return Number(num1.toString().replace(".", "")) * Number(num2.toString().replace(".", "")) / Math.pow(10, baseNum);
+    }
+
+    /**
+     * 除法运算，避免数据相除小数点后产生多位数和计算精度损失。
+     */
+    function numDiv(num1, num2) {
+        let baseNum1, baseNum2, baseNum3, baseNum4;
+        try {
+            baseNum1 = num1.toString().split(".")[1].length;
+        } catch (e) {
+            baseNum1 = 0;
+        }
+        try {
+            baseNum2 = num2.toString().split(".")[1].length;
+        } catch (e) {
+            baseNum2 = 0;
+        }
+        with (Math) {
+            baseNum3 = Number(num1.toString().replace(".", ""));
+            baseNum4 = Number(num2.toString().replace(".", ""));
+            return (baseNum3 / baseNum4) * pow(10, baseNum2 - baseNum1);
+        }
+    }
+
+</script>
+
+<script th:fragment="playerDetail" th:inline="none">
+
+    function showDifficulty(shortName, difficulty, event, wasHome) {
+        switch (difficulty) {
+            case -1: {
+                let wasHomeSet = wasHome.split("||");
+                let shortNameSet = shortName.split("||");
+                if (wasHomeSet[0] === 'true' && wasHomeSet[1] === 'true') {
+                    return '<div style="background-color: #FF5722;color: white"><strong>' + shortNameSet[0] + ' (GW' + event + ')' + '</strong>' +
+                        ' && ' +
+                        '<strong>' + shortNameSet[1] + ' (GW' + event + ')' + '</strong>' +
+                        '</div>';
+                } else if (wasHomeSet[0] === 'true' && wasHomeSet[1] === 'false') {
+                    return '<div style="background-color: #FF5722;color: white"><strong>' + shortNameSet[0] + ' (GW' + event + ')' + '</strong>' +
+                        ' && ' +
+                        '<u><i>' + shortNameSet[1] + ' (GW' + event + ')' + '</u></i>' +
+                        '</div>';
+                } else if (wasHomeSet[0] === 'false' && wasHomeSet[1] === 'true') {
+                    return '<div style="background-color: #FF5722;color: white"><u><i>' + shortNameSet[0] + ' (GW' + event + ')' + '</u></i>' +
+                        ' && ' +
+                        '<strong>' + shortNameSet[1] + ' (GW' + event + ')' + '</strong>' +
+                        '</div>';
+                } else if (wasHomeSet[0] === 'false' && wasHomeSet[1] === 'false') {
+                    return '<div style="background-color: #FF5722;color: white"><u><i>' + shortNameSet[0] + ' (GW' + event + ')' + '</u></i>' +
+                        ' && ' +
+                        '<u><i>' + shortNameSet[1] + ' (GW' + event + ')' + '</u></i>' +
+                        '</div>';
+                }
+                break;
+            }
+            case 0: {
+                return '';
+            }
+            case 1:
+            case 2: {
+                if (wasHome === 'true') {
+                    return '<div style="background-color: #00FF86;color: white"><strong>' + shortName + ' (GW' + event + ')' + '</strong></div>';
+                } else {
+                    return '<div style="background-color: #00FF86;color: white"><u><i>' + shortName + ' (GW' + event + ')' + '</u></i></div>';
+                }
+            }
+            case 3: {
+                if (wasHome === 'true') {
+                    return '<div style="background-color: gray;color: white"><strong>' + shortName + ' (GW' + event + ')' + '</strong></div>';
+                } else {
+                    return '<div style="background-color: gray;color: white"><u><i>' + shortName + ' (GW' + event + ')' + '</u></i></div>';
+                }
+            }
+            case 4: {
+                if (wasHome === 'true') {
+                    return '<div style="background-color: #FF005A;color: white"><strong>' + shortName + ' (GW' + event + ')' + '</strong></div>';
+                } else {
+                    return '<div style="background-color: #FF005A;color: white"><u><i>' + shortName + ' (GW' + event + ')' + '</u></i></div>';
+                }
+            }
+            case 5: {
+                if (wasHome === 'true') {
+                    return '<div style="background-color: #861D46;color: white"><strong>' + shortName + ' (GW' + event + ')' + '</strong></div>';
+                } else {
+                    return '<div style="background-color: #861D46;color: white"><u><i>' + shortName + ' (GW' + event + ')' + '</u></i></div>';
+                }
+            }
+        }
+    }
+
+    function parsePlayerTableData(playerShowDataList) {
+        let list = [];
+        $.each(playerShowDataList, function (index, item) {
+            let data = {};
+
+            data.element = item.element;
+            data.position = item.position;
+            data.multiplier = item.multiplier;
+            data.isCaptain = item.captain;
+            data.isViceCaptain = item.viceCaptain;
+            data.webName = item.webName;
+            data.elementType = item.elementType;
+            data.elementTypeName = item.elementTypeName;
+            data.teamId = item.teamId;
+            data.teamName = item.teamName;
+            data.teamShortName = item.teamShortName;
+            data.price = item.price;
+            data.sellPrice = item.sellPrice;
+            data.totalPoints = item.totalPoints;
+            data.chancePlayingNextRound = item.chancePlayingNextRound;
+            data.chancePlayingThisRound = item.chancePlayingThisRound
+            data.news = item.news;
+            data.selectedByPercent = item.selectedByPercent;
+            data.pointsPerGame = item.pointsPerGame;
+            data.form = item.form;
+            data.inDreamteam = item.inDreamteam;
+            data.eventTransferIn = item.eventTransferIn;
+            data.eventTransferOut = item.eventTransferOut;
+
+            if (item.fixtureList.length >= 2) {
+                data.event1 = item.fixtureList[1].event;
+                data.againstTeamShortName1 = item.fixtureList[1].againstTeamShortName;
+                data.difficulty1 = item.fixtureList[1].difficulty;
+                data.wasHome1 = item.fixtureList[1].wasHome;
+                data.bgw1 = item.fixtureList[1].bgw;
+                data.dgw1 = item.fixtureList[1].dgw;
+            } else {
+                data.event1 = '';
+                data.againstTeamShortName1 = '';
+                data.difficulty1 = 0;
+                data.wasHome1 = '';
+                data.bgw1 = '';
+                data.dgw1 = '';
+            }
+
+            if (item.fixtureList.length >= 3) {
+                data.event2 = item.fixtureList[2].event;
+                data.againstTeamShortName2 = item.fixtureList[2].againstTeamShortName;
+                data.difficulty2 = item.fixtureList[2].difficulty;
+                data.wasHome2 = item.fixtureList[2].wasHome;
+                data.bgw2 = item.fixtureList[2].bgw;
+                data.dgw2 = item.fixtureList[2].dgw;
+            } else {
+                data.event2 = '';
+                data.againstTeamShortName2 = '';
+                data.difficulty2 = 0;
+                data.wasHome2 = '';
+                data.bgw2 = '';
+                data.dgw2 = '';
+            }
+
+            if (item.fixtureList.length >= 4) {
+                data.event3 = item.fixtureList[3].event;
+                data.againstTeamShortName3 = item.fixtureList[3].againstTeamShortName;
+                data.difficulty3 = item.fixtureList[3].difficulty;
+                data.wasHome3 = item.fixtureList[3].wasHome;
+                data.bgw3 = item.fixtureList[3].bgw;
+                data.dgw3 = item.fixtureList[3].dgw;
+            } else {
+                data.event3 = '';
+                data.againstTeamShortName3 = '';
+                data.difficulty3 = 0;
+                data.wasHome3 = '';
+                data.bgw3 = '';
+                data.dgw3 = '';
+            }
+
+            if (item.fixtureList.length >= 5) {
+                data.event4 = item.fixtureList[4].event;
+                data.againstTeamShortName4 = item.fixtureList[4].againstTeamShortName;
+                data.difficulty4 = item.fixtureList[4].difficulty;
+                data.wasHome4 = item.fixtureList[4].wasHome;
+                data.bgw4 = item.fixtureList[4].bgw;
+                data.dgw4 = item.fixtureList[4].dgw;
+            } else {
+                data.event4 = '';
+                data.againstTeamShortName4 = '';
+                data.difficulty4 = 0;
+                data.wasHome4 = '';
+                data.bgw4 = '';
+                data.dgw4 = '';
+            }
+
+            if (item.fixtureList.length >= 6) {
+                data.event5 = item.fixtureList[5].event;
+                data.againstTeamShortName5 = item.fixtureList[5].againstTeamShortName;
+                data.difficulty5 = item.fixtureList[5].difficulty;
+                data.wasHome5 = item.fixtureList[5].wasHome;
+                data.bgw5 = item.fixtureList[5].bgw;
+                data.dgw5 = item.fixtureList[5].dgw;
+            } else {
+                data.event5 = '';
+                data.againstTeamShortName5 = '';
+                data.difficulty5 = 0;
+                data.wasHome5 = '';
+                data.bgw5 = '';
+                data.dgw5 = '';
+            }
+
+            list.push(data);
+        })
+        return list;
+    }
+
+    function gkpCols() {
+        return [[
+            {field: 'minutes', title: '上场时间', align: 'center'},
+            {field: 'cleanSheets', title: '零封', align: 'center'},
+            {field: 'goalsConceded', title: '丢球', align: 'center'},
+            {field: 'saves', title: '扑救', align: 'center'},
+            {field: 'penaltiesSaved', title: '扑点', align: 'center'},
+            {field: 'bonus', title: 'BONUS', align: 'center'},
+            {field: 'bps', title: 'BPS', align: 'center'},
+            {field: 'yellowCards', title: '黄宝石', align: 'center'},
+            {field: 'redCards', title: '红宝石', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'transfersInEvent', title: '周转入', align: 'center'},
+            {field: 'transfersOutEvent', title: '周转出', align: 'center'}
+        ]];
+    }
+
+    function defCols() {
+        return [[
+            {field: 'minutes', title: '上场时间', align: 'center'},
+            {field: 'cleanSheets', title: '零封', align: 'center'},
+            {field: 'goalsConceded', title: '丢球', align: 'center'},
+            {field: 'bonus', title: 'BONUS', align: 'center'},
+            {field: 'bps', title: 'BPS', align: 'center'},
+            {field: 'yellowCards', title: '黄宝石', align: 'center'},
+            {field: 'redCards', title: '红宝石', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'transfersInEvent', title: '周转入', align: 'center'},
+            {field: 'transfersOutEvent', title: '周转出', align: 'center'}
+        ]];
+    }
+
+    function midCols() {
+        return [[
+            {field: 'minutes', title: '上场时间', align: 'center'},
+            {field: 'goalsScored', title: '进球', align: 'center'},
+            {field: 'assists', title: '助攻', align: 'center'},
+            {field: 'bonus', title: 'BONUS', align: 'center'},
+            {field: 'bps', title: 'BPS', align: 'center'},
+            {field: 'cleanSheets', title: '零封', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'yellowCards', title: '黄宝石', align: 'center'},
+            {field: 'redCards', title: '红宝石', align: 'center'},
+            {field: 'transfersInEvent', title: '周转入', align: 'center'},
+            {field: 'transfersOutEvent', title: '周转出', align: 'center'}
+        ]];
+    }
+
+    function fwdCols() {
+        return [[
+            {field: 'minutes', title: '上场时间', align: 'center'},
+            {field: 'goalsScored', title: '进球', align: 'center'},
+            {field: 'assists', title: '助攻', align: 'center'},
+            {field: 'bonus', title: 'BONUS', align: 'center'},
+            {field: 'bps', title: 'BPS', align: 'center'},
+            {field: 'ownGoals', title: '乌龙', align: 'center'},
+            {field: 'yellowCards', title: '黄宝石', align: 'center'},
+            {field: 'redCards', title: '红宝石', align: 'center'},
+            {field: 'transfersInEvent', title: '周转入', align: 'center'},
+            {field: 'transfersOutEvent', title: '周转出', align: 'center'}
+        ]];
+    }
+
+</script>
+
+<script th:fragment="entryInputLayer">
+    layui.use(['layer'], function () {
+        let $ = layui.jquery, layer = layui.layer;
+        layer.ready(function () {
+            if ($("button[name=teamIdBtn]").html() === "请输入id") {
+                layer.prompt({
+                    title: '请输入team_id',
+                    offset: '100px',
+                    shade: 0.8,
+                    success: function (layero) {
+                        layer.setTop(layero);
+                        // 回车
+                        this.enterConfirm = function (event) {
+                            if (event.keyCode === 13) {
+                                $(".layui-layer-btn0").click();
+                                return false;
+                            }
+                        };
+                        // esc
+                        this.escQuit = function (event) {
+                            if (event.keyCode === 0x1B) {
+                                layer.close(index);
+                                return false;
+                            }
+                        }
+                        $(document).on('keyup', this.enterConfirm);
+                        $(document).on('keyup', this.escQuit);
+                        // 确认按钮
+                        $(".layui-layer-btn0").on("click", function () {
+                            // 校验
+                            let entry = layero.find("input").val();
+                            if (!new RegExp("^[1-9]\\d*$").test(entry)) {
+                                layer.msg('team_id需为正整数', {
+                                    offset: '100px',
+                                    shade: 0,
+                                    shadeClose: true,
+                                    time: 1000
+                                });
+                                layero.find("input").val('');
+                                return false;
+                            }
+                            // 保存
+                            axios.get('/saveSession?key=entry&&value=' + entry)
+                                .then(function () {
+                                    layer.close();
+                                    // 刷新
+                                    window.location.reload();
+                                })
+                                .catch(function (error) {
+                                    console.info(error.message);
+                                });
+                        })
+                    },
+                    end: function () {
+                        $(document).off('keydown', this.enterConfirm);
+                        $(document).off('keydown', this.escQuit);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<script th:fragment="drag">
+    layui.use([], function () {
+
+        let drake = dragula({
+            containers: [
+                document.querySelector('#defs'),
+                document.querySelector('#mids'),
+                document.querySelector('#fwds'),
+                document.querySelector('#subs')
+            ],
+            revertOnSpill: true,
+            mirrorContainer: document.body,
+            ignoreInputTextSelection: true
+        });
+        // validation
+        drake.on('drop', function (el, target, source) {
+            let $ = layui.jquery;
+            $.each(target.children, function (index, list) {
+                $.each(list.children[1].attributes, function (i, item) {
+                    console.info(item);
+                })
+            });
+            // max 11 players
+            if (target.id !== 'subs' && document.querySelectorAll('.pitch li').length > 11) {
+                drake.cancel();
+            }
+            // max 4 subs
+            if (target.id === 'subs' && document.querySelectorAll('.bench li').length > 4) {
+                drake.cancel();
+            }
+            // defender -> 3-5
+            if (source.id === 'defs' && source.children.length < 3) {
+                drake.cancel();
+            }
+            if (target.id === 'defs' && target.children.length > 5) {
+                drake.cancel();
+            }
+            // midfielder -> 2-5
+            if (source.id === 'mids' && source.children.length < 2) {
+                drake.cancel();
+            }
+            if (target.id === 'mids' && target.children.length > 5) {
+                drake.cancel();
+            }
+            // attacker 1-3
+            if (source.id === 'fwds' && source.children.length < 1) {
+                drake.cancel();
+            }
+            if (target.id === 'fwds' && target.children.length > 3) {
+                drake.cancel();
+            }
+        });
+
+    });
+
+</script>
+
+</html>

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>转会统计-我的fpl-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <form class="layui-form">
+
+                <div class="layui-form-item">
+
+                    <div class="layui-input-inline" style="margin-top: 5px">
+                        <button class="layui-btn layui-btn-primary layui-btn-sm" id="returnButton" type="button">
+                            <i class="layui-icon layui-icon-return"></i>
+                        </button>
+                    </div>
+
+                    <div class="layui-input-inline" style="margin-left: -140px">
+                        <h1 style="font-size: 28px">转会统计 - </h1>
+                    </div>
+
+                    <div class="layui-input-inline" style="width: 100px;margin-left: -60px;margin-top: 2px">
+                        <select class="layui-select" lay-filter="gwSelect" lay-search="" name="gwSelect">
+                            <option value="0">赛季</option>
+                            <option th:each="item,userStat:${gwMap}"
+                                    th:if="${userStat.current.key} != ''"
+                                    th:text="${userStat.current.value}"
+                                    th:value="${userStat.current.key}"></option>
+                        </select>
+                    </div>
+                </div>
+
+            </form>
+
+            <div style="margin-top: 40px"></div>
+
+            <div class="layui-tab" lay-allowClose="true" lay-filter="entryTab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" id="base" th:text="${leagueName}"></li>
+                </ul>
+                <div class="layui-tab-content">
+
+                    <div class="layui-tab-item layui-show">
+
+                        <div style="margin-top: 20px"></div>
+
+                        <fieldset class="layui-elem-field" id="reportStatExplain">
+                            <div class="layui-field-box">
+                                <span style="color: #FF5722"><strong>转会总分-转入（上场）：</strong></span><span>转入球员数量总和；括号内为转入且当轮上场球员数量总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员数量总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-收益（上场）：</strong></span><span>转入球员得分总和减转出球员得分总和；括号内为转入且当轮上场球员得分总和减转出球员得分总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减剁手扣分总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减转出球员身价总和；</span>
+                            </div>
+                        </fieldset>
+
+                        <div id="leagueTransferReportStat">
+                            <table class="layui-table" id="leagueTransferReportStatTable"
+                                   lay-filter="leagueTransferReportStatTable"></table>
+                        </div>
+
+                        <fieldset class="layui-elem-field layui-hide" id="eventReportExplain">
+                            <div class="layui-field-box">
+                                <span style="color: #FF5722"><strong>转会（上场）：</strong></span><span>转入球员数量；括号内为转入且当轮上场球员数量；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员得分总和，括号内为转入且上场球员得分总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员得分总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-收益（上场）：</strong></span><span>转入球员得分减转出球员得分总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在当轮上场球员得分减转出球员得分总和； </span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减剁手扣分总和；</span>
+                                <br>
+                                <span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减转出球员身价总和；</span>
+                            </div>
+                        </fieldset>
+
+                        <div id="leagueTransferEventReport">
+                            <table class="layui-table" id="leagueTransferEventReportTable"
+                                   lay-filter="leagueTransferEventReportTable"></table>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<div th:replace="layout::entryInputLayer"></div>
+
+<script id="entryNameTpl" type="text/html">
+    <a href="javascript:void(0);" class="layui-table-link">{{d.entryName}}</a>
+</script>
+
+<script th:inline="none">
+    layui.use(['element', 'form', 'table', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, form = layui.form, table = layui.table,
+            soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        let leagueId = getUrlParam("leagueId"), leagueType = getUrlParam("leagueType");
+
+        $("#returnButton").on('click', function () {
+            window.location.replace("/my_fpl/league");
+        });
+
+        table.render({
+            elem: '#leagueTransferReportStatTable',
+            size: 'sm',
+            url: '/my_fpl/qryLeagueTransfersReportStat',
+            where: {
+                leagueId: leagueId,
+                leagueType: leagueType
+            },
+            parseData: function (res) {
+                let data = [];
+                $.each(res.data, function (index, item) {
+                    item.transferInTotalPoints = item.transferData.transferInTotalPoints;
+                    item.transferInPlayedTotalPoints = item.transferData.transferInPlayedTotalPoints;
+                    item.transferOutTotalPoints = item.transferData.transferOutTotalPoints;
+                    item.transferPoints = item.transferData.transferPoints;
+                    item.transferPlayedPoints = item.transferData.transferPlayedPoints;
+                    item.transferNetPoints = item.transferData.transferNetPoints;
+                    item.transferInTotalValue = item.transferData.transferInTotalValue;
+                    item.transferOutTotalValue = item.transferData.transferOutTotalValue;
+                    item.transferValue = item.transferData.transferValue;
+                    data.push(item);
+                });
+                return {
+                    "code": res.code,
+                    "msg": res.message,
+                    "count": res.count,
+                    "data": data
+                };
+            },
+            toolbar: true,
+            defaultToolbar: ['filter'],
+            loading: true,
+            even: true,
+            limit: 1000,
+            cols: [
+                [
+                    {field: 'rank', title: '', align: 'center', rowspan: 2},
+                    {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, sort: true, hide: true},
+                    {
+                        field: 'entryName',
+                        title: '队伍',
+                        align: 'center',
+                        event: 'entryEvent',
+                        rowspan: 2,
+                        templet: '#entryNameTpl',
+                        filter: true
+                    },
+                    {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
+                    {
+                        field: 'overallPoints',
+                        title: '总得分',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true
+                    },
+                    {
+                        field: 'transfers',
+                        title: '总转会',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true
+                    },
+                    {
+                        field: 'transfersCost',
+                        title: '总剁手',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true
+                    },
+                    {title: '转会总分', align: 'center', colspan: 4},
+                    {
+                        field: 'teamValue',
+                        title: '阵容身价',
+                        align: 'center',
+                        rowspan: 2,
+                        sort: true,
+                        templet: function (d) {
+                            return numDiv(d.teamValue, 10) + 'm';
+                        }
+                    },
+                    {title: '转会总身价', align: 'center', colspan: 3}
+                ],
+                [
+                    {
+                        field: 'transferInTotalPoints',
+                        title: '转入 (上场)',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return d.transferInTotalPoints + " (" + d.transferInPlayedTotalPoints + ")";
+                        }
+                    },
+                    {
+                        field: 'transferOutTotalPoints',
+                        title: '转出',
+                        align: 'center',
+                        sort: true
+                    },
+                    {
+                        field: 'transferPoints',
+                        title: '收益 (上场)',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + " (" + d.transferPlayedPoints + ")" + '</div>';
+                        }
+                    },
+                    {
+                        field: 'transferNetPoints',
+                        title: '净收益',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            if (d.transferNetPoints > 0) {
+                                return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                            } else if (d.transferNetPoints < 0) {
+                                return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                            } else {
+                                return '<div style="background-color: #2F4056;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                            }
+                        }
+                    },
+                    {
+                        field: 'transferInTotalValue',
+                        title: '转入',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            if (d.transferInTotalValue > 0) {
+                                return parseInt(d.transferInTotalValue) / 10 + 'm';
+                            } else {
+                                return 0;
+                            }
+                        }
+                    },
+                    {
+                        field: 'transferOutTotalValue',
+                        title: '转出',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            if (d.transferOutTotalValue > 0) {
+                                return parseInt(d.transferOutTotalValue) / 10 + 'm';
+                            } else {
+                                return 0;
+                            }
+                        }
+                    },
+                    {
+                        field: 'transferValue',
+                        title: '差值',
+                        align: 'center',
+                        sort: true,
+                        templet: function (d) {
+                            if (d.transferValue === 0) {
+                                return 0;
+                            } else {
+                                return parseInt(d.transferValue) / 10 + 'm';
+                            }
+                        }
+                    }
+                ]
+            ],
+            autoColumnWidth: {
+                init: true
+            },
+            filter: {
+                items: ['data'],
+                bottom: false
+            },
+            id: 'leagueTransferReportStatTable',
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        form.on('select(gwSelect)', function (data) {
+            // 切换tab
+            element.tabChange('entryTab', 'base');
+            // 渲染
+            let event = data.value;
+            if (event === '0') {
+                $("#leagueTransferReportStat").removeClass("layui-hide");
+                $("#leagueTransferEventReport").addClass("layui-hide");
+                $("#reportStatExplain").removeClass("layui-hide");
+                $("#eventReportExplain").addClass("layui-hide");
+                table.reload('leagueTransferReportStatTable', {
+                    url: '/my_fpl/qryLeagueTransfersReportStat',
+                    where: {
+                        leagueId: leagueId,
+                        leagueType: leagueType
+                    },
+                })
+            } else if (event === '1') {
+                layer.msg("GW1没有转会的好么！", {time: 1500});
+            } else {
+                $("#leagueTransferReportStat").addClass("layui-hide");
+                $("#leagueTransferEventReport").removeClass("layui-hide");
+                $("#eventReportExplain").removeClass("layui-hide");
+                $("#reportStatExplain").addClass("layui-hide");
+                table.render({
+                    elem: '#leagueTransferEventReportTable',
+                    size: 'sm',
+                    even: true,
+                    toolbar: true,
+                    defaultToolbar: ['filter'],
+                    url: '/my_fpl/qryLeagueTransfersEventReportList',
+                    where: {
+                        event: event,
+                        leagueId: leagueId,
+                        leagueType: leagueType
+                    },
+                    loading: true,
+                    limit: 200,
+                    cols: [
+                        [
+                            {
+                                field: 'rank',
+                                title: '',
+                                align: 'center',
+                                rowspan: 2,
+                                templet: function (d) {
+                                    let chip = showChip(d.eventChip);
+                                    if (chip === '无') {
+                                        return d.rank;
+                                    } else {
+                                        return d.rank + '(' + chip + ')';
+                                    }
+                                },
+                                icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                                childTitle: false,
+                                children: [
+                                    {
+                                        data: function (d) {
+                                            return d.entryEventTransferList;
+                                        },
+                                        limit: 100,
+                                        cols: [
+                                            [
+                                                {field: '', title: '转入', align: 'center', colspan: 5},
+                                                {field: '', title: '转出', align: 'center', colspan: 4},
+                                                {
+                                                    field: 'time',
+                                                    title: '交易时间',
+                                                    align: 'center',
+                                                    rowspan: 2,
+                                                    templet: function (d) {
+                                                        return getLocalTime(d.time);
+                                                    }
+                                                }
+                                            ],
+                                            [
+                                                {field: 'elementInName', title: '球员', align: 'center'},
+                                                {field: 'elementInTypeName', title: '位置', align: 'center'},
+                                                {
+                                                    field: 'elementInCost',
+                                                    title: '身价',
+                                                    align: 'center',
+                                                    templet: function (d) {
+                                                        if (d.elementInCost > 0) {
+                                                            return parseInt(d.elementInCost) / 10 + 'm';
+                                                        } else {
+                                                            return 0;
+                                                        }
+                                                    }
+                                                },
+                                                {field: 'elementInPoints', title: '得分', align: 'center'},
+                                                {
+                                                    field: 'elementInPlayed',
+                                                    title: '上场',
+                                                    align: 'center',
+                                                    templet: function (d) {
+                                                        if (d.elementInPlayed) {
+                                                            return '是';
+                                                        } else {
+                                                            return '否';
+                                                        }
+                                                    }
+                                                },
+                                                {field: 'elementOutName', title: '球员', align: 'center'},
+                                                {field: 'elementOutTypeName', title: '位置', align: 'center'},
+                                                {
+                                                    field: 'elementOutCost',
+                                                    title: '身价',
+                                                    align: 'center',
+                                                    templet: function (d) {
+                                                        if (d.elementOutCost > 0) {
+                                                            return parseInt(d.elementOutCost) / 10 + 'm';
+                                                        } else {
+                                                            return 0;
+                                                        }
+                                                    }
+                                                },
+                                                {field: 'elementOutPoints', title: '得分', align: 'center'},
+                                            ]
+                                        ],
+                                        autoColumnWidth: {
+                                            init: true
+                                        },
+                                        done: function () {
+                                            soulTable.render(this);
+                                        }
+                                    }
+                                ]
+                            },
+                            {field: 'entry', title: 'team_id', align: 'center', rowspan: 2, sort: true, hide: true},
+                            {
+                                field: 'entryName',
+                                title: '队伍',
+                                align: 'center',
+                                event: 'entryEvent',
+                                rowspan: 2,
+                                templet: '#entryNameTpl',
+                                filter: true
+                            },
+                            {field: 'playerName', title: '玩家', align: 'center', rowspan: 2, filter: true, hide: true},
+                            {
+                                field: 'eventPoints',
+                                title: '得分',
+                                align: 'center',
+                                rowspan: 2,
+                                sort: true,
+                                filter: true,
+                                templet: function (d) {
+                                    if (d.eventTransfersCost > 0) {
+                                        return d.eventPoints + '(-' + d.eventTransfersCost + ')';
+                                    } else {
+                                        return d.eventPoints;
+                                    }
+                                }
+                            },
+                            {
+                                field: 'eventTransfers',
+                                title: '转会 (上场)',
+                                align: 'center',
+                                rowspan: 2,
+                                sort: true,
+                                templet: function (d) {
+                                    return d.eventTransfers + " (" + d.eventTransfersPlayed + ") ";
+                                }
+                            },
+                            {
+                                field: 'eventTransfersCost',
+                                title: '剁手',
+                                align: 'center',
+                                rowspan: 2,
+                                sort: true,
+                                filter: true
+                            },
+                            {title: '转会总分', align: 'center', colspan: 5},
+                            {
+                                field: 'teamValue',
+                                title: '阵容身价',
+                                align: 'center',
+                                rowspan: 2,
+                                sort: true,
+                                templet: function (d) {
+                                    return numDiv(d.teamValue, 10) + 'm';
+                                }
+                            },
+                            {title: '转会总身价', align: 'center', colspan: 3}
+                        ],
+                        [
+                            {
+                                field: 'transferInTotalPoints',
+                                title: '转入',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return d.transferInTotalPoints + " (" + d.transferInPlayedTotalPoints + ")";
+                                }
+                            },
+                            {
+                                field: 'transferOutTotalPoints',
+                                title: '转出',
+                                align: 'center',
+                                sort: true,
+                            },
+                            {
+                                field: 'transferPoints',
+                                title: '收益',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                                }
+                            },
+                            {
+                                field: 'transferPlayedPoints',
+                                title: '上场收益',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPlayedPoints + '</div>';
+                                }
+                            },
+                            {
+                                field: 'transferNetPoints',
+                                title: '净收益',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    if (d.transferNetPoints > 0) {
+                                        return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                    } else if (d.transferNetPoints < 0) {
+                                        return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                    } else {
+                                        return '<div style="background-color: #2F4056;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                    }
+                                }
+                            },
+                            {
+                                field: 'transferInTotalValue',
+                                title: '转入',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    if (d.transferInTotalValue > 0) {
+                                        return parseInt(d.transferInTotalValue) / 10 + 'm';
+                                    } else {
+                                        return 0;
+                                    }
+                                }
+                            },
+                            {
+                                field: 'transferOutTotalValue',
+                                title: '转出',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    if (d.transferOutTotalValue > 0) {
+                                        return parseInt(d.transferOutTotalValue) / 10 + 'm';
+                                    } else {
+                                        return 0;
+                                    }
+                                }
+                            },
+                            {
+                                field: 'transferValue',
+                                title: '差值',
+                                align: 'center',
+                                sort: true,
+                                templet: function (d) {
+                                    if (d.transferValue === 0) {
+                                        return 0;
+                                    } else {
+                                        return parseInt(d.transferValue) / 10 + 'm';
+                                    }
+                                }
+                            }
+                        ]
+                    ],
+                    autoColumnWidth: {
+                        init: true
+                    },
+                    filter: {
+                        items: ['data'],
+                        bottom: false
+                    },
+                    id: 'leagueTransferEventReportTable',
+                    done: function (res) {
+                        soulTable.render(this);
+                        let that = this.elem.next();
+                        res.data.forEach(function (d, index) {
+                            if (d.eventChip !== 'n/a') {
+                                setTableRowColor(that, index, "#FFB800");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        table.on('tool(leagueTransferReportStatTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
+        });
+
+        table.on('tool(leagueTransferEventReportTable)', function (obj) {
+            if (obj.event === 'entryEvent') {
+                let entry = obj.data.entry, entryName = obj.data.entryName;
+                initEntryTab(entry, entryName);
+            }
+        });
+
+        function initEntryTab(entry, entryName) {
+            // 是否存在
+            if ($(".layui-tab-title li[lay-id='" + entry + "']").length > 0) {
+                //选项卡已经存在
+                element.tabChange('entryTab', entry);
+                return false;
+            }
+            // 增加标签页
+            let tableId = entry + 'Table';
+            element.tabAdd('entryTab', {
+                title: entryName,
+                content:
+                    '<fieldset class="layui-elem-field">' +
+                    '<div class="layui-field-box">' +
+                    '<span style="color: #FF5722"><strong>转会（上场）：</strong></span><span>转入球员数量；括号内为转入且当轮上场球员数量；</span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总分-转入：</strong></span><span>转入球员得分总和，括号内为转入且上场球员得分总和；</span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总分-转出：</strong></span><span>转出球员得分总和； </span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总分-收益：</strong></span><span>转入球员得分减转出球员得分总和；</span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总分-上场收益：</strong></span><span>转入且在上场球员得分减转出球员得分总和；</span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总分-净收益：</strong></span><span>上场收益总和减剁手扣分总和；</span>' +
+                    '<br>' +
+                    '<span style="color: #FF5722"><strong>转会总身价-差值：</strong></span><span>转入球员身价总和减转出球员身价总和；</span>' +
+                    '</div>' +
+                    '</fieldset>' +
+                    '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
+                id: entry
+            });
+            // 切换
+            element.tabChange('entryTab', entry);
+            // 渲染
+            table.render({
+                elem: '#' + tableId,
+                size: 'sm',
+                even: true,
+                url: '/my_fpl/qryEntryTransfersEventReportList',
+                where: {
+                    leagueId: leagueId,
+                    leagueType: leagueType,
+                    entry: entry
+                },
+                limit: 40,
+                loading: true,
+                totalRow: true,
+                cols: [
+                    [
+                        {
+                            field: 'event',
+                            title: '',
+                            align: 'center',
+                            rowspan: 2,
+                            totalRowText: 'TOTAL',
+                            templet: function (d) {
+                                let chip = showChip(d.eventChip);
+                                if (chip === '无') {
+                                    return 'GW' + d.event;
+                                } else {
+                                    return 'GW' + d.event + '(' + chip + ')';
+                                }
+                            },
+                            icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                            childTitle: false,
+                            isChild: function (d) {
+                                return d.eventTransfers !== 0;
+                            },
+                            children: [
+                                {
+                                    data: function (d) {
+                                        return d.entryEventTransferList;
+                                    },
+                                    limit: 100,
+                                    cols: [
+                                        [
+                                            {field: '', title: '转入', align: 'center', colspan: 5},
+                                            {field: '', title: '转出', align: 'center', colspan: 4},
+                                            {field: 'time', title: '交易时间', align: 'center', rowspan: 2}
+                                        ],
+                                        [
+                                            {field: 'elementInName', title: '球员', align: 'center'},
+                                            {field: 'elementInTypeName', title: '位置', align: 'center'},
+                                            {
+                                                field: 'elementInCost',
+                                                title: '身价',
+                                                align: 'center',
+                                                templet: function (d) {
+                                                    if (d.elementInCost > 0) {
+                                                        return parseInt(d.elementInCost) / 10 + 'm';
+                                                    } else {
+                                                        return 0;
+                                                    }
+                                                }
+                                            },
+                                            {field: 'elementInPoints', title: '得分', align: 'center'},
+                                            {
+                                                field: 'elementInPlayed',
+                                                title: '上场',
+                                                align: 'center',
+                                                templet: function (d) {
+                                                    if (d.elementInPlayed) {
+                                                        return '是';
+                                                    } else {
+                                                        return '否';
+                                                    }
+                                                }
+                                            },
+                                            {field: 'elementOutName', title: '球员', align: 'center'},
+                                            {field: 'elementOutTypeName', title: '位置', align: 'center'},
+                                            {
+                                                field: 'elementOutCost',
+                                                title: '身价',
+                                                align: 'center',
+                                                templet: function (d) {
+                                                    if (d.elementOutCost > 0) {
+                                                        return parseInt(d.elementOutCost) / 10 + 'm';
+                                                    } else {
+                                                        return 0;
+                                                    }
+                                                }
+                                            },
+                                            {field: 'elementOutPoints', title: '得分', align: 'center', width: 60},
+                                        ]
+                                    ],
+                                    autoColumnWidth: {
+                                        init: true
+                                    },
+                                    done: function () {
+                                        soulTable.render(this);
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            field: 'eventPoints',
+                            title: '得分',
+                            align: 'center',
+                            totalRow: true,
+                            rowspan: 2,
+                            templet: function (d) {
+                                if (d.eventTransfersCost > 0) {
+                                    return d.eventPoints + '(-' + d.eventTransfersCost + ')';
+                                } else {
+                                    return d.eventPoints;
+                                }
+                            }
+                        },
+                        {
+                            field: 'eventTransfers',
+                            title: '转会 (出场)',
+                            align: 'center',
+                            rowspan: 2,
+                            templet: function (d) {
+                                return d.eventTransfers + " (" + d.eventTransfersPlayed + ") ";
+                            },
+                            sort: true
+                        },
+                        {title: '转会总分', align: 'center', colspan: 6},
+                        {title: '转会总身价', align: 'center', colspan: 3}
+                    ],
+                    [
+                        {
+                            field: 'transferInTotalPoints',
+                            title: '转入',
+                            align: 'center',
+                            templet: function (d) {
+                                return d.transferInTotalPoints + " (" + d.transferInPlayedTotalPoints + ") ";
+                            },
+                            sort: true
+                        },
+                        {
+                            field: 'transferOutTotalPoints',
+                            title: '转出',
+                            align: 'center',
+                            sort: true
+                        },
+                        {
+                            field: 'transferPoints',
+                            title: '收益',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            templet: function (d) {
+                                return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPoints + '</div>';
+                            }
+                        },
+                        {
+                            field: 'transferPlayedPoints',
+                            title: '上场收益',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            templet: function (d) {
+                                return '<div style="background-color:  #5FB878;color: #fff;" className="layui-table-cell">' + d.transferPlayedPoints + '</div>';
+                            }
+                        },
+                        {
+                            field: 'transferNetPoints',
+                            title: '净收益',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            templet: function (d) {
+                                if (d.transferNetPoints > 0) {
+                                    return '<div style="background-color: #FF5722;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                } else if (d.transferNetPoints < 0) {
+                                    return '<div style="background-color: gray;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                } else {
+                                    return '<div style="background-color: #2F4056;color: #fff;" className="layui-table-cell">' + d.transferNetPoints + '</div>';
+                                }
+                            }
+                        },
+                        {
+                            field: 'teamValue',
+                            title: '阵容身价',
+                            align: 'center',
+                            rowspan: 2,
+                            sort: true,
+                            templet: function (d) {
+                                return numDiv(d.teamValue, 10) + 'm';
+                            }
+                        },
+                        {
+                            field: 'transferInTotalValue',
+                            title: '转入',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            templet: function (d) {
+                                if (d.transferInTotalValue > 0) {
+                                    return parseInt(d.transferInTotalValue) / 10 + 'm';
+                                } else {
+                                    return 0;
+                                }
+                            }
+                        },
+                        {
+                            field: 'transferOutTotalValue',
+                            title: '转出',
+                            totalRow: true,
+                            align: 'center',
+                            sort: true,
+                            templet: function (d) {
+                                if (d.transferOutTotalValue > 0) {
+                                    return parseInt(d.transferOutTotalValue) / 10 + 'm';
+                                } else {
+                                    return 0;
+                                }
+                            }
+                        },
+                        {
+                            field: 'transferValue',
+                            title: '差值',
+                            align: 'center',
+                            totalRow: true,
+                            sort: true,
+                            templet: function (d) {
+                                if (d.transferValue === 0) {
+                                    return 0;
+                                } else {
+                                    return parseInt(d.transferValue) / 10 + 'm';
+                                }
+                            }
+                        }
+                    ]
+                ],
+                autoColumnWidth: {
+                    init: true
+                },
+                filter: {
+                    items: ['data'],
+                    bottom: false
+                },
+                id: tableId,
+                done: function (res) {
+                    soulTable.render(this);
+                    let that = this.elem.next();
+                    res.data.forEach(function (d, index) {
+                        if (d.eventChip !== 'n/a') {
+                            setTableRowColor(that, index, "#FFB800");
+                        }
+                    });
+                }
+            });
+        }
+
+    });
+</script>
+
+</html>

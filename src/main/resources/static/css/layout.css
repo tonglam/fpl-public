@@ -1,0 +1,415 @@
+h1, h2, h3 {
+    font-size: 14px;
+}
+
+::-webkit-input-placeholder {
+    color: #999
+}
+
+/* 布局 */
+.site-inline {
+    font-size: 0;
+}
+
+.site-tree, .site-content {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    vertical-align: top;
+    font-size: 14px;
+}
+
+.site-tree {
+    width: 150px;
+    min-height: 900px;
+    padding: 5px 0 20px;
+}
+
+.site-content {
+    min-height: 900px;
+    padding: 30px 0;
+}
+
+.header {
+    height: 59px;
+    border-bottom: 1px solid #404553;
+    background-color: #393D49;
+}
+
+.logo {
+    position: absolute;
+    left: 0;
+    top: 18px;
+    color: white;
+    font-size: x-large;
+}
+
+.header .layui-nav {
+    position: absolute;
+    right: 20px;
+    top: 0;
+    padding: 0;
+    background: none;
+}
+
+.header .layui-nav .layui-nav-item {
+    margin: 0 20px;
+}
+
+.header .layui-nav .layui-nav-item[mobile] {
+    display: none;
+}
+
+.header .layui-container .logo {
+    left: 15px;
+}
+
+.header .layui-container .layui-nav {
+    right: 5px;
+}
+
+.header .nav-icon {
+    position: absolute;
+    top: 5px;
+    left: -155px;
+}
+
+.header .nav-teamId {
+    font-size: 25px;
+    color: white;
+    position: absolute;
+    margin-left: 25px;
+    top: 12px;
+    left: -150px;
+}
+
+.component {
+    position: absolute;
+    width: 160px;
+    left: 120px;
+    top: 16px;
+}
+
+.component .layui-input {
+    height: 30px;
+    padding-left: 12px;
+    background-color: #424652;
+    background-color: rgba(255, 255, 255, .05);
+    border: none 0;
+    color: #fff;
+    color: rgba(255, 255, 255, .5);
+    font-size: 12px;
+}
+
+.component .layui-form-select .layui-edge {
+    display: none;
+    border-top-color: #999;
+}
+
+.component .layui-form-select dl {
+    top: 36px;
+    background-color: rgba(255, 255, 255, .9)
+}
+
+.footer {
+    background: #ffffff;
+    padding: 30px 0;
+    line-height: 30px;
+    text-align: center;
+    color: #000000;
+    font-weight: 300;
+}
+
+.layui-text {
+    margin-bottom: 5px;
+}
+
+.label-required:before {
+    top: 8px;
+    right: 5px;
+    color: red;
+    content: '*';
+    position: absolute;
+    margin-left: 4px;
+    font-weight: 700;
+    line-height: 1.8em;
+}
+
+.site-tree {
+    border-right: 1px solid #eee;
+}
+
+.site-tree .layui-tree {
+    line-height: 32px;
+}
+
+.site-tree .layui-tree li i {
+    position: relative;
+    font-size: 22px;
+    color: #000
+}
+
+.site-tree .layui-tree li a cite {
+    padding: 0 8px;
+}
+
+.site-tree .layui-tree .site-tree-noicon a cite {
+    padding-left: 15px;
+}
+
+.site-tree .layui-tree li a em {
+    font-size: 12px;
+    color: #bbb;
+    padding-right: 5px;
+    font-style: normal;
+}
+
+.site-tree .layui-tree li h2 {
+    line-height: 36px;
+    border-left: 5px solid #009E94;
+    margin: 15px 0 5px;
+    padding: 0 10px;
+    background-color: #f2f2f2;
+}
+
+.site-tree .layui-tree li ul {
+    margin-left: 27px;
+    line-height: 28px;
+}
+
+.site-tree .layui-tree li ul a,
+.site-tree .layui-tree li ul a i {
+    color: #777;
+}
+
+.site-tree .layui-tree li ul a:hover {
+    color: #333;
+}
+
+.site-tree .layui-tree li ul li {
+    margin-left: 25px;
+    overflow: visible;
+    list-style-type: disc; /*list-style-position: inside;*/
+}
+
+.site-tree .layui-tree li ul li cite,
+.site-tree .layui-tree .site-tree-noicon ul li cite {
+    padding-left: 0;
+}
+
+.site-tree .layui-tree .layui-this a {
+    color: #01AAED;
+}
+
+.site-tree .layui-tree .layui-this .layui-icon {
+    color: #01AAED;
+}
+
+.gu-mirror {
+    position: fixed !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    opacity: 0.8;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+    filter: alpha(opacity=80);
+}
+
+.gu-hide {
+    display: none !important;
+}
+
+.gu-unselectable {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+
+.gu-transit {
+    opacity: 0.2;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    filter: alpha(opacity=20);
+}
+
+/* custom CSS */
+.pitch {
+    background: #5d9634 linear-gradient(
+            to bottom,
+            #5d9634,
+            #5d9634 50%,
+            #538c2b 50%,
+            #538c2b
+    );
+    background-size: 100% 120px;
+    padding: 1px;
+    width: 420px;
+    height: 560px;
+}
+
+.bench {
+    background-color: #2E6530;
+    padding: 1px;
+    width: 420px;
+    height: 120px;
+}
+
+.container {
+    display: flex;
+    width: 420px;
+    height: 100px;
+    justify-content: space-around;
+    list-style: none;
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.container li,
+.gu-mirror {
+    cursor: grab;
+    height: 50px;
+    width: 50px;
+    list-style: none;
+    position: relative;
+}
+
+.gu-mirror {
+    cursor: grabbing;
+}
+
+.container li .name,
+.gu-mirror .name {
+    bottom: 0;
+    color: #fff;
+    font-size: 15px;
+    position: absolute;
+    left: -25px;
+    top: 50px;
+    text-align: center;
+    width: 105px;
+    height: 15px;
+}
+
+/* 适配多设备 */
+@media screen and (max-width: 750px) {
+    .layui-main {
+        width: auto;
+        margin: 0 10px;
+    }
+
+    .logo,
+    .component {
+        display: none
+    }
+
+    .header .layui-nav-child {
+        left: auto !important;
+        right: 0 !important;
+    }
+
+    .site-nav-layim {
+        display: none !important;
+    }
+
+    .header .layui-nav .layui-nav-item {
+        margin: 0;
+    }
+
+    .header .layui-nav .layui-nav-item a {
+        padding: 0 5px;
+    }
+
+    .header .layui-nav .layui-nav-item[pc] {
+        display: none;
+    }
+
+    .header .layui-nav .layui-nav-item[mobile] {
+        display: inline-block;
+    }
+
+    .site-content {
+        width: 100%;
+        padding: 0;
+        overflow: auto;
+    }
+
+    .site-tree-mobile {
+        display: block !important;
+        position: fixed;
+        z-index: 100000;
+        bottom: 15px;
+        left: 15px;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        border-radius: 2px;
+        text-align: center;
+        background-color: rgba(0, 0, 0, .7);
+        color: #fff;
+    }
+
+    .site-home .site-tree-mobile {
+        display: none !important;
+    }
+
+    .site-mobile .site-tree-mobile {
+        display: none !important;
+    }
+
+    .site-mobile .site-tree {
+        left: 0;
+    }
+
+    .site-mobile .site-mobile-shade {
+        content: '';
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, .8);
+        z-index: 999;
+    }
+
+    .site-tree-mobile i {
+        font-size: 20px;
+    }
+
+    .layui-code-view {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    .layui-layout-admin .layui-side {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        transition: all .3s;
+        -webkit-transition: all .3s;
+        z-index: 10000;
+    }
+
+    .layui-body {
+        position: static;
+        bottom: 0;
+        left: 0;
+    }
+
+    .site-mobile .layui-side {
+        left: 0;
+    }
+
+    .site-mobile .layui-side-child {
+        top: 50%;
+        left: 200px;
+        height: 300px;
+        margin-top: -100px;
+    }
+
+    body .layui-layout-admin .footer-demo {
+        position: static;
+        height: auto;
+        padding: 15px 0;
+        line-height: 30px;
+    }
+}

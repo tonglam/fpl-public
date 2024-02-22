@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>阵容选择-我的FPL-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <table class="layui-table" id="playerTable" lay-filter="playerTable"></table>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:inline="none">
+    layui.use(['form', 'table'], function () {
+        let table = layui.table;
+        table.render({
+            toolbar: 'default',
+            elem: '#playerTable',
+            page: true,
+            url: '/my_fpl/qryPlayerDataList',
+            limit: 20,
+            loading: true,
+            cols: [[
+                {field: 'element', type: 'numbers', title: 'ID', align: 'center', hide: true},
+                {field: 'webName', title: '名字', align: 'center', sort: true},
+                {field: 'elementTypeName', title: '位置', align: 'center'},
+                {field: 'teamName', title: '球队', align: 'center'},
+                {field: 'price', title: '身价', align: 'center', sort: true}
+            ]]
+        });
+    });
+</script>
+
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>小联赛排名-实时结果-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <h1 style="font-size: 28px" th:text="'小联赛排名-GW'+${currentGw}"></h1>
+
+            <div style="margin-top: 20px"></div>
+
+            <div class="layui-tab" lay-allowClose="true" lay-filter="leagueTab">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" id="base">选择小联赛</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:replace="layout::entryInputLayer"></script>
+
+<script id="entryTpl" type="text/html">
+    <div><a href="/live/entry/liveEntry?entry={{d.entry}}" target="_blank" title="查看球员实时得分" class="layui-table-link">{{d.entry}}</a>
+    </div>
+</script>
+
+<script th:inline="none">
+    layui.use(['element', 'table', 'layer', 'soulTable'], function () {
+
+        let $ = layui.jquery, element = layui.element, layer = layui.layer, table = layui.table,
+            soulTable = layui.soulTable;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        table.render({
+            elem: '#tournamentTable',
+            method: 'post',
+            contentType: 'application/json',
+            url: '/tournament/qryTournamentList',
+            loading: true,
+            cellMinWidth: 80,
+            cols: [[
+                {
+                    field: 'name',
+                    title: '名字',
+                    align: 'center',
+                    width: 250,
+                    templet: '<div><a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a></div>'
+                },
+                {field: 'creator', title: '创建者', align: 'center', edit: 'text', width: 150},
+                {field: 'season', title: '赛季', align: 'center'},
+                {field: 'leagueType', title: '类型', align: 'center', width: 100},
+                {field: 'leagueId', title: '官方联赛id', align: 'center', width: 100}
+            ]],
+            initSort: {
+                field: 'name',
+                type: 'asc'
+            },
+            id: 'tournamentTable',
+            done: function () {
+                soulTable.render(this);
+            }
+        });
+
+        table.on('row(tournamentTable)', function (obj) {
+            let tournamentId = obj.data.id, name = obj.data.name;
+            // 是否存在
+            if ($(".layui-tab-title li[lay-id='" + tournamentId + "']").length > 0) {
+                //选项卡已经存在
+                element.tabChange('leagueTab', tournamentId);
+                return false;
+            }
+            // 增加标签页
+            let tableId = 'live' + tournamentId + 'Table';
+            element.tabAdd('leagueTab', {
+                title: name,
+                content: '<table class="layui-table" id="' + tableId + '" lay-filter="' + tableId + '"></table>',
+                id: tournamentId
+            });
+            // 切换
+            element.tabChange('leagueTab', tournamentId);
+            // 渲染
+            let loadIndex = layer.msg("计算中，请稍等", {time: false, scrollbar: false});
+            axios.get('/live/qryTournamentLivePoints', {
+                params: {
+                    tournamentId: tournamentId
+                }
+            })
+                .then(function (response) {
+                    table.render({
+                        elem: '#' + tableId,
+                        size: 'sm',
+                        data: response.data,
+                        even: true,
+                        limit: 200,
+                        loading: true,
+                        toolbar: '#toolbar',
+                        defaultToolbar: ["filter"],
+                        cols: [[
+                            {field: 'rank', title: '', align: 'center'},
+                            {
+                                field: 'entry',
+                                title: 'team_id',
+                                align: 'center',
+                                templet: '#entryTpl',
+                                sort: true
+                            },
+                            {field: 'entryName', title: '队伍', align: 'center', filter: true},
+                            {field: 'playerName', title: '玩家', align: 'center', hide: true, filter: true},
+                            {field: 'captainName', title: '队长', align: 'center', filter: true},
+                            {
+                                field: 'liveTotalPoints',
+                                title: '实时总分',
+                                style: 'background-color: #5FB878; color: #fff;',
+                                align: 'center',
+                                sort: true
+                            },
+                            {
+                                field: 'livePoints',
+                                title: '实时得分',
+                                style: 'background-color: #5FB878; color: #fff;',
+                                align: 'center',
+                                sort: true
+                            },
+                            {field: 'transferCost', title: '剁手', align: 'center', sort: true},
+                            {
+                                field: 'liveNetPoints',
+                                title: '实时净得分',
+                                style: 'background-color: #5FB878; color: #fff;',
+                                align: 'center',
+                                sort: true
+                            },
+                            {field: 'played', title: '已出场', align: 'center'},
+                            {field: 'toPlay', title: '待出场', align: 'center'},
+                            {
+                                field: 'chip',
+                                title: '开卡',
+                                align: 'center',
+                                filter: true,
+                                templet: function (d) {
+                                    return showChip(d.chip);
+                                }
+                            }
+                        ]],
+                        filter: {
+                            items: ['data'],
+                            bottom: false
+                        },
+                        autoColumnWidth: {
+                            init: true
+                        },
+                        done: function () {
+                            soulTable.render(this);
+                        },
+                        id: tableId
+                    });
+                    layer.close(loadIndex);
+                })
+                .catch(function (error) {
+                    console.info(error);
+                    layer.close(loadIndex);
+                });
+
+        });
+
+    });
+</script>
+
+</html>

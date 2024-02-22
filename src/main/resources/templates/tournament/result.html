@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>查看赛事-自定义赛事-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <h1 style="font-size: 28px">查看赛果</h1>
+
+            <div style="margin-top: 20px"></div>
+
+            <table class="layui-table" id="entryTournamentTable" lay-filter="entryTournamentTable"></table>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script th:replace="layout::entryInputLayer"></script>
+
+<script id="nameTpl" type="text/html">
+    <a href="javascript:void(0);" class="layui-table-link">{{d.name}}</a>
+</script>
+
+<script th:inline="none">
+
+    layui.use(['table', 'layer', 'laydate'], function () {
+
+        let table = layui.table, laydate = layui.laydate;
+
+        laydate.render({
+            elem: 'input[name=createTime]'
+        });
+
+        table.render({
+            elem: '#entryTournamentTable',
+            method: 'get',
+            url: '/tournament/qryEntryTournamentList',
+            loading: true,
+            cellMinWidth: 100,
+            cols: [[
+                {field: 'name', title: '赛事名字', align: 'center', width: 300, templet: '#nameTpl'},
+                {field: 'creator', title: '创建者', align: 'center'},
+                {field: 'season', title: '赛季', align: 'center'},
+                {field: 'groupMode', title: '小组赛模式', align: 'center'},
+                {field: 'knockoutMode', title: '淘汰赛模式', align: 'center'},
+                {field: 'stage', title: '比赛阶段', align: 'center'},
+                {field: 'createTime', title: '创建时间', align: 'center', width: 120}
+            ]],
+            initSort: {
+                field: 'createTime',
+                type: 'asc'
+            },
+            id: 'entryTournamentTable'
+        });
+
+        table.on('row(entryTournamentTable)', function (obj) {
+            let id = obj.data.tournamentId;
+            let tournamentMode = obj.data.tournamentMode;
+            let groupMode = obj.data.groupMode;
+            let knockoutMode = obj.data.knockoutMode;
+            switch (tournamentMode) {
+                case 'Normal': {
+
+                    if (knockoutMode === '无淘汰赛') {
+                        switch (groupMode) {
+                            case '积分赛': {
+                                window.location.replace("/tournament/pointsResult?id=" + id);
+                                break;
+                            }
+                            case '对阵赛': {
+                                window.location.replace("/tournament/battleResult?id=" + id);
+                                break;
+                            }
+                        }
+                        return false;
+                    }
+
+                    layer.msg('选择查看的内容', {
+                        offset: '100px',
+                        shade: 0.1,
+                        shadeClose: true,
+                        time: 10000,
+                        btn: ['查看赛程', '查看赛果'],
+                        yes: function () {
+                            window.location.replace("/tournament/fixture?id=" + id);
+                        }, btn2: function () {
+                            if (groupMode === '对阵赛') {
+                                window.location.replace("/tournament/battleResult?id=" + id);
+                            } else {
+                                window.location.replace("/tournament/pointsResult?id=" + id);
+                            }
+                        }
+                    });
+                    break;
+                }
+                default:
+                    return false;
+            }
+        });
+
+    });
+
+</script>
+
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout::header(~{::title},~{})">
+    <title>管理赛事-自定义赛事-letletme</title>
+</head>
+
+<body>
+
+<div th:replace="layout::topnav"></div>
+
+<div class="layui-fluid">
+    <div class="layui-main">
+        <div class="site-content">
+
+            <h1 style="font-size: 28px">管理赛事</h1>
+
+            <div style="margin-top: 50px"></div>
+
+            <div class="layui-form-item">
+
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="padding-left: 0">赛事名称</label>
+                    <div class="layui-input-inline" style="width: 180px">
+                        <input autocomplete="on" class="layui-input" name="name" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="margin-left: -50px">创建者</label>
+                    <div class="layui-input-inline" style="width: 150px">
+                        <input autocomplete="on" class="layui-input" name="creator" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="margin-left: -30px">官方联赛id</label>
+                    <div class="layui-input-inline" style="width: 110px">
+                        <input autocomplete="on" class="layui-input" name="leagueId" type="text">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="margin-left: -30px">创建日期</label>
+                    <div class="layui-input-inline">
+                        <input autocomplete="off" class="layui-input" id="createTime" lay-verify="date"
+                               name="createTime"
+                               placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+
+                <button class="layui-btn" id="searchButton" type="button">搜索</button>
+
+            </div>
+
+            <div style="padding-top: 15px"></div>
+
+            <table class="layui-table" id="tournamentTable" lay-filter="tournamentTable"></table>
+
+        </div>
+    </div>
+</div>
+
+<div th:replace="layout::footer"></div>
+
+</body>
+
+<script th:replace="layout::baseScript"></script>
+
+<script id="barDemo" type="text/html">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">管理员</a>
+    {{#  if(d.tournamentMode == 'Zj'){ }}
+    <a class="layui-btn layui-btn-xs" lay-event="draw">分组</a>
+    {{#  } }}
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<div th:replace="layout::entryInputLayer"></div>
+
+<script th:inline="none">
+    layui.use(['form', 'table', 'layer', 'soulTable', 'laydate'], function () {
+
+        let $ = layui.jquery, table = layui.table, soulTable = layui.soulTable, layer = layui.layer,
+            laydate = layui.laydate;
+
+        soulTable.config({
+            drag: false,
+            overflow: {
+                type: 'tips',
+                header: true,
+                total: true
+            }
+        });
+
+        laydate.render({
+            elem: 'input[name=createTime]'
+        });
+
+        $("#searchButton").on('click', function () {
+            let name = $("input[name=name]").val();
+            let leagueId = $("input[name=leagueId]").val();
+            let creator = $("input[name=creator]").val();
+            let createTime = $("input[name=createTime]").val();
+
+            table.render({
+                elem: '#tournamentTable',
+                method: 'post',
+                contentType: 'application/json',
+                url: '/tournament/qryTournamentList',
+                where: {
+                    name: name,
+                    leagueId: leagueId,
+                    creator: creator,
+                    createTime: createTime
+                },
+                loading: true,
+                cellMinWidth: 60,
+                cols: [[
+                    {
+                        fixed: 'left',
+                        field: 'name',
+                        title: '名字',
+                        align: 'center',
+                        width: 300,
+                        icon: ['layui-icon layui-icon-triangle-r', 'layui-icon layui-icon-triangle-d'],
+                        children: [
+                            {
+                                title: '小组赛',
+                                data: function (d) {
+                                    return [d];
+                                },
+                                cols: [[
+                                    {field: 'groupMode', title: '模式', align: 'center'},
+                                    {field: 'groupStartGw', title: '开始时间', align: 'center'},
+                                    {field: 'groupEndGw', title: '结束时间', align: 'center'},
+                                    {field: 'teamPerGroup', title: '每组队伍', align: 'center'},
+                                    {field: 'groupNum', title: '小组数量', align: 'center'},
+                                    {field: 'groupQualifiers', title: '每组出线数量', align: 'center'},
+                                    {field: 'groupFillAverage', title: '加入平均分', align: 'center'}
+                                ]],
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            },
+                            {
+                                title: '淘汰赛',
+                                data: function (d) {
+                                    return [d];
+                                },
+                                page: false,
+                                cols: [[
+                                    {field: 'knockoutMode', title: '模式', align: 'center'},
+                                    {field: 'knockoutStartGw', title: '开始时间', align: 'center'},
+                                    {field: 'knockoutEndGw', title: '结束时间', align: 'center'},
+                                    {field: 'knockoutTeam', title: '队伍数量', align: 'center'},
+                                    {field: 'knockoutRounds', title: '总轮次', align: 'center'},
+                                    {field: 'knockoutEvents', title: '总比赛周', align: 'center'}
+                                ]],
+                                done: function () {
+                                    soulTable.render(this);
+                                }
+                            }
+                        ]
+                    },
+                    {field: 'creator', title: '创建者', align: 'center'},
+                    {field: 'season', title: '赛季', align: 'center'},
+                    {field: 'leagueType', title: '类型', align: 'center'},
+                    {field: 'leagueId', title: '官方联赛id', align: 'center'},
+                    {field: 'totalTeam', title: '队伍总数', align: 'center'},
+                    {field: 'createTime', title: '创建时间', align: 'center'},
+                    {fixed: 'right', title: '操作', toolbar: '#barDemo', align: 'center', width: 180}
+                ]],
+                initSort: {
+                    field: 'createTime',
+                    type: 'asc'
+                },
+                id: 'tournamentTable',
+                done: function () {
+                    soulTable.render(this);
+                }
+            });
+
+            table.on('edit(tournamentTable)', function (obj) {
+                let data = obj.data, field = obj.field;
+                // 校验
+                let name = data.name, creator = data.creator, adminerEntry = data.adminerEntry;
+                layer.prompt({title: '请输入管理员id', formType: 1}, function (value, checkIndex) {
+                    let check = adminerEntry - value;
+                    if (check !== 0) {
+                        layer.msg("只有管理员可以修改和删除！", {icon: 2, time: 1500});
+                        layer.close(checkIndex);
+                        return false;
+                    }
+                    layer.close(checkIndex);
+                    // 提交
+                    let tournamentCreateData = {};
+                    tournamentCreateData.tournamentName = name;
+                    tournamentCreateData.creator = creator;
+                    tournamentCreateData.adminerEntry = adminerEntry;
+                    axios.post('/tournament/updateTournamentInfo', tournamentCreateData)
+                        .then(function (response) {
+                            layer.msg(response, {icon: 6, time: 1500});
+                            obj.update(field);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            layer.msg("更新错误，请重新尝试！", {icon: 2, time: 1500});
+                        });
+                });
+            });
+
+            table.on('tool(tournamentTable)', function (obj) {
+                let data = obj.data;
+                if (obj.event === 'del') {
+                    let name = data.name;
+                    let adminerEntry = data.adminerEntry;
+                    layer.confirm('确定要删除此赛事？', function (confirmIndex) {
+                        layer.close(confirmIndex);
+                        // 校验
+                        layer.prompt({title: '请输入管理员id', formType: 1}, function (value, checkIndex) {
+                            let check = adminerEntry - value;
+                            if (check !== 0) {
+                                layer.msg("只有管理员可以修改和删除！", {icon: 2, time: 1500});
+                                layer.close(checkIndex);
+                                return false;
+                            }
+                            layer.close(checkIndex);
+                            // 提交
+                            axios.get('/tournament/deleteTournamentByName?name=' + name)
+                                .then(function (response) {
+                                    layer.msg(response, {icon: 6, time: 1500});
+                                    obj.del();
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    layer.msg("删除错误，请重新尝试！", {icon: 2, time: 1500});
+                                });
+                        });
+                    });
+                } else if (obj.event === 'edit') {
+                    // 校验
+                    let name = data.name, creator = data.creator, adminerEntry = data.adminerEntry;
+                    layer.prompt({title: '请输入管理员id', formType: 1}, function (value, checkIndex) {
+                        let check = adminerEntry - value;
+                        if (check !== 0) {
+                            layer.msg("只有管理员可以修改和删除！", {icon: 2, time: 1500});
+                            layer.close(checkIndex);
+                            return false;
+                        }
+                        layer.close(checkIndex);
+                        // 新管理员id
+                        layer.prompt({title: '请输入新的管理员id', formType: 1}, function (value, editIndex) {
+                            layer.close(editIndex);
+                            // 提交
+                            let tournamentCreateData = {};
+                            tournamentCreateData.tournamentName = name;
+                            tournamentCreateData.creator = creator;
+                            tournamentCreateData.adminerEntry = value;
+                            axios.post('/tournament/updateTournamentInfo', tournamentCreateData)
+                                .then(function (response) {
+                                    layer.msg(response, {icon: 6, time: 1500});
+                                    obj.update({
+                                        adminerEntry: value
+                                    });
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    layer.msg("更新错误，请重新尝试！", {icon: 2, time: 1500});
+                                });
+                        });
+                    });
+                }
+
+            });
+
+        });
+
+    });
+</script>
+
+</html>
