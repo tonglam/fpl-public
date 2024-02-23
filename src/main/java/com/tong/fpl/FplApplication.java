@@ -7,7 +7,6 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableCaching
-@EnableScheduling
 @EnableEncryptableProperties
 @SpringBootApplication
 public class FplApplication {
