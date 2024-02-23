@@ -142,6 +142,7 @@ The REST APIs are organized into several modules, including common queries, entr
 
 ## DB
 **MySQL** serves as the relational database for this project, and the [MyBatis_Plus](https://github.com/baomidou/mybatis-plus) framework is selected to augment the utilisation of **MyBatis** within the project.
+
 The Entity Relationship Diagram (ERD) is shown below to illustrate the relationship between tables designed in the database.
 
 ```mermaid
