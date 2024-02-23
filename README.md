@@ -131,8 +131,11 @@ It is a Telegram bot service that sends notifications to users.
 # Modules
 
 ## REST API
+There are two types of **REST APIs** in the project: one for the website and the other for the WeChat mini-program.
+The former is provided by the controllers in the `com.tong.fpl.controller` package, 
+and the latter is provided by the controllers in the `com.tong.fpl.controller.api` package.
 
-## Services
+The REST APIs are organized into several modules, including common queries, entry, live, player, tournament, stat, summary, etc.
 
 ## DB
 **MySQL** serves as the relational database for this project, and the [MyBatis_Plus](https://github.com/baomidou/mybatis-plus) framework is selected to augment the utilisation of **MyBatis** within the project.
@@ -383,6 +386,24 @@ erDiagram
 ```
 
 ## Caching
+
+```mermaid
+flowchart LR
+    A([REST API CALL])
+    S[Service]
+    C(Spring Boot Cache)
+    R[(Redis)]
+    DB[(MySQL)]
+    A -- request --> S
+    S -- level one --> C
+    C -- level one hit --> S
+    S -- level two --> R
+    R -- level two hit --> S
+    S -- both miss --> DB
+    DB -- direct from DB --> S
+    S -- response --> A
+```
+
 This project serves as a provider for a lot of data querying through **REST APIs**, so the caching mechanism is crucial for performance.
 
 For most of the data, I use a two-level caching mechanism, 
@@ -392,6 +413,8 @@ if all the caches are missed, the system queries the database and then stores th
 
 The mechanism protects the database from being overwhelmed by queries and provides a better user experience. 
 It is a good practice in the **Java ecosystem** to use a **two-level caching** for frequently queried data.
+
+But remember, some data is **not suitable for caching**, such as live data, which needs to be calculated in real-time. The caching mechanism should be used with caution in such cases.
 
 ## AOP and Logging
 The usage of AOP in the project is to log the service behaviors without modifying the business logic.
@@ -407,3 +430,64 @@ Logs are separated into three files:
 - *fpl.log*: Time-based, rolled daily, used for monitoring the business logic of the project.
 
 # Vital Services Details
+This section covers details of some vital services in the project.
+
+## Live Calculation Service
+The live calculation is based on two types of data: entries (FPL teams) that need to be calculated and live results of FPL elements (PL players).
+
+### Workflow
+Using a tournament as an example
+(see `com.tong.fpl.service.ILiveService.calcLivePointsByTournament(int event, int tournamentId)`), 
+the live calculation follows the steps below:
+1. **Fetch the entry data** from the database or from the _FPL Server_, including the entry's information, such as entry name, player name, event pick, event played chip, and event played captain.
+2. **Fetch player information** from the database, such as player's name, team, position, and event fixture.
+3. **Fetch the player live data** from the _FPL Server_.
+4. **Calculate the predicted bonus points** for each playing match.
+5. **Calculate the live points** for each entry, then update the live ranks in this tournament.
+6. **Put all the data together** and return it to the frontend for display.
+
+### Difficulties
+1. The data fetching process is time-consuming, particularly when directly retrieving entries' information from the _FPL Server_. 
+Given that one _FPL league_ may contain tens to hundreds of entries, fetching all this information can be time-intensive, leading to delays in subsequent steps.
+2. In a single live calculation, where ten to hundreds of entries are involved, the process must handle hundreds to thousands of player data, which also contributes to time consumption.
+3. Due to the number of entries, many entries share the same player. 
+Fetching player data repeatedly for these entries becomes inefficient and wastes resources.
+4. Balancing static data and dynamic data presents a challenge. 
+While static data, which remains unchanged during live calculations, can be cached to improve service performance, 
+dynamic data cannot be cached in the same manner. 
+Finding an optimal balance is crucial for efficient processing.
+
+### Optimisation
+1. The initial optimization strategy for this service was somewhat a "cheat." 
+Users were asked to set up a tournament before the FPL season began. 
+By following this approach, the system could fetch all entries' information from the FPL Server and store it in the database after each event active. 
+Compared to fetching from the FPL Server every time, this allowed us to obtain the necessary entry data from the database and even cache it. 
+As a result, this approach significantly reduced the time consumption of the entry data fetching process.
+2. For a single calculation, we can characterize this task as a CPU-bound task because it involves a substantial amount of computation.
+To enhance the performance of this task, the natural solution is to employ multi-threading and parallel computing. 
+I utilised the Java `fork/join` framework to implement this solution, and it resulted in a significant reduction in time consumption. 
+The `fork/join` framework offers tools to facilitate faster parallel processing by making an effort to utilise all available processor cores. 
+It achieves this through a divide-and-conquer approach.
+3. The next optimization strategy was to divide the player data into two parts: static data and dynamic data. 
+As mentioned in the [Fpl-data](https://github.com/tonglam/fpl-data-public) project, 
+there are tasks that run daily to fetch player data from the FPL Server and store it in the database. 
+So, we can cache the static data from the DB to improve performance, and all we need is to fetch live player data from the FPL Server in real-time. 
+This reduces the complexity of fetching data from making **one HTTP call per player for static data + one HTTP call** for all the living data to just needing to make **one call per live calculation**. 
+Certainly, with the reduced number of HTTP calls, the time consumption of the live calculation process was significantly decreased.
+
+### Optimised Workflow
+After these optimisations, the live calculation now follows the steps below:
+
+1. **Prepare Static Data:** Fetch the entry data and players' static data from the database.
+2. **Parallel Computing:** Fetch the players' live data from the FPL Server and calculate the live points for each entry in parallel.
+3. **Calculate** live bonus points and update the live ranks in the tournament.
+4. **Return** the data to the frontend for display.
+
+
+## Tournament Management Service
+
+## Report Generation Service
+
+## Data Collector
+
+
