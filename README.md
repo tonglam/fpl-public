@@ -97,6 +97,7 @@ Afterward, I dedicated most of my time to frontend work on the mini-program clie
 I had plans to rebuild the website using a modern frontend framework like React or Vue but didn't find enough time to do so. 
 Recently, in February 2024, I began using Next.js to rebuild the website in [letletme-web](https://github.com/tonglam/letletme-web), and the project is still in progress. 
 The new version of the website will be based on a modern framework, mobile-friendly, and free from the WeChat ecosystem, which has become increasingly sickening for me day by day.
+When the new website is ready, I will deprecate the old website in this project and focus on maintaining the new one.
 
 ## Service Side
 The backend services are divided into four projects: FPL, Fpl-data, Fpl-audit, and Telegram_bot.
@@ -126,3 +127,283 @@ Basically, it is a corrective mechanism to ensure the data is always correct and
 ### [Telegram_bot](https://github.com/tonglam/telegramBot-public)
 This is the simplest service in the LetLetMe universe. 
 It is a Telegram bot service that sends notifications to users.
+
+# Modules
+
+## REST API
+
+## Services
+
+## DB
+**MySQL** serves as the relational database for this project, and the [MyBatis_Plus](https://github.com/baomidou/mybatis-plus) framework is selected to augment the utilisation of **MyBatis** within the project.
+The Entity Relationship Diagram (ERD) is shown below to illustrate the relationship between tables designed in the database.
+
+```mermaid
+---
+title: Event
+---
+erDiagram
+    EVENT {
+            int id PK
+            string name
+            string deadline_time
+            boolean finished
+            }
+    EVENT_FIXTURE {
+            int id PK
+            int event FK
+            string kickoff_time
+            boolean started
+            boolean finished
+            }
+    EVENT ||--|{ EVENT_FIXTURE : contains
+    EVENT_LIVE {
+        int id PK
+        int element FK
+        int element_type FK
+        int event FK
+        int fixture FK
+        int total_points
+        }
+    EVENT ||--|{ EVENT_LIVE : has
+    EVENT_LIVE_EXPLAIN {
+        int id PK
+        int element FK
+        int element_type FK
+        int event FK
+        int total_points
+        int bouns
+        int bps
+        }
+    EVENT_LIVE ||--|{ EVENT_LIVE_EXPLAIN : has
+    EVENT_LIVE_SUMMARY {
+                int element PK
+                int element_type FK
+                int minutes
+                int goalscored
+                int assists
+                int total_points
+                }
+
+```
+
+```mermaid
+---
+title: Player
+---
+erDiagram
+    PLAYER {
+            int element PK
+            int code
+            int element_type
+            string web_name
+            }
+    PLAYER_HISTORY {
+            int id PK
+            int element FK
+            int code FK
+            string season
+            }
+    PLAYER ||--|{ PLAYER_HISTORY : has
+    PLAYER_SUMMARY {
+        int id PK
+        int element FK
+        string web_name FK
+        int code FK
+        int total_points
+        }
+    PLAYER ||--|{ PLAYER_SUMMARY : has
+    PLAYER_STAT {
+                int id PK
+                int event FK
+                int element FK
+                int code FK
+                int event_points
+                }
+    PLAYER ||--|{ PLAYER_STAT : has
+    PLAYER_VAUE {
+                int id PK
+                int element FK
+                int element_type FK
+                int event FK
+                int value
+                int last_value
+                }
+    PLAYER ||--|{ PLAYER_VAUE : has
+    PLAYER_VAUE_INFO {
+                int id PK
+                int hour_index
+                string date
+                int event FK
+                int element FK
+                int element_type FK
+                int value
+                }
+    PLAYER_VAUE ||--|{ PLAYER_VAUE_INFO : has
+```
+
+```mermaid
+---
+title: Entry
+---
+erDiagram
+    ENTRY_INFO {
+            int entry PK
+            string entry_name
+            string player_name
+            int overall_points
+            int overall_rank
+            }
+    ENTRY_HISTORY_INFO {
+            int id PK
+            int entry FK
+            string season
+            int overall_points
+            int overall_rank
+            }
+    ENTRY_INFO ||--|{ ENTRY_HISTORY_INFO : contains
+    ENTRY_EVENT_RESULT {
+        int id PK
+        int event FK
+        int entry FK
+        int event_points
+        int event_net_points
+        }
+    ENTRY_INFO ||--|{ ENTRY_EVENT_RESULT : places
+    ENTRY_EVENT_PICK {
+        int id PK
+        int event FK
+        int entry FK
+        string picks
+        string chips
+        }
+    ENTRY_EVENT_RESULT ||--|| ENTRY_EVENT_PICK : places
+    ENTRY_EVENT_TRANSFER {
+        int id PK
+        int event FK
+        int entry FK
+        int element_in FK
+        int element_in_cost
+        int element_out FK
+        int element_out_cost
+        }
+    ENTRY_EVENT_RESULT o|--|| ENTRY_EVENT_TRANSFER : places
+    ENTRY_LEAGUE_INFO {
+            int id PK
+            int entry FK
+            int league_id
+            string type
+            string league_name
+            int entry_rank
+            }            
+    ENTRY_INFO ||--|{ ENTRY_LEAGUE_INFO : contains
+```
+
+```mermaid
+---
+title: Tournament
+---
+erDiagram
+    TOURNAMENT_INFO {
+        int id PK
+        string name
+        string group_mode
+        string knockout_mode
+    }
+    TOURNAMENT_ENTRY {
+        int id PK
+        int tournament_id FK
+        int entry
+    }
+    TOURNAMENT_INFO ||--|{ TOURNAMENT_ENTRY : contains
+    
+    TOURNAMENT_GROUP{
+        int id PK
+        int tournament_id FK
+        int group_id
+        string group_name
+        int group_points
+        int group_rank
+        boolean qualified
+    }
+    TOURNAMENT_INFO ||--|{ TOURNAMENT_GROUP : places
+
+    TOURNAMENT_KNOCKOUT{
+        int id PK
+        int tournament_id FK
+        int round
+        int match_id
+        int home_entry FK
+        int home_entry_net_points
+        int away_entry FK
+        int away_entry_net_points
+        int round_winner
+    }
+    TOURNAMENT_INFO ||--|{ TOURNAMENT_KNOCKOUT : places
+    
+    TOURNAMENT_POINTS_GROUP_RESULT{
+        int id PK
+        int tournament_id FK
+        int group_id FK
+        int event FK
+        int entry FK
+        int entry_net_points
+        int event_entry_rank
+    }
+    TOURNAMENT_GROUP ||--|{ TOURNAMENT_POINTS_GROUP_RESULT : contains
+    
+    TOURNAMENT_BATTLE_GROUP_RESULT{
+        int id PK
+        int tournament_id FK
+        int group_id FK
+        int event FK
+        int home_entry FK
+        int home_entry_net_points
+        int away_entry FK
+        int away_entry_net_points
+        int match_winner
+
+    }
+    TOURNAMENT_GROUP ||--|{ TOURNAMENT_BATTLE_GROUP_RESULT : contains
+    
+    TOURNAMENT_KNOCKOUT_RESULT{
+        int id PK
+        int tournament_id FK
+        int event FK
+        int match_id FK
+        int play_against_id
+        int home_entry FK
+        int home_entry_net_points
+        int away_entry FK
+        int away_entry_net_points
+        int match_winner
+    }
+    TOURNAMENT_KNOCKOUT ||--|{ TOURNAMENT_KNOCKOUT_RESULT : contains
+
+```
+
+## Caching
+This project serves as a provider for a lot of data querying through **REST APIs**, so the caching mechanism is crucial for performance.
+
+For most of the data, I use a two-level caching mechanism, 
+with the first level being the in-memory cache provided by **Spring Cache**, and the second level being **Redis**. 
+When a query is made, the system first checks the in-memory cache, and if the data is not found, it checks the Redis cache; 
+if all the caches are missed, the system queries the database and then stores the data in both the in-memory cache and Redis.
+
+The mechanism protects the database from being overwhelmed by queries and provides a better user experience. 
+It is a good practice in the **Java ecosystem** to use a **two-level caching** for frequently queried data.
+
+## AOP and Logging
+The usage of AOP in the project is to log the service behaviors without modifying the business logic.
+
+To facilitate better maintenance, the logging in the project is designed to be flexible and user-friendly.
+The project utilizes **Logback** as the logging framework and **Slf4j** as the logging facade.
+The logback configuration file, *logback-spring.xml*, is located in the resources folder and is tailored for flexibility and ease of use.
+
+Logs are separated into three files:
+- *controller.log*: Time-based, rolled daily, used for monitoring the requests and responses of the REST APIs providing for the frontend.
+- *api_controller.log*: Time-based, rolled daily, used for monitoring the requests and responses of the REST APIs providing for the WeChat mini-program.
+- *interface.log*: Time-based, rolled daily, used for monitoring the requests and responses of the interfaces, specifically HTTP calls between this project and others.
+- *fpl.log*: Time-based, rolled daily, used for monitoring the business logic of the project.
+
+# Vital Services Details
