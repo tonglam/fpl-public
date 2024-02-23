@@ -2,9 +2,12 @@
 
 FPL is the primary repository of the LetLetMe projects, a personal project designed for managing and analyzing Fantasy Premier League (FPL) data, providing tools and services to FPL players.
 
-This project started as a combined frontend and backend initiative but evolved into multiple projects, each focusing on a specific aspect of the system. Initially, the frontend and backend were separated, and later, the backend was further divided into multiple projects, catering to services for clients, data processing, and notifications. The system architecture is depicted in the following diagram.
+This project started as a combined frontend and backend initiative but evolved into multiple projects, each focusing on a specific aspect of the system. 
+Initially, the frontend and backend were not separated, and later, the backend was further divided into multiple projects, catering to services for clients, data processing, and notifications. 
+The system architecture is shown in the following diagram.
 
-FPL utilises Spring Boot as the backend framework, with all services implemented as REST APIs. It operates efficiently within the Java ecosystem, offering ease of maintenance and extensibility.
+FPL utilises Spring Boot as the backend framework, with all services provide to external systems implemented as REST APIs. 
+It operates efficiently within the Java ecosystem, offering ease of maintenance and scalability.
 
 # Tech Stack
 
