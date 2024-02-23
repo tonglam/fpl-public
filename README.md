@@ -125,7 +125,7 @@ As one of the main purposes of _LetLetMe_ is providing FPL data to users,
 it is vital to ensure the data shown on the _LetLetMe_ frontend is exactly the same as users can view from the _FPL official website_.
 [Fpl-audit](https://github.com/tonglam/fpl-audit) checks the data from FPL official APIs, as well as those stored in the database. 
 When it finds any data mismatches, it updates the data in the database to correct it. 
-Basically, it is a corrective mechanism to ensure the data is always correct and up-to-date.
+Basically, it is a corrective mechanism to maintain data consistency..
 
 ### [Telegram_bot](https://github.com/tonglam/telegramBot-public)
 This is the simplest service in the LetLetMe universe. 
