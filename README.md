@@ -205,14 +205,6 @@ erDiagram
             string season
             }
     PLAYER ||--|{ PLAYER_HISTORY : has
-    PLAYER_SUMMARY {
-        int id PK
-        int element FK
-        string web_name FK
-        int code FK
-        int total_points
-        }
-    PLAYER ||--|{ PLAYER_SUMMARY : has
     PLAYER_STAT {
                 int id PK
                 int event FK
@@ -221,7 +213,7 @@ erDiagram
                 int event_points
                 }
     PLAYER ||--|{ PLAYER_STAT : has
-    PLAYER_VAUE {
+    PLAYER_VALUE {
                 int id PK
                 int element FK
                 int element_type FK
@@ -229,8 +221,8 @@ erDiagram
                 int value
                 int last_value
                 }
-    PLAYER ||--|{ PLAYER_VAUE : has
-    PLAYER_VAUE_INFO {
+    PLAYER ||--|{ PLAYER_VALUE : has
+    PLAYER_VALUE_INFO {
                 int id PK
                 int hour_index
                 string date
@@ -239,7 +231,15 @@ erDiagram
                 int element_type FK
                 int value
                 }
-    PLAYER_VAUE ||--|{ PLAYER_VAUE_INFO : has
+    PLAYER_VALUE ||--|{ PLAYER_VALUE_INFO : has
+    PLAYER_SUMMARY {
+        int id PK
+        int element FK
+        string web_name FK
+        int code FK
+        int total_points
+    }
+    PLAYER ||--|{ PLAYER_SUMMARY : has
 ```
 
 ```mermaid
