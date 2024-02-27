@@ -125,7 +125,7 @@ As one of the main purposes of _LetLetMe_ is providing FPL data to users,
 it is vital to ensure the data shown on the _LetLetMe_ frontend is exactly the same as users can view from the _FPL official website_.
 [Fpl-audit](https://github.com/tonglam/fpl-audit) checks the data from FPL official APIs, as well as those stored in the database. 
 When it finds any data mismatches, it updates the data in the database to correct it. 
-Basically, it is a corrective mechanism to maintain data consistency..
+Basically, it is a corrective mechanism to maintain data consistency.
 
 ### [Telegram_bot](https://github.com/tonglam/telegramBot-public)
 This is the simplest service in the LetLetMe universe. 
@@ -474,7 +474,7 @@ the live calculation follows the steps below:
 5. **Calculate the live points** for each entry, then update the live ranks in this tournament.
 6. **Put all the data together** and return it to the frontend for display.
 
-### Difficulties
+### Challenges
 1. The data fetching process is time-consuming, particularly when directly retrieving entries' information from the _FPL Server_. 
 Given that one _FPL league_ may contain tens to hundreds of entries, fetching all this information can be time-intensive, leading to delays in subsequent steps.
 2. In a single live calculation, where ten to hundreds of entries are involved, the process must handle hundreds to thousands of player data, which also contributes to time consumption.
@@ -514,8 +514,68 @@ After these optimisations, the live calculation now follows the steps below:
 
 ## Tournament Management Service
 
-## Report Generation Service
+### Workflow
+
+Creating a tournament involves several steps, including:
+1. Create tournament information, which includes basic details such as name, group mode, and knockout mode.
+2. Fetch all the entries' information from the FPL Server and store it in the tournament_entry table.
+3. According to the submitted form, choose to create a group tournament or knockout tournament or both. 
+4. For a group tournament, create groups, draw group positions, and create tournament_points_group_result or tournament_battle_group_result to store the group results for every gameweek.
+5. For a knockout tournament, create knockout rounds, draw the knockout matches, and create tournament_knockout_result to store the knockout results for every gameweek.
+6. Update all the results for every gameweek in the tournament.
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Create tournament_info]
+    B -- fetch from server --> C[Create tournament_entry]
+    C --> D{Is Group Mode?}
+    C --> E{Is Knockout Mode?}
+    D -- Yes --> G1[Draw Group]
+    G1 --> G2[Create Group]
+    G2 --> G3{Is Points Group}
+    G3 -- Yes --> G4[Create tournament_points_group_result]
+    G3 -- No --> G5[Create tournament_battle_group_result] 
+    E -- Yes --> K[Draw Knockout]
+    K --> K1[Create tournament_knockout_result]
+    G4 --> U[Update Results]
+    G5 --> U
+    K1 --> U
+    U --> F[End]
+```
+### Challenge and Solution
+
+```mermaid
+graph LR
+    subgraph A[synchronization]
+    Submit_Form --> Create_Tournament_Info
+    end
+    subgraph B[event]
+    Tournament_Event
+    end
+    subgraph C[asynchronization]
+    direction RL
+    Create_Tournament_Info -- publish --> Tournament_Event
+    Create_Background -.- subscribe -.-> Tournament_Event
+    Create_Tournament_Bg --> Tournament_Group
+    Create_Background --> Tournament_Knockout
+    Create_Background --> Update_Result
+    end
+```
+
+Tasks in the background, such as fetching entries' information from the FPL Server, drawing groups or knockout matches, and updating tournament results, are all time-consuming. 
+At this point, the user who created this tournament is waiting on the web page for the create method to return a message indicating whether the creation action was successful. 
+In any aspect, there is no need for the customer to wait for the entire create tournament workflow to finish, which would keep them waiting for a long time. 
+Therefore, asynchronization is necessary.
+
+I implemented the event-driven mechanism to solve this problem. 
+When the backend receives a creation request from the frontend, it checks if this request is valid and stores the basic tournament information in the tournament_info table. 
+Afterward, it publishes a message to the event topic, and the EventListener subscribes to this message and starts to create the tournament in the background. 
+In the Spring Boot application, EventPublisher is easy to use, and the EventListener is also straightforward to use for subscribing to the message. 
+When the message is received, all the time-consuming tasks will be done quietly in the background. 
+By the time the customer redirects to the tournament page, the tournament is already created.
+
+This mechanism can improve the user experience and reduce the waiting time for the customer.
 
 ## Data Collector
 
-
+## Strategy Pattern for Customer Tournament
