@@ -555,7 +555,7 @@ graph LR
     subgraph C[asynchronization]
     direction RL
     Create_Tournament_Info -- publish --> Tournament_Event
-    Create_Background -.- subscribe -.-> Tournament_Event
+    Create_Background -. subscribe .-> Tournament_Event
     Create_Tournament_Bg --> Tournament_Group
     Create_Background --> Tournament_Knockout
     Create_Background --> Update_Result
@@ -577,5 +577,80 @@ By the time the customer redirects to the tournament page, the tournament is alr
 This mechanism can improve the user experience and reduce the waiting time for the customer.
 
 ## Data Collector
+
+As we deal with a substantial amount of data transformation in this project, Java Stream proves to be a powerful tool. 
+Using a custom collector in the Stream as a terminal operation allows us to transform the data into any format we desire, providing a high level of utility and flexibility. 
+Let's consider one of the collectors in the project as an example: `com.tong.fpl.config.collector.ElementLiveCollector`.
+
+As discussed in the previous section, live calculation plays a vital role in the project. 
+In live calculation, one crucial piece of information needed is the live element data, which informs us about how players (elements) are performing live. 
+Following the FPL data, live points for a player are calculated based on multiple rules. 
+The key attributes to calculate a player's live points in a user's (entry) team include the player's position, 
+whether this player is in the user's starting 11 (start), and if this player is actually playing in the match (active).
+
+For this purpose, we should transform the raw JSON data from the FPL API into a map with a data structure like this: 
+`Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>>`, where the mapping is `position -> isActive -> isStart -> data list`.
+
+Regarding the input, we need to combine all the element_live data of the event into one list before proceeding with further transformations.
+
+```java
+@Override
+    public BiConsumer<Map<Integer, List<ElementEventResultData>>, ElementEventResultData> accumulator() {
+        return (Map<Integer, List<ElementEventResultData>> map, ElementEventResultData o) -> {
+            int elementType = o.getElementType();
+            if (map.containsKey(elementType)) {
+                List<ElementEventResultData> dataList = map.get(elementType);
+                dataList.add(o);
+                map.put(elementType, dataList);
+            } else {
+                map.put(elementType, Lists.newArrayList(o));
+            }
+        };
+    }
+```
+
+
+For the output, the process involves creating a table containing combinations of (active, start), (active, not_start), (not_active, start), and (not_active, not_start). 
+Subsequently, we can perform the necessary transformations to obtain the output map we require.
+
+```java
+ @Override
+    public Function<Map<Integer, List<ElementEventResultData>>, Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>>> finisher() {
+        return map -> {
+            Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>> collectMap = Maps.newHashMap();
+            map.keySet().forEach(elementType -> {
+                //init table, all cell not null
+                Table<Boolean, Boolean, List<ElementEventResultData>> table = HashBasedTable.create(2, 2);
+                table.put(true, true, Lists.newArrayList());
+                table.put(true, false, Lists.newArrayList());
+                table.put(false, true, Lists.newArrayList());
+                table.put(false, false, Lists.newArrayList());
+                // put the real value
+                map.get(elementType).forEach(o -> {
+                    boolean active = !o.isGwFinished() || (o.isGwStarted() && o.isPlayed());
+                    boolean start = o.getPosition() < 12;
+                    List<ElementEventResultData> list = table.get(active, start);
+                    if (CollectionUtils.isEmpty(list)) {
+                        list = Lists.newArrayList();
+                    }
+                    list.add(o);
+                    table.put(active, start, list);
+                });
+                collectMap.put(elementType, table);
+            });
+            return collectMap;
+        };
+    }
+```
+
+And the usage becomes very clear and simple:
+
+```java
+ Map<Integer, Table<Boolean, Boolean, List<ElementEventResultData>>> map = elementEventResultDataList
+                .stream()
+                .collect(new ElementLiveCollector());
+```
+
+Using the collector is an elegant and flexible way to transform the data, and it is very easy to maintain and extend.
 
 ## Strategy Pattern for Customer Tournament
