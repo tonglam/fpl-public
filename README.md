@@ -409,17 +409,17 @@ flowchart LR
 
     S -- level one --> C
 
-    C -- level one hit --> S
+    C -. level one hit .-> S
 
     S -- level two --> R
 
-    R -- level two hit --> S
+    R -. level two hit .-> S
 
     S -- both miss --> DB
 
-    DB -- direct from DB --> S
+    DB -. direct from DB .-> S
 
-    S -- response --> A
+    S -. response .-> A
 
 ```
 
