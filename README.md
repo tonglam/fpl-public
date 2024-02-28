@@ -531,7 +531,7 @@ flowchart TD
     C --> E{Is Knockout Mode?}
     D -- Yes --> G1[Draw Group]
     G1 --> G2[Create Group]
-    G2 --> G3{Is Points Group}
+    G2 --> G3{Is Points Group?}
     G3 -- Yes --> G4[Create tournament_points_group_result]
     G3 -- No --> G5[Create tournament_battle_group_result] 
     E -- Yes --> K[Draw Knockout]
