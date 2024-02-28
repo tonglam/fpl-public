@@ -654,3 +654,50 @@ And the usage becomes very clear and simple:
 Using the collector is an elegant and flexible way to transform the data, and it is very easy to maintain and extend.
 
 ## Strategy Pattern for Customer Tournament
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant Ct as Context
+    participant S1 as Rule_Strategy_A
+    participant S2 as Rule_Strategy_B
+    participant S3 as Rule_Strategy_C
+    C ->> Ct:setStrategy(A)
+    C ->> Ct:applyRule()
+    Ct ->> S1: applyRule()
+    S1 ->> S1: operation
+    S1 -->> Ct: return
+    Ct -->> C: return
+    C ->> Ct:setStrategy(B)
+    C ->> Ct:applyRule()
+    Ct ->> S2: applyRule()
+    S2 ->> S2: operation
+    S2 -->> Ct: return
+    Ct -->> C: return
+    Ct -->> C: return
+    C ->> Ct:setStrategy(C)
+    C ->> Ct:applyRule()
+    Ct ->> S3: applyRule()
+    S3 ->> S3: operation
+    S3 -->> Ct: return
+    Ct -->> C: return
+    Ct -->> C: return
+```
+
+One of the main features of _LetLetme_ is to provide a custom tournament service with varying rules for different tournament types. 
+Users may have diverse requirements, including:
+
+- Determining how to calculate group points and qualifying rules from the group.
+- Deciding how to calculate knockout results and which teams qualify for the next round.
+- Defining the points calculation method for each round, such as using event points or net points.
+
+To address these requirements, employing the strategy design pattern is a sound approach. 
+The Strategy Design Pattern separates the behavior of an object from the object itself, 
+encapsulating each behavior into different strategies with their implementations.
+
+When a player selects a different group or knockout mode, the program invokes the corresponding strategy to calculate the tournament result. 
+This design enhances flexibility and ease of maintenance. 
+Adding a new tournament type simply involves introducing a new strategy, without impacting existing code, 
+facilitating seamless extension and maintenance.
+
+
