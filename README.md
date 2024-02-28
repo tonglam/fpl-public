@@ -554,6 +554,7 @@ graph LR
     end
     subgraph C[asynchronization]
     direction RL
+    Create_Tournament_Info -. return .-> Submit_Form
     Create_Tournament_Info -- publish --> Tournament_Event
     Create_Background -. subscribe .-> Tournament_Event
     Create_Background --> Tournament_Group
