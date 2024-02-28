@@ -556,7 +556,7 @@ graph LR
     direction RL
     Create_Tournament_Info -- publish --> Tournament_Event
     Create_Background -. subscribe .-> Tournament_Event
-    Create_Tournament_Bg --> Tournament_Group
+    Create_Background --> Tournament_Group
     Create_Background --> Tournament_Knockout
     Create_Background --> Update_Result
     end
