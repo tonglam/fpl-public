@@ -391,58 +391,57 @@ erDiagram
 
 ## Caching
 
-[//]: # ()
-[//]: # (```mermaid)
+```mermaid
 
-[//]: # (flowchart LR)
+flowchart LR
 
-[//]: # (    A&#40;[REST API CALL]&#41;)
+    A([REST API CALL])
 
-[//]: # (    S[Service])
+    S[Service]
 
-[//]: # (    C&#40;Spring Boot Cache&#41;)
+    C(Spring Boot Cache)
 
-[//]: # (    R[&#40;Redis&#41;])
+    R[(Redis)]
 
-[//]: # (    DB[&#40;MySQL&#41;])
+    DB[(MySQL)]
 
-[//]: # (    A -- request --> S)
+    A -- request --> S
 
-[//]: # (    S -- level one --> C)
+    S -- level one --> C
 
-[//]: # (    C -- level one hit --> S)
+    C -- level one hit --> S
 
-[//]: # (    S -- level two --> R)
+    S -- level two --> R
 
-[//]: # (    R -- level two hit --> S)
+    R -- level two hit --> S
 
-[//]: # (    S -- both miss --> DB)
+    S -- both miss --> DB
 
-[//]: # (    DB -- direct from DB --> S)
+    DB -- direct from DB --> S
 
-[//]: # (    S -- response --> A)
+    S -- response --> A
 
-[//]: # (```)
+```
 
-[//]: # ()
-[//]: # (This project serves as a provider for a lot of data querying through **REST APIs**, so the caching mechanism is crucial for performance.)
 
-[//]: # ()
-[//]: # (For most of the data, I use a two-level caching mechanism, )
+This project serves as a provider for a lot of data querying through **REST APIs**, so the caching mechanism is crucial for performance.
 
-[//]: # (with the first level being the in-memory cache provided by **Spring Cache**, and the second level being **Redis**. )
 
-[//]: # (When a query is made, the system first checks the in-memory cache, and if the data is not found, it checks the Redis cache; )
+For most of the data, I use a two-level caching mechanism, 
 
-[//]: # (if all the caches are missed, the system queries the database and then stores the data in both the in-memory cache and Redis.)
+with the first level being the in-memory cache provided by **Spring Cache**, and the second level being **Redis**. 
 
-[//]: # ()
-[//]: # (The mechanism protects the database from being overwhelmed by queries and provides a better user experience. )
+When a query is made, the system first checks the in-memory cache, and if the data is not found, it checks the Redis cache; 
 
-[//]: # (It is a good practice in the **Java ecosystem** to use a **two-level caching** for frequently queried data.)
+if all the caches are missed, the system queries the database and then stores the data in both the in-memory cache and Redis.
 
-[//]: # ()
-[//]: # (But remember, some data is **not suitable for caching**, such as live data, which needs to be calculated in real-time. The caching mechanism should be used with caution in such cases.)
+
+The mechanism protects the database from being overwhelmed by queries and provides a better user experience. 
+
+It is a good practice in the **Java ecosystem** to use a **two-level caching** for frequently queried data.
+
+
+But remember, some data is **not suitable for caching**, such as live data, which needs to be calculated in real-time. The caching mechanism should be used with caution in such cases.
 
 ## AOP and Logging
 The usage of AOP in the project is to log the service behaviors without modifying the business logic.
