@@ -700,4 +700,13 @@ This design enhances flexibility and ease of maintenance.
 Adding a new tournament type simply involves introducing a new strategy, without impacting existing code, 
 facilitating seamless extension and maintenance.
 
+# Deployment
 
+```mermaid
+flowchart LR
+    A(Code Updated) -->|Webhooks| B(Jenkins)
+    B -->|push| C[Backend Server]
+    C --> |reverse proxy| D(Nginx)
+    D --> |provide service| E1[Website]
+    D --> |provide service| E2[Mini Program]
+```
